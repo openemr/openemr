@@ -9854,7 +9854,7 @@ a:hover {
 
 /* $top_bg_line */
 .bgcolor2 {
-  background-color: #fefdcf; }
+  background-color: #FFFFFF; }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom {
@@ -10546,28 +10546,22 @@ div.notab-right {
   padding: 0;
   list-style: none;
   float: left;
-  border: 1px solid #FEFDCF;
-  background: #999;
-  /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
-  /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf));
-  /* for webkit browsers */
-  background: -moz-linear-gradient(top, #fe5301, #fefdcf);
-  /* for firefox 3.6+ */ }
+  background-color: #CFE7FB;
+  border: 1px solid #A9C4DA; }
 
 #sddm li a {
   display: block;
   margin: 0 1px 0 0;
   padding: 4px 10px;
-  color: #004080;
+  color: #2A6497;
   text-align: left;
   text-decoration: none;
-  font-size: 0.8em;
+  font-size: 1em;
   font-weight: bold; }
 
-#sddm li a:hover {
-  background: #ffac84; }
+#sddm li:hover {
+  background-color: #A9C4DA;
+  cursor: pointer; }
 
 #sddm div {
   position: absolute;
@@ -10576,9 +10570,7 @@ div.notab-right {
   margin: 0;
   padding: 0;
   background: #C9F1B5;
-  border-left: 1px solid #000000;
-  border-right: 1px solid #000000;
-  border-bottom: 1px solid #000000; }
+  border: 1px solid #A9C4DA; }
 
 #sddm div a {
   position: relative;
@@ -10589,13 +10581,13 @@ div.notab-right {
   white-space: normal;
   text-align: left;
   text-decoration: none;
-  background: #fefdcf;
-  color: #2875DE;
+  background: #fff;
+  color: #000;
   font-size: 0.8em;
   font-weight: normal; }
 
 #sddm div a:hover {
-  background: #ffac84;
+  background: #CFE7FB;
   color: #000000; }
 
 .text-area {
@@ -11392,9 +11384,5 @@ tr.search.no-bg input {
 
 div.section, .bottom-panel, .rule_container, .rule_row {
   margin: 0 !important; }
-
-Vj
-td.top-secondary-nav > table > tbody > tr > td {
-  margin-bottom: 20px; }
 
 /*# sourceMappingURL=style_bootstrap.css.map */

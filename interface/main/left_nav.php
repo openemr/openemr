@@ -779,7 +779,7 @@ function clearactive() {
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, pubpid, frname, str_dob) {        
-  var str = '<a href=\'javascript:;\' onclick="parent.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
+  var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
      
@@ -888,14 +888,14 @@ function isEncounterLocked( encounterId ) {
   syncRadios();
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   var encounter = $(parent.Title.document.getElementById('current_encounter'));
-  var estr = '<a href=\'javascript:;\' onclick="parent.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
+  var estr = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
   encounter.html( estr );
   encounter_block.show();
  }
 
  function loadCurrentEncounterFromTitle() {
       top.restoreSession();
-      top.frames[ parent.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top.php';
+      top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top' + '.php';
  }
 
  // You must call this if you delete the active patient (or if for any other
