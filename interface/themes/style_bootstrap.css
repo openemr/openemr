@@ -11385,4 +11385,11 @@ tr.search.no-bg input {
 div.section, .bottom-panel, .rule_container, .rule_row {
   margin: 0 !important; }
 
+li.encounter-form-category-li > a::after {
+  font-family: 'fontawesome';
+  font-size: 8pt;
+  margin-left: 5px;
+  color: #000;
+  content: "\f0d7"; }
+
 /*# sourceMappingURL=style_bootstrap.css.map */

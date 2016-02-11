@@ -2217,3 +2217,11 @@ tr.search.no-bg input {
 div.section {
   margin: 0 !important;
 }
+
+li.encounter-form-category-li > a::after {
+  font-family: 'fontawesome';
+  font-size: 8pt;
+  margin-left: 5px;
+  color: #000;
+  content: "\f0d7";
+}

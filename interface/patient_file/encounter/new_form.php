@@ -66,18 +66,21 @@ function mopen(id)
 	//if(ddmenuitem) ddmenuitem.style.display = 'none';
 
 	// get new layer and show it
-        oldddmenuitem = ddmenuitem;
+    oldddmenuitem = ddmenuitem;
 	ddmenuitem = document.getElementById(id);
-        if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
-            if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
-            if(oldddmenuitem) oldddmenuitem.style.display = 'none';
-            ddmenuitem.style.visibility = 'visible';
-            ddmenuitem.style.display = 'block';
-        }else{
-            ddmenuitem.style.visibility = 'hidden';
-            ddmenuitem.style.display = 'none';
-        }
+
+    if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
+        if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
+        if(oldddmenuitem) oldddmenuitem.style.display = 'none';
+        ddmenuitem.style.visibility = 'visible';
+        ddmenuitem.style.display = 'block';
+    }else{
+        ddmenuitem.style.visibility = 'hidden';
+        ddmenuitem.style.display = 'none';
+    }
+
 }
+
 // close showed layer
 function mclose()
 {
