@@ -84,7 +84,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
 <tr><td style="vertical-align:text-bottom;">
-		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
+		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0'
+           onClick="return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
     <td style="vertical-align:text-bottom;">
@@ -94,9 +95,15 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </tr>
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
 
-	<tr><td valign="baseline"><B>
-		<a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
-	</td></tr></table>
+        <tr>
+            <td valign="baseline">
+                <b><a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink'
+                      onclick='javascript:showhideMenu();return false;'>
+                    <?php xl('Hide Menu','e'); ?>
+                </a></b>
+            </td>
+        </tr>
+    </table>
 <?php } else { ?>
 &nbsp;
 <?php } ?>
@@ -119,7 +126,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right" class="top-secondary-nav">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		<td align="right" class="text" style="vertical-align:text-bottom;padding-bottom:1em"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		<span class="css_button_separator">&nbsp;|&nbsp;</span>
 		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" >
 			<?php xl('Manual','e'); ?></a></span>&nbsp;</td>

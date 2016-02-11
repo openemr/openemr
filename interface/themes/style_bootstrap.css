@@ -10722,6 +10722,14 @@ div.notab-right {
 span.css_button_separator {
   display: none; }
 
+#showMenuLink {
+  width: 150px;
+  display: block; }
+
+#new0 {
+  width: 150px;
+  display: block; }
+
 #showMenuLink.active::after {
   content: ' >>'; }
 
@@ -10808,7 +10816,7 @@ td b {
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 25px !important;
-  margin: 0 !important;
+  margin: 0 5px !important;
   border-radius: 5px; }
 
 .css_button_small:hover, #showMenuLink:hover {
@@ -11384,5 +11392,9 @@ tr.search.no-bg input {
 
 div.section, .bottom-panel, .rule_container, .rule_row {
   margin: 0 !important; }
+
+Vj
+td.top-secondary-nav > table > tbody > tr > td {
+  margin-bottom: 20px; }
 
 /*# sourceMappingURL=style_bootstrap.css.map */

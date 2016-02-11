@@ -187,7 +187,7 @@ if ($GLOBALS['concurrent_layout']) {
 <?php } else { // start old layout ?>
 
 </head>
-<frameset rows="<?php echo attr($GLOBALS[navBarHeight]).",".attr($GLOBALS[titleBarHeight]) ?>,*"
+<frameset rows="<?php echo attr($GLOBALS['navBarHeight']).",".attr($GLOBALS['titleBarHeight']) ?>,*"
   cols="*" frameborder="no" border="0" framespacing="0"
   onunload="imclosing()">
   <frame src="main_navigation.php" name="Navigation" scrolling="no" noresize frameborder="no">
