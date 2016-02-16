@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -107,7 +107,7 @@ class Maildir extends Folder\Maildir implements WritableInterface
     {
         if ($parentFolder instanceof Folder) {
             $folder = $parentFolder->getGlobalName() . $this->delim . $name;
-        } elseif ($parentFolder != null) {
+        } elseif ($parentFolder !== null) {
             $folder = rtrim($parentFolder, $this->delim) . $this->delim . $name;
         } else {
             $folder = $name;
@@ -379,8 +379,9 @@ class Maildir extends Folder\Maildir implements WritableInterface
         }
 
         if (!$fh) {
-            throw new StorageException\RuntimeException("tried $maxTries unique ids for a temp file, but all were taken"
-                . ' - giving up');
+            throw new StorageException\RuntimeException(
+                "tried {$maxTries} unique ids for a temp file, but all were taken - giving up"
+            );
         }
 
         return array('dirname'  => $this->rootdir . '.' . $folder,
@@ -426,7 +427,7 @@ class Maildir extends Folder\Maildir implements WritableInterface
     /**
      * append a new message to mail storage
      *
-     * @param   string|stream                              $message message as string or stream resource
+     * @param   string|resource                            $message message as string or stream resource
      * @param   null|string|\Zend\Mail\Storage\Folder      $folder  folder for new message, else current folder is taken
      * @param   null|array                                 $flags   set flags for new message, else a default set is used
      * @param   bool                                       $recent  handle this mail as if recent flag has been set,
@@ -625,7 +626,6 @@ class Maildir extends Folder\Maildir implements WritableInterface
         $this->files = array_values($this->files);
     }
 
-
     /**
      * set flags for message
      *
@@ -655,7 +655,6 @@ class Maildir extends Folder\Maildir implements WritableInterface
 
         $this->files[$id - 1] = $filedata;
     }
-
 
     /**
      * stub for not supported message deletion
@@ -782,7 +781,6 @@ class Maildir extends Folder\Maildir implements WritableInterface
                 if (!$dh) {
                     continue;
                 }
-
 
                 while (($entry = readdir()) !== false) {
                     if ($entry[0] == '.' || !is_file($dirname . $entry)) {

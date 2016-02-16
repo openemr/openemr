@@ -9,8 +9,8 @@ class C_FormVitals extends Controller {
 
 	var $template_dir;
 
-    function C_FormVitals($template_mod = "general") {
-    	parent::Controller();
+    function __construct($template_mod = "general") {
+    	parent::__construct();
     	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/vitals/";

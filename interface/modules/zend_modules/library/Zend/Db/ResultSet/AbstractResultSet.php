@@ -3,14 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Db\ResultSet;
 
 use ArrayIterator;
-use ArrayObject;
 use Countable;
 use Iterator;
 use IteratorAggregate;
@@ -51,7 +50,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
     /**
      * Set the data source for the result set
      *
-     * @param  Iterator|IteratorAggregate|ResultInterface $dataSource
+     * @param  array|Iterator|IteratorAggregate|ResultInterface $dataSource
      * @return ResultSet
      * @throws Exception\InvalidArgumentException
      */
@@ -91,7 +90,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
             throw new Exception\InvalidArgumentException('DataSource provided is not an array, nor does it implement Iterator or IteratorAggregate');
         }
 
-        if ($this->count == null && $this->dataSource instanceof Countable) {
+        if ($this->count === null && $this->dataSource instanceof Countable) {
             $this->count = $this->dataSource->count();
         }
 
@@ -172,7 +171,9 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
         if ($this->buffer === null) {
             $this->buffer = -2; // implicitly disable buffering from here on
         }
-        $this->dataSource->next();
+        if (!is_array($this->buffer) || $this->position == $this->dataSource->key()) {
+            $this->dataSource->next();
+        }
         $this->position++;
     }
 
@@ -268,7 +269,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
                 $return[] = $row;
             } elseif (method_exists($row, 'toArray')) {
                 $return[] = $row->toArray();
-            } elseif ($row instanceof ArrayObject) {
+            } elseif (method_exists($row, 'getArrayCopy')) {
                 $return[] = $row->getArrayCopy();
             } else {
                 throw new Exception\RuntimeException(

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -19,9 +19,12 @@ interface InputFilterInterface extends Countable
     /**
      * Add an input to the input filter
      *
-     * @param  InputInterface|InputFilterInterface|array $input
+     * @param  InputInterface|InputFilterInterface|array|Traversable $input
+     *     Implementations MUST handle at least one of the specified types, and
+     *     raise an exception for any they cannot process.
      * @param  null|string $name Name used to retrieve this input
      * @return InputFilterInterface
+     * @throws Exception\InvalidArgumentException if unable to handle the input type.
      */
     public function add($input, $name = null);
 
@@ -142,7 +145,7 @@ interface InputFilterInterface extends Countable
      * Should return an associative array of named input/message list pairs.
      * Pairs should only be returned for inputs that failed validation.
      *
-     * @return array
+     * @return string[]
      */
     public function getMessages();
 }

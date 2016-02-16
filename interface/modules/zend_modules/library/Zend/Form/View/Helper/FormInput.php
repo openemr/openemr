@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -120,8 +120,12 @@ class FormInput extends AbstractHelper
 
         $attributes          = $element->getAttributes();
         $attributes['name']  = $name;
-        $attributes['type']  = $this->getType($element);
+        $type                = $this->getType($element);
+        $attributes['type']  = $type;
         $attributes['value'] = $element->getValue();
+        if ('password' == $type) {
+            $attributes['value'] = '';
+        }
 
         return sprintf(
             '<input %s%s',

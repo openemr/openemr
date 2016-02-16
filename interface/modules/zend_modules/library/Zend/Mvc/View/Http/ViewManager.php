@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -15,7 +15,6 @@ use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\MvcEvent;
-use Zend\Mvc\View\SendResponseListener;
 use Zend\ServiceManager\ServiceManager;
 use Zend\View\HelperPluginManager as ViewHelperManager;
 use Zend\View\Renderer\PhpRenderer as ViewPhpRenderer;
@@ -86,21 +85,6 @@ class ViewManager extends AbstractListenerAggregate
     }
 
     /**
-     * Detach aggregate listeners from the specified event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function detach(EventManagerInterface $events)
-    {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
-    }
-
-    /**
      * Prepares the view layer
      *
      * @param  $event
@@ -123,8 +107,8 @@ class ViewManager extends AbstractListenerAggregate
         $routeNotFoundStrategy   = $this->getRouteNotFoundStrategy();
         $exceptionStrategy       = $this->getExceptionStrategy();
         $mvcRenderingStrategy    = $this->getMvcRenderingStrategy();
+        $injectTemplateListener  = $this->getInjectTemplateListener();
         $createViewModelListener = new CreateViewModelListener();
-        $injectTemplateListener  = new InjectTemplateListener();
         $injectViewModelListener = new InjectViewModelListener();
 
         $this->registerMvcRenderingStrategies($events);
@@ -146,7 +130,7 @@ class ViewManager extends AbstractListenerAggregate
     /**
      * Instantiates and configures the renderer's helper manager
      *
-     * @return \Zend\View\HelperPluginManager
+     * @return ViewHelperManager
      */
     public function getHelperManager()
     {
@@ -246,11 +230,11 @@ class ViewManager extends AbstractListenerAggregate
      */
     public function getLayoutTemplate()
     {
-        $layout = 'layout/layout';
         if (isset($this->config['layout'])) {
-            $layout = $this->config['layout'];
+            return $this->config['layout'];
         }
-        return $layout;
+
+        return 'layout/layout';
     }
 
     /**
@@ -346,6 +330,11 @@ class ViewManager extends AbstractListenerAggregate
         return $this->routeNotFoundStrategy;
     }
 
+    public function getInjectTemplateListener()
+    {
+        return $this->services->get('Zend\Mvc\View\Http\InjectTemplateListener');
+    }
+
     /**
      * Configures the MvcEvent view model to ensure it has the template injected
      *
@@ -371,6 +360,9 @@ class ViewManager extends AbstractListenerAggregate
      * is a ListenerAggregate, attach it to the view, at priority 100. This
      * latter allows each to trigger before the default mvc rendering strategy,
      * and for them to trigger in the order they are registered.
+     *
+     * @param EventManagerInterface $events
+     * @return void
      */
     protected function registerMvcRenderingStrategies(EventManagerInterface $events)
     {

@@ -3,19 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\I18n\Validator;
 
+use Locale;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\AbstractValidator;
 
 class PhoneNumber extends AbstractValidator
 {
-
     const NO_MATCH    = 'phoneNumberNoMatch';
     const UNSUPPORTED = 'phoneNumberUnsupported';
     const INVALID     = 'phoneNumberInvalid';
@@ -86,6 +86,9 @@ class PhoneNumber extends AbstractValidator
 
         if (array_key_exists('country', $options)) {
             $this->setCountry($options['country']);
+        } else {
+            $country = Locale::getRegion(Locale::getDefault());
+            $this->setCountry($country);
         }
 
         if (array_key_exists('allowed_types', $options)) {
@@ -151,7 +154,7 @@ class PhoneNumber extends AbstractValidator
      */
     public function setCountry($country)
     {
-        $this->country = $country;
+        $this->country = strtoupper($country);
 
         return $this;
     }

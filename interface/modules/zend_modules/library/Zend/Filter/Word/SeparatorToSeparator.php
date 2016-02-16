@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -78,12 +78,16 @@ class SeparatorToSeparator extends AbstractFilter
      *
      * Returns the string $value, replacing the searched separators with the defined ones
      *
-     * @param  string $value
-     * @return string
+     * @param  string|array $value
+     * @return string|array
      */
     public function filter($value)
     {
-        if ($this->searchSeparator == null) {
+        if (!is_scalar($value) && !is_array($value)) {
+            return $value;
+        }
+
+        if ($this->searchSeparator === null) {
             throw new Exception\RuntimeException('You must provide a search separator for this filter to work.');
         }
 

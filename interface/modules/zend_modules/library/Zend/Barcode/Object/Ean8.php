@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -16,7 +16,6 @@ use Zend\Validator\Barcode as BarcodeValidator;
  */
 class Ean8 extends Ean13
 {
-
     /**
      * Default options for Postnet barcode
      * @return void
@@ -103,8 +102,7 @@ class Ean8 extends Ean13
                     $this->fontSize * $this->factor,
                     $this->rotate(
                         $leftPosition,
-                        (int) $this->withBorder * 2
-                            + $this->factor * ($this->barHeight + $this->fontSize) + 1
+                        (int) $this->withBorder * 2 + $this->factor * ($this->barHeight + $this->fontSize) + 1
                     ),
                     $this->font,
                     $this->foreColor,

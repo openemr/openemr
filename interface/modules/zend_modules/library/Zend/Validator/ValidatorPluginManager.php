@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -14,6 +14,16 @@ use Zend\ServiceManager\ConfigInterface;
 
 class ValidatorPluginManager extends AbstractPluginManager
 {
+    /**
+     * Default aliases
+     *
+     * @var array
+     */
+    protected $aliases = array(
+        'Zend\I18n\Validator\Float'=> 'Zend\I18n\Validator\IsFloat',
+        'Zend\I18n\Validator\Int'  => 'Zend\I18n\Validator\IsInt',
+    );
+
     /**
      * Default set of validators
      *
@@ -51,6 +61,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         'barcodeupce'              => 'Zend\Validator\Barcode\Upce',
         'barcode'                  => 'Zend\Validator\Barcode',
         'between'                  => 'Zend\Validator\Between',
+        'bitwise'                  => 'Zend\Validator\Bitwise',
         'callback'                 => 'Zend\Validator\Callback',
         'creditcard'               => 'Zend\Validator\CreditCard',
         'csrf'                     => 'Zend\Validator\Csrf',
@@ -81,17 +92,19 @@ class ValidatorPluginManager extends AbstractPluginManager
         'fileupload'               => 'Zend\Validator\File\Upload',
         'fileuploadfile'           => 'Zend\Validator\File\UploadFile',
         'filewordcount'            => 'Zend\Validator\File\WordCount',
-        'float'                    => 'Zend\I18n\Validator\Float',
+        'float'                    => 'Zend\I18n\Validator\IsFloat',
         'greaterthan'              => 'Zend\Validator\GreaterThan',
         'hex'                      => 'Zend\Validator\Hex',
         'hostname'                 => 'Zend\Validator\Hostname',
         'iban'                     => 'Zend\Validator\Iban',
         'identical'                => 'Zend\Validator\Identical',
         'inarray'                  => 'Zend\Validator\InArray',
-        'int'                      => 'Zend\I18n\Validator\Int',
+        'int'                      => 'Zend\I18n\Validator\IsInt',
         'ip'                       => 'Zend\Validator\Ip',
         'isbn'                     => 'Zend\Validator\Isbn',
+        'isfloat'                  => 'Zend\I18n\Validator\IsFloat',
         'isinstanceof'             => 'Zend\Validator\IsInstanceOf',
+        'isint'                    => 'Zend\I18n\Validator\IsInt',
         'lessthan'                 => 'Zend\Validator\LessThan',
         'notempty'                 => 'Zend\Validator\NotEmpty',
         'phonenumber'              => 'Zend\I18n\Validator\PhoneNumber',
@@ -103,6 +116,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         'sitemappriority'          => 'Zend\Validator\Sitemap\Priority',
         'stringlength'             => 'Zend\Validator\StringLength',
         'step'                     => 'Zend\Validator\Step',
+        'timezone'                 => 'Zend\Validator\Timezone',
         'uri'                      => 'Zend\Validator\Uri',
     );
 

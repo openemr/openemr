@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -16,7 +16,6 @@ use Zend\Db\Adapter\Profiler;
 
 class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 {
-
     /**
      * @var \PDO
      */
@@ -180,7 +179,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             throw new Exception\RuntimeException('This statement has been prepared already');
         }
 
-        if ($sql == null) {
+        if ($sql === null) {
             $sql = $this->sql;
         }
 
@@ -203,7 +202,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     }
 
     /**
-     * @param mixed $parameters
+     * @param null|array|ParameterContainer $parameters
      * @throws Exception\InvalidQueryException
      * @return Result
      */
@@ -242,7 +241,11 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             if ($this->profiler) {
                 $this->profiler->profilerFinish();
             }
-            throw new Exception\InvalidQueryException('Statement could not be executed', null, $e);
+            throw new Exception\InvalidQueryException(
+                'Statement could not be executed (' . implode(' - ', $this->resource->errorInfo()) . ')',
+                null,
+                $e
+            );
         }
 
         if ($this->profiler) {
@@ -264,7 +267,13 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 
         $parameters = $this->parameterContainer->getNamedArray();
         foreach ($parameters as $name => &$value) {
-            $type = \PDO::PARAM_STR;
+            if (is_bool($value)) {
+                $type = \PDO::PARAM_BOOL;
+            } elseif (is_int($value)) {
+                $type = \PDO::PARAM_INT;
+            } else {
+                $type = \PDO::PARAM_STR;
+            }
             if ($this->parameterContainer->offsetHasErrata($name)) {
                 switch ($this->parameterContainer->offsetGetErrata($name)) {
                     case ParameterContainer::TYPE_INTEGER:
@@ -276,9 +285,6 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                     case ParameterContainer::TYPE_LOB:
                         $type = \PDO::PARAM_LOB;
                         break;
-                    case (is_bool($value)):
-                        $type = \PDO::PARAM_BOOL;
-                        break;
                 }
             }
 
@@ -286,7 +292,6 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             $parameter = is_int($name) ? ($name + 1) : $name;
             $this->resource->bindParam($parameter, $value, $type);
         }
-
     }
 
     /**
@@ -301,6 +306,5 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
         if ($this->parameterContainer) {
             $this->parameterContainer = clone $this->parameterContainer;
         }
-
     }
 }

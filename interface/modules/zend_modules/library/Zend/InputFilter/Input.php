@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -13,14 +13,20 @@ use Zend\Filter\FilterChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
 
-class Input implements InputInterface, EmptyContextInterface
+class Input implements
+    InputInterface,
+    EmptyContextInterface
 {
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $allowEmpty = false;
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $continueIfEmpty = false;
@@ -46,6 +52,8 @@ class Input implements InputInterface, EmptyContextInterface
     protected $name;
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @var bool
      */
     protected $notEmptyValidator = false;
@@ -66,9 +74,21 @@ class Input implements InputInterface, EmptyContextInterface
     protected $value;
 
     /**
+     * Flag for distinguish when $value contains the value previously set or the default one.
+     *
+     * @var bool
+     */
+    protected $hasValue = false;
+
+    /**
      * @var mixed
      */
     protected $fallbackValue;
+
+    /**
+     * @var bool
+     */
+    protected $hasFallback = false;
 
     public function __construct($name = null)
     {
@@ -76,6 +96,8 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     *
      * @param  bool $allowEmpty
      * @return Input
      */
@@ -96,8 +118,10 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     *
      * @param bool $continueIfEmpty
-     * @return \Zend\InputFilter\Input
+     * @return Input
      */
     public function setContinueIfEmpty($continueIfEmpty)
     {
@@ -142,7 +166,6 @@ class Input implements InputInterface, EmptyContextInterface
     public function setRequired($required)
     {
         $this->required = (bool) $required;
-        $this->setAllowEmpty(!$required);
         return $this;
     }
 
@@ -157,12 +180,36 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * Set the input value.
+     *
+     * If you want to remove/unset the current value use {@link Input::resetValue()}.
+     *
+     * @see Input::getValue() For retrieve the input value.
+     * @see Input::hasValue() For to know if input value was set.
+     * @see Input::resetValue() For reset the input value to the default state.
+     *
      * @param  mixed $value
      * @return Input
      */
     public function setValue($value)
     {
         $this->value = $value;
+        $this->hasValue = true;
+        return $this;
+    }
+
+    /**
+     * Reset input value to the default state.
+     *
+     * @see Input::hasValue() For to know if input value was set.
+     * @see Input::setValue() For set a new value.
+     *
+     * @return Input
+     */
+    public function resetValue()
+    {
+        $this->value = null;
+        $this->hasValue = false;
         return $this;
     }
 
@@ -173,10 +220,13 @@ class Input implements InputInterface, EmptyContextInterface
     public function setFallbackValue($value)
     {
         $this->fallbackValue = $value;
+        $this->hasFallback = true;
         return $this;
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @return bool
      */
     public function allowEmpty()
@@ -193,6 +243,8 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain. Should always return `true`.
+     *
      * @return bool
      */
     public function continueIfEmpty()
@@ -264,6 +316,22 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * Flag for inform if input value was set.
+     *
+     * This flag used for distinguish when {@link Input::getValue()} will return the value previously set or the default.
+     *
+     * @see Input::getValue() For retrieve the input value.
+     * @see Input::setValue() For set a new value.
+     * @see Input::resetValue() For reset the input value to the default state.
+     *
+     * @return bool
+     */
+    public function hasValue()
+    {
+        return $this->hasValue;
+    }
+
+    /**
      * @return mixed
      */
     public function getFallbackValue()
@@ -272,18 +340,36 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * @return bool
+     */
+    public function hasFallback()
+    {
+        return $this->hasFallback;
+    }
+
+    public function clearFallbackValue()
+    {
+        $this->hasFallback = false;
+        $this->fallbackValue = null;
+    }
+
+    /**
      * @param  InputInterface $input
      * @return Input
      */
     public function merge(InputInterface $input)
     {
-        $this->setAllowEmpty($input->allowEmpty());
         $this->setBreakOnFailure($input->breakOnFailure());
-        $this->setContinueIfEmpty($input->continueIfEmpty());
+        if ($input instanceof Input) {
+            $this->setContinueIfEmpty($input->continueIfEmpty());
+        }
         $this->setErrorMessage($input->getErrorMessage());
         $this->setName($input->getName());
         $this->setRequired($input->isRequired());
-        $this->setValue($input->getRawValue());
+        $this->setAllowEmpty($input->allowEmpty());
+        if (!($input instanceof Input) || $input->hasValue()) {
+            $this->setValue($input->getRawValue());
+        }
 
         $filterChain = $input->getFilterChain();
         $this->getFilterChain()->merge($filterChain);
@@ -299,17 +385,49 @@ class Input implements InputInterface, EmptyContextInterface
      */
     public function isValid($context = null)
     {
-        // Empty value needs further validation if continueIfEmpty is set
-        // so don't inject NotEmpty validator which would always
-        // mark that as false
-        if (!$this->continueIfEmpty()) {
+        $value           = $this->getValue();
+        $hasValue        = $this->hasValue();
+        $empty           = ($value === null || $value === '' || $value === array());
+        $required        = $this->isRequired();
+        $allowEmpty      = $this->allowEmpty();
+        $continueIfEmpty = $this->continueIfEmpty();
+
+        if (! $hasValue && $this->hasFallback()) {
+            $this->setValue($this->getFallbackValue());
+            return true;
+        }
+
+        if (! $hasValue && ! $required) {
+            return true;
+        }
+
+        if (! $hasValue && $required) {
+            if ($this->errorMessage === null) {
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
+            }
+            return false;
+        }
+
+        if ($empty && ! $required && ! $continueIfEmpty) {
+            return true;
+        }
+
+        if ($empty && $allowEmpty && ! $continueIfEmpty) {
+            return true;
+        }
+
+        // At this point, we need to run validators.
+        // If we do not allow empty and the "continue if empty" flag are
+        // BOTH false, we inject the "not empty" validator into the chain,
+        // which adds that logic into the validation routine.
+        if (! $allowEmpty && ! $continueIfEmpty) {
             $this->injectNotEmptyValidator();
         }
+
         $validator = $this->getValidatorChain();
-        $value     = $this->getValue();
         $result    = $validator->isValid($value, $context);
-        if (!$result && $fallbackValue = $this->getFallbackValue()) {
-            $this->setValue($fallbackValue);
+        if (! $result && $this->hasFallback()) {
+            $this->setValue($this->getFallbackValue());
             $result = true;
         }
 
@@ -317,7 +435,7 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getMessages()
     {
@@ -325,7 +443,7 @@ class Input implements InputInterface, EmptyContextInterface
             return (array) $this->errorMessage;
         }
 
-        if ($this->getFallbackValue()) {
+        if ($this->hasFallback()) {
             return array();
         }
 
@@ -334,6 +452,8 @@ class Input implements InputInterface, EmptyContextInterface
     }
 
     /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
      * @return void
      */
     protected function injectNotEmptyValidator()
@@ -352,7 +472,28 @@ class Input implements InputInterface, EmptyContextInterface
             }
         }
 
-        $chain->prependByName('NotEmpty', array(), true);
         $this->notEmptyValidator = true;
+
+        if (class_exists('Zend\ServiceManager\AbstractPluginManager')) {
+            $chain->prependByName('NotEmpty', array(), true);
+
+            return;
+        }
+
+        $chain->prependValidator(new NotEmpty(), true);
+    }
+
+    /**
+     * Create and return the validation failure message for required input.
+     *
+     * @return string[]
+     */
+    protected function prepareRequiredValidationFailureMessage()
+    {
+        $notEmpty = new NotEmpty();
+        $templates = $notEmpty->getOption('messageTemplates');
+        return array(
+            NotEmpty::IS_EMPTY => $templates[NotEmpty::IS_EMPTY],
+        );
     }
 }

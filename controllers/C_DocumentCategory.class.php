@@ -11,8 +11,8 @@ class C_DocumentCategory extends Controller {
 	var $tree;
 	var $link;
 
-	function C_DocumentCategory($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->document_categories = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

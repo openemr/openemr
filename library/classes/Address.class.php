@@ -27,7 +27,7 @@ class Address extends ORDataObject{
 	/**
 	 * Constructor sets all Address attributes to their default value
 	 */
-	function Address($id = "", $foreign_id = "")	{
+	function __construct($id = "", $foreign_id = "")	{
 		$this->id = $id;
 		$this->foreign_id = $foreign_id;
 		$this->_table = "addresses";

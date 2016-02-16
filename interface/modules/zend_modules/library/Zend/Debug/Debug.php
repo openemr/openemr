@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -42,7 +42,7 @@ class Debug
 
     /**
      * Set the debug output environment.
-     * Setting a value of null causes Zend_Debug to use PHP_SAPI.
+     * Setting a value of null causes Zend\Debug\Debug to use PHP_SAPI.
      *
      * @param string $sapi
      * @return void;

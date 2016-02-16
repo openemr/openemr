@@ -959,11 +959,11 @@ if(is_array($ret))
               htmlspecialchars( xl("This claim has been denied.Reason:-"), ENT_QUOTES);
               if($crow['process_file'])
                {
-                $code_array=split(',',$crow['process_file']);
+                $code_array=explode(',',$crow['process_file']);
                 foreach($code_array as $code_key => $code_value)
                  {
                     $lhtml .= "<br>\n&nbsp;&nbsp;&nbsp;";
-                    $reason_array=split('_',$code_value);
+                    $reason_array=explode('_',$code_value);
                     if(!isset($adjustment_reasons[$reason_array[3]]))
                      {
                         $lhtml .=htmlspecialchars( xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars( xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars( xl("the Denial code is"), ENT_QUOTES).' ['.text($reason_array[2]).' '.text($reason_array[3]).']';
@@ -1033,7 +1033,7 @@ if(is_array($ret))
     $justify = "";
 
     if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
-      $js = split(":",$iter['justify']);
+      $js = explode(":",$iter['justify']);
       $counter = 0;
       foreach ($js as $j) {
         if(!empty($j)) {

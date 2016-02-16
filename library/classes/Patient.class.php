@@ -27,7 +27,7 @@ class Patient extends ORDataObject{
 	/**
 	 * Constructor sets all Prescription attributes to their default value
 	 */
-	function Patient($id = "")	{
+	function __construct($id = "")	{
 		$this->id = $id;
 		$this->_table = "patient_data";
 		$this->pubpid = "";

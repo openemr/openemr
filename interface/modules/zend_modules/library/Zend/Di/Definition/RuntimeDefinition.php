@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -11,7 +11,6 @@ namespace Zend\Di\Definition;
 
 use Zend\Code\Annotation\AnnotationCollection;
 use Zend\Code\Reflection;
-use Zend\Di\Definition\Annotation;
 use Zend\Di\Di;
 
 /**
@@ -19,7 +18,6 @@ use Zend\Di\Di;
  */
 class RuntimeDefinition implements DefinitionInterface
 {
-
     /**
      * @var array
      */
@@ -39,6 +37,11 @@ class RuntimeDefinition implements DefinitionInterface
      * @var array
      */
     protected $injectionMethods = array();
+
+    /**
+     * @var array
+     */
+    protected $processedClass = array();
 
     /**
      * Constructor
@@ -90,7 +93,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function forceLoadClass($class)
     {
-        $this->processClass($class);
+        $this->processClass($class, true);
     }
 
     /**
@@ -118,10 +121,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function getClassSupertypes($class)
     {
-        if (!array_key_exists($class, $this->classes)) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return $this->classes[$class]['supertypes'];
     }
 
@@ -130,10 +130,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function getInstantiator($class)
     {
-        if (!array_key_exists($class, $this->classes)) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return $this->classes[$class]['instantiator'];
     }
 
@@ -142,10 +139,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function hasMethods($class)
     {
-        if (!array_key_exists($class, $this->classes)) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return (count($this->classes[$class]['methods']) > 0);
     }
 
@@ -154,10 +148,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function hasMethod($class, $method)
     {
-        if (!array_key_exists($class, $this->classes)) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return isset($this->classes[$class]['methods'][$method]);
     }
 
@@ -166,10 +157,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function getMethods($class)
     {
-        if (!array_key_exists($class, $this->classes)) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return $this->classes[$class]['methods'];
     }
 
@@ -178,10 +166,7 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function hasMethodParameters($class, $method)
     {
-        if (!isset($this->classes[$class])) {
-            return false;
-        }
-
+        $this->processClass($class);
         return (array_key_exists($method, $this->classes[$class]['parameters']));
     }
 
@@ -190,18 +175,24 @@ class RuntimeDefinition implements DefinitionInterface
      */
     public function getMethodParameters($class, $method)
     {
-        if (!is_array($this->classes[$class])) {
-            $this->processClass($class);
-        }
-
+        $this->processClass($class);
         return $this->classes[$class]['parameters'][$method];
     }
 
     /**
      * @param string $class
+     * @param bool $forceLoad
      */
-    protected function processClass($class)
+    protected function processClass($class, $forceLoad = false)
     {
+        if (!isset($this->processedClass[$class]) || $this->processedClass[$class] === false) {
+            $this->processedClass[$class] = (array_key_exists($class, $this->classes) && is_array($this->classes[$class]));
+        }
+
+        if (!$forceLoad && $this->processedClass[$class]) {
+            return;
+        }
+
         $strategy = $this->introspectionStrategy; // localize for readability
 
         /** @var $rClass \Zend\Code\Reflection\ClassReflection */
@@ -240,9 +231,9 @@ class RuntimeDefinition implements DefinitionInterface
             $rTarget = $rTargetParent;
         } while (true);
 
-        $def['supertypes'] = $supertypes;
+        $def['supertypes'] = array_keys(array_flip($supertypes));
 
-        if ($def['instantiator'] == null) {
+        if ($def['instantiator'] === null) {
             if ($rClass->isInstantiable()) {
                 $def['instantiator'] = '__construct';
             }
@@ -254,7 +245,6 @@ class RuntimeDefinition implements DefinitionInterface
         }
 
         foreach ($rClass->getMethods(Reflection\MethodReflection::IS_PUBLIC) as $rMethod) {
-
             $methodName = $rMethod->getName();
 
             if ($rMethod->getName() === '__construct' || $rMethod->isStatic()) {
@@ -266,7 +256,6 @@ class RuntimeDefinition implements DefinitionInterface
 
                 if (($annotations instanceof AnnotationCollection)
                     && $annotations->hasAnnotation('Zend\Di\Definition\Annotation\Inject')) {
-
                     // use '@inject' and search for parameters
                     $def['methods'][$methodName] = Di::METHOD_IS_EAGER;
                     $this->processParams($def, $rClass, $rMethod);
@@ -290,7 +279,6 @@ class RuntimeDefinition implements DefinitionInterface
             // by annotation
             // by setter pattern,
             // by interface
-
         }
 
         $interfaceInjectorPatterns = $this->introspectionStrategy->getInterfaceInjectionInclusionPatterns();
@@ -334,7 +322,6 @@ class RuntimeDefinition implements DefinitionInterface
         $def['parameters'][$methodName] = array();
 
         foreach ($rMethod->getParameters() as $p) {
-
             /** @var $p \ReflectionParameter  */
             $actualParamName = $p->getName();
 
@@ -348,6 +335,5 @@ class RuntimeDefinition implements DefinitionInterface
             $def['parameters'][$methodName][$fqName][] = !($optional = $p->isOptional() && $p->isDefaultValueAvailable());
             $def['parameters'][$methodName][$fqName][] = $optional ? $p->getDefaultValue() : null;
         }
-
     }
 }

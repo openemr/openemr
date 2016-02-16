@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -160,9 +160,18 @@ class Rename extends Filter\AbstractFilter
      */
     public function filter($value)
     {
+        if (!is_scalar($value) && !is_array($value)) {
+            return $value;
+        }
+
         // An uploaded file? Retrieve the 'tmp_name'
-        $isFileUpload = (is_array($value) && isset($value['tmp_name']));
-        if ($isFileUpload) {
+        $isFileUpload = false;
+        if (is_array($value)) {
+            if (!isset($value['tmp_name'])) {
+                return $value;
+            }
+
+            $isFileUpload = true;
             $uploadData = $value;
             $value      = $value['tmp_name'];
         }
@@ -216,15 +225,15 @@ class Rename extends Filter\AbstractFilter
                     $files['source'] = (string) $value;
                     break;
 
-                case 'target' :
+                case 'target':
                     $files['target'] = (string) $value;
                     break;
 
-                case 'overwrite' :
+                case 'overwrite':
                     $files['overwrite'] = (bool) $value;
                     break;
 
-                case 'randomize' :
+                case 'randomize':
                     $files['randomize'] = (bool) $value;
                     break;
 

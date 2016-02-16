@@ -32,8 +32,8 @@ class X12Partner extends ORDataObject{
 	 * Constructor sets all Insurance attributes to their default value
 	 */
 	
-	function X12Partner ($id = "", $prefix = "")	{
-		parent::ORDataObject();
+	function __construct ($id = "", $prefix = "")	{
+		parent::__construct();
 		$this->id = $id;
 		$this->_table = "x12_partners";
 		$this->processing_format_array = $this->_load_enum("processing_format",false);

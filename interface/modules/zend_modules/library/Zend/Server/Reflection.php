@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -38,7 +38,7 @@ class Reflection
     {
         if (is_object($class)) {
             $reflection = new \ReflectionObject($class);
-        } elseif (class_exists($class)) {
+        } elseif (is_string($class) && class_exists($class)) {
             $reflection = new \ReflectionClass($class);
         } else {
             throw new Reflection\Exception\InvalidArgumentException('Invalid class or object passed to attachClass()');
@@ -71,7 +71,10 @@ class Reflection
     public static function reflectFunction($function, $argv = false, $namespace = '')
     {
         if (!is_string($function) || !function_exists($function)) {
-            throw new Reflection\Exception\InvalidArgumentException('Invalid function "' . $function . '" passed to reflectFunction');
+            throw new Reflection\Exception\InvalidArgumentException(sprintf(
+                'Invalid function "%s" passed to reflectFunction',
+                $function
+            ));
         }
 
         if ($argv && !is_array($argv)) {

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -12,8 +12,6 @@ namespace Zend\View\Helper;
 use Zend\Mvc\Controller\Plugin\FlashMessenger as PluginFlashMessenger;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\View\Helper\AbstractHelper;
-use Zend\View\Helper\EscapeHtml;
 use Zend\I18n\View\Helper\AbstractTranslatorHelper;
 
 /**
@@ -31,6 +29,7 @@ class FlashMessenger extends AbstractTranslatorHelper implements ServiceLocatorA
         PluginFlashMessenger::NAMESPACE_ERROR => 'error',
         PluginFlashMessenger::NAMESPACE_SUCCESS => 'success',
         PluginFlashMessenger::NAMESPACE_DEFAULT => 'default',
+        PluginFlashMessenger::NAMESPACE_WARNING => 'warning',
     );
 
     /**
@@ -41,6 +40,13 @@ class FlashMessenger extends AbstractTranslatorHelper implements ServiceLocatorA
     protected $messageCloseString     = '</li></ul>';
     protected $messageOpenFormat      = '<ul%s><li>';
     protected $messageSeparatorString = '</li><li>';
+
+    /**
+     * Flag whether to escape messages
+     *
+     * @var bool
+     */
+    protected $autoEscape = true;
 
     /**
      * Html escape helper
@@ -95,15 +101,48 @@ class FlashMessenger extends AbstractTranslatorHelper implements ServiceLocatorA
     /**
      * Render Messages
      *
-     * @param  string $namespace
-     * @param  array  $classes
+     * @param  string    $namespace
+     * @param  array     $classes
+     * @param  null|bool $autoEscape
      * @return string
      */
-    public function render($namespace = PluginFlashMessenger::NAMESPACE_DEFAULT, array $classes = array())
+    public function render($namespace = PluginFlashMessenger::NAMESPACE_DEFAULT, array $classes = array(), $autoEscape = null)
     {
         $flashMessenger = $this->getPluginFlashMessenger();
         $messages = $flashMessenger->getMessagesFromNamespace($namespace);
+        return $this->renderMessages($namespace, $messages, $classes, $autoEscape);
+    }
 
+    /**
+     * Render Current Messages
+     *
+     * @param  string    $namespace
+     * @param  array     $classes
+     * @param  bool|null $autoEscape
+     * @return string
+     */
+    public function renderCurrent($namespace = PluginFlashMessenger::NAMESPACE_DEFAULT, array $classes = array(), $autoEscape = null)
+    {
+        $flashMessenger = $this->getPluginFlashMessenger();
+        $messages = $flashMessenger->getCurrentMessagesFromNamespace($namespace);
+        return $this->renderMessages($namespace, $messages, $classes, $autoEscape);
+    }
+
+    /**
+     * Render Messages
+     *
+     * @param string    $namespace
+     * @param array     $messages
+     * @param array     $classes
+     * @param bool|null $autoEscape
+     * @return string
+     */
+    protected function renderMessages(
+        $namespace = PluginFlashMessenger::NAMESPACE_DEFAULT,
+        array $messages = array(),
+        array $classes = array(),
+        $autoEscape = null
+    ) {
         // Prepare classes for opening tag
         if (empty($classes)) {
             if (isset($this->classMessages[$namespace])) {
@@ -114,22 +153,33 @@ class FlashMessenger extends AbstractTranslatorHelper implements ServiceLocatorA
             $classes = array($classes);
         }
 
+        if (null === $autoEscape) {
+            $autoEscape = $this->getAutoEscape();
+        }
+
         // Flatten message array
         $escapeHtml      = $this->getEscapeHtmlHelper();
         $messagesToPrint = array();
-
         $translator = $this->getTranslator();
         $translatorTextDomain = $this->getTranslatorTextDomain();
+        array_walk_recursive(
+            $messages,
+            function ($item) use (& $messagesToPrint, $escapeHtml, $autoEscape, $translator, $translatorTextDomain) {
+                if ($translator !== null) {
+                    $item = $translator->translate(
+                        $item,
+                        $translatorTextDomain
+                    );
+                }
 
-        array_walk_recursive($messages, function ($item) use (&$messagesToPrint, $escapeHtml, $translator, $translatorTextDomain) {
-            if ($translator !== null) {
-                $item = $translator->translate(
-                    $item,
-                    $translatorTextDomain
-                );
+                if ($autoEscape) {
+                    $messagesToPrint[] = $escapeHtml($item);
+                    return;
+                }
+
+                $messagesToPrint[] = $item;
             }
-            $messagesToPrint[] = $escapeHtml($item);
-        });
+        );
 
         if (empty($messagesToPrint)) {
             return '';
@@ -137,10 +187,34 @@ class FlashMessenger extends AbstractTranslatorHelper implements ServiceLocatorA
 
         // Generate markup
         $markup  = sprintf($this->getMessageOpenFormat(), ' class="' . implode(' ', $classes) . '"');
-        $markup .= implode(sprintf($this->getMessageSeparatorString(), ' class="' . implode(' ', $classes) . '"'), $messagesToPrint);
+        $markup .= implode(
+            sprintf($this->getMessageSeparatorString(), ' class="' . implode(' ', $classes) . '"'),
+            $messagesToPrint
+        );
         $markup .= $this->getMessageCloseString();
-
         return $markup;
+    }
+
+    /**
+     * Set whether or not auto escaping should be used
+     *
+     * @param  bool $autoEscape
+     * @return self
+     */
+    public function setAutoEscape($autoEscape = true)
+    {
+        $this->autoEscape = (bool) $autoEscape;
+        return $this;
+    }
+
+    /**
+     * Return whether auto escaping is enabled or disabled
+     *
+     * return bool
+     */
+    public function getAutoEscape()
+    {
+        return $this->autoEscape;
     }
 
     /**

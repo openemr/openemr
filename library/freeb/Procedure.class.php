@@ -825,7 +825,7 @@ class Procedure Extends DataObjectBase {
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
 
-		$keys = split("-",$key);
+		$keys = explode("-",$key);
 		$patient_id = $keys[0];
 		$encounter = $keys[1];
 
@@ -887,7 +887,7 @@ class Procedure Extends DataObjectBase {
 
 		if (!empty($diagstring)) {
 
-			$diag_codes = split(":",$diagstring);
+			$diag_codes = explode(":",$diagstring);
 			$diag_sql = "";
 			foreach ($diag_codes as $dc) {
 				if (!empty($dc)) {

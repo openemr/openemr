@@ -10,8 +10,8 @@ class C_PracticeSettings extends Controller {
 
 	var $template_mod;
 
-	function C_PracticeSettings ($template_mod = "general") {
-		parent::Controller();
+	function __construct ($template_mod = "general") {
+		parent::__construct();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings" . "&");

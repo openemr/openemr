@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -46,9 +46,11 @@ class AnnotationScanner extends AnnotationCollection implements ScannerInterface
      * @param  NameInformation $nameInformation
      * @return AnnotationScanner
      */
-    public function __construct(AnnotationManager $annotationManager, $docComment,
-                                NameInformation $nameInformation = null)
-    {
+    public function __construct(
+        AnnotationManager $annotationManager,
+        $docComment,
+        NameInformation $nameInformation = null
+    ) {
         $this->annotationManager = $annotationManager;
         $this->docComment        = $docComment;
         $this->nameInformation   = $nameInformation;
@@ -87,10 +89,12 @@ class AnnotationScanner extends AnnotationCollection implements ScannerInterface
                 $class                         = $this->nameInformation->resolveName($class);
                 $annotations[$annotationIndex] = array($class, null);
                 goto SCANNER_CONTINUE;
+                // goto no break needed
 
             case 'ANNOTATION_CONTENT_START':
 
                 $annotations[$annotationIndex][1] = '';
+                //fall-through
 
             case 'ANNOTATION_CONTENT_END':
             case 'ANNOTATION_CONTENT':
@@ -156,13 +160,11 @@ class AnnotationScanner extends AnnotationCollection implements ScannerInterface
             }
             $currentChar = $stream[$streamIndex];
             $matches     = array();
-            $currentLine = (preg_match('#(.*)\n#', $stream, $matches, null,
-                                       $streamIndex) === 1) ? $matches[1] : substr($stream, $streamIndex);
+            $currentLine = (preg_match('#(.*?)(?:\n|\r\n?)#', $stream, $matches, null, $streamIndex) === 1) ? $matches[1] : substr($stream, $streamIndex);
             if ($currentChar === ' ') {
                 $currentWord = (preg_match('#( +)#', $currentLine, $matches) === 1) ? $matches[1] : $currentLine;
             } else {
-                $currentWord = (($matches = strpos($currentLine, ' ')) !== false) ? substr($currentLine, 0,
-                                                                                           $matches) : $currentLine;
+                $currentWord = (($matches = strpos($currentLine, ' ')) !== false) ? substr($currentLine, 0, $matches) : $currentLine;
             }
 
             return $currentChar;
@@ -211,7 +213,7 @@ class AnnotationScanner extends AnnotationCollection implements ScannerInterface
         }
 
         if ($MACRO_HAS_CONTEXT($CONTEXT_CLASS)) {
-            if (in_array($currentChar, array(' ', '(', "\n"))) {
+            if (in_array($currentChar, array(' ', '(', "\n", "\r"))) {
                 $context &= ~$CONTEXT_CLASS;
                 $MACRO_TOKEN_ADVANCE();
             } else {
@@ -221,10 +223,24 @@ class AnnotationScanner extends AnnotationCollection implements ScannerInterface
                 }
                 goto TOKENIZER_TOP;
             }
-
         }
 
-        if ($currentChar === "\n") {
+        // Since we don't know what line endings are used in the file, we check for all scenarios. If we find a
+        // cariage return (\r), we check the next character for a line feed (\n). If so we consume it and act as
+        // if the cariage return was a line feed.
+        $lineEnded = $currentChar === "\n";
+        if ($currentChar === "\r") {
+            $lineEnded = true;
+
+            $nextChar = $MACRO_STREAM_ADVANCE_CHAR();
+            if ($nextChar !== "\n") {
+                $streamIndex--;
+            }
+
+            $currentChar = "\n";
+        }
+
+        if ($lineEnded) {
             $MACRO_TOKEN_SET_TYPE('ANNOTATION_NEWLINE');
             $MACRO_TOKEN_APPEND_CHAR();
             $MACRO_TOKEN_ADVANCE();

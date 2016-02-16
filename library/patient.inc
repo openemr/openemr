@@ -580,7 +580,7 @@ function getByPatientDemographicsFilter($searchFields, $searchTerm = "%",
   $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS",
   $orderby = "lname ASC, fname ASC", $limit="all", $start="0", $search_service_code='')
 {
-	$layoutCols = split( '~', $searchFields );
+	$layoutCols = explode( '~', $searchFields );
   $sqlBindArray = array();
   $where = "";
   $i = 0;
@@ -717,7 +717,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 //(CHEMED) Search by phone number
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $phone = ereg_replace( "[[:punct:]]","", $phone );
+    $phone = preg_replace( "/[[:punct:]]/","", $phone );
     $sqlBindArray = array();
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);

@@ -21,9 +21,9 @@ if (!defined('__CLASS_FPDF_ALPHA__'))
 	{
 		var $tmpFiles = array(); 
 		
-		function FPDF_Alpha($orientation='P',$unit='mm',$format='A4')
+		function __construct($orientation='P',$unit='mm',$format='A4')
 		{
-			$this->FPDF_Formulaire($orientation,$unit,$format);
+			parent::__construct($orientation,$unit,$format);
 		}
 		
 		/* Public methods */

@@ -12,7 +12,7 @@ class XmlWriterOemr {
     var $xml;
     var $indent;
     var $stack = array();
-    function XmlWriterOemr($indent = '  ') {
+    function __construct($indent = '  ') {
         $this->indent = $indent;
         $this->xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
     }

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -66,14 +66,12 @@ class Converter
         return $string;
     }
 
-
     /**
      * Convert any value to an LDAP-compatible value.
      *
      * By setting the <var>$type</var>-parameter the conversion of a certain
      * type can be forced
      *
-     * @todo write more tests
      *
      * @param mixed $value The value to convert
      * @param int   $type  The conversion type to use
@@ -86,10 +84,8 @@ class Converter
             switch ($type) {
                 case self::BOOLEAN:
                     return static::toldapBoolean($value);
-                    break;
                 case self::GENERALIZED_TIME:
                     return static::toLdapDatetime($value);
-                    break;
                 default:
                     if (is_string($value)) {
                         return $value;
@@ -107,10 +103,9 @@ class Converter
                         return static::toLdapSerialize($value);
                     } elseif (is_resource($value) && get_resource_type($value) === 'stream') {
                         return stream_get_contents($value);
-                    } else {
-                        return null;
                     }
-                    break;
+
+                    return;
             }
         } catch (\Exception $e) {
             throw new Exception\ConverterException($e->getMessage(), $e->getCode(), $e);
@@ -167,7 +162,7 @@ class Converter
         if (!is_scalar($value)) {
             return $return;
         }
-        if (true === $value || 'true' === strtolower($value) || 1 === $value) {
+        if (true === $value || (is_string($value) && 'true' === strtolower($value)) || 1 === $value) {
             $return = 'TRUE';
         }
         return $return;
@@ -203,10 +198,8 @@ class Converter
         switch ($type) {
             case self::BOOLEAN:
                 return static::fromldapBoolean($value);
-                break;
             case self::GENERALIZED_TIME:
                 return static::fromLdapDateTime($value);
-                break;
             default:
                 if (is_numeric($value)) {
                     // prevent numeric values to be treated as date/time
@@ -327,7 +320,9 @@ class Converter
                 if (isset($off[3])) {
                     $offsetMinutes = substr($off[3], 0, 2);
                     if ($offsetMinutes < 0 || $offsetMinutes > 59) {
-                        throw new Exception\InvalidArgumentException('Invalid date format found (invalid offset minute)');
+                        throw new Exception\InvalidArgumentException(
+                            'Invalid date format found (invalid offset minute)'
+                        );
                     }
                     $time['offsetminutes'] = $offsetMinutes;
                 }
@@ -335,9 +330,6 @@ class Converter
         }
 
         // Raw-Data is present, so lets create a DateTime-Object from it.
-        $offset     = $time['offdir']
-                      . str_pad($time['offsethours'], 2, '0', STR_PAD_LEFT)
-                      . str_pad($time['offsetminutes'], 2, '0', STR_PAD_LEFT);
         $timestring = $time['year'] . '-'
                       . str_pad($time['month'], 2, '0', STR_PAD_LEFT) . '-'
                       . str_pad($time['day'], 2, '0', STR_PAD_LEFT) . ' '
@@ -347,7 +339,15 @@ class Converter
                       . $time['offdir']
                       . str_pad($time['offsethours'], 2, '0', STR_PAD_LEFT)
                       . str_pad($time['offsetminutes'], 2, '0', STR_PAD_LEFT);
-        $date       = new DateTime($timestring);
+        try {
+            $date = new DateTime($timestring);
+        } catch (\Exception $e) {
+            throw new Exception\InvalidArgumentException(
+                'Invalid date format found',
+                0,
+                $e
+            );
+        }
         if ($asUtc) {
             $date->setTimezone(new DateTimeZone('UTC'));
         }

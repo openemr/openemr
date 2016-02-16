@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -17,7 +17,7 @@ use Zend\Stdlib\ErrorHandler;
 
 /**
 */
-class Reader
+class Reader implements ReaderImportInterface
 {
     /**
      * Namespace constants
@@ -125,7 +125,6 @@ class Reader
         static::$httpClient = $httpClient;
     }
 
-
     /**
      * Gets the HTTP client object. If none is set, a new ZendHttp\Client will be used.
      *
@@ -191,8 +190,6 @@ class Reader
     public static function import($uri, $etag = null, $lastModified = null)
     {
         $cache       = self::getCache();
-        $feed        = null;
-        $responseXml = '';
         $client      = self::getHttpClient();
         $client->resetParameters();
         $headers = new ZendHttp\Headers();
@@ -266,7 +263,7 @@ class Reader
      * HTTP client implementations.
      *
      * @param  string $uri
-     * @param  Http\Client $client
+     * @param  Http\ClientInterface $client
      * @return self
      * @throws Exception\RuntimeException if response is not an Http\ResponseInterface
      */
@@ -299,6 +296,11 @@ class Reader
      */
     public static function importString($string)
     {
+        $trimmed = trim($string);
+        if (!is_string($string) || empty($trimmed)) {
+            throw new Exception\InvalidArgumentException('Only non empty strings are allowed as input');
+        }
+
         $libxmlErrflag = libxml_use_internal_errors(true);
         $oldValue = libxml_disable_entity_loader(true);
         $dom = new DOMDocument;
@@ -542,7 +544,7 @@ class Reader
     public static function getExtensionManager()
     {
         if (!isset(static::$extensionManager)) {
-            static::setExtensionManager(new ExtensionManager());
+            static::setExtensionManager(new StandaloneExtensionManager());
         }
         return static::$extensionManager;
     }

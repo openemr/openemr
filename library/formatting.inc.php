@@ -104,7 +104,7 @@ function DateToYYYYMMDD($DateValue)
 	 }
 	else if($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2)
 	 {
-	  $DateValueArray=split('/',$DateValue);
+	  $DateValueArray=explode('/',$DateValue);
 	  if($GLOBALS['date_display_format']==1)
 	   {
 		  return $DateValueArray[2].'-'.$DateValueArray[0].'-'.$DateValueArray[1];

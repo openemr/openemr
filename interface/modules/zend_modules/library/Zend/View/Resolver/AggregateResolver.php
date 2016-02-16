@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -99,14 +99,11 @@ class AggregateResolver implements Countable, IteratorAggregate, ResolverInterfa
 
         foreach ($this->queue as $resolver) {
             $resource = $resolver->resolve($name, $renderer);
-            if (!$resource) {
-                // No resource found; try next resolver
-                continue;
+            if ($resource) {
+                // Resource found; return it
+                $this->lastSuccessfulResolver = $resolver;
+                return $resource;
             }
-
-            // Resource found; return it
-            $this->lastSuccessfulResolver = $resolver;
-            return $resource;
         }
 
         $this->lastLookupFailure = static::FAILURE_NOT_FOUND;

@@ -172,7 +172,7 @@ function pnSessionDelVar($name)
     //unset($$var);
 	unset($GLOBALS[$var]);
 
-    session_unregister($var);
+    unset($_SESSION[$var]);
 
     return true;
 }

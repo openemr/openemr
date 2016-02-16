@@ -12,8 +12,8 @@ require_once("XmlWriterOemr.class.php");
 
 class PQRIXml extends XmlWriterOemr {
 
-	function PQRIXml($indent = '  ') {
-		parent::XmlWriterOemr($indent);
+	function __construct($indent = '  ') {
+		parent::__construct($indent);
 	}
 	
 	function open_submission() {

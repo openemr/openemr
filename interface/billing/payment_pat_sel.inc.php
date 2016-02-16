@@ -168,7 +168,7 @@ if (isset($_POST["mode"]))
 					 }
 
 
-					$ServiceDateArray=split(' ',$RowSearch['date']);
+					$ServiceDateArray=explode(' ',$RowSearch['date']);
 					$ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
                                         $Codetype=$RowSearch['code_type'];
 					$Code=$RowSearch['code'];

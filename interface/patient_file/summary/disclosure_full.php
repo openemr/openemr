@@ -131,7 +131,7 @@ if ($n>0){?>
 	foreach($result2 as $iter)
 	{
 		$app_event=$iter{event};
-		$event=split("-",$app_event);
+		$event=explode("-",$app_event);
 		$description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
 		?>
 		<!-- List the recipient name, description, date and edit and delete options-->

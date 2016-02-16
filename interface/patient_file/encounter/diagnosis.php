@@ -252,7 +252,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 				ucwords(strtolower($iter{"code_text"})) . ' ' . oeFormatMoney($iter['fee']) .
 				"</a><span class=\"small\">";
 			$total += $iter['fee'];
-			$js = split(":",$iter['justify']);
+			$js = explode(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
 				if(!empty($j)) {

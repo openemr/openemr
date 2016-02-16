@@ -16,7 +16,7 @@ class ORDataObject {
 	var $_table;
 	var $_db;
 
-	function ORDataObject() {
+	function __construct() {
 	  $this->_db = $GLOBALS['adodb']['db']; 	
 	}
 	

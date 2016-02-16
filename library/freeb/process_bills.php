@@ -61,7 +61,7 @@ if (empty($billkeys)) {
 }
 
 foreach ($billkeys as $billkey) {
-	$tmp = split("-", $billkey['key']);
+	$tmp = explode("-", $billkey['key']);
 	$patient_id = $tmp[0];
 	$encounter = $tmp[1];
 	$name = "FreeB.Bill.process";

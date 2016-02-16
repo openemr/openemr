@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -269,7 +269,7 @@ class Server extends AbstractServer
      */
     public function setReturnResponse($flag = true)
     {
-        $this->returnResponse = ($flag) ? true : false;
+        $this->returnResponse = (bool) $flag;
         return $this;
     }
 
@@ -304,7 +304,7 @@ class Server extends AbstractServer
                 }
             }
         }
-        return null;
+        return;
     }
 
     /**
@@ -361,15 +361,32 @@ class Server extends AbstractServer
      */
     protected function _getDefaultParams(array $args, array $params)
     {
-        $defaultParams = array_slice($params, count($args));
-        foreach ($defaultParams as $param) {
-            $value = null;
-            if (array_key_exists('default', $param)) {
-                $value = $param['default'];
-            }
-            $args[$param['name']] = $value;
+        if (false === $this->isAssociative($args)) {
+            $params = array_slice($params, count($args));
         }
+
+        foreach ($params as $param) {
+            if (isset($args[$param['name']]) || !array_key_exists('default', $param)) {
+                continue;
+            }
+
+            $args[$param['name']] = $param['default'];
+        }
+
         return $args;
+    }
+
+    /**
+     * check whether array is associative or not
+     *
+     * @param array $array
+     * @return bool
+     */
+    private function isAssociative(array $array)
+    {
+        $keys = array_keys($array);
+
+        return ($keys != array_keys($keys));
     }
 
     /**
@@ -484,7 +501,7 @@ class Server extends AbstractServer
     {
         $request = $this->getRequest();
 
-        if($request->isParseError()){
+        if ($request->isParseError()) {
             return $this->fault('Parse error', Error::ERROR_PARSE);
         }
 
@@ -517,7 +534,6 @@ class Server extends AbstractServer
             if ('function' == $callback->getType()) {
                 $reflection = new ReflectionFunction($callback->getFunction());
             } else {
-
                 $reflection = new ReflectionMethod(
                     $callback->getClass(),
                     $callback->getMethod()

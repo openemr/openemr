@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -12,7 +12,6 @@ namespace Zend\View\Strategy;
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Feed\Writer\Feed;
-use Zend\Http\Request as HttpRequest;
 use Zend\View\Model;
 use Zend\View\Renderer\FeedRenderer;
 use Zend\View\ViewEvent;
@@ -98,7 +97,6 @@ class FeedStrategy extends AbstractListenerAggregate
         $charset = '';
 
         if ($model instanceof Model\FeedModel) {
-
             $feed = $model->getFeed();
 
             $charset = '; charset=' . $feed->getEncoding() . ';';

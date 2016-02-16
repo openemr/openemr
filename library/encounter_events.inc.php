@@ -119,7 +119,7 @@ function calendar_arrived($form_pid) {
         } // end recurrtype 2
 
         else { // pc_recurrtype is 1
-				  $pc_eventDate_array = split('-', $pc_eventDate);
+				  $pc_eventDate_array = explode('-', $pc_eventDate);
 				  // Find the next day as per the frequency definition.
 				  $pc_eventDate =& __increment($pc_eventDate_array[2], $pc_eventDate_array[1], $pc_eventDate_array[0],
             $pc_recurrspec_array['event_repeat_freq'], $pc_recurrspec_array['event_repeat_freq_type']);

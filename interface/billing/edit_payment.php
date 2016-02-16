@@ -55,7 +55,7 @@ if (isset($_POST["mode"]))
   if ($_POST["mode"] == "DeletePaymentDistribution")
    {
     $DeletePaymentDistributionId=trim(formData('DeletePaymentDistributionId' ));
-	$DeletePaymentDistributionIdArray=split('_',$DeletePaymentDistributionId);
+	$DeletePaymentDistributionIdArray=explode('_',$DeletePaymentDistributionId);
 	$payment_id=$DeletePaymentDistributionIdArray[0];
 	$PId=$DeletePaymentDistributionIdArray[1];
 	$Encounter=$DeletePaymentDistributionIdArray[2];
@@ -867,7 +867,7 @@ return false;
 							 {
 								$CountIndex++;
 								$CountIndexAbove++;
-								$ServiceDateArray=split(' ',$RowSearch['date']);
+								$ServiceDateArray=explode(' ',$RowSearch['date']);
 								$ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
                                                                 $Codetype=$RowSearch['code_type'];
 								$Code=$RowSearch['code'];

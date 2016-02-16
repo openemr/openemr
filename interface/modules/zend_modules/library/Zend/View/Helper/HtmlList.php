@@ -3,11 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\View\Helper;
+
+use Zend\View\Exception;
 
 /**
  * Helper for ordered and unordered lists
@@ -21,10 +23,18 @@ class HtmlList extends AbstractHtmlElement
      * @param  bool  $ordered Specifies ordered/unordered list; default unordered
      * @param  array $attribs Attributes for the ol/ul tag.
      * @param  bool  $escape  Escape the items.
+     * @throws Exception\InvalidArgumentException
      * @return string The list XHTML.
      */
     public function __invoke(array $items, $ordered = false, $attribs = false, $escape = true)
     {
+        if (empty($items)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '$items array can not be empty in %s',
+                __METHOD__
+            ));
+        }
+
         $list = '';
 
         foreach ($items as $item) {
@@ -33,14 +43,14 @@ class HtmlList extends AbstractHtmlElement
                     $escaper = $this->getView()->plugin('escapeHtml');
                     $item    = $escaper($item);
                 }
-                $list .= '<li>' . $item . '</li>' . self::EOL;
+                $list .= '<li>' . $item . '</li>' . PHP_EOL;
             } else {
-                $itemLength = 5 + strlen(self::EOL);
+                $itemLength = 5 + strlen(PHP_EOL);
                 if ($itemLength < strlen($list)) {
                     $list = substr($list, 0, strlen($list) - $itemLength)
-                     . $this($item, $ordered, $attribs, $escape) . '</li>' . self::EOL;
+                     . $this($item, $ordered, $attribs, $escape) . '</li>' . PHP_EOL;
                 } else {
-                    $list .= '<li>' . $this($item, $ordered, $attribs, $escape) . '</li>' . self::EOL;
+                    $list .= '<li>' . $this($item, $ordered, $attribs, $escape) . '</li>' . PHP_EOL;
                 }
             }
         }
@@ -53,6 +63,6 @@ class HtmlList extends AbstractHtmlElement
 
         $tag = ($ordered) ? 'ol' : 'ul';
 
-        return '<' . $tag . $attribs . '>' . self::EOL . $list . '</' . $tag . '>' . self::EOL;
+        return '<' . $tag . $attribs . '>' . PHP_EOL . $list . '</' . $tag . '>' . PHP_EOL;
     }
 }

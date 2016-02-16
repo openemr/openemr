@@ -40,7 +40,7 @@ class FormSOAP extends ORDataObject {
 	 * Constructor sets all Form attributes to their default value
 	 */
 
-	function FormSOAP($id= "", $_prefix = "")	{
+	function __construct($id= "", $_prefix = "")	{
 		if (is_numeric($id)) {
 			$this->id = $id;
 		}

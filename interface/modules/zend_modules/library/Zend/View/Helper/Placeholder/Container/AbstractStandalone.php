@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -109,7 +109,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
             return $container[$key];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -169,7 +169,6 @@ abstract class AbstractStandalone extends AbstractHelper implements
         if ($this->getView() instanceof RendererInterface
             && method_exists($this->getView(), 'getEncoding')
         ) {
-            $enc     = $this->getView()->getEncoding();
             $escaper = $this->getView()->plugin('escapeHtml');
             return $escaper((string) $string);
         }
@@ -185,7 +184,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
      */
     public function setAutoEscape($autoEscape = true)
     {
-        $this->autoEscape = ($autoEscape) ? true : false;
+        $this->autoEscape = (bool) $autoEscape;
         return $this;
     }
 
@@ -251,10 +250,12 @@ abstract class AbstractStandalone extends AbstractHelper implements
     {
         if (!class_exists($name)) {
             throw new Exception\DomainException(
-                sprintf('%s expects a valid container class name; received "%s", which did not resolve',
+                sprintf(
+                    '%s expects a valid container class name; received "%s", which did not resolve',
                     __METHOD__,
                     $name
-                ));
+                )
+            );
         }
 
         if (!in_array('Zend\View\Helper\Placeholder\Container\AbstractContainer', class_parents($name))) {
@@ -366,7 +367,7 @@ abstract class AbstractStandalone extends AbstractHelper implements
     /**
      * IteratorAggregate: get Iterator
      *
-     * @return Iterator
+     * @return \Iterator
      */
     public function getIterator()
     {

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -43,7 +43,7 @@ class DateSelect extends MonthSelect
      * - day_attributes: HTML attributes to be rendered with the day element
      *
      * @param array|\Traversable $options
-     * @return DateSelect
+     * @return self
      */
     public function setOptions($options)
     {
@@ -65,10 +65,20 @@ class DateSelect extends MonthSelect
     }
 
     /**
+     * Get both the year and month elements
+     *
+     * @return array
+     */
+    public function getElements()
+    {
+        return array_merge(array($this->dayElement), parent::getElements());
+    }
+
+    /**
      * Set the day attributes
      *
      * @param  array $dayAttributes
-     * @return DateSelect
+     * @return self
      */
     public function setDayAttributes(array $dayAttributes)
     {
@@ -89,7 +99,7 @@ class DateSelect extends MonthSelect
     /**
      * @param  string|array|\ArrayAccess|PhpDateTime $value
      * @throws \Zend\Form\Exception\InvalidArgumentException
-     * @return void|\Zend\Form\Element
+     * @return self Provides a fluent interface
      */
     public function setValue($value)
     {
@@ -105,13 +115,28 @@ class DateSelect extends MonthSelect
             $value = array(
                 'year'  => $value->format('Y'),
                 'month' => $value->format('m'),
-                'day'   => $value->format('d')
+                'day'   => $value->format('d'),
             );
         }
 
         $this->yearElement->setValue($value['year']);
         $this->monthElement->setValue($value['month']);
         $this->dayElement->setValue($value['day']);
+
+        return $this;
+    }
+
+    /**
+     * @return String
+     */
+    public function getValue()
+    {
+        return sprintf(
+            '%s-%s-%s',
+            $this->getYearElement()->getValue(),
+            $this->getMonthElement()->getValue(),
+            $this->getDayElement()->getValue()
+        );
     }
 
     /**
@@ -154,19 +179,7 @@ class DateSelect extends MonthSelect
             'name' => $this->getName(),
             'required' => false,
             'filters' => array(
-                array(
-                    'name'    => 'Callback',
-                    'options' => array(
-                        'callback' => function ($date) {
-                            // Convert the date to a specific format
-                            if (is_array($date)) {
-                                $date = $date['year'] . '-' . $date['month'] . '-' . $date['day'];
-                            }
-
-                            return $date;
-                        }
-                    )
-                )
+                array('name' => 'DateSelect')
             ),
             'validators' => array(
                 $this->getValidator(),

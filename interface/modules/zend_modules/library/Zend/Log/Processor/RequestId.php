@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
 *
 * @link      http://github.com/zendframework/zf2 for the canonical source repository
-* @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+* @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
 * @license   http://framework.zend.com/license/new-bsd New BSD License
 */
 
@@ -21,7 +21,7 @@ class RequestId implements ProcessorInterface
     protected $identifier;
 
     /**
-     * Adds a identifier for the request to the log.
+     * Adds an identifier for the request to the log, unless one has already been set.
      *
      * This enables to filter the log for messages belonging to a specific request
      *
@@ -30,6 +30,10 @@ class RequestId implements ProcessorInterface
      */
     public function process(array $event)
     {
+        if (isset($event['extra']['requestId'])) {
+            return $event;
+        }
+
         if (!isset($event['extra'])) {
             $event['extra'] = array();
         }
@@ -49,7 +53,7 @@ class RequestId implements ProcessorInterface
             return $this->identifier;
         }
 
-        $requestTime = (version_compare(PHP_VERSION, '5.4.0') >= 0)
+        $requestTime = (PHP_VERSION_ID >= 50400)
                      ? $_SERVER['REQUEST_TIME_FLOAT']
                      : $_SERVER['REQUEST_TIME'];
 

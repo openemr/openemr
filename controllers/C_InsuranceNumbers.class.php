@@ -10,8 +10,8 @@ class C_InsuranceNumbers extends Controller {
         var $providers;
         var $insurance_numbers;
 
-        function C_InsuranceNumbers($template_mod = "general") {
-                parent::Controller();
+        function __construct($template_mod = "general") {
+                parent::__construct();
                 $this->providers = array();
                 $this->insurance_numbers = array();
                 $this->template_mod = $template_mod;

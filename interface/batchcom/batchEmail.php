@@ -33,8 +33,8 @@ while ($row=sqlFetchArray($res)) {
 	
 	$email_subject=$_POST['email_subject'];
     $email_body=$_POST['email_body'];
-    $email_subject=ereg_replace('\*{3}NAME\*{3}', $pt_name, $email_subject );
-    $email_body=   ereg_replace('\*{3}NAME\*{3}', $pt_name, $email_body );
+    $email_subject=preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_subject );
+    $email_body=   preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_body );
 
     $headers = "MIME-Version: 1.0\r\n";
 	$headers .= "To: $pt_name<".$pt_email.">\r\n";
