@@ -681,7 +681,14 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
     ),
-      
+
+    'number_of_appts_to_show' => array(
+      xl('Appointment Display Widget'),
+      'num',                           
+      '10',                            
+      xl('Number of Appointments to display in the Patient Summary')
+    ),      
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type

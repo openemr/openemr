@@ -684,7 +684,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                     $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
                     # add one day to date so it will not get todays appointment
                     $current_date2 = date('Y-m-d', $next_day);
-                    $events = collect_next_appointment($current_date2,$form_pid);
+                    $events = fetchNextXAppts($current_date2,$form_pid);
                     $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
                     $next_appoint_time = substr($events[0]['pc_startTime'],0,5);
                     if(strlen(umname) != 0 ) {
