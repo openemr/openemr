@@ -879,9 +879,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getResults($pid,$encounter)
     {
         $results = '';
-        $query = "SELECT prs.result AS result_value, prs.units, prs.range, prs.result_text as order_title, prs.result_code as result_code,
-	    prs.result_text as result_desc, prs.code_suffix AS test_code, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag,po.order_status AS order_status
+        $query = "SELECT prs.result AS result_value, prs.units, prs.range, prs.result_text as order_title, prs.result_code, prs.procedure_result_id,
+	    prs.result_text as result_desc, prs.procedure_result_id AS test_code, poc.procedure_code, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag,po.order_status AS order_status
 	    FROM procedure_order AS po
+	    JOIN procedure_order_code as poc on poc.procedure_order_id = po.procedure_order_id
 	    JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
 	    JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
 	    WHERE po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
@@ -894,13 +895,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 	    $results_list[$row['test_code']]['order_title'] = $row['order_title'];
 	    $results_list[$row['test_code']]['date_ordered'] = substr(preg_replace('/-/', '', $row['date_ordered']), 0, 8);
 	    $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_code'] = ($row['result_code'] ? $row['result_code'] : 0);
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_desc'] = $row['result_desc'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['units'] = $row['units'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['range'] = $row['range'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_value'] = $row['result_value'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['abnormal_flag'] = $row['abnormal_flag'];
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_code'] = ($row['result_code'] ? $row['result_code'] : 0);
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_desc'] = $row['result_desc'];
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['units'] = $row['units'];
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['range'] = $row['range'];
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_value'] = $row['result_value'];
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
+	    $results_list[$row['test_code']]['subtest'][$row['procedure_result_id']]['abnormal_flag'] = $row['abnormal_flag'];
 	}
 	
 	$results = '<results>';
@@ -925,7 +926,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<date_ordered>'.htmlspecialchars($row['date_ordered'],ENT_QUOTES).'</date_ordered>
 		<date_ordered_table>'.htmlspecialchars($row['date_ordered_table'],ENT_QUOTES).'</date_ordered_table>
                 <title>'.htmlspecialchars($row['order_title'],ENT_QUOTES).'</title>		
-		<test_code>'.htmlspecialchars($row['test_code'],ENT_QUOTES).'</test_code>
+		<test_code>'.htmlspecialchars($row['procedure_code'],ENT_QUOTES).'</test_code>
                 <order_status_table>'.htmlspecialchars($order_status_table,ENT_QUOTES).'</order_status_table>
                 <order_status>'.htmlspecialchars($order_status,ENT_QUOTES).'</order_status>';
 		foreach($row['subtest'] as $row_1){
@@ -2271,11 +2272,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $appTable   = new ApplicationTable();
         $referrals = '';
-        $query      = "SELECT body FROM transactions WHERE pid = ?";
+        $query      = "SELECT field_value FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ?";
         $result     = $appTable->zQuery($query, array($pid));
         $referrals = '<referral_reason>';
         foreach($result as $row) {
-            $referrals.= '<text>'.htmlspecialchars($row['body']).'</text>';
+            $referrals.= '<text>'.htmlspecialchars($row['field_value']).'</text>';
         }
         $referrals.= '</referral_reason>';
         return $referrals;
