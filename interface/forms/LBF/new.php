@@ -255,6 +255,9 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
+<!-- LiterallyCanvas support -->
+<?php echo lbf_canvas_head(); ?>
+
 <script language="JavaScript">
 
 // Support for beforeunload handler.
