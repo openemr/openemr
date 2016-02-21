@@ -17,10 +17,14 @@ if (! PMA_DRIZZLE) {
 }
 require 'libraries/build_html_for_db.lib.php';
 
+if (! isset($_POST['new_db'])) {
+    PMA_Util::checkParameters(array('new_db'));
+}
+
 /**
  * Defines the url to return to in case of error in a sql statement
  */
-$err_url = 'index.php?' . PMA_URL_getCommon();
+$err_url = 'index.php' . PMA_URL_getCommon();
 
 /**
  * Builds and executes the db creation sql query
@@ -80,7 +84,7 @@ if (! $result) {
 
         $is_superuser = $GLOBALS['dbi']->isSuperuser();
         $column_order = PMA_getColumnOrder();
-        $url_query = PMA_URL_getCommon($_POST['new_db']);
+        $url_query = PMA_URL_getCommon(array('db' => $_POST['new_db']));
 
         /**
          * String that will contain the output HTML
@@ -114,7 +118,7 @@ if (! $result) {
 
         list($column_order, $generated_html) = PMA_buildHtmlForDb(
             $current, $is_superuser, $url_query,
-            $column_order, $replication_types, $replication_info
+            $column_order, $replication_types, $GLOBALS['replication_info']
         );
         $new_db_string .= $generated_html;
 
@@ -129,8 +133,17 @@ if (! $result) {
                 null, $sql_query, 'success'
             )
         );
+        $response->addJSON(
+            'url_query',
+            PMA_Util::getScriptNameForOption(
+                $GLOBALS['cfg']['DefaultTabDatabase'], 'database'
+            )
+            . $url_query . '&amp;db='
+            . urlencode($current['SCHEMA_NAME'])
+        );
     } else {
-        include_once '' . $cfg['DefaultTabDatabase'];
+        include_once '' .  PMA_Util::getScriptNameForOption(
+                $GLOBALS['cfg']['DefaultTabDatabase'], 'database'
+            );
     }
 }
-?>

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -205,7 +205,7 @@ class Doctype extends AbstractHelper
      */
     public function isXhtml()
     {
-        return (stristr($this->getDoctype(), 'xhtml') ? true : false);
+        return (bool) stristr($this->getDoctype(), 'xhtml');
     }
 
     /**
@@ -215,7 +215,7 @@ class Doctype extends AbstractHelper
      */
     public function isHtml5()
     {
-        return (stristr($this->__invoke(), '<!DOCTYPE html>') ? true : false);
+        return (bool) stristr($this->__invoke(), '<!DOCTYPE html>');
     }
 
     /**
@@ -225,6 +225,6 @@ class Doctype extends AbstractHelper
      */
     public function isRdfa()
     {
-        return ($this->isHtml5() || stristr($this->getDoctype(), 'rdfa') ? true : false);
+        return ($this->isHtml5() || stristr($this->getDoctype(), 'rdfa'));
     }
 }

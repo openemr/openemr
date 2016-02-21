@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -13,7 +13,6 @@ use ArrayIterator;
 use Countable;
 use Iterator;
 use Traversable;
-use Zend\Http\HeaderLoader;
 use Zend\Loader\PluginClassLocator;
 
 /**
@@ -25,7 +24,7 @@ use Zend\Loader\PluginClassLocator;
 class Headers implements Countable, Iterator
 {
     /**
-     * @var PluginClassLoader
+     * @var PluginClassLocator
      */
     protected $pluginClassLoader = null;
 
@@ -52,14 +51,29 @@ class Headers implements Countable, Iterator
      */
     public static function fromString($string)
     {
-        $headers = new static();
-        $current = array();
+        $headers   = new static();
+        $current   = array();
+        $emptyLine = 0;
 
         // iterate the header lines, some might be continuations
         foreach (explode("\r\n", $string) as $line) {
+            // CRLF*2 is end of headers; an empty line by itself or between header lines
+            // is an attempt at CRLF injection.
+            if (preg_match('/^\s*$/', $line)) {
+                // empty line indicates end of headers
+                $emptyLine += 1;
+                if ($emptyLine > 2) {
+                    throw new Exception\RuntimeException('Malformed header detected');
+                }
+                continue;
+            }
+
+            if ($emptyLine) {
+                throw new Exception\RuntimeException('Malformed header detected');
+            }
 
             // check if a header name is present
-            if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):.*$/', $line, $matches)) {
+            if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?={} \t]+):.*$/', $line, $matches)) {
                 if ($current) {
                     // a header name was present, then store the current complete line
                     $headers->headersKeys[] = static::createKey($current['name']);
@@ -69,19 +83,21 @@ class Headers implements Countable, Iterator
                     'name' => $matches['name'],
                     'line' => trim($line)
                 );
-            } elseif (preg_match('/^\s+.*$/', $line, $matches)) {
+
+                continue;
+            }
+
+            if (preg_match("/^[ \t][^\r\n]*$/", $line, $matches)) {
                 // continuation: append to current line
                 $current['line'] .= trim($line);
-            } elseif (preg_match('/^\s*$/', $line)) {
-                // empty line indicates end of headers
-                break;
-            } else {
-                // Line does not match header format!
-                throw new Exception\RuntimeException(sprintf(
-                    'Line "%s"does not match header format!',
-                    $line
-                ));
+                continue;
             }
+
+            // Line does not match header format!
+            throw new Exception\RuntimeException(sprintf(
+                'Line "%s" does not match header format!',
+                $line
+            ));
         }
         if ($current) {
             $headers->headersKeys[] = static::createKey($current['name']);
@@ -147,7 +163,6 @@ class Headers implements Countable, Iterator
             } elseif (is_string($name)) {
                 $this->addHeaderLine($name, $value);
             }
-
         }
 
         return $this;

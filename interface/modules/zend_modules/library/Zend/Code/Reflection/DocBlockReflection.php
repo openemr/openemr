@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -73,7 +73,6 @@ class DocBlockReflection implements ReflectionInterface
      */
     public static function export()
     {
-
     }
 
     /**
@@ -84,7 +83,11 @@ class DocBlockReflection implements ReflectionInterface
      */
     public function __construct($commentOrReflector, DocBlockTagManager $tagManager = null)
     {
-        $this->tagManager = $tagManager ? : new DocBlockTagManager(DocBlockTagManager::USE_DEFAULT_PROTOTYPES);
+        if (!$tagManager) {
+            $tagManager = new DocBlockTagManager();
+            $tagManager->initializeDefaultTags();
+        }
+        $this->tagManager = $tagManager;
 
         if ($commentOrReflector instanceof Reflector) {
             $this->reflector = $commentOrReflector;
@@ -98,7 +101,6 @@ class DocBlockReflection implements ReflectionInterface
             $lineCount       = substr_count($this->docComment, "\n");
             $this->startLine = $this->reflector->getStartLine() - $lineCount - 1;
             $this->endLine   = $this->reflector->getStartLine() - 1;
-
         } elseif (is_string($commentOrReflector)) {
             $this->docComment = $commentOrReflector;
         } else {
@@ -245,12 +247,11 @@ class DocBlockReflection implements ReflectionInterface
             return;
         }
 
-        $docComment = $this->docComment; // localize variable
+        $docComment = preg_replace('#[ ]{0,1}\*/$#', '', $this->docComment);
 
         // create a clean docComment
         $this->cleanDocComment = preg_replace("#[ \t]*(?:/\*\*|\*/|\*)[ ]{0,1}(.*)?#", '$1', $docComment);
-        $this->cleanDocComment = ltrim($this->cleanDocComment,
-                                       "\r\n"); // @todo should be changed to remove first and last empty line
+        $this->cleanDocComment = ltrim($this->cleanDocComment, "\r\n"); // @todo should be changed to remove first and last empty line
 
         $scanner                = new DocBlockScanner($docComment);
         $this->shortDescription = ltrim($scanner->getShortDescription());
@@ -263,12 +264,15 @@ class DocBlockReflection implements ReflectionInterface
         $this->isReflected = true;
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         $str = "DocBlock [ /* DocBlock */ ] {" . PHP_EOL . PHP_EOL;
         $str .= "  - Tags [" . count($this->tags) . "] {" . PHP_EOL;
 
-        foreach ($this->tags AS $tag) {
+        foreach ($this->tags as $tag) {
             $str .= "    " . $tag;
         }
 

@@ -4,7 +4,7 @@ class POSRef {
 	
 	var $pos_ref;
 	
-	function POSRef($state = "") {
+	function __construct($state = "") {
 		$this->pos_ref = array();
 		$this->pos_ref = POSRef::init_pos();
 		$this->pos_ref = array_merge ($this->pos_ref,$this->state_overides($state));	

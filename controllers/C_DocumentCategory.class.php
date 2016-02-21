@@ -11,8 +11,8 @@ class C_DocumentCategory extends Controller {
 	var $tree;
 	var $link;
 
-	function C_DocumentCategory($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->document_categories = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -40,7 +40,7 @@ class C_DocumentCategory extends Controller {
  		$rnode = $this->_array_recurse($this->tree->tree);
 
 		$menu->addItem($rnode);
-		$treeMenu = &new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+		$treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
 		$this->assign("tree_html",$treeMenu->toHTML());
 		
 		return $this->fetch($GLOBALS['template_dir'] . "document_categories/" . $this->template_mod . "_list.html");

@@ -3,18 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Uri;
 
 /**
- * Interface defining an URI
+ * Interface defining a URI
  */
 interface UriInterface
 {
-
     /**
      * Create a new URI object
      *
@@ -76,8 +75,6 @@ interface UriInterface
      * @return Uri
      */
     public function normalize();
-
-
 
     /**
      * Convert the link to a relative link by substracting a base URI

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Math\Source;
@@ -51,7 +51,6 @@ use SecurityLib\Strength;
  */
 class HashTiming implements RandomLib\Source
 {
-
     /**
      * Return an instance of Strength indicating the strength of the source
      *
@@ -76,9 +75,8 @@ class HashTiming implements RandomLib\Source
         $msec_per_round = 400;
         $bits_per_round = 2;
         $total          = $size;
-        $bytes          = 0;
         $hash_length    = 20;
-        $rounds         = 0;
+
         while (strlen($result) < $size) {
             $bytes  = ($total > $hash_length)? $hash_length : $total;
             $total -= $bytes;
@@ -101,7 +99,7 @@ class HashTiming implements RandomLib\Source
                 $t1 = microtime();
                 $seed = sha1(mt_rand());
                 for ($j = 0; $j < $rounds; $j++) {
-                   $seed = sha1($seed);
+                    $seed = sha1($seed);
                 }
                 $t2 = microtime();
                 $entropy .= $t1 . $t2;
@@ -110,5 +108,4 @@ class HashTiming implements RandomLib\Source
         }
         return substr($result, 0, $size);
     }
-
 }

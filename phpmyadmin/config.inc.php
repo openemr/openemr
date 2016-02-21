@@ -5,9 +5,11 @@
  */
 
 // Access control is dealt with by the ACL check
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 $ignoreAuth = true;
-require_once("../interface/globals.php");
-require_once("../library/acl.inc");
+require_once(dirname(__FILE__)."/../interface/globals.php");
+require_once(dirname(__FILE__)."/../library/acl.inc");
 if ($GLOBALS['disable_phpmyadmin_link']) {
   echo "You do not have access to this resource<br>";
   exit;

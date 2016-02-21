@@ -23,8 +23,8 @@ class C_Document extends Controller {
 	var $_config;
         var $manual_set_owner=false; // allows manual setting of a document owner/service
 
-	function C_Document($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->documents = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -39,6 +39,7 @@ class C_Document extends Controller {
 		$t = new CategoryTree(1);
 		//print_r($t->tree);
 		$this->tree = $t;
+		$this->Document = new Document();
 	}
 	
 	function upload_action($patient_id,$category_id) {
@@ -348,7 +349,7 @@ class C_Document extends Controller {
 		//pass an empty array because we don't want the documents for each category showing up in this list box
  		$rnode = $this->_array_recurse($this->tree->tree,array());
 		$menu->addItem($rnode);
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 		
 		$this->assign("tree_html_listbox",$treeMenu_listbox->toHTML());
 		
@@ -597,7 +598,7 @@ class C_Document extends Controller {
 				if (is_file($file) && strpos(basename($file),".") !== 0) {
 					$file_info['filename'] = basename($file);
 					$file_info['mtime'] = date("m/d/Y H:i:s",filemtime($file));
-					$d = Document::document_factory_url("file://" . $file);
+					$d = $this->Document->document_factory_url("file://" . $file);
 					preg_match("/^([0-9]+)_/",basename($file),$patient_match);
 					$file_info['patient_id'] = $patient_match[1];
 					$file_info['document_id'] = $d->get_id();
@@ -622,7 +623,7 @@ class C_Document extends Controller {
 		//pass an empty array because we don't want the documents for each category showing up in this list box
  		$rnode = $this->_array_recurse($this->tree->tree,array());
 		$menu->addItem($rnode);
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array());
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array());
 		
 		$this->assign("tree_html_listbox",$treeMenu_listbox->toHTML());
 		
@@ -956,8 +957,8 @@ class C_Document extends Controller {
 		$menu  = new HTML_TreeMenu();
  		$rnode = $this->_array_recurse($this->tree->tree,$categories_list);
 		$menu->addItem($rnode);
-		$treeMenu = &new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
+		$treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
 		
 		$this->assign("tree_html",$treeMenu->toHTML());
 		
@@ -977,7 +978,7 @@ class C_Document extends Controller {
         $path = dirname($fname);
         $file = basename($fname);
 
-        $fparts = split("\.",$file);
+        $fparts = explode("\.",$file);
 
         if (count($fparts) > 1) {
             if (is_numeric($fparts[count($fparts) -2]) && (count($fparts) > 2)) {

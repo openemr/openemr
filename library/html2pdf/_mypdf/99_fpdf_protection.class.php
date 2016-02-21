@@ -45,9 +45,9 @@ if (!defined('__CLASS_FPDF_PROTECTION__'))
 		var $last_rc4_key;		//last RC4 key encrypted (cached for optimisation)
 		var $last_rc4_key_c;	//last RC4 computed key
 	
-		function FPDF_Protection($orientation='P',$unit='mm',$format='A4')
+		function __construct($orientation='P',$unit='mm',$format='A4')
 		{
-			$this->FPDF_Formulaire($orientation,$unit,$format);
+			parent::__construct($orientation,$unit,$format);
 	
 			$this->encrypted=false;
 			$this->last_rc4_key='';

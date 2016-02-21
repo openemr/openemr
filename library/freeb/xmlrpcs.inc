@@ -68,7 +68,7 @@
 
 		$methName=$m->getParam(0);
 		$methName=$methName->scalarval();
-		if (ereg("^system\.", $methName))
+		if (preg_match("/^system\./", $methName))
 		{
 			$dmap=$_xmlrpcs_dmap; $sysCall=1;
 		}
@@ -115,7 +115,7 @@
 
 		$methName=$m->getParam(0);
 		$methName=$methName->scalarval();
-		if (ereg("^system\.", $methName))
+		if (preg_match("/^system\./", $methName))
 		{
 			$dmap=$_xmlrpcs_dmap; $sysCall=1;
 		}
@@ -256,7 +256,7 @@
 	{
 		var $dmap=array();
 
-		function xmlrpc_server($dispMap='', $serviceNow=1)
+		function __construct($dispMap='', $serviceNow=1)
 		{
 			global $HTTP_RAW_POST_DATA;
 			// dispMap is a dispatch array of methods
@@ -437,7 +437,7 @@
 			//fwrite($f,"Got this:\n" . print_r($m,true) . "\n");
 			
 			
-			$sysCall = ereg("^system\.", $methName);
+			$sysCall = preg_match("/^system\./", $methName);
 			$dmap = $sysCall ? $_xmlrpcs_dmap : $this->dmap;
 			//print_r($dmap);
 			if (!isset($dmap[$methName]['function']))

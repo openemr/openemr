@@ -3,13 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\View\Helper;
 
-use Zend\I18n\Translator\Translator;
+use Zend\I18n\Translator\TranslatorInterface as Translator;
 use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\View\Exception;
 
@@ -111,9 +111,7 @@ class HeadTitle extends Placeholder\Container\AbstractStandalone implements
 
         if (null !== ($translator = $this->getTranslator())) {
             foreach ($this as $item) {
-                $items[] = $translator->translate(
-                    $item, $this->getTranslatorTextDomain()
-                );
+                $items[] = $translator->translate($item, $this->getTranslatorTextDomain());
             }
         } else {
             foreach ($this as $item) {
@@ -202,7 +200,7 @@ class HeadTitle extends Placeholder\Container\AbstractStandalone implements
     public function getTranslator()
     {
         if (! $this->isTranslatorEnabled()) {
-            return null;
+            return;
         }
 
         return $this->translator;

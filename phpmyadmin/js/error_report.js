@@ -23,9 +23,10 @@ var ErrorReport = {
             ajax_request: true,
             server: PMA_commonParams.get('server'),
             token: PMA_commonParams.get('token'),
-            get_settings: true
+            get_settings: true,
+            exception_type: 'js'
         }, function (data) {
-            if (!data.success === true) {
+            if (data.success !== true) {
                 PMA_ajaxShowMessage(data.error, false);
                 return;
             }
@@ -51,7 +52,7 @@ var ErrorReport = {
     /**
      * Shows the modal dialog previewing the report
      *
-     * @param object error report info
+     * @param exception object error report info
      *
      * @return void
      */
@@ -67,8 +68,8 @@ var ErrorReport = {
         var button_options = {};
 
         button_options[PMA_messages.strSendErrorReport] = function () {
-            $dialog = $(this);
-            post_data = $.extend(report_data, {
+            var $dialog = $(this);
+            var post_data = $.extend(report_data, {
                 send_error_report: true,
                 description: $("#report_description").val(),
                 always_send: $("#always_send_checkbox")[0].checked
@@ -116,16 +117,16 @@ var ErrorReport = {
     _showErrorNotification: function () {
         ErrorReport._removeErrorNotification();
 
-        $div = $(
+        var $div = $(
             '<div style="position:fixed;bottom:0;left:0;right:0;margin:0;' +
             'z-index:1000" class="error" id="error_notification"></div>'
         ).append(
             PMA_getImage("s_error.png") + PMA_messages.strErrorOccurred
         );
 
-        $buttons = $('<div style="float:right"></div>');
+        var $buttons = $('<div class="floatright"></div>');
 
-        button_html  = '<button id="show_error_report">';
+        var button_html  = '<button id="show_error_report">';
         button_html += PMA_messages.strShowReportDetails;
         button_html += '</button>';
 
@@ -150,7 +151,11 @@ var ErrorReport = {
      *
      * @return void
      */
-    _removeErrorNotification: function () {
+    _removeErrorNotification: function (e) {
+        if (e) {
+            // don't remove the hash fragment by navigating to #
+            e.preventDefault();
+        }
         $("#error_notification").fadeOut(function () {
             $(this).remove();
         });
@@ -164,7 +169,13 @@ var ErrorReport = {
         if (exception.message === null || typeof(exception.message) == "undefined"){
             return "";
         } else {
-            return (/([a-zA-Z]+):/).exec(exception.message)[1];
+            var reg = /([a-zA-Z]+):/;
+            var regex_result = null;
+            regex_result = reg.exec(exception.message);
+            if(regex_result && regex_result.length == 2)
+                return regex_result[1];
+            else
+                return "";
         }
     },
     /**
@@ -175,35 +186,6 @@ var ErrorReport = {
     _createReportDialog: function () {
         ErrorReport._removeErrorNotification();
         ErrorReport._showReportDialog(ErrorReport._last_exception);
-    },
-    /**
-     * Returns the needed info about stored microhistory
-     *
-     * @return object
-     */
-    _get_microhistory: function () {
-        cached_pages = AJAX.cache.pages.slice(-7);
-        remove = ["common_query", "table", "db", "token", "pma_absolute_uri"];
-        return {
-            pages: cached_pages.map(function (page) {
-                simplepage = {
-                    hash: page.hash
-                };
-
-                if (page.params) {
-                    simplepage.params = $.extend({}, page.params);
-                    $.each(simplepage.params, function (param) {
-                        if ($.inArray(param, remove) != -1) {
-                            delete simplepage.params[param];
-                        }
-                    });
-                }
-
-                return simplepage;
-            }),
-            current_index: AJAX.cache.current -
-                (AJAX.cache.pages.length - cached_pages.length)
-        };
     },
     /**
      * Redirects to the settings page containing error report
@@ -217,7 +199,7 @@ var ErrorReport = {
     /**
      * Returns the report data to send to the server
      *
-     * @param object exception info
+     * @param exception object exception info
      *
      * @return object
      */
@@ -227,10 +209,10 @@ var ErrorReport = {
             "token": PMA_commonParams.get('token'),
             "exception": exception,
             "current_url": window.location.href,
-            "microhistory": ErrorReport._get_microhistory()
+            "exception_type": 'js'
         };
-        if (typeof AJAX.cache.pages[AJAX.cache.current - 1] !== 'undefined') {
-           report_data.scripts = AJAX.cache.pages[AJAX.cache.current - 1].scripts.map(
+        if (AJAX.scriptHandler._scripts.length > 0) {
+            report_data.scripts = AJAX.scriptHandler._scripts.map(
                 function (script) {
                     return script.name;
                 }
@@ -245,16 +227,18 @@ var ErrorReport = {
      */
     wrap_global_functions: function () {
         for (var key in window) {
-            var global = window[key];
-            if (typeof(global) === "function" && key.indexOf("PMA_") === 0) {
-                window[key] = ErrorReport.wrap_function(global);
+            if (key.indexOf("PMA_") === 0) {
+                var global = window[key];
+                if (typeof(global) === "function") {
+                    window[key] = ErrorReport.wrap_function(global);
+                }
             }
         }
     },
     /**
      * Wraps given function in error reporting code and returns wrapped function
      *
-     * @param function function to be wrapped
+     * @param func function to be wrapped
      *
      * @return function
      */

@@ -11,13 +11,13 @@ if (! defined('PMA_MINIMUM_COMMON')) {
     exit();
 }
 
-$bg = $_SESSION['PMA_Theme']->getImgPath() . 'sprites.png';
+$bg = $_SESSION['PMA_Theme']->getImgPath() . 'sprites.png?v=' . urlencode(PMA_VERSION);
 /* Check if there is a valid data file for sprites */
 if (is_readable($_SESSION['PMA_Theme']->getPath() . '/sprites.lib.php')) {
 
-?>
-/* Icon sprites */
-.icon {
+    ?>
+    /* Icon sprites */
+    .icon {
     margin: 0;
     margin-<?php echo $left; ?>: .3em;
     padding: 0 !important;
@@ -26,8 +26,8 @@ if (is_readable($_SESSION['PMA_Theme']->getPath() . '/sprites.lib.php')) {
     background-image: url('<?php echo $bg; ?>') !important;
     background-repeat: no-repeat !important;
     background-position: top left !important;
-}
-<?php
+    }
+    <?php
 
     include_once $_SESSION['PMA_Theme']->getPath() . '/sprites.lib.php';
     $sprites = array();
@@ -55,29 +55,6 @@ if (is_readable($_SESSION['PMA_Theme']->getPath() . '/sprites.lib.php')) {
             $width,
             $height
         );
-    }
-    // Here we map some of the classes that we
-    // defined above to other CSS selectors.
-    // The indexes of the array correspond to
-    // already defined classes and the values
-    // are the selectors that we want to map to.
-    $elements = array(
-        's_sortable' => 'img.sortableIcon',
-        's_asc'      => 'th.headerSortUp img.sortableIcon',
-        's_desc'     => 'th.headerSortDown img.sortableIcon'
-    );
-    $template = "%s { background-position: 0 -%upx; "
-              . "height: %upx; width: %upx; }\n";
-    foreach ($elements as $key => $value) {
-        if (isset($sprites[$key])) { // If the CSS class has been defined
-            printf(
-                $template,
-                $value,
-                ($sprites[$key]['position'] * 16),
-                $sprites[$key]['height'],
-                $sprites[$key]['width']
-            );
-        }
     }
 }
 ?>

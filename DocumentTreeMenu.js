@@ -475,6 +475,34 @@ function arrayCopy(input)
 	}
 
 /**
+* ViSolve - Function to expand all the branches
+*/
+	TreeMenu.prototype.expandAll = function ()
+	{
+	
+		if (!this.doesPersistence()) {
+			return false;
+		}
+		
+		this.loadCookie();
+	
+		for (var i=0; i<this.branches.length; i++) {
+			var status = this.getExpandedStatusFromCookie(this.branches[i]);
+			// Only update if it's supposed to be expanded and it is
+			if (status == false && this.branchStatus[this.branches[i]] == false) {
+				if (this.checkParentVisibility(this.branches[i])) {
+					this.toggleBranch(this.branches[i], true, false);
+				} else {
+					this.branchStatus[this.branches[i]] = true;
+					this.swapImage(this.branches[i]);
+				}
+			}
+		}
+		
+		
+	}
+
+/**
 * Collapse all branches
 */
 	TreeMenu.prototype.collapseAll = function ()

@@ -1,10 +1,10 @@
 <?php
-// Italian language file contributed by Tiraboschi Massimiliano aka TiMax  
+// Italian language file contributed by Tiraboschi Massimiliano aka TiMax
 // www.maxdev.com  timax@maxdev.com
 $ADODB_LANG_ARRAY = array (
             'LANG'                      => 'it',
             DB_ERROR                    => 'errore sconosciuto',
-            DB_ERROR_ALREADY_EXISTS     => 'esiste gi&agrave;',
+            DB_ERROR_ALREADY_EXISTS     => 'esiste già',
             DB_ERROR_CANNOT_CREATE      => 'non posso creare',
             DB_ERROR_CANNOT_DELETE      => 'non posso cancellare',
             DB_ERROR_CANNOT_DROP        => 'non posso eliminare',
@@ -31,4 +31,3 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_NOSUCHDB           => 'database non trovato',
             DB_ERROR_ACCESS_VIOLATION   => 'permessi insufficienti'
 );
-?>

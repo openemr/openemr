@@ -2,6 +2,7 @@
 require_once("interface/globals.php");
 require_once("library/classes/Controller.class.php");
 
-echo Controller::act($_GET);
+$controller = new Controller();
+echo $controller->act($_GET);
 
 ?>

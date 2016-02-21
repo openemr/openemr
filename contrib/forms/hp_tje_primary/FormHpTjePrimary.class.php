@@ -137,39 +137,39 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_date_of_onset_y() {
-		$ymd = split("-",$this->date_of_onset);
+		$ymd = explode("-",$this->date_of_onset);
 		return $ymd[0];
 	}
 	
 	function set_date_of_onset_y($year) {
 		if (is_numeric($year)) {
-			$ymd = split("-",$this->date_of_onset);
+			$ymd = explode("-",$this->date_of_onset);
 			$ymd[0] = $year;
 			$this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
 		}
 	}
 	
 	function get_date_of_onset_m() {
-		$ymd = split("-",$this->date_of_onset);
+		$ymd = explode("-",$this->date_of_onset);
 		return $ymd[1];
 	}
 	
 	function set_date_of_onset_m($month) {
 		if (is_numeric($month)) {
-			$ymd = split("-",$this->date_of_onset);
+			$ymd = explode("-",$this->date_of_onset);
 			$ymd[1] = $month;
 			$this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
 		}
 	}
 	
 	function get_date_of_onset_d() {
-		$ymd = split("-",$this->date_of_onset);
+		$ymd = explode("-",$this->date_of_onset);
 		return $ymd[2];
 	}
 	
 	function set_date_of_onset_d($day) {
 		if (is_numeric($day)) {
-			$ymd = split("-",$this->date_of_onset);
+			$ymd = explode("-",$this->date_of_onset);
 			$ymd[2] = $day;
 			$this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
 		}

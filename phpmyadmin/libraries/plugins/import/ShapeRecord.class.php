@@ -31,7 +31,7 @@ class PMA_ShapeRecord extends ShapeRecord
      * @return void
      * @see ShapeRecord::loadFromFile()
      */
-    function loadFromFile(&$SHPFile, &$DBFFile)
+    public function loadFromFile(&$SHPFile, &$DBFFile)
     {
         $this->DBFFile = $DBFFile;
         $this->_loadHeaders();
@@ -72,7 +72,7 @@ class PMA_ShapeRecord extends ShapeRecord
      * @return void
      * @see ShapeRecord::_loadHeaders()
      */
-    function _loadHeaders()
+    public function _loadHeaders()
     {
         $this->recordNumber = loadData("N", ImportShp::readFromBuffer(4));
         ImportShp::readFromBuffer(4);
@@ -85,7 +85,7 @@ class PMA_ShapeRecord extends ShapeRecord
      * @return array
      * @see ShapeRecord::_loadPoint()
      */
-    function _loadPoint()
+    public function _loadPoint()
     {
         $data = array();
 
@@ -101,7 +101,7 @@ class PMA_ShapeRecord extends ShapeRecord
      * @return void
      * @see ShapeRecord::_loadMultiPointRecord()
      */
-    function _loadMultiPointRecord()
+    public function _loadMultiPointRecord()
     {
         $this->SHPData = array();
         $this->SHPData["xmin"] = loadData("d", ImportShp::readFromBuffer(8));
@@ -122,7 +122,7 @@ class PMA_ShapeRecord extends ShapeRecord
      * @return void
      * @see ShapeRecord::_loadPolyLineRecord()
      */
-    function _loadPolyLineRecord()
+    public function _loadPolyLineRecord()
     {
         $this->SHPData = array();
         $this->SHPData["xmin"] = loadData("d", ImportShp::readFromBuffer(8));
@@ -141,7 +141,7 @@ class PMA_ShapeRecord extends ShapeRecord
 
         $readPoints = 0;
         reset($this->SHPData["parts"]);
-        while (list($partIndex, $partData) = each($this->SHPData["parts"])) {
+        while (list($partIndex,) = each($this->SHPData["parts"])) {
             if (! isset($this->SHPData["parts"][$partIndex]["points"])
                 || !is_array($this->SHPData["parts"][$partIndex]["points"])
             ) {
@@ -158,4 +158,3 @@ class PMA_ShapeRecord extends ShapeRecord
         }
     }
 }
-?>

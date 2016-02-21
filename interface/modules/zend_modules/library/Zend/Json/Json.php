@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -12,6 +12,7 @@ namespace Zend\Json;
 use SimpleXMLElement;
 use Zend\Json\Exception\RecursionException;
 use Zend\Json\Exception\RuntimeException;
+use ZendXml\Security as XmlSecurity;
 
 /**
  * Class for encoding to and decoding from JSON.
@@ -113,14 +114,27 @@ class Json
             $valueToEncode = static::_recursiveJsonExprFinder($valueToEncode, $javascriptExpressions);
         }
 
+        $prettyPrint = (isset($options['prettyPrint']) && ($options['prettyPrint'] == true));
+
         // Encoding
         if (function_exists('json_encode') && static::$useBuiltinEncoderDecoder !== true) {
+            $encodeOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
+
+            if ($prettyPrint && defined('JSON_PRETTY_PRINT')) {
+                $encodeOptions |= JSON_PRETTY_PRINT;
+                $prettyPrint = false;
+            }
+
             $encodedResult = json_encode(
                 $valueToEncode,
-                JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+                $encodeOptions
             );
         } else {
             $encodedResult = Encoder::encode($valueToEncode, $cycleCheck, $options);
+        }
+
+        if ($prettyPrint) {
+            $encodedResult = self::prettyPrint($encodedResult, array("intent" => "    "));
         }
 
         //only do post-processing to revert back the Zend\Json\Expr if any.
@@ -159,9 +173,11 @@ class Json
      * @return mixed
      */
     protected static function _recursiveJsonExprFinder(
-        &$value, array &$javascriptExpressions, $currentKey = null
+        &$value,
+        array &$javascriptExpressions,
+        $currentKey = null
     ) {
-         if ($value instanceof Expr) {
+        if ($value instanceof Expr) {
             // TODO: Optimize with ascii keys, if performance is bad
             $magicKey = "____" . $currentKey . "_" . (count($javascriptExpressions));
             $javascriptExpressions[] = array(
@@ -284,6 +300,7 @@ class Json
     }
 
     /**
+     * @deprecated by https://github.com/zendframework/zf2/pull/6778
      * fromXml - Converts XML to JSON
      *
      * Converts a XML formatted string into a JSON formatted string.
@@ -311,14 +328,12 @@ class Json
     public static function fromXml($xmlStringContents, $ignoreXmlAttributes = true)
     {
         // Load the XML formatted string into a Simple XML Element object.
-        $simpleXmlElementObject = simplexml_load_string($xmlStringContents);
+        $simpleXmlElementObject = XmlSecurity::scan($xmlStringContents);
 
         // If it is not a valid XML content, throw an exception.
-        if ($simpleXmlElementObject == null) {
+        if (!$simpleXmlElementObject) {
             throw new RuntimeException('Function fromXml was called with an invalid XML formatted string.');
-        } // End of if ($simpleXmlElementObject == null)
-
-        $resultArray = null;
+        } // End of if ($simpleXmlElementObject === null)
 
         // Call the recursive function to convert the XML into a PHP array.
         $resultArray = static::_processXml($simpleXmlElementObject, $ignoreXmlAttributes);
@@ -344,14 +359,21 @@ class Json
         $result = "";
         $indent = 0;
 
-        $ind = "\t";
+        $ind = "    ";
         if (isset($options['indent'])) {
             $ind = $options['indent'];
         }
 
         $inLiteral = false;
         foreach ($tokens as $token) {
-            if ($token == "") continue;
+            $token = trim($token);
+            if ($token == "") {
+                continue;
+            }
+
+            if (preg_match('/^("(?:.*)"):[ ]?(.*)$/', $token, $matches)) {
+                $token = $matches[1] . ': ' . $matches[2];
+            }
 
             $prefix = str_repeat($ind, $indent);
             if (!$inLiteral && ($token == "{" || $token == "[")) {
@@ -369,14 +391,16 @@ class Json
             } else {
                 $result .= ($inLiteral ?  '' : $prefix) . $token;
 
+                //remove escaped backslash sequences causing false positives in next check
+                $token = str_replace('\\', '', $token);
                 // Count # of unescaped double-quotes in token, subtract # of
                 // escaped double-quotes and if the result is odd then we are
                 // inside a string literal
-                if ((substr_count($token, "\"")-substr_count($token, "\\\"")) % 2 != 0) {
+                if ((substr_count($token, '"')-substr_count($token, '\\"')) % 2 != 0) {
                     $inLiteral = !$inLiteral;
                 }
             }
         }
         return $result;
-   }
+    }
 }

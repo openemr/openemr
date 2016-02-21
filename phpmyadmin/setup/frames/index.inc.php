@@ -16,12 +16,14 @@ if (!defined('PHPMYADMIN')) {
 require_once './libraries/display_select_lang.lib.php';
 require_once './libraries/config/FormDisplay.class.php';
 require_once './libraries/config/ServerConfigChecks.class.php';
+require_once './libraries/VersionInformation.php';
 require_once './setup/lib/index.lib.php';
 
 // prepare unfiltered language list
 $all_languages = PMA_langList();
 uasort($all_languages, 'PMA_languageCmp');
 
+/** @var ConfigFile $cf */
 $cf = $GLOBALS['ConfigFile'];
 $separator = PMA_URL_getArgSeparator('html');
 
@@ -64,7 +66,8 @@ if (!$config_writable || !$config_readable) {
 //
 // Check https connection
 //
-$is_https = !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on';
+$is_https = !empty($_SERVER['HTTPS'])
+    && /*overload*/mb_strtolower($_SERVER['HTTPS']) == 'on';
 if (!$is_https) {
     $text = __(
         'You are not using a secure connection; all data (including potentially '
@@ -146,7 +149,7 @@ echo '</legend>';
 //
 // Display server list
 //
-PMA_displayFormTop(
+echo PMA_displayFormTop(
     'index.php', 'get',
     array(
         'page' => 'servers',
@@ -173,12 +176,12 @@ if ($cf->getServerCount() > 0) {
         echo '<td>' . htmlspecialchars($cf->getServerDSN($id)) . '</td>';
         echo '<td style="white-space: nowrap">';
         echo '<small>';
-        echo '<a href="?page=servers' . $separator
-            . 'mode=edit' . $separator . 'id=' . $id . '">'
+        echo '<a href="' . PMA_URL_getCommon() . $separator . 'page=servers'
+            . $separator . 'mode=edit' . $separator . 'id=' . $id . '">'
             . __('Edit') . '</a>';
         echo ' | ';
-        echo '<a href="?page=servers' . $separator
-            . 'mode=remove' . $separator . 'id=' . $id . '">'
+        echo '<a href="' . PMA_URL_getCommon() . $separator . 'page=servers'
+            . $separator . 'mode=remove' . $separator . 'id=' . $id . '">'
             . __('Delete') . '</a>';
         echo '</small>';
         echo '</td>';
@@ -204,7 +207,7 @@ echo '</tr>';
 echo '</table>';
 echo '</div>';
 
-PMA_displayFormBottom();
+echo PMA_displayFormBottom();
 
 echo '</fieldset>';
 
@@ -215,7 +218,7 @@ echo '<fieldset class="simple"><legend>' . __('Configuration file') . '</legend>
 //
 $form_display = new FormDisplay($cf);
 
-PMA_displayFormTop('config.php');
+echo PMA_displayFormTop('config.php');
 echo '<table width="100%" cellspacing="0">';
 
 // Display language list
@@ -227,7 +230,7 @@ foreach ($all_languages as $each_lang_key => $each_lang) {
     $lang_name = PMA_languageName($each_lang);
     $opts['values'][$each_lang_key] = $lang_name;
 }
-PMA_displayInput(
+echo PMA_displayInput(
     'DefaultLang', __('Default language'), 'select',
     $cf->getValue('DefaultLang'), '', true, $opts
 );
@@ -252,7 +255,7 @@ if ($cf->getServerCount() > 0) {
     $opts['values']['1'] = __('- none -');
     $opts['values_escaped'] = true;
 }
-PMA_displayInput(
+echo PMA_displayInput(
     'ServerDefault', __('Default server'), 'select',
     $cf->getValue('ServerDefault'), '', true, $opts
 );
@@ -264,7 +267,7 @@ $opts = array(
         'win' => 'Windows (\r\n)'),
     'values_escaped' => true);
 $eol = PMA_ifSetOr($_SESSION['eol'], (PMA_IS_WINDOWS ? 'win' : 'unix'));
-PMA_displayInput(
+echo PMA_displayInput(
     'eol', __('End of line'), 'select',
     $eol, '', true, $opts
 );
@@ -300,14 +303,13 @@ echo '</td>';
 echo '</tr>';
 echo '</table>';
 
-PMA_displayFormBottom();
+echo PMA_displayFormBottom();
 
 echo '</fieldset>';
 echo '<div id="footer">';
-echo '<a href="http://www.phpmyadmin.net/">' . __('phpMyAdmin homepage') . '</a>';
-echo '<a href="http://sourceforge.net/donate/index.php?group_id=23067">'
+echo '<a href="https://www.phpmyadmin.net/">' . __('phpMyAdmin homepage') . '</a>';
+echo '<a href="https://www.phpmyadmin.net/donate/">'
     .  __('Donate') . '</a>';
-echo '<a href="?version_check=1' . $separator
-    . 'token=' . $_SESSION[' PMA_token '] . '">'
+echo '<a href="' .  PMA_URL_getCommon() . $separator . 'version_check=1">'
     . __('Check for latest version') . '</a>';
 echo '</div>';

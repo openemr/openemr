@@ -13,7 +13,7 @@ class OFX {
 	/**
 	 * Constructor sets all OFX attributes to their default value
 	 */
-	function OFX($ba = array())	{
+	function __construct($ba = array())	{
 		$this->billing_array = $ba;
 		$this->config = $GLOBALS['oer_config']['ofx'];
 	}

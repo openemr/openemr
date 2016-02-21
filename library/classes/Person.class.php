@@ -22,7 +22,7 @@ class Person {
 	/**
 	 * Constructor sets all Prescription attributes to their default value
 	 */
-	function Person($id = "", $prefix = "")	{
+	function __construct($id = "", $prefix = "")	{
 		$this->id = $id;
 
 	}

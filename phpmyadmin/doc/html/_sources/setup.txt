@@ -96,6 +96,7 @@ Quick Install
    Downloads page. Some kits contain only the English messages, others
    contain all languages. We'll assume you chose a kit whose name
    looks like ``phpMyAdmin-x.x.x -all-languages.tar.gz``.
+#. Ensure you have downloaded a genuine archive, see :ref:`verify`.
 #. Untar or unzip the distribution (be sure to unzip the subdirectories):
    ``tar -xzvf phpMyAdmin_x.x.x-all-languages.tar.gz`` in your
    webserver's document root. If you don't have direct access to your
@@ -162,8 +163,8 @@ For a full explanation of possible configuration values, see the
 Using Setup script
 ------------------
 
-Instead of manually editing :file:`config.inc.php`, you can use the `Setup
-Script <setup/>`_. First you must manually create a folder ``config``
+Instead of manually editing :file:`config.inc.php`, you can use phpMyAdmin's 
+setup feature. First you must manually create a folder ``config``
 in the phpMyAdmin directory. This is a security measure. On a
 Linux/Unix system you can use the following commands:
 
@@ -182,11 +183,16 @@ And to edit an existing configuration, copy it over first:
     cp config.inc.php config/           # copy current configuration for editing
     chmod o+w config/config.inc.php     # give it world writable permissions
 
+.. note::
+
+    Debian and Ubuntu have simplified this setup and all you need to do is to
+    execute :program:`/usr/sbin/pma-configure`.
+
 On other platforms, simply create the folder and ensure that your web
 server has read and write access to it. :ref:`faq1_26` can help with
 this.
 
-Next, open ``setup/`` in your browser. If you have an existing configuration,
+Next, open your browser and visit the location where you installed phpMyAdmin, with the ``/setup`` suffix. If you have an existing configuration,
 use the ``Load`` button to bring its content inside the setup panel.
 Note that **changes are not saved to disk until you explicitly choose ``Save``**
 from the *Configuration* area of the screen. Normally the script saves the new
@@ -208,6 +214,11 @@ measure:
     chmod o-rw config.inc.php          # remove world read and write permissions
     rm -rf config                      # remove not needed directory
 
+.. note::
+
+    Debian and Ubuntu have simplified this setup and all you need to do is to
+    execute :program:`/usr/sbin/pma-secure`.
+
 Now the file is ready to be used. You can choose to review or edit the
 file with your favorite editor, if you prefer to set some advanced
 options which the setup script does not provide.
@@ -224,16 +235,107 @@ options which the setup script does not provide.
    a login dialog if using :term:`HTTP` or
    cookie authentication mode.
 #. You should deny access to the ``./libraries`` and ``./setup/lib``
-   subfolders in your webserver configuration. For Apache you can use
-   supplied :term:`.htaccess`  file in that folder, for other webservers, you should
-   configure this yourself. Such configuration prevents from possible
+   subfolders in your webserver configuration.
+   Such configuration prevents from possible
    path exposure and cross side scripting vulnerabilities that might
-   happen to be found in that code.
+   happen to be found in that code. For the Apache webserver, this is
+   often accomplished with a :term:`.htaccess` file in those directories.
 #. It is generally a good idea to protect a public phpMyAdmin installation
    against access by robots as they usually can not do anything good
    there. You can do this using ``robots.txt`` file in root of your
    webserver or limit access by web server configuration, see
    :ref:`faq1_42`.
+
+
+.. _verify:
+
+Verifying phpMyAdmin releases
++++++++++++++++++++++++++++++
+
+Since July 2015 all phpMyAdmin releases are cryptographically signed by the
+releasing developer, who is currently Marc Delisle. His key id is
+0x81AF644A, his PGP fingerprint is:
+
+.. code-block:: console
+
+    436F F188 4B1A 0C3F DCBF 0D79 FEFC 65D1 81AF 644A
+
+and you can get more identification information from `https://keybase.io/lem9 <https://keybase.io/lem9>`_.  You should verify that the signature matches
+the archive you have downloaded. This way you can be sure that you are using
+the same code that was released.
+
+Each archive is accompanied with ``.asc`` files which contains the PGP signature
+for it. Once you have both of them in the same folder, you can verify the signature:
+
+.. code-block:: console
+
+    $ gpg --verify phpMyAdmin-4.4.9-all-languages.zip.asc
+    gpg: Signature made Fri Jun 12 13:09:58 2015 CEST using RSA key ID 81AF644A
+    gpg: Can't check signature: No public key
+
+As you can see gpg complains that it does not know the public key. At this
+point you should do one of the following steps:
+
+* Download the keyring from `our download server <https://files.phpmyadmin.net/phpmyadmin.keyring>`_, then import it with:
+
+.. code-block:: console
+
+   $ gpg --import phpmyadmin.keyring
+
+* Download and import the key from one of the key servers:
+
+.. code-block:: console
+
+    $ gpg --keyserver hkp://pgp.mit.edu --recv-keys 81AF644A
+    gpg: requesting key 81AF644A from hkp server pgp.mit.edu
+    gpg: key 81AF644A: public key "Marc Delisle <marc@infomarc.info>" imported
+    gpg: no ultimately trusted keys found
+    gpg: Total number processed: 1
+    gpg:               imported: 1  (RSA: 1)
+
+This will improve the situation a bit - at this point you can verify that the
+signature from the given key is correct but you still can not trust the name used
+in the key:
+
+.. code-block:: console
+
+    $ gpg --verify phpMyAdmin-4.4.9-all-languages.zip.asc
+    gpg: Signature made Fri Jun 12 13:09:58 2015 CEST using RSA key ID 81AF644A
+    gpg: Good signature from "Marc Delisle <marc@infomarc.info>" [unknown]
+    gpg: WARNING: This key is not certified with a trusted signature!
+    gpg:          There is no indication that the signature belongs to the owner.
+    Primary key fingerprint: 436F F188 4B1A 0C3F DCBF  0D79 FEFC 65D1 81AF 644A
+
+The problem here is that anybody could issue the key with this name.  You need to
+ensure that the key is actually owned by the mentioned person.  The GNU Privacy
+Handbook covers this topic in the chapter `Validating other keys on your public
+keyring`_. The most reliable method is to meet the developer in person and
+exchange key fingerprints, however you can also rely on the web of trust. This way
+you can trust the key transitively though signatures of others, who have met
+the developer in person. For example you can see how `Marc's key links to
+Linus's key`_.
+
+Once the key is trusted, the warning will not occur:
+
+.. code-block:: console
+
+    $ gpg --verify phpMyAdmin-4.4.9-all-languages.zip.asc
+    gpg: Signature made Fri Jun 12 13:09:58 2015 CEST using RSA key ID 81AF644A
+    gpg: Good signature from "Marc Delisle <marc@infomarc.info>" [full]
+
+Should the signature be invalid (the archive has been changed), you would get a
+clear error regardless of the fact that the key is trusted or not:
+
+.. code-block:: console
+
+    $ gpg --verify phpMyAdmin-4.4.9-all-languages.zip.asc
+    gpg: Signature made Fri Jun 12 13:09:58 2015 CEST using RSA key ID 81AF644A
+    gpg: BAD signature from "Marc Delisle <marc@infomarc.info>" [unknown]
+
+.. _Validating other keys on your public keyring: https://www.gnupg.org/gph/en/manual.html#AEN335
+
+.. _Marc's key links to Linus's key: http://pgp.cs.uu.nl/mk_path.cgi?FROM=00411886&TO=81AF644A
+
 
 .. index::
     single: Configuration storage
@@ -252,21 +354,53 @@ in your own database, or in a central database for a multi-user installation
 (this database would then be accessed by the controluser, so no other user
 should have rights to it).
 
-Please look at your ``./examples/`` directory, where you should find a
+Zero configuration
+------------------
+
+In many cases, this database structure can be automatically created and
+configured. This is called “Zero Configuration” mode and can be particularly
+useful in shared hosting situations. “Zeroconf” mode is on by default, to
+disable set :config:option:`$cfg['ZeroConf']` to false.
+
+The following three scenarios are covered by the Zero Configuration mode:
+
+* When entering a database where the configuration storage tables are not
+  present, phpMyAdmin offers to create them from the Operations tab.
+* When entering a database where the tables do already exist, the software
+  automatically detects this and begins using them. This is the most common
+  situation; after the tables are initially created automatically they are
+  continually used without disturbing the user; this is also most useful on
+  shared hosting where the user is not able to edit :file:`config.inc.php` and
+  usually the user only has access to one database.
+* When having access to multiple databases, if the user first enters the
+  database containing the configuration storage tables then switches to
+  another database,
+  phpMyAdmin continues to use the tables from the first database; the user is
+  not prompted to create more tables in the new database.
+
+
+Manual configuration
+--------------------
+
+Please look at your ``./sql/`` directory, where you should find a
 file called *create\_tables.sql*. (If you are using a Windows server,
 pay special attention to :ref:`faq1_23`).
 
-If you already had this infrastructure and upgraded to MySQL 4.1.2 or
-newer, please use :file:`examples/upgrade_tables_mysql_4_1_2+.sql`
-and then create new tables by importing
-:file:`examples/create_tables.sql`.
+If you already had this infrastructure and:
+
+* upgraded to MySQL 4.1.2 or newer, please use
+  :file:`sql/upgrade_tables_mysql_4_1_2+.sql`.
+* upgraded to phpMyAdmin 4.3.0 or newer from 2.5.0 or newer (<= 4.2.x),
+  please use :file:`sql/upgrade_column_info_4_3_0+.sql`.
+
+and then create new tables by importing :file:`sql/create_tables.sql`.
 
 You can use your phpMyAdmin to create the tables for you. Please be
 aware that you may need special (administrator) privileges to create
 the database and tables, and that the script may need some tuning,
 depending on the database name.
 
-After having imported the :file:`examples/create_tables.sql` file, you
+After having imported the :file:`sql/create_tables.sql` file, you
 should specify the table names in your :file:`config.inc.php` file. The
 directives used for that can be found in the :ref:`config`.
 
@@ -285,10 +419,13 @@ using following statement:
 Upgrading from an older version
 +++++++++++++++++++++++++++++++
 
+**Never** extract the new version over an existing installation
+of phpMyAdmin; we had evidence of problems caused by this.
+
 Simply copy :file:`config.inc.php` from your previous installation into
 the newly unpacked one. Configuration files from old versions may
 require some tweaking as some options have been changed or removed.
-For compatibility with PHP 6, remove a
+For compatibility with PHP 5.3 and later, remove a
 ``set_magic_quotes_runtime(0);`` statement that you might find near
 the end of your configuration file.
 
@@ -299,7 +436,15 @@ specific.
 If you have upgraded your MySQL server from a version previous to 4.1.2 to
 version 5.x or newer and if you use the phpMyAdmin configuration storage, you
 should run the :term:`SQL` script found in
-:file:`examples/upgrade_tables_mysql_4_1_2+.sql`.
+:file:`sql/upgrade_tables_mysql_4_1_2+.sql`.
+
+If you have upgraded your phpMyAdmin to 4.3.0 or newer from 2.5.0 or
+newer (<= 4.2.x) and if you use the phpMyAdmin configuration storage, you
+should run the :term:`SQL` script found in
+:file:`sql/upgrade_column_info_4_3_0+.sql`.
+
+Do not forget to clear the browser cache and to empty the old session by
+logging out and logging in again.
 
 .. index:: Authentication mode
 
@@ -322,7 +467,7 @@ set in the phpMyAdmin configuration file (except possibly for the
 :config:option:`$cfg['Servers'][$i]['controluser']`).
 However, keep in mind that the password travels in plain text, unless
 you are using the HTTPS protocol. In cookie mode, the password is
-stored, encrypted with the blowfish algorithm, in a temporary cookie.
+stored, encrypted with the AES algorithm, in a temporary cookie.
 
 Then each of the *true* users should be granted a set of privileges
 on a set of particular databases. Normally you shouldn't give global
@@ -360,10 +505,8 @@ HTTP authentication mode
 Cookie authentication mode
 --------------------------
 
-* You can use this method as a replacement for the :term:`HTTP` authentication
-  (for example, if you're running :term:`IIS`).
-* Obviously, the user must enable cookies in the browser, but this is
-  now a requirement for all authentication modes.
+* Username and password are stored in cookies during the session and password
+  is deleted when it ends.
 * With this mode, the user can truly log out of phpMyAdmin and log
   back in with the same username.
 * If you want to allow users to enter any hostname to connect (rather than only
@@ -374,13 +517,41 @@ Cookie authentication mode
 
 .. index:: pair: Signon; Authentication mode
 
+.. _auth_signon:
+
 Signon authentication mode
 --------------------------
 
 * This mode is a convenient way of using credentials from another
-  application to authenticate to phpMyAdmin.
+  application to authenticate to phpMyAdmin to implement single signon
+  solution.
 * The other application has to store login information into session
-  data.
+  data (see :config:option:`$cfg['Servers'][$i]['SignonSession']`) or you
+  need to implement script to return the credentials (see
+  :config:option:`$cfg['Servers'][$i]['SignonScript']`).
+* When no credentials are available, the user is being redirected to
+  :config:option:`$cfg['Servers'][$i]['SignonURL']`, where you should handle
+  the login process.
+
+The very basic example of saving credentials in a session is available as
+:file:`examples/signon.php`:
+
+.. literalinclude:: ../examples/signon.php
+    :language: php
+
+Alternatively you can also use this way to integrate with OpenID as shown
+in :file:`examples/openid.php`:
+
+.. literalinclude:: ../examples/openid.php
+    :language: php
+
+If you intend to pass the credentials using some other means than, you have to
+implement wrapper in PHP to get that data and set it to
+:config:option:`$cfg['Servers'][$i]['SignonScript']`. There is very minimal example
+in :file:`examples/signon-script.php`:
+
+.. literalinclude:: ../examples/signon-script.php
+    :language: php
 
 .. seealso::
     :config:option:`$cfg['Servers'][$i]['auth_type']`,
@@ -433,11 +604,16 @@ line to :file:`config.inc.php`:
 You then have to create the ``swekey.conf`` file that will associate
 each user with their Swekey Id. It is important to place this file
 outside of your web server's document root (in the example, it is
-located in ``/etc``). A self documented sample file is provided in the
-``examples`` directory. Feel free to use it with your own users'
+located in ``/etc``). Feel free to use it with your own users'
 information. If you want to purchase a Swekey please visit
-`http://phpmyadmin.net/auth\_key <http://phpmyadmin.net/auth_key>`_
+`https://www.phpmyadmin.net/auth\_key/ <https://www.phpmyadmin.net/auth_key/>`_
 since this link provides funding for phpMyAdmin.
+
+A self documented sample file is provided in the
+file :file:`examples/swekey.sample.conf`:
+
+.. literalinclude:: ../examples/swekey.sample.conf
+    :language: sh
 
 .. seealso:: :config:option:`$cfg['Servers'][$i]['auth_swekey_config']`
 
@@ -448,14 +624,31 @@ Securing your phpMyAdmin installation
 The phpMyAdmin team tries hard to make the application secure, however there
 are always ways to make your installation more secure:
 
-* remove ``setup`` directory from phpMyAdmin, you will probably not
-  use it after initial setup
-* properly choose authentication method - :ref:`cookie`
-  is probably the best choice for shared hosting
-* in case you don't want all MySQL users to be able to access
-  phpMyAdmin, you can use :config:option:`$cfg['Servers'][$i]['AllowDeny']['rules']` to limit them
-* consider hiding phpMyAdmin behind authentication proxy, so that
-  MySQL credentials are not all users need to login
-* if you are afraid of automated attacks, enabling Captcha by
+* Remove the ``setup`` directory from phpMyAdmin, you will probably not
+  use it after the initial setup.
+* Properly choose an authentication method - :ref:`cookie`
+  is probably the best choice for shared hosting.
+* In case you don't want all MySQL users to be able to access
+  phpMyAdmin, you can use :config:option:`$cfg['Servers'][$i]['AllowDeny']['rules']` to limit them.
+* Consider hiding phpMyAdmin behind an authentication proxy, so that
+  users need to authenticate prior to providing MySQL credentials
+  to phpMyAdmin. You can achieve this by configuring your web server to request
+  HTTP authentication. For example in Apache this can be done with:
+    
+  .. code-block:: apache
+
+     AuthType Basic
+     AuthName "Restricted Access"
+     AuthUserFile /usr/share/phpmyadmin/passwd
+     Require valid-user
+
+  Once you have changed the configuration, you need to create a list of users which
+  can authenticate. This can be done using the :program:`htpasswd` utility:
+
+  .. code-block:: sh
+
+     htpasswd -c /usr/share/phpmyadmin/passwd username
+
+* If you are afraid of automated attacks, enabling Captcha by
   :config:option:`$cfg['CaptchaLoginPublicKey']` and
   :config:option:`$cfg['CaptchaLoginPrivateKey']` might be an option.

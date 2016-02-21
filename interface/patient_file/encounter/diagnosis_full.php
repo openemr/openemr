@@ -60,7 +60,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 				"<td><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a><span class=\"small\">";
-			$js = split(":",$iter['justify']);
+			$js = explode(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
 				if(!empty($j)) {

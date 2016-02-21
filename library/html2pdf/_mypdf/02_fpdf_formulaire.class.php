@@ -21,9 +21,9 @@ if (!defined('__CLASS_FPDF_FORMULAIRE__'))
 		var $n_cata;			//numéro de l'objet catalogue
 		var $ur;				//
 		
-		function FPDF_Formulaire($orientation='P',$unit='mm',$format='A4')
+		function __construct($orientation='P',$unit='mm',$format='A4')
 		{
-			$this->FPDF_BookMark($orientation,$unit,$format);
+			parent::__construct($orientation,$unit,$format);
 			$this->PDFVersion='1.6';
 			
 			$this->ur = false;

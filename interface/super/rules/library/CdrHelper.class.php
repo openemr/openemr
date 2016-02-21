@@ -25,7 +25,7 @@ class CdrResults{
         var $reminder_flag;
         var $access_control;
         
-	  function CdrResults($rule_id = "", $active_alert_flag = "", $passive_alert_flag = "", $patient_reminder_flag = "", $access_control = "") {
+	  function __construct($rule_id = "", $active_alert_flag = "", $passive_alert_flag = "", $patient_reminder_flag = "", $access_control = "") {
 	  	    $this->id = $rule_id;
                     $this->rule = getLabel($this->id,'clinical_rules');
 			$this->active_flag = $active_alert_flag;

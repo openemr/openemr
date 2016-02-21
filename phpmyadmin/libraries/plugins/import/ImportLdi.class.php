@@ -47,11 +47,11 @@ class ImportLdi extends AbstractImportCsv
             $GLOBALS['cfg']['Import']['ldi_local_option'] = false;
 
             $result = $GLOBALS['dbi']->tryQuery(
-                'SHOW VARIABLES LIKE \'local\\_infile\';'
+                'SELECT @@local_infile;'
             );
             if ($result != false && $GLOBALS['dbi']->numRows($result) > 0) {
                 $tmp = $GLOBALS['dbi']->fetchRow($result);
-                if ($tmp[1] == 'ON') {
+                if ($tmp[0] == 'ON') {
                     $GLOBALS['cfg']['Import']['ldi_local_option'] = true;
                 }
             }
@@ -77,19 +77,6 @@ class ImportLdi extends AbstractImportCsv
         $leaf->setName("local_option");
         $leaf->setText(__('Use LOCAL keyword'));
         $generalOptions->addProperty($leaf);
-    }
-
-    /**
-     * This method is called when any PluginManager to which the observer
-     * is attached calls PluginManager::notify()
-     *
-     * @param SplSubject $subject The PluginManager notifying the observer
-     *                            of an update.
-     *
-     * @return void
-     */
-    public function update (SplSubject $subject)
-    {
     }
 
     /**

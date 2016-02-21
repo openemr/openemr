@@ -13,11 +13,15 @@ if (! defined('PHPMYADMIN')) {
     exit;
 }
 
+if (! function_exists('openssl_random_pseudo_bytes')) {
+    require_once PHPSECLIB_INC_DIR . '/Crypt/Random.php';
+}
+
 // verify if PHP supports session, die if it does not
 
 if (!@function_exists('session_name')) {
     PMA_warnMissingExtension('session', true);
-} elseif (ini_get('session.auto_start') == true && session_name() != 'phpMyAdmin') {
+} elseif (ini_get('session.auto_start') !== '' && session_name() != 'phpMyAdmin') {
     // Do not delete the existing session, it might be used by other
     // applications; instead just close it.
     session_write_close();
@@ -34,7 +38,7 @@ session_set_cookie_params(
 );
 
 // cookies are safer (use @ini_set() in case this function is disabled)
-@ini_set('session.use_cookies', '1');
+@ini_set('session.use_cookies', 'true');
 
 // optionally set session_save_path
 $path = $GLOBALS['PMA_Config']->get('SessionSavePath');
@@ -43,9 +47,9 @@ if (!empty($path)) {
 }
 
 // but not all user allow cookies
-@ini_set('session.use_only_cookies', '0');
+@ini_set('session.use_only_cookies', 'false');
 // do not force transparent session ids, see bug #3398788
-//@ini_set('session.use_trans_sid', '1');
+//@ini_set('session.use_trans_sid', 'true');
 @ini_set(
     'url_rewriter.tags',
     'a=href,frame=src,input=src,form=fakeentry,fieldset='
@@ -56,8 +60,8 @@ if (!empty($path)) {
 @ini_set('session.cookie_lifetime', '0');
 
 // warn but don't work with bug
-@ini_set('session.bug_compat_42', '0');
-@ini_set('session.bug_compat_warn', '1');
+@ini_set('session.bug_compat_42', 'false');
+@ini_set('session.bug_compat_warn', 'true');
 
 // use more secure session ids
 @ini_set('session.hash_function', '1');
@@ -73,7 +77,7 @@ session_cache_limiter('private');
 // See bug #1538132. This would block normal behavior on a cluster
 //ini_set('session.save_handler', 'files');
 
-$session_name = 'OpenEMR';
+$session_name = 'phpMyAdmin';
 @session_name($session_name);
 
 if (! isset($_COOKIE[$session_name])) {
@@ -90,8 +94,8 @@ if (! isset($_COOKIE[$session_name])) {
          * can not use translations here.
          */
         PMA_fatalError(
-            'Cannot start session without errors, please check errors given '
-            . 'in your PHP and/or webserver log file and configure your PHP '
+            'Error during session start; please check your PHP and/or '
+            . 'webserver log file and configure your PHP '
             . 'installation properly. Also ensure that cookies are enabled '
             . 'in your browser.'
         );
@@ -102,11 +106,20 @@ if (! isset($_COOKIE[$session_name])) {
 }
 
 /**
+ * Disable setting of session cookies for further session_start() calls.
+ */
+@ini_set('session.use_cookies', 'true');
+
+/**
  * Token which is used for authenticating access queries.
  * (we use "space PMA_token space" to prevent overwriting)
  */
 if (! isset($_SESSION[' PMA_token '])) {
-    $_SESSION[' PMA_token '] = md5(uniqid(rand(), true));
+    if (! function_exists('openssl_random_pseudo_bytes')) {
+        $_SESSION[' PMA_token '] = bin2hex(phpseclib\Crypt\Random::string(16));
+    } else {
+        $_SESSION[' PMA_token '] = bin2hex(openssl_random_pseudo_bytes(16));
+    }
 }
 
 /**
@@ -119,7 +132,15 @@ if (! isset($_SESSION[' PMA_token '])) {
 function PMA_secureSession()
 {
     // prevent session fixation and XSS
-    session_regenerate_id(true);
-    $_SESSION[' PMA_token '] = md5(uniqid(rand(), true));
+    // (better to use session_status() if available)
+    if ((PMA_PHP_INT_VERSION >= 50400 && session_status() === PHP_SESSION_ACTIVE)
+        || (PMA_PHP_INT_VERSION < 50400 && session_id() !== '')
+    ) {
+        session_regenerate_id(true);
+    }
+    if (! function_exists('openssl_random_pseudo_bytes')) {
+        $_SESSION[' PMA_token '] = bin2hex(phpseclib\Crypt\Random::string(16));
+    } else {
+        $_SESSION[' PMA_token '] = bin2hex(openssl_random_pseudo_bytes(16));
+    }
 }
-?>

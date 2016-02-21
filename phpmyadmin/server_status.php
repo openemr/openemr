@@ -15,30 +15,12 @@ require_once 'libraries/server_status.lib.php';
  * Replication library
  */
 if (PMA_DRIZZLE) {
-    $server_master_status = false;
-    $server_slave_status = false;
+    $GLOBALS['replication_info'] = array();
+    $GLOBALS['replication_info']['master']['status'] = false;
+    $GLOBALS['replication_info']['slave']['status'] = false;
 } else {
     include_once 'libraries/replication.inc.php';
     include_once 'libraries/replication_gui.lib.php';
-}
-
-$ServerStatusData = new PMA_ServerStatusData();
-
-/**
- * Kills a selected process
- */
-if (! empty($_REQUEST['kill'])) {
-    if ($GLOBALS['dbi']->tryQuery('KILL ' . $_REQUEST['kill'] . ';')) {
-        $message = PMA_Message::success(__('Thread %s was successfully killed.'));
-    } else {
-        $message = PMA_Message::error(
-            __(
-                'phpMyAdmin was unable to kill thread %s.'
-                . ' It probably has already been closed.'
-            )
-        );
-    }
-    $message->addParam($_REQUEST['kill']);
 }
 
 /**
@@ -46,9 +28,17 @@ if (! empty($_REQUEST['kill'])) {
  */
 $response = PMA_Response::getInstance();
 $response->addHTML('<div>');
-$response->addHTML($ServerStatusData->getMenuHtml());
-$response->addHTML(PMA_getHtmlForServerStatus($ServerStatusData));
-$response->addHTML('</div>');
 
+$serverStatusData = new PMA_ServerStatusData();
+$response->addHTML($serverStatusData->getMenuHtml());
+if ($serverStatusData->dataLoaded) {
+    $response->addHTML(PMA_getHtmlForServerStatus($serverStatusData));
+} else {
+    $response->addHTML(
+        PMA_Message::error(
+            __('Not enough privilege to view server status.')
+        )->getDisplay()
+    );
+}
+$response->addHTML('</div>');
 exit;
-?>

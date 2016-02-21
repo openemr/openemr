@@ -155,7 +155,7 @@ class Prescription extends ORDataObject {
     * Constructor sets all Prescription attributes to their default value
     */
     
-    function Prescription($id= "", $_prefix = "") {
+    function __construct($id= "", $_prefix = "") {
     
 	// Modified 7-2009 by BM to load the arrays from the lists in lists_options.
 	// Plan for this to only be temporary, hopefully have the lists used directly
@@ -415,34 +415,34 @@ class Prescription extends ORDataObject {
     }
 
     function get_start_date_y() {
-        $ymd = split("-",$this->start_date);
+        $ymd = explode("-",$this->start_date);
         return $ymd[0];
     }
     function set_start_date_y($year) {
         if (is_numeric($year)) {
-            $ymd = split("-",$this->start_date);
+            $ymd = explode("-",$this->start_date);
             $ymd[0] = $year;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }
     }
     function get_start_date_m() {
-        $ymd = split("-",$this->start_date);
+        $ymd = explode("-",$this->start_date);
         return $ymd[1];
     }
     function set_start_date_m($month) {
         if (is_numeric($month)) {
-            $ymd = split("-",$this->start_date);
+            $ymd = explode("-",$this->start_date);
             $ymd[1] = $month;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }
     }
     function get_start_date_d() {
-        $ymd = split("-",$this->start_date);
+        $ymd = explode("-",$this->start_date);
         return $ymd[2];
     }
     function set_start_date_d($day) {
         if (is_numeric($day)) {
-            $ymd = split("-",$this->start_date);
+            $ymd = explode("-",$this->start_date);
             $ymd[2] = $day;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }

@@ -17,13 +17,15 @@ if (! defined('PHPMYADMIN')) {
  *
  * @param string $str option name
  *
- * @return string|void
+ * @return string
  */
 function PMA_exportCheckboxCheck($str)
 {
     if (isset($GLOBALS['cfg']['Export'][$str]) && $GLOBALS['cfg']['Export'][$str]) {
         return ' checked="checked"';
     }
+
+    return null;
 }
 
 /**
@@ -35,17 +37,17 @@ function PMA_exportCheckboxCheck($str)
  */
 function PMA_getHtmlForExportSelectOptions($tmp_select = '')
 {
-    $multi_values  = '<div style="text-align: left">';
+    $multi_values  = '<div>';
     $multi_values .= '<a href="#"';
     $multi_values .= ' onclick="setSelectOptions'
         . '(\'dump\', \'db_select[]\', true); return false;">';
-    $multi_values .= __('Select All');
+    $multi_values .= __('Select all');
     $multi_values .= '</a>';
     $multi_values .= ' / ';
     $multi_values .= '<a href="#"';
     $multi_values .= ' onclick="setSelectOptions'
         . '(\'dump\', \'db_select[]\', false); return false;">';
-    $multi_values .= __('Unselect All') . '</a><br />';
+    $multi_values .= __('Unselect all') . '</a><br />';
 
     $multi_values .= '<select name="db_select[]" '
         . 'id="db_select" size="10" multiple="multiple">';
@@ -59,10 +61,7 @@ function PMA_getHtmlForExportSelectOptions($tmp_select = '')
     }
 
     foreach ($GLOBALS['pma']->databases as $current_db) {
-        if ($current_db == 'information_schema'
-            || $current_db == 'performance_schema'
-            || $current_db == 'mysql'
-        ) {
+        if ($GLOBALS['dbi']->isSystemSchema($current_db, true)) {
             continue;
         }
         if (isset($_GET['db_select'])) {
@@ -72,7 +71,10 @@ function PMA_getHtmlForExportSelectOptions($tmp_select = '')
                 $is_selected = '';
             }
         } elseif (!empty($tmp_select)) {
-            if (strpos(' ' . $tmp_select, '|' . $current_db . '|')) {
+            if (/*overload*/mb_strpos(
+                ' ' . $tmp_select,
+                '|' . $current_db . '|'
+            )) {
                 $is_selected = ' selected="selected"';
             } else {
                 $is_selected = '';
@@ -135,14 +137,19 @@ function PMA_getHtmlForHiddenInput(
     $html .= '<input type="hidden" name="export_method" value="'
         . htmlspecialchars($cfg['Export']['method']) . '" />';
 
-
-    if (isset($_GET['sql_query'])) {
-        $html .= '<input type="hidden" name="sql_query" value="'
-            . htmlspecialchars($_GET['sql_query']) . '" />' . "\n";
-    } elseif (! empty($sql_query)) {
+    if (! empty($sql_query)) {
         $html .= '<input type="hidden" name="sql_query" value="'
             . htmlspecialchars($sql_query) . '" />' . "\n";
+    } elseif (isset($_GET['sql_query'])) {
+        $html .= '<input type="hidden" name="sql_query" value="'
+            . htmlspecialchars($_GET['sql_query']) . '" />' . "\n";
     }
+
+    $html .= '<input type="hidden" name="template_id"' . ' value="'
+        . (isset($_GET['template_id'])
+            ?  htmlspecialchars($_GET['template_id'])
+            : '')
+        . '" />';
 
     return $html;
 }
@@ -181,6 +188,88 @@ function PMA_getHtmlForExportOptionHeader($export_type, $db, $table)
 }
 
 /**
+ * Returns HTML for export template operations
+ *
+ * @param string $export_type export type - server, database, or table
+ *
+ * @return string HTML for export template operations
+ */
+function PMA_getHtmlForExportTemplateLoading($export_type)
+{
+    $html  = '<div class="exportoptions" id="export_templates">';
+    $html .= '<h3>' . __('Export templates:') . '</h3>';
+
+    $html .= '<div class="floatleft">';
+    $html .= '<form method="post" action="tbl_export.php" id="newTemplateForm"'
+        . ' class="ajax">';
+    $html .= '<h4>' . __('New template:') . '</h4>';
+    $html .= '<input type="text" name="templateName" id="templateName" '
+        . 'maxlength="64"' . 'required="required" '
+        . 'placeholder="' . __('Template name') . '" />';
+    $html .= '<input type="submit" name="createTemplate" id="createTemplate" '
+        . 'value="' . __('Create') . '" />';
+    $html .= '</form>';
+    $html .= '</div>';
+
+    $html .= '<div class="floatleft" style="margin-left: 50px;">';
+    $html .= '<form method="post" action="tbl_export.php"'
+        . ' id="existingTemplatesForm" class="ajax">';
+    $html .= '<h4>' . __('Existing templates:') . '</h4>';
+    $html .= '<label for="template">' . __('Template:') . '</label>';
+    $html .= '<select required="required" name="template" id="template">';
+    $html .= PMA_getOptionsForExportTemplates($export_type);
+    $html .= '</select>';
+    $html .= '<input type="submit" name="updateTemplate" '
+        . 'id="updateTemplate" value="' . __('Update') . '" />';
+    $html .= '<input type="submit" name="deleteTemplate" '
+        . 'id="deleteTemplate" value="' . __('Delete') . '" />';
+    $html .= '</form>';
+    $html .= '</div>';
+
+    $html .= '<div class="clearfloat"></div>';
+
+    $html .= '</div>';
+
+    return $html;
+}
+
+/**
+ * Returns HTML for the options in teplate dropdown
+ *
+ * @param string $export_type export type - server, database, or table
+ *
+ * @return string HTML for the options in teplate dropdown
+ */
+function PMA_getOptionsForExportTemplates($export_type)
+{
+    $ret = '<option value="">-- ' . __('Select a template') . ' --</option>';
+
+    // Get the relation settings
+    $cfgRelation = PMA_getRelationsParam();
+
+    $query = "SELECT `id`, `template_name` FROM "
+       . PMA_Util::backquote($cfgRelation['db']) . '.'
+       . PMA_Util::backquote($cfgRelation['export_templates'])
+       . " WHERE `username` = "
+       . "'" . PMA_Util::sqlAddSlashes($GLOBALS['cfg']['Server']['user']) . "'"
+       . " AND `export_type` = '" . $export_type . "'"
+       . " ORDER BY `template_name`;";
+
+    $result = PMA_queryAsControlUser($query);
+    if ($result) {
+        while ($row = $GLOBALS['dbi']->fetchAssoc($result, $GLOBALS['controllink'])) {
+            $ret .= '<option value="' . htmlspecialchars($row['id']) . '"';
+            if (!empty($_GET['template_id']) && $_GET['template_id'] == $row['id']) {
+                $ret .= ' selected="selected"';
+            }
+            $ret .= '>';
+            $ret .=  htmlspecialchars($row['template_name']) . '</option>';
+        }
+    }
+    return $ret;
+}
+
+/**
  * Prints Html For Export Options Method
  *
  * @return string
@@ -194,13 +283,17 @@ function PMA_getHtmlForExportOptionsMethod()
         $export_method = $cfg['Export']['method'];
     }
 
+    if ($export_method == 'custom-no-form') {
+        return '';
+    }
+
     $html  = '<div class="exportoptions" id="quick_or_custom">';
-    $html .= '<h3>' . __('Export Method:') . '</h3>';
+    $html .= '<h3>' . __('Export method:') . '</h3>';
     $html .= '<ul>';
     $html .= '<li>';
     $html .= '<input type="radio" name="quick_or_custom" value="quick" '
         . ' id="radio_quick_export"';
-    if ($export_method == 'quick' || $export_method == 'quick_no_form') {
+    if ($export_method == 'quick') {
         $html .= ' checked="checked"';
     }
     $html .= ' />';
@@ -212,7 +305,7 @@ function PMA_getHtmlForExportOptionsMethod()
     $html .= '<li>';
     $html .= '<input type="radio" name="quick_or_custom" value="custom" '
         . ' id="radio_custom_export"';
-    if ($export_method == 'custom' || $export_method == 'custom_no_form') {
+    if ($export_method == 'custom') {
         $html .= ' checked="checked"';
     }
     $html .= ' />';
@@ -239,9 +332,9 @@ function PMA_getHtmlForExportOptionsSelection($export_type, $multi_values)
 {
     $html = '<div class="exportoptions" id="databases_and_tables">';
     if ($export_type == 'server') {
-        $html .= '<h3>' . __('Database(s):') . '</h3>';
+        $html .= '<h3>' . __('Databases:') . '</h3>';
     } else if ($export_type == 'database') {
-        $html .= '<h3>' . __('Table(s):') . '</h3>';
+        $html .= '<h3>' . __('Tables:') . '</h3>';
     }
     if (! empty($multi_values)) {
         $html .= $multi_values;
@@ -252,20 +345,31 @@ function PMA_getHtmlForExportOptionsSelection($export_type, $multi_values)
 }
 
 /**
- * Prints Html For Export Options Format
+ * Prints Html For Export Options Format dropdown
  *
- * @param array $export_list Export List
+ * @param ExportPlugin[] $export_list Export List
  *
  * @return string
  */
-function PMA_getHtmlForExportOptionsFormat($export_list)
+function PMA_getHtmlForExportOptionsFormatDropdown($export_list)
 {
     $html  = '<div class="exportoptions" id="format">';
     $html .= '<h3>' . __('Format:') . '</h3>';
     $html .= PMA_pluginGetChoice('Export', 'what', $export_list, 'format');
     $html .= '</div>';
+    return $html;
+}
 
-    $html .= '<div class="exportoptions" id="format_specific_opts">';
+/**
+ * Prints Html For Export Options Format-specific options
+ *
+ * @param ExportPlugin[] $export_list Export List
+ *
+ * @return string
+ */
+function PMA_getHtmlForExportOptionsFormat($export_list)
+{
+    $html = '<div class="exportoptions" id="format_specific_opts">';
     $html .= '<h3>' . __('Format-specific options:') . '</h3>';
     $html .= '<p class="no_js_msg" id="scroll_to_options_msg">';
     $html .= __(
@@ -334,7 +438,8 @@ function PMA_getHtmlForExportOptionsRows($db, $table, $unlim_num_rows)
     } elseif (!empty($unlim_num_rows)) {
         $html .= $unlim_num_rows;
     } else {
-        $html .= PMA_Table::countRecords($db, $table);
+        $_table = new PMA_Table($table, $db);
+        $html .= $_table->countRecords();
     }
     $html .= '" onfocus="this.select()" />';
     $html .= '</li>';
@@ -387,11 +492,11 @@ function PMA_getHtmlForExportOptionsQuickExport()
     $html .= '</label>';
     $html .= '</li>';
     $html .= '<li>';
-    $html .= '<input type="checkbox" name="quick_export_onserverover" ';
-    $html .= 'value="saveitover" id="checkbox_quick_dump_onserverover" ';
+    $html .= '<input type="checkbox" name="quick_export_onserver_overwrite" ';
+    $html .= 'value="saveitover" id="checkbox_quick_dump_onserver_overwrite" ';
     $html .= PMA_exportCheckboxCheck('quick_export_onserver_overwrite');
     $html .= '/>';
-    $html .= '<label for="checkbox_quick_dump_onserverover">';
+    $html .= '<label for="checkbox_quick_dump_onserver_overwrite">';
     $html .= __('Overwrite existing file(s)');
     $html .= '</label>';
     $html .= '</li>';
@@ -422,11 +527,11 @@ function PMA_getHtmlForExportOptionsOutputSaveDir()
     $html .= '</label>';
     $html .= '</li>';
     $html .= '<li>';
-    $html .= '<input type="checkbox" name="onserverover" value="saveitover"';
-    $html .= ' id="checkbox_dump_onserverover" ';
+    $html .= '<input type="checkbox" name="onserver_overwrite" value="saveitover"';
+    $html .= ' id="checkbox_dump_onserver_overwrite" ';
     $html .= PMA_exportCheckboxCheck('onserver_overwrite');
     $html .= '/>';
-    $html .= '<label for="checkbox_dump_onserverover">';
+    $html .= '<label for="checkbox_dump_onserver_overwrite">';
     $html .= __('Overwrite existing file(s)');
     $html .= '</label>';
     $html .= '</li>';
@@ -529,14 +634,14 @@ function PMA_getHtmlForExportOptionsOutputFormat($export_type)
 function PMA_getHtmlForExportOptionsOutputCharset()
 {
     global $cfg;
-    $html = '        <li><label for="select_charset_of_file" class="desc">'
+    $html = '        <li><label for="select_charset" class="desc">'
         . __('Character set of the file:') . '</label>' . "\n";
     reset($cfg['AvailableCharsets']);
-    $html .= '<select id="select_charset_of_file" name="charset_of_file" size="1">';
+    $html .= '<select id="select_charset" name="charset" size="1">';
     foreach ($cfg['AvailableCharsets'] as $temp_charset) {
         $html .= '<option value="' . $temp_charset . '"';
-        if (isset($_GET['charset_of_file'])
-            && ($_GET['charset_of_file'] != $temp_charset)
+        if (isset($_GET['charset'])
+            && ($_GET['charset'] != $temp_charset)
         ) {
             $html .= '';
         } elseif ((empty($cfg['Export']['charset']) && $temp_charset == 'utf-8')
@@ -565,6 +670,13 @@ function PMA_getHtmlForExportOptionsOutputCompression()
         $selected_compression = $cfg['Export']['compression'];
     } else {
         $selected_compression = "none";
+    }
+
+    // Since separate files export works with ZIP only
+    if (isset($cfg['Export']['as_separate_files'])
+        && $cfg['Export']['as_separate_files']
+    ) {
+        $selected_compression = "zip";
     }
 
     $html = "";
@@ -621,6 +733,32 @@ function PMA_getHtmlForExportOptionsOutputRadio()
 }
 
 /**
+ * Prints Html For Export Options Checkbox - Separate files
+ *
+ * @param String $export_type Selected Export Type
+ *
+ * @return string
+ */
+function PMA_getHtmlForExportOptionsOutputSeparateFiles($export_type)
+{
+    $html  = '<li>';
+    $html .= '<input type="checkbox" id="checkbox_as_separate_files" '
+        . PMA_exportCheckboxCheck('as_separate_files')
+        . ' name="as_separate_files" value="' . $export_type . '" />';
+    $html .= '<label for="checkbox_as_separate_files">';
+
+    if ($export_type == 'server') {
+        $html .= __('Export databases as separate files');
+    } elseif ($export_type == 'database') {
+        $html .= __('Export tables as separate files');
+    }
+
+    $html .= '</label></li>';
+
+    return $html;
+}
+
+/**
  * Prints Html For Export Options
  *
  * @param String $export_type Selected Export Type
@@ -633,6 +771,32 @@ function PMA_getHtmlForExportOptionsOutput($export_type)
     $html  = '<div class="exportoptions" id="output">';
     $html .= '<h3>' . __('Output:') . '</h3>';
     $html .= '<ul id="ul_output">';
+    $html .= '<li><input type="checkbox" id="btn_alias_config" ';
+    if (isset($_SESSION['tmpval']['aliases'])
+        && !PMA_emptyRecursive($_SESSION['tmpval']['aliases'])
+    ) {
+        $html .= 'checked="checked"';
+    }
+    unset($_SESSION['tmpval']['aliases']);
+    $html .= '/>';
+    $html .= '<label for="btn_alias_config">';
+    $html .= __('Rename exported databases/tables/columns');
+    $html .= '</label></li>';
+
+    if ($export_type != 'server') {
+        $html .= '<li>';
+        $html .= '<input type="checkbox" name="lock_tables"';
+        $html .= ' value="something" id="checkbox_lock_tables"';
+        if (! isset($_GET['repopulate'])) {
+            $html .= PMA_exportCheckboxCheck('lock_tables') . '/>';
+        } elseif (isset($_GET['lock_tables'])) {
+            $html .= ' checked="checked"';
+        }
+        $html .= '<label for="checkbox_lock_tables">';
+        $html .= sprintf(__('Use %s statement'), '<code>LOCK TABLES</code>');
+        $html .= '</label></li>';
+    }
+
     $html .= '<li>';
     $html .= '<input type="radio" name="output_format" value="sendit" ';
     $html .= 'id="radio_dump_asfile" ';
@@ -655,6 +819,12 @@ function PMA_getHtmlForExportOptionsOutput($export_type)
     } // end if
 
     $html .= PMA_getHtmlForExportOptionsOutputCompression();
+
+    if ($export_type == 'server'
+        || $export_type == 'database'
+    ) {
+        $html .= PMA_getHtmlForExportOptionsOutputSeparateFiles($export_type);
+    }
 
     $html .= '</ul>';
     $html .= '</li>';
@@ -679,13 +849,13 @@ function PMA_getHtmlForExportOptionsOutput($export_type)
 /**
  * Prints Html For Export Options
  *
- * @param string $export_type    Selected Export Type
- * @param string $db             Selected DB
- * @param string $table          Selected Table
- * @param string $multi_values   Export selection
- * @param string $num_tables     number of tables
- * @param array  $export_list    Export List
- * @param string $unlim_num_rows Number of Rows
+ * @param String         $export_type    Selected Export Type
+ * @param String         $db             Selected DB
+ * @param String         $table          Selected Table
+ * @param String         $multi_values   Export selection
+ * @param String         $num_tables     number of tables
+ * @param ExportPlugin[] $export_list    Export List
+ * @param String         $unlim_num_rows Number of Rows
  *
  * @return string
  */
@@ -694,11 +864,13 @@ function PMA_getHtmlForExportOptions(
     $num_tables, $export_list, $unlim_num_rows
 ) {
     global $cfg;
-    $html  = PMA_getHtmlForExportOptionHeader($export_type, $db, $table);
-    $html .= PMA_getHtmlForExportOptionsMethod();
+    $html  = PMA_getHtmlForExportOptionsMethod();
+    $html .= PMA_getHtmlForExportOptionsFormatDropdown($export_list);
     $html .= PMA_getHtmlForExportOptionsSelection($export_type, $multi_values);
 
-    if (strlen($table) && empty($num_tables) && ! PMA_Table::isMerge($db, $table)) {
+    $tableLength = /*overload*/mb_strlen($table);
+    $_table = new PMA_Table($table, $db);
+    if ($tableLength && empty($num_tables) && ! $_table->isMerge()) {
         $html .= PMA_getHtmlForExportOptionsRows($db, $table, $unlim_num_rows);
     }
 
@@ -706,9 +878,146 @@ function PMA_getHtmlForExportOptions(
         $html .= PMA_getHtmlForExportOptionsQuickExport();
     }
 
+    $html .= PMA_getHtmlForAliasModalDialog($db, $table);
     $html .= PMA_getHtmlForExportOptionsOutput($export_type);
-
     $html .= PMA_getHtmlForExportOptionsFormat($export_list);
     return $html;
 }
-?>
+
+/**
+ * Prints Html For Alias Modal Dialog
+ *
+ * @param String $db    Selected DB
+ * @param String $table Selected Table
+ *
+ * @return string
+ */
+function PMA_getHtmlForAliasModalDialog($db = '', $table = '')
+{
+    if (isset($_SESSION['tmpval']['aliases'])) {
+        $aliases = $_SESSION['tmpval']['aliases'];
+    }
+    // In case of server export, the following list of
+    // databases are not shown in the list.
+    $dbs_not_allowed = array(
+        'information_schema',
+        'performance_schema',
+        'mysql'
+    );
+    // Fetch Columns info
+    // Server export does not have db set.
+    $title = __('Rename exported databases/tables/columns');
+    if (empty($db)) {
+        $databases = $GLOBALS['dbi']->getColumnsFull(
+            null, null, null, $GLOBALS['userlink']
+        );
+        foreach ($dbs_not_allowed as $db) {
+            unset($databases[$db]);
+        }
+        // Database export does not have table set.
+    } elseif (empty($table)) {
+        $tables = $GLOBALS['dbi']->getColumnsFull(
+            $db, null, null, $GLOBALS['userlink']
+        );
+        $databases = array($db => $tables);
+        // Table export
+    } else {
+        $columns = $GLOBALS['dbi']->getColumnsFull(
+            $db, $table, null, $GLOBALS['userlink']
+        );
+        $databases = array(
+            $db => array(
+                $table => $columns
+            )
+        );
+    }
+
+    $html = '<div id="alias_modal" class="hide" title="' . $title . '">';
+    $db_html = '<label class="col-2">' . __('Select database') . ': '
+        . '</label><select id="db_alias_select">';
+    $table_html = '<label class="col-2">' . __('Select table') . ': </label>';
+    $first_db = true;
+    $table_input_html = $db_input_html = '';
+    foreach ($databases as  $db => $tables) {
+        $val = '';
+        if (!empty($aliases[$db]['alias'])) {
+            $val = htmlspecialchars($aliases[$db]['alias']);
+        }
+        $db = htmlspecialchars($db);
+        $name_attr = 'aliases[' . $db . '][alias]';
+        $id_attr = substr(md5($name_attr), 0, 12);
+        $class = 'hide';
+        if ($first_db) {
+            $first_db = false;
+            $class = '';
+            $db_input_html = '<label class="col-2" for="' . $id_attr . '">'
+                . __('New database name') . ': </label>';
+        }
+        $db_input_html .= '<input type="text" name="' . $name_attr . '" '
+            . 'placeholder="' . $db . ' alias" class="' . $class . '" '
+            . 'id="' . $id_attr . '" value="' . $val . '" disabled="disabled"/>';
+        $db_html .= '<option value="' . $id_attr . '">' . $db . '</option>';
+        $table_html .= '<span id="' . $id_attr . '_tables" class="' . $class . '">';
+        $table_html .= '<select id="' . $id_attr . '_tables_select" '
+            . 'class="table_alias_select">';
+        $first_tbl = true;
+        $col_html = '';
+        foreach ($tables as $table => $columns) {
+            $val = '';
+            if (!empty($aliases[$db]['tables'][$table]['alias'])) {
+                $val = htmlspecialchars($aliases[$db]['tables'][$table]['alias']);
+            }
+            $table = htmlspecialchars($table);
+            $name_attr =  'aliases[' . $db . '][tables][' . $table . '][alias]';
+            $id_attr = substr(md5($name_attr), 0, 12);
+            $class = 'hide';
+            if ($first_tbl) {
+                $first_tbl = false;
+                $class = '';
+                $table_input_html = '<label class="col-2" for="' . $id_attr . '">'
+                    . __('New table name') . ': </label>';
+            }
+            $table_input_html .= '<input type="text" value="' . $val . '" '
+                . 'name="' . $name_attr . '" id="' . $id_attr . '" '
+                . 'placeholder="' . $table . ' alias" class="' . $class . '" '
+                . 'disabled="disabled"/>';
+            $table_html .= '<option value="' . $id_attr . '">'
+                . $table . '</option>';
+            $col_html .= '<table id="' . $id_attr . '_cols" class="'
+                . $class . '" width="100%">';
+            $col_html .= '<thead><tr><th>' . __('Old column name') . '</th>'
+                . '<th>' . __('New column name') . '</th></tr></thead><tbody>';
+            $class = 'odd';
+            foreach ($columns as $column => $col_def) {
+                $val = '';
+                if (!empty($aliases[$db]['tables'][$table]['columns'][$column])) {
+                    $val = htmlspecialchars(
+                        $aliases[$db]['tables'][$table]['columns'][$column]
+                    );
+                }
+                $column = htmlspecialchars($column);
+                $name_attr = 'aliases[' . $db . '][tables][' . $table
+                    . '][columns][' . $column . ']';
+                $id_attr = substr(md5($name_attr), 0, 12);
+                $col_html .= '<tr class="' . $class . '">';
+                $col_html .= '<th><label for="' . $id_attr . '">' . $column
+                    . '</label></th>';
+                $col_html .= '<td><dummy_inp type="text" name="' . $name_attr . '" '
+                    . 'id="' . $id_attr . '" placeholder="'
+                    . $column . ' alias" value="' . $val . '"></dummy_inp></td>';
+                $col_html .= '</tr>';
+                $class = $class === 'odd' ? 'even' : 'odd';
+            }
+            $col_html .= '</tbody></table>';
+        }
+        $table_html .= '</select>';
+        $table_html .= $table_input_html . '<hr/>' . $col_html . '</span>';
+    }
+    $db_html .= '</select>';
+    $html .= $db_html;
+    $html .= $db_input_html . '<hr/>';
+    $html .= $table_html;
+
+    $html .= '</div>';
+    return $html;
+}

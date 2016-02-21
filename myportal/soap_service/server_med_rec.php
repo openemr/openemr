@@ -35,7 +35,7 @@ $fake_register_globals=false;
 
 require_once("server_audit.php");
 class Userforms extends UserAudit{
-	
+
 
 
   public function issue_type($data){

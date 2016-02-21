@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -49,15 +49,25 @@ abstract class AbstractManager implements Manager
     protected $saveHandler;
 
     /**
+     * @var array
+     */
+    protected $validators;
+
+    /**
      * Constructor
      *
-     * @param  Config|null $config
-     * @param  Storage|null $storage
+     * @param  Config|null      $config
+     * @param  Storage|null     $storage
      * @param  SaveHandler|null $saveHandler
+     * @param  array            $validators
      * @throws Exception\RuntimeException
      */
-    public function __construct(Config $config = null, Storage $storage = null, SaveHandler $saveHandler = null)
-    {
+    public function __construct(
+        Config $config = null,
+        Storage $storage = null,
+        SaveHandler $saveHandler = null,
+        array $validators = array()
+    ) {
         // init config
         if ($config === null) {
             if (!class_exists($this->defaultConfigClass)) {
@@ -106,6 +116,8 @@ abstract class AbstractManager implements Manager
         if ($saveHandler !== null) {
             $this->saveHandler = $saveHandler;
         }
+
+        $this->validators = $validators;
     }
 
     /**

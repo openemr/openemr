@@ -19,7 +19,9 @@ if (! defined('PHPMYADMIN')) {
 function PMA_shutdownDuringExport()
 {
     $a = error_get_last();
-    if ($a != null && strpos($a['message'], "execution time")) {
+    if ($a != null
+        && /*overload*/mb_strpos($a['message'], "execution time")
+    ) {
         //write in partially downloaded file for future reference of user
         print_r($a);
         //set session variable to check if there was error while exporting
@@ -52,10 +54,14 @@ function PMA_gzencodeNeeded()
      * and gz compression was not asked via $cfg['OBGzip']
      * but transparent compression does not apply when saving to server
      */
+    $chromeAndGreaterThan43 = PMA_USR_BROWSER_AGENT == 'CHROME'
+        && PMA_USR_BROWSER_VER >= 43; // see bug #4942
+
     if (@function_exists('gzencode')
         && ((! @ini_get('zlib.output_compression')
         && ! PMA_isGzHandlerEnabled())
-        || $GLOBALS['save_on_server'])
+        || $GLOBALS['save_on_server']
+        || $chromeAndGreaterThan43)
     ) {
         return true;
     } else {
@@ -83,19 +89,20 @@ function PMA_exportOutputHandler($line)
             isset($GLOBALS['xkana']) ? $GLOBALS['xkana'] : ''
         );
     }
+
     // If we have to buffer data, we will perform everything at once at the end
     if ($GLOBALS['buffer_needed']) {
 
         $dump_buffer .= $line;
         if ($GLOBALS['onfly_compression']) {
 
-            $dump_buffer_len += strlen($line);
+            $dump_buffer_len += /*overload*/mb_strlen($line);
 
             if ($dump_buffer_len > $GLOBALS['memory_limit']) {
                 if ($GLOBALS['output_charset_conversion']) {
                     $dump_buffer = PMA_convertString(
                         'utf-8',
-                        $GLOBALS['charset_of_file'],
+                        $GLOBALS['charset'],
                         $dump_buffer
                     );
                 }
@@ -108,6 +115,8 @@ function PMA_exportOutputHandler($line)
                 }
                 if ($GLOBALS['save_on_server']) {
                     $write_result = @fwrite($GLOBALS['file_handle'], $dump_buffer);
+                    // Here, use strlen rather than mb_strlen to get the length
+                    // in bytes to compare against the number of bytes written.
                     if ($write_result != strlen($dump_buffer)) {
                         $GLOBALS['message'] = PMA_Message::error(
                             __('Insufficient space to save the file %s.')
@@ -133,13 +142,17 @@ function PMA_exportOutputHandler($line)
             if ($GLOBALS['output_charset_conversion']) {
                 $line = PMA_convertString(
                     'utf-8',
-                    $GLOBALS['charset_of_file'],
+                    $GLOBALS['charset'],
                     $line
                 );
             }
-            if ($GLOBALS['save_on_server'] && strlen($line) > 0) {
+            if ($GLOBALS['save_on_server'] && /*overload*/mb_strlen($line) > 0) {
                 $write_result = @fwrite($GLOBALS['file_handle'], $line);
-                if (! $write_result || ($write_result != strlen($line))) {
+                // Here, use strlen rather than mb_strlen to get the length
+                // in bytes to compare against the number of bytes written.
+                if (! $write_result
+                    || $write_result != strlen($line)
+                ) {
                     $GLOBALS['message'] = PMA_Message::error(
                         __('Insufficient space to save the file %s.')
                     );
@@ -200,14 +213,15 @@ function PMA_getMemoryLimitForExport()
 {
     $memory_limit = trim(@ini_get('memory_limit'));
     $memory_limit_num = (int)substr($memory_limit, 0, -1);
+    $lowerLastChar = strtolower(substr($memory_limit, -1));
     // 2 MB as default
     if (empty($memory_limit) || '-1' == $memory_limit) {
         $memory_limit = 2 * 1024 * 1024;
-    } elseif (strtolower(substr($memory_limit, -1)) == 'm') {
+    } elseif ($lowerLastChar == 'm') {
         $memory_limit = $memory_limit_num * 1024 * 1024;
-    } elseif (strtolower(substr($memory_limit, -1)) == 'k') {
+    } elseif ($lowerLastChar == 'k') {
         $memory_limit = $memory_limit_num * 1024;
-    } elseif (strtolower(substr($memory_limit, -1)) == 'g') {
+    } elseif ($lowerLastChar == 'g') {
         $memory_limit = $memory_limit_num * 1024 * 1024 * 1024;
     } else {
         $memory_limit = (int)$memory_limit;
@@ -228,11 +242,11 @@ function PMA_getMemoryLimitForExport()
 /**
  * Return the filename and MIME type for export file
  *
- * @param string $export_type       type of export
- * @param string $remember_template whether to remember template
- * @param object $export_plugin     the export plugin
- * @param string $compression       compression asked
- * @param string $filename_template the filename template
+ * @param string       $export_type       type of export
+ * @param string       $remember_template whether to remember template
+ * @param ExportPlugin $export_plugin     the export plugin
+ * @param string       $compression       compression asked
+ * @param string       $filename_template the filename template
  *
  * @return array the filename template and mime type
  */
@@ -273,12 +287,14 @@ function PMA_getExportFilenameAndMimetype(
     // Grab basic dump extension and mime type
     // Check if the user already added extension;
     // get the substring where the extension would be if it was included
-    $extension_start_pos = strlen($filename) - strlen(
+    $extension_start_pos = /*overload*/mb_strlen($filename) - /*overload*/mb_strlen(
         $export_plugin->getProperties()->getExtension()
     ) - 1;
-    $user_extension = substr($filename, $extension_start_pos, strlen($filename));
+    $user_extension = /*overload*/mb_substr(
+        $filename, $extension_start_pos, /*overload*/mb_strlen($filename)
+    );
     $required_extension = "." . $export_plugin->getProperties()->getExtension();
-    if (strtolower($user_extension) != $required_extension) {
+    if (/*overload*/mb_strtolower($user_extension) != $required_extension) {
         $filename  .= $required_extension;
     }
     $mime_type  = $export_plugin->getProperties()->getMimeType();
@@ -312,9 +328,9 @@ function PMA_openExportFile($filename, $quick_export)
         . preg_replace('@[/\\\\]@', '_', $filename);
 
     if (file_exists($save_filename)
-        && ((! $quick_export && empty($_REQUEST['onserverover']))
+        && ((! $quick_export && empty($_REQUEST['onserver_overwrite']))
         || ($quick_export
-        && $_REQUEST['quick_export_onserverover'] != 'saveitover'))
+        && $_REQUEST['quick_export_onserver_overwrite'] != 'saveitover'))
     ) {
         $message = PMA_Message::error(
             __(
@@ -354,22 +370,23 @@ function PMA_openExportFile($filename, $quick_export)
  */
 function PMA_closeExportFile($file_handle, $dump_buffer, $save_filename)
 {
-    $message = '';
     $write_result = @fwrite($file_handle, $dump_buffer);
     fclose($file_handle);
-    if (strlen($dump_buffer) > 0
-        && (! $write_result || ($write_result != strlen($dump_buffer)))
+    // Here, use strlen rather than mb_strlen to get the length
+    // in bytes to compare against the number of bytes written.
+    if (/*overload*/mb_strlen($dump_buffer) > 0
+        && (! $write_result || $write_result != strlen($dump_buffer))
     ) {
         $message = new PMA_Message(
             __('Insufficient space to save the file %s.'),
             PMA_Message::ERROR,
-            $save_filename
+            array($save_filename)
         );
     } else {
         $message = new PMA_Message(
             __('Dump has been saved to file %s.'),
             PMA_Message::SUCCESS,
-            $save_filename
+            array($save_filename)
         );
     }
     return $message;
@@ -387,14 +404,58 @@ function PMA_closeExportFile($file_handle, $dump_buffer, $save_filename)
 function PMA_compressExport($dump_buffer, $compression, $filename)
 {
     if ($compression == 'zip' && @function_exists('gzcompress')) {
+        $filename = substr($filename, 0, -4); // remove extension (.zip)
         $zipfile = new ZipFile();
-        $zipfile->addFile($dump_buffer, substr($filename, 0, -4));
+        if (is_array($dump_buffer)) {
+            foreach ($dump_buffer as $table => $dump) {
+                $ext_pos = strpos($filename, '.');
+                $extension = substr($filename, $ext_pos);
+                $zipfile->addFile(
+                    $dump,
+                    str_replace(
+                        $extension,
+                        '_' . $table . $extension,
+                        $filename
+                    )
+                );
+            }
+        } else {
+            $zipfile->addFile($dump_buffer, $filename);
+        }
         $dump_buffer = $zipfile->file();
     } elseif ($compression == 'gzip' && PMA_gzencodeNeeded()) {
         // without the optional parameter level because it bugs
         $dump_buffer = gzencode($dump_buffer);
     }
     return $dump_buffer;
+}
+
+/**
+ * Saves the dump_buffer for a particular table in an array
+ * Used in separate files export
+ *
+ * @param string  $object_name the name of current object to be stored
+ * @param boolean $append      optional boolean to append to an existing index or not
+ *
+ * @return void
+ */
+function PMA_saveObjectInBuffer($object_name, $append = false)
+{
+
+    global $dump_buffer_objects, $dump_buffer, $dump_buffer_len;
+
+    if (! empty($dump_buffer)) {
+        if ($append && isset($dump_buffer_objects[$object_name])) {
+            $dump_buffer_objects[$object_name] .= $dump_buffer;
+        } else {
+            $dump_buffer_objects[$object_name] = $dump_buffer;
+        }
+    }
+
+    // Re - initialize
+    $dump_buffer = '';
+    $dump_buffer_len = 0;
+
 }
 
 /**
@@ -416,24 +477,43 @@ function PMA_getHtmlForDisplayedExportHeader($export_type, $db, $table)
      */
     $back_button = '<p>[ <a href="';
     if ($export_type == 'server') {
-        $back_button .= 'server_export.php?' . PMA_URL_getCommon();
+        $back_button .= 'server_export.php' . PMA_URL_getCommon();
     } elseif ($export_type == 'database') {
-        $back_button .= 'db_export.php?' . PMA_URL_getCommon($db);
+        $back_button .= 'db_export.php' . PMA_URL_getCommon(array('db' => $db));
     } else {
-        $back_button .= 'tbl_export.php?' . PMA_URL_getCommon($db, $table);
+        $back_button .= 'tbl_export.php' . PMA_URL_getCommon(
+            array(
+                'db' => $db, 'table' => $table
+            )
+        );
     }
 
     // Convert the multiple select elements from an array to a string
     if ($export_type == 'server' && isset($_REQUEST['db_select'])) {
         $_REQUEST['db_select'] = implode(",", $_REQUEST['db_select']);
-    } elseif ($export_type == 'database'
-        && isset($_REQUEST['table_select'])
-    ) {
-        $_REQUEST['table_select'] = implode(",", $_REQUEST['table_select']);
+    } elseif ($export_type == 'database') {
+        if (isset($_REQUEST['table_select'])) {
+            $_REQUEST['table_select'] = implode(",", $_REQUEST['table_select']);
+        }
+        if (isset($_REQUEST['table_structure'])) {
+            $_REQUEST['table_structure'] = implode(
+                ",",
+                $_REQUEST['table_structure']
+            );
+        } else if (empty($_REQUEST['structure_or_data_forced'])) {
+            $_REQUEST['table_structure'] = '';
+        }
+        if (isset($_REQUEST['table_data'])) {
+            $_REQUEST['table_data'] = implode(",", $_REQUEST['table_data']);
+        } else if (empty($_REQUEST['structure_or_data_forced'])) {
+            $_REQUEST['table_data'] = '';
+        }
     }
 
     foreach ($_REQUEST as $name => $value) {
-        $back_button .= '&amp;' . urlencode($name) . '=' . urlencode($value);
+        if (!is_array($value)) {
+            $back_button .= '&amp;' . urlencode($name) . '=' . urlencode($value);
+        }
     }
     $back_button .= '&amp;repopulate=1">' . __('Back') . '</a> ]</p>';
 
@@ -448,22 +528,25 @@ function PMA_getHtmlForDisplayedExportHeader($export_type, $db, $table)
 /**
  * Export at the server level
  *
- * @param string $db_select       the selected databases to export
- * @param string $whatStrucOrData structure or data or both
- * @param object $export_plugin   the selected export plugin
- * @param string $crlf            end of line character(s)
- * @param string $err_url         the URL in case of error
- * @param string $export_type     the export type
- * @param bool   $do_relation     whether to export relation info
- * @param bool   $do_comments     whether to add comments
- * @param bool   $do_mime         whether to add MIME info
- * @param bool   $do_dates        whether to add dates
+ * @param string       $db_select       the selected databases to export
+ * @param string       $whatStrucOrData structure or data or both
+ * @param ExportPlugin $export_plugin   the selected export plugin
+ * @param string       $crlf            end of line character(s)
+ * @param string       $err_url         the URL in case of error
+ * @param string       $export_type     the export type
+ * @param bool         $do_relation     whether to export relation info
+ * @param bool         $do_comments     whether to add comments
+ * @param bool         $do_mime         whether to add MIME info
+ * @param bool         $do_dates        whether to add dates
+ * @param array        $aliases         alias information for db/table/column
+ * @param string       $separate_files  whether it is a separate-files export
  *
  * @return void
  */
 function PMA_exportServer(
     $db_select, $whatStrucOrData, $export_plugin, $crlf, $err_url,
-    $export_type, $do_relation, $do_comments, $do_mime, $do_dates
+    $export_type, $do_relation, $do_comments, $do_mime, $do_dates,
+    $aliases, $separate_files
 ) {
     if (! empty($db_select)) {
         $tmp_select = implode($db_select, '|');
@@ -472,14 +555,18 @@ function PMA_exportServer(
     // Walk over databases
     foreach ($GLOBALS['pma']->databases as $current_db) {
         if (isset($tmp_select)
-            && strpos(' ' . $tmp_select, '|' . $current_db . '|')
+            && /*overload*/mb_strpos(' ' . $tmp_select, '|' . $current_db . '|')
         ) {
             $tables = $GLOBALS['dbi']->getTables($current_db);
             PMA_exportDatabase(
-                $current_db, $tables, $whatStrucOrData, $export_plugin, $crlf,
-                $err_url, $export_type, $do_relation, $do_comments, $do_mime,
-                $do_dates
+                $current_db, $tables, $whatStrucOrData, $tables, $tables,
+                $export_plugin, $crlf, $err_url, $export_type, $do_relation,
+                $do_comments, $do_mime, $do_dates, $aliases,
+                $separate_files == 'database' ? $separate_files : ''
             );
+            if ($separate_files == 'server') {
+                PMA_saveObjectInBuffer($current_db);
+            }
         }
     } // end foreach database
 }
@@ -487,65 +574,80 @@ function PMA_exportServer(
 /**
  * Export at the database level
  *
- * @param string $db              the database to export
- * @param array  $tables          the tables to export
- * @param string $whatStrucOrData structure or data or both
- * @param object $export_plugin   the selected export plugin
- * @param string $crlf            end of line character(s)
- * @param string $err_url         the URL in case of error
- * @param string $export_type     the export type
- * @param bool   $do_relation     whether to export relation info
- * @param bool   $do_comments     whether to add comments
- * @param bool   $do_mime         whether to add MIME info
- * @param bool   $do_dates        whether to add dates
+ * @param string       $db              the database to export
+ * @param array        $tables          the tables to export
+ * @param string       $whatStrucOrData structure or data or both
+ * @param array        $table_structure whether to export structure for each table
+ * @param array        $table_data      whether to export data for each table
+ * @param ExportPlugin $export_plugin   the selected export plugin
+ * @param string       $crlf            end of line character(s)
+ * @param string       $err_url         the URL in case of error
+ * @param string       $export_type     the export type
+ * @param bool         $do_relation     whether to export relation info
+ * @param bool         $do_comments     whether to add comments
+ * @param bool         $do_mime         whether to add MIME info
+ * @param bool         $do_dates        whether to add dates
+ * @param array        $aliases         Alias information for db/table/column
+ * @param string       $separate_files  whether it is a separate-files export
  *
  * @return void
  */
 function PMA_exportDatabase(
-    $db, $tables, $whatStrucOrData, $export_plugin, $crlf, $err_url,
-    $export_type, $do_relation, $do_comments, $do_mime, $do_dates
+    $db, $tables, $whatStrucOrData, $table_structure, $table_data,
+    $export_plugin, $crlf, $err_url, $export_type, $do_relation,
+    $do_comments, $do_mime, $do_dates, $aliases, $separate_files
 ) {
-    if (! $export_plugin->exportDBHeader($db)) {
+    $db_alias = !empty($aliases[$db]['alias'])
+        ? $aliases[$db]['alias'] : '';
+
+    if (! $export_plugin->exportDBHeader($db, $db_alias)) {
         return;
     }
-    if (! $export_plugin->exportDBCreate($db)) {
+    if (! $export_plugin->exportDBCreate($db, $export_type, $db_alias)) {
         return;
+    }
+    if ($separate_files == 'database') {
+        PMA_saveObjectInBuffer('database', true);
     }
 
-    if (method_exists($export_plugin, 'exportRoutines')
-        && strpos($GLOBALS['sql_structure_or_data'], 'structure') !== false
+    if (($GLOBALS['sql_structure_or_data'] == 'structure'
+        || $GLOBALS['sql_structure_or_data'] == 'structure_and_data')
         && isset($GLOBALS['sql_procedure_function'])
     ) {
-        $export_plugin->exportRoutines($db);
+        $export_plugin->exportRoutines($db, $aliases);
+
+        if ($separate_files == 'database') {
+            PMA_saveObjectInBuffer('routines');
+        }
     }
 
     $views = array();
 
     foreach ($tables as $table) {
+        $_table = new PMA_Table($table, $db);
         // if this is a view, collect it for later;
         // views must be exported after the tables
-        $is_view = PMA_Table::isView($db, $table);
+        $is_view = $_table->isView();
         if ($is_view) {
             $views[] = $table;
         }
-        if ($whatStrucOrData == 'structure'
-            || $whatStrucOrData == 'structure_and_data'
+        if (($whatStrucOrData == 'structure'
+            || $whatStrucOrData == 'structure_and_data')
+            && in_array($table, $table_structure)
         ) {
             // for a view, export a stand-in definition of the table
-            // to resolve view dependencies
-
+            // to resolve view dependencies (only when it's a single-file export)
             if ($is_view) {
-
-                if (isset($GLOBALS['sql_create_view'])) {
-                    if (! $export_plugin->exportStructure(
-                        $db, $table, $crlf, $err_url,
-                        'stand_in', $export_type,
-                        $do_relation, $do_comments, $do_mime, $do_dates
-                    )) {
-                        break 1;
-                    }
+                if ($separate_files == ''
+                    && isset($GLOBALS['sql_create_view'])
+                    && ! $export_plugin->exportStructure(
+                        $db, $table, $crlf, $err_url, 'stand_in',
+                        $export_type, $do_relation, $do_comments,
+                        $do_mime, $do_dates, $aliases
+                    )
+                ) {
+                    break;
                 }
-
             } else if (isset($GLOBALS['sql_create_table'])) {
 
                 $table_size = $GLOBALS['maxsize'];
@@ -567,11 +669,11 @@ function PMA_exportDatabase(
                 }
 
                 if (! $export_plugin->exportStructure(
-                    $db, $table, $crlf, $err_url,
-                    'create_table', $export_type,
-                    $do_relation, $do_comments, $do_mime, $do_dates
+                    $db, $table, $crlf, $err_url, 'create_table',
+                    $export_type, $do_relation, $do_comments,
+                    $do_mime, $do_dates, $aliases
                 )) {
-                    break 1;
+                    break;
                 }
 
             }
@@ -580,29 +682,42 @@ function PMA_exportDatabase(
         // if this is a view or a merge table, don't export data
         if (($whatStrucOrData == 'data'
             || $whatStrucOrData == 'structure_and_data')
-            && ! ($is_view || PMA_Table::isMerge($db, $table))
+            && in_array($table, $table_data)
+            && ! ($is_view)
         ) {
             $local_query  = 'SELECT * FROM ' . PMA_Util::backquote($db)
                 . '.' . PMA_Util::backquote($table);
             if (! $export_plugin->exportData(
-                $db, $table, $crlf, $err_url, $local_query
+                $db, $table, $crlf, $err_url, $local_query, $aliases
             )) {
-                break 1;
+                break;
             }
         }
+
+        // this buffer was filled, we save it and go to the next one
+        if ($separate_files == 'database') {
+            PMA_saveObjectInBuffer('table_' . $table);
+        }
+
         // now export the triggers (needs to be done after the data because
         // triggers can modify already imported tables)
         if (isset($GLOBALS['sql_create_trigger']) && ($whatStrucOrData == 'structure'
             || $whatStrucOrData == 'structure_and_data')
+            && in_array($table, $table_structure)
         ) {
             if (! $export_plugin->exportStructure(
-                $db, $table, $crlf, $err_url,
-                'triggers', $export_type,
-                $do_relation, $do_comments, $do_mime, $do_dates
+                $db, $table, $crlf, $err_url, 'triggers',
+                $export_type, $do_relation, $do_comments,
+                $do_mime, $do_dates, $aliases
             )) {
-                break 1;
+                break;
+            }
+
+            if ($separate_files == 'database') {
+                PMA_saveObjectInBuffer('table_' . $table, true);
             }
         }
+
     }
 
     if (isset($GLOBALS['sql_create_view'])) {
@@ -613,11 +728,15 @@ function PMA_exportDatabase(
                 || $whatStrucOrData == 'structure_and_data'
             ) {
                 if (! $export_plugin->exportStructure(
-                    $db, $view, $crlf, $err_url,
-                    'create_view', $export_type,
-                    $do_relation, $do_comments, $do_mime, $do_dates
+                    $db, $view, $crlf, $err_url, 'create_view',
+                    $export_type, $do_relation, $do_comments,
+                    $do_mime, $do_dates, $aliases
                 )) {
-                    break 1;
+                    break;
+                }
+
+                if ($separate_files == 'database') {
+                    PMA_saveObjectInBuffer('view_' . $view);
                 }
             }
         }
@@ -627,35 +746,65 @@ function PMA_exportDatabase(
     if (! $export_plugin->exportDBFooter($db)) {
         return;
     }
+
+    // export metadata related to this db
+    if (isset($GLOBALS['sql_metadata'])) {
+        // Types of metadata to export.
+        // In the future these can be allowed to be selected by the user
+        $metadataTypes = PMA_getMetadataTypesToExport();
+        $export_plugin->exportMetadata($db, $tables, $metadataTypes);
+
+        if ($separate_files == 'database') {
+            PMA_saveObjectInBuffer('metadata');
+        }
+    }
+
+    if ($separate_files == 'database') {
+        PMA_saveObjectInBuffer('extra');
+    }
+
+    if (($GLOBALS['sql_structure_or_data'] == 'structure'
+        || $GLOBALS['sql_structure_or_data'] == 'structure_and_data')
+        && isset($GLOBALS['sql_procedure_function'])
+    ) {
+        $export_plugin->exportEvents($db);
+
+        if ($separate_files == 'database') {
+            PMA_saveObjectInBuffer('events');
+        }
+    }
 }
 
 /**
  * Export at the table level
  *
- * @param string $db              the database to export
- * @param string $table           the table to export
- * @param string $whatStrucOrData structure or data or both
- * @param object $export_plugin   the selected export plugin
- * @param string $crlf            end of line character(s)
- * @param string $err_url         the URL in case of error
- * @param string $export_type     the export type
- * @param bool   $do_relation     whether to export relation info
- * @param bool   $do_comments     whether to add comments
- * @param bool   $do_mime         whether to add MIME info
- * @param bool   $do_dates        whether to add dates
- * @param string $allrows         whether "dump all rows" was ticked
- * @param string $limit_to        upper limit
- * @param string $limit_from      starting limit
- * @param string $sql_query       query for which exporting is requested
+ * @param string       $db              the database to export
+ * @param string       $table           the table to export
+ * @param string       $whatStrucOrData structure or data or both
+ * @param ExportPlugin $export_plugin   the selected export plugin
+ * @param string       $crlf            end of line character(s)
+ * @param string       $err_url         the URL in case of error
+ * @param string       $export_type     the export type
+ * @param bool         $do_relation     whether to export relation info
+ * @param bool         $do_comments     whether to add comments
+ * @param bool         $do_mime         whether to add MIME info
+ * @param bool         $do_dates        whether to add dates
+ * @param string       $allrows         whether "dump all rows" was ticked
+ * @param string       $limit_to        upper limit
+ * @param string       $limit_from      starting limit
+ * @param string       $sql_query       query for which exporting is requested
+ * @param array        $aliases         Alias information for db/table/column
  *
  * @return void
  */
 function PMA_exportTable(
     $db, $table, $whatStrucOrData, $export_plugin, $crlf, $err_url,
     $export_type, $do_relation, $do_comments, $do_mime, $do_dates,
-    $allrows, $limit_to, $limit_from, $sql_query
+    $allrows, $limit_to, $limit_from, $sql_query, $aliases
 ) {
-    if (! $export_plugin->exportDBHeader($db)) {
+    $db_alias = !empty($aliases[$db]['alias'])
+        ? $aliases[$db]['alias'] : '';
+    if (! $export_plugin->exportDBHeader($db, $db_alias)) {
         return;
     }
     if (isset($allrows)
@@ -670,7 +819,8 @@ function PMA_exportTable(
         $add_query  = '';
     }
 
-    $is_view = PMA_Table::isView($db, $table);
+    $_table = new PMA_Table($table, $db);
+    $is_view = $_table->isView();
     if ($whatStrucOrData == 'structure'
         || $whatStrucOrData == 'structure_and_data'
     ) {
@@ -679,9 +829,9 @@ function PMA_exportTable(
 
             if (isset($GLOBALS['sql_create_view'])) {
                 if (! $export_plugin->exportStructure(
-                    $db, $table, $crlf, $err_url,
-                    'create_view', $export_type,
-                    $do_relation, $do_comments, $do_mime, $do_dates
+                    $db, $table, $crlf, $err_url, 'create_view',
+                    $export_type, $do_relation, $do_comments,
+                    $do_mime, $do_dates, $aliases
                 )) {
                     return;
                 }
@@ -690,9 +840,9 @@ function PMA_exportTable(
         } else if (isset($GLOBALS['sql_create_table'])) {
 
             if (! $export_plugin->exportStructure(
-                $db, $table, $crlf, $err_url,
-                'create_table', $export_type,
-                $do_relation, $do_comments, $do_mime, $do_dates
+                $db, $table, $crlf, $err_url, 'create_table',
+                $export_type, $do_relation, $do_comments,
+                $do_mime, $do_dates, $aliases
             )) {
                 return;
             }
@@ -703,9 +853,8 @@ function PMA_exportTable(
     // If this is an export of a single view, we have to export data;
     // for example, a PDF report
     // if it is a merge table, no data is exported
-    if (($whatStrucOrData == 'data'
-        || $whatStrucOrData == 'structure_and_data')
-        && ! PMA_Table::isMerge($db, $table)
+    if ($whatStrucOrData == 'data'
+        || $whatStrucOrData == 'structure_and_data'
     ) {
         if (! empty($sql_query)) {
             // only preg_replace if needed
@@ -720,7 +869,7 @@ function PMA_exportTable(
                 . '.' . PMA_Util::backquote($table) . $add_query;
         }
         if (! $export_plugin->exportData(
-            $db, $table, $crlf, $err_url, $local_query
+            $db, $table, $crlf, $err_url, $local_query, $aliases
         )) {
             return;
         }
@@ -731,9 +880,9 @@ function PMA_exportTable(
         || $whatStrucOrData == 'structure_and_data')
     ) {
         if (! $export_plugin->exportStructure(
-            $db, $table, $crlf, $err_url,
-            'triggers', $export_type,
-            $do_relation, $do_comments, $do_mime, $do_dates
+            $db, $table, $crlf, $err_url, 'triggers',
+            $export_type, $do_relation, $do_comments,
+            $do_mime, $do_dates, $aliases
         )) {
             return;
         }
@@ -741,5 +890,159 @@ function PMA_exportTable(
     if (! $export_plugin->exportDBFooter($db)) {
         return;
     }
+
+    if (isset($GLOBALS['sql_metadata'])) {
+        // Types of metadata to export.
+        // In the future these can be allowed to be selected by the user
+        $metadataTypes = PMA_getMetadataTypesToExport();
+        $export_plugin->exportMetadata($db, $table, $metadataTypes);
+    }
 }
-?>
+
+/**
+ * Loads correct page after doing export
+ *
+ * @param string $db          the database name
+ * @param string $table       the table name
+ * @param string $export_type Export type
+ *
+ * @return void
+ */
+function PMA_showExportPage($db, $table, $export_type)
+{
+    global $cfg;
+    if ($export_type == 'server') {
+        $active_page = 'server_export.php';
+        include_once 'server_export.php';
+    } elseif ($export_type == 'database') {
+        $active_page = 'db_export.php';
+        include_once 'db_export.php';
+    } else {
+        $active_page = 'tbl_export.php';
+        include_once 'tbl_export.php';
+    }
+    exit();
+}
+
+/**
+ * Merge two alias arrays, if array1 and array2 have
+ * conflicting alias then array2 value is used if it
+ * is non empty otherwise array1 value.
+ *
+ * @param array $aliases1 first array of aliases
+ * @param array $aliases2 second array of aliases
+ *
+ * @return array resultant merged aliases info
+ */
+function PMA_mergeAliases($aliases1, $aliases2)
+{
+    // First do a recursive array merge
+    // on aliases arrays.
+    $aliases = array_merge_recursive($aliases1, $aliases2);
+    // Now, resolve conflicts in aliases, if any
+    foreach ($aliases as $db_name => $db) {
+        // If alias key is an array then
+        // it is a merge conflict.
+        if (isset($db['alias']) && is_array($db['alias'])) {
+            $val1 = $db['alias'][0];
+            $val2 = $db['alias'][1];
+            // Use aliases2 alias if non empty
+            $aliases[$db_name]['alias']
+                = empty($val2) ? $val1 : $val2;
+        }
+        if (!isset($db['tables'])) {
+            continue;
+        }
+        foreach ($db['tables'] as $tbl_name => $tbl) {
+            if (isset($tbl['alias']) && is_array($tbl['alias'])) {
+                $val1 = $tbl['alias'][0];
+                $val2 = $tbl['alias'][1];
+                // Use aliases2 alias if non empty
+                $aliases[$db_name]['tables'][$tbl_name]['alias']
+                    = empty($val2) ? $val1 : $val2;
+            }
+            if (!isset($tbl['columns'])) {
+                continue;
+            }
+            foreach ($tbl['columns'] as  $col => $col_as) {
+                if (isset($col_as) && is_array($col_as)) {
+                    $val1 = $col_as[0];
+                    $val2 = $col_as[1];
+                    // Use aliases2 alias if non empty
+                    $aliases[$db_name]['tables'][$tbl_name]['columns'][$col]
+                        = empty($val2) ? $val1 : $val2;
+                }
+            };
+        };
+    }
+    return $aliases;
+}
+
+/**
+ * Locks tables
+ *
+ * @param string $db       database name
+ * @param array  $tables   list of table names
+ * @param string $lockType lock type; "[LOW_PRIORITY] WRITE" or "READ [LOCAL]"
+ *
+ * @return mixed result of the query
+ */
+function PMA_lockTables($db, $tables, $lockType = "WRITE")
+{
+    $locks = array();
+    foreach ($tables as $table) {
+        $locks[] = PMA_Util::backquote($db) . "." . PMA_Util::backquote($table)
+            . " " . $lockType;
+    }
+
+    $sql = "LOCK TABLES " . implode(", ", $locks);
+    return $GLOBALS['dbi']->tryQuery($sql);
+}
+
+/**
+ * Releases table locks
+ *
+ * @return mixed result of the query
+ */
+function PMA_unlockTables()
+{
+    return $GLOBALS['dbi']->tryQuery("UNLOCK TABLES");
+}
+
+/**
+ * Returns all the metadata types that can be exported with a database or a table
+ *
+ * @return array metadata types.
+ */
+function PMA_getMetadataTypesToExport()
+{
+    return array(
+        'column_info',
+        'table_uiprefs',
+        'tracking',
+        'bookmark',
+        'relation',
+        'table_coords',
+        'pdf_pages',
+        'savedsearches',
+        'central_columns',
+        'export_templates',
+    );
+}
+
+/**
+ * Returns the checked clause, depending on the presence of key in array
+ *
+ * @param string $key   the key to look for
+ * @param array  $array array to verify
+ *
+ * @return string the checked clause
+ */
+function PMA_getCheckedClause($key, $array)
+{
+    if (in_array($key, $array)) {
+        return ' checked="checked"';
+    } else {
+        return '';
+    }
+}

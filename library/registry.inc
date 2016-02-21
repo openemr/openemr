@@ -65,7 +65,7 @@ function installSQL ( $dir )
 	{
 		$sql = implode("", $sqlarray);
 		//echo "<br>$sql<br><br>";
-		$sqla = split(";",$sql);
+		$sqla = explode(";",$sql);
 		foreach ($sqla as $sqlq) {
 		  if (strlen($sqlq) > 5) {
 		   sqlStatement(rtrim("$sqlq"));

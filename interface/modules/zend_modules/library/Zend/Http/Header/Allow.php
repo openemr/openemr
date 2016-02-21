@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -46,8 +46,6 @@ class Allow implements HeaderInterface
      */
     public static function fromString($headerLine)
     {
-        $header = new static();
-
         list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
 
         // check to ensure proper header type for this factory
@@ -55,14 +53,9 @@ class Allow implements HeaderInterface
             throw new Exception\InvalidArgumentException('Invalid header line for Allow string: "' . $name . '"');
         }
 
-        // reset list of methods
-        $header->methods = array_fill_keys(array_keys($header->methods), false);
-
-        // allow methods from header line
-        foreach (explode(',', $value) as $method) {
-            $method = trim(strtoupper($method));
-            $header->methods[$method] = true;
-        }
+        $header = new static();
+        $header->disallowMethods(array_keys($header->getAllMethods()));
+        $header->allowMethods(explode(',', $value));
 
         return $header;
     }
@@ -117,6 +110,12 @@ class Allow implements HeaderInterface
     {
         foreach ((array) $allowedMethods as $method) {
             $method = trim(strtoupper($method));
+            if (preg_match('/\s/', $method)) {
+                throw new Exception\InvalidArgumentException(sprintf(
+                    'Unable to whitelist method; "%s" is not a valid method',
+                    $method
+                ));
+            }
             $this->methods[$method] = true;
         }
 
@@ -133,6 +132,12 @@ class Allow implements HeaderInterface
     {
         foreach ((array) $disallowedMethods as $method) {
             $method = trim(strtoupper($method));
+            if (preg_match('/\s/', $method)) {
+                throw new Exception\InvalidArgumentException(sprintf(
+                    'Unable to blacklist method; "%s" is not a valid method',
+                    $method
+                ));
+            }
             $this->methods[$method] = false;
         }
 

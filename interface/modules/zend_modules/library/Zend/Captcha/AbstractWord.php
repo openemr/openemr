@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -309,10 +309,12 @@ abstract class AbstractWord extends AbstractAdapter
         $vowels     = $this->useNumbers ? static::$VN : static::$V;
         $consonants = $this->useNumbers ? static::$CN : static::$C;
 
+        $totIndexCon = count($consonants) - 1;
+        $totIndexVow = count($vowels) - 1;
         for ($i=0; $i < $wordLen; $i = $i + 2) {
             // generate word with mix of vowels and consonants
-            $consonant = $consonants[array_rand($consonants)];
-            $vowel     = $vowels[array_rand($vowels)];
+            $consonant = $consonants[Rand::getInteger(0, $totIndexCon, true)];
+            $vowel     = $vowels[Rand::getInteger(0, $totIndexVow, true)];
             $word     .= $consonant . $vowel;
         }
 

@@ -36,8 +36,7 @@ if ($is_create_db_priv) {
         'db_collation',
         null,
         null,
-        true,
-        5
+        true
     );
 
     if (! empty($dbstats)) {
@@ -60,4 +59,3 @@ if ($is_create_db_priv) {
         )
         . '' . __('No Privileges') . '</span>';
 } // end create db form or message
-?>

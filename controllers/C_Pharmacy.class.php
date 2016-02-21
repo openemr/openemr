@@ -8,14 +8,15 @@ class C_Pharmacy extends Controller {
 	var $template_mod;
 	var $pharmacies;
 
-	function C_Pharmacy($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->pharmacies = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&");
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+		$this->Pharmacy = new Pharmacy();
 	}
 
 	function default_action() {
@@ -41,10 +42,10 @@ class C_Pharmacy extends Controller {
 	function list_action($sort = "") {
 
 		if (!empty($sort)) {
-			$this->assign("pharmacies", Pharmacy::pharmacies_factory("",$sort));
+			$this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("",$sort));
 		}
 		else {
-			$this->assign("pharmacies", Pharmacy::pharmacies_factory());
+			$this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
 		}
 		//print_r(Prescription::prescriptions_factory($id));
 		return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_list.html");

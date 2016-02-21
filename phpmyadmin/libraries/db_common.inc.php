@@ -16,6 +16,9 @@ require_once './libraries/bookmark.lib.php';
 
 PMA_Util::checkParameters(array('db'));
 
+global $cfg;
+global $db;
+
 $is_show_stats = $cfg['ShowStats'];
 
 $db_is_system_schema = $GLOBALS['dbi']->isSystemSchema($db);
@@ -26,16 +29,22 @@ if ($db_is_system_schema) {
 /**
  * Defines the urls to return to in case of error in a sql statement
  */
-$err_url_0 = 'index.php?' . PMA_URL_getCommon();
-$err_url   = $cfg['DefaultTabDatabase'] . '?' . PMA_URL_getCommon($db);
+$err_url_0 = 'index.php' . PMA_URL_getCommon();
 
+$err_url = PMA_Util::getScriptNameForOption(
+    $GLOBALS['cfg']['DefaultTabDatabase'], 'database'
+)
+    . PMA_URL_getCommon(array('db' => $db));
+
+/** @var PMA_String $pmaString */
+$pmaString = $GLOBALS['PMA_String'];
 
 /**
  * Ensures the database exists (else move to the "parent" script) and displays
  * headers
  */
 if (! isset($is_db) || ! $is_db) {
-    if (strlen($db)) {
+    if (/*overload*/mb_strlen($db)) {
         $is_db = $GLOBALS['dbi']->selectDb($db);
         // This "Command out of sync" 2014 error may happen, for example
         // after calling a MySQL procedure; at this point we can't select
@@ -44,12 +53,14 @@ if (! isset($is_db) || ! $is_db) {
             $is_db = true;
             unset($GLOBALS['errno']);
         }
+    } else {
+        $is_db = false;
     }
     // Not a valid db name -> back to the welcome page
-    $uri = $cfg['PmaAbsoluteUri'] . 'index.php?'
-        . PMA_URL_getCommon('', '', '&')
+    $uri = $cfg['PmaAbsoluteUri'] . 'index.php'
+        . PMA_URL_getCommon(array(), 'text')
         . (isset($message) ? '&message=' . urlencode($message) : '') . '&reload=1';
-    if (! strlen($db) || ! $is_db) {
+    if (!/*overload*/mb_strlen($db) || ! $is_db) {
         $response = PMA_Response::getInstance();
         if ($response->isAjax()) {
             $response->isSuccess(false);
@@ -84,7 +95,7 @@ if (isset($_REQUEST['submitcollation'])
      * db charset change action on db_operations.php.  If this causes a bug on
      * other pages, we might have to move this to a different location.
      */
-    if ( $GLOBALS['is_ajax_request'] == true) {
+    if ($GLOBALS['is_ajax_request'] == true) {
         $response = PMA_Response::getInstance();
         $response->isSuccess($message->isSuccess());
         $response->addJSON('message', $message);
@@ -95,6 +106,5 @@ if (isset($_REQUEST['submitcollation'])
 /**
  * Set parameters for links
  */
-$url_query = PMA_URL_getCommon($db);
+$url_query = PMA_URL_getCommon(array('db' => $db));
 
-?>

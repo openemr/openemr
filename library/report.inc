@@ -281,8 +281,8 @@ function getPatientBillingEncounter($pid, $encounter) {
 	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
     "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
     "FROM billing LEFT JOIN users AS u ON u.id = billing.provider_id " .
-    "WHERE pid='" . mysql_real_escape_string($pid) . "' AND " .
-    "encounter = '" . mysql_real_escape_string($encounter) .
+    "WHERE pid='" . add_escape_custom($pid) . "' AND " .
+    "encounter = '" . add_escape_custom($encounter) .
     "' AND activity='1' ORDER BY date";
   *******************************************************************/
   $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .

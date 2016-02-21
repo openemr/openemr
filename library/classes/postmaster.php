@@ -22,7 +22,7 @@ class MyMailer extends PHPMailer
     var $Port;
     var $CharSet;
 
-    function MyMailer()
+    function __construct()
     {
         $this->emailMethod();
     }

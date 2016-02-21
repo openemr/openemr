@@ -142,7 +142,7 @@ function ft_float($input) {
  */
 function ft_validdate($str) {
     if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
-        $arr = split("-",$str);     // splitting the array
+        $arr = explode("-",$str);     // splitting the array
         $yy = $arr[0];            // first element of the array is year
         $mm = $arr[1];            // second element is month
         $dd = $arr[2];            // third element is days
@@ -167,25 +167,25 @@ function ft_email($email) {
     }
 
     // check for @ symbol and maximum allowed lengths
-    if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) { return FALSE; }
+    if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) { return FALSE; }
 
     // split for sections
     $email_array = explode("@", $email);
     $local_array = explode(".", $email_array[0]);
 
     for ($i = 0; $i < sizeof($local_array); $i++) {
-        if ( !ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$", $local_array[$i]) ) {
+        if ( !preg_match("/^(([A-Za-z0-9!#$%&'*+\/=?^_`{|}~-][A-Za-z0-9!#$%&'*+\/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$/", $local_array[$i]) ) {
              return FALSE;
         }
     }
 
-    if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) { 
+    if (!preg_match("/^\[?[0-9\.]+\]?$/", $email_array[1])) {
     // verify if domain is IP. If not, it must be a valid domain name 
         $domain_array = explode(".", $email_array[1]);
         if (sizeof($domain_array) < 2) { return FALSE; }
 
         for ($i = 0; $i < sizeof($domain_array); $i++) {
-            if (!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$", $domain_array[$i])) { 
+            if (!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/", $domain_array[$i])) {
                 return false; 
             }	
         }
@@ -199,8 +199,7 @@ function ft_email($email) {
  * PREPARES THE INPUT FOR DATABASE
  * 
  * works with mysql/postgresql
- * NOTE: mysql_real_escape_string() requires that a valid mysql connection (mysql_connect()) exists to work
- * 
+ *
  * @param string $value - email to validate
  * @param string $db_type - allow two constants MYSQL | PGSQL
  * @return string|bool $value sanitized value
@@ -212,11 +211,6 @@ function ft_dbsql($value, $db_type = 'MYSQL') {
 
     // Quote if not a number or a numeric string
     if (!is_numeric($value)) {
-        /*switch ($db_type) {
-            case 'MYSQL': $value = "'" . mysql_real_escape_string($value) . "'"; break;
-            case 'PGSQL': $value = "'" . pg_escape_string($value) . "'"; break;
-        }*/
-        // trick to not modify the openemr genuine code who put the string (already quoted) in quotes!
         switch ($db_type) {
             case 'MYSQL': $value = add_escape_custom($value); break;
             case 'PGSQL': $value = pg_escape_string($value); break;

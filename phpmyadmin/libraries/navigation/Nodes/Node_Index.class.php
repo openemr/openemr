@@ -23,8 +23,6 @@ class Node_Index extends Node
      * @param int    $type     Type of node, may be one of CONTAINER or OBJECT
      * @param bool   $is_group Whether this object has been created
      *                         while grouping nodes
-     *
-     * @return Node_Index
      */
     public function __construct($name, $type = Node::OBJECT, $is_group = false)
     {
@@ -33,13 +31,12 @@ class Node_Index extends Node
         $this->links = array(
             'text' => 'tbl_indexes.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;table=%2$s&amp;index=%1$s'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'tbl_indexes.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;table=%2$s&amp;index=%1$s'
-                    . '&amp;token=' . $GLOBALS['token']
+                    . '&amp;token=' . $_SESSION[' PMA_token ']
         );
         $this->classes = 'index';
     }
 }
 
-?>

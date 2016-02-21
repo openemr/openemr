@@ -29,7 +29,7 @@
  */
 function add_escape_custom($s) {
       //prepare for safe mysql insertion
-      $s = mysql_real_escape_string($s);
+      $s = mysqli_real_escape_string($GLOBALS['dbh'], $s);
       return $s;
 }
 

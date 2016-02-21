@@ -207,7 +207,7 @@ function postcalendar_admin_approveevents()
 	}
 
 	// clear the template cache
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
     return postcalendar_admin_showlist('',_EVENT_APPROVED,'listapproved',_PC_APPROVED_ADMIN,$msg);
 }
@@ -241,7 +241,7 @@ function postcalendar_admin_hideevents()
     }
     
 	// clear the template cache
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
     return postcalendar_admin_showlist('',_EVENT_APPROVED,'listapproved',_PC_APPROVED_ADMIN,$msg);
 }
@@ -273,7 +273,7 @@ function postcalendar_admin_deleteevents()
     }
 
 	// clear the t
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
     return postcalendar_admin_showlist('',_EVENT_APPROVED,'listapproved',_PC_APPROVED_ADMIN,$msg);
 }
@@ -526,7 +526,7 @@ function postcalendar_admin_submit($args)
 				$output .= '<br />';
         	} else {
         		// clear the Smarty cache
-				$tpl =& new pcSmarty();
+				$tpl = new pcSmarty();
 				$tpl->clear_all_cache();
 				$output .= '<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">';		
 				if($is_update) {
@@ -568,7 +568,7 @@ function postcalendar_admin_modifyconfig($msg='',$showMenu=true)
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
 	$pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 
@@ -771,7 +771,7 @@ function postcalendar_admin_resetDefaults()
 	pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',         		'0');
 	pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',         		pnConfigGetVar('adminmail'));
 
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
 
     return postcalendar_admin_modifyconfig('<center>'._PC_UPDATED_DEFAULTS.'</center>');
@@ -857,7 +857,7 @@ function postcalendar_admin_updateconfig()
 	pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',		 	 $pcNotifyAdmin);
 	pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',		 	 $pcNotifyEmail);
 
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
 
     return postcalendar_admin_modifyconfig('<center>'._PC_UPDATED.'</center>');
@@ -867,7 +867,7 @@ function postcalendar_admin_categoriesOld($msg='',$e='')
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
 	$pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -969,7 +969,7 @@ function postcalendar_admin_categoriesConfirm()
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 $header = <<<EOF
 	<html>
@@ -1101,7 +1101,7 @@ function postcalendar_admin_categoriesUpdate()
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
 	list($dbconn) = pnDBGetConn();
@@ -1226,10 +1226,10 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
 	extract($args); unset($args);
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 	// set up Smarty
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
 	$tpl->caching = false;
 
 	$template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
@@ -1541,7 +1541,7 @@ function postcalendar_admin_clearCache()
 {
 	if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-        $tpl =& new pcSmarty();
+        $tpl = new pcSmarty();
         //fmg: check that both subdirs to be cleared first exist and are writeable  
         $spec_err = '';
     if (!file_exists($tpl->compile_dir)) 
@@ -1647,7 +1647,7 @@ function postcalendar_admin_testSystem()
 	$version = $modinfo['version'];
 	unset($modinfo);
 
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
     $infos = array();
 
 	if(phpversion() >= '4.1.0') {
@@ -1763,10 +1763,10 @@ function postcalendar_admin_categoryDetail($args)
 	if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
 	extract($args); unset($args);
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 	// set up Smarty
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
 	$tpl->caching = false;
 
 	$template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
@@ -1907,10 +1907,10 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
 	if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
 	extract($args); unset($args);
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 	// set up Smarty
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
 	$tpl->caching = false;
 
 	$template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
@@ -2001,7 +2001,7 @@ function postcalendar_admin_categoryLimitsUpdate()
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
 	list($dbconn) = pnDBGetConn();

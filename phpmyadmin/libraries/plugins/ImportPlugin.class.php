@@ -9,16 +9,13 @@ if (! defined('PHPMYADMIN')) {
     exit;
 }
 
-/* This class extends the PluginObserver class */
-require_once 'PluginObserver.class.php';
-
 /**
  * Provides a common interface that will have to be implemented by all of the
  * import plugins.
  *
  * @package PhpMyAdmin
  */
-abstract class ImportPlugin extends PluginObserver
+abstract class ImportPlugin
 {
     /**
      * ImportPluginProperties object containing the import plugin properties
@@ -41,7 +38,7 @@ abstract class ImportPlugin extends PluginObserver
     /**
      * Gets the import specific format plugin properties
      *
-     * @return array
+     * @return ImportPluginProperties
      */
     public function getProperties()
     {
@@ -55,5 +52,25 @@ abstract class ImportPlugin extends PluginObserver
      * @return void
      */
     abstract protected function setProperties();
+
+    /**
+     * Define DB name and options
+     *
+     * @param string $currentDb DB
+     * @param string $defaultDb Default DB name
+     *
+     * @return array DB name and options (an associative array of options)
+     */
+    protected function getDbnameAndOptions($currentDb, $defaultDb)
+    {
+        if (/*overload*/mb_strlen($currentDb)) {
+            $db_name = $currentDb;
+            $options = array('create_db' => false);
+        } else {
+            $db_name = $defaultDb;
+            $options = null;
+        }
+
+        return array($db_name, $options);
+    }
 }
-?>

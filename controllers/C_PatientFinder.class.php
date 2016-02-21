@@ -9,8 +9,8 @@ class C_PatientFinder extends Controller {
 	var $template_mod;
 	var $_db;
 	
-	function C_PatientFinder($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->_db = $GLOBALS['adodb']['db']; 
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -115,7 +115,7 @@ class C_PatientFinder extends Controller {
 	*	@param string $search_string parsed for first name
 	*/
 	function search_by_fName($sql, $search_string) {
-		$name_array = split(",", $search_string);
+		$name_array = explode(",", $search_string);
 		$fName = add_escape_custom( trim($name_array[1]) );
 		$sql .= " WHERE fname LIKE '$fName%' ORDER BY lname, fname";
 		$result_array = $this->_db->GetAll($sql);
@@ -129,7 +129,7 @@ class C_PatientFinder extends Controller {
 	*	@param string $search_string parsed for first, last and middle name
 	*/
 	function search_by_FullName($sql, $search_string) {
-		$name_array = split(",", $search_string);
+		$name_array = explode(",", $search_string);
 		$lName = add_escape_custom($name_array[0]);
 		$fName = add_escape_custom( trim($name_array[1]) );
 		$sql .= " WHERE fname LIKE '%$fName%' AND lname LIKE '$lName%' ORDER BY lname, fname";

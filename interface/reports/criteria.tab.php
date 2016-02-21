@@ -45,8 +45,8 @@ $ThisPageSearchCriteriaQueryDropDownDefaultKey=array();
 $ThisPageSearchCriteriaInclude=array();
 //Filling the input array.
 $ThisPageSearchCriteriaDisplay=$ThisPageSearchCriteriaDisplayMaster;
-$ThisPageSearchCriteriaKey=split(',',$ThisPageSearchCriteriaKeyMaster);
-$ThisPageSearchCriteriaDataType=split(',',$ThisPageSearchCriteriaDataTypeMaster);
+$ThisPageSearchCriteriaKey=explode(',',$ThisPageSearchCriteriaKeyMaster);
+$ThisPageSearchCriteriaDataType=explode(',',$ThisPageSearchCriteriaDataTypeMaster);
 //--------------------------------------------------------------
 //Filling the input array.
 $NumberOfRadioThisPageSearchCriteria=0;
@@ -58,7 +58,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
      {
         $NumberOfRadioThisPageSearchCriteria++;
         $ThisPageSearchCriteriaDisplayRadio[$ThisPageSearchCriteriaIndex]=$ThisPageSearchCriteriaDisplayRadioMaster[$NumberOfRadioThisPageSearchCriteria];
-        $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex]=split(',',$ThisPageSearchCriteriaRadioKeyMaster[$NumberOfRadioThisPageSearchCriteria]);
+        $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex]=explode(',',$ThisPageSearchCriteriaRadioKeyMaster[$NumberOfRadioThisPageSearchCriteria]);
      }
     if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down')
      {

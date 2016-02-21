@@ -14,8 +14,8 @@ var defaultX = 0;
 var defaultY = 0;
 
 // Variables
-var x;
-var y;
+var x = 0;
+var y = 0;
 var scale = 1;
 
 var svg;
@@ -26,6 +26,9 @@ var svg;
 function zoomAndPan()
 {
     var g = svg.getElementById('groupPanel');
+    if (!g) {
+        return;
+    }
 
     g.setAttribute('transform', 'translate(' + x + ', ' + y + ') scale(' + scale + ')');
     var id;
@@ -104,7 +107,7 @@ function loadSVG() {
  */
 function addZoomPanControllers() {
     var $placeholder = $('#placeholder');
-    if ($("#placeholder svg").length > 0) {
+    if ($("#placeholder").find("svg").length > 0) {
         var pmaThemeImage = $('#pmaThemeImage').val();
         // add panning arrows
         $('<img class="button" id="left_arrow" src="' + pmaThemeImage + 'west-mini.png">').appendTo($placeholder);
@@ -181,30 +184,30 @@ function getRelativeCoords(e) {
  * Unbind all event handlers before tearing down a page
  */
 AJAX.registerTeardown('tbl_gis_visualization.js', function () {
-    $('#choice').die('click');
-    $('#placeholder').die('mousewheel');
-    $('svg').die('dragstart');
-    $('svg').die('mouseup');
-    $('svg').die('drag');
-    $('#placeholder').die('dblclick');
-    $('#zoom_in').die('click');
-    $('#zoom_world').die('click');
-    $('#zoom_out').die('click');
-    $('#left_arrow').die('click');
-    $('#right_arrow').die('click');
-    $('#up_arrow').die('click');
-    $('#down_arrow').die('click');
+    $(document).off('click', '#choice');
+    $(document).off('mousewheel', '#placeholder');
+    $(document).off('dragstart', 'svg');
+    $(document).off('mouseup', 'svg');
+    $(document).off('drag', 'svg');
+    $(document).off('dblclick', '#placeholder');
+    $(document).off('click', '#zoom_in');
+    $(document).off('click', '#zoom_world');
+    $(document).off('click', '#zoom_out');
+    $(document).off('click', '#left_arrow');
+    $(document).off('click', '#right_arrow');
+    $(document).off('click', '#up_arrow');
+    $(document).off('click', '#down_arrow');
     $('.vector').unbind('mousemove').unbind('mouseout');
 });
 
 AJAX.registerOnload('tbl_gis_visualization.js', function () {
 
     // If we are in GIS visualization, initialize it
-    if ($('table.gis_table').length > 0) {
+    if ($('#gis_div').length > 0) {
         initGISVisualization();
     }
 
-    $('#choice').live('click', function () {
+    $(document).on('click', '#choice', function () {
         if ($(this).prop('checked') === false) {
             $('#placeholder').show();
             $('#openlayersmap').hide();
@@ -214,7 +217,8 @@ AJAX.registerOnload('tbl_gis_visualization.js', function () {
         }
     });
 
-    $('#placeholder').live('mousewheel', function (event, delta) {
+    $(document).on('mousewheel', '#placeholder', function (event, delta) {
+        event.preventDefault();
         var relCoords = getRelativeCoords(event);
         if (delta > 0) {
             //zoom in
@@ -237,27 +241,27 @@ AJAX.registerOnload('tbl_gis_visualization.js', function () {
     var dragX = 0;
     var dragY = 0;
 
-    $('svg').live('dragstart', function (event, dd) {
+    $(document).on('dragstart', 'svg', function (event, dd) {
         $('#placeholder').addClass('placeholderDrag');
         dragX = Math.round(dd.offsetX);
         dragY = Math.round(dd.offsetY);
     });
 
-    $('svg').live('mouseup', function (event) {
+    $(document).on('mouseup', 'svg', function (event) {
         $('#placeholder').removeClass('placeholderDrag');
     });
 
-    $('svg').live('drag', function (event, dd) {
-        newX = Math.round(dd.offsetX);
+    $(document).on('drag', 'svg', function (event, dd) {
+        var newX = Math.round(dd.offsetX);
         x +=  newX - dragX;
         dragX = newX;
-        newY = Math.round(dd.offsetY);
+        var newY = Math.round(dd.offsetY);
         y +=  newY - dragY;
         dragY = newY;
         zoomAndPan();
     });
 
-    $('#placeholder').live('dblclick', function (event) {
+    $(document).on('dblclick', '#placeholder', function (event) {
         scale *= zoomFactor;
         // zooming in keeping the position under mouse pointer unmoved.
         var relCoords = getRelativeCoords(event);
@@ -266,20 +270,21 @@ AJAX.registerOnload('tbl_gis_visualization.js', function () {
         zoomAndPan();
     });
 
-    $('#zoom_in').live('click', function (e) {
+    $(document).on('click', '#zoom_in', function (e) {
         e.preventDefault();
         //zoom in
         scale *= zoomFactor;
 
-        width = $('#placeholder svg').attr('width');
-        height = $('#placeholder svg').attr('height');
+        var $placeholder = $('#placeholder').find('svg');
+        width = $placeholder.attr('width');
+        height = $placeholder.attr('height');
         // zooming in keeping the center unmoved.
         x = width / 2 - (width / 2 - x) * zoomFactor;
         y = height / 2 - (height / 2 - y) * zoomFactor;
         zoomAndPan();
     });
 
-    $('#zoom_world').live('click', function (e) {
+    $(document).on('click', '#zoom_world', function (e) {
         e.preventDefault();
         scale = 1;
         x = defaultX;
@@ -287,38 +292,39 @@ AJAX.registerOnload('tbl_gis_visualization.js', function () {
         zoomAndPan();
     });
 
-    $('#zoom_out').live('click', function (e) {
+    $(document).on('click', '#zoom_out', function (e) {
         e.preventDefault();
         //zoom out
         scale /= zoomFactor;
 
-        width = $('#placeholder svg').attr('width');
-        height = $('#placeholder svg').attr('height');
+        var $placeholder = $('#placeholder').find('svg');
+        width = $placeholder.attr('width');
+        height = $placeholder.attr('height');
         // zooming out keeping the center unmoved.
         x = width / 2 - (width / 2 - x) / zoomFactor;
         y = height / 2 - (height / 2 - y) / zoomFactor;
         zoomAndPan();
     });
 
-    $('#left_arrow').live('click', function (e) {
+    $(document).on('click', '#left_arrow', function (e) {
         e.preventDefault();
         x += 100;
         zoomAndPan();
     });
 
-    $('#right_arrow').live('click', function (e) {
+    $(document).on('click', '#right_arrow', function (e) {
         e.preventDefault();
         x -= 100;
         zoomAndPan();
     });
 
-    $('#up_arrow').live('click', function (e) {
+    $(document).on('click', '#up_arrow', function (e) {
         e.preventDefault();
         y += 100;
         zoomAndPan();
     });
 
-    $('#down_arrow').live('click', function (e) {
+    $(document).on('click', '#down_arrow', function (e) {
         e.preventDefault();
         y -= 100;
         zoomAndPan();

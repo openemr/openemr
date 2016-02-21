@@ -25,13 +25,13 @@ if (!defined('__CLASS_MYPDF__'))
 		var $linethrough	= false;
 		var $overline		= false;
 		
-		function MyPDF($sens = 'P', $unit = 'mm', $format = 'A4')
+		function __construct($sens = 'P', $unit = 'mm', $format = 'A4')
 		{
 			$this->underline	= false;
 			$this->overline		= false;
 			$this->linethrough	= false;
 			
-			$this->FPDF_Protection($sens, $unit, $format);
+			parent::__construct($sens, $unit, $format);
 			$this->AliasNbPages();
 			$this->SetMyFooter();
 		}

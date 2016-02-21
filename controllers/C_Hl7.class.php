@@ -6,8 +6,8 @@ include_once ($GLOBALS['fileroot'] ."/library/classes/class.Parser_HL7v2.php");
 
 class C_Hl7 extends Controller {
 
-    function C_Hl7($template_mod = "general") {
-    	parent::Controller();
+    function __construct($template_mod = "general") {
+    	parent::__construct();
     	$this->template_mod = $template_mod;
     	$this->assign("STYLE", $GLOBALS['style']);
     }

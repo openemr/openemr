@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -125,14 +125,14 @@ class Http implements AdapterInterface
      *
      * @var bool
      */
-    protected $imaProxy;
+    protected $imaProxy = false;
 
     /**
      * Flag indicating the client is IE and didn't bother to return the opaque string
      *
      * @var bool
      */
-    protected $ieNoOpaque;
+    protected $ieNoOpaque = false;
 
     /**
      * Constructor
@@ -149,10 +149,6 @@ class Http implements AdapterInterface
      */
     public function __construct(array $config)
     {
-        $this->request  = null;
-        $this->response = null;
-        $this->ieNoOpaque = false;
-
         if (empty($config['accept_schemes'])) {
             throw new Exception\InvalidArgumentException('Config key "accept_schemes" is required');
         }
@@ -181,6 +177,9 @@ class Http implements AdapterInterface
         }
 
         if (in_array('digest', $this->acceptSchemes)) {
+            $this->useOpaque = true;
+            $this->algo = 'MD5';
+
             if (empty($config['digest_domains']) ||
                 !ctype_print($config['digest_domains']) ||
                 strpos($config['digest_domains'], '"') !== false) {
@@ -204,22 +203,16 @@ class Http implements AdapterInterface
             // We use the opaque value unless explicitly told not to
             if (isset($config['use_opaque']) && false == (bool) $config['use_opaque']) {
                 $this->useOpaque = false;
-            } else {
-                $this->useOpaque = true;
             }
 
             if (isset($config['algorithm']) && in_array($config['algorithm'], $this->supportedAlgos)) {
-                $this->algo = $config['algorithm'];
-            } else {
-                $this->algo = 'MD5';
+                $this->algo = (string) $config['algorithm'];
             }
         }
 
         // Don't be a proxy unless explicitly told to do so
         if (isset($config['proxy_auth']) && true == (bool) $config['proxy_auth']) {
             $this->imaProxy = true;  // I'm a Proxy
-        } else {
-            $this->imaProxy = false;
         }
     }
 
@@ -324,8 +317,9 @@ class Http implements AdapterInterface
     public function authenticate()
     {
         if (empty($this->request) || empty($this->response)) {
-            throw new Exception\RuntimeException('Request and Response objects must be set before calling '
-                                                . 'authenticate()');
+            throw new Exception\RuntimeException(
+                'Request and Response objects must be set before calling authenticate()'
+            );
         }
 
         if ($this->imaProxy) {
@@ -336,11 +330,11 @@ class Http implements AdapterInterface
 
         $headers = $this->request->getHeaders();
         if (!$headers->has($getHeader)) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
         $authHeader = $headers->get($getHeader)->getFieldValue();
         if (!$authHeader) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         list($clientScheme) = explode(' ', $authHeader);
@@ -360,7 +354,7 @@ class Http implements AdapterInterface
         // client sent a scheme that is not the one required
         if (!in_array($clientScheme, $this->acceptSchemes)) {
             // challenge again the client
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         switch ($clientScheme) {
@@ -378,6 +372,23 @@ class Http implements AdapterInterface
     }
 
     /**
+     * @deprecated
+     * @see Http::challengeClient()
+     * @return Authentication\Result Always returns a non-identity Auth result
+     */
+    protected function _challengeClient()
+    {
+        trigger_error(sprintf(
+            'The method "%s" is deprecated and will be removed in the future; '
+            . 'please use the public method "%s::challengeClient()" instead',
+            __METHOD__,
+            __CLASS__
+        ), E_USER_DEPRECATED);
+
+        return $this->challengeClient();
+    }
+
+    /**
      * Challenge Client
      *
      * Sets a 401 or 407 Unauthorized response code, and creates the
@@ -385,7 +396,7 @@ class Http implements AdapterInterface
      *
      * @return Authentication\Result Always returns a non-identity Auth result
      */
-    protected function _challengeClient()
+    public function challengeClient()
     {
         if ($this->imaProxy) {
             $statusCode = 407;
@@ -459,8 +470,8 @@ class Http implements AdapterInterface
         }
         if (empty($this->basicResolver)) {
             throw new Exception\RuntimeException(
-                'A basicResolver object must be set before doing Basic '
-                . 'authentication');
+                'A basicResolver object must be set before doing Basic authentication'
+            );
         }
 
         // Decode the Authorization header
@@ -474,12 +485,12 @@ class Http implements AdapterInterface
         // implementation does. If invalid credentials are detected,
         // re-challenge the client.
         if (!ctype_print($auth)) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
         // Fix for ZF-1515: Now re-challenges on empty username or password
         $creds = array_filter(explode(':', $auth));
         if (count($creds) != 2) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         $result = $this->basicResolver->resolve($creds[0], $this->realm, $creds[1]);
@@ -498,7 +509,7 @@ class Http implements AdapterInterface
             return new Authentication\Result(Authentication\Result::SUCCESS, $result);
         }
 
-        return $this->_challengeClient();
+        return $this->challengeClient();
     }
 
     /**
@@ -530,17 +541,17 @@ class Http implements AdapterInterface
         // See ZF-1052. This code was a bit too unforgiving of invalid
         // usernames. Now, if the username is bad, we re-challenge the client.
         if ('::invalid::' == $data['username']) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         // Verify that the client sent back the same nonce
         if ($this->_calcNonce() != $data['nonce']) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
         // The opaque value is also required to match, but of course IE doesn't
         // play ball.
         if (!$this->ieNoOpaque && $this->_calcOpaque() != $data['opaque']) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         // Look up the user's password hash. If not found, deny access.
@@ -549,7 +560,7 @@ class Http implements AdapterInterface
         // to be recreatable with the current settings of this object.
         $ha1 = $this->digestResolver->resolve($data['username'], $data['realm']);
         if ($ha1 === false) {
-            return $this->_challengeClient();
+            return $this->challengeClient();
         }
 
         // If MD5-sess is used, a1 value is made of the user's password
@@ -575,7 +586,6 @@ class Http implements AdapterInterface
         // easier
         $ha2 = hash('md5', $a2);
 
-
         // Calculate the server's version of the request-digest. This must
         // match $data['response']. See RFC 2617, section 3.2.2.1
         $message = $data['nonce'] . ':' . $data['nc'] . ':' . $data['cnonce'] . ':' . $data['qop'] . ':' . $ha2;
@@ -588,7 +598,7 @@ class Http implements AdapterInterface
             return new Authentication\Result(Authentication\Result::SUCCESS, $identity);
         }
 
-        return $this->_challengeClient();
+        return $this->challengeClient();
     }
 
     /**
@@ -710,7 +720,7 @@ class Http implements AdapterInterface
         if (!$ret || empty($temp[1])) {
             return false;
         }
-        if (32 != strlen($temp[1]) || !ctype_xdigit($temp[1])) {
+        if (!$this->isValidMd5Hash($temp[1])) {
             return false;
         }
 
@@ -745,7 +755,6 @@ class Http implements AdapterInterface
         if ($this->useOpaque) {
             $ret = preg_match('/opaque="([^"]+)"/', $header, $temp);
             if (!$ret || empty($temp[1])) {
-
                 // Big surprise: IE isn't RFC 2617-compliant.
                 $headers = $this->request->getHeaders();
                 if (!$headers->has('User-Agent')) {
@@ -762,7 +771,7 @@ class Http implements AdapterInterface
 
             // This implementation only sends MD5 hex strings in the opaque value
             if (!$this->ieNoOpaque &&
-                (32 != strlen($temp[1]) || !ctype_xdigit($temp[1]))) {
+                !$this->isValidMd5Hash($temp[1])) {
                 return false;
             }
 
@@ -795,8 +804,17 @@ class Http implements AdapterInterface
         }
 
         $data['nc'] = $temp[1];
-        $temp = null;
 
         return $data;
+    }
+
+    /**
+     * validates if $value is a valid Md5 hash
+     * @param string $value
+     * @return bool
+     */
+    private function isValidMd5Hash($value)
+    {
+        return 32 == strlen($value) && ctype_xdigit($value);
     }
 }

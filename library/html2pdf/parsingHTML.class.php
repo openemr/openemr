@@ -22,7 +22,7 @@ class parsingHTML
 	 *
 	 * @return	null
 	 */
-	function parsingHTML($encoding = 'ISO-8859-15')
+	function __construct($encoding = 'ISO-8859-15')
 	{
 		$this->num		= 0;
 		$this->level	= array($this->num);

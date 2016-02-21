@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -23,7 +23,7 @@ use Zend\Stdlib\ArrayUtils;
 /**
  * Translator.
  */
-class Translator
+class Translator implements TranslatorInterface
 {
     /**
      * Event fired when the translation for a message is missing.
@@ -401,6 +401,8 @@ class Translator
             }
 
             return ($number == 1 ? $singular : $plural);
+        } elseif (is_string($translation)) {
+            $translation = array($translation);
         }
 
         $index = $this->messages[$textDomain][$locale]
@@ -408,9 +410,9 @@ class Translator
                       ->evaluate($number);
 
         if (!isset($translation[$index])) {
-            throw new Exception\OutOfBoundsException(sprintf(
-                'Provided index %d does not exist in plural array', $index
-            ));
+            throw new Exception\OutOfBoundsException(
+                sprintf('Provided index %d does not exist in plural array', $index)
+            );
         }
 
         return $translation[$index];
@@ -461,7 +463,7 @@ class Translator
             }
         }
 
-        return null;
+        return;
     }
 
     /**

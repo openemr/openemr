@@ -17,7 +17,10 @@ require_once 'libraries/Header.class.php';
 require_once 'libraries/check_user_privileges.lib.php';
 require_once 'libraries/bookmark.lib.php';
 require_once 'libraries/sql.lib.php';
-require_once 'libraries/sqlparser.lib.php';
+require_once 'libraries/config/page_settings.class.php';
+
+PMA_PageSettings::showGroup('Browse');
+
 
 $response = PMA_Response::getInstance();
 $header   = $response->getHeader();
@@ -27,7 +30,7 @@ $scripts->addFile('jquery/jquery.uitablefilter.js');
 $scripts->addFile('tbl_change.js');
 $scripts->addFile('indexes.js');
 $scripts->addFile('gis_data_editor.js');
-$scripts->addFile('columndelete.js');
+$scripts->addFile('multi_column_sort.js');
 
 /**
  * Set ajax_reload in the response if it was already set
@@ -40,7 +43,7 @@ if (isset($ajax_reload) && $ajax_reload['reload'] === true) {
 /**
  * Defines the url to return to in case of error in a sql statement
  */
-// Security checkings
+// Security checks
 if (! empty($goto)) {
     $is_gotofile     = preg_replace('@^([^?]+).*$@s', '\\1', $goto);
     if (! @file_exists('' . $is_gotofile)) {
@@ -50,17 +53,22 @@ if (! empty($goto)) {
     }
 } else {
     if (empty($table)) {
-        $goto = $cfg['DefaultTabDatabase'];
+        $goto = PMA_Util::getScriptNameForOption(
+            $GLOBALS['cfg']['DefaultTabDatabase'], 'database'
+        );
     } else {
-        $goto = $cfg['DefaultTabTable'];
+        $goto = PMA_Util::getScriptNameForOption(
+            $GLOBALS['cfg']['DefaultTabTable'], 'table'
+        );
     }
     $is_gotofile  = true;
 } // end if
 
 if (! isset($err_url)) {
     $err_url = (! empty($back) ? $back : $goto)
-        . '?' . PMA_URL_getCommon($db)
-        . ((strpos(' ' . $goto, 'db_') != 1 && strlen($table))
+        . '?' . PMA_URL_getCommon(array('db' => $GLOBALS['db']))
+        . ((/*overload*/mb_strpos(' ' . $goto, 'db_') != 1
+            && /*overload*/mb_strlen($table))
             ? '&amp;table=' . urlencode($table)
             : ''
         );
@@ -83,7 +91,7 @@ if (isset($_POST['bkm_fields']['bkm_database'])) {
 if (isset($_REQUEST['get_relational_values'])
     && $_REQUEST['get_relational_values'] == true
 ) {
-    PMA_getRelationalValues($db, $table, $display_field);
+    PMA_getRelationalValues($db, $table);
     // script has exited at this point
 }
 
@@ -100,6 +108,16 @@ if (isset($_REQUEST['get_set_values']) && $_REQUEST['get_set_values'] == true) {
     // script has exited at this point
 }
 
+if (isset($_REQUEST['get_default_fk_check_value'])
+    && $_REQUEST['get_default_fk_check_value'] == true
+) {
+    $response = PMA_Response::getInstance();
+    $response->addJSON(
+        'default_fk_check_value', PMA_Util::isForeignKeyCheck()
+    );
+    exit;
+}
+
 /**
  * Check ajax request to set the column order and visibility
  */
@@ -110,7 +128,9 @@ if (isset($_REQUEST['set_col_prefs']) && $_REQUEST['set_col_prefs'] == true) {
 
 // Default to browse if no query set and we have table
 // (needed for browsing from DefaultTabTable)
-if (empty($sql_query) && strlen($table) && strlen($db)) {
+$tableLength = /*overload*/mb_strlen($table);
+$dbLength = /*overload*/mb_strlen($db);
+if (empty($sql_query) && $tableLength && $dbLength) {
     $sql_query = PMA_getDefaultSqlQueryForBrowse($db, $table);
 
     // set $goto to what will be displayed if query returns 0 rows
@@ -139,7 +159,7 @@ if (PMA_hasNoRightsToDropDatabase(
     PMA_Util::mysqlDie(
         __('"DROP DATABASE" statements are disabled.'),
         '',
-        '',
+        false,
         $err_url
     );
 } // end if
@@ -176,26 +196,22 @@ if ($goto == 'sql.php') {
 } // end if
 
 PMA_executeQueryAndSendQueryResponse(
-    $analyzed_sql_results,
-    $is_gotofile,
-    $db,
-    $table,
-    isset($find_real_end) ? $find_real_end : null,
-    isset($import_text) ? $import_text : null,
-    isset($extra_data) ? $extra_data : null,
-    $is_affected,
-    isset($message_to_show) ? $message_to_show : null,
-    isset($disp_mode) ? $disp_mode : null,
-    isset($message) ? $message : null,
-    isset($sql_data) ? $sql_data : null,
-    $goto,
-    $pmaThemeImage,
-    isset($disp_query) ? $display_query : null,
-    isset($disp_message) ? $disp_message : null,
-    isset($query_type) ? $query_type : null,
-    $sql_query,
-    isset($selected) ? $selected : null,
-    isset($complete_query) ? $complete_query : null
+    $analyzed_sql_results, // analyzed_sql_results
+    $is_gotofile, // is_gotofile
+    $db, // db
+    $table, // table
+    isset($find_real_end) ? $find_real_end : null, // find_real_end
+    isset($import_text) ? $import_text : null, // sql_query_for_bookmark
+    isset($extra_data) ? $extra_data : null, // extra_data
+    isset($message_to_show) ? $message_to_show : null, // message_to_show
+    isset($message) ? $message : null, // message
+    isset($sql_data) ? $sql_data : null, // sql_data
+    $goto, // goto
+    $pmaThemeImage, // pmaThemeImage
+    isset($disp_query) ? $display_query : null, // disp_query
+    isset($disp_message) ? $disp_message : null, // disp_message
+    isset($query_type) ? $query_type : null, // query_type
+    $sql_query, // sql_query
+    isset($selected) ? $selected : null, // selectedTables
+    isset($complete_query) ? $complete_query : null // complete_query
 );
-
-?>

@@ -38,7 +38,7 @@ class DataObjectBase {
 		$format_iso = 'Ymd\TH:i:sO';
         $format_iso_utc = 'Ymd\TH:i:s';
 
-		$dt = split("-",$date);
+		$dt = explode("-",$date);
 
 		$dt_stamp = $this->_ctime(0,0,0,$dt[1],$dt[2],$dt[0]);
 

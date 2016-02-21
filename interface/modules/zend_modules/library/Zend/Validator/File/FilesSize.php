@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -89,14 +89,26 @@ class FilesSize extends Size
     {
         if (is_string($value)) {
             $value = array($value);
+        } elseif (is_array($value) && isset($value['tmp_name'])) {
+            $value = array($value);
         }
 
         $min  = $this->getMin(true);
         $max  = $this->getMax(true);
         $size = $this->getSize();
         foreach ($value as $files) {
+            if (is_array($files)) {
+                if (!isset($files['tmp_name']) || !isset($files['name'])) {
+                    throw new Exception\InvalidArgumentException(
+                        'Value array must be in $_FILES format'
+                    );
+                }
+                $file = $files;
+                $files = $files['tmp_name'];
+            }
+
             // Is file readable ?
-            if (false === stream_resolve_include_path($files)) {
+            if (empty($files) || false === stream_resolve_include_path($files)) {
                 $this->throwError($file, self::NOT_READABLE);
                 continue;
             }

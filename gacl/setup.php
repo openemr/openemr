@@ -40,7 +40,7 @@ function echo_normal($text) {
  */
 echo 'Testing database connection...<br/>'."\n";
 
-if (is_resource($db->_connectionID)) {
+if (is_object($db->_connectionID)) {
 	echo_success('Connected to &quot;<b>'.$db_type.'</b>&quot; database on &quot;<b>'.$db_host.'</b>&quot;.');
 } else {
 	echo_failed('<b>ERROR</b> connecting to database,<br/>
@@ -55,7 +55,7 @@ if (is_resource($db->_connectionID)) {
 echo 'Testing database type...<br/>'."\n";
 
 switch ( $db_type ) {
-	case ($db_type == "mysql" OR $db_type == "mysqlt" OR $db_type == "maxsql" ):
+	case ($db_type == "mysql" OR $db_type == "mysqlt" OR $db_type == "maxsql" OR $db_type == "mysqli" ):
 		echo_success("Compatible database type \"<b>$db_type</b>\" detected!");
 		echo_normal("Making sure database \"<b>$db_name</b>\" exists...");
 

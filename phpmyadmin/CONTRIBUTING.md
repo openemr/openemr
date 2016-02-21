@@ -4,9 +4,18 @@ As an open source project, phpMyAdmin welcomes contributions of many forms.
 
 ## Bug reporting
 
-Please report [bugs on SourceForge.net][1].
+We appreciate your effort to improve phpMyAdmin by submitting a bug report. Before doing so, please check the following things: 
 
-[1]: https://sourceforge.net/p/phpmyadmin/bugs/new/
+1. Check whether the bug you face **hasn't been already reported**. Duplicate reports takes us time, that we could be used to fix other bugs or make improvements. 
+2. Specify the phpMyAdmin, server, PHP, MySQL and browser information that may be helpful to fix the problem, especially exact **version numbers**. 
+3. If you got some error, please **describe what happened** and add error message. Reports like "I get error when I clicked on some link." are useless. 
+4. Provide easy steps to reproduce and if possible include your table structure (``SHOW CREATE TABLE `tbl_name```); if your problem implies specific data, attach a small export file for sample rows. 
+5. **Security problems** should not be reported here. See [our security page](https://www.phpmyadmin.net/security/).
+Thanks for your help! 
+
+Please report [bugs on GitHub][1].
+
+[1]: https://github.com/phpmyadmin/phpmyadmin/issues/new
 
 ## Patches submission
 
@@ -22,4 +31,4 @@ tag, you are giving permission to license the patch as GPLv2-or-later.  See
 
 You can find more information on our website:
 
-http://www.phpmyadmin.net/home_page/improve.php
+https://www.phpmyadmin.net/contribute/

@@ -61,7 +61,7 @@ if (empty($billkeys)) {
 }
 
 foreach ($billkeys as $billkey) {
-	$tmp = split("-", $billkey['key']);
+	$tmp = explode("-", $billkey['key']);
 	$patient_id = $tmp[0];
 	$encounter = $tmp[1];
 	$name = "FreeB.Bill.process";
@@ -139,7 +139,7 @@ foreach ($billkeys as $billkey) {
 
     /****
 		$sql = "UPDATE billing set process_date = now(), bill_process = 3, process_file = '" .
-			mysql_real_escape_string(basename("/" . $presult)) .
+			add_escape_custom(basename("/" . $presult)) .
 			"' where encounter = $encounter AND pid = '" . $patient_id . "'";
 		$results = $db->Execute($sql);
 		if (!$results) {

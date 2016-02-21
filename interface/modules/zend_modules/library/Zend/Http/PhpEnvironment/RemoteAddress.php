@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -101,7 +101,7 @@ class RemoteAddress
         if ($ip) {
             return $ip;
         }
-        
+
         // direct IP address
         if (isset($_SERVER['REMOTE_ADDR'])) {
             return $_SERVER['REMOTE_ADDR'];
@@ -118,8 +118,8 @@ class RemoteAddress
      */
     protected function getIpAddressFromProxy()
     {
-        if (!$this->useProxy 
-            || !in_array($_SERVER['REMOTE_ADDR'], $this->trustedProxies)
+        if (!$this->useProxy
+            || (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], $this->trustedProxies))
         ) {
             return false;
         }
@@ -135,7 +135,7 @@ class RemoteAddress
         $ips = array_map('trim', $ips);
         // remove trusted proxy IPs
         $ips = array_diff($ips, $this->trustedProxies);
-        
+
         // Any left?
         if (empty($ips)) {
             return false;
@@ -149,7 +149,6 @@ class RemoteAddress
         $ip = array_pop($ips);
         return $ip;
     }
-
 
     /**
      * Normalize a header string

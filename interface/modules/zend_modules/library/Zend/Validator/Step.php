@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -146,7 +146,9 @@ class Step extends AbstractValidator
         }
 
         //find the maximum precision from both input params to give accurate results
-        $precision = strlen(substr($x, strpos($x, '.')+1)) + strlen(substr($y, strpos($y, '.')+1));
+        $xFloatSegment = substr($x, strpos($x, '.') + 1) ?: '';
+        $yFloatSegment = substr($y, strpos($y, '.') + 1) ?: '';
+        $precision = strlen($xFloatSegment) + strlen($yFloatSegment);
 
         return round($x - $y * floor($x / $y), $precision);
     }

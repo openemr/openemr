@@ -6,15 +6,19 @@
         "zf2",
         "progressbar"
     ],
+    "homepage": "https://github.com/zendframework/zf2",
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "Zend\\ProgressBar\\": ""
         }
     },
-    "target-dir": "Zend/ProgressBar",
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.3.23",
         "zendframework/zend-stdlib": "self.version"
+    },
+    "require-dev": {
+        "zendframework/zend-json": "self.version",
+        "zendframework/zend-session": "self.version"
     },
     "suggest": {
         "zendframework/zend-json": "Zend\\Json component",
@@ -22,8 +26,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.2-dev",
-            "dev-develop": "2.3-dev"
+            "dev-master": "2.4-dev",
+            "dev-develop": "2.5-dev"
         }
     }
 }

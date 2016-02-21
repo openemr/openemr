@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -13,7 +13,7 @@ use RecursiveIteratorIterator;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
-use Zend\I18n\Translator\Translator;
+use Zend\I18n\Translator\TranslatorInterface as Translator;
 use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\Navigation;
 use Zend\Navigation\Page\AbstractPage;
@@ -147,7 +147,8 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
     {
         return call_user_func_array(
             array($this->getContainer(), $method),
-            $arguments);
+            $arguments
+        );
     }
 
     /**
@@ -204,8 +205,12 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
 
         $found  = null;
         $foundDepth = -1;
-        $iterator = new RecursiveIteratorIterator($container, RecursiveIteratorIterator::CHILD_FIRST);
+        $iterator = new RecursiveIteratorIterator(
+            $container,
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
 
+        /** @var \Zend\Navigation\Page\AbstractPage $page */
         foreach ($iterator as $page) {
             $currDepth = $iterator->getDepth();
             if ($currDepth < $minDepth || !$this->accept($page)) {
@@ -279,8 +284,8 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
 
         if (!$container instanceof Navigation\AbstractContainer) {
             throw new  Exception\InvalidArgumentException(
-                'Container must be a string alias or an instance of ' .
-                    'Zend\Navigation\AbstractContainer'
+                'Container must be a string alias or an instance of '
+                . 'Zend\Navigation\AbstractContainer'
             );
         }
     }
@@ -388,23 +393,12 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
      * Returns an HTML string containing an 'a' element for the given page
      *
      * @param  AbstractPage $page  page to generate HTML for
-     * @return string
+     * @return string              HTML string (<a href="…">Label</a>)
      */
     public function htmlify(AbstractPage $page)
     {
-        // get label and title for translating
-        $label = $page->getLabel();
-        $title = $page->getTitle();
-
-        if (null !== ($translator = $this->getTranslator())) {
-            $textDomain = $this->getTranslatorTextDomain();
-            if (is_string($label) && !empty($label)) {
-                $label = $translator->translate($label, $textDomain);
-            }
-            if (is_string($title) && !empty($title)) {
-                $title = $translator->translate($title, $textDomain);
-            }
-        }
+        $label = $this->translate($page->getLabel(), $page->getTextDomain());
+        $title = $this->translate($page->getTitle(), $page->getTextDomain());
 
         // get attribs for anchor element
         $attribs = array(
@@ -415,9 +409,33 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
             'target' => $page->getTarget()
         );
 
+        /** @var \Zend\View\Helper\EscapeHtml $escaper */
         $escaper = $this->view->plugin('escapeHtml');
+        $label   = $escaper($label);
 
-        return '<a' . $this->htmlAttribs($attribs) . '>' . $escaper($label) . '</a>';
+        return '<a' . $this->htmlAttribs($attribs) . '>' . $label . '</a>';
+    }
+
+    /**
+     * Translate a message (for label, title, …)
+     *
+     * @param  string $message    ID of the message to translate
+     * @param  string $textDomain Text domain (category name for the translations)
+     * @return string             Translated message
+     */
+    protected function translate($message, $textDomain = null)
+    {
+        if (is_string($message) && !empty($message)) {
+            if (null !== ($translator = $this->getTranslator())) {
+                if (null === $textDomain) {
+                    $textDomain = $this->getTranslatorTextDomain();
+                }
+
+                return $translator->translate($message, $textDomain);
+            }
+        }
+
+        return $message;
     }
 
     /**
@@ -689,7 +707,7 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
         } else {
             throw new Exception\InvalidArgumentException(sprintf(
                 '$role must be a string, null, or an instance of '
-                    .  'Zend\Permissions\Role\RoleInterface; %s given',
+                . 'Zend\Permissions\Role\RoleInterface; %s given',
                 (is_object($role) ? get_class($role) : gettype($role))
             ));
         }
@@ -785,7 +803,7 @@ abstract class AbstractHelper extends View\Helper\AbstractHtmlElement implements
     public function getTranslator()
     {
         if (! $this->isTranslatorEnabled()) {
-            return null;
+            return;
         }
 
         return $this->translator;

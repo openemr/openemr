@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
 *
 * @link      http://github.com/zendframework/zf2 for the canonical source repository
-* @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+* @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
 * @license   http://framework.zend.com/license/new-bsd New BSD License
 */
 
@@ -60,20 +60,16 @@ class Backtrace implements ProcessorInterface
     }
 
     /**
-     * Provide backtrace as slim as posible
+     * Provide backtrace as slim as possible
      *
-     * @return  array:
+     * @return array[]
      */
     protected function getBacktrace()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+        if (PHP_VERSION_ID >= 50400) {
             return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->traceLimit);
         }
 
-        if (version_compare(PHP_VERSION, '5.3.6') >= 0) {
-            return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        }
-
-        return debug_backtrace();
+        return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     }
 }

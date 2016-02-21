@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -298,7 +298,7 @@ class EmailAddress extends AbstractValidator
         }
 
         foreach ($host as $server) {
-                // Search for 0.0.0.0/8, 10.0.0.0/8, 127.0.0.0/8
+            // Search for 0.0.0.0/8, 10.0.0.0/8, 127.0.0.0/8
             if (!preg_match('/^(0|10|127)(\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))){3}$/', $server) &&
                 // Search for 100.64.0.0/10
                 !preg_match('/^100\.(6[0-4]|[7-9][0-9]|1[0-1][0-9]|12[0-7])(\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))){2}$/', $server) &&
@@ -334,7 +334,7 @@ class EmailAddress extends AbstractValidator
         // atext: ALPHA / DIGIT / and "!", "#", "$", "%", "&", "'", "*",
         //        "+", "-", "/", "=", "?", "^", "_", "`", "{", "|", "}", "~"
         $atext = 'a-zA-Z0-9\x21\x23\x24\x25\x26\x27\x2a\x2b\x2d\x2f\x3d\x3f\x5e\x5f\x60\x7b\x7c\x7d\x7e';
-        if (preg_match('/^[' . $atext . ']+(\x2e+[' . $atext . ']+)*$/', $this->localPart)) {
+        if (preg_match('/^[' . $atext . ']+(\x2e+[' . $atext . ']+)*$/', $this->idnToAscii($this->localPart))) {
             $result = true;
         } else {
             // Try quoted string format (RFC 5321 Chapter 4.1.2)
@@ -373,7 +373,7 @@ class EmailAddress extends AbstractValidator
     {
         $mxHosts = array();
         $weight  = array();
-        $result = getmxrr($this->hostname, $mxHosts, $weight);
+        $result = getmxrr($this->idnToAscii($this->hostname), $mxHosts, $weight);
         if (!empty($mxHosts) && !empty($weight)) {
             $this->mxRecord = array_combine($mxHosts, $weight);
         } else {
@@ -457,9 +457,12 @@ class EmailAddress extends AbstractValidator
      */
     protected function splitEmailParts($value)
     {
+        $value = is_string($value) ? $value : '';
+
         // Split email address up and disallow '..'
-        if ((strpos($value, '..') !== false) or
-            (!preg_match('/^(.+)@([^@]+)$/', $value, $matches))) {
+        if (strpos($value, '..') !== false
+            || ! preg_match('/^(.+)@([^@]+)$/', $value, $matches)
+        ) {
             return false;
         }
 
@@ -488,10 +491,10 @@ class EmailAddress extends AbstractValidator
         }
 
         $length  = true;
-        $this->setValue($value);
+        $this->setValue($this->idnToUtf8($value));
 
         // Split email address up and disallow '..'
-        if (!$this->splitEmailParts($value)) {
+        if (!$this->splitEmailParts($this->getValue())) {
             $this->error(self::INVALID_FORMAT);
             return false;
         }
@@ -516,5 +519,31 @@ class EmailAddress extends AbstractValidator
         }
 
         return false;
+    }
+
+    /**
+     * Safely convert UTF-8 encoded domain name to ASCII
+     * @param string $email  the UTF-8 encoded email
+     * @return string
+     */
+    protected function idnToAscii($email)
+    {
+        if (extension_loaded('intl')) {
+            return (idn_to_ascii($email) ?: $email);
+        }
+        return $email;
+    }
+
+    /**
+     * Safely convert ASCII encoded domain name to UTF-8
+     * @param string $email the ASCII encoded email
+     * @return string
+     */
+    protected function idnToUtf8($email)
+    {
+        if (extension_loaded('intl')) {
+            return idn_to_utf8($email);
+        }
+        return $email;
     }
 }

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -21,6 +21,19 @@ use Zend\ServiceManager\AbstractPluginManager;
 class AdapterPluginManager extends AbstractPluginManager
 {
     /**
+     * Default aliases
+     *
+     * Primarily for ensuring previously defined adapters select their
+     * current counterparts.
+     *
+     * @var array
+     */
+    protected $aliases = array(
+        'null'                        => 'nullfill',
+        'Zend\Paginator\Adapter\Null' => 'nullfill',
+    );
+
+    /**
      * Default set of adapters
      *
      * @var array
@@ -28,7 +41,7 @@ class AdapterPluginManager extends AbstractPluginManager
     protected $invokableClasses = array(
         'array'         => 'Zend\Paginator\Adapter\ArrayAdapter',
         'iterator'      => 'Zend\Paginator\Adapter\Iterator',
-        'null'          => 'Zend\Paginator\Adapter\Null',
+        'nullfill'      => 'Zend\Paginator\Adapter\NullFill',
     );
 
     /**
@@ -37,7 +50,9 @@ class AdapterPluginManager extends AbstractPluginManager
      * @var array
      */
     protected $factories = array(
-        'dbselect'         => 'Zend\Paginator\Adapter\Service\DbSelectFactory'
+        'dbselect'         => 'Zend\Paginator\Adapter\Service\DbSelectFactory',
+        'dbtablegateway'   => 'Zend\Paginator\Adapter\Service\DbTableGatewayFactory',
+        'callback'         => 'Zend\Paginator\Adapter\Service\CallbackFactory',
     );
 
     /**

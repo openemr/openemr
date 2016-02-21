@@ -30,10 +30,10 @@ $GLOBALS['cfg']['NaviPointerBackground']    = '#ddd';
  * main frame
  */
 // foreground (text) color for the main frame
-$GLOBALS['cfg']['MainColor']                = '#000';
+$GLOBALS['cfg']['MainColor']                = '#444';
 
 // background for the main frame
-$GLOBALS['cfg']['MainBackground']           = '#F5F5F5';
+$GLOBALS['cfg']['MainBackground']           = '#fff';
 
 // foreground (text) color of the pointer in browse mode
 $GLOBALS['cfg']['BrowsePointerColor']       = '#000';
@@ -75,38 +75,3 @@ $GLOBALS['cfg']['ThColor']              = '#000';
 $GLOBALS['cfg']['BgOne']                = '#E5E5E5';
 // table data row background, alternate
 $GLOBALS['cfg']['BgTwo']                = '#D5D5D5';
-
-/**
- * query window
- */
-// Width of Query window
-$GLOBALS['cfg']['QueryWindowWidth']     = 600;
-// Height of Query window
-$GLOBALS['cfg']['QueryWindowHeight']    = 400;
-
-/**
- * Chart colors
- */
-
- $GLOBALS['cfg']['chartColor'] = array(
-    'gradientIntensity'       => 50,
-    // The style of the chart title.
-    'titleColor'              => '#000',
-    'titleBgColor'            => '#E5E5E5',
-    // Chart border (0 for no border)
-    'border'                  => '#ccc',
-    // Chart background color.
-    'bgColor'                 => '#FBFBFB',
-    // when graph area gradient is used, this is the color of the graph
-    // area border
-    'graphAreaColor'          => '#D5D9DD',
-    // the background color of the graph area
-    'graphAreaGradientColor'  => $GLOBALS['cfg']['BgTwo'],
-    // the color of the grid lines in the graph area
-    'gridColor'               => '#E6E6E6',
-    // the color of the scale and the labels
-    'scaleColor'              => '#D5D9DD',
-
- );
-
-?>

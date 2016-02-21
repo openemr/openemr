@@ -10,7 +10,7 @@ if (! defined('PHPMYADMIN')) {
 }
 
 /**
-  * constant for differenciating array in $_SESSION variable
+  * constant for differentiating array in $_SESSION variable
   */
 $SESSION_KEY = '__upload_status';
 
@@ -121,9 +121,8 @@ function PMA_Import_nopluginCheck()
   */
 function PMA_importAjaxStatus($id)
 {
-    header('Content-type: application/json');
+    PMA_headerJSON();
     echo json_encode(
         $_SESSION[$GLOBALS['SESSION_KEY']]['handler']::getUploadStatus($id)
     );
 }
-?>

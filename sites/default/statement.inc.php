@@ -28,6 +28,7 @@ $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf
 
 $STMT_PRINT_CMD = $GLOBALS['print_command']; 
 
+
 // This function builds a printable statement or collection letter from
 // an associative array having the following keys:
 //
@@ -105,7 +106,7 @@ function create_statement($stmt) {
 
  // These are your clinics return address, contact etc.  Edit them.
  // TBD: read this from the facility table
- 
+
  // Facility (service location)
   $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code from facility f " .
     " left join users u on f.id=u.facility_id " .
@@ -134,6 +135,37 @@ function create_statement($stmt) {
  $billing_contact = "{$row['attn']}";
  $billing_phone = "{$row['phone']}";
 
+ // dunning message setup
+ 
+ // insurance has paid something
+ // $stmt['age'] how old is the invoice
+ // $stmt['dun_count'] number of statements run 
+ // $stmt['level_closed'] <= 3 insurance 4 = patient
+ 
+if ($GLOBALS['use_dunning_message']) { 
+
+   if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)  {
+
+	// do collection messages
+    switch ($stmt{'age'}) {
+       case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
+	      $dun_message = $GLOBALS['first_dun_msg_text'];
+		  break;
+       case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
+	      $dun_message = $GLOBALS['second_dun_msg_text'];
+		  break;
+       case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
+	      $dun_message = $GLOBALS['third_dun_msg_text'];
+		  break;
+       case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
+	      $dun_message = $GLOBALS['fourth_dun_msg_text'];
+		  break;
+       case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
+	      $dun_message = $GLOBALS['fifth_dun_msg_text'];
+          break;		  
+     }	
+    }
+ }
  // Text only labels
  
  $label_addressee = xl('ADDRESSEE');
@@ -163,12 +195,12 @@ function create_statement($stmt) {
 $out  = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
 $out .= sprintf("%-30s %s: %-s\n",$clinic_addr,$label_chartnum,$stmt['pid']);
 $out .= sprintf("%-30s %-s\n",$clinic_csz,$label_insinfo);
-$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null);
+$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,$stmt['amount']);
 $out .= "\n\n";
-$out .= sprintf("%-30s %-s\n",$label_addressee,$label_remitto);
-$out .= sprintf("%-32s %s\n",$stmt['to'][0],$remit_name);
-$out .= sprintf("%-32s %s\n",$stmt['to'][1],$remit_addr);
-$out .= sprintf("%-32s %s\n",$stmt['to'][2],$remit_csz);
+$out .= sprintf("       %-30s %-s\n",$label_addressee,$label_remitto);
+$out .= sprintf("       %-30s %s\n",$stmt['to'][0],$remit_name);
+$out .= sprintf("       %-30s %s\n",$stmt['to'][1],$remit_addr);
+$out .= sprintf("       %-30s %s\n",$stmt['to'][2],$remit_csz);
 
 if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
  	$out .= sprintf("   %-32s\n",$stmt['to'][3]);
@@ -193,11 +225,22 @@ $out .= "\n";
  // This generates the detail lines.  Again, note that the values must
  // be specified in the order used.
  //
+ 
+
  foreach ($stmt['lines'] as $line) {
-  $description = $line['desc'];
+ if ($GLOBALS['use_custom_statement']) {  
+   $description = substr($line['desc'],0,30);
+   
+	}
+else {	
+     $description = $line['desc'];
+	 
+	  }
+  
   $tmp = substr($description, 0, 14);
   if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921')
    $description = xl('Office Visit');
+
 
   $dos = $line['dos'];
   ksort($line['detail']);
@@ -225,6 +268,7 @@ $out .= "\n";
    } else {
     $amount = sprintf("%.2f", $ddata['chg']);
     $desc = $description;
+ 
    }
 
    $out .= sprintf("%-10s  %-45s%8s\n", $dos, $desc, $amount);
@@ -247,7 +291,14 @@ $out .= "\n";
  $label_dept = xl('Billing Department');
  
  // This is the bottom portion of the page.
- 
+ $out .= "\n";
+ if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
+   $out .= sprintf("%-46s\n",$stmt['bill_note']);
+}
+ if ($GLOBALS['use_dunning_message']) { 
+   $out .= sprintf("%-46s\n",$dun_message);
+ }
+ $out .= "\n";
  $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
                  $label_today,$stmt['today'],$label_due,$stmt['amount']);
  $out .= sprintf("__________________________________________________________________\n");

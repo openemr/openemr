@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -201,7 +201,7 @@ abstract class AbstractValue
                 return new Value\Boolean($value);
 
             case self::XMLRPC_TYPE_STRING:
-                return new Value\String($value);
+                return new Value\Text($value);
 
             case self::XMLRPC_TYPE_BASE64:
                 return new Value\Base64($value);
@@ -306,7 +306,7 @@ abstract class AbstractValue
                 // Fall through to the next case
             default:
                 // If type isn't identified (or identified as string), it treated as string
-                return new Value\String($value);
+                return new Value\Text($value);
         }
     }
 
@@ -345,9 +345,9 @@ abstract class AbstractValue
                 $xmlrpcValue = new Value\Boolean($value);
                 break;
             case self::XMLRPC_TYPE_STRING:
-                $xmlrpcValue = new Value\String($value);
+                $xmlrpcValue = new Value\Text($value);
                 break;
-            case self::XMLRPC_TYPE_DATETIME:  // The value should already be in a iso8601 format
+            case self::XMLRPC_TYPE_DATETIME:  // The value should already be in an iso8601 format
                 $xmlrpcValue = new Value\DateTime($value);
                 break;
             case self::XMLRPC_TYPE_BASE64:    // The value should already be base64 encoded
@@ -371,7 +371,11 @@ abstract class AbstractValue
                 }
 
                 if (null === $data) {
-                    throw new Exception\ValueException('Invalid XML for XML-RPC native '. self::XMLRPC_TYPE_ARRAY .' type: ARRAY tag must contain DATA tag');
+                    throw new Exception\ValueException(
+                        'Invalid XML for XML-RPC native '
+                        . self::XMLRPC_TYPE_ARRAY
+                        . ' type: ARRAY tag must contain DATA tag'
+                    );
                 }
                 $values = array();
                 // Parse all the elements of the array from the XML string
@@ -390,14 +394,15 @@ abstract class AbstractValue
                     // Maybe we want to throw an exception here ?
                     if (!isset($member->value) or !isset($member->name)) {
                         continue;
-                        //throw new Value_Exception('Member of the '. self::XMLRPC_TYPE_STRUCT .' XML-RPC native type must contain a VALUE tag');
                     }
                     $values[(string) $member->name] = static::_xmlStringToNativeXmlRpc($member->value);
                 }
                 $xmlrpcValue = new Value\Struct($values);
                 break;
             default:
-                throw new Exception\ValueException('Value type \''. $type .'\' parsed from the XML string is not a known XML-RPC native type');
+                throw new Exception\ValueException(
+                    'Value type \'' . $type . '\' parsed from the XML string is not a known XML-RPC native type'
+                );
                 break;
         }
         $xmlrpcValue->_setXML($xml->asXML());
@@ -415,7 +420,11 @@ abstract class AbstractValue
             $xml = new \SimpleXMLElement($xml);
         } catch (\Exception $e) {
             // The given string is not a valid XML
-            throw new Exception\ValueException('Failed to create XML-RPC value from XML string: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new Exception\ValueException(
+                'Failed to create XML-RPC value from XML string: ' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
     }
 
@@ -429,7 +438,9 @@ abstract class AbstractValue
      */
     protected static function _extractTypeAndValue(\SimpleXMLElement $xml, &$type, &$value)
     {
-        list($type, $value) = each($xml);
+        // Casting is necessary to work with strict-typed systems
+        $xmlAsArray = (array) $xml;
+        list($type, $value) = each($xmlAsArray);
         if (!$type and $value === null) {
             $namespaces = array('ex' => 'http://ws.apache.org/xmlrpc/namespaces/extensions');
             foreach ($namespaces as $namespaceName => $namespaceUri) {
@@ -445,6 +456,9 @@ abstract class AbstractValue
         // If no type was specified, the default is string
         if (!$type) {
             $type = self::XMLRPC_TYPE_STRING;
+            if (empty($value) and preg_match('#^<value>.*</value>$#', $xml->asXML())) {
+                $value = str_replace(array('<value>', '</value>'), '', $xml->asXML());
+            }
         }
     }
 

@@ -13,7 +13,7 @@ if (! defined('PHPMYADMIN')) {
  *
  */
 
-if (! PMA_Util::cacheExists('mysql_charsets', null)) {
+if (! PMA_Util::cacheExists('mysql_charsets')) {
     global $mysql_charsets, $mysql_charsets_descriptions,
         $mysql_charsets_available, $mysql_collations, $mysql_collations_available,
         $mysql_default_collations, $mysql_collations_flat;
@@ -43,42 +43,28 @@ if (! PMA_Util::cacheExists('mysql_charsets', null)) {
         : 'SELECT * FROM information_schema.COLLATIONS';
     $res = $GLOBALS['dbi']->query($sql);
     while ($row = $GLOBALS['dbi']->fetchAssoc($res)) {
-        if (! is_array($mysql_collations[$row['CHARACTER_SET_NAME']])) {
-            $mysql_collations[$row['CHARACTER_SET_NAME']]
-                = array($row['COLLATION_NAME']);
+        $char_set_name = PMA_DRIZZLE
+            ? $row['DESCRIPTION']
+            : $row['CHARACTER_SET_NAME'];
+        if (! is_array($mysql_collations[$char_set_name])) {
+            $mysql_collations[$char_set_name] = array($row['COLLATION_NAME']);
         } else {
-            $mysql_collations[$row['CHARACTER_SET_NAME']][] = $row['COLLATION_NAME'];
+            $mysql_collations[$char_set_name][] = $row['COLLATION_NAME'];
         }
         $mysql_collations_flat[] = $row['COLLATION_NAME'];
         if ($row['IS_DEFAULT'] == 'Yes' || $row['IS_DEFAULT'] == '1') {
-            $mysql_default_collations[$row['CHARACTER_SET_NAME']]
+            $mysql_default_collations[$char_set_name]
                 = $row['COLLATION_NAME'];
         }
         //$mysql_collations_available[$row['Collation']]
         //    = ! isset($row['Compiled']) || $row['Compiled'] == 'Yes';
         $mysql_collations_available[$row['COLLATION_NAME']] = true;
-        $mysql_charsets_available[$row['CHARACTER_SET_NAME']]
-            = !empty($mysql_charsets_available[$row['CHARACTER_SET_NAME']])
+        $mysql_charsets_available[$char_set_name]
+            = !empty($mysql_charsets_available[$char_set_name])
             || !empty($mysql_collations_available[$row['COLLATION_NAME']]);
     }
     $GLOBALS['dbi']->freeResult($res);
     unset($res, $row);
-
-    if (PMA_DRIZZLE
-        && isset($mysql_collations['utf8_general_ci'])
-        && isset($mysql_collations['utf8'])
-    ) {
-        $mysql_collations['utf8'] = $mysql_collations['utf8_general_ci'];
-        $mysql_default_collations['utf8']
-            = $mysql_default_collations['utf8_general_ci'];
-        $mysql_charsets_available['utf8']
-            = $mysql_charsets_available['utf8_general_ci'];
-        unset(
-            $mysql_collations['utf8_general_ci'],
-            $mysql_default_collations['utf8_general_ci'],
-            $mysql_charsets_available['utf8_general_ci']
-        );
-    }
 
     sort($mysql_collations_flat, SORT_STRING);
     foreach ($mysql_collations as $key => $value) {
@@ -88,47 +74,47 @@ if (! PMA_Util::cacheExists('mysql_charsets', null)) {
     unset($key, $value);
 
     PMA_Util::cacheSet(
-        'mysql_charsets', $GLOBALS['mysql_charsets'], null
+        'mysql_charsets', $GLOBALS['mysql_charsets']
     );
     PMA_Util::cacheSet(
-        'mysql_charsets_descriptions', $GLOBALS['mysql_charsets_descriptions'], null
+        'mysql_charsets_descriptions', $GLOBALS['mysql_charsets_descriptions']
     );
     PMA_Util::cacheSet(
-        'mysql_charsets_available', $GLOBALS['mysql_charsets_available'], null
+        'mysql_charsets_available', $GLOBALS['mysql_charsets_available']
     );
     PMA_Util::cacheSet(
-        'mysql_collations', $GLOBALS['mysql_collations'], null
+        'mysql_collations', $GLOBALS['mysql_collations']
     );
     PMA_Util::cacheSet(
-        'mysql_default_collations', $GLOBALS['mysql_default_collations'], null
+        'mysql_default_collations', $GLOBALS['mysql_default_collations']
     );
     PMA_Util::cacheSet(
-        'mysql_collations_flat', $GLOBALS['mysql_collations_flat'], null
+        'mysql_collations_flat', $GLOBALS['mysql_collations_flat']
     );
     PMA_Util::cacheSet(
-        'mysql_collations_available', $GLOBALS['mysql_collations_available'], null
+        'mysql_collations_available', $GLOBALS['mysql_collations_available']
     );
 } else {
     $GLOBALS['mysql_charsets'] = PMA_Util::cacheGet(
-        'mysql_charsets', null
+        'mysql_charsets'
     );
     $GLOBALS['mysql_charsets_descriptions'] = PMA_Util::cacheGet(
-        'mysql_charsets_descriptions', null
+        'mysql_charsets_descriptions'
     );
     $GLOBALS['mysql_charsets_available'] = PMA_Util::cacheGet(
-        'mysql_charsets_available', null
+        'mysql_charsets_available'
     );
     $GLOBALS['mysql_collations'] = PMA_Util::cacheGet(
-        'mysql_collations', null
+        'mysql_collations'
     );
     $GLOBALS['mysql_default_collations'] = PMA_Util::cacheGet(
-        'mysql_default_collations', null
+        'mysql_default_collations'
     );
     $GLOBALS['mysql_collations_flat'] = PMA_Util::cacheGet(
-        'mysql_collations_flat', null
+        'mysql_collations_flat'
     );
     $GLOBALS['mysql_collations_available'] = PMA_Util::cacheGet(
-        'mysql_collations_available', null
+        'mysql_collations_available'
     );
 }
 
@@ -140,4 +126,3 @@ define('PMA_CSDROPDOWN_CHARSET',   1);
  */
 require_once './libraries/mysql_charsets.lib.php';
 
-?>

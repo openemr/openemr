@@ -36,8 +36,8 @@ class C_Prescription extends Controller {
 	var $is_faxing = false;
 	var $is_print_to_fax = false;
 
-	function C_Prescription($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -48,6 +48,7 @@ class C_Prescription extends Controller {
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
 	    $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
 	    $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+		$this->RxList = new RxList();
 
 		if ($GLOBALS['inhouse_pharmacy']) {
 			// Make an array of drug IDs and selectors for the template.
@@ -588,7 +589,7 @@ class C_Prescription extends Controller {
 			$this->function_argument_error();
 		}
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
 			,$GLOBALS['rx_left_margin']
@@ -723,7 +724,7 @@ class C_Prescription extends Controller {
 
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
 			,$GLOBALS['rx_left_margin']
@@ -761,7 +762,7 @@ class C_Prescription extends Controller {
 
 	function _print_prescription_old($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
 		                  ,$GLOBALS['rx_left_margin']
@@ -829,7 +830,7 @@ class C_Prescription extends Controller {
 		$this->assign("drug", $_POST['drug']);
 		$list = array();
 		if (!empty($_POST['drug'])) {
-			$list = @RxList::get_list($_POST['drug']);
+			$list = $this->RxList->get_list($_POST['drug']);
 		}
 
 		if (is_array($list)) {

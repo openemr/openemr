@@ -3,7 +3,12 @@
  * Defines a set of specialized string functions.
  *
  * @package PhpMyAdmin-String
- * @todo    May be move this into file of its own
+ */
+
+/**
+ * Defines a set of specialized string functions.
+ *
+ * @package PhpMyAdmin-String
  */
 interface PMA_StringType
 {
@@ -82,4 +87,3 @@ interface PMA_StringType
      */
     public function numberInRangeInclusive($num, $lower, $upper);
 }
-?>

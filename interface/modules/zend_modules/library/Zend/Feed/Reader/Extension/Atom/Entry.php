@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -34,7 +34,7 @@ class Entry extends Extension\AbstractEntry
             return $authors[$index];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -103,20 +103,21 @@ class Entry extends Extension\AbstractEntry
                 case 'html':
                 case 'text/html':
                     $content = $el->nodeValue;
-                break;
+                    break;
                 case 'xhtml':
                     $this->getXpath()->registerNamespace('xhtml', 'http://www.w3.org/1999/xhtml');
                     $xhtml = $this->getXpath()->query(
                         $this->getXpathPrefix() . '/atom:content/xhtml:div'
                     )->item(0);
                     $d = new DOMDocument('1.0', $this->getEncoding());
-                    $xhtmls = $d->importNode($xhtml, true);
+                    $deep = version_compare(PHP_VERSION, '7', 'ge') ? 1 : true;
+                    $xhtmls = $d->importNode($xhtml, $deep);
                     $d->appendChild($xhtmls);
                     $content = $this->collectXhtml(
                         $d->saveXML(),
                         $d->lookupPrefix('http://www.w3.org/1999/xhtml')
                     );
-                break;
+                    break;
             }
         }
 
@@ -138,7 +139,9 @@ class Entry extends Extension\AbstractEntry
      */
     protected function collectXhtml($xhtml, $prefix)
     {
-        if (!empty($prefix)) $prefix = $prefix . ':';
+        if (!empty($prefix)) {
+            $prefix = $prefix . ':';
+        }
         $matches = array(
             "/<\?xml[^<]*>[^<]*<" . $prefix . "div[^<]*/",
             "/<\/" . $prefix . "div>\s*$/"
@@ -294,9 +297,12 @@ class Entry extends Extension\AbstractEntry
             return $this->data['baseUrl'];
         }
 
-        $baseUrl = $this->getXpath()->evaluate('string('
-            . $this->getXpathPrefix() . '/@xml:base[1]'
-        . ')');
+        $baseUrl = $this->getXpath()->evaluate(
+            'string('
+            . $this->getXpathPrefix()
+            . '/@xml:base[1]'
+            . ')'
+        );
 
         if (!$baseUrl) {
             $baseUrl = $this->getXpath()->evaluate('string(//@xml:base[1])');
@@ -327,7 +333,7 @@ class Entry extends Extension\AbstractEntry
             return $this->data['links'][$index];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -586,7 +592,7 @@ class Entry extends Extension\AbstractEntry
         }
 
         if (empty($author)) {
-            return null;
+            return;
         }
         return $author;
     }

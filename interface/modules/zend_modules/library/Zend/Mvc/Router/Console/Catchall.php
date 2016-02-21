@@ -15,7 +15,6 @@ namespace Zend\Mvc\Router\Console;
 use Traversable;
 use Zend\Console\Request as ConsoleRequest;
 use Zend\Filter\FilterChain;
-use Zend\Mvc\Router\Exception;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Validator\ValidatorChain;
 
@@ -28,7 +27,6 @@ use Zend\Validator\ValidatorChain;
  */
 class Catchall implements RouteInterface
 {
-
     /**
      * Parts of the route.
      *
@@ -100,7 +98,7 @@ class Catchall implements RouteInterface
     public function match(Request $request)
     {
         if (!$request instanceof ConsoleRequest) {
-            return null;
+            return;
         }
 
         return new RouteMatch($this->defaults);

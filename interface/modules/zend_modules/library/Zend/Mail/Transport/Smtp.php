@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -26,6 +26,11 @@ class Smtp implements TransportInterface
      * @var SmtpOptions
      */
     protected $options;
+
+    /**
+     * @var Envelope|null
+     */
+    protected $envelope;
 
     /**
      * @var Protocol\Smtp
@@ -75,6 +80,26 @@ class Smtp implements TransportInterface
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Set options
+     *
+     * @param  Envelope $envelope
+     */
+    public function setEnvelope(Envelope $envelope)
+    {
+        $this->envelope = $envelope;
+    }
+
+    /**
+     * Get envelope
+     *
+     * @return Envelope|null
+     */
+    public function getEnvelope()
+    {
+        return $this->envelope;
     }
 
     /**
@@ -164,7 +189,6 @@ class Smtp implements TransportInterface
         $this->connection = $connection;
     }
 
-
     /**
      * Gets the connection protocol instance
      *
@@ -215,11 +239,13 @@ class Smtp implements TransportInterface
         $body       = $this->prepareBody($message);
 
         if ((count($recipients) == 0) && (!empty($headers) || !empty($body))) {
-            throw new Exception\RuntimeException(  // Per RFC 2821 3.3 (page 18)
+            // Per RFC 2821 3.3 (page 18)
+            throw new Exception\RuntimeException(
                 sprintf(
                     '%s transport expects at least one recipient if the message has at least one header or body',
                     __CLASS__
-                ));
+                )
+            );
         }
 
         // Set sender email address
@@ -243,13 +269,18 @@ class Smtp implements TransportInterface
      */
     protected function prepareFromAddress(Message $message)
     {
+        if ($this->getEnvelope() && $this->getEnvelope()->getFrom()) {
+            return $this->getEnvelope()->getFrom();
+        }
+
         $sender = $message->getSender();
         if ($sender instanceof Address\AddressInterface) {
             return $sender->getEmail();
         }
 
         $from = $message->getFrom();
-        if (!count($from)) { // Per RFC 2822 3.6
+        if (!count($from)) {
+            // Per RFC 2822 3.6
             throw new Exception\RuntimeException(sprintf(
                 '%s transport expects either a Sender or at least one From address in the Message; none provided',
                 __CLASS__
@@ -269,6 +300,10 @@ class Smtp implements TransportInterface
      */
     protected function prepareRecipients(Message $message)
     {
+        if ($this->getEnvelope() && $this->getEnvelope()->getTo()) {
+            return (array) $this->getEnvelope()->getTo();
+        }
+
         $recipients = array();
         foreach ($message->getTo() as $address) {
             $recipients[] = $address->getEmail();
@@ -279,6 +314,7 @@ class Smtp implements TransportInterface
         foreach ($message->getBcc() as $address) {
             $recipients[] = $address->getEmail();
         }
+
         $recipients = array_unique($recipients);
         return $recipients;
     }

@@ -20,9 +20,11 @@ font-size: 8pt;
 </head>
 <body style="background-color: rgb(255, 255, 255);">
 <h3>ADODB Session Management Manual</h3>
-<p>
-V5.14 8 Sept 2011  (c) 2000-2010 John Lim (jlim#natsoft.com)
-</p>
+
+<p>v5.20.2  27-Dec-2015<br>
+&copy; 2000-2013 John Lim (jlim#natsoft.com)<br>
+&copy; 2014 Damien Regad, Mark Newnham and the ADOdb community</p>
+
 <p> <font size="1">This software is dual licensed using BSD-Style and
 LGPL. This means you can use it in compiled proprietary and commercial
 products. </font>
@@ -30,7 +32,7 @@ products. </font>
 &nbsp; <a href="http://adodb.sourceforge.net/#docs">Other Docs</a>
 </p>
 <h3>Introduction</h3>
-<p>This documentation discusses the old adodb-session.php. 
+<p>This documentation discusses the old adodb-session.php.
 Here is the <a href=docs-session.htm>new documentation</a> on the newer adodb-session2.php.
 <p> We store state information specific to a user or web client in
 session variables. These session variables persist throughout a
@@ -53,8 +55,8 @@ However if you have special needs such as you:
 <p>The ADOdb session handler provides you with the above
 additional capabilities by storing the session information as records
 in a database table that can be shared across multiple servers. </p>
-<p>These records will be garbage collected based on the php.ini [session] timeout settings. 
-You can register a notification function to notify you when the record has expired and 
+<p>These records will be garbage collected based on the php.ini [session] timeout settings.
+You can register a notification function to notify you when the record has expired and
 is about to be freed by the garbage collector.</p>
 <p><b>Important Upgrade Notice:</b> Since ADOdb 4.05, the session files
 have been moved to its own folder, adodb/session. This is a rewrite
@@ -84,7 +86,7 @@ including adodb-cryptsession.php instead of adodb-session.php. </li>
 <p><pre>
  <font
  color="#004040">    include('adodb/adodb.inc.php');<br>    <br><b>    $ADODB_SESSION_DRIVER='mysql';<br>    $ADODB_SESSION_CONNECT='localhost';<br>    $ADODB_SESSION_USER ='scott';<br>    $ADODB_SESSION_PWD ='tiger';<br>    $ADODB_SESSION_DB ='sessiondb';</b><br>    <br>    <b>include('adodb/session/adodb-session.php');</b><br>    session_start();<br>    <br>    #<br>    # Test session vars, the following should increment on refresh<br>    #<br>    $_SESSION['AVAR'] += 1;<br>    print "&lt;p&gt;\$_SESSION['AVAR']={$_SESSION['AVAR']}&lt;/p&gt;";<br></font></pre>
- 
+
 <p>To force non-persistent connections, call adodb_session_open() first before session_start():
 <p>
  <pre>
@@ -179,18 +181,18 @@ adodb's garbage collection function, which can be setup to do notification.
 	executed at     called by                             for all recs
 	random time     Session Extension                     queued for deletion
 </pre>
-<p>When a session is created, we need to store a value in the session record (in the EXPIREREF field), typically 
+<p>When a session is created, we need to store a value in the session record (in the EXPIREREF field), typically
 the userid of the session. Later when the session has expired,  just before the record is deleted,
-we reload the EXPIREREF field and call the notification function with the value of EXPIREREF, which 
+we reload the EXPIREREF field and call the notification function with the value of EXPIREREF, which
 is the userid of the person being logged off.
 <p>ADOdb uses a global variable $ADODB_SESSION_EXPIRE_NOTIFY that you must predefine before session
-start to store the notification configuration. 
+start to store the notification configuration.
 $ADODB_SESSION_EXPIRE_NOTIFY is an array with 2 elements, the
 first being the name of the session variable you would like to store in
 the EXPIREREF field, and the 2nd is the notification function's name. </p>
 <p>For example, suppose we want to be notified when a user's session has expired,
 based on the userid. When the user logs in, we store the id in the global session variable
-$USERID. The function name is 'NotifyFn'. 
+$USERID. The function name is 'NotifyFn'.
 <p>
 So we define (before session_start() is called): </p>
 <pre> <font color="#004040">
@@ -207,10 +209,10 @@ records in the database and temporary files: </p>
 	{
 		global $ADODB_SESS_CONN; # the session connection object
 		$user = $ADODB_SESS_CONN-&gt;qstr($expireref);
-		
-		$ADODB_SESS_CONN-&gt;Execute("delete from shopping_cart where user=$user");          
+
+		$ADODB_SESS_CONN-&gt;Execute("delete from shopping_cart where user=$user");
 		system("rm /work/tmpfiles/$expireref/*");
-	}</font>  
+	}</font>
 			  </pre>
 <p> NOTE 1: If you have register_globals disabled in php.ini, then you
 will have to manually set the EXPIREREF. E.g. </p>
@@ -246,7 +248,7 @@ can be logged in twice. Useful for security reasons.
        DATA CLOB,
       PRIMARY KEY (sesskey)
   );</font>
- </pre> 
+ </pre>
  <p>Then your PHP code could look like this:
 	 <pre>
 	ADODB_SESSION_DRIVER='oci8';
@@ -254,20 +256,20 @@ can be logged in twice. Useful for security reasons.
 	$ADODB_SESSION_USER ='scott';
 	$ADODB_SESSION_PWD = 'tiger';
 	$ADODB_SESSION_DB ='';
-	
+
 	$ADODB_SESSION_USE_LOBS = 'clob';
 	$ADODB_SESSION_TBL = 'sessions';
-	
+
 	$ADODB_SESS_DEBUG=0;
-	
+
 	include(ADODB_DIR.'/session/adodb-session.php');
-	
+
 	ADODB_Session::persist('P'); # use 'C' for non-persistent connects
-	
+
 	session_start();
  </pre>
  <p>Note that you can set persistance using ADODB_Session::persist('P').
- 
+
 <h3>Compression/Encryption Schemes</h3>
 Since ADOdb 4.05, thanks to Ross Smith, multiple encryption and
 compression schemes are supported. Currently, supported are:
@@ -279,7 +281,7 @@ will compress and then encrypt the record in the database.
 <h3>adodb_session_regenerate_id()</h3>
 <p>Dynamically change the current session id with a newly generated one and update database. Currently only
 works with cookies. Useful to improve security by reducing the risk of session-hijacking.
-See this article on <a href=http://shiflett.org/articles/security-corner-feb2004>Session Fixation</a> for more info 
+See this article on <a href=http://shiflett.org/articles/session-fixation>Session Fixation</a> for more info
 on the theory behind this feature. Usage:
 <pre>
 	$ADODB_SESSION_DRIVER='mysql';
@@ -287,15 +289,15 @@ on the theory behind this feature. Usage:
 	$ADODB_SESSION_USER ='root';
 	$ADODB_SESSION_PWD ='abc';
 	$ADODB_SESSION_DB ='phplens';
-	
+
 	include('path/to/adodb/session/adodb-session.php');
-	
+
 	session_start();
 	# Every 10 page loads, reset cookie for safety.
-	# This is extremely simplistic example, better 
+	# This is extremely simplistic example, better
 	# to regenerate only when the user logs in or changes
 	# user privilege levels.
-	if ((rand()%10) == 0) adodb_session_regenerate_id(); 
+	if ((rand()%10) == 0) adodb_session_regenerate_id();
 </pre>
 <p>This function calls session_regenerate_id() internally or simulates it if the function does not exist.
 <h3>Vacuum/Optimize Database</h3>

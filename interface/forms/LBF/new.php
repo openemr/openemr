@@ -443,7 +443,13 @@ function validate(f) {
       // This data comes from static history
       if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
     } else {
-      $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+      if (!$formid && $portalres) {
+        // Copying CMS Portal form data into this field if appropriate.
+        $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
+      }
+      if ($currvalue === '') {
+        $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+      }
       if ($currvalue === FALSE) continue; // column does not exist, should not happen
       // Handle "P" edit option to default to the previous value of a form field.
       if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== FALSE) {

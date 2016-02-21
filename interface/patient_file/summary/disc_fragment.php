@@ -69,7 +69,7 @@ if ($result != null){
 	{
 		$has_disclosure = 1;
 		$app_event=$iter{"event"};
-		$event=split("-",$app_event);
+		$event=explode("-",$app_event);
 		$description=nl2br(text($iter{"description"}));//for line breaks.
 		//listing the disclosures 
 		echo "<tr style='border-bottom:1px dashed' class='text'>";

@@ -1,6 +1,8 @@
 <?php
 /**
-* @version V5.14 8 Sept 2011 (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
+* @version   v5.20.2  27-Dec-2015
+* @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+* @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 * Released under both BSD license and Lesser GPL library license.
 * Whenever there is any discrepancy between the two licenses,
 * the BSD license will take precedence.
@@ -21,19 +23,14 @@ if (!defined('ADODB_DIR')) die();
 	The big difference between mssqlpo and it's parent mssql is that mssqlpo supports
 	the more standard || string concatenation operator.
 */
-	
+
 include_once(ADODB_DIR.'/drivers/adodb-mssql.inc.php');
 
 class ADODB_mssqlpo extends ADODB_mssql {
 	var $databaseType = "mssqlpo";
-	var $concat_operator = '||'; 
-	
-	function ADODB_mssqlpo()
-	{
-		ADODB_mssql::ADODB_mssql();
-	}
+	var $concat_operator = '||';
 
-	function PrepareSP($sql)
+	function PrepareSP($sql, $param = true)
 	{
 		if (!$this->_has_mssql_init) {
 			ADOConnection::outp( "PrepareSP: mssql_init only available since PHP 4.1.0");
@@ -44,7 +41,7 @@ class ADODB_mssqlpo extends ADODB_mssql {
 		if (!$stmt)  return $sql;
 		return array($sql,$stmt);
 	}
-	
+
 	function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
@@ -54,9 +51,8 @@ class ADODB_mssqlpo extends ADODB_mssql {
 
 class ADORecordset_mssqlpo extends ADORecordset_mssql {
 	var $databaseType = "mssqlpo";
-	function ADORecordset_mssqlpo($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		$this->ADORecordset_mssql($id,$mode);
+		parent::__construct($id,$mode);
 	}
 }
-?>

@@ -13,14 +13,15 @@ require_once 'libraries/ServerStatusData.class.php';
 require_once 'libraries/server_status_queries.lib.php';
 
 if (PMA_DRIZZLE) {
-    $server_master_status = false;
-    $server_slave_status = false;
+    $GLOBALS['replication_info'] = array();
+    $GLOBALS['replication_info']['master']['status'] = false;
+    $GLOBALS['replication_info']['slave']['status'] = false;
 } else {
     include_once 'libraries/replication.inc.php';
     include_once 'libraries/replication_gui.lib.php';
 }
 
-$ServerStatusData = new PMA_ServerStatusData();
+$serverStatusData = new PMA_ServerStatusData();
 
 $response = PMA_Response::getInstance();
 $header   = $response->getHeader();
@@ -45,9 +46,15 @@ $scripts->addFile('server_status_sorter.js');
 
 // Add the html content to the response
 $response->addHTML('<div>');
-$response->addHTML($ServerStatusData->getMenuHtml());
-$response->addHTML(PMA_getHtmlForQueryStatistics($ServerStatusData));
+$response->addHTML($serverStatusData->getMenuHtml());
+if ($serverStatusData->dataLoaded) {
+    $response->addHTML(PMA_getHtmlForQueryStatistics($serverStatusData));
+} else {
+    $response->addHTML(
+        PMA_Message::error(
+            __('Not enough privilege to view query statistics.')
+        )->getDisplay()
+    );
+}
 $response->addHTML('</div>');
 exit;
-
-?>

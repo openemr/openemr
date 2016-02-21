@@ -26,8 +26,31 @@ $GLOBALS['dummy_queries'] = array(
         'result' => array(array('pma_test@localhost')),
     ),
     array(
-        'query' => 'SELECT COUNT(*) FROM mysql.user',
-        'result' => false,
+        'query' => "SHOW VARIABLES LIKE 'lower_case_table_names'",
+        'result' => array(array('lower_case_table_names', '1'))
+    ),
+    array(
+        'query' => 'SELECT 1 FROM mysql.user LIMIT 1',
+        'result' => array(array('1')),
+    ),
+    array(
+        'query' => "SELECT 1 FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`"
+            . " WHERE `PRIVILEGE_TYPE` = 'CREATE USER'"
+            . " AND '''pma_test''@''localhost''' LIKE `GRANTEE` LIMIT 1",
+        'result' => array(array('1')),
+    ),
+    array(
+        'query' => "SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE`"
+            . " FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES`"
+            . " UNION SELECT `GRANTEE`, `IS_GRANTABLE`"
+            . " FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES`"
+            . " UNION SELECT `GRANTEE`, `IS_GRANTABLE`"
+            . " FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES`"
+            . " UNION SELECT `GRANTEE`, `IS_GRANTABLE`"
+            . " FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t"
+            . " WHERE `IS_GRANTABLE` = 'YES'"
+            . " AND '''pma_test''@''localhost''' LIKE `GRANTEE` LIMIT 1",
+        'result' => array(array('1')),
     ),
     array(
         'query' => 'SHOW MASTER LOGS',
@@ -75,7 +98,7 @@ $GLOBALS['dummy_queries'] = array(
         )
     ),
     array(
-        'query' => 'SHOW INNODB STATUS;',
+        'query' => 'SHOW ENGINE INNODB STATUS;',
         'result' => false,
     ),
     array(
@@ -97,14 +120,20 @@ $GLOBALS['dummy_queries'] = array(
         )
     ),
     array(
-        'query' => 'SHOW VARIABLES LIKE \'collation_server\'',
+        'query' => 'SELECT @@collation_server',
         'result' => array(
-            array('collation_server', 'utf8_general_ci'),
+            array('utf8_general_ci'),
         )
     ),
     array(
-        'query' => 'SHOW VARIABLES LIKE \'language\';',
+        'query' => 'SELECT @@lc_messages;',
         'result' => array(),
+    ),
+    array(
+        'query' => 'SHOW SESSION VARIABLES LIKE \'FOREIGN_KEY_CHECKS\';',
+        'result' => array(
+            array('foreign_key_checks', 'ON')
+        ),
     ),
     array(
         'query' => 'SHOW TABLES FROM `pma_test`;',
@@ -202,15 +231,21 @@ $GLOBALS['dummy_queries'] = array(
     ),
     array(
         'query' => 'SELECT `column_name`, `mimetype`, `transformation`,'
-            . ' `transformation_options` FROM `pmadb`.`column_info`'
+            . ' `transformation_options`, `input_transformation`,'
+            . ' `input_transformation_options`'
+            . ' FROM `pmadb`.`column_info`'
             . ' WHERE `db_name` = \'pma_test\' AND `table_name` = \'table1\''
             . ' AND ( `mimetype` != \'\' OR `transformation` != \'\''
-            . ' OR `transformation_options` != \'\')',
+            . ' OR `transformation_options` != \'\''
+            . ' OR `input_transformation` != \'\''
+            . ' OR `input_transformation_options` != \'\')',
         'columns' => array(
-            'column_name', 'mimetype', 'transformation', 'transformation_options'
+            'column_name', 'mimetype', 'transformation', 'transformation_options',
+            'input_transformation', 'input_transformation_options'
         ),
         'result' => array(
-            array('o', 'text/plain', 'sql'),
+            array('o', 'text/plain', 'sql', '', 'regex', '/pma/i'),
+            array('col', 't', 'o/p', '', 'i/p', '')
         )
     ),
     array(
@@ -233,7 +268,7 @@ $GLOBALS['dummy_queries'] = array(
             . ' `CHECKSUM` AS `Checksum`, `CREATE_OPTIONS` AS `Create_options`,'
             . ' `TABLE_COMMENT` AS `Comment`'
             . ' FROM `information_schema`.`TABLES` t'
-            . ' WHERE BINARY `TABLE_SCHEMA` IN (\'pma_test\')'
+            . ' WHERE `TABLE_SCHEMA` IN (\'pma_test\')'
             . ' AND t.`TABLE_NAME` = \'table1\' ORDER BY Name ASC',
         'columns' => array(
             'TABLE_CATALOG', 'TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_TYPE', 'ENGINE',
@@ -312,17 +347,16 @@ $GLOBALS['dummy_queries'] = array(
         'query' => 'SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.'
             . '`SCHEMA_PRIVILEGES`'
             . ' WHERE GRANTEE=\'\'\'pma_test\'\'@\'\'localhost\'\'\''
-            . ' AND PRIVILEGE_TYPE=\'TRIGGER\' AND \'pma\\\\_test\''
-            . ' REGEXP REPLACE(REPLACE(TABLE_SCHEMA, \'_\', \'.\'), \'%\', \'.*\')',
+            . ' AND PRIVILEGE_TYPE=\'TRIGGER\' AND \'pma_test\''
+            . ' LIKE `TABLE_SCHEMA`',
         'result' => array(),
     ),
     array(
         'query' => 'SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.'
             . '`TABLE_PRIVILEGES`'
             . ' WHERE GRANTEE=\'\'\'pma_test\'\'@\'\'localhost\'\'\''
-            . ' AND PRIVILEGE_TYPE=\'TRIGGER\' AND \'pma\\\\_test\''
-            . ' REGEXP REPLACE(REPLACE(TABLE_SCHEMA, \'_\', \'.\'), \'%\', \'.*\')'
-            . ' AND TABLE_NAME=\'table1\'',
+            . ' AND PRIVILEGE_TYPE=\'TRIGGER\' AND \'pma_test\''
+            . ' LIKE `TABLE_SCHEMA` AND TABLE_NAME=\'table1\'',
         'result' => array(),
     ),
     array(
@@ -336,8 +370,8 @@ $GLOBALS['dummy_queries'] = array(
         'query' => 'SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.'
             . '`SCHEMA_PRIVILEGES`'
             . ' WHERE GRANTEE=\'\'\'pma_test\'\'@\'\'localhost\'\'\''
-            . ' AND PRIVILEGE_TYPE=\'EVENT\' AND \'pma\\\\_test\''
-            . ' REGEXP REPLACE(REPLACE(TABLE_SCHEMA, \'_\', \'.\'), \'%\', \'.*\')',
+            . ' AND PRIVILEGE_TYPE=\'EVENT\' AND \'pma_test\''
+            . ' LIKE `TABLE_SCHEMA`',
         'result' => array(),
     ),
     array(
@@ -357,7 +391,7 @@ $GLOBALS['dummy_queries'] = array(
             . ' EVENT_OBJECT_TABLE, ACTION_TIMING, ACTION_STATEMENT, '
             . 'EVENT_OBJECT_SCHEMA, EVENT_OBJECT_TABLE, DEFINER'
             . ' FROM information_schema.TRIGGERS'
-            . ' WHERE TRIGGER_SCHEMA= \'pma_test\''
+            . ' WHERE EVENT_OBJECT_SCHEMA= \'pma_test\''
             . ' AND EVENT_OBJECT_TABLE = \'table1\';',
         'result' => array(),
     ),
@@ -394,10 +428,10 @@ $GLOBALS['dummy_queries'] = array(
         )
     ),
     array(
-        'query' => 'SHOW VARIABLES LIKE \'collation_database\'',
-        'columns' => array('variable_name', 'variable_value'),
+        'query' => 'SELECT @@collation_database',
+        'columns' => array('@@collation_database'),
         'result' => array(
-            array('foo', 'bar'),
+            array('bar'),
         )
     ),
     array(
@@ -405,7 +439,7 @@ $GLOBALS['dummy_queries'] = array(
         'result' => array(),
     ),
     array(
-        'query' => "SELECT tracking_active FROM pma_table_tracking" .
+        'query' => "SELECT tracking_active FROM `pmadb`.`tracking`" .
             " WHERE db_name = 'pma_test_db'" .
             " AND table_name = 'pma_test_table'" .
             " ORDER BY version DESC",
@@ -415,7 +449,7 @@ $GLOBALS['dummy_queries'] = array(
             )
     ),
     array(
-        'query' => "SELECT tracking_active FROM pma_table_tracking" .
+        'query' => "SELECT tracking_active FROM `pmadb`.`tracking`" .
             " WHERE db_name = 'pma_test_db'" .
             " AND table_name = 'pma_test_table2'" .
             " ORDER BY version DESC",
@@ -475,6 +509,154 @@ $GLOBALS['dummy_queries'] = array(
     array(
         'query' => "SHOW GRANTS",
         'result' => array()
+    ),
+    array(
+        'query' => "SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, "
+            . "(SELECT DB_first_level FROM ( SELECT DISTINCT "
+            . "SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level "
+            . "FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY "
+            . "DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE("
+            . "CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) "
+            . "ORDER BY SCHEMA_NAME ASC",
+        'result' => array(
+            "test",
+        )
+    ),
+    array(
+        'query' => "SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX("
+            . "SCHEMA_NAME, '_', 1) DB_first_level "
+            . "FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t",
+        'result' => array(
+            array(1),
+        )
+    ),
+    array(
+        'query' => "SELECT `PARTITION_METHOD` "
+            . "FROM `information_schema`.`PARTITIONS` "
+            . "WHERE `TABLE_SCHEMA` = 'db' AND `TABLE_NAME` = 'table'",
+        'result' => array()
+    ),
+    array(
+        'query' => "SHOW PLUGINS",
+        'result' => array(
+            array('Name' => 'partition')
+        )
+    ),
+    array(
+        'query' => "SHOW FULL TABLES FROM `default` WHERE `Table_type`='BASE TABLE'",
+        'result' => array(
+            array("test1", "BASE TABLE"),
+            array("test2", "BASE TABLE"),
+        )
+    ),
+    array(
+        'query' => "SHOW FULL TABLES FROM `default` "
+            . "WHERE `Table_type`!='BASE TABLE'",
+        'result' => array()
+    ),
+    array(
+        'query' => "SHOW FUNCTION STATUS WHERE `Db`='default'",
+        'result' => array(array("Name" => "testFunction"))
+    ),
+    array(
+        'query' => "SHOW PROCEDURE STATUS WHERE `Db`='default'",
+        'result' => array()
+    ),
+    array(
+        'query' => "SHOW EVENTS FROM `default`",
+        'result' => array()
+    ),
+    array(
+        'query' => "FLUSH PRIVILEGES",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT * FROM `mysql`.`db` LIMIT 1",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT * FROM `mysql`.`columns_priv` LIMIT 1",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT * FROM `mysql`.`tables_priv` LIMIT 1",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT * FROM `mysql`.`procs_priv` LIMIT 1",
+        'result' => array()
+    ),
+    array(
+        'query' => 'DELETE FROM `mysql`.`db` WHERE `host` = "" '
+            . 'AND `Db` = "" AND `User` = ""',
+        'result' => true
+    ),
+    array(
+        'query' => 'DELETE FROM `mysql`.`columns_priv` WHERE '
+            . '`host` = "" AND `Db` = "" AND `User` = ""',
+        'result' => true
+    ),
+    array(
+        'query' => 'DELETE FROM `mysql`.`tables_priv` WHERE '
+            . '`host` = "" AND `Db` = "" AND `User` = "" AND Table_name = ""',
+        'result' => true
+    ),
+    array(
+        'query' => 'DELETE FROM `mysql`.`procs_priv` WHERE '
+            . '`host` = "" AND `Db` = "" AND `User` = "" AND `Routine_name` = "" '
+            . 'AND `Routine_type` = ""',
+        'result' => true
+    ),
+    array(
+        'query' => 'SELECT `plugin` FROM `mysql`.`user` WHERE '
+            . '`User` = "pma_username" AND `Host` = "pma_hostname" LIMIT 1',
+        'result' => array()
+    ),
+    array(
+        'query' => 'SELECT @@default_authentication_plugin',
+        'result' => array(array('@@default_authentication_plugin' => 'mysql_native_password'))
+    ),
+    array(
+        'query' => "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE "
+            . "TABLE_SCHEMA = 'db' AND TABLE_NAME = 'table'",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT *, `TABLE_SCHEMA` AS `Db`, "
+            . "`TABLE_NAME` AS `Name`, `TABLE_TYPE` AS `TABLE_TYPE`, "
+            . "`ENGINE` AS `Engine`, `ENGINE` AS `Type`, "
+            . "`VERSION` AS `Version`, `ROW_FORMAT` AS `Row_format`, "
+            . "`TABLE_ROWS` AS `Rows`, `AVG_ROW_LENGTH` AS `Avg_row_length`, "
+            . "`DATA_LENGTH` AS `Data_length`, "
+            . "`MAX_DATA_LENGTH` AS `Max_data_length`, "
+            . "`INDEX_LENGTH` AS `Index_length`, `DATA_FREE` AS `Data_free`, "
+            . "`AUTO_INCREMENT` AS `Auto_increment`, "
+            . "`CREATE_TIME` AS `Create_time`, "
+            . "`UPDATE_TIME` AS `Update_time`, `CHECK_TIME` AS `Check_time`, "
+            . "`TABLE_COLLATION` AS `Collation`, `CHECKSUM` AS `Checksum`, "
+            . "`CREATE_OPTIONS` AS `Create_options`, "
+            . "`TABLE_COMMENT` AS `Comment` "
+            . "FROM `information_schema`.`TABLES` t "
+            . "WHERE `TABLE_SCHEMA` IN ('db') "
+            . "AND t.`TABLE_NAME` = 'table' ORDER BY Name ASC",
+        'result' => array()
+    ),
+    array(
+        'query' => "SHOW TABLE STATUS FROM `db` WHERE `Name` LIKE 'table%'",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT @@have_partitioning;",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT @@lower_case_table_names",
+        'result' => array()
+    ),
+    array(
+        'query' => "SELECT `PLUGIN_NAME`, `PLUGIN_DESCRIPTION` "
+            . "FROM `information_schema`.`PLUGINS` WHERE `PLUGIN_TYPE` = 'AUTHENTICATION';",
+        'result' => array()
     )
 );
 /**
@@ -488,6 +670,9 @@ $GLOBALS['controllink'] = 2;
 $GLOBALS['cfg']['DBG']['sql'] = false;
 if (! defined('PMA_DRIZZLE')) {
     define('PMA_DRIZZLE', 0);
+}
+if (! defined('PMA_MARIADB')) {
+    define('PMA_MARIADB', 0);
 }
 
 /**
@@ -529,7 +714,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
      *
      * @return bool
      */
-    public function selectDb($dbname, $link = null)
+    public function selectDb($dbname, $link)
     {
         $GLOBALS['dummy_db'] = $dbname;
         return true;
@@ -566,10 +751,10 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Run the multi query and output the results
      *
-     * @param object $link  connection object
-     * @param string $query multi query statement to execute
+     * @param resource $link  connection object
+     * @param string   $query multi query statement to execute
      *
-     * @return result collection | boolean(false)
+     * @return array|bool
      */
     public function realMultiQuery($link, $query)
     {
@@ -579,7 +764,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns result data from $result
      *
-     * @param resource $result result  MySQL result
+     * @param object $result MySQL result
      *
      * @return array
      */
@@ -597,7 +782,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns array of rows with associative and numeric keys from $result
      *
-     * @param resource $result result  MySQL result
+     * @param object $result result  MySQL result
      *
      * @return array
      */
@@ -619,7 +804,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns array of rows with associative keys from $result
      *
-     * @param resource $result MySQL result
+     * @param object $result MySQL result
      *
      * @return array
      */
@@ -642,7 +827,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns array of rows with numeric keys from $result
      *
-     * @param resource $result MySQL result
+     * @param object $result MySQL result
      *
      * @return array
      */
@@ -655,8 +840,8 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Adjusts the result pointer to an arbitrary row in the result
      *
-     * @param resource $result database result
-     * @param integer  $offset offset to seek
+     * @param object  $result database result
+     * @param integer $offset offset to seek
      *
      * @return bool true on success, false on failure
      */
@@ -672,7 +857,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Frees memory associated with the result
      *
-     * @param resource $result database result
+     * @param object $result database result
      *
      * @return void
      */
@@ -684,11 +869,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Check if there are any more query results from a multi query
      *
-     * @param object $link the connection object
+     * @param resource $link the connection object
      *
      * @return bool false
      */
-    public function moreResults($link = null)
+    public function moreResults($link)
     {
         return false;
     }
@@ -696,11 +881,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Prepare next result from multi_query
      *
-     * @param object $link the connection object
+     * @param resource $link the connection object
      *
      * @return boolean false
      */
-    public function nextResult($link = null)
+    public function nextResult($link)
     {
         return false;
     }
@@ -708,9 +893,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Store the result returned from multi query
      *
+     * @param resource $link the connection object
+     *
      * @return mixed false when empty results / result set when not empty
      */
-    public function storeResult()
+    public function storeResult($link)
     {
         return false;
     }
@@ -718,11 +905,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Returns a string representing the type of connection used
      *
-     * @param object $link mysql link
+     * @param resource $link mysql link
      *
      * @return string type of connection used
      */
-    public function getHostInfo($link = null)
+    public function getHostInfo($link)
     {
         return '';
     }
@@ -730,11 +917,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * Returns the version of the MySQL protocol used
      *
-     * @param object $link mysql link
+     * @param resource $link mysql link
      *
      * @return integer version of the MySQL protocol used
      */
-    public function getProtoInfo($link = null)
+    public function getProtoInfo($link)
     {
         return -1;
     }
@@ -752,11 +939,11 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns last error message or false if no errors occurred
      *
-     * @param object $link connection link
+     * @param resource $link connection link
      *
      * @return string|bool $error or false
      */
-    public function getError($link = null)
+    public function getError($link)
     {
         return false;
     }
@@ -764,7 +951,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * returns the number of rows returned by last query
      *
-     * @param resource $result MySQL result
+     * @param object $result MySQL result
      *
      * @return string|int
      */
@@ -775,19 +962,6 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
         }
 
         return count($GLOBALS['dummy_queries'][$result]['result']);
-    }
-
-    /**
-     * returns last inserted auto_increment id for given $link
-     * or $GLOBALS['userlink']
-     *
-     * @param object $link the connection object
-     *
-     * @return string|int
-     */
-    public function insertId($link = null)
-    {
-        return -1;
     }
 
     /**
@@ -818,7 +992,7 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
     /**
      * return number of fields in given $result
      *
-     * @param resource $result MySQL result
+     * @param object $result MySQL result
      *
      * @return int  field count
      */
@@ -870,4 +1044,3 @@ class PMA_DBI_Dummy implements PMA_DBI_Extension
         return '';
     }
 }
-?>

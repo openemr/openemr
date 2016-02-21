@@ -104,7 +104,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
               //---------------------------------------------------------
               elseif(strpos($criteria_value,"patient_data.fname")!== false)
                {
-                $SplitArray=split(' like ',$criteria_value);
+                $SplitArray=explode(' like ',$criteria_value);
                 $query_part .= " AND ($criteria_value or patient_data.lname like ".$SplitArray[1].")";
                }
               //---------------------------------------------------------
@@ -115,7 +115,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
               //---------------------------------------------------------
               elseif(strpos($criteria_value,"form_encounter.pid")!== false)
                {//comes like '781,780'
-                $SplitArray=split(" = '",$criteria_value);//comes like 781,780'
+                $SplitArray=explode(" = '",$criteria_value);//comes like 781,780'
                 $SplitArray[1]=substr($SplitArray[1], 0, -1);//comes like 781,780
                 $query_part .= ' AND form_encounter.pid in ('.$SplitArray[1].')';
                 $query_part2 .= ' AND pid in ('.$SplitArray[1].')';
@@ -123,7 +123,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
               //---------------------------------------------------------
               elseif(strpos($criteria_value,"form_encounter.encounter")!== false)
                {//comes like '781,780'
-                $SplitArray=split(" = '",$criteria_value);//comes like 781,780'
+                $SplitArray=explode(" = '",$criteria_value);//comes like 781,780'
                 $SplitArray[1]=substr($SplitArray[1], 0, -1);//comes like 781,780
                 $query_part .= ' AND form_encounter.encounter in ('.$SplitArray[1].')';
                }

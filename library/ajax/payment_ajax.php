@@ -202,7 +202,7 @@ function AjaxDropDownCode()
 		 }
 		$CountIndex++;
 		$Date=$row['date'];
-		$Date=split(' ',$Date);
+		$Date=explode(' ',$Date);
 		$Date=oeFormatShortDate($Date[0]);
 		$Encounter=$row['encounter'];
 		$StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"

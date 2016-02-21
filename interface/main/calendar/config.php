@@ -26,9 +26,10 @@ else {
 $pnconfig['modname'] = "PostCalendar";
 $pnconfig['startpage'] = "PostCalendar";
 $pnconfig['language'] = "eng";
-$pnconfig['dbtype'] = 'mysql';
+$pnconfig['dbtype'] = 'mysqli';
 $pnconfig['dbtabletype'] = 'MyISAM';
-$pnconfig['dbhost'] = $host.":".$port;
+$pnconfig['dbhost'] = $host;
+$pnconfig['dbport'] = $port;
 $pnconfig['dbuname'] = $login;
 $pnconfig['dbpass'] = $pass;
 $pnconfig['dbname'] = $dbase;

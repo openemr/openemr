@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -34,22 +34,22 @@ class FileReflection implements ReflectionInterface
     protected $endLine = null;
 
     /**
-     * @var string
+     * @var string[]
      */
     protected $namespaces = array();
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $uses = array();
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $requiredFiles = array();
 
     /**
-     * @var ReflectionClass[]
+     * @var ClassReflection[]
      */
     protected $classes = array();
 
@@ -105,7 +105,7 @@ class FileReflection implements ReflectionInterface
      */
     public static function export()
     {
-        return null;
+        return;
     }
 
     /**
@@ -115,8 +115,7 @@ class FileReflection implements ReflectionInterface
      */
     public function getFileName()
     {
-        // @todo get file name from path
-        return $this->filePath;
+        return basename($this->filePath);
     }
 
     /**
@@ -162,7 +161,7 @@ class FileReflection implements ReflectionInterface
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getNamespaces()
     {
@@ -175,7 +174,7 @@ class FileReflection implements ReflectionInterface
     public function getNamespace()
     {
         if (count($this->namespaces) == 0) {
-            return null;
+            return;
         }
 
         return $this->namespaces[0];

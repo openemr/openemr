@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -53,6 +53,10 @@ class GenericHeader implements HeaderInterface
             throw new Exception\InvalidArgumentException('Header must match with the format "name:value"');
         }
 
+        if (! HeaderValue::isValid($parts[1])) {
+            throw new Exception\InvalidArgumentException('Invalid header value detected');
+        }
+
         $parts[1] = ltrim($parts[1]);
 
         return $parts;
@@ -88,20 +92,18 @@ class GenericHeader implements HeaderInterface
             throw new Exception\InvalidArgumentException('Header name must be a string');
         }
 
-        // Pre-filter to normalize valid characters, change underscore to dash
-        $fieldName = str_replace('_', '-', $fieldName);
-
         /*
-         * Following RFC 2616 section 4.2
+         * Following RFC 7230 section 3.2
          *
-         * message-header = field-name ":" [ field-value ]
-         * field-name     = token
-         *
-         * @see http://tools.ietf.org/html/rfc2616#section-2.2 for token definition.
+         * header-field = field-name ":" [ field-value ]
+         * field-name   = token
+         * token        = 1*tchar
+         * tchar        = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
+         *                "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
          */
-        if (!preg_match('/^[!#-\'*+\-\.0-9A-Z\^-z|~]+$/', $fieldName)) {
+        if (!preg_match('/^[!#$%&\'*+\-\.\^_`|~0-9a-zA-Z]+$/', $fieldName)) {
             throw new Exception\InvalidArgumentException(
-                'Header name must be a valid RFC 2616 (section 4.2) field-name.'
+                'Header name must be a valid RFC 7230 (section 3.2) field-name.'
             );
         }
 
@@ -128,6 +130,7 @@ class GenericHeader implements HeaderInterface
     public function setFieldValue($fieldValue)
     {
         $fieldValue = (string) $fieldValue;
+        HeaderValue::assertValid($fieldValue);
 
         if (preg_match('/^\s+$/', $fieldValue)) {
             $fieldValue = '';

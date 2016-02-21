@@ -9,8 +9,8 @@ class C_X12Partner extends Controller {
 	var $providers;
 	var $x12_partners;
 
-	function C_X12Partner($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->x12_partner = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

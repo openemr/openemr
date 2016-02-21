@@ -43,23 +43,10 @@ $ORDERHASH = array(
     'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
-// Returns the next appointment.
-// (typically is used to collect the next appointment for a patient, although the patient id is not required) 
-// will return as an arrayed structure for the elements of the next appointment
-// (note it returns data in the first array element of the array (so same code can support functions in future that return multiple elements)
-function collect_next_appointment($from_date,$patient_id=null) {
-  $events = array();
-  $events = fetchAppointments($from_date, null, $patient_id, null, null, null, null, null, null, false, true);
-  $events = sortAppointments($events);
-  $return_event = array();
-  $return_event[0] = $events[0];
-  return $return_event;
-}
-
-function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $flagPSM = false ) 
+function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0 )
 {
   //////
-  if($flagPSM) { // Patient Summary Mode
+  if($nextX) {
 
     $where =
       "((e.pc_endDate >= '$from_date' AND e.pc_recurrtype > '0') OR " .
@@ -115,16 +102,17 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
   $events2 = array();
   $res = sqlStatement($query);
   ////////
-  if($flagPSM) {  // Patient Summary Mode
+  if($nextX) {
   global $resNotNull;
   $resNotNull = (isset($res) && $res != null);
   }
 
   while ($event = sqlFetchArray($res)) {
     ///////
-    if($flagPSM) $stopDate = $event['pc_endDate'];
+    if($nextX) $stopDate = $event['pc_endDate'];
     else $stopDate = ($event['pc_endDate'] <= $to_date) ? $event['pc_endDate'] : $to_date;
     ///////
+    $incX = 0;
     switch($event['pc_recurrtype']) {
 
       case '0' :
@@ -168,7 +156,10 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
               $event['pc_endDate'] = '0000-00-00';
               $events2[] = $event;
               //////
-              if ($flagPSM) break;
+              if ($nextX) {
+              	++$incX;
+              	if($incX == $nextX) break;
+              }
               //////
             }
             
@@ -231,7 +222,10 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
               $event['pc_endDate'] = '0000-00-00';
               $events2[] = $event;
               //////
-              if($flagPSM) break;
+              if($nextX) {
+              	++$incX;
+              	if($incX == $nextX) break;
+              }
               //////
 
             }
@@ -271,7 +265,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $flagPSM = false )
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0 )
 {
 	$where = "";
 	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
@@ -316,8 +310,21 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 	$where .= $filter_wofacility;
 	
-	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $flagPSM );
+	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX );
 	return $appointments;
+}
+
+function fetchNextXAppts($from_date, $patient_id, $nextX = 1) {
+
+  $appts = array();
+  $nextXAppts = array();
+  $appts = fetchAppointments( $from_date, null, $patient_id, null, null, null, null, null, null, false, $nextX );
+  if($appts) {
+    $appts = sortAppointments($appts);
+    $nextXAppts = array_slice($appts, 0, $nextX);
+  }
+  return $nextXAppts;
+
 }
 
 // get the event slot size in seconds

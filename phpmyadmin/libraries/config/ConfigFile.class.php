@@ -28,7 +28,7 @@ class ConfigFile
 
     /**
      * Stores original PMA config, not modified by user preferences
-     * @var array
+     * @var PMA_Config
      */
     private $_baseCfg;
 
@@ -66,7 +66,7 @@ class ConfigFile
 
     /**
      * Result for {@link _flattenArray()}
-     * @var array
+     * @var array|null
      */
     private $_flattenArrayResult;
 
@@ -269,7 +269,7 @@ class ConfigFile
         $this->_flattenArrayResult = array();
         array_walk($this->_defaultCfg, array($this, '_flattenArray'), '');
         $flat_cfg = $this->_flattenArrayResult;
-        $this->_flattenArrayResult = array();
+        $this->_flattenArrayResult = null;
         return $flat_cfg;
     }
 
@@ -287,7 +287,7 @@ class ConfigFile
         $this->_flattenArrayResult = array();
         array_walk($cfg, array($this, '_flattenArray'), '');
         $flat_cfg = $this->_flattenArrayResult;
-        $this->_flattenArrayResult = array();
+        $this->_flattenArrayResult = null;
 
         // save values map for translating a few user preferences paths,
         // should be complemented by code reading from generated config
@@ -403,7 +403,7 @@ class ConfigFile
      *
      * @return string
      */
-    function getServerDSN($server)
+    public function getServerDSN($server)
     {
         if (!isset($_SESSION[$this->_id]['Servers'][$server])) {
             return '';
@@ -501,7 +501,8 @@ class ConfigFile
     {
         $c = $_SESSION[$this->_id];
         foreach ($this->_cfgUpdateReadMapping as $map_to => $map_from) {
-            if (PMA_arrayKeyExists($map_to, $c)) {
+            // if the key $c exists in $map_to
+            if (PMA_arrayRead($map_to, $c) !== null) {
                 PMA_arrayWrite($map_to, $c, PMA_arrayRead($map_from, $c));
                 PMA_arrayRemove($map_from, $c);
             }
@@ -519,7 +520,7 @@ class ConfigFile
         $this->_flattenArrayResult = array();
         array_walk($_SESSION[$this->_id], array($this, '_flattenArray'), '');
         $c = $this->_flattenArrayResult;
-        $this->_flattenArrayResult = array();
+        $this->_flattenArrayResult = null;
 
         $persistKeys = array_diff(
             array_keys($this->_persistKeys),
@@ -539,4 +540,3 @@ class ConfigFile
         return $c;
     }
 }
-?>

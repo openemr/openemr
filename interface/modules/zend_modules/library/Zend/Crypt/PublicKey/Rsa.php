@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -11,7 +11,6 @@ namespace Zend\Crypt\PublicKey;
 
 use Traversable;
 use Zend\Crypt\PublicKey\Rsa\Exception;
-use Zend\Crypt\PublicKey\RsaOptions;
 use Zend\Stdlib\ArrayUtils;
 
 /**
@@ -247,10 +246,11 @@ class Rsa
      *
      * @param  string          $data
      * @param  Rsa\AbstractKey $key
+     * @param  null|int        $padding An OPENSSL_*_PADDING constant value.
      * @return string
      * @throws Rsa\Exception\InvalidArgumentException
      */
-    public function encrypt($data, Rsa\AbstractKey $key = null)
+    public function encrypt($data, Rsa\AbstractKey $key = null, $padding = null)
     {
         if (null === $key) {
             $key = $this->options->getPublicKey();
@@ -260,7 +260,11 @@ class Rsa
             throw new Exception\InvalidArgumentException('No key specified for the decryption');
         }
 
-        $encrypted = $key->encrypt($data);
+        if (null === $padding) {
+            $encrypted = $key->encrypt($data);
+        } else {
+            $encrypted = $key->encrypt($data, $padding);
+        }
 
         if ($this->options->getBinaryOutput()) {
             return $encrypted;
@@ -280,6 +284,7 @@ class Rsa
      * @param  string          $data
      * @param  Rsa\AbstractKey $key
      * @param  int             $mode Input encoding
+     * @param  null|int        $padding An OPENSSL_*_PADDING constant value.
      * @return string
      * @throws Rsa\Exception\InvalidArgumentException
      * @see Rsa::MODE_AUTO
@@ -289,7 +294,8 @@ class Rsa
     public function decrypt(
         $data,
         Rsa\AbstractKey $key = null,
-        $mode = self::MODE_AUTO
+        $mode = self::MODE_AUTO,
+        $padding = null
     ) {
         if (null === $key) {
             $key = $this->options->getPrivateKey();
@@ -315,7 +321,10 @@ class Rsa
                 break;
         }
 
-        return $key->decrypt($data);
+        if (null === $padding) {
+            return $key->decrypt($data);
+        }
+        return $key->decrypt($data, $padding);
     }
 
     /**

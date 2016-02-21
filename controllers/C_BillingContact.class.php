@@ -8,13 +8,14 @@ class C_InsuranceCompany extends Controller {
 	var $template_mod;
 	var $icompanies;
 
-	function C_InsuranceCompany($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->icompanies = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&");
 		$this->assign("STYLE", $GLOBALS['style']);
+		$this->InsuranceCompany = new InsuranceCompany();
 	}
 
 	function default_action() {
@@ -36,10 +37,10 @@ class C_InsuranceCompany extends Controller {
 	function list_action($sort = "") {
 
 		if (!empty($sort)) {
-			$this->assign("icompanies", InsuranceCompany::insurance_companies_factory("",$sort));
+			$this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("",$sort));
 		}
 		else {
-			$this->assign("icompanies", InsuranceCompany::insurance_companies_factory());
+			$this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
 		}
 		
 		return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_list.html");
