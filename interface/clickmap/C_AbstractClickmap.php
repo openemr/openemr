@@ -44,7 +44,7 @@ abstract class C_AbstractClickmap extends Controller {
      *  template module name, passed to Controller's initializer.
      */
     function C_AbstractClickmap($template_mod = "general") {
-    	parent::Controller();
+    	parent::__construct();
     	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = $GLOBALS['fileroot'] . "/interface/clickmap/template/";
