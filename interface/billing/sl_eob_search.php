@@ -1148,7 +1148,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 if (!$INTEGRATED_AR) SLClose();
 ?>
 <tr bgcolor='<?php echo $bgcolor ?>'>
-<td>Totals</td>
+<td><?php echo xl('Totals'); ?></td>
 <td></td>
 <td></td>
 <td></td>
