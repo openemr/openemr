@@ -119,6 +119,8 @@ function add_diagnosis(&$hcfa_entries,$number,$diag)
     $col_pos=3+13*$column_num;
     
     // First diagnosis row is 38
+    $strip='/[.#]/';
+    $diag = preg_replace($strip, '', strtoupper($diag));
     $row_pos=38+$row_num;
     $hcfa_entries[]=new hcfa_info($row_pos,$col_pos,8,$diag);
     
