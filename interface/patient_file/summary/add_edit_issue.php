@@ -31,6 +31,9 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
 require_once($GLOBALS['srcdir'].'/formdata.inc.php');
+?>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php
 
 if (isset($ISSUE_TYPES['football_injury'])) {
   if ($ISSUE_TYPES['football_injury']) {
@@ -523,7 +526,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
  }
 
  function closeme() {
-    if (parent.$) parent.$.fancybox.close();
+    if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();
     window.close();
  }
 

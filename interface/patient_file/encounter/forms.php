@@ -15,6 +15,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
+require_once("forms_review_header.php");
 ?>
 <html>
 
@@ -631,5 +632,5 @@ if ( $esign->isButtonViewable() ) {
 
 </div> <!-- end large encounter_forms DIV -->
 </body>
-
+<?php require_once("forms_review_footer.php"); ?>
 </html>

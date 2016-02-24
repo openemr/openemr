@@ -39,7 +39,7 @@ require_once("$srcdir/patient_tracker.inc.php");
 ?>
 <html>
 <head>
-
+<title><?php echo xlt("Flow Board") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
@@ -91,13 +91,13 @@ function topatient(newpid, enc) {
    top.restoreSession();
    <?php if ($GLOBALS['concurrent_layout']) { ?>
      if (enc > 0) {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+       top.RTop.location= "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
      }
      else {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
+       top.RTop.location = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
      }
    <?php } else { ?>
-     top.location.href = "../patient_file/patient_file.php?set_pid=" + newpid;
+     top.RTop.location = "../patient_file/patient_file.php?set_pid=" + newpid;
    <?php } ?>
  }
 }

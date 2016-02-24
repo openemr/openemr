@@ -102,6 +102,16 @@ else {
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+
+// This is where will decide whether to use tabs layout or non-tabs layout
+// Note that this screen does not appear to support user specific globals since
+// guessing the globals are collected before authentication and setting of the user.
+// If want to support per user selection of tabs layout, will need to look into this.
+if (!$GLOBALS['new_tabs_layout']) {
+  $_REQUEST['tabs'] = "false";
+}
+require_once("tabs/redirect.php");
+
 ?>
 <html>
 <head>

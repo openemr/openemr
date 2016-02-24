@@ -116,7 +116,9 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
              $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Please select a valid recipient').'</div> ';
            }else{    
 // --------- echo javascript            
-             echo '<html><body><script language="JavaScript">'; 
+             echo '<html><body>'
+                  ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"    
+                  .'<script language="JavaScript">'; 
 // ------------ 1) refresh parent window this updates if sent to self 
              echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';     
 // ------------ 2) communicate with user      
@@ -146,7 +148,8 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
   ?>    
 <html>
   <head>
-    <title><?php echo xlt('Send a Reminder') ?></title>  
+    <title><?php echo xlt('Send a Reminder') ?></title>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">                                       
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>  

@@ -133,6 +133,16 @@ $GLOBALS_METADATA = array(
       xl('Type of screen layout')
     ),
 
+    'new_tabs_layout' => array(
+      xl('Tabs Layout Style (need to logout/login after change this setting)'),
+      array(
+        '0' => xl('Off'),
+        '1' => xl('On'),
+      ),
+      '0',                              // default = off
+      xl('Use the new tabs layout style (need to logout and then login to see this new setting).')
+    ),
+
     'concurrent_layout' => array(
       xl('Layout Style'),               // descriptive name
       array(
