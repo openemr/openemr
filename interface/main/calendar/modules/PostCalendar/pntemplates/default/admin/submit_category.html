@@ -211,7 +211,7 @@
                 								[-/foreach-]
                 								</select>
             							</td>
-                                                                [-if ($GLOBALS['translate_appt_categories'] && ($_SESSION['language_choice'] > 1))-]
+                                                                [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
                                                                  <td valign="top" align="left">[-$_PC_CAT_NAME_XL-]:<br />
                                                                   <span style="color:green">[-$cat.nameTranslate-]</span>
                                                                  </td>
@@ -225,7 +225,7 @@
                 							[-$_PC_CAT_DESC-]:<br />
                 							&nbsp;<textarea name="desc[]" rows="3" cols="20">[-$cat.desc-]</textarea>
             							</td>
-                                                                [-if ($GLOBALS['translate_appt_categories'] && ($_SESSION['language_choice'] > 1))-]
+                                                                [-if ($globals.translate_appt_categories && ($smarty.session.language_choice > 1))-]
                                                                  <td valign="top" align="left">[-$_PC_CAT_DESC_XL-]:<br />
                                                                   <span style="color:green">[-$cat.descTranslate-]</span>
                                                                  </td>

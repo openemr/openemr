@@ -499,7 +499,7 @@ function postcalendar_userapi_buildView($args)
 		$tpl->assign_by_ref('TODAY_DATE',$today_date);
 		$tpl->assign_by_ref('DATE',$Date);
 		$tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__,'user','submit'));
-		$tpl->assign_by_ref('interval',$intervals);
+		$tpl->assign_by_ref('intervals',$intervals);
         };
 
 	//=================================================================
@@ -1117,7 +1117,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     // this is the common information
 
     $events[$i]['intervals'] 	=($tmp['duration']/60)/	$GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
-    print_r($events[$i]['intervals']);
+//    print_r($events[$i]['intervals']);
 
     $events[$i]['eid']         = $tmp['eid'];
     $events[$i]['uname']       = $tmp['uname'];

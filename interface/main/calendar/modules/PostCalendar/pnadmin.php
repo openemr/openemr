@@ -1274,6 +1274,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	    $all_categories[$m]["descTranslate"] = xl($tempDescription);
 	}
     }
+    $tpl->assign('globals', $GLOBALS);
     
 	$tpl->assign_by_ref('TPL_NAME',$template_name);
     $tpl->assign('FUNCTION',pnVarCleanFromInput('func'));
