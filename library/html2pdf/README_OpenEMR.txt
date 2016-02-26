@@ -20,6 +20,7 @@ This html2pdf library was updated by:
 
 9. Modifying library/html2pdf/vendor/setasign/fpdi/fpdi_bridge.php class removing second parameter "false" of "class_exists" method because TCPDF is autoloading
 
+10. Removed examples directory from the TCPDF package.
 
-At this point the HTML2PDF upgraded to version 4.5.0 and includes FPDI features.
+At this point the HTML2PDF(version 4.5.0) with TCPDF(version 6.2.12) and FPDI(version 1.6.1) is installed and working.
 
