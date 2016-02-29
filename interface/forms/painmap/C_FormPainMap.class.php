@@ -37,8 +37,8 @@ class C_FormPainMap extends C_AbstractClickmap {
     static $FORM_CODE = "painmap";
 
     /* initializer, just calls parent's initializer. */
-    public function C_FormPainMap() {
-    	parent::C_AbstractClickmap();
+    public function __construct() {
+    	parent::__construct();
     }
 
     /**

@@ -1,21 +1,26 @@
-This html2pdf directory was created by:
+This html2pdf library was updated by:
 
-1. Downloading HTML2PDF 3.31 from:
-   https://sourceforge.net/projects/html2fpdf/
-   and installing it as the library/html2pdf directory.
+1. Removing all old files
 
-2. Downloading FPDI 1.4.2 and FPDF_TPL 1.2 from:
-   http://www.setasign.de/products/pdf-php-solutions/fpdi/downloads/
-   and installing them into the library/html2pdf/fpdi directory.
+2. Downloading HTML2PDF 4.5.0 from:
+   https://github.com/spipu/html2pdf/releases (composer package)
 
-3. Removing the examples directory from the html2pdf directory.
+3. Running composer command "composer install"
 
-4. Modifying library/html2pdf/fpdi/fpdf_tpl.php so that
-   FPDF_TPL extends MyPDF instead of FPDF.  Note that FPDI extends
-   FPDF_TPL.
+4. Requiring "setasign/fpdi": "1.6.*" for latest FPDI package
 
-5. Modifying library/html2pdf/html2pdf.class.php to create its member
-   pdf object as an instance of FPDI instead of MyPDF.
+5. Removing the examples directory from the html2pdf directory.
 
-At this point the HTML2PDF class now includes the FPDI features.
+6. Modifying library/html2pdf/_class/myPdf.class.php so that HTML2PDF_myPdf extends FPDI instead of TCPDF.
+   Note that FPDI extends TCPDF.
+
+7. Modifying interface/patient_file/report/custom_report.php line # 52 to require html2pdf/vendor/autoload.php rather html2pdf.class.php
+
+8. Passing two new parameters "unicode and encoding" to HTML2PDF constructor in interface/patient_file/report/custom_report.php on line 57 and 58 respectively
+
+9. Modifying library/html2pdf/vendor/setasign/fpdi/fpdi_bridge.php class removing second parameter "false" of "class_exists" method because TCPDF is autoloading
+
+10. Removed examples directory from the TCPDF package.
+
+At this point the HTML2PDF(version 4.5.0) with TCPDF(version 6.2.12) and FPDI(version 1.6.1) is installed and working.
 

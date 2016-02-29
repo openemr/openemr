@@ -1,3 +1,0 @@
-You can read the documentation at : http://fpdf.org/en/doc/index.php
-
-it has been removed because of the size of the package of HTML2PDF... 
