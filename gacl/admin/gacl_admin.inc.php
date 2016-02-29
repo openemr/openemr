@@ -75,6 +75,6 @@ $author_email = 'ipso@snappymail.ca';
  * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them.
  * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed.
  */
-error_reporting (E_ALL ^ E_NOTICE);
-
+//commented out below to instead have php decide which errors to show.
+//error_reporting (E_ALL ^ E_NOTICE);
 ?>
