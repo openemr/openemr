@@ -706,7 +706,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['ss']        = $erow['ss'];
       $row['DOB']       = $erow['DOB'];
       $row['pubpid']    = $erow['pubpid'];
-      $row['billnote']  = (!empty($erow['billing_note'])) ? $erow['billing_note'] : '';
+      $row['billnote']  = $erow['billing_note'];
       $row['referrer']  = $erow['referrer'];
       $row['provider']  = $erow['provider_id'];
       $row['irnumber']  = $erow['invoice_refno'];

@@ -281,9 +281,8 @@ form {
     $itermname = $iter['mname'];
     $iterdob   = $iter['DOB'];
 
-    // the special genericname2 of 'Billing' means something, but I'm not sure
-    // what, regardless it gets special coloring and an extra line of output
-    // in the 'name' column -- JRM
+    // If billing_note exists, then it gets special coloring and an extra line of output
+    // in the 'name' column.
     $trClass = "oneresult";
     if (!empty($iter['billing_note'])) { $trClass .= " billing"; }
 
