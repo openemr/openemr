@@ -684,12 +684,7 @@ function pnVarPrepHTMLDisplay()
     // Note that the use of \024 and \022 are needed to ensure that
     // this does not break HTML tags that might be around either
     // the username or the domain name
-    static $search = array('/([^\024])@([^\022])/se');
-
-    static $replace = array('"&#" .
-                            sprintf("%03d", ord("\\1")) .
-                            ";&#064;&#" .
-                            sprintf("%03d", ord("\\2")) . ";";');
+    static $search = array('/([^\024])@([^\022])/s');
 
     static $allowedhtml;
 
@@ -716,18 +711,25 @@ function pnVarPrepHTMLDisplay()
 
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
-        $ourvar = preg_replace($search, $replace, $ourvar);
+        $ourvar = preg_replace_callback($search,
+            function ($matches) {
+                return "&#" .
+                sprintf("%03d", ord($matches[1])) .
+                ";&#064;&#" .
+                sprintf("%03d", ord($matches[2])) . ";";
+            },
+            $ourvar);
 
         // Fix the HTML that we want
-        $ourvar = preg_replace('/\022([^\024]*)\024/e',
-                               "'<' . strtr('\\1', array('&gt;' => '>',
-                                                         '&lt;' => '<',
-                                                         '&quot;' => '\"'))
-                               . '>';", $ourvar);
+        $ourvar = preg_replace_callback('/\022([^\024]*)\024/',
+            function ($matches) {
+                return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
+            }
+        , $ourvar);
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
-            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", $ourvar);
+            $ourvar = preg_replace_callback('/&amp;([a-z#0-9]+);/i', function ($matches) { return "&$matches[1];";}, $ourvar);
         }
 
         // Add to array
