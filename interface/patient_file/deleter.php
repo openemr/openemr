@@ -205,8 +205,8 @@ function popup_close() {
     form_delete($row['formdir'], $row['form_id']);
    }
    row_delete("forms", "pid = '$patient'");
-
-   // integration_mapping is used for sql-ledger and is virtually obsolete now.
+   
+   // integration_mapping was used for sql-ledger (which is no longer supported) and is virtually obsolete now.
    $row = sqlQuery("SELECT id FROM patient_data WHERE pid = '$patient'");
    row_delete("integration_mapping", "local_table = 'patient_data' AND " .
     "local_id = '" . $row['id'] . "'");
@@ -319,7 +319,6 @@ function popup_close() {
   else if ($billing) {
     if (!acl_check('acct','disc')) die("Not authorized!");
     list($patient_id, $encounter_id) = explode(".", $billing);
-    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
       sqlStatement("DELETE FROM ar_activity WHERE " .
         "pid = ? AND encounter = ? ", array($patient_id, $encounter_id) );
       sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
@@ -333,23 +332,6 @@ function popup_close() {
       sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
         "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
         "WHERE pid = '$patient_id' AND encounter = '$encounter_id'");
-    }
-    else {
-      slInitialize();
-      $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");
-      if ($trans_id) {
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Invoice $billing from SQL-Ledger");
-        SLQuery("DELETE FROM acc_trans WHERE trans_id = '$trans_id'");
-        if ($sl_err) die($sl_err);
-        SLQuery("DELETE FROM invoice WHERE trans_id = '$trans_id'");
-        if ($sl_err) die($sl_err);
-        SLQuery("DELETE FROM ar WHERE id = '$trans_id'");
-        if ($sl_err) die($sl_err);
-      } else {
-        $info_msg .= "Invoice '$billing' not found!";
-      }
-      SLClose();
-    }
     sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
       "pid = '$patient_id' AND encounter = '$encounter_id'");
     updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling

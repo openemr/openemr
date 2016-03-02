@@ -389,10 +389,6 @@ if (!isset($ignoreAuth) || !$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
 
-// If you do not want your accounting system to have a customer added to it
-// for each insurance company, then set this to true.  SQL-Ledger currently
-// (2005-03-21) does nothing useful with insurance companies as customers.
-$GLOBALS['insurance_companies_are_not_customers'] = true;
 
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
@@ -401,17 +397,6 @@ $GLOBALS['layout_search_color'] = '#ffff55';
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
-// Customize these if you are using SQL-Ledger with OpenEMR, or if you are
-// going to run sl_convert.php to convert from SQL-Ledger.
-//
-$sl_cash_acc    = '1060';       // sql-ledger account number for checking account
-$sl_ar_acc      = '1200';       // sql-ledger account number for accounts receivable
-$sl_income_acc  = '4320';       // sql-ledger account number for medical services income
-$sl_services_id = 'MS';         // sql-ledger parts table id for medical services
-$sl_dbname      = 'sql-ledger'; // sql-ledger database name
-$sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
-$sl_dbpass      = 'secret';     // sql-ledger database login password
-//////////////////////////////////////////////////////////////////
 
 //module configurations
 $GLOBALS['baseModDir'] 	= "interface/modules/"; //default path of modules
