@@ -48,7 +48,7 @@ echo("</pre>");
 
 $total_rows = count($rows);
 
-while (list(,$row) = @each(&$rows)) {
+while (list(,$row) = @each($rows)) {
     list(	$aco_section_value,
 			$aco_section_name,
 			$aco_value,

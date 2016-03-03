@@ -118,3 +118,12 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_inr_measure', 1, 1, 1, 'target_proc', 'INR::CPT4:85610::::::ge::1', 0);
 #EndIf
 
+#IfMissingColumn patient_data billing_note
+SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='lname' AND form_id='DEM');
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'billing_note', IFNULL(@group_name,@backup_group_name), 'Billing Note', @seq+1, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)' ) ;
+ALTER TABLE patient_data ADD COLUMN billing_note text NOT NULL default '';
+UPDATE `patient_data` SET `billing_note` = `genericval2` WHERE `genericname2` = 'Billing';
+UPDATE `patient_data` SET `genericval2` = '', `genericname2` = '' WHERE `genericname2` = 'Billing';
+#EndIf

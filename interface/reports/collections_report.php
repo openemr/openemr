@@ -165,8 +165,7 @@ function endPatient($ptrow) {
 
     if (!$_POST['form_without']) {
       sqlStatement("UPDATE patient_data SET " .
-        "genericname2 = 'Billing', " .
-        "genericval2 = CONCAT('IN COLLECTIONS " . date("Y-m-d") . "', genericval2) " .
+        "billing_note = CONCAT('IN COLLECTIONS " . date("Y-m-d") . "', billing_note) " .
         "WHERE pid = ? ", array($ptrow['pid']));
     }
     $export_patient_count += 1;
@@ -618,7 +617,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     $query = "SELECT f.id, f.date, f.pid, CONCAT(w.lname, ', ', w.fname) AS provider_id, f.encounter, f.last_level_billed, " .
       "f.last_level_closed, f.last_stmt_date, f.stmt_count, f.invoice_refno, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
-      "p.postal_code, p.phone_home, p.ss, p.genericname2, p.genericval2, " .
+      "p.postal_code, p.phone_home, p.ss, p.billing_note, " .
       "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
@@ -707,7 +706,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['ss']        = $erow['ss'];
       $row['DOB']       = $erow['DOB'];
       $row['pubpid']    = $erow['pubpid'];
-      $row['billnote']  = ($erow['genericname2'] == 'Billing') ? $erow['genericval2'] : '';
+      $row['billnote']  = $erow['billing_note'];
       $row['referrer']  = $erow['referrer'];
       $row['provider']  = $erow['provider_id'];
       $row['irnumber']  = $erow['invoice_refno'];
@@ -995,7 +994,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.genericname2, pd.genericval2, pd.pid, pd.pubpid, pd.DOB, " .
+        "pd.billing_note, pd.pid, pd.pubpid, pd.DOB, " .
         "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
         "integration_mapping AS im, patient_data AS pd " .
         "LEFT OUTER JOIN users AS u ON u.id = pd.ref_providerID " .
@@ -1006,7 +1005,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['ss'] = $pdrow['ss'];
       $row['DOB'] = $pdrow['DOB'];
       $row['pubpid'] = $pdrow['pubpid'];
-      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $row['billnote'] = $pdrow['billing_note'];
       $row['referrer'] = $pdrow['referrer'];
       
       $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];

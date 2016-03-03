@@ -451,7 +451,7 @@ $config = 1; /////////////
     }
   }
 
-  private function connect_to_database( $server, $user, $password, $port, $dbname )
+  private function connect_to_database( $server, $user, $password, $port, $dbname='' )
   {
     if ($server == "localhost")
       $dbh = mysqli_connect($server, $user, $password, $dbname);

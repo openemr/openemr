@@ -206,6 +206,7 @@
  Add("genericval1"         , $row['genericval1']);
  Add("genericname2"        , $row['genericname2']);
  Add("genericval2"         , $row['genericval2']);
+ Add("billing_note"        , $row['billing_note']);
  Add("hipaa_mail"          , $row['hipaa_mail']);
  Add("hipaa_voice"         , $row['hipaa_voice']);
 
