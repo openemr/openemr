@@ -1359,7 +1359,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
         if($apptNum != 0) $apptNum2 = abs($apptNum);
         else $apptNum2 = 10;
-        $events = fetchNextXAppts($current_date2, $patient_id, $apptNum2);
+        $events = fetchNextXAppts($current_date2, $pid, $apptNum2);
         $events = sortAppointments($events);
         //////
 
