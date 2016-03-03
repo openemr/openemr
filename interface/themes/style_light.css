@@ -673,7 +673,7 @@ tr.odd, td.even {
   background: #1050b6;
 }
 
-.css_button, input[type="button"],input[type="submit"], button {
+.css_button, input[type="button"], button {
   background: #2672ec;
   color: #ffffff !important;
   display: block;
@@ -692,7 +692,7 @@ tr.odd, td.even {
 .css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
   background: red !important;
 }
-.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+.css_button:hover, input[type="button"]:hover, button:hover {
   background: #1050b6;
 }
 
