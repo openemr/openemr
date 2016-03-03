@@ -1071,7 +1071,7 @@ td { font-size:0.8em; }
 
 </head>
 
-<body class="body_top" onunload='imclosing()'>
+<body class="body_top main-calendar-add_edit_event" onunload='imclosing()'>
 
 <form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>' />
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
@@ -1130,61 +1130,58 @@ $classpati='';
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
-<table border='0' width='100%' bgcolor='#DDDDDD' >
-
- <tr>
-  <td width='1%' nowrap>
-   <b><?php echo xlt('Category'); ?>:</b>
-  </td>
-  <td nowrap>
-   <select name='form_category' onchange='set_category()' style='width:100%'>
-<?php echo $catoptions ?>
-   </select>
-  </td>
-  <td width='1%' nowrap>
-   &nbsp;&nbsp;
-   <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
-    <?php if ($thisduration == 1440) echo "checked " ?>/>
-  </td>
-  <td colspan='2' nowrap id='tdallday1'>
-   <?php echo xlt('All day event'); ?>
-  </td>
- </tr>
-
- <tr>
-  <td nowrap>
-   <b><?php echo xlt('Date'); ?>:</b>
-  </td>
-  <td nowrap>
-   <input type='text' size='10' name='form_date' id='form_date'
-    value='<?php echo attr($date) ?>'
-    title='<?php echo xla('yyyy-mm-dd event date or starting date'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' onchange='dateChanged()' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php echo xla('Click here to choose a date'); ?>'>
-  </td>
-  <td nowrap>
-   &nbsp;&nbsp;
-   <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
-  </td>
-  <td width='1%' nowrap id='tdallday2'>
-   <?php echo xlt('Time'); ?>
-  </td>
-  <td width='1%' nowrap id='tdallday3'>
-   <span>   
-    <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
-     title='<?php echo xla('Event start time'); ?>' /> :
-    <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
-     title='<?php echo xla('Event start time'); ?>' />&nbsp;
-   </span>
-   <select name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
-    <option value='1'><?php echo xlt('AM'); ?></option>
-    <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php echo xlt('PM'); ?></option>
-   </select>
-  </td>
- </tr>
-
+<table border='0' width='100%' bgcolor='#DDDDDD'>
+    <tr>
+        <td width='1%' nowrap>
+            <b><?php echo xlt('Category'); ?>:</b>
+        </td>
+        <td nowrap>
+            <select name='form_category' onchange='set_category()' style='width:100%'>
+                <?php echo $catoptions ?>
+            </select>
+        </td>
+        <td width='1%' nowrap>
+            &nbsp;&nbsp;
+            <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
+            <?php if ($thisduration == 1440) echo "checked " ?>/>
+        </td>
+        <td colspan='2' nowrap id='tdallday1'>
+            <?php echo xlt('All day event'); ?>
+        </td>
+    </tr>
+    <tr>
+        <td nowrap>
+            <b><?php echo xlt('Date'); ?>:</b>
+        </td>
+        <td nowrap>
+            <input type='text' size='10' name='form_date' id='form_date'
+                    value='<?php echo attr($date) ?>'
+                    title='<?php echo xla('yyyy-mm-dd event date or starting date'); ?>'
+                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' onchange='dateChanged()' />
+            <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+                    id='img_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
+                    title='<?php echo xla('Click here to choose a date'); ?>'>
+        </td>
+        <td nowrap>
+            &nbsp;&nbsp;
+            <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
+        </td>
+        <td width='1%' nowrap id='tdallday2'>
+            <?php echo xlt('Time'); ?>
+        </td>
+        <td width='1%' nowrap id='tdallday3'>
+            <span>   
+                <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
+                 title='<?php echo xla('Event start time'); ?>' /> :
+                <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
+                 title='<?php echo xla('Event start time'); ?>' />&nbsp;
+            </span>
+            <select name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+                <option value='1'><?php echo xlt('AM'); ?></option>
+                <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php echo xlt('PM'); ?></option>
+            </select>
+        </td>
+    </tr>
  <tr>
   <td nowrap>
    <b><?php echo xlt('Title'); ?>:</b>
@@ -1517,7 +1514,7 @@ if ($repeatexdate != "") {
  </tr>
 
 </table></td></tr>
-<tr class='text'><td colspan='10'>
+<tr class='text'><td colspan='10' class="buttonbar">
 <p>
 <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save');?>' />
 &nbsp;

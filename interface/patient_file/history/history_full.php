@@ -224,7 +224,7 @@ div.tab {
 </style>
 
 </head>
-<body class="body_top">
+<body class="body_top patient_file-history-history_full">
 
 <?php
 $result = getHistoryData($pid);

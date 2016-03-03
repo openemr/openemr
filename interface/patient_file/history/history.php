@@ -33,7 +33,7 @@ $(document).ready(function(){
 </style>
 
 </head>
-<body class="body_top">
+<body class="body_top patient_file-history-history">
 
 <?php
  if (acl_check('patients','med')) {
