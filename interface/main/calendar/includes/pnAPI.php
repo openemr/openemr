@@ -729,7 +729,7 @@ function pnVarPrepHTMLDisplay()
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
-            $ourvar = preg_replace_callback('/&amp;([a-z#0-9]+);/i', function ($matches) { return "&$matches[1];";}, $ourvar);
+            $ourvar = preg_replace('/&amp;([a-z#0-9]+);/i', "&\\1;", $ourvar);
         }
 
         // Add to array
