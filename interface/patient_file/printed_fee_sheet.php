@@ -98,10 +98,6 @@ else if ($form_fill == 1)
     array_push($pid_list,''); // empty element for blank form 
 }
 
-// make sure to clean up the session 
-// else we'll build off of trash in the combo-drop down for a single patient later
-unset($_SESSION['pidList']);
-
 // This file is optional. You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
