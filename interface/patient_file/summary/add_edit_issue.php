@@ -519,6 +519,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
  }
 
  // If a clickoption title is selected, copy it to the title field.
+ // If it has a code, add that too.
  function set_text() {
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
