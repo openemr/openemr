@@ -848,7 +848,14 @@ $GLOBALS_METADATA = array(
 	   '0',                              // default = false
 	   xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
     ),	
-  
+ 
+    'replicate_justification' => array(
+      xl('Automatically replicate justification codes in Fee Sheet'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+    ),
+ 
   	'use_custom_statement' => array(
       xl('Use Custom Statement'),
       'bool',                           // data type

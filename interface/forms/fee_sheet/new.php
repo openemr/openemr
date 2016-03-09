@@ -580,6 +580,16 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
       continue;
     }
     $justify   = trim($iter['justify']);
+    # Code to create justification for all codes based on first justification
+    if ($GLOBALS['replicate_justification']=='1' ) {
+      if ($justify !='') {
+         $autojustify =  $justify;
+      }
+    }
+    if ($GLOBALS['replicate_justification']=='1' && (check_is_code_type_justify($code_type) && $justify == '')) {
+        $justify =  $autojustify; 
+    }
+
     $notecodes = trim($iter['notecodes']);
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";

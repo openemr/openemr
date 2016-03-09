@@ -247,6 +247,23 @@ function convert_type_id_to_key($id) {
 }
 
 /**
+ * Checks to see if code allows justification (ct_just)
+ *
+ * @param   string   $key
+ * @return  boolean
+ */
+function check_is_code_type_justify($key) {
+ global $code_types;
+ 
+ if (!empty($code_types[$key]['just'])) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+/**
  * Checks if a key string (ct_key) is selected for an element/filter(s)
  *
  * @param   string   $key
