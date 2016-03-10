@@ -127,3 +127,9 @@ ALTER TABLE patient_data ADD COLUMN billing_note text NOT NULL default '';
 UPDATE `patient_data` SET `billing_note` = `genericval2` WHERE `genericname2` = 'Billing';
 UPDATE `patient_data` SET `genericval2` = '', `genericname2` = '' WHERE `genericname2` = 'Billing';
 #EndIf
+
+#IfMissingColumn lang_languages lang_is_rtl
+ALTER TABLE `lang_languages` ADD COLUMN `lang_is_rtl` TINYINT DEFAULT 0;
+UPDATE `lang_languages` SET `lang_is_rtl`=1 WHERE `lang_code` IN ('he','ar') OR `lang_description` IN('Hebrew','Arabic');
+#EndIf
+
