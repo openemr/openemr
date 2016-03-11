@@ -131,7 +131,25 @@ function allFramesLoaded() {
 </head>
 
 <?php
+/*
+ * for RTL layout we need to change order of frames in framesets
+ */
+$lang_dir = $_SESSION['language_direction'];
 
+//override css theme according to language direction - temporary solution
+if ($lang_dir == 'rtl' && !strpos($GLOBALS['css_header'], 'rtl'))setRtlCssTheme();
+
+
+
+$sidebar_tpl = "<frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
+   <frame src='left_nav.php' name='left_nav' />
+   <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
+    border='0' framespacing='0' />
+  </frameset>";
+        
+$main_tpl = empty($GLOBALS['athletic_team']) ? "<frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>" : "<frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>";
+$main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
+   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' /></frameset>";
 // Please keep in mind that border (mozilla) and framespacing (ie) are the
 // same thing. use both.
 // frameborder specifies a 3d look, not whether there are borders.
@@ -142,20 +160,22 @@ if ($GLOBALS['concurrent_layout']) {
     // not tall nav area ?>
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
- <frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
-  <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
-   <frame src='left_nav.php' name='left_nav' />
-   <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-    border='0' framespacing='0' />
-  </frameset>
-<?php if (empty($GLOBALS['athletic_team'])) { ?>
-  <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>
-<?php } else { ?>
-  <frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>
-<?php } ?>
-   <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
-   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />
-  </frameset>
+ <?php if($lang_dir != 'rtl'){ ?>
+ 
+      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
+     <?= $sidebar_tpl ?>
+     <?= $main_tpl ?>
+      </frameset>
+ 
+ <?php }else{ ?>
+ 
+     <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
+     <?= $main_tpl ?>
+     <?= $sidebar_tpl ?>
+     </frameset>
+ 
+ <?php }?>
+   
  </frameset>
 </frameset>
 
