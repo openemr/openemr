@@ -4,7 +4,13 @@
 *
 *============================================================*/
 
+tr, td, th {
+    text-align: left !important;
+
+}
+
 .login-box {
+        margin: 0 auto;
 	padding: 20px 20px 25px 25px;
 	text-align: left;
 	border: solid 1px #bebebe; 

@@ -46,6 +46,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     else {
         $_SESSION['language_choice'] = 1;
     }
+    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']  );
     
     if(!validate_user_password($_POST['authUser'],$clearPass,$_POST['authProvider']) ||  !verify_user_gacl_group($_POST['authUser']))
     {

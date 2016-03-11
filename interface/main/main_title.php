@@ -56,9 +56,9 @@ function toencounter(rawdata) {
 }
 function showhideMenu() {
 	var m = parent.document.getElementById("fsbody");
-	var targetWidth = '0,*';
+	var targetWidth = '<?php echo $_SESSION['language_direction'] == 'ltr' ? '0,*' : '*,0'; ?>';
 	if (m.cols == targetWidth) {
-		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*';
+		m.cols = '<?php echo $_SESSION['language_direction'] == 'ltr' ?  $GLOBALS['gbl_nav_area_width'] .',*' : '*,' . $GLOBALS['gbl_nav_area_width'] ?>';
 		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
 	} else {
 		m.cols = targetWidth;
@@ -72,7 +72,7 @@ function showhideMenu() {
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
 
-<table cellspacing="0" cellpadding="0" width="100%" height="100%">
+<table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td align="left">
 <?php if ($GLOBALS['concurrent_layout']) { ?>
