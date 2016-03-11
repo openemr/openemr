@@ -228,6 +228,25 @@ function getLanguageTitle($val) {
  return $languageTitle;    
 }
 
+
+
+
+/**
+ * Returns language directionality as string 'rtl' or 'ltr'
+ * @param int $lang_id language code
+ * @return string 'ltr' 'rtl'
+ * @author Amiel <amielel@matrix.co.il>
+ */
+function getLanguageDir($lang_id) {
+
+    // validate language id
+    $lang_id = empty($lang_id) ? 1 : $lang_id;
+    // get language code
+    $row = sqlQuery('SELECT lang_is_rtl FROM lang_languages WHERE lang_id=?',array($lang_id)); // returns FALSE if not found
+    
+    return (1 === $res['lang_is_rtl'] ) ? 'rtl' : 'ltr'; // RTL if lang_is_rtl column is 1    
+}
+
 //----------------------------------
 
 // ----------------------------------------------------------------------------
@@ -302,26 +321,4 @@ function mb_strpad($input, $length, $pad = ' ', $type = STR_PAD_RIGHT, $charset 
 return $output;
 }
 
-
-/**
- * Returns language direction
- * @param int $lang_id language code
- * @return string 'ltr' 'rtl'
- * @author Amiel <amielel@matrix.co.il>
- */
-function getLanguageDir($lang_id) {
-    //static $rtl_lang_codes = array('he','ar');
-
-    // validate language id
-    $lang_id = empty($lang_id) ? $lang_id : (int)$lang_id;
- 
-    // get language code
-    $res = sqlStatement("select lang_code, lang_is_rtl from lang_languages where lang_id=?",array($lang_id));
-    $row = sqlFetchArray($res);
-    if( is_null( $row["lang_is_rtl"] )) {
-        return NULL;
-    }
-    
-    return (1 === (int)$row['lang_is_rtl'] ) ? 'rtl' : 'ltr'; // RTL if lang_is_rtl column is 1
-}
 ?>
