@@ -59,10 +59,11 @@ my $logFile = "log.txt";
 my $stats = "stats.txt";
 my $constantIdColumn = 0; # 0 is lowest
 my $constantColumn = 1; # 0 is lowest 
-my $constantRow = 5; # 0 is lowest
+my $constantRow = 6; # 0 is lowest
 my $languageNumRow = 0; # 0 is lowest
 my $languageIdRow = 1; # 0 is lowest
 my $languageNameRow = 2; # 0 is lowest
+my $languageIsRtlRow = 3; # 0 is lowest
 
 # variables for checking/fixing constants application 
 my $checkFilename; # holds list of constants if checking
@@ -392,9 +393,10 @@ sub createLanguages() {
  my @numberRow = split($de,$page[$languageNumRow]);
  my @idRow = split($de,$page[$languageIdRow]);
  my @nameRow = split($de,$page[$languageNameRow]);
- $tempReturn .= "INSERT INTO `lang_languages`   (`lang_id`, `lang_code`, `lang_description`) VALUES\n";
+ my @rtlRow = split($de,$page[$languageIsRtlRow]);
+ $tempReturn .= "INSERT INTO `lang_languages`   (`lang_id`, `lang_code`, `lang_description`, `lang_is_rtl`) VALUES\n";
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
-  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."'),\n";
+  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."', '".@rtlRow[$i]."'),\n";
   $tempCounter = $numberRow[$i];
      
   # set up for statistics later
@@ -415,6 +417,7 @@ CREATE TABLE `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
+  `lang_is_rtl` TINYINT DEFAULT 0,
   UNIQUE KEY `lang_id` (`lang_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
