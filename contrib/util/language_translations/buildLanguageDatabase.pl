@@ -396,7 +396,7 @@ sub createLanguages() {
  my @rtlRow = split($de,$page[$languageIsRtlRow]);
  $tempReturn .= "INSERT INTO `lang_languages`   (`lang_id`, `lang_code`, `lang_description`, `lang_is_rtl`) VALUES\n";
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
-  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."', '".$rtlRow[$i]."'),\n";
+  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."', ".$rtlRow[$i]."),\n";
   $tempCounter = $numberRow[$i];
      
   # set up for statistics later
