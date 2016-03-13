@@ -1578,3 +1578,31 @@ td.amount-msg{
 .top-menu-carecoordination li{
     float: right !important;
 }
+
+
+.setup-carecoordination .top-menu-carecoordination li{
+    float: right !important;
+}
+.setup-carecoordination .ca-ca-in-1{
+    float: right !important;
+}
+.setup-carecoordination ul.virtualpage_system_based_forms{
+    
+    float: right !important;
+} 
+.setup-carecoordination .ca-ca-in-2{
+    
+    float: right;
+    padding-right: 2% !important;
+    float: right !important;
+}
+.setup-carecoordination #paginatediv_database_tables a[rel=next]{
+    float: left !important;
+    transform: rotate(180deg);
+}
+.setup-carecoordination #paginatediv_database_tables a[rel=previous]{
+    float: right !important;
+    transform: rotate(180deg);
+}
+
+
