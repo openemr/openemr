@@ -683,11 +683,18 @@ $GLOBALS_METADATA = array(
     ),
 
     'number_of_appts_to_show' => array(
-      xl('Appointment Display Widget'),
+      xl('Appointments - Patient Summary - Number to Display'),
       'num',                           
       '10',                            
       xl('Number of Appointments to display in the Patient Summary')
-    ),      
+    ),
+
+    'patient_portal_appt_display_num' => array(
+      xl('Appointments - Onsite Patient Portal - Number to Display'),
+      'num',                           
+      '20',                            
+      xl('Number of Appointments to display in the Onsite Patient Portal')
+    ),
 
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
