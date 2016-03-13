@@ -57,6 +57,7 @@
 //   Serbian                        // xl('Serbian')
 //   Sinhala                        // xl('Sinhala')
 //   Slovak                         // xl('Slovak')
+//   Somali                         // xl('Somali')
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
