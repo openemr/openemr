@@ -118,7 +118,6 @@ if (!isset($_SESSION["last_update"])) {
 // For RTL languages, substitute the same theme converted for RTL// 
 if ( $_SESSION['language_direction'] == 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
     $GLOBALS['css_header'] = $css_header = str_replace( 'themes/style_', 'themes/rtl_style_', $GLOBALS['css_header'] );
-    
 }
 
 
