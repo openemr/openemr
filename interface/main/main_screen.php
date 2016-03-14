@@ -136,11 +136,6 @@ function allFramesLoaded() {
  */
 $lang_dir = $_SESSION['language_direction'];
 
-//override css theme according to language direction - temporary solution
-if ($lang_dir == 'rtl' && !strpos($GLOBALS['css_header'], 'rtl'))setRtlCssTheme();
-
-
-
 $sidebar_tpl = "<frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
    <frame src='left_nav.php' name='left_nav' />
    <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
@@ -162,16 +157,16 @@ if ($GLOBALS['concurrent_layout']) {
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <?php if($lang_dir != 'rtl'){ ?>
  
-      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-     <?= $sidebar_tpl ?>
-     <?= $main_tpl ?>
-      </frameset>
+     <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
+     <?php echo $sidebar_tpl ?>
+     <?php echo $main_tpl ?>
+     </frameset>
  
  <?php }else{ ?>
  
      <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
-     <?= $main_tpl ?>
-     <?= $sidebar_tpl ?>
+     <?php echo $main_tpl ?>
+     <?php echo $sidebar_tpl ?>
      </frameset>
  
  <?php }?>
