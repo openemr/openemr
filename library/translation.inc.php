@@ -321,21 +321,4 @@ function mb_strpad($input, $length, $pad = ' ', $type = STR_PAD_RIGHT, $charset 
 return $output;
 }
 
-
-/**
- * Set theme for RTL language direction in globals setting.
- * @return {void}
- * @author Amiel <amielel@matrix.co.il>
- */
-function setRtlCssTheme(){
-    
-    //validate that user id exist 
-    if(!isset($_SESSION['authUserID']))return;
-     
-    if(!function_exists('setUserSetting'))require_once dirname(__FILE__) . '/user.inc';
-    
-    //set rtl theme 
-    setUserSetting('global:css_header', 'style_sky_blue_rtl.css', null, false); 
-}
-
 ?>

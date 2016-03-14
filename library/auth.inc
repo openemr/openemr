@@ -113,6 +113,16 @@ if (!isset($_SESSION["last_update"])) {
     }
 }
 
+
+
+// For RTL languages, substitute the same theme converted for RTL// 
+if ( $_SESSION['language_direction'] == 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) {
+    $GLOBALS['css_header'] = $css_header = 'rtl_'.$GLOBALS['css_header'];
+}
+
+
+
+
 //----------THINGS WE DO IF WE STILL LIKE YOU
 
 function authCheckSession ()
