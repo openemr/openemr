@@ -782,7 +782,6 @@ foreach ($ar as $key => $val) {
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
                 $couch_revid = $d->get_couch_revid();
-                $extension = substr($fname, strrpos($fname,"."));
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
@@ -804,7 +803,9 @@ foreach ($ar as $key => $val) {
                 if($couch_docid && $couch_revid){
                   $url_file = $d->get_couch_url($pid,$encounter);
                 }
-                // Collect filename and path
+                //Extract the extension by the mime/type and not the file name extension
+                $image_data = getimagesize($url_file);
+                $extension = image_type_to_extension($image_data[2]);               // Collect filename and path
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
