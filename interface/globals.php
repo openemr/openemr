@@ -198,7 +198,7 @@ if (!empty($glrow)) {
   $GLOBALS['language_menu_show'] = array();
   $glres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals " .
     "ORDER BY gl_name, gl_index");
-  while ($glrow = sqlFetchArray($glres)) {
+  while ($glrow = sqlFetchArray($glres)) {    
     $gl_name  = $glrow['gl_name'];
     $gl_value = $glrow['gl_value'];
     // Adjust for user specific settings
@@ -209,7 +209,7 @@ if (!empty($glrow)) {
         }
       }
     }
-    if ($gl_name == 'language_menu_other') {
+    if ($gl_name == 'language_menu_other') {       
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {

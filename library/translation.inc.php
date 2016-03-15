@@ -244,7 +244,7 @@ function getLanguageDir($lang_id) {
     // get language code
     $row = sqlQuery('SELECT lang_is_rtl FROM lang_languages WHERE lang_id=?',array($lang_id)); // returns FALSE if not found
     
-    return (1 === $res['lang_is_rtl'] ) ? 'rtl' : 'ltr'; // RTL if lang_is_rtl column is 1    
+    return (1 === (int)$row['lang_is_rtl'] ) ? 'rtl' : 'ltr'; // RTL if lang_is_rtl column is 1    
 }
 
 //----------------------------------

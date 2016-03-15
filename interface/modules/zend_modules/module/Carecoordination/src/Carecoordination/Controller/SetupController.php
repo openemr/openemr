@@ -56,7 +56,7 @@ class SetupController extends AbstractActionController
 	    'saved'			=> $ccda_saved,
             'folders'                   => $folders,
 			'listenerObject'          => $this->listenerObject,
-	));        
+	));
 	return $index;
     }
     
