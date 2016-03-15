@@ -214,6 +214,17 @@ if (!empty($glrow)) {
     }
     else if ($gl_name == 'css_header') {
       $GLOBALS[$gl_name] = "$rootdir/themes/" . $gl_value;
+      
+      // For RTL languages, substitute the same theme converted for RTL// 
+      if ( isset( $_SESSION['language_direction'] ) &&
+              $_SESSION['language_direction'] == 'rtl' && 
+              !strpos($GLOBALS['css_header'], 'rtl')  ) {
+        $GLOBALS['css_header'] = "$rootdir/themes/rtl_" . $gl_value; // str_replace( 'themes/style_', 'themes/rtl_style_', $GLOBALS['css_header'] );
+      }
+
+
+      
+      
     }
     else if ($gl_name == 'specific_application') {
       if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
