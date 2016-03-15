@@ -22,12 +22,15 @@
  * @link http://www.open-emr.org
 */
 
+ $fake_register_globals=false;
+ $sanitize_all_escapes=true;
+
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
 
  // check access controls
  if (!acl_check('patients','appt','',array('write','wsome') ))
-  die(xl('Access not allowed'));
+  die(xlt('Access not allowed'));
 
  // If the caller is updating an existing event, then get its ID so
  // we don't count it as a reserved time slot.
@@ -101,7 +104,7 @@
  $slotbase  = (int) ($slotstime / $slotsecs);
  $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range.");
+ if ($slotcount <= 0 || $slotcount > 100000) die(xlt("Invalid date range."));
 
  $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
@@ -133,11 +136,11 @@
    "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
    "FROM openemr_postcalendar_events " .
    "WHERE pc_aid = ? AND " .
-   "pc_eid != '$eid' AND " .
-   "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
-   "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
+   "pc_eid != ? AND " .
+   "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
+   "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
-   array_push($sqlBindArray, $providerid);
+   array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
   // phyaura whimmel facility filtering
   if ($_REQUEST['facility'] > 0 ) {
@@ -230,7 +233,7 @@
        else
         $adate['mday'] += 1;
       } else {
-       die("Invalid repeat type '$repeattype'");
+       die("Invalid repeat type '" . text($repeattype) ."'");
       }
      } // end recurrtype 1
 
@@ -290,7 +293,7 @@
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Find Available Appointments','e'); ?></title>
+<title><?php echo xlt('Find Available Appointments'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <!-- for the pop up calendar -->
@@ -306,7 +309,7 @@
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
-   alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+   alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   else
    opener.setappt(year,mon,mday,hours,minutes);
   window.close();
@@ -375,17 +378,17 @@ form {
 
 <div id="searchCriteria">
 <form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr($providerid) ?>&catid=<?php echo attr($input_catid) ?>'>
-   <?php xl('Start date:','e'); ?>
-   <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
-    title='yyyy-mm-dd starting date for search' />
+   <?php echo xlt('Start date:'); ?>
+   <input type='text' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate) ?>'
+    title='<?php echo xla('yyyy-mm-dd starting date for search'); ?> '/>
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   <?php xl('for','e'); ?>
+    title='<?php echo xla('Click here to choose a date'); ?>'>
+   <?php echo xlt('for'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays) ?>'
-    title='Number of days to search from the start date' />
-   <?php xl('days','e'); ?>&nbsp;
-   <input type='submit' value='<?php xl('Search','e'); ?>'>
+    title='<?php echo xla('Number of days to search from the start date'); ?>' />
+   <?php echo xlt('days'); ?>&nbsp;
+   <input type='submit' value='<?php echo xla('Search'); ?>'>
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -393,8 +396,8 @@ form {
 <div id="searchResultsHeader">
 <table>
  <tr>
-  <th class="srDate"><?php xl ('Day','e'); ?></th>
-  <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
+  <th class="srDate"><?php echo xlt('Day'); ?></th>
+  <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
  </tr>
 </table>
 </div>
@@ -454,7 +457,7 @@ form {
         echo "</td>\n";
         echo " </tr>\n";
     } else {
-        echo " <tr><td colspan='2'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
+        echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
     }
 ?>
 </table>
@@ -483,9 +486,9 @@ $(document).ready(function(){
 <?php if (!$ckavail) { ?>
 <?php if (acl_check('patients','appt','','write')) {
 if($isProv): ?>
-if (confirm('<?php echo addslashes(xl('Provider not available, use it anyway?')); ?>')) {
+if (confirm('<?php echo xls('Provider not available, use it anyway?'); ?>')) {
 <?php else: ?>
-if (confirm('<?php echo addslashes(xl('This appointment slot is already used, use it anyway?')); ?>')) {
+if (confirm('<?php echo xls('This appointment slot is already used, use it anyway?'); ?>')) {
 <?php endif; ?>
 opener.top.restoreSession();
 opener.document.forms[0].submit();
@@ -493,9 +496,9 @@ window.close();
 }
 <?php } else {
 if($isProv): ?>
-alert('<?php echo addslashes(xl('Provider not available, please choose another.')); ?>');
+alert('<?php echo xls('Provider not available, please choose another.'); ?>');
 <?php else: ?>
-alert('<?php echo addslashes(xl('This appointment slot is already used, please choose another.')); ?>');
+alert('<?php echo xls('This appointment slot is already used, please choose another.'); ?>');
 <?php endif; ?>
 <?php } ?>
 <?php } ?>
