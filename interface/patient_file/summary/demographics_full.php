@@ -40,8 +40,11 @@ $CPR = 4; // cells per row
 // $langi = getLanguages();
 // $ethnoraciali = getEthnoRacials();
 // $provideri = getProviderInfo();
-
-$insurancei = getInsuranceProviders();
+if ($GLOBALS['insurance_information'] != '0') {
+    $insurancei = getInsuranceProvidersExtra();
+}else{
+	$insurancei = getInsuranceProviders();
+}
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 " .

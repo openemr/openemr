@@ -77,6 +77,41 @@ function getInsuranceProvider($ins_id) {
 function getInsuranceProviders() {
     $returnval = array();
 
+    if (true) {
+        $sql = "select name, id from insurance_companies where inactive != 'Y' order by name, id ";
+        $rez = sqlStatement($sql);
+        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+            $returnval[$row['id']] = $row['name'];
+        }
+    }
+
+    // Please leave this here. I have a user who wants to see zip codes and PO
+    // box numbers listed along with the insurance company names, as many companies
+    // have different billing addresses for different plans.  -- Rod Roark
+    //
+    else {
+        $sql = "select insurance_companies.name, insurance_companies.id, " .
+          "addresses.zip, addresses.line1 " .
+          "from insurance_companies, addresses " .
+          "where addresses.foreign_id = insurance_companies.id " .
+          "order by insurance_companies.name, addresses.zip";
+
+        $rez = sqlStatement($sql);
+
+        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+            preg_match("/\d+/", $row['line1'], $matches);
+            $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
+              "," . $matches[0] . ")";
+        }
+    }
+
+    return $returnval;
+}
+
+function getInsuranceProvidersExtra() {
+    $returnval = array();
+// add a global and if for where to allow inactive inscompanies
+
         $sql = "select insurance_companies.name, insurance_companies.id, " .
           "addresses.zip, addresses.line1, addresses.state " .
           "from insurance_companies, addresses " .
