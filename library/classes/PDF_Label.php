@@ -38,7 +38,7 @@
  * @copyright 2003 Laurent PASSEBECQ
 **/
 
-require_once("$srcdir/html2pdf/_fpdf/fpdf.php");
+require_once("$srcdir/fpdf/fpdf.php");
 
 
  class eFPDF extends FPDF{
