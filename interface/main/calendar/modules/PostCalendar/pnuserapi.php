@@ -1117,7 +1117,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
     // this is the common information
 
     $events[$i]['intervals'] 	=($tmp['duration']/60)/	$GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
-//    print_r($events[$i]['intervals']);
 
     $events[$i]['eid']         = $tmp['eid'];
     $events[$i]['uname']       = $tmp['uname'];
