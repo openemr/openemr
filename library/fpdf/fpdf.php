@@ -18,7 +18,7 @@ protected $buffer;             // buffer holding in-memory PDF
 protected $pages;              // array containing pages
 protected $state;              // current document state
 protected $compress;           // compression flag
-protected $k;                  // scale factor (number of points in user unit)
+var $k;                  // scale factor (number of points in user unit)
 protected $DefOrientation;     // default orientation
 protected $CurOrientation;     // current orientation
 protected $StdPageSizes;       // standard page sizes
@@ -27,7 +27,7 @@ protected $CurPageSize;        // current page size
 protected $CurRotation;        // current page rotation
 protected $PageInfo;           // page-related data
 protected $wPt, $hPt;          // dimensions of current page in points
-protected $w, $h;              // dimensions of current page in user unit
+var $w, $h;              // dimensions of current page in user unit
 protected $lMargin;            // left margin
 protected $tMargin;            // top margin
 protected $rMargin;            // right margin
@@ -1439,7 +1439,7 @@ protected function _parsegif($file)
 	return $info;
 }
 
-protected function _out($s)
+function _out($s)
 {
 	// Add a line to the document
 	if($this->state==2)
