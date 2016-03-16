@@ -856,6 +856,25 @@ $GLOBALS_METADATA = array(
       xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
     ),
  
+    'display_units_in_billing' => array(
+      xl('Display the Units Column on the Billing Screen'),
+	   'bool',                           // data type
+	   '0',                              // default = false
+      xl('Display the Units Column on the Billing Screen.')
+    ),
+    
+    'notes_to_display_in_Billing' => array(
+      xl('Which notes are to be displayed in the Billing Screen'),
+      array(
+        '0' => xl('None'),
+        '1' => xl('Encounter Billing Note'),
+        '2' => xl('Patient Billing Note'), 
+        '3' => xl('All'),  		
+      ),   
+      '3',
+     xl('Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.')
+    ),
+  
   	'use_custom_statement' => array(
       xl('Use Custom Statement'),
       'bool',                           // data type
