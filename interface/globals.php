@@ -213,18 +213,24 @@ if (!empty($glrow)) {
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {
-      $GLOBALS[$gl_name] = "$rootdir/themes/" . $gl_value;
+        $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
       
-      // For RTL languages, substitute the same theme converted for RTL// 
-      if ( isset( $_SESSION['language_direction'] ) &&
-              $_SESSION['language_direction'] == 'rtl' && 
-              !strpos($GLOBALS['css_header'], 'rtl')  ) {
-        $GLOBALS['css_header'] = "$rootdir/themes/rtl_" . $gl_value; // str_replace( 'themes/style_', 'themes/rtl_style_', $GLOBALS['css_header'] );
-      }
-
-
-      
-      
+        // Additional logic to substitude RTL theme 
+        // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
+        if ( isset( $_SESSION['language_direction'] ) &&
+            $_SESSION['language_direction'] == 'rtl' && 
+            !strpos($GLOBALS[$gl_name], 'rtl')  ) {
+            
+            $rtl_override = 'rtl_' . $gl_value; 
+            
+            // Check file existance 
+            if( file_exists( $include_root.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.$rtl_override ) ) {
+                $GLOBALS[$gl_name] = $rootdir.'/themes/'.$rtl_override;
+            } else {
+                // throw a warning if rtl'ed file does not exist.
+                error_log("Missing theme file ".$include_root.'/themes/'.$rtl_override   );
+            }
+        }
     }
     else if ($gl_name == 'specific_application') {
       if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
