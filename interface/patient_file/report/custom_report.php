@@ -804,6 +804,7 @@ foreach ($ar as $key => $val) {
                   $url_file = $d->get_couch_url($pid,$encounter);
                 }
                 // Collect filename and path
+
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
