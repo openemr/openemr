@@ -84,11 +84,15 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
       }
     }
   }
-
+  // allow for 0 to be displayed as a result value
+  if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
+    $result_result = '';
+  } else { 
+    $result_result = $rrow['result'];
+  }
   $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];
   $result_text      = empty($rrow['result_text'     ]) ? '' : $rrow['result_text'];
   $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
-  $result_result    = empty($rrow['result'          ]) ? '' : $rrow['result'];
   $result_units     = empty($rrow['units'           ]) ? '' : $rrow['units'];
   $result_facility  = empty($rrow['facility'        ]) ? '' : $rrow['facility'];
   $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
