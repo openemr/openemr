@@ -30,7 +30,6 @@ $sanitize_all_escapes=true;
 
 $ignoreAuth=true;
 include_once("../globals.php");
-include_once("$srcdir/sql.inc");
 
 
 $hidden_vars = '';
@@ -64,32 +63,32 @@ $_SESSION['language_choice'] = $defaultLangID;
 // collect languages if showing language menu
 if ($GLOBALS['language_menu_login']) {
     
-        // sorting order of language titles depends on language translation options.
-        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
-        {
-          $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-	  $res3=SqlStatement($sql);
-        }
-        else {
-          // Use and sort by the translated language name.
-          $sql = "SELECT ll.lang_id, " .
-            "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-	    "ll.lang_description " .
-            "FROM lang_languages AS ll " .
-            "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-            "ld.lang_id = ? " .
-            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-          $res3=SqlStatement($sql, array($mainLangID));
-	}
+    // sorting order of language titles depends on language translation options.
+    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+    if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
+    {
+        $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
+        $res3=SqlStatement($sql);
+    }
+    else {
+      // Use and sort by the translated language name.
+      $sql = "SELECT ll.lang_id, " .
+        "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+    "ll.lang_description " .
+        "FROM lang_languages AS ll " .
+        "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+        "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+        "ld.lang_id = ? " .
+        "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+      $res3=SqlStatement($sql, array($mainLangID));
+    }
     
-        for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
-               $result3[$iter] = $row;
-        if (count($result3) == 1) {
-	       //default to english if only return one language
-            $hidden_vars .= "<input type='hidden' name='languageChoice' value='1' />\n";
-        }
+    for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
+        $result3[$iter] = $row;
+    if (count($result3) == 1) {
+        //default to english if only return one language
+        $hidden_vars .= "<input type='hidden' name='languageChoice' value='1' />\n";
+    }
 }
 else {
     $hidden_vars .= "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
@@ -97,7 +96,6 @@ else {
 
 
 // override directionality for login screen only
-
 
 if( getLanguageDir( $defaultLangID ) == 'rtl' ) {
     $GLOBALS['css_header'] = str_replace('themes/style_', 'themes/rtl_style_', $css_header );

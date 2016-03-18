@@ -224,11 +224,11 @@ if (!empty($glrow)) {
             $rtl_override = 'rtl_' . $gl_value; 
             
             // Check file existance 
-            if( file_exists( $include_root.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.$rtl_override ) ) {
+            if( file_exists( $include_root.'/themes/'.$rtl_override ) ) {
                 $GLOBALS[$gl_name] = $rootdir.'/themes/'.$rtl_override;
             } else {
                 // throw a warning if rtl'ed file does not exist.
-                error_log("Missing theme file ".$include_root.'/themes/'.$rtl_override   );
+                error_log("Missing theme file ".text($include_root).'/themes/'.text($rtl_override)  );
             }
         }
     }
