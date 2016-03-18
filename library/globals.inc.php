@@ -1422,21 +1422,21 @@ $GLOBALS_METADATA = array(
       xl('Phone Gateway Username'),
       'text',                           // data type
       '',                               // default
-      xl('Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('Username for Phone Gateway.')
     ),
     
     'phone_gateway_password' => array(
       xl('Phone Gateway Password'),
       'text',                           // data type
       '',                               // default
-      xl('Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('Password for Phone Gateway.')
     ),
     
     'phone_gateway_url' => array(
       xl('Phone Gateway URL'),
       'text',                           // data type
       '',                               // default
-      xl('URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('URL for Phone Gateway.')
     ),
 
   ),
@@ -1974,34 +1974,6 @@ $GLOBALS_METADATA = array(
   // Connectors Tab
   //
   'Connectors' => array(
-
-    'lab_exchange_enable' => array(
-      xl('Enable Lab Exchange'),
-      'bool',                           // data type
-      '0',
-      xl('Enable the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_siteid' => array(
-      xl('Lab Exchange Site ID'),
-      'text',                           // data type
-      '3',
-      xl('Site ID for the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_token' => array(
-      xl('Lab Exchange Token ID'),
-      'text',                           // data type
-      '12345',
-      xl('Token ID for the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_endpoint' => array(
-      xl('Lab Exchange Site Address'),
-      'text',                           // data type
-      'https://len.mi-squared.com:29443/len/api',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
-    ),
 
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
