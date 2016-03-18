@@ -30,76 +30,13 @@ $sanitize_all_escapes=true;
 
 $ignoreAuth=true;
 include_once("../globals.php");
-
-
-$hidden_vars = '';
-
-// collect groups
-$res = sqlStatement("select distinct name from groups");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-	$result[$iter] = $row;
-if (count($result) == 1) {
-	$resvalue = $result[0]{"name"};
-	$hidden_vars .= "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
-}
-
-
-// collect default language id
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
-for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
-    $result2[$iter] = $row;
-
-if (count($result2) == 1) {
-    $defaultLangID = $result2[0]{"lang_id"};
-    $defaultLangName = $result2[0]{"lang_description"};
-}
-else {
-    //default to english if any problems
-    $defaultLangID = 1;
-    $defaultLangName = getLanguageTitle( $defaultLangID );
-}
-// set session variable to default so login information appears in default language
-$_SESSION['language_choice'] = $defaultLangID;
-// collect languages if showing language menu
-if ($GLOBALS['language_menu_login']) {
-    
-    // sorting order of language titles depends on language translation options.
-    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-    if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
-    {
-        $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-        $res3=SqlStatement($sql);
-    }
-    else {
-      // Use and sort by the translated language name.
-      $sql = "SELECT ll.lang_id, " .
-        "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-    "ll.lang_description " .
-        "FROM lang_languages AS ll " .
-        "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-        "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-        "ld.lang_id = ? " .
-        "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-      $res3=SqlStatement($sql, array($mainLangID));
-    }
-    
-    for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
-        $result3[$iter] = $row;
-    if (count($result3) == 1) {
-        //default to english if only return one language
-        $hidden_vars .= "<input type='hidden' name='languageChoice' value='1' />\n";
-    }
-}
-else {
-    $hidden_vars .= "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
-}
-
+include_once("$srcdir/sql.inc");
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<link rel=stylesheet href="../themes/login.css" type="text/css">
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="../themes/login.css" type="text/css">
 
 <script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
 <script language='JavaScript'>
@@ -128,10 +65,67 @@ function imsubmitted() {
  action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
  target="_top" name="login_form" onsubmit="return imsubmitted();">
 
-
-<?php echo $hidden_vars; ?>
-
 <input type='hidden' name='new_login_session_management' value='1' />
+
+<?php
+// collect groups
+$res = sqlStatement("select distinct name from groups");
+for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+	$result[$iter] = $row;
+if (count($result) == 1) {
+	$resvalue = $result[0]{"name"};
+	echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+}
+// collect default language id
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
+for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
+          $result2[$iter] = $row;
+if (count($result2) == 1) {
+          $defaultLangID = $result2[0]{"lang_id"};
+          $defaultLangName = $result2[0]{"lang_description"};
+}
+else {
+          //default to english if any problems
+          $defaultLangID = 1;
+          $defaultLangName = "English";
+}
+// set session variable to default so login information appears in default language
+$_SESSION['language_choice'] = $defaultLangID;
+// collect languages if showing language menu
+if ($GLOBALS['language_menu_login']) {
+    
+        // sorting order of language titles depends on language translation options.
+        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
+        {
+          $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
+	  $res3=SqlStatement($sql);
+        }
+        else {
+          // Use and sort by the translated language name.
+          $sql = "SELECT ll.lang_id, " .
+            "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+	    "ll.lang_description " .
+            "FROM lang_languages AS ll " .
+            "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+            "ld.lang_id = ? " .
+            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+          $res3=SqlStatement($sql, array($mainLangID));
+	}
+    
+        for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
+               $result3[$iter] = $row;
+        if (count($result3) == 1) {
+	       //default to english if only return one language
+               echo "<input type='hidden' name='languageChoice' value='1' />\n";
+        }
+}
+else {
+        echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";   
+}
+?>
+
 <table width="100%" height="90%">
 <td align='center' valign='middle' width='34%'>
 <div class="login-box">

@@ -214,7 +214,7 @@ if (!empty($glrow)) {
     }
     else if ($gl_name == 'css_header') {
         $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
-        $GLOBALS['css_theme_name'] = $gl_value;
+        $temp_css_theme_name = $gl_value;
     }
     else if ($gl_name == 'specific_application') {
       if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
@@ -262,7 +262,7 @@ if (!empty($glrow)) {
     // change theme name, if the override file exists.
     if( $rtl_override ) {
         // the $css_header_value is set above
-        $new_theme = 'rtl_' . $GLOBALS['css_theme_name'];
+        $new_theme = 'rtl_' . $temp_css_theme_name;
 
         // Check file existance 
         if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
@@ -272,6 +272,7 @@ if (!empty($glrow)) {
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme)   );
         }
     }
+    unset( $temp_css_theme_name, $new_theme,$rtl_override);
     // end of RTL section
   
   //
