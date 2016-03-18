@@ -7,13 +7,14 @@
 
     <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/ui-lightness/jquery-ui-1.8.6.custom.css" />
     <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
+    <link rel="stylesheet" type="text/css" href="{php}echo $GLOBALS['css_header'];{/php}" />
 </head>
 <body>
 <div class="outer-container">
-	<div id="container" class="container">
+	<div id="container" class="container graphic-pain-map">
 		<img src="{$form->image}"/>
 	</div>
-	<div id="legend" class="legend">
+	<div id="legend" class="legend graphic-pain-map">
 		<div class="body">
 			<ul></ul>
 		</div>

@@ -1,4 +1,4 @@
-<?php
+    <?php
  // Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@
     //Settings that will override globals.php
         $ignoreAuth = 1;
     //
-
+    
     //Authentication (and language setting)
 	require_once('../interface/globals.php');
     require_once("$srcdir/authentication/common_operations.php");        
@@ -54,7 +54,7 @@
     $plain_code= $_POST['pass'];
     // set the language
     if (!empty($_POST['languageChoice'])) {
-            $_SESSION['language_choice'] = $_POST['languageChoice'];
+            $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
     }
     else if (empty($_SESSION['language_choice'])) {
             // just in case both are empty, then use english
@@ -63,6 +63,7 @@
     else {
             // keep the current session language token
     }
+    $_SESSION['language_direction'] = getLanguageDir( $_SESSION['language_choice'] );
 
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
