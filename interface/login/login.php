@@ -94,20 +94,12 @@ else {
     $hidden_vars .= "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
 }
 
-
-// override directionality for login screen only
-
-if( getLanguageDir( $defaultLangID ) == 'rtl' ) {
-    $GLOBALS['css_header'] = str_replace('themes/style_', 'themes/rtl_style_', $css_header );
-}
-
-
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 <script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
 <script language='JavaScript'>

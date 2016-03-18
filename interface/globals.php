@@ -214,23 +214,7 @@ if (!empty($glrow)) {
     }
     else if ($gl_name == 'css_header') {
         $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
-      
-        // Additional logic to substitude RTL theme 
-        // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
-        if ( isset( $_SESSION['language_direction'] ) &&
-            $_SESSION['language_direction'] == 'rtl' && 
-            !strpos($GLOBALS[$gl_name], 'rtl')  ) {
-            
-            $rtl_override = 'rtl_' . $gl_value; 
-            
-            // Check file existance 
-            if( file_exists( $include_root.'/themes/'.$rtl_override ) ) {
-                $GLOBALS[$gl_name] = $rootdir.'/themes/'.$rtl_override;
-            } else {
-                // throw a warning if rtl'ed file does not exist.
-                error_log("Missing theme file ".text($include_root).'/themes/'.text($rtl_override)  );
-            }
-        }
+        $GLOBALS['css_theme_name'] = $gl_value;
     }
     else if ($gl_name == 'specific_application') {
       if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
@@ -251,6 +235,45 @@ if (!empty($glrow)) {
   if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
     $GLOBALS['language_menu_login'] = true;
   }
+  
+  
+// Additional logic to override theme name.
+// For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
+    $rtl_override = false;
+    if( isset( $_SESSION['language_direction'] )) {
+        if( $_SESSION['language_direction'] == 'rtl' && 
+        !strpos($GLOBALS['css_header'], 'rtl')  ) {
+
+            // the $css_header_value is set above
+            $rtl_override = true;
+        }
+    }     
+    
+    else { 
+        //$_SESSION['language_direction'] is not set, so will use the default language
+        $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
+        
+        if ( getLanguageDir( $default_lang_id['lang_id'] ) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) { // @todo eliminate 1 SQL query
+            $rtl_override = true;
+        }
+    }
+    
+
+    // change theme name, if the override file exists.
+    if( $rtl_override ) {
+        // the $css_header_value is set above
+        $new_theme = 'rtl_' . $GLOBALS['css_theme_name'];
+
+        // Check file existance 
+        if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
+            $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme;
+        } else {
+            // throw a warning if rtl'ed file does not exist.
+            error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme)   );
+        }
+    }
+    // end of RTL section
+  
   //
   // End of globals table processing.
 }
