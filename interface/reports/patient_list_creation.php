@@ -221,7 +221,8 @@
 				<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 				<table>
 					  <tr>
-					<td width='900px'><div style='float:left'>
+					<td width='900px'>
+                                            <div class="cancel-float" style='float:left'>
 						<table class='text'>
 							<tr>
 								<td class='label' ><?php echo xlt('From'); ?>: </td>

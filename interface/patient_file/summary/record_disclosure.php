@@ -77,7 +77,7 @@ function submitform()
 </script>
 </head>
 <body class="body_top">
-<div style='float: left; margin-right: 10px'>
+<div id="record-disclosure" style='float: left; margin-right: 10px' >
 <div style='float: left; margin-right: 5px'><?php if($editlid) {?><!--Edit the disclosures-->
 <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'),ENT_NOQUOTES); ?></span><?php }
 else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'),ENT_NOQUOTES); ?></span><?php }?>

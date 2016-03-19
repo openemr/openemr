@@ -28,7 +28,8 @@
         ->prependStylesheet($this->basePath() . '/css/jquery.treeview.css')
         ->prependStylesheet($this->basePath() . '/css/ccda.css')
         ->prependStylesheet($this->basePath() . '/css/demo.css')
-        ->prependStylesheet($this->basePath() . '/css/themes/base/jquery.ui.all.css')            
+        ->prependStylesheet($this->basePath() . '/css/themes/base/jquery.ui.all.css')
+        ->prependStylesheet($GLOBALS['css_header'])
         ?>
     
         <?php echo $this->headScript()
@@ -45,7 +46,7 @@
         ?>
 
     </head>
-    <body  class="body_top">
+    <body  class="body_top setup-carecoordination">
         <div class="container" style="width:100%">
             <?php echo $this->content; ?>
         </div>

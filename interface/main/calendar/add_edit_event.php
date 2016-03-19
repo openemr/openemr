@@ -1172,10 +1172,12 @@ $classpati='';
    <?php echo xlt('Time'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
-    title='<?php echo xla('Event start time'); ?>' /> :
-   <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
-    title='<?php echo xla('Event start time'); ?>' />&nbsp;
+   <span>   
+    <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
+     title='<?php echo xla('Event start time'); ?>' /> :
+    <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
+     title='<?php echo xla('Event start time'); ?>' />&nbsp;
+   </span>
    <select name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
     <option value='1'><?php echo xlt('AM'); ?></option>
     <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php echo xlt('PM'); ?></option>

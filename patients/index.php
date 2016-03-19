@@ -87,7 +87,7 @@
         $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
       }
     }
-
+    
 ?>
 
 <html>
