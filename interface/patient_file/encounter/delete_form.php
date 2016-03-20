@@ -77,10 +77,10 @@ foreach ($_GET as $key => $value) {
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
 <p>
-<?php echo xlt('You are about to delete the following form from this encounter') . ': ' . attr($_GET['formname']); ?>
+<?php echo xlt('You are about to delete the following form from this encounter') . ': ' . text($_GET['formname']); ?>
 </p>
 <input type="button" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
-<input type="button" id="cancel" name="cancel" value="Cancel">
+<input type="button" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>
 </form>
 
 </body>
