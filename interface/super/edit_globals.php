@@ -197,7 +197,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
 	  }
       sqlStatement("DELETE FROM globals WHERE gl_name = '$fldid'");
 
-      if (substr($fldtype, 0, 2) == 'm_') {
+      if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
         if (isset($_POST["form_$i"])) {
           $fldindex = 0;
           foreach ($_POST["form_$i"] as $fldvalue) {
