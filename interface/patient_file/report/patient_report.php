@@ -354,7 +354,7 @@ while($result = sqlFetchArray($res)) {
         // trim to a reasonable length for display purposes --cfapress
         $maxReasonLength = 20;
         if (strlen($result["reason"]) > $maxReasonLength) {
-            $result['reason'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
+            $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength, 'utf-8') . " ... ";
         }
 
         echo $result{"reason"}. 

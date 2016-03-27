@@ -236,7 +236,7 @@ if (!empty($glrow)) {
     $GLOBALS['language_menu_login'] = true;
   }
   
-  
+
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
@@ -257,7 +257,7 @@ if (!empty($glrow)) {
             $rtl_override = true;
         }
     }
-    
+
 
     // change theme name, if the override file exists.
     if( $rtl_override ) {

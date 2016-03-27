@@ -272,21 +272,53 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
 ?>
 
 <?php if ($genstyles) { ?>
-<style>
-.labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-.labres tr.detail { font-size:10pt; }
-.labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
-.labres table {
- border-style: solid;
- border-width: 1px 0px 0px 1px;
- border-color: black;
-}
-.labres td, .labres th {
- border-style: solid;
- border-width: 0px 1px 1px 0px;
- border-color: black;
-}
-</style>
+        <style>
+
+            <?php if ($_SESSION['language_direction'] == 'ltr') { ?>
+
+            .labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
+            .labres tr.detail { font-size:10pt; }
+            .labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
+
+            .labres table {
+                border-style: solid;
+                border-width: 1px 0px 0px 1px;
+                border-color: black;
+            }
+            .labres td, .labres th {
+                border-style: solid;
+                border-width: 0px 1px 1px 0px;
+                border-color: black;
+            }
+            .labres tr{
+                background-color: #cccccc;
+            }
+
+            <?php }else{ ?>
+
+            .labres tr.head   { font-size:10pt;  text-align:center; }
+            .labres tr.detail { font-size:10pt; }
+
+            .labres table {
+                border-style: none;
+                border-width: 1px 0px 0px 1px;
+                border-color: black;
+            }
+            .labres td, .labres th {
+                border-style: none;
+                border-width: 0px 1px 1px 0px;
+                border-color: black;
+                padding: 4px;
+            }
+            .labres table td.td-label{
+
+                font-weight: bold;
+            }
+
+
+            <?php } ?>
+
+        </style>
 <?php } ?>
 
 <?php if ($input_form) { ?>
@@ -339,10 +371,10 @@ function educlick(codetype, codevalue) {
 <div class='labres'>
 
 <table width='100%' cellpadding='2' cellspacing='0'>
- <tr bgcolor='#cccccc'>
-  <td width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
+ <tr>
+  <td class="td-label" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
   <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-  <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+  <td class="td-label" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
   <td width='45%'>
 <?php
   if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
@@ -361,28 +393,28 @@ function educlick(codetype, codevalue) {
 ?>
   </td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Patient Name'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Patient Name'); ?></td>
   <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-  <td nowrap><?php echo xlt('Ordered By'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Ordered By'); ?></td>
   <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Order Date'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Order Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-  <td nowrap><?php echo xlt('Print Date'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Print Date'); ?></td>
   <td><?php echo oeFormatShortDate(date('Y-m-d')); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Order Status'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Order Status'); ?></td>
   <td><?php echo myCellText($orow['order_status']); ?></td>
-  <td nowrap><?php echo xlt('Encounter Date'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Encounter Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Lab'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Lab'); ?></td>
   <td><?php echo myCellText($orow['labname']); ?></td>
-  <td nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
+  <td class="td-label" nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
   <td><?php echo myCellText($orow['specimen_type']); ?></td>
  </tr>
 </table>
@@ -392,9 +424,9 @@ function educlick(codetype, codevalue) {
 <table width='100%' cellpadding='2' cellspacing='0'>
 
  <tr class='head'>
-  <td rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
-  <td colspan='5'><?php echo xlt('Report'); ?></td>
-  <td colspan='7'><?php echo xlt('Results'); ?></td>
+  <td class="td-label" rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
+  <td  class="td-label" colspan='5'><?php echo xlt('Report'); ?></td>
+  <td class="td-label" colspan='7'><?php echo xlt('Results'); ?></td>
  </tr>
 
  <tr class='head'>
