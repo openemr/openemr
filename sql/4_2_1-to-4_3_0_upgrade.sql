@@ -71,4 +71,11 @@
 --  #IfNotListOccupation
 --    Custom function for creating Occupation List
 
+#IfMissingColumn procedure_report date_collected_tz
+ALTER TABLE `procedure_report` ADD COLUMN `date_collected_tz` varchar(5) DEFAULT '' COMMENT '+-hhmm offset from UTC';
+#EndIf
+
+#IfMissingColumn procedure_report date_report_tz
+ALTER TABLE `procedure_report` ADD COLUMN `date_report_tz` varchar(5) DEFAULT '' COMMENT '+-hhmm offset from UTC';
+#EndIf
 
