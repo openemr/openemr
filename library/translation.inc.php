@@ -238,13 +238,12 @@ function getLanguageTitle($val) {
  * @author Amiel <amielel@matrix.co.il>
  */
 function getLanguageDir($lang_id) {
-
     // validate language id
     $lang_id = empty($lang_id) ? 1 : $lang_id;
     // get language code
-    $row = sqlQuery('SELECT lang_is_rtl FROM lang_languages WHERE lang_id=?',array($lang_id)); // returns FALSE if not found
-    
-    return (1 === (int)$row['lang_is_rtl'] ) ? 'rtl' : 'ltr'; // RTL if lang_is_rtl column is 1    
+    $row = sqlQuery('SELECT * FROM lang_languages WHERE lang_id = ?', array($lang_id));
+
+    return !empty($row['lang_is_rtl']) ? 'rtl' : 'ltr';
 }
 
 //----------------------------------
