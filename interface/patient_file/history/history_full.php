@@ -32,6 +32,7 @@ require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
+include_once("{$GLOBALS['srcdir']}/options.js.php");
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -276,6 +277,20 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 <script language="JavaScript">
 <?php echo $date_init; // setup for popup calendars ?>
+</script>
+
+<script language='JavaScript'>
+    // Array of skip conditions for the checkSkipConditions() function.
+    var skipArray = [
+        <?php echo $condition_str; ?>
+    ];
+    checkSkipConditions();
+    $("input").change(function() {
+        checkSkipConditions();
+    });
+    $("select").change(function() {
+        checkSkipConditions();
+    });
 </script>
 
 </html>

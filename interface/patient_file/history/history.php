@@ -13,6 +13,7 @@ $fake_register_globals=false;
  require_once("history.inc.php");
  require_once("$srcdir/options.inc.php");
  require_once("$srcdir/acl.inc");
+ include_once("{$GLOBALS['srcdir']}/options.js.php");
 ?>
 <html>
 <head>
@@ -92,6 +93,14 @@ $(document).ready(function(){
     </tr>
     </table>
 </div>
+
+<script language='JavaScript'>
+    // Array of skip conditions for the checkSkipConditions() function.
+    var skipArray = [
+        <?php echo $condition_str; ?>
+    ];
+    checkSkipConditions();
+</script>
 
 </body>
 </html>
