@@ -2411,7 +2411,7 @@ function display_layout_tabs($formtype, $result1, $result2='') {
 }
 
 function display_layout_tabs_data($formtype, $result1, $result2='') {
-  global $item_count, $cell_count, $last_group, $CPR;
+  global $item_count, $cell_count, $last_group, $CPR,$condition_str;
 
   $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
@@ -2446,6 +2446,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					$field_id   = $group_fields['field_id'];
 					$list_id    = $group_fields['list_id'];
 					$currvalue  = '';
+                    $condition_str=get_conditions_str($condition_str,$group_fields);
+
 
 					if ($formtype == 'DEM') {
 					  if ($GLOBALS['athletic_team']) {
@@ -2489,7 +2491,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					if ($titlecols > 0) {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-					  echo "<td class='label' colspan='$titlecols_esc' ";
+                        $field_id_label='label_'.$group_fields['field_id'];
+					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2502,7 +2505,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					if ($datacols > 0) {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
-					  echo "<td class='text data' colspan='$datacols_esc'";
+                        $field_id='text_'.$group_fields['field_id'];
+					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'";
 					  echo ">";
 					  $cell_count += $datacols;
 					}
@@ -2525,8 +2529,24 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 
 }
 
+function get_conditions_str($condition_str,$frow){
+    $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
+    foreach ($conditions as $condition) {
+        if (empty($condition['id'])) continue;
+        $andor = empty($condition['andor']) ? '' : $condition['andor'];
+        if ($condition_str) $condition_str .= ",\n";
+        $condition_str .= "{" .
+            "target:'"   . addslashes($frow['field_id'])      . "', " .
+            "id:'"       . addslashes($condition['id'])       . "', " .
+            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
+            "operator:'" . addslashes($condition['operator']) . "', " .
+            "value:'"    . addslashes($condition['value'])    . "', " .
+            "andor:'"    . addslashes($andor)                 . "'}";
+    }
+    return $condition_str;
+}
 function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
-  global $item_count, $cell_count, $last_group, $CPR;
+  global $item_count, $cell_count, $last_group, $CPR,$condition_str;
 
   $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
@@ -2563,6 +2583,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					$field_id   = $group_fields['field_id'];
 					$list_id    = $group_fields['list_id'];
 					$backup_list = $group_fields['list_backup_id'];
+                    $condition_str=get_conditions_str($condition_str,$group_fields);
 					$currvalue  = '';
 
 					if ($formtype == 'DEM') {
@@ -2607,7 +2628,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					if ($titlecols > 0) {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-					  echo "<td class='label' colspan='$titlecols_esc' ";
+                      $field_id_label='label_'.$group_fields['field_id'];
+					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2620,7 +2642,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					if ($datacols > 0) {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
-					  echo "<td class='text data' colspan='$datacols_esc'";
+                      $field_id='text_'.$group_fields['field_id'];
+					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'";
 					  echo ">";
 					  $cell_count += $datacols;
 					}

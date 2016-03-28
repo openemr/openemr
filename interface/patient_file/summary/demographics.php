@@ -39,6 +39,7 @@ $fake_register_globals=false;
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
+ include_once("{$GLOBALS['srcdir']}/options.js.php");
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
  
@@ -1553,6 +1554,13 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
  Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
 </script>
 <?php } ?>
+<script language='JavaScript'>
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+checkSkipConditions();
+</script>
 
 </body>
 </html>
