@@ -62,7 +62,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
   $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
   $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
+  $date_report_suf = empty($row['date_report_tz' ]) ? '' : (' ' . $row['date_report_tz' ]);
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
+  $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
@@ -159,11 +161,11 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   // If this starts a new report or a new order, generate the report fields.
   if ($report_id != $ctx['lastprid']) {
     echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10));
+    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
     echo "</td>\n";
 
     echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10));
+    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10) . $date_collected_suf);
     echo "</td>\n";
 
     echo "  <td>";
@@ -416,8 +418,8 @@ function educlick(codetype, codevalue) {
   $query = "SELECT " .
     "po.lab_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
     "pc.procedure_name, " .
-    "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
-    "pr.report_status, pr.review_status, pr.report_notes " .
+    "pr.date_report, pr.date_report_tz, pr.date_collected, pr.date_collected_tz, " .
+    "pr.procedure_report_id, pr.specimen_num, pr.report_status, pr.review_status, pr.report_notes " .
     "FROM procedure_order AS po " .
     "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
     "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id AND " .

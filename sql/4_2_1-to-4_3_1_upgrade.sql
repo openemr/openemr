@@ -133,3 +133,10 @@ ALTER TABLE `lang_languages` ADD COLUMN `lang_is_rtl` TINYINT DEFAULT 0;
 UPDATE `lang_languages` SET `lang_is_rtl`=1 WHERE `lang_code` IN ('he','ar') OR `lang_description` IN('Hebrew','Arabic');
 #EndIf
 
+#IfMissingColumn procedure_report date_collected_tz
+ALTER TABLE `procedure_report` ADD COLUMN `date_collected_tz` varchar(5) DEFAULT '' COMMENT '+-hhmm offset from UTC';
+#EndIf
+
+#IfMissingColumn procedure_report date_report_tz
+ALTER TABLE `procedure_report` ADD COLUMN `date_report_tz` varchar(5) DEFAULT '' COMMENT '+-hhmm offset from UTC';
+#EndIf

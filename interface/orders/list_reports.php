@@ -385,7 +385,7 @@ foreach (array(
 $selects =
   "po.patient_id, po.procedure_order_id, po.date_ordered, po.date_transmitted, " .
   "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, pc.do_not_send, " .
-  "pr.procedure_report_id, pr.date_report, pr.report_status, pr.review_status";
+  "pr.procedure_report_id, pr.date_report, pr.date_report_tz, pr.report_status, pr.review_status";
 
 $joins =
   "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id AND " .
@@ -458,6 +458,7 @@ while ($row = sqlFetchArray($res)) {
   $procedure_name   = empty($row['procedure_name'     ]) ? '' : $row['procedure_name'];
   $report_id        = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
   $date_report      = empty($row['date_report'        ]) ? '' : substr($row['date_report'], 0, 16);
+  $date_report_suf  = empty($row['date_report_tz'     ]) ? '' : (' ' . $row['date_report_tz' ]);
   $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status']; 
   $review_status    = empty($row['review_status'      ]) ? '' : $row['review_status'];
 
@@ -536,7 +537,7 @@ while ($row = sqlFetchArray($res)) {
 
   // Generate report columns.
   if ($report_id) {
-    echo "  <td>" . text($date_report) . "</td>\n";
+    echo "  <td>" . text($date_report . $date_report_suf) . "</td>\n";
     echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";
     echo myCellText(getListItem('proc_rep_status', $report_status));
     if ($review_status == 'reviewed') {

@@ -110,6 +110,10 @@ function rhl7Text($s) {
 }
 
 function rhl7DateTime($s) {
+  // Remove UTC offset if present.
+  if (preg_match('/^([0-9.]+)[+-]/', $s, $tmp)) {
+    $s = $tmp[1];
+  }
   $s = preg_replace('/[^0-9]/', '', $s);
   if (empty($s)) return '0000-00-00 00:00:00';
   $ret = substr($s, 0, 4) . '-' . substr($s, 4, 2) . '-' . substr($s, 6, 2);
@@ -122,6 +126,14 @@ function rhl7DateTime($s) {
     }
   }
   return $ret;
+}
+
+function rhl7DateTimeZone($s) {
+  // UTC offset if present always begins with "+" or "-".
+  if (preg_match('/^[0-9.]+([+-].*)$/', $s, $tmp)) {
+    return trim($tmp[1]);
+  }
+  return '';
 }
 
 function rhl7Date($s) {
@@ -786,7 +798,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $arep['procedure_order_id'] = $in_orderid;
       $arep['procedure_order_seq'] = $pcrow['procedure_order_seq'];
       $arep['date_collected'] = rhl7DateTime($a[7]);
+      $arep['date_collected_tz'] = rhl7DateTimeZone($a[7]);
       $arep['date_report'] = rhl7DateTime($a[22]);
+      $arep['date_report_tz'] = rhl7DateTimeZone($a[22]);
       $arep['report_status'] = $in_report_status;
       $arep['report_notes'] = '';
       $arep['specimen_num'] = '';
