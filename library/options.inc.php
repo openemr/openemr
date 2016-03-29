@@ -2440,13 +2440,13 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 			<?php
 				while ($group_fields = sqlFetchArray($group_fields_query)) {
 
-					$titlecols  = $group_fields['titlecols'];
-					$datacols   = $group_fields['datacols'];
-					$data_type  = $group_fields['data_type'];
-					$field_id   = $group_fields['field_id'];
-					$list_id    = $group_fields['list_id'];
-					$currvalue  = '';
-                    $condition_str=get_conditions_str($condition_str,$group_fields);
+					$titlecols     = $group_fields['titlecols'];
+					$datacols      = $group_fields['datacols'];
+					$data_type     = $group_fields['data_type'];
+					$field_id      = $group_fields['field_id'];
+					$list_id       = $group_fields['list_id'];
+					$currvalue     = '';
+                    $condition_str = get_conditions_str($condition_str,$group_fields);
 
 
 					if ($formtype == 'DEM') {
