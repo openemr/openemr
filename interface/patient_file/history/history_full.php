@@ -32,7 +32,7 @@ require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-include_once("{$GLOBALS['srcdir']}/options.js.php");
+require_once("$srcdir/options.js.php");
 $CPR = 4; // cells per row
 
 // Check authorization.

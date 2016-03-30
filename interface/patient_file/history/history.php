@@ -13,7 +13,8 @@ $fake_register_globals=false;
  require_once("history.inc.php");
  require_once("$srcdir/options.inc.php");
  require_once("$srcdir/acl.inc");
- include_once("{$GLOBALS['srcdir']}/options.js.php");
+ require_once("$srcdir/options.js.php");
+
 ?>
 <html>
 <head>
