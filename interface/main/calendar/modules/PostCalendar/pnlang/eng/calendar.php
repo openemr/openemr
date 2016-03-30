@@ -28,13 +28,13 @@
 @define('_CALSEARCHEVENT', xl ('Search') );
 @define('_EVENTS_OPEN_IN_NEW_WINDOW', xl ('Events open in new window') );
 
-@define('_CALMONDAYSHORT', xl('M') );
-@define('_CALTUESDAYSHORT', xl('T') );
-@define('_CALWEDNESDAYSHORT', xl ('W') );
-@define('_CALTHURSDAYSHORT', xl ('T') );
-@define('_CALFRIDAYSHORT', xl( 'F') );
-@define('_CALSATURDAYSHORT', xl ('S') );
-@define('_CALSUNDAYSHORT',xl('S') );
+@define('_CALMONDAYSHORT', xl('M{{Monday}}') );
+@define('_CALTUESDAYSHORT', xl('T{{Tuesday}}') );
+@define('_CALWEDNESDAYSHORT', xl ('W{{Wednesday}}') );
+@define('_CALTHURSDAYSHORT', xl ('T{{Thursday}}') );
+@define('_CALFRIDAYSHORT', xl( 'F{{Friday}}') );
+@define('_CALSATURDAYSHORT', xl ('S{{Saturday}}') );
+@define('_CALSUNDAYSHORT',xl('S{{Sunday}}') );
 @define('_PC_CALENDAR_BLOCK_PREV', xl ('Prev') );
 @define('_PC_CALENDAR_BLOCK_NEXT', xl ('Next') );
 @define('_PC_BLOCK_TOPIC_DISPLAY', xl ('Display topic in block?') );
