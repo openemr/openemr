@@ -129,6 +129,7 @@ if (!$disable_utf8_flag) {
 else {
  ini_set('default_charset', 'iso-8859-1');
  $HTML_CHARSET = "ISO-8859-1";
+ mb_internal_encoding('ISO-8859-1');
 }
 
 // Root directory, relative to the webserver root:

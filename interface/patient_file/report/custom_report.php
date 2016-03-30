@@ -58,6 +58,10 @@ if ($PDF_OUTPUT) {
                        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
                        $_SESSION['language_direction'] == 'rtl' ? true : false
                    );
+
+  //set 'dejavusans'. this font is supported a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
+  $pdf->setDefaultFont('dejavusans');
+
   ob_start();
 }
 

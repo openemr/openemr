@@ -36,7 +36,7 @@
         }
     //
 
-    include_once ("../library/translation.inc.php");
+    require_once("../library/translation.inc.php");
 
     // set the language
     if (!empty($_POST['languageChoice'])) {
