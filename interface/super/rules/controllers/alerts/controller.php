@@ -20,6 +20,11 @@ class Controller_alerts extends BaseController {
 
     function _action_listactmgr() {
         $c = new CdrAlertManager();
+		//ErezT: Instantiating the object with an if statement
+		//in order to escape the "creating default object from empty value" warning.
+		if(!isset($this->viewBean)) {
+			$this->viewBean = new stdClass();
+		}
         $this->viewBean->rules = $c->populate();
         $this->set_view("list_actmgr.php");
     }
@@ -72,7 +77,9 @@ class Controller_alerts extends BaseController {
 		// Reflect the changes to the database.
          $c = new CdrAlertManager();
          $c->update($ids, $actives_final, $passives_final, $reminders_final, $access_controls);
-         
+		if(!isset($this->viewBean)) {
+			$this->viewBean = new stdClass();
+		}
          $this->forward("listactmgr");
     }
 
