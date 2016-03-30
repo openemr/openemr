@@ -144,14 +144,12 @@ class HTML2PDF
         $this->setTestIsImage(true);
         $this->setTestIsDeprecated(true);
 
-        // init language direction setting
-        if($is_rtl){
+        //set 'dejavusans'. this font is supported a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
+        $this->setDefaultFont('dejavusans');
 
+        // init language direction setting
+        if($is_rtl)
             $this->pdf->setRTL(true);
-            $this->setDefaultFont('dejavusans');
-        }else{
-            $this->setDefaultFont(null);
-        }
 
         // init the HTML parsing object
         $this->parsingHtml = new HTML2PDF_parsingHtml($this->_encoding);

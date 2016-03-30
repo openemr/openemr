@@ -543,4 +543,8 @@ div#portal-buttons-bottom{
     padding: 5px 15px;
 }
 
+#DEM .label, #report_parameters table table td.label {
+    text-align: left !important;
+}
+
 

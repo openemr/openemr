@@ -36,16 +36,6 @@
         }
     //
 
-    //SANITIZE ALL ESCAPES
-    $fake_register_globals=false;
-
-    //STOP FAKE REGISTER GLOBALS
-    $sanitize_all_escapes=true;
-
-    //Settings that will override globals.php
-        $ignoreAuth = 1;
-    //
-
     include_once ("../library/translation.inc.php");
 
     // set the language
@@ -61,6 +51,17 @@
     }
     $_SESSION['language_direction'] = getLanguageDir( $_SESSION['language_choice'] );
 
+
+
+    //SANITIZE ALL ESCAPES
+    $fake_register_globals=false;
+
+    //STOP FAKE REGISTER GLOBALS
+    $sanitize_all_escapes=true;
+
+    //Settings that will override globals.php
+    $ignoreAuth = 1;
+    //
 
     //Authentication (and language setting)
 	require_once('../interface/globals.php');

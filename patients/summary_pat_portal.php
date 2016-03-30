@@ -701,11 +701,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 </div> <!-- end main content div -->
 
-<div id="portal-buttons-bottom"> <!-- buttons bottom div -->
-    <input type="button" style="text-align: right;" value="<?php echo xla('Log Out'); ?>" onclick="window.location = 'logout.php'"/>
+<input type="button" style="text-align: right;" value="<?php echo xla('Log Out'); ?>" onclick="window.location = 'logout.php'"/>
 
-    <input type="button" style="text-align: right;" value="<?php echo xla('Change Password'); ?>" onclick="window.location = '<?php echo $landingpage."&password_update=1";?>'"/>
-</div> <!-- end main content div -->
+<input type="button" style="text-align: right;" value="<?php echo xla('Change Password'); ?>" onclick="window.location = '<?php echo $landingpage."&password_update=1";?>'"/>
 
 </div>
 </body>
