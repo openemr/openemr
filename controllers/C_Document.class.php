@@ -51,9 +51,15 @@ class C_Document extends Controller {
 
     // Added by Rod to support document template download from general_upload.html.
     // Cloned from similar stuff in manage_document_templates.php.
-    $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
-    $templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
-    $dh = opendir($templatedir);
+
+//ErezT has added a logical if file_exist since there is no doctemplates [START]
+
+			$templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
+
+		if (file_exists($templatedir)) {
+			$templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
+			$dh = opendir($templatedir);
+
     if ($dh) {
       $templateslist = array();
       while (false !== ($sfname = readdir($dh))) {
@@ -67,6 +73,9 @@ class C_Document extends Controller {
           "'>" . htmlspecialchars($sfname) . "</option>";
       }
     }
+		}
+//ErezT has added a logical if file_exist since there is no doctemplates [END]
+
     $this->assign("TEMPLATES_LIST", $templates_options);
 
 		$activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
