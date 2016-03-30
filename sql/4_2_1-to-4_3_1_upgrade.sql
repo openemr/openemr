@@ -141,6 +141,6 @@ ALTER TABLE `procedure_report` ADD COLUMN `date_collected_tz` varchar(5) DEFAULT
 ALTER TABLE `procedure_report` ADD COLUMN `date_report_tz` varchar(5) DEFAULT '' COMMENT '+-hhmm offset from UTC';
 #EndIf
 
-UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_fall_screening_cqm' AND `pid` = 0;
-UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_pain_intensity_cqm' AND `pid` = 0;
+UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_influenza_ge_50_cqm' AND `pid` = 0;
+UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_dm_a1c_cqm' AND `pid` = 0;
 
