@@ -1150,7 +1150,8 @@ function generate_print_field($frow, $currvalue) {
 
   // date
   else if ($data_type == 4) {
-    $agestr = optionalAge($frow, $currvalue);
+    $asof = ''; //not used here, but set to prevent a php warning when call optionalAge
+    $agestr = optionalAge($frow, $currvalue,$asof);
     if ($agestr) {
       echo "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
     }
@@ -2038,7 +2039,8 @@ function generate_plaintext_field($frow, $currvalue) {
   else if ($data_type == 4) {
     $s = oeFormatShortDate($currvalue);
     // Optional display of age or gestational age.
-    $tmp = optionalAge($frow, $currvalue);
+    $asof=''; //not used here, but set to prevent a php warning when call optionalAge
+    $tmp = optionalAge($frow, $currvalue,$asof);
     if ($tmp) $s .= ' ' . $tmp;
   }
 
