@@ -113,9 +113,10 @@ class HTML2PDF
      * @param  boolean  $unicode     TRUE means that the input text is unicode (default = true)
      * @param  String   $encoding    charset encoding; default is UTF-8
      * @param  array    $marges      Default margins (left, top, right, bottom)
+     * @param  boolean  $is_rtl      True will set to use RTL(right to left) language.
      * @return HTML2PDF $this
      */
-    public function __construct($orientation = 'P', $format = 'A4', $langue='fr', $unicode=true, $encoding='UTF-8', $marges = array(5, 5, 5, 8))
+    public function __construct($orientation = 'P', $format = 'A4', $langue='fr', $unicode=true, $encoding='UTF-8', $marges = array(5, 5, 5, 8), $is_rtl = false)
     {
         // init the page number
         $this->_page         = 0;
@@ -146,6 +147,10 @@ class HTML2PDF
 
         // init the default font
         $this->setDefaultFont(null);
+
+        // init language direction setting
+        if($is_rtl)
+            $this->pdf->setRTL(true);
 
         // init the HTML parsing object
         $this->parsingHtml = new HTML2PDF_parsingHtml($this->_encoding);

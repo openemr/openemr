@@ -584,7 +584,13 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetX($x, $rtloff=false)
     {
-        $this->x=$x;
+        if (!$rtloff AND $this->rtl) {
+
+            parent::SetX($x, $rtloff);
+        }else{
+
+            $this->x=$x;
+        }
     }
 
     /**
@@ -598,10 +604,17 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetY($y, $resetx=true, $rtloff=false)
     {
-        if ($resetx)
-            $this->x=$this->lMargin;
+        if (!$rtloff AND $this->rtl) {
 
-        $this->y=$y;
+            parent::SetY($y, $resetx, $rtloff);
+        }else{
+
+            if ($resetx)
+                $this->x=$this->lMargin;
+
+            $this->y=$y;
+        }
+
     }
 
     /**
@@ -615,8 +628,15 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetXY($x, $y, $rtloff=false)
     {
-        $this->x=$x;
-        $this->y=$y;
+        if (!$rtloff AND $this->rtl) {
+
+            parent::SetXY($x, $y, $rtloff);
+        }else{
+
+            $this->x=$x;
+            $this->y=$y;
+        }
+
     }
 
     /**
