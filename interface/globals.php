@@ -124,10 +124,12 @@ require_once(dirname(__FILE__) . "/../library/sqlconf.php");
 if (!$disable_utf8_flag) {    
  ini_set('default_charset', 'utf-8');
  $HTML_CHARSET = "UTF-8";
+ mb_internal_encoding('UTF-8');
 }
 else {
  ini_set('default_charset', 'iso-8859-1');
  $HTML_CHARSET = "ISO-8859-1";
+ mb_internal_encoding('ISO-8859-1');
 }
 
 // Root directory, relative to the webserver root:

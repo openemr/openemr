@@ -536,4 +536,15 @@ td.amount-msg{
     transform: rotate(180deg);
 }
 
+/* online - portal */
+
+/* patients/summary_pat_portal.php */
+div#portal-buttons-bottom{
+    padding: 5px 15px;
+}
+
+#DEM .label, #report_parameters table table td.label {
+    text-align: left !important;
+}
+
 
