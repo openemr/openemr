@@ -528,7 +528,7 @@ closedir($dh);
  <tr>
   <td colspan='4'>
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
-    Insert special field:
+    <?php echo xlt('Insert special field'); ?>:
     <select id="letter_field">
     <option value="">- <?php xl('Choose','e'); ?> -</option>
     <option value="<?php echo '{'.$FIELD_TAG['DATE'].'}'; ?>"><?php xl('Today\'s Date','e'); ?></option>
