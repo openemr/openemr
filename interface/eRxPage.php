@@ -259,7 +259,7 @@ class eRxPage {
 			$this->errorLog($result);
 
 			if(!count($errorMessages)) {
-				$errorMessages[] = xl('An undefined error occoured, please contact your systems administrator.');
+				$errorMessages[] = xl('An undefined error occurred, please contact your systems administrator.');
 			}
 		} elseif($XMLBuilder->getGlobals()->getDebugSetting() !== 0) {
 			$debugString = '( '.xl('DEBUG OUTPUT').' )'.PHP_EOL;
