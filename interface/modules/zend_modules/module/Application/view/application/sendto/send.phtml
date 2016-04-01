@@ -134,7 +134,7 @@ $download_format		= $this->download_format;
 					</td>
 					<td width="10px;">
 						<input <?php if(!in_array('doc_format', $download_format)) echo "disabled"?> type="radio" name="download_format" id="doc_format" style="margin: 0; clear: right; float: left;">
-						<label for="doc_format"><?php echo $this->listenerObject->z_xlt('DOC');?></label>
+						<label for="doc_format"><?php echo $this->listenerObject->z_xlt('DOC{{document format}}');?></label>
 					</td>
 					<td width="10px;">
 						<input <?php if(!in_array('hl7_format', $download_format)) echo "disabled"?> type="radio" name="download_format" id="hl7_format" style="margin: 0; clear: right; float: left;" checked="true">

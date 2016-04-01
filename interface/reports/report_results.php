@@ -218,12 +218,12 @@ require_once "$srcdir/report_database.inc";
   }
   else if ($row['type'] == "amc_2014_stage1") {
     if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2014 Automated Measure Calculations (AMC) Stage I');
+    $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
     $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
   }
   else if ($row['type'] == "amc_2014_stage2") {
     if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2014 Automated Measure Calculations (AMC) Stage II');
+    $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
     $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
   }
   else if ($row['type'] == "process_reminders") {

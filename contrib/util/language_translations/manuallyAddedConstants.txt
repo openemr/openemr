@@ -1,6 +1,8 @@
+Above upper panic limits
 Additional history notes
 Address Book Types
 Adjustment Reasons
+Adopted Child
 Adult Weight Screening and Follow-Up
 Adult Weight Screening and Follow-Up (CQM)
 Advance Directive
@@ -22,12 +24,18 @@ appendectomy
 Appointment
 Appointment Reminder Rule
 Appointment Statuses
+Appropriate Testing for Children with Pharyngitis (CQM)
 Arm
 Asian
+Assess Penicillin Allergy
+Attending physician
+Audiological physician
+Aunt
 Authorize.net
 autosaved
 Back Pain
 Bank Draft
+Below lower panic limits
 Bilateral
 Bill/Collect
 Billing Code for Requested Service
@@ -50,6 +58,8 @@ Cancer Screening: Colon Cancer Screening
 Cancer Screening: Mammogram
 Cancer Screening: Pap Smear
 Cancer Screening: Prostate Cancer Screening
+Care Coordination
+Care Team
 Caucasian
 CDR
 Cell Phone Number
@@ -59,7 +69,9 @@ Chart Note
 Chart Storage Locations
 Check Date
 Check Payment
+Chest physician
 Child
+Child in-law
 Childhood immunization Status (CQM)
 Chiropractic
 Choices
@@ -84,7 +96,11 @@ CMS Portal Login
 CMS Portal Login ID
 Code Types
 Colon Cancer Screening
+Community health physician
+completed
 Connectors
+Construction Firm
+Consultant physician
 Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
@@ -94,7 +110,9 @@ Corrected
 Coumadin Management - INR Monitoring
 Counseling activities
 Counter-Referral
+County
 Coupon
+Cousin
 CPT4 Procedure/Service
 CPTII Performance Measures
 Credit Card
@@ -104,6 +122,7 @@ Cuban
 Current every day smoker
 Current some day smoker
 CVX Immunization
+Data Entry - Social Security Number
 Date contraceptive services initially provided
 Date Master Criteria
 Date of referral
@@ -152,6 +171,7 @@ Due Soon
 Due Status Update
 Durable Power of Attorney
 Electronic
+Electronic Notes
 Eligibility status for Vaccine for Children supplied vaccine
 Eligible
 Emergency Contact Person
@@ -177,6 +197,8 @@ encounter preventive medicine services 18 and older
 encounter psychiatric & psychologic
 Encounter: encounter non-acute inpt, outpatient, or ophthalmology
 Endo Abnormal Blood
+Engineer
+Engineering Firm
 ENT Discharge
 ENT Pain
 Eskimo
@@ -189,14 +211,19 @@ Exercise
 Exercise patterns
 Exist
 Exposure To Foreign Countries
-External ID
 External identifier
+External Organization
+External Provider
 External Referral
 External referral?
 Eye Irritation
 Eye Redness
+Falls: Screening, Risk-Assessment, and Plan of Care to Prevent Future Falls (CQM)
+Family Health History
+Family Member
 Family Payment
 Farsi
+Fatal
 Female Symptoms
 FH Blood Problems
 Fibroids
@@ -210,23 +237,31 @@ FL
 Flu Season
 Former smoker
 Forwarded
+Foster Child
 G/DL
 Gall Bladder Condition
 Gastro Pain
 General Issue List
+General physician
+Generate and transmit permissible prescriptions electronically (All Prescriptions).
+Generate and transmit permissible prescriptions electronically (Not including controlled substances).
 Generate and transmit permissible prescriptions electronically.
+Genitourinary medicine physician
 Glaucoma Family History
 GM/DL
 grams
+Grandchild
+Grandparent
+Great Grandparent
 Greater Than
 Greater Than or Equal To
 Group Payment
 Guamanian
 Guardian's Name
+Half-Sibling
 Hawaiian
 Hazardous activities
 HCPCS Procedure/Service
-Head Circ
 Health Care Operations
 Heart Disease
 Heat Or Cold
@@ -248,6 +283,7 @@ Hispanic - Other (Born in US)
 Hispanic - Other (Born outside US)
 Hispanic or Latino
 History Murmur
+Hives
 HMOL/L
 Hmong
 Home Phone Number
@@ -259,7 +295,10 @@ Hypertension
 Hypertension: Blood Pressure Measurement
 Hypertension: Blood Pressure Measurement (CQM)
 Id
+Image Results
+Imaging
 Imaging Service
+Immunization Completion Status
 Immunization Service
 Improved
 In Office
@@ -268,6 +307,7 @@ Include vitals data?
 Incomplete
 Incorporate clinical lab-test results into certified EHR technology as structured data.
 Indian
+Industry
 Ineligible
 Infertility
 Influenza 1
@@ -280,6 +320,7 @@ INR
 Insurance Types
 Interpreter needed?
 Intervention
+Intradermal
 Invoice Reference Number Pools
 IPV 1
 IPV 2
@@ -290,27 +331,38 @@ IU/L
 Joint Pain
 Lab Report
 Lab Service
+Laboratory Test
 Laotian
-Last Activity Date
 Last Calendar Year
 Last Month
+Law Firm
+Lawyer
+Layout-Based Transaction Forms
 Layout-Based Visit Forms
 Left Ear
 Less Than
 Less Than or Equal To
 Level of urgency
 License/ID
+Life threatening severity
 Light tobacco smoker
 Living Will
 Logging
 login
 logout
+LOINC
 Lunch
 Maintain active medication allergy list.
 Maintain active medication list.
 Maintain an up-to-date problem list of current and active diagnoses.
 Married
+MaternalAunt
+MaternalGrandparent
+MaternalGreatgrandparent
+MaternalUncle
 Maximum Age
+Measure Blood Pressure
+Measure INR
 Measurement
 Medical Problem Issue List
 Medication Issue List
@@ -325,6 +377,8 @@ MG/DL
 Mien
 Migrant or seasonal worker?
 Mil/CU.MM
+Mild
+Mild to moderate
 Minimum Age
 Minute
 Misc
@@ -333,6 +387,8 @@ Misc Billing Options HCFA
 MMR 1
 MMR 2
 Mobile Phone
+Moderate
+Moderate to severe
 Mother's Name
 Mr.
 Mrs.
@@ -350,39 +406,60 @@ Name 2
 Name/Value
 Nation Notes Replace Buttons
 Native Hawaiian or Other Pacific Islander
+Natural Child
+Natural Parent
+Natural Sibling
 Negative
+Neighbor
 Neuro Numbness
 Neuro Weakness
 Never smoker
 New Document
 New Orders
 Newspaper
+Niece/Nephew
 No Show
 Noninsulin Dependent Diabetes
 Normal BL
 Normal Office Visit
+Not Administered
 Not Due
 Not Hispanic or Latino
 Nutrition
 Nutritional
+Occupational physician
 On Site
+Oncology: Medical and Radiation – Pain Intensity Quantified (CQM)
 Opthalmic
 Order Priorities
 Order Statuses
+Order Types
 Osteopathy
 Other (specify)
 Other - Specified
+Other/Miscellaneous
 Others
 Out Of Office
 Pacific Islander
+Palliative care physician
+parent in-law
+Partially Administered
 Past Due
 Past Due Interval (Clinical Reminders)
 Past Due Interval (Patient Reminders)
 Pat
+PaternalAunt
+PaternalCousin
+PaternalGrandparent
+PaternalGreatgrandparent
+PaternalUncle
+Patient Characteristics
+Patient Flow Board Rooms
 Patient ID card
-Patient Information
+Patient Level Billing Note (Collections)
 Patient List Columns
 Patient Note Types
+Patient Religion
 Payment Adjustment Code
 Payment Gateways
 Payment Ins
@@ -390,11 +467,15 @@ Payment Sort By
 Payment Status
 Payment Type
 Pending followup
+Penicillin Allergy
 Percent
 Percentile
 Perioperative Care
 PG
 Pharmacy
+PHIN Questions
+Physician
+Physician Type
 PID (Pelvic Inflammatory Disease)
 Pneumococcal Conjugate 1
 Pneumococcal Conjugate 2
@@ -417,6 +498,7 @@ Presumed Diagnosis
 Presumed diagnosis by specialist
 Preventative Care
 Prevention Rehab
+Preventive Care and Screening: Tobacco Use: Screening and Cessation Intervention (CQM)
 Prior Auth
 Prior Authorization Form
 Procedure Body Sites
@@ -430,6 +512,7 @@ Procedure Specimen Types
 Procedure Types
 Procedure Units
 Prostate Cancer Screening
+Provide clinical summaries for patients for each office visit (New).
 Provide clinical summaries for patients for each office visit.
 Provide patients with an electronic copy of their health information (including diagnostic test results, problem list, medication lists, medication allergies), upon request.
 Provide patients with timely electronic access to their health information (including lab results, problem list, medication lists, medication allergies) within four business days of the information being available to the EP.
@@ -437,6 +520,7 @@ Provider ID
 Provider ID at Specified Facility
 Psych Diagnosis
 Psych Medication
+Public health physician
 Puerto Rican
 Punjabi
 Radio
@@ -445,6 +529,11 @@ Read
 Reason for referral
 Recommendation
 Recommendations by specialist
+Record and chart changes in vital signs ( Height / Weight / BP with in scope ).
+Record and chart changes in vital signs (BP out of scope).
+Record and chart changes in vital signs (Height / Weight out of scope).
+Record and chart changes in vital signs (New).
+Record and chart changes in vital signs (SET 1).
 Record and chart changes in vital signs.
 Record demographics.
 Record smoking status for patients 13 years old or older.
@@ -456,8 +545,10 @@ Referral To
 Referrer Diagnosis
 Referrer diagnosis
 Referring Provider
+Refused
 Refused To State
-Rejected
+Rehabilitation physician
+Religious Affiliation
 Reminder
 Reply From
 Requested Service
@@ -466,29 +557,41 @@ Reserved for use to define Scheduled Vacation Time
 Reserved to define when a provider may not have available appointments after.
 Reserved to define when an event did not occur as specified.
 Reserved todefine when a provider may haveavailable appointments after.
-Resolved
+Resident physician
 Rheumatoid Arthritis
 Right Ear
 Ringing In Ears
+Risk Category Assessment
 Risk Factors
 Risk Level
+Room 1
+Room 2
+Room 3
+Roommate
 Routed
 RXCUI Medication
 Saliva
 Sample
 Screening / Testing
 Seatbelt use
+Secure Electronic Messaging
 See Growth-Chart
 Send reminders to patients per patient preference for preventive/follow up care.
 Separated
 Service Category
 Service provided by specialist
 Services Provided
+Severe
 Severe Migraine
+Severity
 Shortness Of Breath
 Shortness Of Breath 2
+Sibling
+Sibling in-law
 Sickle Cell
+Significant Other
 Single
+Site Worker
 Skin Cancer
 Skin Disease
 Skin Other
@@ -501,12 +604,16 @@ Social Security Number
 Soon Due Interval (Clinical Reminders)
 Soon Due Interval (Patient Reminders)
 Specialist
+Specialized physician
 Specified
 Squad Membership
 Start Date at This Clinic
 State/Locality
 Stats
 Status quo
+Step Child
+Step Parent
+Step Sibling
 Street and Number
 Strength and Conditioning
 Surgery Issue List
@@ -516,10 +623,13 @@ Td
 Temp Method
 Test Scheduling
 The EP, eligible hospital or CAH who receives a patient from another setting of care or provider of care or believes an encounter is relevant should perform medication reconciliation.
+The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral (Measure A).
+The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral (Measure B).
 The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral.
 This Calendar Year
 This Month to Date
 This Week to Date
+Thoracic physician
 Thous/CU.MM
 Thrombosis/Stroke
 Titles
@@ -529,10 +639,13 @@ Tobacco use
 Tobacco Use Assessment
 Tobacco Use Assessment (CQM)
 tonsillectomy
+Transdermal
 Treatment
 Trusted Direct Email Address
+Uncle
 Units/L
 Unknown if ever smoked
+Unrelated Friend
 Urine
 Urine Dribbling
 Urine Frequency
@@ -540,8 +653,11 @@ Urine Hesitancy
 Urine Microalbumin
 Urine Stream
 Urine Urgency
+Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate(New).
 Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate.
 Use CPOE for medication orders directly entered by any licensed healthcare professional who can enter orders into the medical record per state, local and professional guidelines.
+Use CPOE for procedure orders.
+Use CPOE for radiology orders.
 User Defined
 User Defined Area 11
 User Defined Area 12
@@ -568,6 +684,8 @@ Varicella 1
 Varicella 2
 Varicose Veins
 VFC
+View, Download, Transmit (VDT)  (Measure B)
+View, Download, Transmit (VDT) (Measure A)
 Waist Circ
 Walk-In
 Warehouses

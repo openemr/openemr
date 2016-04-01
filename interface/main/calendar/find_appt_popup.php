@@ -104,7 +104,7 @@
  $slotbase  = (int) ($slotstime / $slotsecs);
  $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die(xlt("Invalid date range."));
+ if ($slotcount <= 0 || $slotcount > 100000) die(xlt("Invalid date range"));
 
  $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 

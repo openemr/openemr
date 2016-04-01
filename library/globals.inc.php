@@ -860,7 +860,7 @@ $GLOBALS_METADATA = array(
       xl('Display the Units Column on the Billing Screen'),
 	   'bool',                           // data type
 	   '0',                              // default = false
-      xl('Display the Units Column on the Billing Screen.')
+      xl('Display the Units Column on the Billing Screen')
     ),
     
     'notes_to_display_in_Billing' => array(
@@ -914,7 +914,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing second account message'),
       'num',                           // data type
       '60',
-      xl('Number of days before showing second account message.')
+      xl('Number of days before showing second account message')
     ),
 
     'second_dun_msg_text' => array(
@@ -928,7 +928,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing third account message'),
       'num',                           // data type
       '90',
-      xl('Number of days before showing third account message.')
+      xl('Number of days before showing third account message')
     ),
 
     'third_dun_msg_text' => array(
@@ -942,7 +942,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing fourth account message'),
       'num',                           // data type
       '120',
-      xl('Number of days before showing fourth account message.')
+      xl('Number of days before showing fourth account message')
     ),
 
     'fourth_dun_msg_text' => array(
@@ -956,7 +956,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing fifth account message'),
       'num',                           // data type
       '150',
-      xl('Number of days before showing fifth account message.')
+      xl('Number of days before showing fifth account message')
     ),
 
     'fifth_dun_msg_text' => array(
