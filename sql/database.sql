@@ -2874,6 +2874,7 @@ CREATE TABLE `list_options` (
   `toggle_setting_1` tinyint(1) NOT NULL default '0',
   `toggle_setting_2` tinyint(1) NOT NULL default '0',
   `activity` TINYINT DEFAULT 1 NOT NULL,
+  `subtype` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`list_id`,`option_id`)
 ) ENGINE=MyISAM;
 
@@ -4144,6 +4145,10 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 -- Issue Types List
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
+-- Issue Subtypes List
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','primary'  ,'Primary'  ,10);
@@ -4444,6 +4449,7 @@ CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `type` varchar(255) default NULL,
+  `subtype` varchar(31) NOT NULL DEFAULT '',
   `title` varchar(255) default NULL,
   `begdate` date default NULL,
   `enddate` date default NULL,

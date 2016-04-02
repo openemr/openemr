@@ -144,3 +144,16 @@ ALTER TABLE `procedure_report` ADD COLUMN `date_report_tz` varchar(5) DEFAULT ''
 UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_influenza_ge_50_cqm' AND `pid` = 0;
 UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_dm_a1c_cqm' AND `pid` = 0;
 
+#IfMissingColumn lists subtype
+ALTER TABLE `lists` ADD COLUMN `subtype` varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn list_options subtype
+ALTER TABLE `list_options` ADD COLUMN `subtype` varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id issue_subtypes
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+#EndIf
+
