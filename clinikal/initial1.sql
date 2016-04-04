@@ -1,13 +1,24 @@
-/*INSERT INTO list_options( list_id, option_id, title, seq, is_default )
-VALUES
-  ( 'AA_list',  '5',  '222222',  '1',  ''),*/
+#this will turn the trusted email into hidden.
+UPDATE  `openemr040416`.`layout_options`
+SET  `uor` =  '0'
+WHERE  `layout_options`.`form_id` =  'DEM'
+       AND `layout_options`.`field_id` =  'email_direct';
+#this will turn the State into hidden.
+UPDATE  `openemr040416`.`layout_options`
+SET  `uor` =  '0'
+WHERE  `layout_options`.`form_id` =  'DEM'
+       AND `layout_options`.`field_id` =  'state';
 
+#this will delete the city
 DELETE FROM layout_options WHERE group_name = '2Contact' AND field_id = 'city';
-
+#this will rebuild it with the relevant data
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`) VALUES
 ('DEM', 'city', '2Contact', 'City', 2, 1, 1, 0, 0, 'cities_IL', 1, 1, '', 'C', 'City Name', 0, '', 'F', '');
-
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+#this populates with HEBREW cities
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,
+                            `is_default`, `option_value`, `mapping`,
+                            `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`,
+                            `activity`, `subtype`) VALUES
 
   ('cities_IL', '1040', 'ריחן', 0, 0, 0, '', '', '', 0, 0, 1, ''),
   ('cities_IL', '1041', 'ריינה', 0, 0, 0, '', '', '', 0, 0, 1, ''),
