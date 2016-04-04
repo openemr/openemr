@@ -7,7 +7,7 @@
         $("#populationIL").click(function(){
 
         $.ajax({
-            url: 'il_population_api.php',
+            url: '/openemr/library/ajax/il_population_api.php',
             data: {
                 format: 'json'
             },

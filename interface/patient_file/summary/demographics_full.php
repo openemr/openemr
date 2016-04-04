@@ -68,7 +68,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 <?/* TODO OLEG: WHERE TO ADD THIS LINE*/?>
-<script type="text/javascript" src="il_population.js"></script>
+<script type="text/javascript" src="../../../library/js/il_population.js"></script>
 
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
