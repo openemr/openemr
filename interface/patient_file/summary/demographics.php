@@ -39,6 +39,7 @@ $fake_register_globals=false;
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
+ require_once("$srcdir/options.js.php");
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
  
@@ -657,7 +658,7 @@ if ($GLOBALS['patient_id_category_name']) {
 <div style='margin-top:10px'> <!-- start main content div -->
  <table border="0" cellspacing="0" cellpadding="0" width="100%">
   <tr>
-   <td align="left" valign="top">
+      <td class="demographics-box" align="left" valign="top">
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
@@ -706,10 +707,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
    xlt('Total Balance Due').
    " : " . text(oeFormatMoney($totalbalance)) .
    "</font></span></td></td></tr>";
-  if ($result['genericname2'] == 'Billing') {
+ if (!empty($result['billing_note'])) {
    echo "<tr><td><span class='bold'><font color='red'>" .
     xlt('Billing Note') . ":" .
-    text($result['genericval2']) .
+    text($result['billing_note']) .
     "</font></span></td></tr>";
   } 
   if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
@@ -1356,7 +1357,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         // 
         $current_date2 = date('Y-m-d');
         $events = array();
-        $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, false, true); //////
+        $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
+        if($apptNum != 0) $apptNum2 = abs($apptNum);
+        else $apptNum2 = 10;
+        $events = fetchNextXAppts($current_date2, $pid, $apptNum2);
         $events = sortAppointments($events);
         //////
 
@@ -1550,6 +1554,13 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
  Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
 </script>
 <?php } ?>
+<script language='JavaScript'>
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+checkSkipConditions();
+</script>
 
 </body>
 </html>

@@ -59,7 +59,6 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/freeb/xmlrpc.inc");
 require_once("$srcdir/freeb/xmlrpcs.inc");
 require_once("$srcdir/formatting.inc.php");
@@ -67,8 +66,6 @@ require_once("$srcdir/formdata.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 $currdecimals = $GLOBALS['currency_decimals'];
-
-$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 $details = empty($_GET['details']) ? 0 : 1;
 
@@ -288,7 +285,7 @@ function receiptPaymentLine($paydate, $amount, $description='') {
 // or for the encounter specified as a GET parameter.
 //
 function generate_receipt($patient_id, $encounter=0) {
-  global $sl_err, $sl_cash_acc, $css_header, $details, $INTEGRATED_AR;
+  global $sl_err, $sl_cash_acc, $css_header, $details;
 
   // Get details for what we guess is the primary facility.
   $frow = sqlQuery("SELECT * FROM facility " .
@@ -299,7 +296,6 @@ function generate_receipt($patient_id, $encounter=0) {
   // Get the most recent invoice data or that for the specified encounter.
   //
   // Adding a provider check so that their info can be displayed on receipts
-  if ($INTEGRATED_AR) {
     if ($encounter) {
       $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
         "WHERE pid = ? AND encounter = ?", array($patient_id,$encounter) );
@@ -325,36 +321,6 @@ function generate_receipt($patient_id, $encounter=0) {
       $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
         "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider) );
     }
-  }
-  else {
-    SLConnect();
-    //
-    $arres = SLQuery("SELECT * FROM ar WHERE " .
-      "invnumber LIKE '$patient_id.%' " .
-      "ORDER BY id DESC LIMIT 1");
-    if ($sl_err) die(text($sl_err));
-    if (!SLRowCount($arres)) die(xlt("This patient has no activity."));
-    $arrow = SLGetRow($arres, 0);
-    //
-    $trans_id = $arrow['id'];
-    //
-    // Determine the date of service.  An 8-digit encounter number is
-    // presumed to be a date of service imported during conversion or
-    // associated with prescriptions only.  Otherwise look it up in the
-    // form_encounter table.
-    //
-    $svcdate = "";
-    list($trash, $encounter) = explode(".", $arrow['invnumber']);
-    if (strlen($encounter) >= 8) {
-      $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
-        "-" . substr($encounter, 6, 2);
-    }
-    else if ($encounter) {
-      $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
-        "encounter = ?", array($encounter) );
-      $svcdate = substr($tmp['date'], 0, 10);
-    }
-  } // end not $INTEGRATED_AR
 
   // Get invoice reference number.
   $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
@@ -428,7 +394,6 @@ function generate_receipt($patient_id, $encounter=0) {
 <?php
   $charges = 0.00;
 
-  if ($INTEGRATED_AR) {
     // Product sales
     $inres = sqlStatement("SELECT s.sale_id, s.sale_date, s.fee, " .
       "s.quantity, s.drug_id, d.name " .
@@ -467,20 +432,6 @@ function generate_receipt($patient_id, $encounter=0) {
       receiptDetailLine($svcdate, $payer . ' ' . $inrow['memo'],
         0 - $inrow['adj_amount'], 1);
     }
-  } // end $INTEGRATED_AR
-  else {
-    // Request all line items with money belonging to the invoice.
-    $inres = SLQuery("SELECT * FROM invoice WHERE " .
-      "trans_id = $trans_id AND sellprice != 0 ORDER BY id");
-    if ($sl_err) die($sl_err);
-    for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
-      $row = SLGetRow($inres, $irow);
-      $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
-      $charges += $amount;
-      $desc = preg_replace('/^.{1,6}:/', '', $row['description']);
-      receiptDetailLine($svcdate, $desc, $amount, $row['qty']);
-    }
-  } // end not $INTEGRATED_AR
 ?>
 
  <tr>
@@ -498,7 +449,6 @@ function generate_receipt($patient_id, $encounter=0) {
  </tr>
 
 <?php
-  if ($INTEGRATED_AR) {
     // Get co-pays.
     $inres = sqlStatement("SELECT fee, code_text FROM billing WHERE " .
       "pid = ? AND encounter = ?  AND " .
@@ -523,26 +473,6 @@ function generate_receipt($patient_id, $encounter=0) {
       receiptPaymentLine($svcdate, $inrow['pay_amount'],
         $payer . ' ' . $inrow['reference']);
     }
-  } // end $INTEGRATED_AR
-  else {
-    $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
-    if ($sl_err) die($sl_err);
-    if (! $chart_id_cash) die("There is no COA entry for cash account '$sl_cash_acc'");
-    //
-    // Request all cash entries belonging to the invoice.
-    $atres = SLQuery("SELECT * FROM acc_trans WHERE " .
-      "trans_id = $trans_id AND chart_id = $chart_id_cash ORDER BY transdate");
-    if ($sl_err) die($sl_err);
-    //
-    for ($irow = 0; $irow < SLRowCount($atres); ++$irow) {
-      $row = SLGetRow($atres, $irow);
-      $amount = sprintf('%01.2f', $row['amount']); // negative
-      $charges += $amount;
-      $rowsource = $row['source'];
-      if (strtolower($rowsource) == 'co-pay') $rowsource = '';
-      receiptPaymentLine($row['transdate'], 0 - $amount, $rowsource);
-    }
-  } // end not $INTEGRATED_AR
 ?>
  <tr>
   <td colspan='5'>&nbsp;</td>
@@ -574,7 +504,6 @@ function generate_receipt($patient_id, $encounter=0) {
 </body>
 </html>
 <?php
-  if (!$INTEGRATED_AR) SLClose();
 } // end function generate_receipt()
 
 // Function to output a line item for the input form.
@@ -687,38 +616,19 @@ if ($_POST['form_save']) {
   if (! $form_encounter) {
     $form_encounter = substr($dosdate,0,4) . substr($dosdate,5,2) . substr($dosdate,8,2);
     $tmp = '';
-    if ($INTEGRATED_AR) {
       while (true) {
         $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
           "pid = ? AND encounter = ?", array($form_pid, $form_encounter.$tmp) );
         if (empty($ferow)) break;
         $tmp = $tmp ? $tmp + 1 : 1;
       }
-    }
-    else {
-      SLConnect();
-      while (SLQueryValue("select id from ar where " .
-        "invnumber = '$form_pid.$form_encounter$tmp'")) {
-        $tmp = $tmp ? $tmp + 1 : 1;
-      }
-      SLClose();
-    }
     $form_encounter .= $tmp;
   }
 
-  if ($INTEGRATED_AR) {
     // Delete any TAX rows from billing because they will be recalculated.
     sqlStatement("UPDATE billing SET activity = 0 WHERE " .
       "pid = ? AND encounter = ? AND " .
       "code_type = 'TAX'", array($form_pid,$form_encounter) );
-  }
-  else {
-    // Initialize an array of invoice information for posting.
-    $invoice_info = array();
-    $msg = invoice_initialize($invoice_info, $form_pid,
-    $_POST['form_provider'], $_POST['form_payer'], $form_encounter, $dosdate);
-    if ($msg) die($msg);
-  }
 
   $form_amount = $_POST['form_amount'];
   $lines = $_POST['line'];
@@ -729,11 +639,6 @@ if ($_POST['form_save']) {
     $id        = $line['id'];
     $amount    = sprintf('%01.2f', trim($line['amount']));
 
-    if (!$INTEGRATED_AR) {
-      $msg = invoice_add_line_item($invoice_info, $code_type,
-        $line['code'], $line['description'], $amount, $line['units']);
-      if ($msg) die($msg);
-    }
 
     if ($code_type == 'PROD') {
       // Product sales. The fee and encounter ID may have changed.
@@ -770,7 +675,6 @@ if ($_POST['form_save']) {
       $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
     }
     $memo = xl('Discount');
-    if ($INTEGRATED_AR) {
       $time = date('Y-m-d H:i:s');
       $query = "INSERT INTO ar_activity ( " .
         "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
@@ -789,19 +693,12 @@ if ($_POST['form_save']) {
         ")";
       sqlStatement($query, array($form_pid,$form_encounter,$_SESSION['authUserID'],$time,$memo,$amount) );
     }
-    else {
-      $msg = invoice_add_line_item($invoice_info, 'DISCOUNT',
-        '', $memo, 0 - $amount);
-      if ($msg) die($msg);
-    }
-  }
 
   // Post payment.
   if ($_POST['form_amount']) {
     $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
     $form_source = trim($_POST['form_source']);
     $paydesc = trim($_POST['form_method']);
-    if ($INTEGRATED_AR) {
       //Fetching the existing code and modifier
 			$ResultSearchNew = sqlStatement("SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
 				"WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
@@ -823,17 +720,6 @@ if ($_POST['form_save']) {
       $insrt_id=idSqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
         " VALUES (?,?,?,?,?,0,?,?,?,?,'PCP')",
         array($form_pid,$form_encounter,$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
-    }
-    else {
-      $msg = invoice_add_line_item($invoice_info, 'COPAY',
-        $paydesc, $form_source, 0 - $amount);
-      if ($msg) die($msg);
-    }
-  }
-
-  if (!$INTEGRATED_AR) {
-    $msg = invoice_post($invoice_info);
-    if ($msg) die($msg);
   }
 
   // If applicable, set the invoice reference number.

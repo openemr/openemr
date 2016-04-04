@@ -61,7 +61,7 @@ function smarty_function_pc_date_select($args)
         $args['view'] = false;
     }
 	$dayselect=$monthselect=$yearselect=$viewselect='';
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
         if($args['day'] === true) {
             $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$d));

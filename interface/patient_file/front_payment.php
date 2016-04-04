@@ -23,7 +23,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
-$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 ?>
 <html>
 <head>
@@ -116,7 +115,6 @@ $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
 
-if (!$INTEGRATED_AR) slInitialize();
 
 // $patdata = getPatientData($pid, 'fname,lname,pubpid');
 
@@ -1154,59 +1152,6 @@ function make_insurance()
   }
 
 
-  // Now list previously billed visits.
-
-  if ($INTEGRATED_AR) {
-
- } // end $INTEGRATED_AR
-  else {
-    // Query for all open invoices.
-    $query = "SELECT ar.id, ar.invnumber, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, " .
-      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
-      "invoice.trans_id = ar.id AND invoice.sellprice > 0) AS charges, " .
-      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
-      "invoice.trans_id = ar.id AND invoice.sellprice < 0) AS adjustments, " .
-      "(SELECT SUM(acc_trans.amount) FROM acc_trans WHERE " .
-      "acc_trans.trans_id = ar.id AND acc_trans.chart_id = ? " .
-      "AND acc_trans.source NOT LIKE 'Ins%') AS ptpayments " .
-      "FROM ar WHERE ar.invnumber LIKE ? AND " .
-      "ar.amount != ar.paid " .
-      "ORDER BY ar.invnumber";
-    $ires = SLQuery($query, array($chart_id_cash,$pid."%") );
-    if ($sl_err) die($sl_err);
-    $num_invoices = SLRowCount($ires);
-
-    for ($ix = 0; $ix < $num_invoices; ++$ix) {
-      $irow = SLGetRow($ires, $ix);
-
-      // Get encounter ID and date of service.
-      list($patient_id, $enc) = explode(".", $irow['invnumber']);
-      $tmp = sqlQuery("SELECT LEFT(date, 10) AS encdate FROM form_encounter " .
-        "WHERE encounter = ?", array($enc) );
-      $svcdate = $tmp['encdate'];
-
-      // Compute $duncount as in sl_eob_search.php to determine if
-      // this invoice is at patient responsibility.
-      $duncount = substr_count(strtolower($irow['intnotes']), "statement sent");
-      if (! $duncount) {
-        $insgot = strtolower($irow['notes']);
-        $inseobs = strtolower($irow['shipvia']);
-        foreach (array('ins1', 'ins2', 'ins3') as $value) {
-          if (strpos($insgot, $value) !== false &&
-              strpos($inseobs, $value) === false)
-            --$duncount;
-        }
-      }
-
-      $inspaid = $irow['paid'] + $irow['ptpayments'] - $irow['adjustments'];
-      $balance = $irow['amount'] - $irow['paid'];
-      $duept  = ($duncount < 0) ? 0 : $balance;
-
-      echoLine("form_bpay[$enc]", $svcdate, $irow['charges'],
-        0 - $irow['ptpayments'], $inspaid, $duept);
-    }
-  } // end not $INTEGRATED_AR
 
   // Continue with display of the data entry form.
 ?>
@@ -1247,6 +1192,5 @@ function make_insurance()
 
 <?php
 }
-if (!$INTEGRATED_AR) SLClose();
 ?>
 </html>

@@ -40,8 +40,11 @@ $CPR = 4; // cells per row
 // $langi = getLanguages();
 // $ethnoraciali = getEthnoRacials();
 // $provideri = getProviderInfo();
-
-$insurancei = getInsuranceProviders();
+if ($GLOBALS['insurance_information'] != '0') {
+    $insurancei = getInsuranceProvidersExtra();
+}else{
+	$insurancei = getInsuranceProviders();
+}
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 " .
@@ -741,5 +744,19 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
 
 </body>
+<script language='JavaScript'>
+    // Array of skip conditions for the checkSkipConditions() function.
+    var skipArray = [
+        <?php echo $condition_str; ?>
+    ];
+    checkSkipConditions();
+    $("input").change(function() {
+        checkSkipConditions();
+    });
+    $("select").change(function() {
+        checkSkipConditions();
+    });
+</script>
+
 
 </html>

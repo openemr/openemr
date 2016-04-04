@@ -1,4 +1,4 @@
-<?php
+    <?php
  // Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -36,6 +36,23 @@
         }
     //
 
+    require_once("../library/translation.inc.php");
+
+    // set the language
+    if (!empty($_POST['languageChoice'])) {
+        $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
+    }
+    else if (empty($_SESSION['language_choice'])) {
+        // just in case both are empty, then use english
+        $_SESSION['language_choice'] = 1;
+    }
+    else {
+        // keep the current session language token
+    }
+    $_SESSION['language_direction'] = getLanguageDir( $_SESSION['language_choice'] );
+
+
+
     //SANITIZE ALL ESCAPES
     $fake_register_globals=false;
 
@@ -43,7 +60,7 @@
     $sanitize_all_escapes=true;
 
     //Settings that will override globals.php
-        $ignoreAuth = 1;
+    $ignoreAuth = 1;
     //
 
     //Authentication (and language setting)
@@ -52,17 +69,7 @@
     $password_update=isset($_SESSION['password_update']);
     unset($_SESSION['password_update']);
     $plain_code= $_POST['pass'];
-    // set the language
-    if (!empty($_POST['languageChoice'])) {
-            $_SESSION['language_choice'] = $_POST['languageChoice'];
-    }
-    else if (empty($_SESSION['language_choice'])) {
-            // just in case both are empty, then use english
-            $_SESSION['language_choice'] = 1;
-    }
-    else {
-            // keep the current session language token
-    }
+
 
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
@@ -179,8 +186,7 @@
         session_destroy();
         header('Location: '.$landingpage.'&w');
         exit;
-    }		
-    //
+    }
 
     require_once('summary_pat_portal.php');
 

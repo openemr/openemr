@@ -57,6 +57,7 @@
 //   Serbian                        // xl('Serbian')
 //   Sinhala                        // xl('Sinhala')
 //   Slovak                         // xl('Slovak')
+//   Somali                         // xl('Somali')
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
@@ -681,7 +682,21 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
     ),
-      
+
+    'number_of_appts_to_show' => array(
+      xl('Appointments - Patient Summary - Number to Display'),
+      'num',                           
+      '10',                            
+      xl('Number of Appointments to display in the Patient Summary')
+    ),
+
+    'patient_portal_appt_display_num' => array(
+      xl('Appointments - Onsite Patient Portal - Number to Display'),
+      'num',                           
+      '20',                            
+      xl('Number of Appointments to display in the Onsite Patient Portal')
+    ),
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
@@ -833,6 +848,32 @@ $GLOBALS_METADATA = array(
 	   '0',                              // default = false
 	   xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
     ),	
+ 
+    'replicate_justification' => array(
+      xl('Automatically replicate justification codes in Fee Sheet'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
+    ),
+ 
+    'display_units_in_billing' => array(
+      xl('Display the Units Column on the Billing Screen'),
+	   'bool',                           // data type
+	   '0',                              // default = false
+      xl('Display the Units Column on the Billing Screen')
+    ),
+    
+    'notes_to_display_in_Billing' => array(
+      xl('Which notes are to be displayed in the Billing Screen'),
+      array(
+        '0' => xl('None'),
+        '1' => xl('Encounter Billing Note'),
+        '2' => xl('Patient Billing Note'), 
+        '3' => xl('All'),  		
+      ),   
+      '3',
+     xl('Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.')
+    ),
   
   	'use_custom_statement' => array(
       xl('Use Custom Statement'),
@@ -873,7 +914,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing second account message'),
       'num',                           // data type
       '60',
-      xl('Number of days before showing second account message.')
+      xl('Number of days before showing second account message')
     ),
 
     'second_dun_msg_text' => array(
@@ -887,7 +928,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing third account message'),
       'num',                           // data type
       '90',
-      xl('Number of days before showing third account message.')
+      xl('Number of days before showing third account message')
     ),
 
     'third_dun_msg_text' => array(
@@ -901,7 +942,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing fourth account message'),
       'num',                           // data type
       '120',
-      xl('Number of days before showing fourth account message.')
+      xl('Number of days before showing fourth account message')
     ),
 
     'fourth_dun_msg_text' => array(
@@ -915,7 +956,7 @@ $GLOBALS_METADATA = array(
       xl('Number of days before showing fifth account message'),
       'num',                           // data type
       '150',
-      xl('Number of days before showing fifth account message.')
+      xl('Number of days before showing fifth account message')
     ),
 
     'fifth_dun_msg_text' => array(
@@ -1407,21 +1448,21 @@ $GLOBALS_METADATA = array(
       xl('Phone Gateway Username'),
       'text',                           // data type
       '',                               // default
-      xl('Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('Username for Phone Gateway.')
     ),
     
     'phone_gateway_password' => array(
       xl('Phone Gateway Password'),
       'text',                           // data type
       '',                               // default
-      xl('Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('Password for Phone Gateway.')
     ),
     
     'phone_gateway_url' => array(
       xl('Phone Gateway URL'),
       'text',                           // data type
       '',                               // default
-      xl('URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+      xl('URL for Phone Gateway.')
     ),
 
   ),
@@ -1959,34 +2000,6 @@ $GLOBALS_METADATA = array(
   // Connectors Tab
   //
   'Connectors' => array(
-
-    'lab_exchange_enable' => array(
-      xl('Enable Lab Exchange'),
-      'bool',                           // data type
-      '0',
-      xl('Enable the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_siteid' => array(
-      xl('Lab Exchange Site ID'),
-      'text',                           // data type
-      '3',
-      xl('Site ID for the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_token' => array(
-      xl('Lab Exchange Token ID'),
-      'text',                           // data type
-      '12345',
-      xl('Token ID for the Medical Information Integration, LLC Lab Exchange Service.')
-    ),
-
-    'lab_exchange_endpoint' => array(
-      xl('Lab Exchange Site Address'),
-      'text',                           // data type
-      'https://len.mi-squared.com:29443/len/api',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
-    ),
 
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),

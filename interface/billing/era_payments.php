@@ -29,7 +29,6 @@
 //===============================================================================
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
@@ -43,18 +42,14 @@ $eraname = '';
 $eracount = 0;
 $Processed=0;
 function era_callback(&$out) {
-  global $where, $eracount, $eraname, $INTEGRATED_AR;
+  global $where, $eracount, $eraname;
   ++$eracount;
   $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
   list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
   if ($pid && $encounter) {
     if ($where) $where .= ' OR ';
-    if ($INTEGRATED_AR) {
       $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
-    } else {
-      $where .= "invnumber = '$invnumber'";
-    }
   }
 }
 //===============================================================================

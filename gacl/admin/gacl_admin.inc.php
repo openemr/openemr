@@ -59,7 +59,14 @@ $gacl = &$gacl_api;
 $db = &$gacl->db;
 
 //Setup the Smarty Class.
-require_once($gacl_options['smarty_dir'].'/Smarty.class.php');
+if (file_exists($gacl_options['smarty_dir'].'/Smarty.class.php')) {
+  //this is for standard use phpgacl
+  require_once($gacl_options['smarty_dir'].'/Smarty.class.php');
+}
+else {
+  //this is for during the phpgacl install process within OpenEMR installation setup
+  require_once('library/Smarty/Smarty.class.php');
+}
 
 $smarty = new Smarty;
 $smarty->compile_check = TRUE;
@@ -75,6 +82,6 @@ $author_email = 'ipso@snappymail.ca';
  * Don't need to show notices, some of them are pretty lame and people get overly worried when they see them.
  * Mean while I will try to fix most of these. ;) Please submit patches if you find any I may have missed.
  */
-error_reporting (E_ALL ^ E_NOTICE);
-
+//commented out below to instead have php decide which errors to show.
+//error_reporting (E_ALL ^ E_NOTICE);
 ?>

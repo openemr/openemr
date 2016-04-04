@@ -409,13 +409,16 @@ div.section {
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php
- $i = 0;	
+ $i = 0;  
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
   $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ?",array($key."_issue_list"));
   while($res = sqlFetchArray($qry)){
     echo " aopts[$i][aopts[$i].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
+    if ($res['codes']) {
+      echo " aopts[$i][aopts[$i].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
+    }
   }
   ++$i;
  }
@@ -516,9 +519,11 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
  }
 
  // If a clickoption title is selected, copy it to the title field.
+ // If it has a code, add that too.
  function set_text() {
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
+  f.form_diagnosis.value = f.form_titles.options[f.form_titles.selectedIndex].getAttribute('data-code');
   f.form_titles.selectedIndex = -1;
  }
 

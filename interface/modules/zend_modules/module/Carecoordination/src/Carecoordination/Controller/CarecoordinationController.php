@@ -581,7 +581,7 @@ class CarecoordinationController extends AbstractActionController
                                         if(count($vitals_audit)>0) {
                                          $temp .= '<div><table class="narr_table" border="1" width="100%">
                                          <thead><tr class="narr_tr">
-                                         <th class="narr_th" align="right">'.\Application\Listener\Listener::z_xlt('Date / Time: ').'</th>';
+                                         <th class="narr_th" align="right">'.\Application\Listener\Listener::z_xlt('Date / Time').': </th>';
                                          foreach($vitals_audit['vital_sign'] as $key => $val){
                                           $temp .= '<th class="narr_th">'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</th>';
                                          } 

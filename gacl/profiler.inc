@@ -34,7 +34,7 @@ class Profiler {
     /**
     * Initialise the timer. with the current micro time
     */
-    function Profiler( $output_enabled=false, $trace_enabled=false)
+    function __construct( $output_enabled=false, $trace_enabled=false)
     {
         $this->description = array();
         $this->startTime = array();

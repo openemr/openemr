@@ -17,7 +17,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
@@ -165,9 +164,6 @@ function payerCmp($a, $b) {
 
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
-$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
-
-if (!$INTEGRATED_AR) SLConnect();
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
@@ -388,12 +384,6 @@ function sel_procedure() {
  </thead>
 <?php
 
-if (!$INTEGRATED_AR) {
-  $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
-  if ($sl_err) die($sl_err);
-  $chart_id_income = SLQueryValue("select id from chart where accno = '$sl_income_acc'");
-  if ($sl_err) die($sl_err);
-}
 
 if ($_POST['form_refresh']) {
   $from_date = $form_from_date;
@@ -406,7 +396,6 @@ if ($_POST['form_refresh']) {
   $methodadjtotal  = 0;
   $grandadjtotal  = 0;
 
-  if ($INTEGRATED_AR) {
 
     // Get co-pays using the encounter date as the pay date.  These will
     // always be considered patient payments.  Ignored if selecting by
@@ -501,85 +490,6 @@ if ($_POST['form_refresh']) {
         $rowmethod, $row['pay_amount'], $row['adj_amount'], $row['payer_type'],
         $row['invoice_refno']);
     }
-  } // end $INTEGRATED_AR
-  else {
-    $query = "SELECT acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
-      "replace(acc_trans.source, 'InvAdj ', '') AS source, " .
-      "acc_trans.chart_id, ar.invnumber, ar.employee_id, ar.notes " .
-      "FROM acc_trans, ar WHERE " .
-      "( acc_trans.chart_id = $chart_id_cash OR " .
-      "( acc_trans.chart_id = $chart_id_income AND " .
-      "acc_trans.source LIKE 'InvAdj %' ) ) AND " .
-      "ar.id = acc_trans.trans_id AND ";
-    if ($form_proc_code) {
-      $query .= "acc_trans.memo ILIKE '$form_proc_code%' AND ";
-    }
-    if ($form_use_edate) {
-      $query .= "ar.transdate >= '$from_date' AND " .
-      "ar.transdate <= '$to_date'";
-    } else {
-      $query .= "acc_trans.transdate >= '$from_date' AND " .
-      "acc_trans.transdate <= '$to_date'";
-    }
-    $query .= " ORDER BY source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
-
-    // echo "<!-- $query -->\n";
-
-    $t_res = SLQuery($query);
-    if ($sl_err) die($sl_err);
-
-    for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
-      $row = SLGetRow($t_res, $irow);
-      list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-
-      // If a facility was specified then skip invoices whose encounters
-      // do not indicate that facility.
-      if ($form_facility) {
-        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-          "facility_id = '$form_facility'");
-        if (empty($tmp['count'])) continue;
-      }
-
-      $rowpayamount = 0 - $row['amount'];
-      $rowadjamount = 0;
-      if ($row['chart_id'] == $chart_id_income) {
-        $rowadjamount = $rowpayamount;
-        $rowpayamount = 0;
-      }
-
-      // Compute reporting key: insurance company name or payment method.
-      $payer_type = 0; // will be 0=pt, 1=ins1, 2=ins2 or 3=ins3
-      if ($form_report_by == '1') {
-        $rowmethod = '';
-        $rowsrc = strtolower($row['source']);
-        $insgot = strtolower($row['notes']);
-        foreach (array('ins1', 'ins2', 'ins3') as $value) {
-          if (strpos($rowsrc, $value) !== false) {
-            $i = strpos($insgot, $value);
-            if ($i !== false) {
-              $j = strpos($insgot, "\n", $i);
-              if (!$j) $j = strlen($insgot);
-              $payer_type = 0 + substr($value, 3);
-              $rowmethod = trim(substr($row['notes'], $i + 5, $j - $i - 5));
-              break;
-            }
-          }
-        } // end foreach
-      } // end reporting by payer
-      else {
-        $rowmethod = trim($row['source']);
-        if ($form_report_by != '3') {
-          // Extract only the first word as the payment method because any
-          // following text will be some petty detail like a check number.
-          $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
-        }
-      } // end reporting by method
-
-      thisLineItem($patient_id, $encounter_id, $row['memo'], $row['transdate'],
-        $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
-    } // end for
-  } // end not $INTEGRATED_AR
 
   // Not payer summary.
   if ($form_report_by != '1' || $_POST['form_details']) {
@@ -662,7 +572,6 @@ if ($_POST['form_refresh']) {
 
 <?php
 } // end form refresh
-if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>

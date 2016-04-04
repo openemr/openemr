@@ -40,12 +40,10 @@
 
   if ($_POST['form_save']) {
     $thevalue = trim($_POST['form_note']);
-    $thename = $thevalue ? "Billing" : "";
 
     sqlStatement("UPDATE patient_data SET " .
-      "genericname2 = ?, " .
-      "genericval2 = ? " .
-      "WHERE pid = ? ", array($thename, $thevalue, $patient_id));
+      "billing_note = ? " .
+      "WHERE pid = ? ", array($thevalue, $patient_id));
 
     echo "<script language='JavaScript'>\n";
     if ($info_msg) echo " alert('$info_msg');\n";
@@ -54,7 +52,7 @@
     exit();
   }
 
-  $row = sqlQuery("select fname, lname, genericname2, genericval2 " .
+  $row = sqlQuery("select fname, lname, billing_note " .
     "from patient_data where pid = '$patient_id' limit 1");
 ?>
 <center>
@@ -66,7 +64,7 @@
 
 <p>
 <input type='text' name='form_note' size='60' maxlength='255'
- value='<?php  echo addslashes($row['genericval2']) ?>' />
+ value='<?php  echo addslashes($row['billing_note']) ?>' />
 </p>
 
 <p>&nbsp;</p>

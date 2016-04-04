@@ -72,8 +72,8 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 
 <div id="report_parameters">
 
-<table>
- <tr>
+    <table>
+        <tr class="misc-internet-search">
   <td>
 	<div style='float:left'>
 	<table class='text'>

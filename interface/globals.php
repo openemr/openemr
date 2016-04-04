@@ -124,10 +124,12 @@ require_once(dirname(__FILE__) . "/../library/sqlconf.php");
 if (!$disable_utf8_flag) {    
  ini_set('default_charset', 'utf-8');
  $HTML_CHARSET = "UTF-8";
+ mb_internal_encoding('UTF-8');
 }
 else {
  ini_set('default_charset', 'iso-8859-1');
  $HTML_CHARSET = "ISO-8859-1";
+ mb_internal_encoding('ISO-8859-1');
 }
 
 // Root directory, relative to the webserver root:
@@ -198,7 +200,7 @@ if (!empty($glrow)) {
   $GLOBALS['language_menu_show'] = array();
   $glres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals " .
     "ORDER BY gl_name, gl_index");
-  while ($glrow = sqlFetchArray($glres)) {
+  while ($glrow = sqlFetchArray($glres)) {    
     $gl_name  = $glrow['gl_name'];
     $gl_value = $glrow['gl_value'];
     // Adjust for user specific settings
@@ -209,11 +211,12 @@ if (!empty($glrow)) {
         }
       }
     }
-    if ($gl_name == 'language_menu_other') {
+    if ($gl_name == 'language_menu_other') {       
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {
-      $GLOBALS[$gl_name] = "$rootdir/themes/" . $gl_value;
+        $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
+        $temp_css_theme_name = $gl_value;
     }
     else if ($gl_name == 'specific_application') {
       if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
@@ -234,6 +237,46 @@ if (!empty($glrow)) {
   if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
     $GLOBALS['language_menu_login'] = true;
   }
+  
+  
+// Additional logic to override theme name.
+// For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
+    $rtl_override = false;
+    if( isset( $_SESSION['language_direction'] )) {
+        if( $_SESSION['language_direction'] == 'rtl' && 
+        !strpos($GLOBALS['css_header'], 'rtl')  ) {
+
+            // the $css_header_value is set above
+            $rtl_override = true;
+        }
+    }     
+    
+    else { 
+        //$_SESSION['language_direction'] is not set, so will use the default language
+        $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
+        
+        if ( getLanguageDir( $default_lang_id['lang_id'] ) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) { // @todo eliminate 1 SQL query
+            $rtl_override = true;
+        }
+    }
+    
+
+    // change theme name, if the override file exists.
+    if( $rtl_override ) {
+        // the $css_header_value is set above
+        $new_theme = 'rtl_' . $temp_css_theme_name;
+
+        // Check file existance 
+        if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
+            $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme;
+        } else {
+            // throw a warning if rtl'ed file does not exist.
+            error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme)   );
+        }
+    }
+    unset( $temp_css_theme_name, $new_theme,$rtl_override);
+    // end of RTL section
+  
   //
   // End of globals table processing.
 }
@@ -348,10 +391,6 @@ if (!isset($ignoreAuth) || !$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
 
-// If you do not want your accounting system to have a customer added to it
-// for each insurance company, then set this to true.  SQL-Ledger currently
-// (2005-03-21) does nothing useful with insurance companies as customers.
-$GLOBALS['insurance_companies_are_not_customers'] = true;
 
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
@@ -360,17 +399,6 @@ $GLOBALS['layout_search_color'] = '#ffff55';
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
-// Customize these if you are using SQL-Ledger with OpenEMR, or if you are
-// going to run sl_convert.php to convert from SQL-Ledger.
-//
-$sl_cash_acc    = '1060';       // sql-ledger account number for checking account
-$sl_ar_acc      = '1200';       // sql-ledger account number for accounts receivable
-$sl_income_acc  = '4320';       // sql-ledger account number for medical services income
-$sl_services_id = 'MS';         // sql-ledger parts table id for medical services
-$sl_dbname      = 'sql-ledger'; // sql-ledger database name
-$sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
-$sl_dbpass      = 'secret';     // sql-ledger database login password
-//////////////////////////////////////////////////////////////////
 
 //module configurations
 $GLOBALS['baseModDir'] 	= "interface/modules/"; //default path of modules

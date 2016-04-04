@@ -26,7 +26,7 @@
  */
 class pcSmarty extends Smarty
 {
-    function pcSmarty()
+    function __construct()
     {
         $theme = pnUserGetTheme();
 		$osTheme = pnVarPrepForOS($theme);
@@ -34,7 +34,7 @@ class pcSmarty extends Smarty
         global $bgcolor1,$bgcolor2,$bgcolor3,$bgcolor4,$bgcolor5,$bgcolor6,$textcolor1,$textcolor2;
         
         // call constructor
-        $this->Smarty();
+        parent::__construct();
 		
 		// gather module information
         $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -88,7 +88,7 @@ class pcSmarty extends Smarty
 		$this->assign_by_ref('TEXTCOLOR2',$textcolor2);
 		$this->assign_by_ref('USER_LANG',$lang);
 		$this->assign_by_ref('FUNCTION',$func);
-		$this->assign_by_ref('PRINT_VIEW',$print);
+		$this->assign('PRINT_VIEW',$print);
 		$this->assign('USE_POPUPS',_SETTING_USE_POPUPS);
 		$this->assign('USE_TOPICS',_SETTING_DISPLAY_TOPICS);
 		$this->assign('USE_INT_DATES',_SETTING_USE_INT_DATES);

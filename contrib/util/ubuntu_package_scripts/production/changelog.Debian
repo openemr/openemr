@@ -1,4 +1,10 @@
-openemr (4.3.0-1) stable; urgency=low
+openemr (4.2.1-2) stable; urgency=low
+
+  * Fix to work with new versions of Ubuntu (15.10+).
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 29 Mar 2016 17:38:51 -0700
+
+openemr (4.2.1-1) stable; urgency=low
 
   * New upstream version
 

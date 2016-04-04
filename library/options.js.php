@@ -76,6 +76,7 @@ function checkSkipConditions() {
     var srcelem = document.getElementById('check_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
+    if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
     if (srcelem == null) {
       if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
       myerror = true;
@@ -83,8 +84,18 @@ function checkSkipConditions() {
     }
 
     var condition = false;
-    if (operator == 'eq') condition = srcelem.value == value; else
-    if (operator == 'ne') condition = srcelem.value != value; else
+
+
+    if( typeof srcelem.options!=="undefined"){
+        var elem_val=srcelem.options[srcelem.selectedIndex].text;
+    }else{
+        var elem_val=srcelem.value;
+        if(elem_val == null) elem_val = srcelem.innerText;
+
+    }
+
+    if (operator == 'eq') condition = elem_val == value; else
+    if (operator == 'ne') condition = elem_val != value; else
     if (operator == 'se') condition = srcelem.checked       ; else
     if (operator == 'ns') condition = !srcelem.checked;
 
@@ -101,10 +112,15 @@ function checkSkipConditions() {
 
     var trgelem1 = document.getElementById('label_id_' + target);
     var trgelem2 = document.getElementById('value_id_' + target);
+
     if (trgelem1 == null && trgelem2 == null) {
-      if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
-      myerror = true;
-      continue;
+        var trgelem1 = document.getElementById('label_' + target);
+        var trgelem2 = document.getElementById('text_' + target);
+        if (trgelem1 == null && trgelem2 == null) {
+            if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
+            myerror = true;
+            continue;
+        }
     }
     // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
     var colspan = 0;

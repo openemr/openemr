@@ -1,9 +1,8 @@
 <?php
 /**
- * This is a report of sales by item description. It's driven from
- * SQL-Ledger so as to include all types of invoice items.
+ * This is a report of sales by item description. 
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2015-2016 Terry Hill <terry@lillysystems.com>
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -27,7 +26,6 @@ $fake_register_globals=false;
  
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
@@ -230,9 +228,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
-  $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
-
-  if (!$INTEGRATED_AR) SLConnect();
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
@@ -492,7 +487,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     $grandtotal = 0;
     $grandqty = 0;
 
-    if ($INTEGRATED_AR) {
       $sqlBindArray = array();
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
         "b.code_text, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno, lo.title " .
@@ -548,31 +542,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         thisLineItem($row['pid'], $row['encounter'], xl('Products'), $row['name'],
           substr($row['date'], 0, 10), $row['quantity'], $row['fee'], $row['invoice_refno']);
       }
-    }
-    else {
-      $query = "SELECT ar.invnumber, ar.transdate, " .
-        "invoice.description, invoice.qty, invoice.sellprice " .
-        "FROM ar, invoice WHERE " .
-        "ar.transdate >= '$from_date' AND ar.transdate <= '$to_date' " .
-        "AND invoice.trans_id = ar.id " .
-        "ORDER BY invoice.description, ar.transdate, ar.id";
-      $t_res = SLQuery($query);
-      if ($sl_err) die($sl_err);
-      for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
-        $row = SLGetRow($t_res, $irow);
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-        // If a facility was specified then skip invoices whose encounters
-        // do not indicate that facility.
-        if ($form_facility) {
-          $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-            "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-            "facility_id = '$form_facility'");
-          if (empty($tmp['count'])) continue;
-        }
-        thisLineItem($patient_id, $encounter_id, '', $row['description'],
-          $row['transdate'], $row['qty'], $row['sellprice'] * $row['qty']);
-      } // end for
-    } // end not $INTEGRATED_AR
 
     if ($_POST['form_csvexport']) {
       if (! $_POST['form_details']) {
@@ -657,7 +626,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
     } // End not csv export
   }
-  if (!$INTEGRATED_AR) SLClose();
 
   if (! $_POST['form_csvexport']) {
       if($_POST['form_refresh']){

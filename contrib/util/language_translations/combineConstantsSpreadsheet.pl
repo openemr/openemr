@@ -30,7 +30,7 @@ my @spreadsheet;
 my @newSpreadsheet;
 my $inputSpreadsheet;
 my $inputConstants;
-my $constantRow = 5; # from spreadsheet, 0 is lowest
+my $constantRow = 6; # from spreadsheet, 0 is lowest
 my $constantColumn = 1; # from spreadsheet, 0 is lowest
 my $constantIdColumn = 0; # from spreadsheet, 0 is lowest
 

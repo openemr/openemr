@@ -169,6 +169,9 @@ if (!$GLOBALS['dbh']) {
 */
 function sqlStatement($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   // Use adodb Execute with binding and return a recordset.
   //   Note that the auditSQLEvent function is embedded
   //    in the Execute command.
@@ -199,6 +202,9 @@ function sqlStatement($statement, $binds=false )
 */
 function sqlStatementNoLog($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   // Use adodb ExecuteNoLog with binding and return a recordset.
   $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
   if ($recordset === FALSE) {
@@ -218,6 +224,9 @@ function sqlStatementNoLog($statement, $binds=false )
 */
 function sqlStatementCdrEngine($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   if ($GLOBALS['audit_events_cdr']) {
     return sqlStatement($statement,$binds);
   }
@@ -265,6 +274,9 @@ function sqlFetchArray($r)
 */
 function sqlInsert($statement, $binds=false)
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   //Run a adodb execute
   // Note the auditSQLEvent function is embedded in the
   //   Execute function.
@@ -290,6 +302,9 @@ function sqlInsert($statement, $binds=false)
 */
 function sqlQuery($statement, $binds=false)
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds );
 
   if ($recordset === FALSE) {
@@ -319,6 +334,9 @@ function sqlQuery($statement, $binds=false)
 */
 function sqlQueryNoLog($statement, $binds=false)
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
 
   if ($recordset === FALSE) {
@@ -349,6 +367,9 @@ function sqlQueryNoLog($statement, $binds=false)
 */
 function sqlQueryNoLogIgnoreError($statement, $binds=false)
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
 
   if ($recordset === FALSE) {
@@ -374,6 +395,9 @@ function sqlQueryNoLogIgnoreError($statement, $binds=false)
 */
 function sqlQueryCdrEngine($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   if ($GLOBALS['audit_events_cdr']) {
     return sqlQuery($statement,$binds);
   }
@@ -513,6 +537,9 @@ function generate_id () {
 */
 function sqlQ($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds ) or
     HelpfulDie("query failed: $statement", getSqlLastError());
   return $recordset;
@@ -531,6 +558,9 @@ function sqlQ($statement, $binds=false )
 */
 function idSqlStatement($statement , $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   return sqlInsert($statement, $binds);
 }
 
@@ -547,6 +577,9 @@ function idSqlStatement($statement , $binds=false )
 */
 function sqlInsertClean($statement, $binds=false )
 {
+  // Below line is to avoid a nasty bug in windows.
+  if (empty($binds)) $binds = false;
+
   return sqlInsert($statement, $binds);
 }
 
