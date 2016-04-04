@@ -45,7 +45,6 @@ ALTER TABLE `patient_data` ADD `type_id` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `passportCountry` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `passportYear` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `fathersName` TEXT NOT NULL;
-ALTER TABLE `patient_data` ADD `mothersName` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `nickName` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `previousLastName` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `placeOfBirth` TEXT NOT NULL;
