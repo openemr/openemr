@@ -54,6 +54,14 @@ ALTER TABLE `patient_data` ADD `citizenshipYear` TEXT NOT NULL;
 ALTER TABLE `patient_data` ADD `ILpopulation` TEXT NOT NULL;
 
 
+#add lists to lists
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value )
+  VALUES ( 'lists','id_type','id_type', '300','1', '0');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value )
+  VALUES ( 'lists','YNDN','YNDN', '301','1', '0');
+
+
 
 
 #Add list for idintification types
