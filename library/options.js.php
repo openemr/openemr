@@ -78,9 +78,9 @@ function checkSkipConditions() {
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
     if (srcelem == null) {
-      if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
-      myerror = true;
-      continue;
+    if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
+    myerror = true;
+    continue;
     }
 
     var condition = false;
@@ -118,8 +118,8 @@ function checkSkipConditions() {
         var trgelem2 = document.getElementById('text_' + target);
         if (trgelem1 == null && trgelem2 == null) {
             if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
-            myerror = true;
-            continue;
+                myerror = true;
+                continue;
         }
     }
     // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
