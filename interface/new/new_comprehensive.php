@@ -426,6 +426,7 @@ while ($frow = sqlFetchArray($fres)) {
   $field_id   = $frow['field_id'];
   $list_id    = $frow['list_id'];
   $currvalue  = '';
+  $condition_str = get_conditions_str($condition_str,$group_fields);
 
   if (strpos($field_id, 'em_') === 0) {
     $tmp = substr($field_id, 3);
@@ -466,11 +467,11 @@ while ($frow = sqlFetchArray($fres)) {
   }
 
   if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
-
+  $field_id_label='label_'.$frow['field_id'];
   // Handle starting of a new label cell.
   if ($titlecols > 0) {
     end_cell();
-    echo "<td colspan='$titlecols'";
+    echo "<td colspan='$titlecols' id='$field_id_label'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo ">";
@@ -480,7 +481,7 @@ while ($frow = sqlFetchArray($fres)) {
 
   echo "<b>";
     
-  // Modified 6-09 by BM - Translate if applicable  
+  // Modified 6-09 by BM - Translate if applicable
   if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
     
   echo "</b>";
@@ -838,6 +839,19 @@ while ($lrow = sqlFetchArray($lres)) {
 
 }); // end document.ready
 
+</script>
+<script language='JavaScript'>
+    // Array of skip conditions for the checkSkipConditions() function.
+    var skipArray = [
+        <?php echo $condition_str; ?>
+    ];
+    checkSkipConditions();
+    $("input").change(function() {
+        checkSkipConditions();
+    });
+    $("select").change(function() {
+        checkSkipConditions();
+    });
 </script>
 
 </html>

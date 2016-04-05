@@ -116,6 +116,9 @@ function checkSkipConditions() {
     if (trgelem1 == null && trgelem2 == null) {
         var trgelem1 = document.getElementById('label_' + target);
         var trgelem2 = document.getElementById('text_' + target);
+        if(trgelem2 == null){
+            trgelem2 = document.getElementById('form_' + target);
+        }
         if (trgelem1 == null && trgelem2 == null) {
             if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
             myerror = true;
