@@ -1,0 +1,64 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<p><span class="title">Prior Authorization Form</span></p>
+<form name="prior_auth" method="post" action="{$FORM_ACTION}/interface/forms/prior_auth/save.php">
+<table>
+<tr>
+	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()}"></td>
+</tr>
+<tr>
+	<td><br><br>Comments</td>
+</tr>
+<tr>
+	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()}</textarea></td>
+</tr>
+{if $VIEW != true}
+<tr>
+	<td><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+</tr>
+{/if}
+</table>
+<input type="hidden" name="id" value="{$prior_auth->get_id()}" />
+<input type="hidden" name="activity" value="{$prior_auth->get_activity()}">
+<input type="hidden" name="pid" value="{$prior_auth->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>

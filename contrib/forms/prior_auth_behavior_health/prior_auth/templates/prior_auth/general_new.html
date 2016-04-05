@@ -177,10 +177,10 @@ function showHint(str) {
 <tr>
 	<td align="right">Archive this auth:</td><td><input type="radio" name="archived" value="1" />
 </tr>
-{if $VIEW != true}
 <tr>
-	<td><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td><br><br><input type="submit" name="Submit" value="Save Form" onclick="return validate();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
 </tr>
+{if $VIEW != true}
 {/if}
 </table>
 <input type="hidden" name="id" value="{$prior_auth->get_id()}" />
