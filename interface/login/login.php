@@ -60,7 +60,6 @@ function imsubmitted() {
 <body onload="javascript:document.login_form.authUser.focus();" >
 <span class="text"></span>
 <center>
-
 <form method="POST"
  action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
  target="_top" name="login_form" onsubmit="return imsubmitted();">
@@ -129,6 +128,7 @@ else {
 <table width="100%" height="90%">
 <td align='center' valign='middle' width='34%'>
 <div class="login-box">
+<img src="/emr_devtip/openemr/interface/pic/logo.gif" />
 <div class="logo-left"><?php echo $logocode;?></div>
 
 <div class="table-right">

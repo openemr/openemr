@@ -102,7 +102,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     }
     else {
       // Main OpenEMR use
-      header('Location: ../login/login_frame.php?site='.$tmp); // Assuming in the interface/main directory
+      header('Location: ../login/login.php?site='.$tmp); // Assuming in the interface/main directory
     }
     exit;
   }
