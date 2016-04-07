@@ -1008,7 +1008,19 @@ class Claim {
   }
             //Added by sherwin 3/20/2016 insert data from the prior auth form not the misc billing options
   function priorAuthz() {
-	return x12clean(trim($this->prior_auth['prior_auth_number']));
+	  $cpt = $this->procs[0]['code'];
+	  
+	  $i = 1;                 //Loop to find the auth code match to the CPT
+	  do {
+		  $col = 'code'.$i;
+	  $key = array_search($cpt, array_column($this->prior_auth, $col));
+	  if (!empty($key)){ break;}
+	  $i++;
+	  } while ($i < 7);
+	  
+	  file_put_contents('fileCPT.txt', $this->prior_auth[$key]['prior_auth_number']);
+	  
+	return x12clean(trim($this->prior_auth[$key]['prior_auth_number']));
   }
   function auth_from() {
 	return x12clean(trim($this->prior_auth['auth_from']));
