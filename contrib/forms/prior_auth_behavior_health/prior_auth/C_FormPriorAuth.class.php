@@ -30,19 +30,21 @@ class C_FormPriorAuth extends Controller {
 
 	var $template_dir;
 	
-    function __construct($template_mod = "general") {
-    	parent::__construct();
+    function C_FormPriorAuth($template_mod = "general") {
+    	parent::Controller();
     	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/prior_auth/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
     	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
     	$this->assign("STYLE", $GLOBALS['style']);
+		
     }
     
     function default_action() {
     	$prior_auth = new FormPriorAuth();
     	$this->assign("prior_auth",$prior_auth);
+		$this->assign("prior_Auth_number", "");
 		return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
 	

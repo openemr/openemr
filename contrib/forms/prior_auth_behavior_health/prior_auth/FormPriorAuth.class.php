@@ -70,12 +70,22 @@ class FormPriorAuth extends ORDataObject {
 	 */
 
 	function FormPriorAuth($id= "", $_prefix = "")	{
+		
+
+		$pid = $GLOBALS['pid'];
+		
+		//Pull the saved prior auth if there is one - Sherwin
+		//$sid = sqlQuery("SELECT form_id FROM `forms` WHERE `pid` = $pid AND `formdir` LIKE 'prior_auth' ");
+		/*
+		if(empty($id) && !empty($sid['form_id'])){
+			$id = $sid['form_id'];
+		}*/
 		if (is_numeric($id)) {
 			$this->id = $id;
-		}
+		}/*
 		else {
-			$id = "";	
-		}
+			$id = $sid['form_id'];	
+		}*/
 		$this->_table = "form_prior_auth";
 		$this->date = date("Y-m-d H:i:s");
 		$this->activity = 1;

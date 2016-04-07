@@ -52,6 +52,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the ar_activity table
+  var $prior_auth;         // row from the form_prior_auth table
   
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -231,6 +232,11 @@ class Claim {
       "forms.formdir = 'misc_billing_options' " .
       "ORDER BY forms.date";
     $this->billing_options = sqlQuery($sql);
+	
+	//Added by Sherwin to pull the prior auth from the prior auth form
+	$sql = "SELECT * FROM form_prior_auth WHERE " .
+           "pid = '{$this->pid}' AND archived = 0" ;
+		$this->prior_auth = sqlQuery($sql);
 
     $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
       $this->insurance_numbers['provider_number_type'] != '1C') ?
@@ -1000,7 +1006,60 @@ class Claim {
   function serviceDate() {
     return str_replace('-', '', substr($this->encounter['date'], 0, 10));
   }
-
+            //Added by sherwin 3/20/2016 insert data from the prior auth form not the misc billing options
+  function priorAuthz() {
+	  $cpt = $this->procs[0]['code'];
+	  
+	  $i = 1;                 //Loop to find the auth code match to the CPT
+	  do {
+		  $col = 'code'.$i;
+	  $key = array_search($cpt, array_column($this->prior_auth, $col));
+	  if (!empty($key)){ break;}
+	  $i++;
+	  } while ($i < 7);
+	  
+	  file_put_contents('fileCPT.txt', $this->prior_auth[$key]['prior_auth_number']);
+	  
+	return x12clean(trim($this->prior_auth[$key]['prior_auth_number']));
+  }
+  function auth_from() {
+	return x12clean(trim($this->prior_auth['auth_from']));
+  } 
+  function auth_to() {
+	return x12clean(trim($this->prior_auth['auth_to']));
+  }
+  function not_req() {
+	return x12clean(trim($this->prior_auth['not_req']));
+  }  
+  function units() {
+	return x12clean(trim($this->prior_auth['units']));
+  }
+  function override() {
+	return x12clean(trim($this->prior_auth['override']));
+  }  
+  function code1() {
+	return x12clean(trim($this->prior_auth['code1']));
+  }
+  function code2() {
+	return x12clean(trim($this->prior_auth['code2']));
+  }
+  function code3() {
+	return x12clean(trim($this->prior_auth['code3']));
+  }
+  function code4() {
+	return x12clean(trim($this->prior_auth['code4']));
+  }
+  function code5() {
+	return x12clean(trim($this->prior_auth['code5']));
+  }
+  function code6() {
+	return x12clean(trim($this->prior_auth['code6']));
+  }
+  function code7() {
+	return x12clean(trim($this->prior_auth['code7']));
+  }
+  
+            //***************************
   function priorAuth() {
     return x12clean(trim($this->billing_options['prior_auth_number']));
   }
