@@ -601,6 +601,16 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   // Segment REF*EW (Mammography Certification Number) omitted.
   // Segment REF*9F (Referral Number) omitted.
 
+  	  //Added by sherwin 3/22/2016 for form_prior_auth behavioral health
+    if ($claim->priorAuthz()) {
+    ++$edicount;
+    $out .= "REF" .     // Prior Authorization Number behavioral health
+      "*G1" .
+      "*" . $claim->priorAuthz() .
+      "~\n";	  
+   }
+     //**********************
+	 
   if ($claim->priorAuth()) {
     ++$edicount;
     $out .= "REF" .     // Prior Authorization Number
