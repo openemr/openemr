@@ -215,7 +215,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 // $currvalue is the current value, if any, of the associated item.
 //
 function generate_form_field($frow, $currvalue) {
-  global $rootdir, $date_init, $ISSUE_TYPES, $code_types;
+  global $rootdir, $date_init, $ISSUE_TYPES, $code_types,$condition_str;
 
   $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
 
@@ -223,6 +223,7 @@ function generate_form_field($frow, $currvalue) {
   $field_id    = $frow['field_id'];
   $list_id     = $frow['list_id'];
   $backup_list = $frow['list_backup_id'];
+  $condition_str = get_conditions_str($condition_str,$frow);
   
   // escaped variables to use in html
   $field_id_esc= htmlspecialchars( $field_id, ENT_QUOTES);
