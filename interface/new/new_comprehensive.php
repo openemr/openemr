@@ -96,6 +96,10 @@ div.section {
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<?/* TODO OLEG: WHERE TO ADD THIS LINE*/?>
+<script type="text/javascript" src="/openemr/library/js/il_population.js"></script>
+
+
 
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
