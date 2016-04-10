@@ -2,407 +2,426 @@ Checking constants:
 
 Following constant not same:
 	original- val:After Uploading click the button "Import"
-	spreadsheet- ID:209 val:After Uploading click the button \"Import\"
+	spreadsheet- ID:231 val:After Uploading click the button \"Import\"
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:217 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:239 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:218 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:240 val:Age format for \"age up to\" is not valid
 Following constant not same:
 	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
-	spreadsheet- ID:494 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+	spreadsheet- ID:546 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+Following constant not same:
+	original- val:Can't find file!
+	spreadsheet- ID:771 val:Can\'t find file!
+Following constant not same:
+	original- val:Can't upload
+	spreadsheet- ID:772 val:Can\'t upload
 Following constant not same:
 	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
-	spreadsheet- ID:907 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:998 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
 Following constant not same:
 	original- val:Couldn't create backup dir:
-	spreadsheet- ID:1186 val:Couldn\'t create backup dir:
+	spreadsheet- ID:1298 val:Couldn\'t create backup dir:
 Following constant not same:
 	original- val:Couldn't remove dir:
-	spreadsheet- ID:1187 val:Couldn\'t remove dir:
+	spreadsheet- ID:1299 val:Couldn\'t remove dir:
 Following constant not same:
 	original- val:Couldn't remove old backup file:
-	spreadsheet- ID:1188 val:Couldn\'t remove old backup file:
+	spreadsheet- ID:1300 val:Couldn\'t remove old backup file:
 Following constant not same:
 	original- val:Couldn't remove old export file: 
-	spreadsheet- ID:1189 val:Couldn\'t remove old export file: 
+	spreadsheet- ID:1301 val:Couldn\'t remove old export file:
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:1319 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:1442 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:1320 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:1443 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:1321 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:1444 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:1322 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:1445 val:Date format for \"not seen since\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:1323 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:1446 val:Date format for \"seen since\" is not valid
 Following constant not same:
 	original- val:Don't Save
-	spreadsheet- ID:1638 val:Don\'t Save
+	spreadsheet- ID:1800 val:Don\'t Save
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:1814 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:1991 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:1815 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:1992 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:1816 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:1993 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:1817 val:Empty value in \"Email Text\"
+	spreadsheet- ID:1994 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:1818 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:1995 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:1819 val:Empty value in \"Password\"
+	spreadsheet- ID:1996 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:1820 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:1997 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:1821 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:1998 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:1822 val:Empty value in \"Username\"
+	spreadsheet- ID:1999 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:1980 val:Error in \"Gender\" selection
+	spreadsheet- ID:2188 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:1981 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:2189 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:1982 val:Error in \"Process\" selection
+	spreadsheet- ID:2190 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:1983 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:2191 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:1984 val:Error in \"Sort By\" selection
+	spreadsheet- ID:2192 val:Error in \"Sort By\" selection
 Following constant not same:
 	original- val:Error: passwords don't match. Please check your typing.
-	spreadsheet- ID:2014 val:Error: passwords don\'t match. Please check your typing.
+	spreadsheet- ID:2225 val:Error: passwords don\'t match. Please check your typing.
+Following constant not same:
+	original- val:FAILURE: Couldn't create the zip
+	spreadsheet- ID:2386 val:FAILURE: Couldn\'t create the zip
 Following constant not same:
 	original- val:Field 'name' cannot be NULL
-	spreadsheet- ID:2209 val:Field \'name\' cannot be NULL
+	spreadsheet- ID:2439 val:Field \'name\' cannot be NULL
 Following constant not same:
 	original- val:Filename must end with ".pdf"
-	spreadsheet- ID:2225 val:Filename must end with \".pdf\"
+	spreadsheet- ID:2460 val:Filename must end with \".pdf\"
 Following constant not same:
 	original- val:Guardian's Name
-	spreadsheet- ID:2473 val:Guardian\'s Name
+	spreadsheet- ID:2739 val:Guardian\'s Name
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:2823 val:Internal error: encounter \'
+	spreadsheet- ID:3120 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:2851 val:Invalid source designation \"
+	spreadsheet- ID:3152 val:Invalid source designation \"
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:2955 val:k, here\'s the rest 
+	spreadsheet- ID:3258 val:k, here\'s the rest
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:3219 val:Make sure \"
+	spreadsheet- ID:3542 val:Make sure \"
 Following constant not same:
 	original- val:Mother's Name
-	spreadsheet- ID:3424 val:Mother\'s Name
+	spreadsheet- ID:3772 val:Mother\'s Name
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:3779 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:4171 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category.
 Following constant not same:
 	original- val:Passwords Don't match!
-	spreadsheet- ID:4062 val:Passwords Don\'t match!
+	spreadsheet- ID:4487 val:Passwords Don\'t match!
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:4186 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:4639 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Please enter at least the item's name
-	spreadsheet- ID:4343 val:Please enter at least the item\'s name
+	spreadsheet- ID:4817 val:Please enter at least the item\'s name
 Following constant not same:
 	original- val:Please enter at least the track's name
-	spreadsheet- ID:4344 val:Please enter at least the track\'s name
+	spreadsheet- ID:4818 val:Please enter at least the track\'s name
 Following constant not same:
 	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
-	spreadsheet- ID:4376 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:4851 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:The 'Clear' button will remove all annotations.
-	spreadsheet- ID:5796 val:The \'Clear\' button will remove all annotations.
+	spreadsheet- ID:6404 val:The \'Clear\' button will remove all annotations.
 Following constant not same:
 	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
-	spreadsheet- ID:5819 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:6431 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
 Following constant not same:
 	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
-	spreadsheet- ID:5863 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:6479 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:5864 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:6480 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:5875 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:6491 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
 Following constant not same:
 	original- val:This will be a "dry run" with no physical data updates.
-	spreadsheet- ID:5976 val:This will be a \"dry run\" with no physical data updates.
+	spreadsheet- ID:6605 val:This will be a \"dry run\" with no physical data updates.
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:6036 val:To ded\'ble
+	spreadsheet- ID:6672 val:To ded\'ble
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:6302 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:6964 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:6381 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:7058 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
-	spreadsheet- ID:6614 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+	spreadsheet- ID:7321 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:6706 val:\" for code 
+	spreadsheet- ID:7416 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:6707 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:7417 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:6716 val:\' should exist but does not.
+	spreadsheet- ID:7426 val:\' should exist but does not.
 
 Done checking constants:
-	57 mismatches found (known is 57)
+	60 mismatches found (known is 60)
 Good, constants weren't modified by translators
 
 Checking constants:
 
 Following constant not same:
 	original- val:After Uploading click the button "Import"
-	spreadsheet- ID:209 val:After Uploading click the button \"Import\"
+	spreadsheet- ID:231 val:After Uploading click the button \"Import\"
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:217 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:239 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:218 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:240 val:Age format for \"age up to\" is not valid
 Following constant not same:
 	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
-	spreadsheet- ID:494 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+	spreadsheet- ID:546 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+Following constant not same:
+	original- val:Can't find file!
+	spreadsheet- ID:771 val:Can\'t find file!
+Following constant not same:
+	original- val:Can't upload
+	spreadsheet- ID:772 val:Can\'t upload
 Following constant not same:
 	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
-	spreadsheet- ID:907 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:998 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
 Following constant not same:
 	original- val:Couldn't create backup dir:
-	spreadsheet- ID:1186 val:Couldn\'t create backup dir:
+	spreadsheet- ID:1298 val:Couldn\'t create backup dir:
 Following constant not same:
 	original- val:Couldn't remove dir:
-	spreadsheet- ID:1187 val:Couldn\'t remove dir:
+	spreadsheet- ID:1299 val:Couldn\'t remove dir:
 Following constant not same:
 	original- val:Couldn't remove old backup file:
-	spreadsheet- ID:1188 val:Couldn\'t remove old backup file:
+	spreadsheet- ID:1300 val:Couldn\'t remove old backup file:
 Following constant not same:
 	original- val:Couldn't remove old export file: 
-	spreadsheet- ID:1189 val:Couldn\'t remove old export file: 
+	spreadsheet- ID:1301 val:Couldn\'t remove old export file:
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:1319 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:1442 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:1320 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:1443 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:1321 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:1444 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:1322 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:1445 val:Date format for \"not seen since\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:1323 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:1446 val:Date format for \"seen since\" is not valid
 Following constant not same:
 	original- val:Don't Save
-	spreadsheet- ID:1638 val:Don\'t Save
+	spreadsheet- ID:1800 val:Don\'t Save
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:1814 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:1991 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:1815 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:1992 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:1816 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:1993 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:1817 val:Empty value in \"Email Text\"
+	spreadsheet- ID:1994 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:1818 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:1995 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:1819 val:Empty value in \"Password\"
+	spreadsheet- ID:1996 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:1820 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:1997 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:1821 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:1998 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:1822 val:Empty value in \"Username\"
+	spreadsheet- ID:1999 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:1980 val:Error in \"Gender\" selection
+	spreadsheet- ID:2188 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:1981 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:2189 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:1982 val:Error in \"Process\" selection
+	spreadsheet- ID:2190 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:1983 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:2191 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:1984 val:Error in \"Sort By\" selection
+	spreadsheet- ID:2192 val:Error in \"Sort By\" selection
 Following constant not same:
 	original- val:Error: passwords don't match. Please check your typing.
-	spreadsheet- ID:2014 val:Error: passwords don\'t match. Please check your typing.
+	spreadsheet- ID:2225 val:Error: passwords don\'t match. Please check your typing.
+Following constant not same:
+	original- val:FAILURE: Couldn't create the zip
+	spreadsheet- ID:2386 val:FAILURE: Couldn\'t create the zip
 Following constant not same:
 	original- val:Field 'name' cannot be NULL
-	spreadsheet- ID:2209 val:Field \'name\' cannot be NULL
+	spreadsheet- ID:2439 val:Field \'name\' cannot be NULL
 Following constant not same:
 	original- val:Filename must end with ".pdf"
-	spreadsheet- ID:2225 val:Filename must end with \".pdf\"
+	spreadsheet- ID:2460 val:Filename must end with \".pdf\"
 Following constant not same:
 	original- val:Guardian's Name
-	spreadsheet- ID:2473 val:Guardian\'s Name
+	spreadsheet- ID:2739 val:Guardian\'s Name
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:2823 val:Internal error: encounter \'
+	spreadsheet- ID:3120 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:2851 val:Invalid source designation \"
+	spreadsheet- ID:3152 val:Invalid source designation \"
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:2955 val:k, here\'s the rest 
+	spreadsheet- ID:3258 val:k, here\'s the rest
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:3219 val:Make sure \"
+	spreadsheet- ID:3542 val:Make sure \"
 Following constant not same:
 	original- val:Mother's Name
-	spreadsheet- ID:3424 val:Mother\'s Name
+	spreadsheet- ID:3772 val:Mother\'s Name
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:3779 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:4171 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category.
 Following constant not same:
 	original- val:Passwords Don't match!
-	spreadsheet- ID:4062 val:Passwords Don\'t match!
+	spreadsheet- ID:4487 val:Passwords Don\'t match!
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:4186 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:4639 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Please enter at least the item's name
-	spreadsheet- ID:4343 val:Please enter at least the item\'s name
+	spreadsheet- ID:4817 val:Please enter at least the item\'s name
 Following constant not same:
 	original- val:Please enter at least the track's name
-	spreadsheet- ID:4344 val:Please enter at least the track\'s name
+	spreadsheet- ID:4818 val:Please enter at least the track\'s name
 Following constant not same:
 	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
-	spreadsheet- ID:4376 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:4851 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:The 'Clear' button will remove all annotations.
-	spreadsheet- ID:5796 val:The \'Clear\' button will remove all annotations.
+	spreadsheet- ID:6404 val:The \'Clear\' button will remove all annotations.
 Following constant not same:
 	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
-	spreadsheet- ID:5819 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:6431 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
 Following constant not same:
 	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
-	spreadsheet- ID:5863 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:6479 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:5864 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:6480 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:5875 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:6491 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
 Following constant not same:
 	original- val:This will be a "dry run" with no physical data updates.
-	spreadsheet- ID:5976 val:This will be a \"dry run\" with no physical data updates.
+	spreadsheet- ID:6605 val:This will be a \"dry run\" with no physical data updates.
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:6036 val:To ded\'ble
+	spreadsheet- ID:6672 val:To ded\'ble
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:6302 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:6964 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:6381 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:7058 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
-	spreadsheet- ID:6614 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+	spreadsheet- ID:7321 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:6706 val:\" for code 
+	spreadsheet- ID:7416 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:6707 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:7417 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:6716 val:\' should exist but does not.
+	spreadsheet- ID:7426 val:\' should exist but does not.
 
 Done checking constants:
-	57 mismatches found (known is 57)
+	60 mismatches found (known is 60)
 Good, constants weren't modified by translators
 
 
 Language Statistics:
-Total number of languages with translations: 38
-Total number of constants: 6837
-Total number of real definitions: 141987
-Albanian: 14.98% (1024 definitions)
+Total number of languages with translations: 40
+Total number of constants: 7549
+Total number of real definitions: 143124
+Albanian: 13.56% (1024 definitions)
 Amharic: 0.04% (3 definitions)
-Arabic: 90.43% (6183 definitions)
-Armenian: 72.96% (4988 definitions)
-Bahasa Indonesia: 81.35% (5562 definitions)
-Bengali: 1.58% (108 definitions)
+Arabic: 81.9% (6183 definitions)
+Armenian: 73.32% (5535 definitions)
+Bahasa Indonesia: 73.68% (5562 definitions)
+Bengali: 1.43% (108 definitions)
 Bosnian: 0% (0 definitions)
-Chinese (Simplified): 80.71% (5518 definitions)
-Chinese (Traditional): 77.86% (5323 definitions)
+Chinese (Simplified): 73.1% (5518 definitions)
+Chinese (Traditional): 70.51% (5323 definitions)
 Croatian: 0% (0 definitions)
-Czech: 77.2% (5278 definitions)
-Danish: 46.48% (3178 definitions)
-dummy: 100% (6837 definitions)
-Dutch: 99.94% (6833 definitions)
-English (Indian): 2.06% (141 definitions)
+Czech: 69.92% (5278 definitions)
+Danish: 42.1% (3178 definitions)
+dummy: 100% (7549 definitions)
+Dutch: 90.52% (6833 definitions)
+English (Indian): 1.87% (141 definitions)
 English (Standard): 0% (0 definitions)
-Estonian: 10.25% (701 definitions)
-Finnish: 48.31% (3303 definitions)
-French (Canadian): 36.55% (2499 definitions)
-French (Standard): 75.53% (5164 definitions)
+Estonian: 9.29% (701 definitions)
+Finnish: 43.75% (3303 definitions)
+French (Canadian): 33.1% (2499 definitions)
+French (Standard): 68.41% (5164 definitions)
 Georgian: 0% (0 definitions)
-German: 71.57% (4893 definitions)
-Greek: 82.87% (5666 definitions)
-Hebrew: 0% (0 definitions)
-Hindi: 89.92% (6148 definitions)
+German: 64.82% (4893 definitions)
+Greek: 75.06% (5666 definitions)
+Hebrew: 0.12% (9 definitions)
+Hindi: 81.44% (6148 definitions)
 Hungarian: 0.01% (1 definitions)
-Italian: 98.79% (6754 definitions)
-Japanese: 42.91% (2934 definitions)
-Korean: 2.31% (158 definitions)
-Lithuanian: 0.83% (57 definitions)
-Marathi: 100% (6837 definitions)
-Norwegian: 13.97% (955 definitions)
-Persian: 48.3% (3302 definitions)
-Polish: 29.22% (1998 definitions)
-Portuguese (Brazilian): 62.25% (4256 definitions)
-Portuguese (European): 57.19% (3910 definitions)
-Romanian: 15.85% (1084 definitions)
-Russian: 81.86% (5597 definitions)
+Italian: 89.47% (6754 definitions)
+Japanese: 38.87% (2934 definitions)
+Korean: 2.09% (158 definitions)
+Lithuanian: 0.76% (57 definitions)
+Marathi: 90.57% (6837 definitions)
+Norwegian: 12.65% (955 definitions)
+Persian: 43.74% (3302 definitions)
+Polish: 26.47% (1998 definitions)
+Portuguese (Brazilian): 56.38% (4256 definitions)
+Portuguese (European): 51.79% (3910 definitions)
+Romanian: 16.98% (1282 definitions)
+Russian: 74.14% (5597 definitions)
 Serbian: 0% (0 definitions)
 Sinhala: 0% (0 definitions)
 Slovak: 0% (0 definitions)
-Spanish (Latin American): 84.98% (5810 definitions)
-Spanish (Spain): 83.88% (5735 definitions)
-Swedish: 46.09% (3151 definitions)
-Turkish: 73.23% (5007 definitions)
-Ukrainian: 91.24% (6238 definitions)
-Vietnamese: 83.22% (5690 definitions)
+Somali: 0.24% (18 definitions)
+Spanish (Latin American): 76.96% (5810 definitions)
+Spanish (Spain): 75.97% (5735 definitions)
+Swedish: 41.74% (3151 definitions)
+Turkish: 71.16% (5372 definitions)
+Ukrainian: 82.63% (6238 definitions)
+Vietnamese: 75.37% (5690 definitions)
