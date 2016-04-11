@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `form_prior_auth` (
   `auth_for` int(5) DEFAULT NULL,
   `auth_from` date DEFAULT NULL,
   `auth_to` date DEFAULT NULL,
+  `auth_alert` tinyint(2) DEFAULT NULL,
   `units` varchar(11) DEFAULT NULL,
   `auth_length` int(11) DEFAULT NULL,
   `dollar` int(10) DEFAULT NULL,
