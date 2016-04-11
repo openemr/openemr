@@ -165,9 +165,9 @@ function showHint(str) {
 </tr>
 <tr>
 	<td align="right">{xl t="Auth Alert:"}</td><td><input type="text" size="5"  name="auth_alert" value="{$prior_auth->get_auth_alert()}" />
-        <select><option name="units" value="" /></option>
-		        <option name="units" value="days" title="Number of days before expiration" {if $Alert == "days"}selected{/if}/>{xl t="Days"}</option>
-                <option name="units" value="units" title="Number of times used" {if $Alert == "units"}selected{/if}/>{xl t="Units"}</option> 
+        <select name="units"><option  value="" /></option>
+		        <option value="days" title="Number of days before expiration" {if $Alert == "days"}selected{/if}/>{xl t="Days"}</option>
+                <option  value="units" title="Number of times used" {if $Alert == "units"}selected{/if}/>{xl t="Used"}</option> 
                 </select>	</td>
 </tr>
 <tr>
