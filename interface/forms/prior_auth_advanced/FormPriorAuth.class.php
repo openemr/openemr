@@ -48,9 +48,10 @@ class FormPriorAuth extends ORDataObject {
 	var $activity;
 	var $prior_auth_number;
 	var $comments;
-    var $desc;
-    var $auth_from;
+        var $desc;
+        var $auth_from;
 	var $auth_to;
+	var $auth_alert;
 	var $units;
 	var $auth_length;
 	var $auth_contact;
@@ -174,7 +175,13 @@ class FormPriorAuth extends ORDataObject {
         }
         function set_auth_to($string){
             $this->auth_to = $string;
-        }		
+        }
+    function get_auth_alert() {
+            return $this->auth_alert;
+        }
+    function set_auth_alert($string){
+            $this->auth_alert = $string;
+        }        
         function get_units(){
             return $this->units;
         }
