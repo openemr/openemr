@@ -1017,9 +1017,7 @@ class Claim {
 	  if (!empty($key)){ break;}
 	  $i++;
 	  } while ($i < 7);
-	  
-	  file_put_contents('fileCPT.txt', $this->prior_auth[$key]['prior_auth_number']);
-	  
+
 	return x12clean(trim($this->prior_auth[$key]['prior_auth_number']));
   }
   function auth_from() {

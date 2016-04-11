@@ -1,0 +1,204 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+
+<!-- other supporting javascript code -->
+<script type="text/javascript" src="{$FORM_ACTION}/library/js/jquery.js"></script>
+<script type="text/javascript" src="{$FORM_ACTION}/library/textformat.js"></script>
+
+
+
+<!-- pop up calendar -->
+<style type="text/css">@import url({$FORM_ACTION}/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar_setup.js"></script>
+
+
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+<script>
+function showHint(str) {
+    if (str.length == 0) { 
+        document.getElementById("txtHint").innerHTML = "";
+        return;
+    } else {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById("txtHint").innerHTML = xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("GET", "gethint.php?q=" + str, true);
+        xmlhttp.send();
+    }
+}
+
+ function validate() {
+            var EnteredDate = document.getElementById("auth_from").value; // get the auth from date
+
+            var today = document.getElementById("auth_to").value;
+
+            if (EnteredDate > today) {
+                alert("<?php echo xls('FROM: date is greater than TO: date'); ?>");
+				return false;
+            }
+            var AuthReq = document.getElementById("noAuthReq").checked;	
+            var Claims = document.getElementById("claims").value;
+            //var ClearReq = document.getElementById("clear_req").checked; // Not needed will delete
+			var n = Claims.length;
+			
+            if(document.getElementById("noAuthReq").checked && n === 0){
+			    
+			      alert("<?php echo xls('Please fill in number of claims'); ?>");
+			      return false;
+				 
+            }
+         
+        }
+
+</script>
+
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+
+<p><span class="title">{xl t="Prior Authorization Form"}</span></p>
+<form name="prior_auth" method="post" action="{$FORM_ACTION}/interface/forms/prior_auth/save.php">
+<table>
+<tr>
+    <td align="right">{xl t="No Auth# Req:"}</td><td><input type="radio" name="not_req" value="Yes" id="noAuthReq" title="{xl t="Select when No Authorization Number Required"}" 
+	       {if $NoAuth == "Yes"} checked {/if}>{if $NoAuth == "Yes"}<br><input type="radio" name="not_req" id="clear_req" value="" 
+		    title="Click here to clear the No Auth need flag" onclick = 'clearThis("claims")'>Clear</td>{/if}
+</tr>
+<tr>
+    <td align="right">{xl t="No Auth #Claims:"}</td><td><input type="text" size="5" name="auth_for" id="claims" value="{$prior_auth->get_auth_for()}" title="Set the number of times no auth can be used">
+
+</tr>
+<tr>
+	<td align="right">{xl t="Auth #:"}</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()}"></td>
+
+</tr>
+<tr>
+    <td align="right">{xl t="Description:"}</td><td><input type="text" size="55" name="desc" value="{$prior_auth->get_desc()}"></td>
+</tr>
+
+<tr>
+    <td align="right">{xl t="Auth Length:"}</td><td><label>From: "}</label>
+	   <input type='text' size='10' name="auth_from" id="auth_from"
+    value="{$prior_auth->get_auth_from()}"
+	title="{xl t="yyyy-mm-dd','e'); {/php}"
+    onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" readonly/>
+   <img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22"
+    id="img_auth_from" border="0" alt="[?]" style="cursor:pointer;cursor:hand"
+	title="{xl t="Click here to choose a date"}"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<label>{xl t="To:"} </label>
+	   <input type='text' size='10' name='auth_to' id="auth_to"
+    value="{$prior_auth->get_auth_to()}"
+	title="{xl t="yyyy-mm-dd','e'); {/php}"
+    onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" readonly/>
+   <img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22"
+    id="img_auth_to" border="0" alt="[?]" style="cursor:pointer;cursor:hand"
+	title="{xl t="Click here to choose a date"}"/>
+	
+
+        
+    </td>
+</tr>
+<tr>
+    <td align="right">{xl t="# Used:"} </td><td><input type="text" size="5" name="used" value="{$prior_auth->get_used()}" title="Read Only" readonly></td>
+</tr>
+<tr>
+    <td align="right">{xl t="Auth Contact:"}</td><td><input type="text" size="25" name="auth_contact" value="{$prior_auth->get_auth_contact()}"></td>
+</tr>
+<tr>
+    <td align="right">{xl t="Auth Phone:"}</td><td> <input type="text" size="15" name="auth_phone" value="{$prior_auth->get_auth_phone()}">  </td>
+</tr>
+<tr>
+    <td align="right">{xl t="Code:"}</td><td> 
+	<input type="text" size="5" name="code1" value="{$prior_auth->get_code1()}">
+	<input type="text" size="5" name="code2" value="{$prior_auth->get_code2()}">
+	<input type="text" size="5" name="code3" value="{$prior_auth->get_code3()}">
+	<input type="text" size="5" name="code4" value="{$prior_auth->get_code4()}">
+	<input type="text" size="5" name="code5" value="{$prior_auth->get_code5()}">
+	<input type="text" size="5" name="code6" value="{$prior_auth->get_code6()}">
+	<input type="text" size="5" name="code7" value="{$prior_auth->get_code7()}"></td>
+
+</tr>
+<tr>
+	
+</tr>
+<tr>
+	<td align="right">{xl t="Notes:"}</td><td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()}</textarea></td>
+</tr>
+<tr>
+	<td align="right">{xl t="Auth Alert:"}</td><td><input type="text" size="5" value="" />
+        <select><option name="units" value="" /></option>
+		        <option name="units" value="days" {if $Alert == "days"}selected{/if}/>{xl t="Days"}</option>
+                <option name="units" value="units" {if $Alert == "units"}selected{/if}/>{xl t="Units"}</option> 
+                </select>	</td>
+</tr>
+<tr>
+	<td align="right">{xl t="Supervisor Override:"}</td><td><input type="radio" name="override" value="1" {if $OverRide == 1}checked{/if}/>{if $OverRide == 1}<input type="radio" name="override" value="" />Clear{/if}
+</tr>
+<tr>
+	<td align="right">{xl t="Archive this auth:"}</td><td><input type="radio" name="archived" value="1" />
+</tr>
+<tr>
+	<td><br><br><input type="submit" name="Submit" value="Save Form" onclick="return validate();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+</tr>
+{if $VIEW != true}
+{/if}
+</table>
+<input type="hidden" name="id" value="{$prior_auth->get_id()}" />
+<input type="hidden" name="activity" value="{$prior_auth->get_activity()}">
+<input type="hidden" name="pid" value="{$prior_auth->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+{literal}
+<script language="javascript">
+/* required for popup calendar */
+/*Calendar.setup({inputField:"dob", ifFormat:"%Y-%m-%d", button:"img_dob"});*/
+Calendar.setup({inputField:"auth_from", ifFormat:"%Y-%m-%d", button:"img_auth_from"});
+Calendar.setup({inputField:"auth_to", ifFormat:"%Y-%m-%d", button:"img_auth_to"});
+
+ function clearThis(target){
+   target = document.getElementById(target);
+   target.value = "";
+ }
+</script>
+{/literal}
+</html>
