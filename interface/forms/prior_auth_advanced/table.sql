@@ -26,4 +26,9 @@ CREATE TABLE IF NOT EXISTS `form_prior_auth` (
   `archived` int(2) DEFAULT NULL,
   `override` int(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1696 ;
+) ENGINE=MyISAM ;
+
+ 
+
+
+
