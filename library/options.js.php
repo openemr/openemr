@@ -106,7 +106,6 @@ function checkSkipConditions() {
         if(elem_val == null) elem_val = srcelem.innerText;
 
     }
-debugger;
     if (operator == 'eq') condition = elem_val == value; else
     if (operator == 'ne') condition = elem_val != value; else
     if (operator == 'se') condition = srcelem.checked       ; else
