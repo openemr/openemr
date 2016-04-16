@@ -30,14 +30,12 @@ $sanitize_all_escapes=true;
  
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/sql-ledger.inc");
 require_once("../../library/invoice_summary.inc.php");
 require_once("../../library/sl_eob.inc.php");
 require_once("../../library/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
 
-$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 $alertmsg = '';
 $bgcolor = "#aaaaaa";
@@ -126,7 +124,6 @@ $grand_total_paid        = 0;
 $grand_total_agedbal = array();
 for ($c = 0; $c < $form_age_cols; ++$c) $grand_total_agedbal[$c] = 0;
 
-if (!$INTEGRATED_AR) SLConnect();
 
 function bucks($amount) {
   if ($amount)
@@ -564,9 +561,7 @@ function checkAll(checked) {
 if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   $rows = array();
   $where = "";
-
-  if ($INTEGRATED_AR) {
-    $sqlArray = array(); 
+  $sqlArray = array(); 
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
        
       $where = "( 1 = 2";
@@ -786,244 +781,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $rows[$insname . '|' . $ptname . '|' . $encounter_id] = $row;
     } // end while
 
-  } // end $INTEGRATED_AR
-  else {
-    if ($_POST['form_export'] || $_POST['form_csvexport']) {  
-      $where = "( 1 = 2";
-      foreach ($_POST['form_cb'] as $key => $value) {
-         list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key); 
-         $newkey = $key_newval['pid']; 
-         $newencounter =  $key_newval['encounter'];
-         # added this condition to handle the downloading of individual invoices (TLH)
-         if($_POST['form_individual'] ==1){         
-           $where .= " OR f.encounter = $newencounter ";
-         }
-         else
-         {
-           $where .= " OR f.pid = $newkey ";
-         }
-      } 
-      $where .= ' )';
-    }
-
-    if ($form_date) {
-      if ($where) $where .= " AND ";
-      $date1 = substr($form_date, 0, 4) . substr($form_date, 5, 2) .
-        substr($form_date, 8, 2);
-      if ($form_to_date) {
-        $date2 = substr($form_to_date, 0, 4) . substr($form_to_date, 5, 2) .
-          substr($form_to_date, 8, 2);
-        $where .= "((CAST (substring(ar.invnumber from position('.' in ar.invnumber) + 1 for 8) AS integer) " .
-          "BETWEEN '$date1' AND '$date2')";
-        $tmp = "date >= '$form_date' AND date <= '$form_to_date'";
-      }
-      else {
-        // This catches old converted invoices where we have no encounters:
-        $where .= "(ar.invnumber LIKE '%.$date1'";
-        $tmp = "date = '$form_date'";
-      }
-      // Pick out the encounters from MySQL with the desired DOS:
-      $rez = sqlStatement("SELECT pid, encounter FROM form_encounter WHERE $tmp");
-      while ($row = sqlFetchArray($rez)) {
-        $where .= " OR ar.invnumber = '" . $row['pid'] . "." . $row['encounter'] . "'";
-      }
-      $where .= ")";
-    }
-
-    if (! $where) {
-      $where = "1 = 1";
-    }
-
-    // Instead of the subselects in the following query, we will call
-    // get_invoice_summary() in order to get data at the procedure level and
-    // thus decide if insurance appears to be done with each invoice.
-
-    $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, " .
-      "customer.id AS custid, customer.name, customer.address1, " .
-      "customer.city, customer.state, customer.zipcode, customer.phone " .
-      // ", (SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-      // "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
-      // "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-      // "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
-      "FROM ar JOIN customer ON customer.id = ar.customer_id " .
-      "WHERE ( $where ) ";
-    if ($_POST['form_refresh'] && ! $is_all) {
-      $query .= "AND ar.amount != ar.paid ";
-    }
-    $query .= "ORDER BY ar.invnumber";
-
-    // echo "<!-- $query -->\n"; // debugging
-
-    $t_res = SLQuery($query);
-    if ($sl_err) die($sl_err);
-    $num_invoices = SLRowCount($t_res);
-
-    //////////////////////////////////////////////////////////////////
-
-    for ($irow = 0; $irow < $num_invoices; ++$irow) {
-      $row = SLGetRow($t_res, $irow);
-
-      // If a facility was specified then skip invoices whose encounters
-      // do not indicate that facility.
-      if ($form_facility) {
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-          "pid = ? AND encounter = ? AND " .
-          "facility_id = ? ", array($patient_id, $encounter_id, $form_facility));
-        if (empty($tmp['count'])) continue;
-      }
-
-      if ($form_provider) {
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-          "pid = ? AND encounter = ? AND " .
-          "provider_id = ? ", array($patient_id, $encounter_id, $form_provider));
-
-        if (empty($tmp['count'])) continue;
-      }      
-
-      $pt_balance = sprintf("%.2f",$row['amount']) - sprintf("%.2f",$row['paid']);
-
-      if ($_POST['form_category'] == 'Credits') {
-        if ($pt_balance > 0) continue;
-      }
-
-      // $duncount was originally supposed to be the number of times that
-      // the patient was sent a statement for this invoice.
-      //
-      $duncount = substr_count(strtolower($row['intnotes']), "statement sent");
-
-      // But if we have not yet billed the patient, then compute $duncount as a
-      // negative count of the number of insurance plans for which we have not
-      // yet closed out insurance.  Here we also compute $insname as the name of
-      // the insurance plan from which we are awaiting payment, and its sequence
-      // number $insposition (1-3).
-      //
-      $insname = '';
-      $insposition = 0;
-      $inseobs = strtolower($row['shipvia']);
-      $insgot = strtolower($row['notes']);
-      if (! $duncount) {
-        foreach (array('ins1', 'ins2', 'ins3') as $value) {
-          $i = strpos($insgot, $value);
-          if ($i !== false && strpos($inseobs, $value) === false) {
-            --$duncount;
-            if (!$insname && $is_due_ins) {
-              $j = strpos($insgot, "\n", $i);
-              if (!$j) $j = strlen($insgot);
-              $insname = trim(substr($row['notes'], $i + 5, $j - $i - 5));
-              $insposition = substr($value, 3); // 1, 2 or 3
-            }
-          }
-        }
-      }
-      $row['insname'] = $insname;
-
-      // Also get the primary insurance company name whenever there is one.
-      $row['ins1'] = '';
-      $i = strpos($insgot, 'ins1');
-      if ($i !== false) {
-        $j = strpos($insgot, "\n", $i);
-        if (!$j) $j = strlen($insgot);
-        $row['ins1'] = trim(substr($row['notes'], $i + 5, $j - $i - 5));
-      }
-
-      // An invoice is now due from the patient if money is owed and we are
-      // not waiting for insurance to pay.  We no longer look at the due date
-      // for this.
-      //
-      $isduept = ($duncount >= 0) ? " checked" : "";
-
-      // Skip invoices not in the desired "Due..." category.
-      //
-      if ($is_due_ins && $duncount >= 0) continue;
-      if ($is_due_pt  && $duncount <  0) continue;
-
-      $row['duncount'] = $duncount;
-
-      // Determine the date of service.  An 8-digit encounter number is
-      // presumed to be a date of service imported during conversion.
-      // Otherwise look it up in the form_encounter table.
-      //
-      $svcdate = "";
-      list($pid, $encounter) = explode(".", $row['invnumber']);
-      if (strlen($encounter) == 8) {
-        $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
-          "-" . substr($encounter, 6, 2);
-      }
-      else if ($encounter) {
-        $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
-          "encounter = ? ", array($encounter));
-        $svcdate = substr($tmp['date'], 0, 10);
-      }
-
-      $row['dos'] = $svcdate;
-
-      // This computes the invoice's total original charges and adjustments,
-      // date of last activity, and determines if insurance has responded to
-      // all billing items.
-      //
-      $invlines = get_invoice_summary($row['id'], true);
-      $row['charges'] = 0;
-      $row['adjustments'] = 0;
-      $ins_seems_done = true;
-      $ladate = $svcdate;
-      foreach ($invlines as $key => $value) {
-        $row['charges'] += $value['chg'] + $value['adj'];
-        $row['adjustments'] += 0 - $value['adj'];
-        foreach ($value['dtl'] as $dkey => $dvalue) {
-          $dtldate = trim(substr($dkey, 0, 10));
-          if ($dtldate && $dtldate > $ladate) $ladate = $dtldate;
-        }
-        $lckey = strtolower($key);
-        if ($lckey == 'co-pay' || $lckey == 'claim') continue;
-        if (count($value['dtl']) <= 1) $ins_seems_done = false;
-      }
-      $row['billing_errmsg'] = '';
-      if ($is_due_ins && strpos($inseobs, 'ins1') === false && $ins_seems_done)
-        $row['billing_errmsg'] = 'Ins1 seems done';
-      else if (strpos($inseobs, 'ins1') !== false && !$ins_seems_done)
-        $row['billing_errmsg'] = 'Ins1 seems not done';
-
-      $row['ladate'] = $ladate;
-
-      // Compute number of days since last activity.
-      $latime = mktime(0, 0, 0, substr($ladate, 5, 2),
-        substr($ladate, 8, 2), substr($ladate, 0, 4));
-      $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
-
-      $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.billing_note, pd.pid, pd.pubpid, pd.DOB, " .
-        "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
-        "integration_mapping AS im, patient_data AS pd " .
-        "LEFT OUTER JOIN users AS u ON u.id = pd.ref_providerID " .
-        "WHERE im.foreign_id = ? AND " .
-        "im.foreign_table = 'customer' AND " .
-        "pd.id = im.local_id", array($row['custid']));
-
-      $row['ss'] = $pdrow['ss'];
-      $row['DOB'] = $pdrow['DOB'];
-      $row['pubpid'] = $pdrow['pubpid'];
-      $row['billnote'] = $pdrow['billing_note'];
-      $row['referrer'] = $pdrow['referrer'];
-      
-      $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];
-      if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
-
-      // Look up insurance policy number if we need it.
-      if ($form_cb_policy) {
-        $patient_id = $pdrow['pid'];
-        $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
-        $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
-          "pid = ? AND type = ? AND date <= ? " .
-          "ORDER BY date DESC LIMIT 1", array($patient_id, $instype, $svcdate));
-        $row['policy'] = $insrow['policy_number'];
-      }
-
-      $rows[$insname . '|' . $ptname . '|' . $encounter] = $row;
-    } // end for
-  } // end not $INTEGRATED_AR
 
   ksort($rows);
 
@@ -1426,7 +1183,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   }
 } // end if form_refresh
 
-if (!$INTEGRATED_AR) SLClose();
 
 if (!$_POST['form_csvexport']) {
   if (!$_POST['form_export']) {

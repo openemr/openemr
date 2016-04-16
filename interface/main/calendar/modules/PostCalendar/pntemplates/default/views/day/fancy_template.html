@@ -44,6 +44,8 @@
 <div class='cal_container'>                               [-* Main scrollable container *-]
 
 [-php-]
+$A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
+$providers =& $this->_tpl_vars['providers'];
 
 //Used for sorting the event later
 function compareEvents($a,$b) {
@@ -186,7 +188,7 @@ function compareEvents($a,$b) {
             }
         }
 
-        $arr_events = $S_EVENTS[$date];
+        $arr_events = $A_EVENTS[$date];
 
         $events = array();      //Temporary array for enumerating the events
         $slots = array();       //This is the map of slots showing how many events share the slot and the CSS style for IN-OUT events

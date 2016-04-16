@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-require_once $this->_get_plugin_filepath('shared','make_timestamp');
+require_once $smarty->_get_plugin_filepath('shared','make_timestamp');
 function smarty_modifier_pc_date_format($string, $format=null, $default_date=null)
 {   
     setlocale(LC_TIME, _PC_LOCALE);
@@ -32,7 +32,12 @@ function smarty_modifier_pc_date_format($string, $format=null, $default_date=nul
         $format = _SETTING_DATE_FORMAT;
     }
 	if($string != '') {
-    	return strftime($format, smarty_make_timestamp($string));
+		if (is_string($string)) {
+			$timestamp = strtotime($string);
+		} else {
+			$timestamp = smarty_make_timestamp($string);
+		}
+		return strftime($format, $timestamp);
 	} elseif (isset($default_date) && $default_date != '') {		
     	return strftime($format, smarty_make_timestamp($default_date));
 	} else {

@@ -39,6 +39,7 @@ $fake_register_globals=false;
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
+ require_once("$srcdir/options.js.php");
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
  
@@ -186,7 +187,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
  //////////
  function oldEvt(apptdate, eventid) {
-  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 550, 350);
+  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 375);
  }
 
  function advdirconfigure() {
@@ -239,7 +240,7 @@ if ($GLOBALS['athletic_team']) {
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 550, 350);
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 775, 375);
   return false;
  }
 
@@ -657,7 +658,7 @@ if ($GLOBALS['patient_id_category_name']) {
 <div style='margin-top:10px'> <!-- start main content div -->
  <table border="0" cellspacing="0" cellpadding="0" width="100%">
   <tr>
-   <td align="left" valign="top">
+      <td class="demographics-box" align="left" valign="top">
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
@@ -711,7 +712,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     xlt('Billing Note') . ":" .
     text($result['billing_note']) .
     "</font></span></td></tr>";
- }  
+  } 
   if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
    echo "<tr><td><span class='bold'>" .
     xlt('Primary Insurance') . ': ' . text($insco_name) .
@@ -1553,6 +1554,13 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
  Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
 </script>
 <?php } ?>
+<script language='JavaScript'>
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+checkSkipConditions();
+</script>
 
 </body>
 </html>

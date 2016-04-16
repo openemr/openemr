@@ -45,7 +45,7 @@ function smarty_function_pc_filter($args, &$smarty)
     if(!isset($viewtype)) { $viewtype = _SETTING_DEFAULT_VIEW; }
 
 	$types = explode(',',$type);
-	$output =& new pnHTML();
+	$output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
 	$modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $mdir = pnVarPrepForOS($modinfo['directory']);

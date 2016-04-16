@@ -8,7 +8,6 @@
 
 require_once(dirname(__FILE__) . "/classes/Address.class.php");
 require_once(dirname(__FILE__) . "/classes/InsuranceCompany.class.php");
-require_once(dirname(__FILE__) . "/sql-ledger.inc");
 require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
 
 // This enforces the X12 Basic Character Set. Page A2.
@@ -107,20 +106,7 @@ class Claim {
     //
     $this->invoice = array();
     if ($this->payerSequence() != 'P') {
-      if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
         $this->invoice = ar_get_invoice_summary($this->pid, $this->encounter_id, true);
-      }
-      else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
-        SLConnect();
-        $arres = SLQuery("select id from ar where invnumber = " .
-          "'{$this->pid}.{$this->encounter_id}'");
-        if ($sl_err) die($sl_err);
-        $arrow = SLGetRow($arres, 0);
-        if ($arrow) {
-          $this->invoice = get_invoice_summary($arrow['id'], true);
-        }
-        SLClose();
-      }
       // Secondary claims might not have modifiers in SQL-Ledger data.
       // In that case, note that we should not try to match on them.
       $this->using_modifiers = false;
@@ -310,8 +296,8 @@ class Claim {
       // payments and "hard" adjustments up to this payer.
       $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'];
       foreach ($this->invoice[$code]['dtl'] as $key => $value) {
-        if (isset($value['plv'])) {
-          // New method; plv (from ar_activity.payer_type) exists to
+
+          // plv (from ar_activity.payer_type) exists to
           // indicate the payer level.
           if (isset($value['pmt']) && $value['pmt'] != 0) {
             if ($value['plv'] > 0 && $value['plv'] <= $insnumber)
@@ -325,17 +311,6 @@ class Claim {
           
           $msp = isset( $value['msp'] ) ? $value['msp'] : null; // record the reason for adjustment
         }
-        else {
-          // Old method: With SQL-Ledger payer level was stored in the memo.
-          if (preg_match("/^Ins(\d)/i", $value['src'], $tmp)) {
-            if ($tmp[1] <= $insnumber) $ptresp -= $value['pmt'];
-          }
-          else if (trim(substr($key, 0, 10))) { // not an adjustment if no date
-            if (!preg_match("/Ins(\d)/i", $value['rsn'], $tmp) || $tmp[1] <= $insnumber)
-              $ptresp += $value['chg']; // adjustments are negative charges
-          }
-        }
-      }
       if ($ptresp < 0) $ptresp = 0; // we may be insane but try to hide it
 
       // Main loop, to extract adjustments for this payer and procedure.
@@ -423,19 +398,12 @@ class Claim {
       $thispaidanything = 0;
       foreach($this->invoice as $codekey => $codeval) {
         foreach ($codeval['dtl'] as $key => $value) {
-          if (isset($value['plv'])) {
-            // New method; plv exists to indicate the payer level.
+            // plv exists to indicate the payer level.
             if ($value['plv'] == $insnumber) {
               $thispaidanything += $value['pmt'];
             }
           }
-          else {
-            if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
-              $thispaidanything += $value['pmt'];
-            }
-          }
         }
-      }
 
       // Allocate any unknown patient responsibility by guessing if the
       // deductible has been satisfied.
@@ -475,22 +443,13 @@ class Claim {
     foreach($this->invoice as $codekey => $codeval) {
       if ($code && strcmp($codekey,$code) != 0) continue;
       foreach ($codeval['dtl'] as $key => $value) {
-        if (isset($value['plv'])) {
-          // New method; plv (from ar_activity.payer_type) exists to
+          // plv (from ar_activity.payer_type) exists to
           // indicate the payer level.
           if ($value['plv'] == $insnumber) {
             if (!$date) $date = str_replace('-', '', trim(substr($key, 0, 10)));
             $paytotal += $value['pmt'];
           }
         }
-        else {
-          // Old method: With SQL-Ledger payer level was stored in the memo.
-          if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
-            if (!$date) $date = str_replace('-', '', trim(substr($key, 0, 10)));
-            $paytotal += $value['pmt'];
-          }
-        }
-      }
       $aarr = $this->payerAdjustments($ins, $codekey);
       foreach ($aarr as $a) {
         if (strcmp($a[1],'PR') != 0) $adjtotal += $a[3];
@@ -510,19 +469,11 @@ class Claim {
     $amount = 0;
     foreach($this->invoice as $codekey => $codeval) {
       foreach ($codeval['dtl'] as $key => $value) {
-        if (isset($value['plv'])) {
-          // New method; plv exists to indicate the payer level.
+          // plv exists to indicate the payer level.
           if ($value['plv'] == 0) { // 0 indicates patient
             $amount += $value['pmt'];
           }
         }
-        else {
-          // Old method: With SQL-Ledger payer level was stored in the memo.
-          if (!preg_match("/Ins/i", $value['src'], $tmp)) {
-            $amount += $value['pmt'];
-          }
-        }
-      }
     }
     return sprintf('%.2f', $amount);
   }

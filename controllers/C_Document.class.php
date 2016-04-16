@@ -53,7 +53,9 @@ class C_Document extends Controller {
     // Cloned from similar stuff in manage_document_templates.php.
     $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
     $templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
-    $dh = opendir($templatedir);
+    if (file_exists($templatedir)) {
+      $dh = opendir($templatedir);
+    }
     if ($dh) {
       $templateslist = array();
       while (false !== ($sfname = readdir($dh))) {

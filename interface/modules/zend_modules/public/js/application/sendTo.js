@@ -162,8 +162,7 @@ $(document).ready(function(){
 						
 					},
 					error:function(){
-						var resultTranslated = js_xl("ajax error");
-						alert(resultTranslated.msg);
+						alert("ajax error");
 					}
 				});
 			}
@@ -350,7 +349,7 @@ function send(){
             if(combination == ''){
                 $('.ap-st-st-12').fadeToggle();
                 $('.activity_indicator').css({"display" :"none"});
-				var resultTranslated = js_xl("Please select atleast one patient.");
+				var resultTranslated = js_xl("Please select at least one patient.");
                 alert(resultTranslated.msg);
                 return false;
             }
@@ -410,7 +409,7 @@ function send(){
 		if(combination == ''){
 			$('.ap-st-st-12').fadeOut();
 			$('.activity_indicator').css({"display" :"none"});
-                        var resultTranslated = js_xl("Please select atleast one patient.");
+                        var resultTranslated = js_xl("Please select at least one patient.");
                         alert(resultTranslated.msg);
 			return false;
 		}
@@ -453,7 +452,7 @@ function send(){
 		}
 		else {
 			$('.activity_indicator').css({"display" :"none"});
-                        var resultTranslated = js_xl("Please Specify Atleast One Direct Address");
+                        var resultTranslated = js_xl("Please Specify at least One Direct Address");
                         alert(resultTranslated.msg);
 		}
 	}
@@ -477,7 +476,7 @@ function send(){
     if(count == 0) {
       $('.ap-st-st-12').fadeOut();
       $('.activity_indicator').css({"display" :"none"});
-      var resultTranslated = js_xl("Please select atleast one patient.");
+      var resultTranslated = js_xl("Please select at least one patient.");
       alert(resultTranslated.msg);
       return false;
     }

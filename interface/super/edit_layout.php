@@ -37,14 +37,14 @@ if ($GLOBALS['ippf_specific']) {
 $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'transactions' ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
-  $layouts[$lrow['option_id']] = $lrow['title'];
+  $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
 // Include Layout Based Encounter Forms.
 $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
-  $layouts[$lrow['option_id']] = $lrow['title'];
+  $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
 // array of the data_types of the fields
@@ -103,7 +103,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add=TRUE) {
   else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
   else if ($layout_id == "CON") $tablename = "lists_ippf_con";
   else if ($layout_id == "GCA") $tablename = "lists_ippf_gcac";
-  else die(xlt('Internal error in addOrDeleteColumn()'));
+  else die('Internal error in addOrDeleteColumn()');
 
   // Check if the column currently exists.
   $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE '$field_id'");

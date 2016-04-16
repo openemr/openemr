@@ -43,11 +43,11 @@ $timeslotHeightUnit="px";
                 }
         }
     [-/php-]
-    ,'_blank', 575, 375);
+    ,'_blank', 775, 375);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 575, 375);
+  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 375);
  }
 
  function goPid(pid) {
@@ -505,7 +505,7 @@ foreach ($providers as $provider) {
                     $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob.htmlspecialchars($comment, ENT_QUOTES)."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
-                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
+                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {

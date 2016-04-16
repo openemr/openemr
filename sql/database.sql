@@ -462,7 +462,7 @@ INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_
 -- MU 170.302(j) The EP, eligible hospital or CAH who receives a patient from another
 --               setting of care or provider of care or believes an encounter is relevant
 --               should perform medication reconciliation
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('med_reconc_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(j)', 1, '170.314(g)(1)/(2)–17', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag` ) VALUES ('med_reconc_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(j)', 1, '170.314(g)(1)/(2)–17', 0, 1, 1);
 -- MU 170.302(m) Use certified EHR technology to identify patient-specific education resources
 --              and provide those resources to the patient if appropriate
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag`, `amc_2014_flag`, `amc_code_2014`, `amc_2014_stage1_flag` ) VALUES ('patient_edu_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(m)', 0, 1, '170.314(g)(1)/(2)–16', 1);
@@ -505,7 +505,7 @@ INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_
 -- NQF 0024 Weight Assessment and Counseling for Children and Adolescents
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, cqm_2014_flag ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 0, 0, 1, 1, '0024', '', 0, '', 0, 1);
 -- NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 0, 0, 1, 1, '0041', '110', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 0, 0, 1, 1, '0041', '110', 0, '', 0, 1);
 -- NQF 0038 Childhood immunization Status
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 0, 0, 1, 1, '0038', '', 0, '', 0);
 -- NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
@@ -515,7 +515,7 @@ INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_
 -- NQF 0056 (PQRI 163) Diabetes: Foot Exam
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 0, 0, 1, 1, '0056', '163', 0, '', 0);
 -- NQF 0059 (PQRI 1) Diabetes: HbA1c Poor Control
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, 1, '0059', '1', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `cqm_2014_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, 1, '0059', '1', 0, '', 0, 1);
 -- NQF 0061 (PQRI 3) Diabetes: Blood Pressure Management
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 0, 0, 1, 1, '0061', '3', 0, '', 0);
 -- NQF 0064 (PQRI 2) Diabetes: LDL Management & Control
@@ -2642,6 +2642,7 @@ CREATE TABLE `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
+  `lang_is_rtl` TINYINT DEFAULT 0 COMMENT 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.',
   UNIQUE KEY `lang_id` (`lang_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 ;
 
@@ -2649,7 +2650,7 @@ CREATE TABLE `lang_languages` (
 -- Dumping data for table `lang_languages`
 -- 
 
-INSERT INTO `lang_languages` VALUES (1, 'en', 'English');
+INSERT INTO `lang_languages` VALUES (1, 'en', 'English', 0);
 
 -- --------------------------------------------------------
 
@@ -2873,6 +2874,7 @@ CREATE TABLE `list_options` (
   `toggle_setting_1` tinyint(1) NOT NULL default '0',
   `toggle_setting_2` tinyint(1) NOT NULL default '0',
   `activity` TINYINT DEFAULT 1 NOT NULL,
+  `subtype` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`list_id`,`option_id`)
 ) ENGINE=MyISAM;
 
@@ -4143,6 +4145,10 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 -- Issue Types List
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
+-- Issue Subtypes List
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','primary'  ,'Primary'  ,10);
@@ -4443,6 +4449,7 @@ CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `type` varchar(255) default NULL,
+  `subtype` varchar(31) NOT NULL DEFAULT '',
   `title` varchar(255) default NULL,
   `begdate` date default NULL,
   `enddate` date default NULL,
@@ -6650,7 +6657,9 @@ CREATE TABLE `procedure_report` (
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
+  `date_collected_tz`   varchar(5)     DEFAULT ''          COMMENT '+-hhmm offset from UTC',
   `date_report`         datetime       DEFAULT NULL,
+  `date_report_tz`      varchar(5)     DEFAULT ''          COMMENT '+-hhmm offset from UTC',
   `source`              bigint(20)     NOT NULL DEFAULT 0  COMMENT 'references users.id, who entered this data',
   `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
   `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',

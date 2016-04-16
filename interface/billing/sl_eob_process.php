@@ -30,7 +30,6 @@ require_once("$srcdir/billing.inc");
     $last_code = '';
     $invoice_total = 0.00;
     $InsertionId;//last inserted ID of 
-  $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 ///////////////////////// Assorted Functions /////////////////////////
 
@@ -160,7 +159,7 @@ require_once("$srcdir/billing.inc");
     }
     function era_callback(&$out) {
         global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
-        global $invoice_total, $last_code, $paydate, $INTEGRATED_AR;
+        global $invoice_total, $last_code, $paydate;
          global $InsertionId;//last inserted ID of
          
         
@@ -187,7 +186,6 @@ require_once("$srcdir/billing.inc");
         $codes = array();
         if ($pid && $encounter) {
             // Get invoice data into $arrow or $ferow.
-      if ($INTEGRATED_AR) {
         $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
           "FROM form_encounter AS e, patient_data AS p WHERE " .
           "e.pid = '$pid' AND e.encounter = '$encounter' AND ".
@@ -200,21 +198,6 @@ require_once("$srcdir/billing.inc");
           $codes = ar_get_invoice_summary($pid, $encounter, true);
           // $svcdate = substr($ferow['date'], 0, 10);
         }
-      } // end internal a/r
-      else {
-        $arres = SLQuery("SELECT ar.id, ar.notes, ar.shipvia, customer.name " .
-          "FROM ar, customer WHERE ar.invnumber = '$invnumber' AND " .
-          "customer.id = ar.customer_id");
-        if ($sl_err) die($sl_err);
-        $arrow = SLGetRow($arres, 0);
-        if ($arrow) {
-          $inverror = false;
-          $codes = get_invoice_summary($arrow['id'], true);
-        } else { // oops, no such invoice
-          $pid = $encounter = 0;
-          $invnumber = $out['our_claim_id'];
-        }
-      } // end not internal a/r
         }
 
         // Show the claim status.
@@ -277,24 +260,12 @@ require_once("$srcdir/billing.inc");
     $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
     $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
-    if ($INTEGRATED_AR) {
       $insurance_id = arGetPayerID($pid, $service_date, substr($inslabel, 3));
       if (empty($ferow['lname'])) {
         $patient_name = $out['patient_fname'] . ' ' . $out['patient_lname'];
       } else {
         $patient_name = $ferow['fname'] . ' ' . $ferow['lname'];
       }
-    } else {
-      $insurance_id = 0;
-      foreach ($codes as $cdata) {
-        if ($cdata['ins']) {
-          $insurance_id = $cdata['ins'];
-          break;
-        }
-      }
-      $patient_name = $arrow['name'] ? $arrow['name'] :
-        ($out['patient_fname'] . ' ' . $out['patient_lname']);
-    }
 
         $error = $inverror;
 
@@ -344,13 +315,8 @@ require_once("$srcdir/billing.inc");
                 // was inserted, or in red if we are in error mode).
                 $description = "CPT4:$codekey Added by $inslabel $production_date";
                 if (!$error && !$debug) {
-          if ($INTEGRATED_AR) {
             arPostCharge($pid, $encounter, 0, $svc['chg'], 1, $service_date,
               $codekey, $description, $debug,'',$codetype);
-          } else {
-            slPostCharge($arrow['id'], $svc['chg'], 1, $service_date, $codekey,
-              $insurance_id, $description, $debug);
-          }
                     $invoice_total += $svc['chg'];
                 }
                 $class = $error ? 'errdetail' : 'newdetail';
@@ -393,13 +359,8 @@ require_once("$srcdir/billing.inc");
             // i.e. a payment reversal.
             if ($svc['paid']) {
                 if (!$error && !$debug) {
-          if ($INTEGRATED_AR) {
             arPostPayment($pid, $encounter,$InsertionId[$out['check_number']], $svc['paid'],//$InsertionId[$out['check_number']] gives the session id
               $codekey, substr($inslabel,3), $out['check_number'], $debug,'',$codetype);
-          } else {
-            slPostPayment($arrow['id'], $svc['paid'], $check_date,
-              "$inslabel/" . $out['check_number'], $codekey, $insurance_id, $debug);
-          }
                     $invoice_total -= $svc['paid'];
                 }
                 $description = "$inslabel/" . $out['check_number'] . ' payment';
@@ -440,14 +401,8 @@ require_once("$srcdir/billing.inc");
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
-            if ($INTEGRATED_AR) {
               arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey,//$InsertionId[$out['check_number']] gives the session id
                 substr($inslabel,3), $reason, $debug, '', $codetype);
-            } else {
-              slPostAdjustment($arrow['id'], 0, $production_date,
-                $out['check_number'], $codekey, $insurance_id,
-                $reason, $debug);
-            }
                     }
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                         sprintf("%.2f", $adj['amount']));
@@ -455,15 +410,9 @@ require_once("$srcdir/billing.inc");
                 // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
-            if ($INTEGRATED_AR) {
               arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'],//$InsertionId[$out['check_number']] gives the session id
                 $codekey, substr($inslabel,3),
                 "Adjust code " . $adj['reason_code'], $debug, '', $codetype);
-            } else {
-              slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
-                $out['check_number'], $codekey, $insurance_id,
-                "$inslabel adjust code " . $adj['reason_code'], $debug);
-            }
                         $invoice_total -= $adj['amount'];
                     }
                     writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
@@ -490,7 +439,6 @@ require_once("$srcdir/billing.inc");
 
         // Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
         if (!$error && !$debug && $insurance_done) {
-          if ($INTEGRATED_AR) {
             $level_done = 0 + substr($inslabel, 3);
 
             if($out['crossover']==1)
@@ -516,24 +464,6 @@ require_once("$srcdir/billing.inc");
                 'This claim is now re-queued for secondary paper billing');
               }
             }
-          } else {
-            $shipvia = 'Done: Ins1';
-            if ($inslabel != 'Ins1') $shipvia .= ',Ins2';
-            if ($inslabel == 'Ins3') $shipvia .= ',Ins3';
-            $query = "UPDATE ar SET shipvia = '$shipvia' WHERE id = " . $arrow['id'];
-            SLQuery($query);
-            if ($sl_err) die($sl_err);
-            // Check for secondary insurance.
-            $insgot = strtolower($arrow['notes']);
-            if ($primary && strpos($insgot, 'ins2') !== false) {
-              slSetupSecondary($arrow['id'], $debug);
-              if($out['crossover']<>1)
-              {
-              writeMessageLine($bgcolor, 'infdetail',
-                'This claim is now re-queued for secondary paper billing');
-              }
-            }
-          }
         }
         }
     }
@@ -560,7 +490,6 @@ require_once("$srcdir/billing.inc");
         if (!$fhreport) die(xl("Cannot create") . " '$fnreport'");
     }
 
-  if (!$INTEGRATED_AR) slInitialize();
 ?>
 <html>
 <head>
@@ -645,7 +574,6 @@ require_once("$srcdir/billing.inc");
                 echo "<script>alert('$StringIssue')</script>";
          }
 
-          if (!$INTEGRATED_AR) slTerminate();
          
         ?>
         </table>

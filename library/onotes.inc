@@ -31,18 +31,22 @@ function getOnoteByDate ($date, $activity = "1", $cols = "*", $limit="all", $off
 	{
 		$sql = "select $cols from onotes where date like ? ";
                 array_push($sqlBindArray,"%".$date."%");
-		if ($activity != "all")
+		if ($activity != "all") {
 			$sql .= "and activity=? ";
-                        array_push($sqlBindArray,$activity);
+			array_push($sqlBindArray,$activity);
+		}
+
 		$sql .= "order by date DESC";
 	}
 	else
 	{
 		$sql = "select $cols from onotes where date like ? ";
                 array_push($sqlBindArray,"%".$date."%");
-		if ($activity != "all")
+		if ($activity != "all") {
 			$sql .= "and activity =? ";
-                        array_push($sqlBindArray,$activity);
+			array_push($sqlBindArray,$activity);
+		}
+
 		$sql .= "order by date DESC LIMIT ".escape_limit($offset).",".escape_limit($limit);
 	}
 	

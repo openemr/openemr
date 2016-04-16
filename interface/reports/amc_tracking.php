@@ -23,7 +23,7 @@ require_once "$srcdir/amc.php";
 
 // Collect form parameters (set defaults if empty)
 $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
-$begin_date = (isset($_POST['form_end_date'])) ? trim($_POST['form_end_date']) : "";
+$end_date = (isset($_POST['form_end_date'])) ? trim($_POST['form_end_date']) : "";
 $rule = (isset($_POST['form_rule'])) ? trim($_POST['form_rule']) : "";
 $provider  = trim($_POST['form_provider']);
 

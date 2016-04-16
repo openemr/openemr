@@ -1256,7 +1256,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $modir = pnVarPrepForOS($modinfo['directory']);
 	$modname = $modinfo['displayname'];
-	$all_categories =& pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+	$all_categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
 	//print_r($all_categories);
 	unset($modinfo);
     $tpl->config_dir = "modules/$modir/pntemplates/$template_name/config/";
@@ -1274,6 +1274,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	    $all_categories[$m]["descTranslate"] = xl($tempDescription);
 	}
     }
+    $tpl->assign('globals', $GLOBALS);
     
 	$tpl->assign_by_ref('TPL_NAME',$template_name);
     $tpl->assign('FUNCTION',pnVarCleanFromInput('func'));
@@ -1973,7 +1974,7 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     $tpl->assign_by_ref('hour_array',	$hour_array);
     $tpl->assign_by_ref('min_array',	$min_array);
     
-    $categories =  & pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+    $categories =   pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
     // create translations of category names if applicable
     $sizeAllCat = count($categories);
     for ($m = 0; $m < $sizeAllCat; $m++) {
@@ -1981,7 +1982,7 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
      $categories[$m]["name"] = xl_appt_category($tempCategory);
     }
     $tpl->assign_by_ref('categories', $categories);
-    $limits =& pnModAPIFunc(__POSTCALENDAR__,'user','getCategoryLimits');
+    $limits = pnModAPIFunc(__POSTCALENDAR__,'user','getCategoryLimits');
     $tpl->assign_by_ref('limits', $limits);
     $tpl->assign('BGCOLOR2',$GLOBALS['style']['BGCOLOR2']);
     $tpl->assign("catTitle",_PC_REP_CAT_TITLE_S);

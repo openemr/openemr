@@ -14,14 +14,8 @@
 // * an OpenEMR database dump (gzipped)
 // * a phpGACL database dump (gzipped), if phpGACL is used and has
 //   its own database
-// * a SQL-Ledger database dump (gzipped), if SQL-Ledger is used
-//   (currently skipped on Windows servers)
 // * the OpenEMR web directory (.tar.gz)
 // * the phpGACL web directory (.tar.gz), if phpGACL is used
-// * the SQL-Ledger web directory (.tar.gz), if SQL-Ledger is used
-//   and its web directory exists as a sister of the openemr directory
-//   and has the name "sql-ledger" (otherwise we do not have enough
-//   information to find it)
 //
 // The OpenEMR web directory is important because it includes config-
 // uration files, patient documents, and possible customizations, and
@@ -95,7 +89,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 $MYSQL_PATH = $GLOBALS['mysql_bin_dir'];
 $PERL_PATH = $GLOBALS['perl_bin_dir'];
 
-if ($form_step == 8) {
+if ($form_step == 6) {
   header("Pragma: public");
   header("Expires: 0");
   header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -222,30 +216,6 @@ if ($form_step == 2) {
 }
 
 if ($form_step == 3) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
-      $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2) {
-    if (IS_WINDOWS) {
-      // Somebody may want to make this work in Windows, if they have SQL-Ledger set up.
-      $form_status .= xl('Skipping SQL-Ledger dump - not implemented for Windows server') . "...<br />";
-      echo nl2br($form_status);
-      ++$form_step;
-    }
-    else {
-      $form_status .= xl('Dumping SQL-Ledger database') . "...<br />";
-      echo nl2br($form_status);
-      $file_to_compress = "$BACKUP_DIR/sql-ledger.sql";   // gzip this file after creation
-      $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
-        escapeshellarg($sl_dbuser) . " -h localhost --format=c -f " .
-        "$file_to_compress " . escapeshellarg($sl_dbname);
-      $auto_continue = true;
-    }
-  }
-  else {
-    ++$form_step;
-  }
-}
-
-if ($form_step == 4) {
   $form_status .= xl('Dumping OpenEMR web directory tree') . "...<br />";
   echo nl2br($form_status);
   $cur_dir = getcwd();
@@ -275,7 +245,7 @@ if ($form_step == 4) {
   $auto_continue = true;
 }
 
-if ($form_step == 5) {
+if ($form_step == 4) {
   if ((!empty($phpgacl_location)) && ($phpgacl_location != $srcdir."/../gacl") ) {
     $form_status .= xl('Dumping phpGACL web directory tree') . "...<br />";
     echo nl2br($form_status);
@@ -293,28 +263,7 @@ if ($form_step == 5) {
   }
 }
 
-if ($form_step == 6) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
-    $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2 &&
-    is_dir("$webserver_root/../sql-ledger"))
-  {
-    $form_status .= xl('Dumping SQL-Ledger web directory tree') . "...<br />";
-    echo nl2br($form_status);
-    $cur_dir = getcwd();
-    $arch_dir = $webserver_root . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "sql-ledger";
-    chdir($arch_dir);
-    $file_list = array('.');    // archive entire directory
-    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "sql-ledger.tar.gz";
-    if (!create_tar_archive($arch_file, "gz", $file_list))
-      die(xl("An error occurred while dumping SQL-Ledger web directory tree"));
-    chdir($cur_dir);
-    $auto_continue = true;
-  }
-  else {
-    ++$form_step;
-  }
-}
-if ($form_step == 7) {   // create the final compressed tar containing all files
+if ($form_step == 5) {   // create the final compressed tar containing all files
   $form_status .= xl('Backup file has been created. Will now send download.') . "<br />";
   echo nl2br($form_status);
   $cur_dir = getcwd();

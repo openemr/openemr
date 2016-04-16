@@ -62,7 +62,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
   $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
   $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
+  $date_report_suf = empty($row['date_report_tz' ]) ? '' : (' ' . $row['date_report_tz' ]);
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
+  $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
@@ -84,11 +86,15 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
       }
     }
   }
-
+  // allow for 0 to be displayed as a result value
+  if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
+    $result_result = '';
+  } else { 
+    $result_result = $rrow['result'];
+  }
   $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];
   $result_text      = empty($rrow['result_text'     ]) ? '' : $rrow['result_text'];
   $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
-  $result_result    = empty($rrow['result'          ]) ? '' : $rrow['result'];
   $result_units     = empty($rrow['units'           ]) ? '' : $rrow['units'];
   $result_facility  = empty($rrow['facility'        ]) ? '' : $rrow['facility'];
   $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
@@ -155,11 +161,11 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   // If this starts a new report or a new order, generate the report fields.
   if ($report_id != $ctx['lastprid']) {
     echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10));
+    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
     echo "</td>\n";
 
     echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10));
+    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10) . $date_collected_suf);
     echo "</td>\n";
 
     echo "  <td>";
@@ -268,21 +274,53 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
 ?>
 
 <?php if ($genstyles) { ?>
-<style>
-.labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-.labres tr.detail { font-size:10pt; }
-.labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
-.labres table {
- border-style: solid;
- border-width: 1px 0px 0px 1px;
- border-color: black;
-}
-.labres td, .labres th {
- border-style: solid;
- border-width: 0px 1px 1px 0px;
- border-color: black;
-}
-</style>
+        <style>
+
+            <?php if ($_SESSION['language_direction'] == 'ltr') { ?>
+
+            .labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
+            .labres tr.detail { font-size:10pt; }
+            .labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
+
+            .labres table {
+                border-style: solid;
+                border-width: 1px 0px 0px 1px;
+                border-color: black;
+            }
+            .labres td, .labres th {
+                border-style: solid;
+                border-width: 0px 1px 1px 0px;
+                border-color: black;
+            }
+            .labres tr{
+                background-color: #cccccc;
+            }
+
+            <?php }else{ ?>
+
+            .labres tr.head   { font-size:10pt;  text-align:center; }
+            .labres tr.detail { font-size:10pt; }
+
+            .labres table {
+                border-style: none;
+                border-width: 1px 0px 0px 1px;
+                border-color: black;
+            }
+            .labres td, .labres th {
+                border-style: none;
+                border-width: 0px 1px 1px 0px;
+                border-color: black;
+                padding: 4px;
+            }
+            .labres table td.td-label{
+
+                font-weight: bold;
+            }
+
+
+            <?php } ?>
+
+        </style>
 <?php } ?>
 
 <?php if ($input_form) { ?>
@@ -335,10 +373,10 @@ function educlick(codetype, codevalue) {
 <div class='labres'>
 
 <table width='100%' cellpadding='2' cellspacing='0'>
- <tr bgcolor='#cccccc'>
-  <td width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
+ <tr>
+  <td class="td-label" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
   <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-  <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
+  <td class="td-label" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
   <td width='45%'>
 <?php
   if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
@@ -357,28 +395,28 @@ function educlick(codetype, codevalue) {
 ?>
   </td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Patient Name'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Patient Name'); ?></td>
   <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-  <td nowrap><?php echo xlt('Ordered By'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Ordered By'); ?></td>
   <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Order Date'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Order Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-  <td nowrap><?php echo xlt('Print Date'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Print Date'); ?></td>
   <td><?php echo oeFormatShortDate(date('Y-m-d')); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Order Status'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Order Status'); ?></td>
   <td><?php echo myCellText($orow['order_status']); ?></td>
-  <td nowrap><?php echo xlt('Encounter Date'); ?></td>
+  <td class="td-label" nowrap><?php echo xlt('Encounter Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
  </tr>
- <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Lab'); ?></td>
+ <tr>
+  <td class="td-label" nowrap><?php echo xlt('Lab'); ?></td>
   <td><?php echo myCellText($orow['labname']); ?></td>
-  <td nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
+  <td class="td-label" nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
   <td><?php echo myCellText($orow['specimen_type']); ?></td>
  </tr>
 </table>
@@ -388,9 +426,9 @@ function educlick(codetype, codevalue) {
 <table width='100%' cellpadding='2' cellspacing='0'>
 
  <tr class='head'>
-  <td rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
-  <td colspan='5'><?php echo xlt('Report'); ?></td>
-  <td colspan='7'><?php echo xlt('Results'); ?></td>
+  <td class="td-label" rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
+  <td  class="td-label" colspan='5'><?php echo xlt('Report'); ?></td>
+  <td class="td-label" colspan='7'><?php echo xlt('Results'); ?></td>
  </tr>
 
  <tr class='head'>
@@ -412,8 +450,8 @@ function educlick(codetype, codevalue) {
   $query = "SELECT " .
     "po.lab_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
     "pc.procedure_name, " .
-    "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
-    "pr.report_status, pr.review_status, pr.report_notes " .
+    "pr.date_report, pr.date_report_tz, pr.date_collected, pr.date_collected_tz, " .
+    "pr.procedure_report_id, pr.specimen_num, pr.report_status, pr.review_status, pr.report_notes " .
     "FROM procedure_order AS po " .
     "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
     "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id AND " .
@@ -521,7 +559,8 @@ function educlick(codetype, codevalue) {
     foreach ($aNotes as $key => $value) {
       echo " <tr>\n";
       echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
-      echo "  <td>" . nl2br(text($value)) . "</td>\n";
+      // <pre> tag because white space and a fixed font are often used to line things up.
+      echo "  <td><pre>" . text($value) . "</pre></td>\n";
       echo " </tr>\n";
     }
     echo "</table>\n";

@@ -55,8 +55,13 @@ if ($PDF_OUTPUT) {
                        $GLOBALS['pdf_language'],
                        true, // default unicode setting is true
                        'UTF-8', // default encoding setting is UTF-8
-                       array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
-          ); 
+                       array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+                       $_SESSION['language_direction'] == 'rtl' ? true : false
+                      );
+  //set 'dejavusans' for now. which is supported by a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
+  //TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization.
+  $pdf->setDefaultFont('dejavusans');
+
   ob_start();
 }
 
@@ -116,7 +121,7 @@ function postToGet($arin) {
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+<link rel="stylesheet" href="<?php echo  $webserver_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
@@ -482,8 +487,8 @@ if ($printable) {
   }
   // Setup Headers and Footers for html2PDF only Download
   // in HTML view it's just one line at the top of page 1
-  echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
-  echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+  echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+  echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
   // Use logo if it exists as 'practice_logo.gif' in the site dir
   // old code used the global custom dir which is no longer a valid
@@ -782,7 +787,6 @@ foreach ($ar as $key => $val) {
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
                 $couch_revid = $d->get_couch_revid();
-                $extension = substr($fname, strrpos($fname,"."));
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
@@ -823,7 +827,9 @@ foreach ($ar as $key => $val) {
                     '/documents/' . $from_pathname . '/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
-
+                //Extract the extension by the mime/type and not the file name extension
+                $image_data = getimagesize($from_file);
+                $extension = image_type_to_extension($image_data[2]);
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                   if ($PDF_OUTPUT) {
                     // OK to link to the image file because it will be accessed by the

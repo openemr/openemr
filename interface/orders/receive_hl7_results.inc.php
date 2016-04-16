@@ -2,7 +2,7 @@
 /**
 * Functions to support parsing and saving hl7 results.
 *
-* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -110,6 +110,10 @@ function rhl7Text($s) {
 }
 
 function rhl7DateTime($s) {
+  // Remove UTC offset if present.
+  if (preg_match('/^([0-9.]+)[+-]/', $s, $tmp)) {
+    $s = $tmp[1];
+  }
   $s = preg_replace('/[^0-9]/', '', $s);
   if (empty($s)) return '0000-00-00 00:00:00';
   $ret = substr($s, 0, 4) . '-' . substr($s, 4, 2) . '-' . substr($s, 6, 2);
@@ -122,6 +126,14 @@ function rhl7DateTime($s) {
     }
   }
   return $ret;
+}
+
+function rhl7DateTimeZone($s) {
+  // UTC offset if present always begins with "+" or "-".
+  if (preg_match('/^[0-9.]+([+-].*)$/', $s, $tmp)) {
+    return trim($tmp[1]);
+  }
+  return '';
 }
 
 function rhl7Date($s) {
@@ -566,6 +578,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       } // end results-only/MDM logic
     }
 
+    else if ('PD1' == $a[0]) {
+      // TBD: Save primary care provider name ($a[4]) somewhere?
+    }
+
     else if ('PV1' == $a[0]) {
       if ('ORU' == $msgtype) {
         // Save placer encounter number if present.
@@ -585,7 +601,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
-      $ares = array();
       $arep = array();
       $porow = false;
       $pcrow = false;
@@ -783,7 +798,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $arep['procedure_order_id'] = $in_orderid;
       $arep['procedure_order_seq'] = $pcrow['procedure_order_seq'];
       $arep['date_collected'] = rhl7DateTime($a[7]);
+      $arep['date_collected_tz'] = rhl7DateTimeZone($a[7]);
       $arep['date_report'] = rhl7DateTime($a[22]);
+      $arep['date_report_tz'] = rhl7DateTimeZone($a[22]);
       $arep['report_status'] = $in_report_status;
       $arep['report_notes'] = '';
       $arep['specimen_num'] = '';
@@ -813,6 +830,26 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     }
 
     else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
+      $tmp = explode($d2, $a[3]);
+      $result_code = rhl7Text($tmp[0]);
+      $result_text = rhl7Text($tmp[1]);
+      // If this is a text result that duplicates the previous result except
+      // for its value, then treat it as an extension of that result's value.
+      $i = count($amain) - 1;
+      $j = count($amain[$i]['res']) - 1;
+      if ($j >= 0 && $context == 'OBX' && $a[2] == 'TX'
+        && $amain[$i]['res'][$j]['result_data_type'] == 'L'
+        && $amain[$i]['res'][$j]['result_code'     ] == $result_code
+        && $amain[$i]['res'][$j]['date'            ] == rhl7DateTime($a[14])
+        && $amain[$i]['res'][$j]['facility'        ] == rhl7Text($a[15])
+        && $amain[$i]['res'][$j]['abnormal'        ] == rhl7Abnormal($a[8])
+        && $amain[$i]['res'][$j]['result_status'   ] == rhl7ReportStatus($a[11])
+      ) {
+        $amain[$i]['res'][$j]['comments'] =
+          substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments']) - 1) .
+          '~' . rhl7Text($a[5]) . $commentdelim;
+        continue;
+      }
       $context = $a[0];
       $ares = array();
       $ares['result_data_type'] = substr($a[2], 0, 1); // N, S, F or E
@@ -841,7 +878,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       else if ($a[2] == 'SN') {
         $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
       }
-      else if (strlen($a[5]) > 200) {
+      else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
         // OBX-5 can be a very long string of text with "~" as line separators.
         // The first line of comments is reserved for such things.
         $ares['result_data_type'] = 'L';
@@ -851,16 +888,15 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       else {
         $ares['result'] = rhl7Text($a[5]);
       }
-      $tmp = explode($d2, $a[3]);
-      $ares['result_code'] = rhl7Text($tmp[0]);
-      $ares['result_text'] = rhl7Text($tmp[1]);
-      $ares['date'] = rhl7DateTime($a[14]);
-      $ares['facility'] = rhl7Text($a[15]);
+      $ares['result_code'  ] = $result_code;
+      $ares['result_text'  ] = $result_text;
+      $ares['date'         ] = rhl7DateTime($a[14]);
+      $ares['facility'     ] = rhl7Text($a[15]);
       // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
       $tmp = explode($d2, $a[6]);
       $ares['units'] = rhl7Text($tmp[0]);
-      $ares['range'] = rhl7Text($a[7]);
-      $ares['abnormal'] = rhl7Abnormal($a[8]); // values are lab dependent
+      $ares['range'        ] = rhl7Text($a[7]);
+      $ares['abnormal'     ] = rhl7Abnormal($a[8]); // values are lab dependent
       $ares['result_status'] = rhl7ReportStatus($a[11]);
 
       // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
@@ -913,7 +949,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         if ($rc) return rhl7LogMsg($rc);
         $ares['document_id'] = $d->get_id();
       }
-      $ares['date'] = $arep['date_report'];
+      $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
       // Append this result to those for the most recent report.
       // Note the 'procedure_report_id' item is not yet present.
       $amain[count($amain)-1]['res'][] = $ares;

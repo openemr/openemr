@@ -4,7 +4,13 @@
 *
 *============================================================*/
 
+tr, td, th {
+    text-align: left !important;
+
+}
+
 .login-box {
+        margin: 0 auto;
 	padding: 20px 20px 25px 25px;
 	text-align: left;
 	border: solid 1px #bebebe; 
@@ -23,7 +29,7 @@
 }
 
 .table-right {
-	padding: 40px 20px 0px 80px;
+	padding: 20px 20px;
 	float: left;
 }
 
@@ -71,7 +77,7 @@
 }
 
 .titlebar {
-	height:40px; !important
+	height:40px !important;
 }
 
 /* :..[ Social Icons ]..: */
@@ -156,9 +162,9 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
 }
 
 .rounded { 
-	-webkit-border-radius: 1em; !important
-	-moz-border-radius: 1em; !important
-	border-radius: 1em; !important
+	-webkit-border-radius: 1em !important;
+	-moz-border-radius: 1em !important;
+	border-radius: 1em !important;
 }
 
 .button:hover

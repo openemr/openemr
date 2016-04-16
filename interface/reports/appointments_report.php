@@ -22,6 +22,12 @@ require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
+# Clear the pidList session whenever load this page.
+# This session will hold array of patients that are listed in this 
+# report, which is then used by the 'Superbills' and 'Address Labels'
+# features on this report.
+unset($_SESSION['pidList']);
+
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'];
 
@@ -121,7 +127,7 @@ function fetch_reminders($pid, $appt_date) {
  }
 
  function oldEvt(eventid) {
-    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 550, 270);
+    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 375);
  }
 
  function refreshme() {
@@ -283,6 +289,8 @@ function fetch_reminders($pid, $appt_date) {
                                     <span> <?php echo xlt('Print'); ?> </span> </a> 
                                 <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'> 
                                     <span> <?php echo xlt('Superbills'); ?> </span> </a> 
+                               <a href='#' class='css_button' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'> 
+                                    <span> <?php echo xlt('Address Labels'); ?> </span> </a> 
                                 <?php } ?></div>
 				</td>
 			</tr>

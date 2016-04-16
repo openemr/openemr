@@ -21,7 +21,6 @@
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/sql-ledger.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
@@ -50,13 +49,6 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
-  $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
-
-  if (!$INTEGRATED_AR) {
-    SLConnect();
-    $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
-    if ($sl_err) die($sl_err);
-  }
 
   $form_use_edate  = $_POST['form_use_edate'];
 
@@ -326,7 +318,6 @@ function sel_diagnosis() {
     $form_doctor = $_POST['form_doctor'];
     $arows = array();
 
-    if ($INTEGRATED_AR) {
       $ids_to_skip = array();
       $irow = 0;
 
@@ -492,126 +483,6 @@ function sel_diagnosis() {
         $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
         $arows[$key]['irnumber'] = $row['invoice_refno'];
       } // end while
-    } // end $INTEGRATED_AR
-
-    else {
-      if ($form_proc_code) {
-        $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
-          "acc_trans.memo, acc_trans.project_id, acc_trans.trans_id, " .
-          "ar.invnumber, ar.employee_id, invoice.sellprice, invoice.qty " .
-          "FROM acc_trans, ar, invoice WHERE " .
-          "acc_trans.chart_id = $chart_id_cash AND " .
-          "acc_trans.memo ILIKE '$form_proc_code' AND " .
-          "ar.id = acc_trans.trans_id AND " .
-          "invoice.trans_id = acc_trans.trans_id AND " .
-          "invoice.serialnumber ILIKE acc_trans.memo AND " .
-          "invoice.sellprice >= 0.00 AND " .
-          "( invoice.description ILIKE 'CPT%' OR invoice.description ILIKE 'Proc%' ) AND ";
-      }
-      else {
-        $query = "select acc_trans.amount, acc_trans.transdate, " .
-          "acc_trans.memo, acc_trans.trans_id, " .
-          "ar.invnumber, ar.employee_id from acc_trans, ar where " .
-          "acc_trans.chart_id = $chart_id_cash and " .
-          "ar.id = acc_trans.trans_id and ";
-      }
-
-      if ($form_use_edate) {
-        $query .= "ar.transdate >= '$form_from_date' and " .
-        "ar.transdate <= '$form_to_date'";
-      } else {
-        $query .= "acc_trans.transdate >= '$form_from_date' and " .
-        "acc_trans.transdate <= '$form_to_date'";
-      }
-
-      $query .= " order by ar.invnumber";
-
-      // echo "<!-- $query -->\n"; // debugging
-
-      $t_res = SLQuery($query);
-      if ($sl_err) die($sl_err);
-
-      $docname     = "";
-      $docnameleft = "";
-      $main_docid  = 0;
-      $doctotal1   = 0;
-      $grandtotal1 = 0;
-      $doctotal2   = 0;
-      $grandtotal2 = 0;
-      $last_trans_id = 0;
-      $skipping      = false;
-
-      for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
-        $row = SLGetRow($t_res, $irow);
-
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-
-        // Under some conditions we may skip invoices that matched the SQL query.
-        //
-        if ($row['trans_id'] == $last_trans_id) {
-          if ($skipping) continue;
-          // same invoice and not skipping, do nothing.
-        } else { // new invoice
-          $skipping = false;
-          // If a diagnosis code was given then skip any invoices without
-          // that diagnosis.
-          if ($form_dx_code) {
-            if (!SLQueryValue("SELECT count(*) FROM invoice WHERE " .
-              "invoice.trans_id = '" . $row['trans_id'] . "' AND " .
-              "( invoice.description ILIKE 'ICD9:$form_dx_code %' OR " .
-              "invoice.serialnumber ILIKE 'ICD9:$form_dx_code' )"))
-            {
-              $skipping = true;
-              continue;
-            }
-          }
-          // If a facility was specified then skip invoices whose encounters
-          // do not indicate that facility.
-          if ($form_facility) {
-            $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-              "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-              "facility_id = '$form_facility'");
-            if (empty($tmp['count'])) {
-              $skipping = true;
-              continue;
-            }
-          }
-          // Find out who the practitioner is.
-          /***********************************************************
-          $tmp = sqlQuery("SELECT users.id, users.authorized FROM forms, users WHERE " .
-            "forms.pid = '$patient_id' AND forms.encounter = '$encounter_id' AND " .
-            "forms.formdir = 'newpatient' AND users.username = forms.user");
-          $main_docid = empty($tmp['id']) ? 0 : $tmp['id'];
-          if (empty($tmp['authorized'])) {
-            $tmp = sqlQuery("SELECT users.id FROM billing, users WHERE " .
-              "billing.pid = '$patient_id' AND billing.encounter = '$encounter_id' AND " .
-              "billing.activity = 1 AND billing.fee > 0 AND " .
-              "users.id = billing.provider_id AND users.authorized = 1 " .
-              "ORDER BY billing.fee DESC, billing.id ASC LIMIT 1");
-            if (!empty($tmp['id'])) $main_docid = $tmp['id'];
-          }
-          ***********************************************************/
-          $tmp = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
-            "pid = '$patient_id' AND encounter = '$encounter_id' " .
-            "ORDER BY id DESC LIMIT 1");
-          $main_docid = $tmp['provider_id'] + 0;
-
-          // If a practitioner was specified then skip other practitioners.
-          if ($form_doctor) {
-            if ($form_doctor != $main_docid) {
-              $skipping = true;
-              continue;
-            }
-          }
-        } // end new invoice
-
-        $row['docid'] = $main_docid;
-        $key = sprintf("%08u%s%08u%08u%06u", $main_docid, $row['transdate'],
-          $patient_id, $encounter_id, $irow);
-        $arows[$key] = $row;
-      }
-
-    } // end not $INTEGRATED_AR
 
     ksort($arows);
     $docid = 0;
@@ -682,16 +553,11 @@ function sel_diagnosis() {
 <?php
         if ($form_proc_code && $form_proc_codetype) {
           echo "  <td class='detail' align='right'>";
-          if ($INTEGRATED_AR) {
             list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
             $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
               "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
               "code_type = '$form_proc_codetype' AND code = '$form_proc_code' AND activity = 1");
             bucks($tmp['sum']);
-          }
-          else {
-            bucks($row['sellprice'] * $row['qty']);
-          }
           echo "  </td>\n";
         }
 ?>
@@ -753,7 +619,6 @@ function sel_diagnosis() {
 
 <?php
   }
-  if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>
