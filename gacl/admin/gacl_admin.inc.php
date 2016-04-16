@@ -65,7 +65,7 @@ if (file_exists($gacl_options['smarty_dir'].'/Smarty.class.php')) {
 }
 else {
   //this is for during the phpgacl install process within OpenEMR installation setup
-  require_once('library/Smarty/Smarty.class.php');
+  require_once(dirname(__FILE__).'/../../library/Smarty/Smarty.class.php');
 }
 
 $smarty = new Smarty;
