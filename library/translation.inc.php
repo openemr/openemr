@@ -263,6 +263,15 @@ function html_header_show() {
     //  We commented this out since we are now standardizing encoding
     //  in the globals.php file.
     // echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> '."\n";
+
+    /* Assets management */
+
+    if (isset($GLOBALS['custom_assets_folder']) && $GLOBALS['custom_assets_folder'] != "") {
+
+        require_once ('custom_assets.inc.php');
+        $assets = Load_assets::get_assets_instance( $GLOBALS['custom_assets_folder'] );
+        echo $assets->load_folder()->get_html();
+    }
 }
 
 
