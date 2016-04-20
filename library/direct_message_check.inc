@@ -476,7 +476,7 @@ function phimail_notify($subj,$body) {
   $mail->Host = "localhost";
   $mail->Mailer = "mail";
   $mail->Body = $body;
-  $mail->Subject = $subject;
+  $mail->Subject = $subj;
   $mail->AddAddress($recipient);
   return ($mail->Send());
 }
