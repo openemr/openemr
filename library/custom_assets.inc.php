@@ -111,6 +111,9 @@ class Load_assets{
             return $this->assets_html;
         }
 
+        sort($this->css_files);
+        sort($this->js_files);
+
         $head_script = "";
         //add comment before css files
         if ( count($this->css_files) > 0) {
