@@ -78,7 +78,9 @@ function checkSkipConditions() {
     var radio_id='form_' + tofind + '[' + value + ']';
     if(typeof document.getElementById(radio_id)!=="undefined"){
         srcelem = document.getElementById(radio_id);
-        is_radio = true;
+        if(srcelem != null){
+            is_radio = true;
+        }
     }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
@@ -100,7 +102,7 @@ function checkSkipConditions() {
             }
         }
     }else if( typeof srcelem.options!=="undefined"){
-        var elem_val=srcelem.options[srcelem.selectedIndex].text;
+        var elem_val=srcelem.options[srcelem.selectedIndex].value;
     }else{
         var elem_val=srcelem.value;
         if(elem_val == null) elem_val = srcelem.innerText;
