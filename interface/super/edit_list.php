@@ -308,11 +308,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     "onclick='defClicked($opt_line_no)' class='optin'$checked />";
   echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
-    echo "<input type='checkbox' name='opt[$opt_line_no][activity]' value='1' " .
-        " class='optin'$checked_active />";
-    echo "</td>\n";
-  
+  echo "  <td align='center' class='optcell'>";
+  echo "<input type='checkbox' name='opt[$opt_line_no][activity]' value='1' " .
+    " class='optin'$checked_active />";
+  echo "</td>\n";
+
   // Tax rates, contraceptive methods and LBF names have an additional attribute.
   //
   if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames' || $list_id == 'transactions') {
@@ -876,6 +876,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Title'     ,'e'); ?></b></td>   
   <td><b><?php xl('Order'     ,'e'); ?></b></td>
   <td><b><?php xl('Default'   ,'e'); ?></b></td>
+  <td><b><?php xl('Active','e'); ?></b></td>
   <td><b><?php xl('Color'     ,'e'); ?></b></td> 
   <td><b><?php xl('Alert Time','e'); ?></b></td> 
   <td><b><?php xl('Check In'  ,'e');?>&nbsp;&nbsp;&nbsp;&nbsp;</b></td>

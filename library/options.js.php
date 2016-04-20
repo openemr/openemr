@@ -69,14 +69,21 @@ function checkSkipConditions() {
     var itemid   = skipArray[i].itemid;
     var operator = skipArray[i].operator;
     var value    = skipArray[i].value;
-
+    var is_radio = false;
     var tofind = id;
+
     if (itemid) tofind += '[' + itemid + ']';
     // Some different source IDs are possible depending on the data type.
     var srcelem = document.getElementById('check_' + tofind);
+    var radio_id='form_' + tofind + '[' + value + ']';
+    if(typeof document.getElementById(radio_id)!=="undefined"){
+        srcelem = document.getElementById(radio_id);
+        is_radio = true;
+    }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
+
     if (srcelem == null) {
       if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
       myerror = true;
@@ -86,14 +93,19 @@ function checkSkipConditions() {
     var condition = false;
 
 
-    if( typeof srcelem.options!=="undefined"){
+    if ( is_radio){
+        for (var k = 0; k < document.getElementsByName('form_' + tofind).length; k++){
+            if (document.getElementsByName('form_' + tofind)[k].checked){
+                var elem_val= document.getElementsByName('form_' + tofind)[k].value;
+            }
+        }
+    }else if( typeof srcelem.options!=="undefined"){
         var elem_val=srcelem.options[srcelem.selectedIndex].text;
     }else{
         var elem_val=srcelem.value;
         if(elem_val == null) elem_val = srcelem.innerText;
 
     }
-
     if (operator == 'eq') condition = elem_val == value; else
     if (operator == 'ne') condition = elem_val != value; else
     if (operator == 'se') condition = srcelem.checked       ; else
