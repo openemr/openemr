@@ -2512,12 +2512,12 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'";
+					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'  abbr='$currvalue'";
 					  echo ">";
 					  $cell_count += $datacols;
 					}else{
                         $field_id = 'text_'.$group_fields['field_id'];
-                        echo "<span id='".$field_id."'> </span>";
+                        echo "<span id='".$field_id."' style='display:none'>$currvalue</span>";
                     }
 
 					++$item_count;

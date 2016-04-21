@@ -105,6 +105,7 @@ function checkSkipConditions() {
         var elem_val=srcelem.options[srcelem.selectedIndex].value;
     }else{
         var elem_val=srcelem.value;
+        if(elem_val == null) elem_val = srcelem.abbr;
         if(elem_val == null) elem_val = srcelem.innerText;
 
     }
