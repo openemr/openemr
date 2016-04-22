@@ -150,6 +150,7 @@ use ESign\Api;
   'ere' => array(xl('e-Rx EPCS') , 1, 'eRx.php?page=epcs-admin'),
   'pay' => array(xl('Payment') , 1, '../patient_file/front_payment.php'),
   'edi' => array(xl('EDI History') , 0, 'billing/edih_view.php'),
+  'eob' => array(xl('Posting')   , 0, 'billing/sl_eob_search.php'),
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
@@ -187,6 +188,7 @@ use ESign\Api;
  $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
 
  $disallowed['pre'] = !(acl_check('patients', 'med'));
+ $disallowed['eob'] = !(acl_check('acct', 'eob'));
 
  // Helper functions for treeview generation.
  function genTreeLink($frame, $name, $title, $mono=false) {
@@ -1349,6 +1351,7 @@ if (!empty($reg)) {
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?> 
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
 	  <?php genTreeLink('RTop','npa',xl('Batch Payments'),false,2);?>
+	  <?php genMiscLink('RTop','eob','0',xl('Posting'), 'billing/sl_eob_search.php'); ?>
       <?php if ($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob')) genTreeLink('RTop','edi',xl('EDI History'),false,2);?>
     </ul>
   </li>
