@@ -2502,17 +2502,23 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					}
 					++$item_count;
 
+					$field_id_label = 'label_'.$group_fields['field_id'];
+					echo "<span id='".$field_id_label."'>";
 					// Added 5-09 by BM - Translate label if applicable
 					if ($group_fields['title']) echo htmlspecialchars(xl_layout_label($group_fields['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
+					echo "</span>";
 
 					// Handle starting of a new data cell.
 					if ($datacols > 0) {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'";
+					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'  data-value='$currvalue'";
 					  echo ">";
 					  $cell_count += $datacols;
+					} else {
+					  $field_id = 'text_'.$group_fields['field_id'];
+					  echo "<span id='".$field_id."' style='display:none'>$currvalue</span>";
 					}
 
 					++$item_count;
