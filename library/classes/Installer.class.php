@@ -102,6 +102,10 @@ class Installer
   {
     $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
     if ( $this->dbh ) {
+      if (! $this->set_sql_strict()) {
+        $this->error_message = 'unable to set strict sql setting';
+        return FALSE;        
+      }
       return TRUE;
     } else {
       $this->error_message = 'unable to connect to database as root';
@@ -116,7 +120,12 @@ class Installer
       $this->error_message = "unable to connect to database as user: '$this->login'";
       return FALSE;
     }
+    if ( ! $this->set_sql_strict() ) {
+      $this->error_message = 'unable to set strict sql setting';
+      return FALSE;
+    }
     if ( ! $this->set_collation() ) {
+      $this->error_message = 'unable to set sql collation';
       return FALSE;
     }
     if ( ! mysqli_select_db($this->dbh, $this->dbname) ) {
@@ -462,6 +471,12 @@ $config = 1; /////////////
     else
       $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
     return $dbh;
+  }
+
+  private function set_sql_strict()
+  {
+    // Turn off STRICT SQL
+    return $this->execute_sql("SET sql_mode = ''");
   }
 
   private function set_collation()
