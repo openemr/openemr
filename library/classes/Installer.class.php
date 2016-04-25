@@ -192,7 +192,9 @@ class Installer
             $chr = substr($query,strlen($query)-1,1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query,";");
-                    $this->execute_sql( $query );
+                    if ( ! $this->execute_sql( $query ) ){
+                            return FALSE;
+                    }                    
                     $query = "";
             }
     }
@@ -446,7 +448,9 @@ $config = 1; /////////////
     if ( $results ) {
       return $results;
     } else {
-      $this->error_message = "unable to execute SQL: '$sql' due to: " . mysqli_error($this->dbh);
+      $error_mes = mysqli_error($this->dbh);
+      $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
+      error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: ".$sql." due to: ".$error_mes);
       return False;
     }
   }
