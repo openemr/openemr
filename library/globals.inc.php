@@ -113,7 +113,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'pat_trkr_timer',
                                'checkout_roll_off',
                                'ptkr_pt_list_new_window',                               
-                               'erx_import_status_message');
+                               'erx_import_status_message',
 
 $GLOBALS_METADATA = array(
 
@@ -742,6 +742,32 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+	
+   'floating_message_alerts' => array(
+      xl('Show Floating Alerts for User Messages'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Timed Floating Message Notices for any Unread Messages Addressed to the User When in the Demographics Summary.')
+    ),
+    
+    'floating_message_alerts_allergies' => array(
+      xl('Show Floating Alerts for Patient Allergies'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Timed Floating Message Notices for Patient Allergies to the User When in the Demographics Summary.')
+    ),
+    
+    'floating_message_alerts_timer' => array(
+      xl('Re-Display Floating Alerts Timer'),
+      array(
+       '0:20' => '20',
+       '0:30' => '30',
+       '0:40' => '40',
+       '0:50' => '50',
+      ),
+      '0:20',                              // default
+      xl('The Re-Display Time in Seconds for the Floating Alerts.')
+    ),	
 
    ),   
     // Report Tab
