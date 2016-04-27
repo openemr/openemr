@@ -24,6 +24,9 @@
  * @link    http://www.open-emr.org
  */
 
+ $fake_register_globals=false;
+ $sanitize_all_escapes=true;
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -51,14 +54,14 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
    foreach ($trow as $key => $value) {
     if (! $value || $value == '0000-00-00 00:00:00') continue;
     if ($logstring) $logstring .= " ";
-    $logstring .= $key . "='" . addslashes($value) . "'";
+    $logstring .= $key . "= $value ";
    }
    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
    ++$count;
   }
   if ($count) {
    $query = "DELETE FROM $table WHERE $where";
-   echo $query . "<br>\n";
+   echo text($query) . "<br>\n";
    sqlStatement($query);
   }
  }
@@ -70,7 +73,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
   if (sqlQuery("SELECT * FROM $table WHERE $where")) {
    newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
    $query = "UPDATE $table SET $set WHERE $where";
-   echo $query . "<br>\n";
+   echo text($query) . "<br>\n";
    sqlStatement($query);
   }
  }
@@ -96,16 +99,16 @@ function decorateString($fmt, $str) {
 // This is special because it has to replace the inventory.
 //
 function delete_drug_sales($patient_id, $encounter_id=0) {
-  $where = $encounter_id ? "ds.encounter = '$encounter_id'" :
-    "ds.pid = '$patient_id' AND ds.encounter != 0";
+  $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
+    "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";
   sqlStatement("UPDATE drug_sales AS ds, drug_inventory AS di " .
     "SET di.on_hand = di.on_hand + ds.quantity " .
     "WHERE $where AND di.inventory_id = ds.inventory_id");
   if ($encounter_id) {
-    row_delete("drug_sales", "encounter = '$encounter_id'");
+    row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
   }
   else {
-    row_delete("drug_sales", "pid = '$patient_id'");
+    row_delete("drug_sales", "pid = '" . add_escape_custom($patient_id ) . "'");
   }
 }
 
@@ -114,24 +117,24 @@ function delete_drug_sales($patient_id, $encounter_id=0) {
 function form_delete($formdir, $formid) {
   $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
   if (substr($formdir,0,3) == 'LBF') {
-    row_delete("lbf_data", "form_id = '$formid'");
+    row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
   }
   else if ($formdir == 'procedure_order') {
     $tres = sqlStatement("SELECT procedure_report_id FROM procedure_report " .
       "WHERE procedure_order_id = ?", array($formid));
     while ($trow = sqlFetchArray($tres)) {
       $reportid = 0 + $trow['procedure_report_id'];
-      row_delete("procedure_result", "procedure_report_id = '$reportid'");
+      row_delete("procedure_result", "procedure_report_id = '" . add_escape_custom($reportid) . "'");
     }
-    row_delete("procedure_report", "procedure_order_id = '$formid'");
-    row_delete("procedure_order_code", "procedure_order_id = '$formid'");
-    row_delete("procedure_order", "procedure_order_id = '$formid'");
+    row_delete("procedure_report", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+    row_delete("procedure_order_code", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+    row_delete("procedure_order", "procedure_order_id = '" . add_escape_custom($formid) . "'");
   }
   else if ($formdir == 'physical_exam') {
-    row_delete("form_$formdir", "forms_id = '$formid'");
+    row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
   }
   else {
-    row_delete("form_$formdir", "id = '$formid'");
+    row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
   }
 }
 
@@ -151,7 +154,7 @@ function delete_document($document) {
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction','e'); ?></title>
+<title><?php echo xlt('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -183,36 +186,36 @@ function popup_close() {
 
   if ($patient) {
    if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) die("Not authorized!");
-   row_modify("billing"       , "activity = 0", "pid = '$patient'");
-   row_modify("pnotes"        , "deleted = 1" , "pid = '$patient'");
+   row_modify("billing"       , "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
+   row_modify("pnotes"        , "deleted = 1" , "pid = '" . add_escape_custom($patient) . "'");
    // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
-   row_delete("prescriptions"  , "patient_id = '$patient'");
-   row_delete("claims"         , "patient_id = '$patient'");
+   row_delete("prescriptions"  , "patient_id = '" . add_escape_custom($patient) . "'");
+   row_delete("claims"         , "patient_id = '" . add_escape_custom($patient) . "'");
    delete_drug_sales($patient);
-   row_delete("payments"       , "pid = '$patient'");
-   row_delete("ar_activity"    , "pid = '$patient'");
-   row_delete("openemr_postcalendar_events", "pc_pid = '$patient'");
-   row_delete("immunizations"  , "patient_id = '$patient'");
-   row_delete("issue_encounter", "pid = '$patient'");
-   row_delete("lists"          , "pid = '$patient'");
-   row_delete("transactions"   , "pid = '$patient'");
-   row_delete("employer_data"  , "pid = '$patient'");
-   row_delete("history_data"   , "pid = '$patient'");
-   row_delete("insurance_data" , "pid = '$patient'");
+   row_delete("payments"       , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("ar_activity"    , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("openemr_postcalendar_events", "pc_pid = '" . add_escape_custom($patient) . "'");
+   row_delete("immunizations"  , "patient_id = '" . add_escape_custom($patient) . "'");
+   row_delete("issue_encounter", "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("lists"          , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("transactions"   , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("employer_data"  , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("history_data"   , "pid = '" . add_escape_custom($patient) . "'");
+   row_delete("insurance_data" , "pid = '" . add_escape_custom($patient) . "'");
 
-   $res = sqlStatement("SELECT * FROM forms WHERE pid = '$patient'");
+   $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
    while ($row = sqlFetchArray($res)) {
     form_delete($row['formdir'], $row['form_id']);
    }
-   row_delete("forms", "pid = '$patient'");
+   row_delete("forms", "pid = '" . add_escape_custom($patient) . "'");
    
    // integration_mapping was used for sql-ledger (which is no longer supported) and is virtually obsolete now.
-   $row = sqlQuery("SELECT id FROM patient_data WHERE pid = '$patient'");
+   $row = sqlQuery("SELECT id FROM patient_data WHERE pid = ?", array($patient));
    row_delete("integration_mapping", "local_table = 'patient_data' AND " .
-    "local_id = '" . $row['id'] . "'");
+    "local_id = '" . add_escape_custom($row['id']) . "'");
 
    // Delete all documents for the patient.
-   $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = '$patient'");
+   $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ?", array($patient));
    while ($row = sqlFetchArray($res)) {
     delete_document($row['id']);
    }
@@ -220,36 +223,36 @@ function popup_close() {
    // This table exists only for athletic teams.
    $tmp = sqlQuery("SHOW TABLES LIKE 'daily_fitness'");
    if (!empty($tmp)) {
-    row_delete("daily_fitness", "pid = '$patient'");
+    row_delete("daily_fitness", "pid = '" . add_escape_custom($patient) . "'");
    }
 
-   row_delete("patient_data", "pid = '$patient'");
+   row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
   }
   else if ($encounterid) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-   row_modify("billing", "activity = 0", "encounter = '$encounterid'");
+   row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
    delete_drug_sales(0, $encounterid);
-   row_delete("ar_activity", "encounter = '$encounterid'");
-   row_delete("claims", "encounter_id = '$encounterid'");
-   row_delete("issue_encounter", "encounter = '$encounterid'");
-   $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
+   row_delete("ar_activity", "encounter = '" . add_escape_custom($encounterid) . "'");
+   row_delete("claims", "encounter_id = '" . add_escape_custom($encounterid) . "'");
+   row_delete("issue_encounter", "encounter = '" . add_escape_custom($encounterid) . "'");
+   $res = sqlStatement("SELECT * FROM forms WHERE encounter = ?", array($encounterid));
    while ($row = sqlFetchArray($res)) {
     form_delete($row['formdir'], $row['form_id']);
    }
-   row_delete("forms", "encounter = '$encounterid'");
+   row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
   }
   else if ($formid) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-   $row = sqlQuery("SELECT * FROM forms WHERE id = '$formid'");
+   $row = sqlQuery("SELECT * FROM forms WHERE id = ?", array($formid));
    $formdir = $row['formdir'];
-   if (! $formdir) die("There is no form with id '$formid'");
+   if (! $formdir) die("There is no form with id '" . text($formid) . "'");
    form_delete($formdir, $row['form_id']);
-   row_delete("forms", "id = '$formid'");
+   row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
   }
   else if ($issue) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-   row_delete("issue_encounter", "list_id = '$issue'");
-   row_delete("lists", "id = '$issue'");
+   row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) ."'");
+   row_delete("lists", "id = '" . add_escape_custom($issue) ."'");
   }
   else if ($document) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
@@ -261,7 +264,7 @@ function popup_close() {
     // if (empty($ref_id)) $ref_id = -1;
     $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
     $payres = sqlStatement("SELECT * FROM payments WHERE " .
-      "pid = '$patient_id' AND dtime = '$timestamp'");
+      "pid = ? AND dtime = ?", array($patient_id, $timestamp));
     while ($payrow = sqlFetchArray($payres)) {
       if ($payrow['encounter']) {
         $ref_id = -1;
@@ -273,11 +276,11 @@ function popup_close() {
         $seres = sqlStatement("SELECT " .
           "SUM(pay_amount) AS pay_amount, session_id " .
           "FROM ar_activity WHERE " .
-          "pid = '$patient_id' AND " .
-          "encounter = '" . $payrow['encounter'] . "' AND " .
+          "pid = ? AND " .
+          "encounter = ? AND " .
           "payer_type = 0 AND " .
           "adj_amount = 0.00 " .
-          "GROUP BY session_id ORDER BY session_id DESC");
+          "GROUP BY session_id ORDER BY session_id DESC", array($patient_id, $payrow['encounter']));
         while ($serow = sqlFetchArray($seres)) {
           if (sprintf("%01.2f", $serow['adj_amount']) != 0.00) continue;
           if (sprintf("%01.2f", $serow['pay_amount'] - $tpmt) == 0.00) {
@@ -286,34 +289,34 @@ function popup_close() {
           }
         }
         if ($ref_id == -1) {
-          die(xlt('Unable to match this payment in ar_activity') . ": $tpmt");
+          die(xlt('Unable to match this payment in ar_activity') . ": " . text($tpmt));
         }
         // Delete the payment.
         row_delete("ar_activity",
-          "pid = '$patient_id' AND " .
-          "encounter = '" . $payrow['encounter'] . "' AND " .
+          "pid = '" . add_escape_custom($patient_id) . "' AND " .
+          "encounter = '" . add_escape_custom($payrow['encounter']) . "' AND " .
           "payer_type = 0 AND " .
           "pay_amount != 0.00 AND " .
           "adj_amount = 0.00 AND " .
-          "session_id = '$ref_id'");
+          "session_id = '" . add_escape_custom($ref_id) . "'");
         if ($ref_id) {
           row_delete("ar_session",
-            "patient_id = '$patient_id' AND " .
-            "session_id = '$ref_id'");
+            "patient_id = '" . add_escape_custom($patient_id) ."' AND " .
+            "session_id = '" . add_escape_custom($ref_id) . "'");
         }
       }
       else {
         // Encounter is 0! Seems this happens for pre-payments.
         $tpmt = sprintf("%01.2f", $payrow['amount1'] + $payrow['amount2']);
         row_delete("ar_session",
-          "patient_id = '$patient_id' AND " .
+          "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
           "payer_id = 0 AND " .
           "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
-          "pay_total = '$tpmt' AND " .
+          "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
           "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
           "ORDER BY session_id DESC LIMIT 1");
       }
-      row_delete("payments", "id = '" . $payrow['id'] . "'");
+      row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
     }
   }
   else if ($billing) {
@@ -325,20 +328,20 @@ function popup_close() {
         "ar_activity ON ar_session.session_id = ar_activity.session_id " .
         "WHERE ar_activity.session_id IS NULL");
       row_modify("billing", "activity = 0",
-        "pid = '$patient_id' AND " .
-        "encounter = '$encounter_id' AND " .
+        "pid = '" . add_escape_custom($patient_id) . "'  AND " .
+        "encounter = '" . add_escape_custom($encounter_id) . "' AND " .
         "code_type = 'COPAY' AND " .
         "activity = 1");
       sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
         "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
-        "WHERE pid = '$patient_id' AND encounter = '$encounter_id'");
+        "WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
-      "pid = '$patient_id' AND encounter = '$encounter_id'");
+      "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
   }
   else if ($transaction) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-   row_delete("transactions", "id = '$transaction'");
+   row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");
   }
   else {
    die("Nothing was recognized to delete!");
@@ -349,10 +352,10 @@ function popup_close() {
   // Close this window and tell our opener that it's done.
   //
   echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
+  if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
   if ($encounterid) //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
   {
-    echo "window.opener.imdeleted($encounterid);\n";
+    echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
   }
   else
   {
@@ -366,34 +369,34 @@ function popup_close() {
 
 <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 
-<p class="text">&nbsp;<br><?php xl('Do you really want to delete','e'); ?>
+<p class="text">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
 
 <?php
  if ($patient) {
-  echo xl('patient') . " " . text($patient);
+  echo xlt('patient') . " " . text($patient);
  } else if ($encounterid) {
-  echo xl('encounter') . " " . text($encounterid);
+  echo xlt('encounter') . " " . text($encounterid);
  } else if ($formid) {
-  echo xl('form') . " " . text($formid);
+  echo xlt('form') . " " . text($formid);
  } else if ($issue) {
-  echo xl('issue') . " " .text($issue);
+  echo xlt('issue') . " " .text($issue);
  } else if ($document) {
-  echo xl('document') . " " . text($document);
+  echo xlt('document') . " " . text($document);
  } else if ($payment) {
-  echo xl('payment') . " " .text($payment);
+  echo xlt('payment') . " " .text($payment);
  } else if ($billing) {
-  echo xl('invoice') . " " . text($billing);
+  echo xlt('invoice') . " " . text($billing);
  } else if ($transaction) {
-  echo xl('transaction') . " " . text($transaction);
+  echo xlt('transaction') . " " . text($transaction);
  }
-?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
+?> <?php echo xlt('and all subordinate data? This action will be logged'); ?>!</p>
 
 <center>
 
 <p class="text">&nbsp;<br>
-<a href="#" onclick="submit_form()" class="css_button"><span><?php xl('Yes, Delete and Log','e'); ?></span></a>
-<input type='hidden' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?>/>
-<a href='#' class="css_button" onclick=popup_close();><span><?php echo xl('No, Cancel');?></span></a>
+<a href="#" onclick="submit_form()" class="css_button"><span><?php echo xlt('Yes, Delete and Log'); ?></span></a>
+<input type='hidden' name='form_submit' value=<?php echo xla('Yes, Delete and Log'); ?>/>
+<a href='#' class="css_button" onclick=popup_close();><span><?php echo xlt('No, Cancel');?></span></a>
 </p>
 
 </center>
