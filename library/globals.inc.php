@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -743,6 +743,14 @@ $GLOBALS_METADATA = array(
 		xl('Enable amendments feature')
 	),
 
+    'allow_pat_delete' => array(
+       xl('Allow Administrators to Delete Patients'),
+	   'bool',                           // data type
+	   '0',                              // default = false 
+	   xl('Allow Administrators to Delete Patients')
+
+    ),	
+	
    ),   
     // Report Tab
     //
