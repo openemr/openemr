@@ -182,7 +182,7 @@ function popup_close() {
  if ($_POST['form_submit']) {
 
   if ($patient) {
-   if (!acl_check('admin', 'super')) die("Not authorized!");
+   if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) die("Not authorized!");
    row_modify("billing"       , "activity = 0", "pid = '$patient'");
    row_modify("pnotes"        , "deleted = 1" , "pid = '$patient'");
    // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
