@@ -93,6 +93,7 @@ else {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
                             'Locale',
+                            'Features',
                             'Report',
                             'Calendar',
                             'Connectors');
@@ -114,6 +115,9 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'checkout_roll_off',
                                'ptkr_pt_list_new_window',                               
                                'erx_import_status_message',
+                               'floating_message_alerts',
+                               'floating_message_alerts_timer',
+                               'floating_message_alerts_allergies' );
 
 $GLOBALS_METADATA = array(
 

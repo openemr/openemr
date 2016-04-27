@@ -2,6 +2,7 @@
 /**
  * javascript code responsible for floating popup message notice generation.
  *
+ * Copyright (C) 2012-2016 Julia Longtin <julialongtin@diasp.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
