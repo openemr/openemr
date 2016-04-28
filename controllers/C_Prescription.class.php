@@ -350,9 +350,11 @@ class C_Prescription extends Controller {
 	        echo ("<tr>\n");
 	        echo ("<td>\n");
 	        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
-	        $patterns = array ('/\n/','/Tel:/','/Fax:/');
-	        $replace = array ('<br>', xl('Tel').':', xl('Fax').':');
-	        $res = preg_replace($patterns, $replace, $res);
+                if (!empty($res)) {
+	            $patterns = array ('/\n/','/Tel:/','/Fax:/');
+	            $replace = array ('<br>', xl('Tel').':', xl('Fax').':');
+	            $res = preg_replace($patterns, $replace, $res);
+                }
                 echo ('<span class="large">' . $res['addr'] . '</span>');
 	        echo ("</td>\n");
 	        echo ("<td>\n");
@@ -389,9 +391,11 @@ class C_Prescription extends Controller {
                 echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>'. '<br>');
                 echo ($p->patient->get_name_display() . '<br>');
                 $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
-                $patterns = array ('/\n/');
-	        $replace = array ('<br>');
-	        $res = preg_replace($patterns, $replace, $res);
+                if (!empty($res)) {
+                    $patterns = array ('/\n/');
+                    $replace = array ('<br>');
+                    $res = preg_replace($patterns, $replace, $res);
+                }
                 echo ($res['addr']);
 	        echo ("</td>\n");
 	        echo ("<td class='bordered'>\n");
