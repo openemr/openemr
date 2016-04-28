@@ -40,7 +40,6 @@
 
 $ISSUE_TYPE_CATEGORIES = array(
   'default' => xl('Default'),             // Normal OpenEMR use
-  'athletic_team' => xl('Athletic Team'), // For Sports Team use
   'ippf_specific' => xl('IPPF')           // For IPPF use
 );
 
@@ -59,9 +58,6 @@ $ISSUE_TYPE_STYLES = array(
 function collect_issue_type_category() {
   if (!empty($GLOBALS['ippf_specific'])) { // IPPF version
     return "ippf_specific";
-  }
-  else if (!empty($GLOBALS['athletic_team'])) { // Athletic team version
-    return "athletic_team";
   }
   else { // Default version
     return "default";

@@ -76,7 +76,7 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
 //
 $tmp = sqlQuery("select authorized from users " .
   "where id = ?", array($_SESSION['authUserID']) );
-$billing_view = ($tmp['authorized'] || $GLOBALS['athletic_team']) ? 0 : 1;
+$billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing']))
     {$billing_view = empty($_GET['billing']) ? 0 : 1;
     }else $billing_view = ($default_encounter == 0) ? 0 : 1;
@@ -151,12 +151,7 @@ function showDocument(&$drow) {
   echo "<td colspan='3'>".
     htmlspecialchars( xl('Document') . ": " . basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')', ENT_NOQUOTES) .
     "</td>\n";
-
-  // skip billing and insurance columns
-  if (!$GLOBALS['athletic_team']) {
-    echo "<td colspan=5>&nbsp;</td>\n";
-  }
-
+  echo "<td colspan=5>&nbsp;</td>\n";
   echo "</tr>\n";
 }
 
@@ -373,7 +368,7 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
   <th colspan='5'><?php echo htmlspecialchars( (($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
-<?php if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) { ?>
+<?php if (!$GLOBALS['ippf_specific']) { ?>
   <th>&nbsp;<?php echo htmlspecialchars( (($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
@@ -725,7 +720,7 @@ while ($result4 = sqlFetchArray($res4)) {
         }
 
         // show insurance
-        if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) {
+        if (!$GLOBALS['ippf_specific']) {
             $insured = oeFormatShortDate($raw_encounter_date);
             if ($auth_demo) {
                 $responsible = -1;

@@ -530,7 +530,6 @@ $GLOBALS_METADATA = array(
       xl('Specific Application'),
       array(
         '0' => xl('None'),
-        '1' => xl('Athletic team'),
         '2' => xl('IPPF'),
         '3' => xl('Weight loss clinic'),
       ),
