@@ -34,31 +34,25 @@ require_once("../globals.php");
  <html>
   <head>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-  <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-  <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
-  <script type="text/javascript" src="../../library/js/common.js"></script>
-  <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
  </head>
   <body class="body_top">
     <div style="text-align: center;">
-    <form id="form_note" method="post" action="about_page.php" enctype="multipart/form-data" >
     <table>
     <span class=text><?php  echo xlt('About OpenEMR'); ?> </span><br><br>  
-	<span class=text><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br>
+	<span class=text><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
     <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
    	  <span class=text><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span>
     <?php } ?>
 
 
    <div style="text-align: center;">
-   <br><a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('User Manual'); ?></span></a>
+   <br><a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('User Manual'); ?></span></a>
     <?php if (!empty($GLOBALS['online_support_link'])) { ?>
-       <a href='<?php echo $GLOBALS["online_support_link"]; ?>' class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Online Support'); ?></span></a>
+       <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Online Support'); ?></span></a>
     <?php } ?>
-   <br><br><a href="../../acknowledge_license_cert.html" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a>
+   <br><br><a href="../../acknowledge_license_cert.html" target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a>
    </div>
     </table>
-    </form>
     </div>
   </body>
 </html>
