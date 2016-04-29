@@ -1719,10 +1719,6 @@ if (!$GLOBALS['athletic_team']) {
 }
 ?>
 
-<?php if (!empty($GLOBALS['online_support_link'])) { ?>
-<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
-<?php } ?>
-
 <input type='hidden' name='findBy' value='Last' />
 <input type="hidden" name="searchFields" id="searchFields"/>
 <input type="hidden" name="search_service_code" value='' />
