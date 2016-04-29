@@ -261,6 +261,13 @@ $GLOBALS_METADATA = array(
       xl('URL for OpenEMR support.')
     ),
 
+    'support_phone_number' => array(
+      xl('Support Phone Number'),
+      'text',
+      '',
+      xl('Phone Number for Vendor Support that Appears on the About Page.')
+    ),
+
    'drop_bottom' => array(
       xl('Remove Bottom Pane'),
       'bool',                           // data type
