@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -24,18 +24,35 @@
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+
+<style>
+table.mymaintable, table.mymaintable td, table.mymaintable th {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td, table.mymaintable th {
+ padding: 1pt 4pt 1pt 4pt;
+}
+</style>
+
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script language="JavaScript">
+
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
- $(document).ready(function() {
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
- });
+});
+
 </script>
 </head>
 
@@ -81,7 +98,8 @@
 
 </table>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table width='98%' id='mymaintable' class='mymaintable'>
+ <thead>
  <tr bgcolor="#dddddd">
   <td class='dehead'>
    <?php xl('Drug Name','e'); ?>
@@ -108,8 +126,9 @@
    <?php xl('Notes','e'); ?>
   </td>
  </tr>
+ </thead>
+ <tbody>
 <?php
-
  if ($_POST['form_refresh']) {
   $where = "i.destroy_date >= '$form_from_date' AND " .
    "i.destroy_date <= '$form_to_date'";
@@ -169,6 +188,7 @@
  } // end if
 ?>
 
+ </tbody>
 </table>
 </form>
 </center>

@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2010, 2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -30,9 +30,10 @@
 <?php html_header_show();?>
 <title><?php xl('Prescriptions and Dispensations','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -48,6 +49,10 @@
   // dlgopen('../patient_file/front_payment.php?receipt=1&payid=' + payid, '_blank', 550, 400);
   return false;
  }
+
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
+});
 
 </script>
 
@@ -189,7 +194,7 @@
  if ($_POST['form_refresh']) {
 ?>
 <div id="report_results">
-<table>
+<table id='mymaintable'>
  <thead>
   <th> <?php xl('Patient','e'); ?> </th>
   <th> <?php xl('ID','e'); ?> </th>

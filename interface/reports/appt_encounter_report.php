@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -173,14 +173,16 @@ function postError($msg) {
 </style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
 
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<script language="JavaScript">
+<script LANGUAGE="JavaScript">
 
- $(document).ready(function() {
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
- });
+});
 
 </script>
 
@@ -293,7 +295,7 @@ function postError($msg) {
  if ($_POST['form_refresh'] ) {
 ?>
 <div id="report_results">
-<table>
+<table id='mymaintable'>
 
  <thead>
   <th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>

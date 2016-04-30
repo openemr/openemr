@@ -169,7 +169,8 @@ $res = sqlStatement($query);
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $web_root;?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -190,6 +191,10 @@ $res = sqlStatement($query);
  function refreshme() {
   document.forms[0].submit();
  }
+
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
+});
 
 </script>
 
@@ -328,8 +333,7 @@ $res = sqlStatement($query);
  if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 ?>
 <div id="report_results">
-<table>
-
+<table id='mymaintable'>
  <thead>
 <?php if ($form_details) { ?>
   <th>
@@ -493,5 +497,4 @@ if ($res) {
 <?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 
 </script>
-
 </html>
