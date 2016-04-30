@@ -124,8 +124,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
-        <td align="right" class="text" style="vertical-align:text-bottom;"><a  href=""  onclick="return bpopup()" >
-			<?php echo xlt('About'); ?></a>&nbsp;</td>
+        <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>

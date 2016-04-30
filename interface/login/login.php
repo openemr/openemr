@@ -210,8 +210,8 @@ $ip=$_SERVER['REMOTE_ADDR'];
 
 </div>
 <div style="clear: both;"> </div>
-<a  href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
 <div class="version">
+<a  href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
 </div>
 </div>
 <div class="demo">

@@ -37,22 +37,18 @@ require_once("../globals.php");
  </head>
   <body class="body_top">
     <div style="text-align: center;">
-    <table>
-    <span class=text><?php  echo xlt('About OpenEMR'); ?> </span><br><br>  
-	<span class=text><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
+    <span class="title"><?php  echo xlt('About OpenEMR'); ?> </span><br><br>  
+	<span class="text"><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
     <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
-   	  <span class=text><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span>
+   	  <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span>
     <?php } ?>
 
 
-   <div style="text-align: center;">
-   <br><a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('User Manual'); ?></span></a>
+   <br><a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('User Manual'); ?></span></a><br>
     <?php if (!empty($GLOBALS['online_support_link'])) { ?>
        <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Online Support'); ?></span></a>
     <?php } ?>
    <br><br><a href="../../acknowledge_license_cert.html" target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a>
-   </div>
-    </table>
     </div>
   </body>
 </html>
