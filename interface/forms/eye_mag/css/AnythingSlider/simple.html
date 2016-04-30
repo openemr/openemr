@@ -1,0 +1,132 @@
+<?php
+        //get pid/form_id/encounter and show the series of draws for that encounter
+        //if they don't exist, show the base image
+        $fake_register_globals=false;
+        $sanitize_all_escapes=true;
+            //error_reporting(E_ALL & ~E_NOTICE);
+            include_once("../../../../globals.php");
+            include_once("$srcdir/acl.inc");
+            include_once("$srcdir/lists.inc");
+            include_once("$srcdir/api.inc");
+            include_once("$srcdir/sql.inc");
+            require_once("$srcdir/formatting.inc.php");
+                //require_once("$srcdir/restoreSession.php");
+                
+                
+                $form_name = "eye_mag";
+                $form_folder = "eye_mag";
+                
+                include_once("../../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+                @extract($_REQUEST);
+                @extract($_SESSION);
+                        // Get users preferences, for this user ,
+                        // If a fresh install or new user, get the default user preferences
+                        $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=? or id=2048)ORDER BY id,ZONE_ORDER,ordering";
+                        $result = sqlStatement($query,array($_SESSION['authUserID']));
+                        while ($prefs= sqlFetchArray($result))   {
+                            @extract($prefs);
+                            $$LOCATION = $VALUE;
+                        }
+
+    // get pat_data and user_data
+    $query = "SELECT * FROM patient_data where pid='$pid'";
+    $pat_data =  sqlQuery($query);
+    @extract($pat_data);
+    
+    $query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
+    $prov_data =  sqlQuery($query);
+    $providerID = $prov_data['fname']." ".$prov_data['lname'];
+    
+    
+    $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter
+    where 
+    form_encounter.encounter =? and 
+    form_encounter.encounter = forms.encounter and 
+    form_eye_mag.id=forms.form_id and
+    forms.deleted != '1' and 
+    form_eye_mag.pid=? ";        
+    
+    $encounter_data =sqlQuery($query,array($encounter,$pid));
+    @extract($encounter_data);
+    $dated = new DateTime($encounter_date);
+    $visit_date = $dated->format('m/d/Y'); 
+        //var_dump($encounter_data);
+    echo "encounter with form_id = ".$encounter." with ".$form_id."<br />"; exit;
+
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+
+	<title>AnythingSlider Simple Demo</title>
+	<link rel="shortcut icon" href="demos/images/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="demos/images/apple-touch-icon.png">
+
+	<!-- jQuery (required) -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')</script>
+
+	<!-- Demo stuff -->
+	<link rel="stylesheet" href="demos/css/page.css">
+
+	<!-- Anything Slider -->
+	<link rel="stylesheet" href="css/anythingslider.css">
+	<script src="js/jquery.anythingslider.js"></script>
+
+	<!-- AnythingSlider optional extensions -->
+	<!-- <script src="js/jquery.anythingslider.fx.js"></script> -->
+	<!-- <script src="js/jquery.anythingslider.video.js"></script> -->
+
+	<!-- Define slider dimensions here -->
+	<style>
+	#slider { width: 700px; height: 390px; }
+	</style>
+
+	<!-- AnythingSlider initialization -->
+	<script>
+		// DOM Ready
+		$(function(){
+			$('#slider').anythingSlider();
+		});
+	</script>
+
+</head>
+
+<body id="simple">
+
+	<!-- Links to other demo pages & docs -->
+	<div id="nav">
+		<a href="index.html">Main Demo</a>
+		<a class="current" href="simple.html">Simple Demo</a>
+		<a href="expand.html">Expand Demo</a>
+		<a href="video.html">Video Demo</a>
+		<a href="demos.html">FX Demos</a>
+		<a href="css3.html">CSS3 Demo</a>
+		<a class="play" href="http://jsfiddle.net/Mottie/ycUB6/">Playground</a>
+		<a class="git" href="https://github.com/CSS-Tricks/AnythingSlider/wiki">Documentation</a>
+		<a class="git" href="https://github.com/CSS-Tricks/AnythingSlider/zipball/master">Download</a>
+		<a class="issue" href="https://github.com/CSS-Tricks/AnythingSlider/issues">Issues</a><br><br>
+	</div>
+	<!-- End Links -->
+
+	<!-- Simple AnythingSlider -->
+
+	<ul id="slider">
+
+		<li><img src="demos/images/slide-civil-1.jpg" alt=""></li>
+
+		<li><img src="demos/images/slide-env-1.jpg" alt=""></li>
+
+		<li><img src="demos/images/slide-civil-2.jpg" alt=""></li>
+
+		<li><img src="demos/images/slide-env-2.jpg" alt=""></li>
+
+	</ul>
+
+	<!-- END AnythingSlider -->
+
+</body>
+
+</html>
