@@ -506,6 +506,12 @@ function pnDBInit()
         }
     }
     // ---------------------------------------
+
+    //Turn off STRICT SQL
+    $sql_strict_set_success = $dbconn->Execute("SET sql_mode = ''");
+    if (!$sql_strict_set_success) {
+        error_log("PHP custom error: from postnuke interface/main/calendar/includes/pnAPI.php - Unable to set strict sql setting", 0);
+    }
     
     global $ADODB_FETCH_MODE;
     $ADODB_FETCH_MODE = ADODB_FETCH_NUM;

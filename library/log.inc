@@ -396,7 +396,7 @@ function create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comme
     $patientCode = "";
     $patientDisplayName = "";
 
-    if ($eventIdDisplayName == 'Patient Record') {
+    if ($eventIDdisplayName == 'Patient Record') {
         $patientID = $patient_id;
         $pattientTypeCode = 1;
         $patientRole = 1;

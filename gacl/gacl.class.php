@@ -181,6 +181,13 @@ class gacl {
 				}
 			}
 		        // ---------------------------------------
+
+			//Turn off STRICT SQL
+			$sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
+			if (!$sql_strict_set_success) {
+				error_log("Unable to set strict sql setting: ".$this->db->ErrorMsg(), 0);
+			}
+
 			
 		}
 		$this->db->debug = $this->_debug;
