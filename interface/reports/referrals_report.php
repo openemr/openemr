@@ -2,7 +2,7 @@
 /**
  * This report lists referrals for a given date range.
  *
- *  Copyright (C) 2008, 2010 Rod Roark <rod@sunsetsystems.com>
+ *  Copyright (C) 2008-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -172,7 +172,6 @@
 </table>
 </div> <!-- end of parameters -->
 
-
 <?php
  if ($_POST['form_refresh']) {
 ?>
@@ -189,21 +188,27 @@
  <tbody>
 <?php
  if ($_POST['form_refresh']) {
-  $query = "SELECT t.id, t.refer_date, t.reply_date, t.body, " .
+  $query = "SELECT t.id, t.pid, " .
+    "d1.field_value AS refer_date, " .
+    "d3.field_value AS reply_date, " .
+    "d4.field_value AS body, " .
     "ut.organization, uf.facility_id, p.pubpid, " .
     "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
     "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
     "CONCAT(p.fname,' ', p.lname) AS patient_name " .
     "FROM transactions AS t " .
-    "LEFT OUTER JOIN patient_data AS p ON p.pid = t.pid " .
-    "LEFT OUTER JOIN users AS ut ON ut.id = t.refer_to " .
-    "LEFT OUTER JOIN users AS uf ON uf.id = t.refer_from " .
-    "WHERE t.title = 'Referral' AND " .
-    "t.refer_date >= '$from_date' AND t.refer_date <= '$to_date' " .
-    "ORDER BY ut.organization, t.refer_date, t.id";
-
-  // echo "<!-- $query -->\n"; // debugging
-  $res = sqlStatement($query);
+    "LEFT JOIN patient_data AS p ON p.pid = t.pid " .
+    "JOIN      lbt_data AS d1 ON d1.form_id = t.id AND d1.field_id = 'refer_date' " .
+    "LEFT JOIN lbt_data AS d3 ON d3.form_id = t.id AND d3.field_id = 'reply_date' " .
+    "LEFT JOIN lbt_data AS d4 ON d4.form_id = t.id AND d4.field_id = 'body' " .
+    "LEFT JOIN lbt_data AS d7 ON d7.form_id = t.id AND d7.field_id = 'refer_to' " .
+    "LEFT JOIN lbt_data AS d8 ON d8.form_id = t.id AND d8.field_id = 'refer_from' " .
+    "LEFT JOIN users AS ut ON ut.id = d7.field_value " .
+    "LEFT JOIN users AS uf ON uf.id = d8.field_value " .
+    "WHERE t.title = 'LBTref' AND " .
+    "d1.field_value >= ? AND d1.field_value <= ? " .
+    "ORDER BY ut.organization, d1.field_value, t.id";
+  $res = sqlStatement($query, array($from_date, $to_date));
 
   while ($row = sqlFetchArray($res)) {
     // If a facility is specified, ignore rows that do not match.
