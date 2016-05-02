@@ -54,7 +54,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
    foreach ($trow as $key => $value) {
     if (! $value || $value == '0000-00-00 00:00:00') continue;
     if ($logstring) $logstring .= " ";
-    $logstring .= $key . "= $value ";
+    $logstring .= $key . "= '" . $value . "' ";
    }
    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
    ++$count;
