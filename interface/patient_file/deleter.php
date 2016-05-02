@@ -395,7 +395,7 @@ function popup_close() {
 
 <p class="text">&nbsp;<br>
 <a href="#" onclick="submit_form()" class="css_button"><span><?php echo xlt('Yes, Delete and Log'); ?></span></a>
-<input type='hidden' name='form_submit' value=<?php echo xla('Yes, Delete and Log'); ?>/>
+<input type='hidden' name='form_submit' value='<?php echo xla('Yes, Delete and Log'); ?>'/>
 <a href='#' class="css_button" onclick=popup_close();><span><?php echo xlt('No, Cancel');?></span></a>
 </p>
 
