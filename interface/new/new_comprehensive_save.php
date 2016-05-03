@@ -49,6 +49,7 @@ $newdata['patient_data' ] = array();
 $newdata['employer_data'] = array();
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
+  "OR field_id = 'pubpid' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
   $data_type = $frow['data_type'];

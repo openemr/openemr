@@ -102,6 +102,10 @@ class Installer
   {
     $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
     if ( $this->dbh ) {
+      if (! $this->set_sql_strict()) {
+        $this->error_message = 'unable to set strict sql setting';
+        return FALSE;        
+      }
       return TRUE;
     } else {
       $this->error_message = 'unable to connect to database as root';
@@ -116,7 +120,12 @@ class Installer
       $this->error_message = "unable to connect to database as user: '$this->login'";
       return FALSE;
     }
+    if ( ! $this->set_sql_strict() ) {
+      $this->error_message = 'unable to set strict sql setting';
+      return FALSE;
+    }
     if ( ! $this->set_collation() ) {
+      $this->error_message = 'unable to set sql collation';
       return FALSE;
     }
     if ( ! mysqli_select_db($this->dbh, $this->dbname) ) {
@@ -192,7 +201,9 @@ class Installer
             $chr = substr($query,strlen($query)-1,1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query,";");
-                    $this->execute_sql( $query );
+                    if ( ! $this->execute_sql( $query ) ){
+                            return FALSE;
+                    }                    
                     $query = "";
             }
     }
@@ -446,7 +457,9 @@ $config = 1; /////////////
     if ( $results ) {
       return $results;
     } else {
-      $this->error_message = "unable to execute SQL: '$sql' due to: " . mysqli_error($this->dbh);
+      $error_mes = mysqli_error($this->dbh);
+      $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
+      error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: ".$sql." due to: ".$error_mes);
       return False;
     }
   }
@@ -458,6 +471,12 @@ $config = 1; /////////////
     else
       $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
     return $dbh;
+  }
+
+  private function set_sql_strict()
+  {
+    // Turn off STRICT SQL
+    return $this->execute_sql("SET sql_mode = ''");
   }
 
   private function set_collation()

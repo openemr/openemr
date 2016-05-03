@@ -519,7 +519,7 @@ $(window).load(function() {
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
    "</span></td>";
 
-  if (acl_check('admin', 'super')) {
+  if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) {
    echo "<td style='padding-left:1em;'><a class='css_button iframe' href='../deleter.php?patient=" . 
     htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>" .
     "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).

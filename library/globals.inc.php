@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -683,27 +683,6 @@ $GLOBALS_METADATA = array(
       xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
     ),
 
-    'number_of_appts_to_show' => array(
-      xl('Appointments - Patient Summary - Number to Display'),
-      'num',                           
-      '10',                            
-      xl('Number of Appointments to display in the Patient Summary')
-    ),
-
-    'patient_portal_appt_display_num' => array(
-      xl('Appointments - Onsite Patient Portal - Number to Display'),
-      'num',                           
-      '20',                            
-      xl('Number of Appointments to display in the Onsite Patient Portal')
-    ),
-
-    'num_past_appointments_to_show' => array(
-      xl('Past Appointment Display Widget'),
-      'num',                           // data type
-      '0',                             // default = false
-      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
-    ),      
-
     'activate_ccr_ccd_report' => array(
       xl('Activate CCR/CCD Reporting'),
       'bool',                           // data type
@@ -770,6 +749,14 @@ $GLOBALS_METADATA = array(
         xl('Relative path to folder that contains custom JS and CSS files. Those files will be loaded in every page.')
     )
 
+    'allow_pat_delete' => array(
+       xl('Allow Administrators to Delete Patients'),
+	   'bool',                           // data type
+	   '0',                              // default = false 
+	   xl('Allow Administrators to Delete Patients')
+
+    ),	
+	
    ),   
     // Report Tab
     //
@@ -1168,6 +1155,37 @@ $GLOBALS_METADATA = array(
       xl('This determines how appointments display on the calendar.')
     ),
 
+    'event_color' => array(
+      xl('Appointment/Event Color'),
+      array(
+        '1' => 'Category Color Schema',
+        '2' => 'Facility Color Schema',
+      ),                           // data type
+      '1',                              // default
+      xl('This determines which color schema used for appointment')
+    ),
+	
+    'number_of_appts_to_show' => array(
+      xl('Appointments - Patient Summary - Number to Display'),
+      'num',                           
+      '10',                            
+      xl('Number of Appointments to display in the Patient Summary')
+    ),
+
+    'patient_portal_appt_display_num' => array(
+      xl('Appointments - Onsite Patient Portal - Number to Display'),
+      'num',                           
+      '20',                            
+      xl('Number of Appointments to display in the Onsite Patient Portal')
+    ),
+
+    'num_past_appointments_to_show' => array(
+      xl('Past Appointment Display Widget'),
+      'num',                           // data type
+      '0',                             // default = false
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
+    ),      
+	
     'docs_see_entire_calendar' => array(
       xl('Providers See Entire Calendar'),
       'bool',                           // data type
@@ -1182,16 +1200,6 @@ $GLOBALS_METADATA = array(
       xl('Automatically create a new encounter when an appointment check in status is selected.')
     ),
     
-    'event_color' => array(
-      xl('Appointment/Event Color'),
-      array(
-        '1' => 'Category Color Schema',
-        '2' => 'Facility Color Schema',
-      ),                           // data type
-      '1',                              // default
-      xl('This determines which color schema used for appointment')
-    ),
-
     'disable_pat_trkr' => array(
       xl('Disable Patient Flow Board'),
       'bool',                           // data type
