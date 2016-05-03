@@ -742,22 +742,20 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
-    'custom_assets_folder' => array(
-        xl('Relative path to custom JS and CSS assets'),
-        'text',
-        '',
-        xl('Relative path to folder that contains custom JS and CSS files. Those files will be loaded in every page.')
-    )
-
     'allow_pat_delete' => array(
        xl('Allow Administrators to Delete Patients'),
 	   'bool',                           // data type
 	   '0',                              // default = false 
 	   xl('Allow Administrators to Delete Patients')
 
-    ),	
-	
-   ),   
+    ),
+    'custom_assets_folder' => array(
+       xl('Relative path to custom JS and CSS assets'),
+       'text',
+       '',
+       xl('Relative path to folder that contains custom JS and CSS files. Those files will be loaded in every page.')
+    ),
+  ),
     // Report Tab
     //
     'Report' => array(
