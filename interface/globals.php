@@ -405,6 +405,9 @@ $GLOBALS['baseModDir'] 	= "interface/modules/"; //default path of modules
 $GLOBALS['customModDir']= "custom_modules";	//non zend modules
 $GLOBALS['zendModDir']	= "zend_modules";	//zend modules
 
+// normalize week-end days variable as array
+$GLOBALS['weekend_days'] = explode(',', $GLOBALS['weekend_days']);
+
 // Don't change anything below this line. ////////////////////////////
 
 $encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];

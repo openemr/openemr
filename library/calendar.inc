@@ -192,4 +192,18 @@ function pc_getDate($format='%Y%m%d')  {
     return strftime($format,mktime(0,0,0,$m,$d,$y));
 }
 
+ /**
+ * Check if day is weekend day
+ * @param (int) $day
+ * @return boolean
+ */
+function is_weekend_day($day){
+
+	if (in_array($day, $GLOBALS['weekend_days'])) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 ?>

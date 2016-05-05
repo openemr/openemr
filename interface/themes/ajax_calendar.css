@@ -338,3 +338,6 @@ font-size:10px;
     z-index: 3;
     background-color:#ff7533;
 }
+.weekend-day{
+    background: rgba(146, 115, 214, 0.33);
+}
