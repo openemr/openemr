@@ -43,7 +43,7 @@ require_once("../globals.php");
      <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span><br><br>
     <?php } ?>
    </div>
-   <a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" target="_blank" class="css_button"><span><?php echo xlt('User Manual'); ?></span></a><br><br>
+   <a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.2_Users_Guide" target="_blank" class="css_button"><span><?php echo xlt('User Manual'); ?></span></a><br><br>
    <?php if (!empty($GLOBALS['online_support_link'])) { ?>
     <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="css_button"><span><?php echo xlt('Online Support'); ?></span></a><br><br>
    <?php } ?>
