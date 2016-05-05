@@ -253,7 +253,7 @@ while ($currdate <= $enddate) {
     if (date('m', $currdate) != $month) {
         $tdClass = "tdOtherMonthDay-small";
     }
-    if ((date('w', $currdate) == 0) || (date('w', $currdate) == 6)) {
+    if (is_weekend_day(date('w', $currdate))) {
         $tdClass = "tdWeekend-small";
     }
 
@@ -453,7 +453,8 @@ foreach ($providers as $provider) {
         // this is nice when all you see are times on the left side and no head
         // row with the dates or day-of-week (DOW)
         $headDate=strtotime($date);
-        echo "<td class='schedule' title='".date("l, d M Y",$headDate )."' date='".date("Ymd",$headDate )."' provider='$providerid'>";
+        $classForWeekend = is_weekend_day(date('w',$headDate)) ? 'weekend-day' : 'work-day';
+        echo "<td class='schedule " . $classForWeekend . "' title='".date("l, d M Y",$headDate )."' date='".date("Ymd",$headDate )."' provider='$providerid'>";
         echo "<div class='calendar_day'>";
 
         // determine if events overlap and adjust their width and left position as needed

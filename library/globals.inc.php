@@ -519,7 +519,21 @@ $GLOBALS_METADATA = array(
       'num',
       '3',
       xl('If YMD is selected for age display, switch to just Years when patients older than this value in years')
-    ),      
+    ),
+    // Reference - https://en.wikipedia.org/wiki/Workweek_and_weekend#Around_the_world
+    'weekend_days' => array(
+      xl('Your weekend days'),
+      array(
+         '6,0' => xl('Saturday') . ' - ' . xl('Sunday'),
+          '0' => xl('Sunday'),
+          '5' => xl('Friday'),
+          '6' => xl('Saturday'),
+          '5,6' => xl('Friday') .' - ' . xl('Saturday'),
+      ),
+      '6,0'
+      ,xl('which days are your weekend days?')
+  )
+
   ),
 
   // Features Tab
@@ -1153,7 +1167,16 @@ $GLOBALS_METADATA = array(
       'day',                              // default
       xl('This sets the Default Calendar View, Default is Day.')
     ),
-    
+     'first_day_week' => array(
+       xl('First day in the week') ,
+       array(
+         '1' => 'Monday',
+         '0' => 'Sunday',
+         '6' => 'Saturday'
+       ),
+       '1',
+       xl('Your first day in the week.')
+     ),
     'calendar_appt_style' => array(
       xl('Appointment Display Style'),
       array(
@@ -1267,7 +1290,7 @@ $GLOBALS_METADATA = array(
       '0',                       // default
       xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
     ),
-    
+
   ),
 
   // Security Tab
