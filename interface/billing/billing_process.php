@@ -38,7 +38,7 @@ $bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
 $bat_filename .= isset($_POST['bn_process_hcfa']) ? 'pdf' : 'txt';
 
 if (isset($_POST['bn_process_hcfa'])) {
-  $pdf =& new Cezpdf('LETTER');
+  $pdf = new Cezpdf('LETTER');
   $pdf->ezSetMargins(trim($_POST['top_margin'])+0,0,trim($_POST['left_margin'])+0,0);
   $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
 }

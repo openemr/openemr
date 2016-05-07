@@ -118,7 +118,7 @@ class Claim {
 
   // Constructor. Loads relevant database information.
   //
-  function Claim($pid, $encounter_id) {
+  function __construct($pid, $encounter_id) {
     $this->pid = $pid;
     $this->encounter_id = $encounter_id;
     $this->procs = array();
