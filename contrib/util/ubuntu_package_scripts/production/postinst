@@ -309,8 +309,6 @@ case "$1" in
          collect_php_commented_out () {
             echo `grep -i "^;[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[       M]//gi'`
          }
-         TAG_TEXT="short_open_tag"
-         TAG=$(collect_php "$TAG_TEXT")
          EXEC_TEXT="max_execution_time"
          EXEC=$(collect_php "$EXEC_TEXT")
          INPUT_TEXT="max_input_time"
@@ -368,9 +366,6 @@ case "$1" in
             fi
          }
          for i in `seq 1 2`; do
-            if [ ! -z "$TAG" ] && [ "$TAG" != "On" ]; then
-               process_php "$TAG_TEXT" "On" $i
-            fi
             if [ ! -z "$EXEC" ] && [ "$EXEC" -lt "60" ]; then
                process_php "$EXEC_TEXT" "60" $i
             fi
@@ -419,7 +414,6 @@ case "$1" in
       else
          #can't find php config file, so just echo instructions
          log_only "We recommend ensuring you have below settings in your php configuration file:"
-         log_only "short_open_tag = On"
          log_only "max_execution_time = 60"
          log_only "max_input_time = 90"
          log_only "memory_limit = 128M"
