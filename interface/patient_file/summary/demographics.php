@@ -556,9 +556,8 @@ if ($thisauth): ?>
     <td id='accountstatus'></td>
   </tr>
 </table>
-<?php 
+<?php
 endif;
-
 // Get the document ID of the patient ID card if access to it is wanted here.
 $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
@@ -566,9 +565,7 @@ if ($GLOBALS['patient_id_category_name']) {
 }
 
 ?>
-<table cellspacing='0' cellpadding='0' border='0'>
- <tr>
-  <td class="small" colspan='4'>
+<nav>
 <a href="../history/history.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
 |
@@ -628,11 +625,8 @@ if ($GLOBALS['patient_id_category_name']) {
 	}
 	?>
 <!-- DISPLAYING HOOKS ENDS HERE -->
-
-  </td>
- </tr>
- 
-</table> <!-- end header -->
+</nav> <!-- end header -->
+</section>
 
 <div style='margin-top:10px'> <!-- start main content div -->
  <table border="0" cellspacing="0" cellpadding="0" width="100%">
