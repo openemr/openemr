@@ -59,17 +59,21 @@ function rhl7InsertRow(&$arr, $tablename) {
 }
 
 // Write all of the accumulated reports and their results.
-function rhl7FlushMain(&$amain) {
-  // echo "<!--\n";   // debugging
-  // print_r($amain); // debugging
-  // echo " -->\n";   // debugging
-
+function rhl7FlushMain(&$amain, $commentdelim="\n") {
   foreach ($amain as $arr) {
     $procedure_report_id = rhl7InsertRow($arr['rep'], 'procedure_report');
     foreach ($arr['res'] as $ares) {
       $ares['procedure_report_id'] = $procedure_report_id;
       // obxkey was used to identify parent results but is not stored.
       unset($ares['obxkey']);
+      // If TX result is not over 10 characters, move it from comments to result field.
+      if ($ares['result'] === '' && $ares['result_data_type'] == 'L') {
+        $i = strpos($ares['comments'], $commentdelim);
+        if ($i && $i <= 10) {
+          $ares['result'  ] = substr($ares['comments'], 0, $i);
+          $ares['comments'] = substr($ares['comments'], $i);
+        }
+      }
       rhl7InsertRow($ares, 'procedure_result');
     }
   }
@@ -99,13 +103,19 @@ function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_
   return '';
 }
 
-function rhl7Text($s) {
+function rhl7Text($s, $allow_newlines=false) {
   $s = str_replace('\\S\\'  ,'^' , $s);
   $s = str_replace('\\F\\'  ,'|' , $s);
   $s = str_replace('\\R\\'  ,'~' , $s);
   $s = str_replace('\\T\\'  ,'&' , $s);
   $s = str_replace('\\X0d\\',"\r", $s);
   $s = str_replace('\\E\\'  ,'\\', $s);
+  if ($allow_newlines) {
+    $s = str_replace('\\.br\\',"\n", $s);
+  }
+  else {
+    $s = str_replace('\\.br\\','~' , $s);
+  }
   return $s;
 }
 
@@ -493,7 +503,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     if ($a[0] == 'MSH') {
       if (!$dryrun) {
-        rhl7FlushMain($amain);
+        rhl7FlushMain($amain, $commentdelim);
       }
       $amain = array();
 
@@ -826,7 +836,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     else if ($a[0] == 'NTE' && $context == 'OBR') {
       // Append this note to those for the most recent report.
-      $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3]) . "\n";
+      $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
     }
 
     else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
@@ -959,7 +969,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       // Append this note to the most recent result item's comments.
       $alast = count($amain) - 1;
       $rlast = count($amain[$alast]['res']) - 1;
-      $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3]) . $commentdelim;
+      $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
     }
 
     // Ensoftek: Get data from SPM segment for specimen.
@@ -983,7 +993,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
   // Write all reports and their results to the database.
   // This will do nothing if a dry run or MDM message type.
   if ('ORU' == $msgtype && !$dryrun) {
-    rhl7FlushMain($amain);
+    rhl7FlushMain($amain, $commentdelim);
   }
 
   if ('MDM' == $msgtype && !$dryrun) {
