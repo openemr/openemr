@@ -546,9 +546,9 @@ if ($thisauth): ?>
   <?php // If patient is deceased, then show this (along with the number of days patient has been deceased for)
   $days_deceased = is_patient_deceased($pid);
   if ($days_deceased): ?>
-    <span>
+    <small class="deceased">
       <?php echo htmlspecialchars( xl('DECEASED') ,ENT_NOQUOTES)." (".htmlspecialchars($days_deceased,ENT_NOQUOTES)." ".htmlspecialchars(xl('days ago'),ENT_NOQUOTES);?>)
-    </span>
+    </small>
   <?php endif; //deceased ?>
 
 <table>
