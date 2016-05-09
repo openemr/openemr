@@ -158,24 +158,18 @@ a:hover {
 
 /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom {
-  background-color: #f7f7f7;
+  background: url("../pic/aquabg.gif") repeat;
   margin: 8px;
 }
 
 /* $bottom_bg_line */
 .body_title {
-  background-color: #222222;
-  color: #ffffff;
+  background-color: #f4f4f4;
 }
 
 /* $title_bg_line */
 .body_nav {
-  background: #f9fafc;
-  background: -moz-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  background: -webkit-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  background: linear-gradient(to right, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9fafc', endColorstr='#f3f5f9',GradientType=1 );
-  padding: 0px 0px;
+  background-color: #f0f0f0;
 }
 
 /* $nav_bg_line */
@@ -282,7 +276,7 @@ a:hover {
 }
 
 .section {
-  background: #f7f7f7;
+  background: #f0f0f0;
   border-color: #d7d7d7 !important;
 }
 
@@ -333,21 +327,6 @@ a:hover {
   height: 95%;
 }
 
-.body_title {
-  color: #f9fafc;
-  color: -moz-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  color: -webkit-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  color: linear-gradient(to bottom, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-}
-.body_title a, .body_title .text, .body_title .title_bar_top {
-  color: #f9fafc;
-  color: -moz-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  color: -webkit-linear-gradient(left, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-  color: linear-gradient(to bottom, #f9fafc 0%, #f6f8fb 50%, #f3f5f9 100%);
-}
-.body_title select {
-  color: #222222 !important;
-}
 .body_title table tr td {
   padding: 0px !important;
 }
@@ -694,7 +673,7 @@ tr.odd, td.even {
   background: #1050b6;
 }
 
-.css_button, input[type="button"], button {
+.css_button, input[type="button"],input[type="submit"], button {
   background: #2672ec;
   color: #ffffff !important;
   display: block;
@@ -710,11 +689,11 @@ tr.odd, td.even {
 .css_button span, input[type="button"] span, button span {
   display: block;
 }
-.css_button:hover, input[type="button"]:hover, button:hover {
-  background: #1050b6;
-}
 .css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
   background: red !important;
+}
+.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+  background: #1050b6;
 }
 
 input[type="button"][style="background-color:#ffff55"] {
@@ -753,13 +732,11 @@ a.disabled_button:hover {
 ul.tabNav {
   margin: 0;
   padding: 0;
-  padding-top: 6px;
+  padding-top: 4px;
   float: left;
   list-style: none;
   width: 100%;
-  background: #f7f7f7;
-  border-bottom: 1px solid #2a4e84;
-  font-size: 0.75rem;
+  background: #2672ec;
 }
 ul.tabNav li {
   float: left;
@@ -769,21 +746,13 @@ ul.tabNav li {
   text-align: left;
 }
 ul.tabNav li.current a {
-  border-top: 3px solid #2a4e84;
-  border-left: 1px solid #2a4e84;
-  border-right: 1px solid #2a4e84;
   background: #ffffff;
   color: #2672ec;
 }
 ul.tabNav a {
-  position: relative;
-  bottom: -1px;
-  border-left: 1px solid #f7f7f7;
-  border-right: 1px solid #f7f7f7;
-  border-top: 3px solid #f7f7f7;
-  color: #888;
+  color: #ffffff;
   display: block;
-  padding: 6px 17px;
+  padding: 8px 17px;
   text-decoration: none;
 }
 
@@ -1032,21 +1001,19 @@ div.notab-right {
 #navigation-slide li,
 #navigation-slide * li {
   list-style: none;
-  margin: 0px;
 }
 #navigation-slide li a,
 #navigation-slide * li a {
   background-color: none;
-  color: #222222;
+  color: #000;
   display: block;
   font-size: 16px;
-  padding: 8px 0px 8px 8px;
+  padding: 8px 0px 8px 0px;
   width: 100%;
 }
 #navigation-slide li a:hover,
 #navigation-slide * li a:hover {
-  background-color: #2672ec;
-  color: #ffffff;
+  background-color: #d7d7d7;
 }
 #navigation-slide li a.collapsed_lv2:before,
 #navigation-slide * li a.collapsed_lv2:before {
@@ -1061,6 +1028,10 @@ div.notab-right {
   /* bottom, add background color here */
   font-size: 0;
   line-height: 10px;
+}
+#navigation-slide li a.expanded,
+#navigation-slide * li a.expanded {
+  background: #cbe6f7;
 }
 #navigation-slide li a.expanded_lv2:before,
 #navigation-slide * li a.expanded_lv2:before {
@@ -1082,14 +1053,14 @@ div.notab-right {
 }
 #navigation-slide li ul li,
 #navigation-slide * li ul li {
-  padding-left: 10px;
+  padding-left: 14px;
 }
 
 #sddm li {
   margin: 0;
   list-style: none;
   float: left;
-  background: #f7f7f7;
+  background: #f0f0f0;
 }
 #sddm li a {
   display: block;
@@ -1108,7 +1079,7 @@ div.notab-right {
   display: none;
   margin: 0;
   padding: 0;
-  background: #f7f7f7;
+  background: #f0f0f0;
 }
 #sddm div a {
   position: relative;
