@@ -104,8 +104,8 @@ else if ($state > 3) {
 
 <style>
 .noclone { }
-table { border-collapse:collapse;   }
-table td, table th { font-size:9pt; border:1px solid gray; padding:2px; }
+table.phpset { border-collapse:collapse;   }
+table.phpset td, table.phpset th { font-size:9pt; border:1px solid gray; padding:2px; }
 </style>
 
 <script type="text/javascript" src="library/js/jquery.js"></script>
@@ -543,11 +543,11 @@ else {
       }
     }
 echo "<li>","To ensure proper functioning of OpenEMR you must make sure that PHP settings include:";
-echo "<table><tr><th>Setting</th><th>Required value</th><th>Current value</th></tr>";
+echo "<table class='phpset'><tr><th>Setting</th><th>Required value</th><th>Current value</th></tr>";
 echo "<tr><td>short_open_tag  </td><td>Off</td><td>", ini_get('short_open_tag')?'On':'Off',   "</td></tr>\n";
 echo "<tr><td>display_errors  </td><td>Off</td><td>", ini_get('display_errors')?'On':'Off',   "</td></tr>\n";
 echo "<tr><td>register_globals   </td><td>Off</td><td>", ini_get('register_globals')?'On':'Off', "</td></tr>\n";
-echo "<tr><td>max_input_vars     </td><td>3000</td><td>", ini_get('max_input_vars'), "</td></tr>\n";
+echo "<tr><td>max_input_vars     </td><td>at least 3000</td><td>", ini_get('max_input_vars'), "</td></tr>\n";
 echo "<tr><td>max_execution_time </td><td>at least 60</td><td>", ini_get('max_execution_time'), "</td></tr>\n";
 echo "<tr><td>max_input_time     </td><td>at least 90</td><td>", ini_get('max_input_time'), "</td></tr>\n";
 echo "<tr><td>post_max_size      </td><td>at least 30M</td><td>", ini_get('post_max_size'), "</td></tr>\n";
