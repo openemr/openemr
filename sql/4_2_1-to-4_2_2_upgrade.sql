@@ -160,10 +160,3 @@ INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes
 UPDATE `clinical_rules` SET `amc_2014_stage1_flag` = 1, `amc_2014_stage2_flag` = 1 WHERE `id` = 'med_reconc_amc' AND `pid` = 0;
 UPDATE `clinical_rules` SET `amc_2014_stage1_flag` = 1, `amc_2014_stage2_flag` = 1 WHERE `id` = 'med_reconc_amc' AND `pid` = 0;
 
-#IfNotRow globals gl_name first_day_week
-INSERT INTO globals ( gl_name, gl_index, gl_value ) VALUES ( 'first_day_week', 0, '1' );
-#EndIf
-
-#IfNotRow globals gl_name weekend_days
-INSERT INTO globals ( gl_name, gl_index, gl_value ) VALUES ( 'weekend_days' , 0, '6,0' );
-#EndIf

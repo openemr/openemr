@@ -227,7 +227,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
           switch ($fldid) {
             case 'first_day_week':
               // update PostCalendar config as well
-              sqlStatement("UPDATE openemr_module_vars SET pn_value = " . $fldvalue . " WHERE pn_name = 'pcFirstDayOfWeek'");
+              sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
               break;
           }
 
