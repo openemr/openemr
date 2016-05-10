@@ -160,3 +160,14 @@ INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes
 UPDATE `clinical_rules` SET `amc_2014_stage1_flag` = 1, `amc_2014_stage2_flag` = 1 WHERE `id` = 'med_reconc_amc' AND `pid` = 0;
 UPDATE `clinical_rules` SET `amc_2014_stage1_flag` = 1, `amc_2014_stage2_flag` = 1 WHERE `id` = 'med_reconc_amc' AND `pid` = 0;
 
+#IfNotRow2D issue_types type patient_alert plural Patient Alerts
+INSERT INTO issue_types(`Active`,`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('1', '5', 'default', 'patient_alert', 'Patient Alerts', 'Patient Alert', 'PA', '0', '1');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id patient_alert_issue_list
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','patient_alert_issue_list','Patient Alert Issue List');
+INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_alert_issue_list', 'Needs Current Phone Number', 'Needs Current Phone Number', 10);
+INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_alert_issue_list', 'Bad Address', 'Bad Address', 20);
+INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_alert_issue_list', 'Owes For Previous Visit', 'Owes For Previous Visit', 30);
+#EndIf
+
