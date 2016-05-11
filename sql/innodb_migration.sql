@@ -31,8 +31,8 @@ ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Claim v
 ALTER TABLE `claims` ENGINE="InnoDB";
 ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Procedure_answers answer_seq, incremented in code';
 ALTER TABLE `procedure_answers` ENGINE="InnoDB";
-
-
+ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'procedure_order_code procedure_order_seq, incremented in code';
+ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 
 -- The rest can be converted without problems.
 ALTER TABLE `addresses` ENGINE="InnoDB";

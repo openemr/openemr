@@ -120,13 +120,17 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
     $prefix = "ans$i" . "_";
 
-    $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
+      sqlBeginTrans();
+      $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
+      $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
       "procedure_order_id = ?, " .
       "diagnoses = ?, " .
 	  "procedure_order_title = ?, " .
       "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
-      "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)",
-      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid));
+      "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
+      "procedure_order_seq = ? ",
+      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment']));
+      sqlCommitTrans();
 
     $qres = sqlStatement("SELECT " .
       "q.procedure_code, q.question_code, q.options, q.fldtype " .
