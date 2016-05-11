@@ -161,8 +161,8 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
           "question_code = ?, " .
           "answer_seq = ?, " .
           "answer = ?",
-          array($formid, $poseq, $qcode, $answer_seq['increment'] ,strip_escape_custom($datum)));
-          sqlCommitTrans();
+          array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum)));
+        sqlCommitTrans();
       }
     }
   }
