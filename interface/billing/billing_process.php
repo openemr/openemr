@@ -38,7 +38,7 @@ $bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
 $bat_filename .= isset($_POST['bn_process_hcfa']) ? 'pdf' : 'txt';
 
 if (isset($_POST['bn_process_hcfa'])) {
-  $pdf =& new Cezpdf('LETTER');
+  $pdf = new Cezpdf('LETTER');
   $pdf->ezSetMargins(trim($_POST['top_margin'])+0,0,trim($_POST['left_margin'])+0,0);
   $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
 }
@@ -290,10 +290,18 @@ function process_form($ar) {
 <?php if (function_exists(html_header_show)) html_header_show(); ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script>
+    $(document).ready( function() {
+        $("#close-link").click( function() {
+            window.close();
+        });
+    });
+</script>
 
 </head>
 <body class="body_top">
-<br><p><h3><?php xl('Billing queue results:','e'); ?></h3><a href="billing_report.php">back</a><ul>
+<br><p><h3><?php echo xlt('Billing queue results'); ?>:</h3><a href="#" id="close-link"><?php echo xlt('Close'); ?></a><ul>
 <?php
 foreach ($bill_info as $infoline) {
   echo nl2br($infoline);

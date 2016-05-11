@@ -507,26 +507,6 @@ if(!isset($_REQUEST['mode']))//default case
 	</td>
           </tr>
 		<?php } ?>
-		  
-          <tr>
-            <td>&nbsp;</td>
-            <td>
-            <?php
-              $acct_config = $GLOBALS['oer_config']['ws_accounting'];
-              if($acct_config['enabled']) {
-                if($acct_config['enabled'] !== 2) {
-                  print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . '['. xlt("SQL-Ledger") .']' . '</a> &nbsp; </span>';
-                }
-                if (acl_check('acct', 'rep')) {
-                  print '<span class=text><a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . '['. xlt('Reports') .']'. '</a> &nbsp; </span>';
-                }
-                if (acl_check('acct', 'eob')) {
-                  print '<span class=text><a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . '['.xlt('EOBs') .']' . '</a></span>';
-                }
-              }
-            ?>
-            </td>
-          </tr>
           <tr>
             <td>&nbsp;</td>
             <td>
@@ -536,7 +516,7 @@ if(!isset($_REQUEST['mode']))//default case
                 title="Process all queued bills to create electronic data (and print if requested)"><?php echo '['. xlt('Start Batch Processing') .']' ?></a>
                &nbsp;
                -->
-               <a href='customize_log.php' onclick='top.restoreSession()' target='_blank' class='link_submit'
+               <a href='#' id="view-log-link" class='link_submit'
                 title='<?php xla('See messages from the last set of generated claims'); ?>'><?php echo '['. xlt('View Log') .']'?></a>
             <?php } ?>
             </td>
@@ -563,8 +543,8 @@ if(!isset($_REQUEST['mode']))//default case
 <center>
 <span class='text' style="display:inline">
 <?php if (file_exists($EXPORT_INC)) { ?>
-<input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?php echo xla('Export to external billing system') ?>">
-<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php echo xla('Mark as billed but skip billing') ?>">
+<input type="submit" data-open-popup="true" class="subbtn" name="bn_external" value="Export Billing" title="<?php echo xla('Export to external billing system') ?>">
+<input type="submit" data-open-popup="true" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php echo xla('Mark as billed but skip billing') ?>">
 <?php } else { ?>
 <!--
 <input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?php echo xla('Queue for HCFA batch processing and printing') ?>">
@@ -586,8 +566,8 @@ if(!isset($_REQUEST['mode']))//default case
 <input type="submit" class="subbtn" style="width:175px;" name="bn_hcfa_txt_file" value="<?php echo xla('Generate CMS 1500 TEXT')?>"
  title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed')?>"
  onclick="MarkAsCleared(3)">
-<input type="submit" class="subbtn" name="bn_mark" value="<?php echo xla('Mark as Cleared')?>" title="<?php echo xla('Post to accounting and mark as billed')?>">
-<input type="submit" class="subbtn" name="bn_reopen" value="<?php echo xla('Re-Open')?>" title="<?php echo xla('Mark as not billed')?>">
+<input type="submit" data-open-popup="true" class="subbtn" name="bn_mark" value="<?php echo xla('Mark as Cleared')?>" title="<?php echo xla('Post to accounting and mark as billed')?>">
+<input type="submit" data-open-popup="true" class="subbtn" name="bn_reopen" value="<?php echo xla('Re-Open')?>" title="<?php echo xla('Mark as not billed')?>">
 <!--
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php echo xla('Download billing file, post to accounting and mark as billed')?>">
 -->
@@ -1179,6 +1159,33 @@ if ($alertmsg) {
   echo "alert('".addslashes($alertmsg)."');\n";
 }
 ?>
+$(document).ready(function() {
+    $("#view-log-link").click( function() {
+		top.restoreSession();
+        dlgopen('customize_log.php', '_blank', 500, 400);
+    });
+    
+    $('input[type="submit"]').click( function() {
+		top.restoreSession();
+        $(this).attr('data-clicked', true);
+    });
+    
+    $('form[name="update_form"]').submit( function(e) {
+        var clickedButton = $("input[type=submit][data-clicked='true'")[0];
+        
+        // clear clicked button indicator
+        $('input[type="submit"]').attr('data-clicked', false);
+        
+        if ( !clickedButton || $(clickedButton).attr("data-open-popup") !== "true" ) {
+            $(this).removeAttr("target");
+            return top.restoreSession(); 
+        } else {
+			top.restoreSession();
+            var w = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300,left = 312,top = 234');
+            this.target = 'Popup_Window';
+        }
+    });
+});
 </script>
 <input type="hidden" name="divnos"  id="divnos" value="<?php echo attr($divnos) ?>"/>
 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />

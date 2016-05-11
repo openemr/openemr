@@ -143,6 +143,22 @@ function tableHasIndex($tblname, $colname) {
   $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
   return (empty($row)) ? false : true;
 }
+
+
+/**
+ * Check if a table has a certain engine
+ *
+ * @param string $tblname database table Name
+ * @param string $engine engine name ( myisam, memory, innodb )...
+ * @return boolean true if the table has been created using specified engine
+ */
+function tableHasEngine($tblname, $engine) {
+  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+  return (empty($row)) ? false : true;
+}
+
+
+
 /**
 * Check if a list exists.
 *
@@ -242,6 +258,28 @@ function CreateImmunizationManufacturerList() {
   }
 }
 
+
+function MyisamTablesList() {
+    $engine = 'MyISAM';
+    $res = sqlStatement('SELECT table_name FROM information_schema.tables WHERE engine=? AND table_schema=database() AND table_type="BASE TABLE" ', array( $engine )); 
+
+    $records = array();
+    while($row = sqlFetchArray($res)) {
+        $records[] = $row['table_name'];  
+    }
+    return $records;
+}
+
+
+function MigrateTableEngine( $table, $engine ) {
+    if( !preg_match( '/^[a-zA-Z_0-9]+$/', $table )) {
+        return false;
+    }
+    return sqlStatement( sprintf( 'ALTER TABLE `%s` ENGINE="%s"', $table, $engine ));
+}
+
+
+
 /**
 * Upgrade or patch the database with a selected upgrade/patch file.
 *
@@ -334,7 +372,7 @@ function upgradeFromSqlFile($filename) {
   if ($fd == FALSE) {
     echo "ERROR.  Could not open '$fullname'.\n";
     flush();
-    break;
+    return;
   }
 
   $query = "";
@@ -529,6 +567,30 @@ function upgradeFromSqlFile($filename) {
         CreateImmunizationManufacturerList(); 
         $skipping = false;
         echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";        
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    // perform special actions if table has specific engine
+    else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+      $skipping = tableHasEngine( $matches[1], $matches[2] );
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    // find MyISAM tables and attempt to convert them
+    else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+      $tables_list = MyisamTablesList();
+      if( count($tables_list)==0 ) {
+        $skipping = true;
+      } else {
+        foreach( $tables_list as $t ) {
+          if( in_array($t,array('ar_activity'))) continue;
+          $res = MigrateTableEngine( $t, 'InnoDB' );
+          var_dump($res);
+          if( $res === TRUE) {
+            printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
+          } else {
+            printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
+          }
+        } 
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
