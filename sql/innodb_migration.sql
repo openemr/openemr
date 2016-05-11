@@ -1,22 +1,40 @@
 /**
  * Convert existing tables to InnoDB
- * Author:  Oleg Sverdlov
+ * Author:  Oleg Sverdlov, Amiel Elboim
  * Created: May 5, 2016
  * 
  *
  */
 /*
 ar_activity                     	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
-batchcom                                ERROR 1067 (42000): Invalid default value for 'msg_date_sent'
 claims                          	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
+procedure_answers               	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
+procedure_order_code            	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
+
+batchcom                          ERROR 1067 (42000): Invalid default value for 'msg_date_sent'
 drugs                           	ERROR 1067 (42000): Invalid default value for 'last_notify'
 drug_inventory                  	ERROR 1067 (42000): Invalid default value for 'last_notify'
 insurance_data                  	ERROR 1067 (42000): Invalid default value for 'date
 openemr_postcalendar_events     	ERROR 1067 (42000): Invalid default value for 'pc_eventDate'
-procedure_answers               	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
-procedure_order_code            	ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
 */
 set sql_mode='NO_ENGINE_SUBSTITUTION';
+
+-- The following tables contain a DATE field with default value '0000-00-00'
+ALTER TABLE `batchcom` ENGINE="InnoDB";
+ALTER TABLE `drugs` ENGINE="InnoDB";
+ALTER TABLE `drug_inventory` ENGINE="InnoDB";
+ALTER TABLE `insurance_data` ENGINE="InnoDB";
+ALTER TABLE `openemr_postcalendar_events` ENGINE="InnoDB";
+
+-- The following tables require special treatment
+ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Claim version, incremented in code';
+ALTER TABLE `claims` ENGINE="InnoDB";
+ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Procedure_answers answer_seq, incremented in code';
+ALTER TABLE `procedure_answers` ENGINE="InnoDB";
+
+
+
+-- The rest can be converted without problems.
 ALTER TABLE `addresses` ENGINE="InnoDB";
 ALTER TABLE `amc_misc_data` ENGINE="InnoDB";                   	
 ALTER TABLE `amendments` ENGINE="InnoDB";                      	
@@ -27,8 +45,8 @@ ALTER TABLE `ar_session` ENGINE="InnoDB";
 ALTER TABLE `audit_details` ENGINE="InnoDB";                   	
 ALTER TABLE `audit_master` ENGINE="InnoDB";                    	
 ALTER TABLE `background_services` ENGINE="InnoDB";             	
-# ALTER TABLE `batchcom` ENGINE="InnoDB";                        	
-ALTER TABLE `billing` ENGINE="InnoDB";                         	
+# ALTER TABLE `batchcom` ENGINE="InnoDB";
+ALTER TABLE `billing` ENGINE="InnoDB";
 ALTER TABLE `categories` ENGINE="InnoDB";                      	
 ALTER TABLE `categories_seq` ENGINE="InnoDB";                  	
 ALTER TABLE `categories_to_documents` ENGINE="InnoDB";         	
@@ -161,3 +179,5 @@ ALTER TABLE `users` ENGINE="InnoDB";
 ALTER TABLE `user_settings` ENGINE="InnoDB";                   	
 ALTER TABLE `version` ENGINE="InnoDB";                         	
 ALTER TABLE `x12_partners` ENGINE="InnoDB";                    	
+
+--

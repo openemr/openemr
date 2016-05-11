@@ -153,12 +153,16 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
       if (!is_array($data)) $data = array($data);
       foreach ($data as $datum) {
         // Note this will auto-assign the seq value.
+        sqlBeginTrans();
+        $answer_seq = sqlQuery( "SELECT IFNULL(MAX(answer_seq),0) + 1 AS increment FROM procedure_answers WHERE procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? ", array($formid, $poseq, $qcode));
         sqlStatement("INSERT INTO procedure_answers SET ".
           "procedure_order_id = ?, " .
           "procedure_order_seq = ?, " .
           "question_code = ?, " .
+          "answer_seq = ?, " .
           "answer = ?",
-          array($formid, $poseq, $qcode, strip_escape_custom($datum)));
+          array($formid, $poseq, $qcode, $answer_seq['increment'] ,strip_escape_custom($datum)));
+          sqlCommitTrans();
       }
     }
   }
