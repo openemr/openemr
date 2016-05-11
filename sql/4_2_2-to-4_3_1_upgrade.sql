@@ -71,4 +71,20 @@
 --  #IfNotListOccupation
 --    Custom function for creating Occupation List
 
+--  #IfTableEngine
+--    desc:      Execute block of SQL if the table has been created engine specified.
+--    arguments: table_name engine
+--    behavior:  Use when engine conversion can not be done with ALTER TABLE
 
+--  #IfInnoDBMigrationNeeded
+--    desc: find all MyISAM tables and convert them to InnoDB.
+--    arguments: none
+
+
+#IfTableEngine claims MyISAM
+ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Claim version, incremented in code';
+ALTER TABLE `claims` ENGINE="InnoDB";
+#EndIf
+
+#IfInnoDBMigrationNeeded
+#EndIf
