@@ -172,24 +172,26 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
       "target = '$target', " .
       "x12_partner_id = '$partner_id'";
     ****/
+    sqlBeginTrans();
+    $version = sqlQuery( "SELECT IFNULL(MAX(version),0) + 1 AS version FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ) );
     if($crossover<>1)
     {
-    $sql = "INSERT INTO claims SET " .
-      "patient_id = '$patient_id', " .
-      "encounter_id = '$encounter_id', " .
-      "bill_time = NOW() $claimset";
-      }
-     else
-     {//Claim automatic forward case.
-     
-     $sql = "INSERT INTO claims SET " .
-      "patient_id = '$patient_id', " .
-      "encounter_id = '$encounter_id', " .
-      "bill_time = NOW(), status=$status";
-     
-     }
-    
+      $sql .= "INSERT INTO claims SET " .
+          "patient_id = $patient_id, " .
+          "encounter_id = $encounter_id, " .
+          "bill_time = NOW() $claimset ," .
+          "version = " . $version['version'];
+    }
+    else
+    {//Claim automatic forward case.startTra
+      $sql= "INSERT INTO claims SET " .
+          "patient_id = $patient_id, " .
+          "encounter_id = $encounter_id, " .
+          "bill_time = NOW(), status=$status ," .
+          "version = " . $version['version'];
+    }
     sqlStatement($sql);
+    sqlCommitTrans();
   }
 
   // Otherwise update the existing claim row.
