@@ -38,10 +38,18 @@
  * @link    http://www.open-emr.org
  */
 
+// Build the $ISSUE_TYPE_CATEGORIES array
+// First, set the hard-coded options
 $ISSUE_TYPE_CATEGORIES = array(
   'default' => xl('Default'),             // Normal OpenEMR use
   'ippf_specific' => xl('IPPF')           // For IPPF use
 );
+// Second, collect the non hard-coded options and add to the array
+$res = sqlStatement("SELECT DISTINCT `category` FROM `issue_types`");
+while($row = sqlFetchArray($res)){
+  if ( ($row['category'] == "default") || ($row['category'] == "ippf_specific") ) continue;
+  $ISSUE_TYPE_CATEGORIES[$row['category']] = $row['category'];
+}
 
 $ISSUE_TYPE_STYLES = array(
   0 => xl('Standard'),                    // Standard
