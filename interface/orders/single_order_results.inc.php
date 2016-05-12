@@ -229,7 +229,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
       echo myCellText($result_range);
       echo "</td>\n";
       echo "  <td>";
-      echo myCellText($result_units);
+      // Units comes from the lab so might not match anything in the proc_unit list,
+      // but in that case the call will return the same value.
+      echo myCellText(getListItemTitle('proc_unit', $result_units));
       echo "</td>\n";
     }
     echo "  <td align='center'>";
@@ -482,7 +484,7 @@ function educlick(codetype, codevalue) {
       "ps.result_status, ps.facility, ps.units, ps.comments, ps.document_id, ps.date " .
       "FROM procedure_result AS ps " .
       "WHERE ps.procedure_report_id = ? " .
-      "ORDER BY ps.result_code, ps.procedure_result_id";
+      "ORDER BY ps.procedure_result_id";
 
     $rres = sqlStatement($query, array($report_id));
 
@@ -508,9 +510,10 @@ function educlick(codetype, codevalue) {
             !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
             $rrow['date'] < $finals[$key][1]['date'])
           {
-            $finals[$key][2] = true;
+            $finals[$key][2] = true; // see comment below
             continue;
           }
+          // $finals[$key][2] indicates if there are multiple results for this result code.
           $finals[$key] = array($row, $rrowset, isset($finals[$key]));
         }
       }
@@ -534,7 +537,10 @@ function educlick(codetype, codevalue) {
   }
 
   if ($finals_only) {
-    ksort($finals);
+    // The sort here was removed because $finals is already ordered by procedure_result_id
+    // within procedure_order_seq which is probably desirable.  Sorting by result code defeats
+    // the sequencing of results chosen by the sender.
+    // ksort($finals);
     foreach ($finals as $final) {
       foreach ($final[1] as $rrow) {
         generate_result_row($ctx, $final[0], $rrow, $final[2]);

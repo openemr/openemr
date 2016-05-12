@@ -116,25 +116,12 @@ include_once("../../library/acl.inc");
 </td>
 <?php } ?>
 
-<?php if ($GLOBALS['athletic_team']) { ?>
-
-<td align="center" nowrap>
-&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu" onclick="top.restoreSession()">
-<?php xl('Roster','e'); ?></a>&nbsp;
-</td>
-<td align="center" nowrap>
-&nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
-<?php xl('Calendar','e'); ?></a>&nbsp;
-</td>
-
-<?php } else { ?>
 
 <td align="center" nowrap>
 &nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
 <?php xl('Home','e'); ?></a>&nbsp;
 </td>
 
-<?php } ?>
 
 <td align="center" nowrap>
 &nbsp;<a href="../logout.php" target="_top" class="menu" onclick="top.restoreSession()">
@@ -142,7 +129,7 @@ include_once("../../library/acl.inc");
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.1_Users_Guide" target="_blank" class="menu"> 
+&nbsp;<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.2_Users_Guide" target="_blank" class="menu"> 
 <?php xl('Manual','e'); ?></a>&nbsp;&nbsp;
 </td>
 

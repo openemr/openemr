@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -259,6 +259,13 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       'http://open-emr.org/',
       xl('URL for OpenEMR support.')
+    ),
+
+    'support_phone_number' => array(
+      xl('Support Phone Number'),
+      'text',
+      '',
+      xl('Phone Number for Vendor Support that Appears on the About Page.')
     ),
 
    'drop_bottom' => array(
@@ -523,7 +530,6 @@ $GLOBALS_METADATA = array(
       xl('Specific Application'),
       array(
         '0' => xl('None'),
-        '1' => xl('Athletic team'),
         '2' => xl('IPPF'),
         '3' => xl('Weight loss clinic'),
       ),
@@ -743,6 +749,14 @@ $GLOBALS_METADATA = array(
 		xl('Enable amendments feature')
 	),
 
+    'allow_pat_delete' => array(
+       xl('Allow Administrators to Delete Patients'),
+	   'bool',                           // data type
+	   '0',                              // default = false 
+	   xl('Allow Administrators to Delete Patients')
+
+    ),	
+	
    ),   
     // Report Tab
     //
@@ -801,6 +815,17 @@ $GLOBALS_METADATA = array(
       '2',                              // default = 2
       xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
     ), 
+	
+    'cash_receipts_report_invoice' => array(
+      xl('Display Invoice Number or Patient Name in the Cash Receipt Report'),
+      array(
+        '0' => xl('Invoice Number'),
+        '1' => xl('Patient Name'),  
+      ),   
+      '0',                              // default = 0
+      xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
+    ),
+	
   ),
     
   // Billing Tab

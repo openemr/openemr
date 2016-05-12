@@ -18,6 +18,9 @@ if ($GLOBALS['disable_utf8_flag']) {
         'username'       => $GLOBALS['login'],
         'password'       => $GLOBALS['pass'],
         'port'           => $GLOBALS['port'],
+        'driver_options' => array(
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\''
+        )
     );
 } else {
   $db = array(
@@ -27,7 +30,7 @@ if ($GLOBALS['disable_utf8_flag']) {
         'password'       => $GLOBALS['pass'],
         'port'           => $GLOBALS['port'],
         'driver_options' => array(
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\''
         )
     );
 }
