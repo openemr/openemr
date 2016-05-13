@@ -47,11 +47,11 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
         $hours = floor($tracker_time_calc/60/60);
         if(strlen($days != 0)) {
           if($hours >= 2){   
-             $tracker_time .=  ", $hours " . x1('hours'); 
+             $tracker_time .=  ", $hours " . xl('hours'); 
           }
           else
           {
-             $tracker_time .=  ", $hours " . x1('hour');   
+             $tracker_time .=  ", $hours " . xl('hour');   
           }
         }
         else
