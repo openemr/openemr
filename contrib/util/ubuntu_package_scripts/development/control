@@ -1,7 +1,7 @@
 Package: git-openemr
-Version: 1.0.0-5
+Version: 1.0.0-6
 Maintainer: Brady Miller <brady@sparmy.com>
-Installed-Size: 86000
+Installed-Size: 220000
 Priority: optional
 Section: web
 Architecture: all
