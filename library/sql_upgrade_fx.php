@@ -153,7 +153,7 @@ function tableHasIndex($tblname, $colname) {
  * @return boolean true if the table has been created using specified engine
  */
 function tableHasEngine($tblname, $engine) {
-  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine!=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
   return (empty($row)) ? false : true;
 }
 
@@ -258,26 +258,45 @@ function CreateImmunizationManufacturerList() {
   }
 }
 
-
-function MyisamTablesList() {
-    $engine = 'MyISAM';
-    $res = sqlStatement('SELECT table_name FROM information_schema.tables WHERE engine=? AND table_schema=database() AND table_type="BASE TABLE" ', array( $engine )); 
+/**
+ * Request to information_schema
+ * 
+ * @param array $arg possible arguments: engine, table_name
+ * @return SQLStatement
+ */
+function getTablesList( $arg = array() ) {
+    $binds = array();
+    $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
+    
+    if( !empty($arg['engine'])) {
+        $binds[] = $arg['engine'];
+        $sql .= ' AND engine=?';
+    }
+    
+    if( !empty($arg['table_name'])) {
+        $binds[] = $arg['table_name'];
+        $sql .= ' AND table_name=?';        
+    }
+    $res = sqlStatement( $sql, $binds );
 
     $records = array();
     while($row = sqlFetchArray($res)) {
-        $records[] = $row['table_name'];  
+        $records[ $row['table_name'] ] = $row['table_name'];  
     }
     return $records;
 }
 
 
-function MigrateTableEngine( $table, $engine ) {
-    if( !preg_match( '/^[a-zA-Z_0-9]+$/', $table )) {
-        return false;
-    }
-    return sqlStatement( sprintf( 'ALTER TABLE `%s` ENGINE="%s"', $table, $engine ));
-}
 
+function MigrateTableEngine( $table, $engine ) {
+    if( tableHasEngine( $table, $engine)) {
+        echo "proceed $table";
+        $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+        var_dump( $r);
+        flush();
+    }
+    
+}
 
 
 /**
@@ -354,6 +373,16 @@ function MigrateTableEngine( $table, $engine ) {
 * 
 * #IfNotListReaction
 * Custom function for creating Reaction List
+* 
+* #IfTableEngine
+*   desc:      Execute SQL if the table has been created with given engine specified.
+*   arguments: table_name engine
+*   behavior:  Use when engine conversion requires more than one ALTER TABLE
+*
+* #IfInnoDBMigrationNeeded
+*   desc: find all MyISAM tables and convert them to InnoDB.
+*   arguments: none
+*   behavior: can take a long time.
 * 
 * #EndIf
 *   all blocks are terminated with a #EndIf statement.
@@ -577,22 +606,26 @@ function upgradeFromSqlFile($filename) {
     }
     // find MyISAM tables and attempt to convert them
     else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
-      $tables_list = MyisamTablesList();
+      $tables_list = getTablesList( array('engine'=>'MyISAM'));
       if( count($tables_list)==0 ) {
         $skipping = true;
       } else {
-        foreach( $tables_list as $t ) {
-          if( in_array($t,array('ar_activity'))) continue;
-          $res = MigrateTableEngine( $t, 'InnoDB' );
-          var_dump($res);
-          if( $res === TRUE) {
-            printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
-          } else {
-            printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
-          }
-        } 
+        echo '<font color="black">Starting migration to InnoDB, please wait.</font>',"\n";
+        try {
+            foreach( $tables_list as $k=>$t ) {
+              $res = MigrateTableEngine( $t, 'InnoDB' );
+              if( $res === TRUE) {
+                printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
+              } else {
+                printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
+                error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
+              }
+            } 
+        } catch( Exception $e ) {
+            echo "Exception",$e->getMessage();
+        }
       }
-      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+      if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#EndIf/', $line)) {
       $skipping = false;
