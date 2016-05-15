@@ -586,14 +586,13 @@ if ($thisauth): ?>
 
 <?php
 endif; // $thisauth
-
+?>
 <table>
   <tr>
     <td id='accountstatus'></td>
   </tr>
 </table>
 <?php
-endif;
 // Get the document ID of the patient ID card if access to it is wanted here.
 $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
