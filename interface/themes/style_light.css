@@ -1074,7 +1074,7 @@ a {
   color: #337ab7;
   text-decoration: none; }
   a:hover, a:focus {
-    color: #23527c;
+    color: #ff5555;
     text-decoration: underline; }
   a:focus {
     outline: thin dotted;
@@ -3065,7 +3065,7 @@ fieldset[disabled] a.btn {
   .btn-link, .btn-link:hover, .btn-link:focus, .btn-link:active {
     border-color: transparent; }
   .btn-link:hover, .btn-link:focus {
-    color: #23527c;
+    color: #ff5555;
     text-decoration: underline;
     background-color: transparent; }
   .btn-link[disabled]:hover, .btn-link[disabled]:focus,
@@ -4103,7 +4103,7 @@ tbody.collapse.in {
   .pagination > li > span:hover,
   .pagination > li > span:focus {
     z-index: 2;
-    color: #23527c;
+    color: #ff5555;
     background-color: #eeeeee;
     border-color: #ddd; }
   .pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:focus,
@@ -5892,10 +5892,48 @@ button.close {
   font-weight: 800;
   font-style: italic; }
 
+#topToolbarRight {
+  background: #f4f4f4 !important; }
+
+a.css_button[value="Add"]:before {
+  content: "+"; }
+
+#times table {
+  background-color: #f7f7f7 !important;
+  text-align: right; }
+  #times table td {
+    border-bottom: 1px solid #dedede !important;
+    text-align: right !important; }
+
+#datePicker .tdDOW-small,
+#datePicker .tdMonthName-small {
+  background-color: #f7f7f7 !important; }
+
+#datePicker .currentDate {
+  background-color: #1976D2 !important;
+  color: #ffffff !important; }
+
+#providerPicker {
+  background-color: #f7f7f7 !important; }
+
+.event_in {
+  background-color: #CBE6F7 !important; }
+
+.event_reserved {
+  border-left: 4px solid #0b3660 !important;
+  background-color: #1976D2 !important;
+  color: #ffffff !important;
+  font-weight: 400 !important;
+  padding-left: 10px !important; }
+
+.calendar_day td {
+  font-family: "source_sans_pro", Helvetica, Sans-Serif !important;
+  font-weight: 400 !important; }
+
 body {
   margin: 0px;
   font-family: "source_sans_pro", Helvetica, Sans-Serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400; }
 
 a, a:active {
@@ -6160,6 +6198,25 @@ a, a:active {
       color: #ffffff; }
   .patient_file-summary-demographics .main {
     margin-left: 25px !important; }
+
+.main-calendar-add_edit_event table {
+  width: 95%;
+  margin: 0px;
+  padding: 0px; }
+  .main-calendar-add_edit_event table table {
+    width: 100%;
+    margin: 0px;
+    padding: 0px; }
+    .main-calendar-add_edit_event table table tr td {
+      width: 25%;
+      padding-top: 10px; }
+      .main-calendar-add_edit_event table table tr td:first-child {
+        text-align: right;
+        padding-right: 3px; }
+        .main-calendar-add_edit_event table table tr td:first-child b {
+          font-weight: 400; }
+      .main-calendar-add_edit_event table table tr td:nth-child(3) {
+        text-align: right; }
 
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
@@ -6882,7 +6939,7 @@ div.notab-right {
       background-color: none;
       color: #222222;
       display: block;
-      font-size: 16px !important;
+      font-size: 14px !important;
       padding: 8px 0px 8px 8px;
       width: 100%; }
       #navigation-slide li a:hover,
