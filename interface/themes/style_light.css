@@ -214,10 +214,11 @@ th {
     max-width: 100% !important; }
   p,
   h2,
+  .patient_file-summary-demographics table.table_header span.title,
   h3 {
     orphans: 3;
     widows: 3; }
-  h2,
+  h2, .patient_file-summary-demographics table.table_header span.title,
   h3 {
     page-break-after: avoid; }
   .navbar {
@@ -1137,15 +1138,15 @@ hr {
 [role="button"] {
   cursor: pointer; }
 
-h1, h2, h3, h4, h5, h6,
+h1, h2, .patient_file-summary-demographics table.table_header span.title, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   font-family: inherit;
   font-weight: 500;
   line-height: 1.1;
   color: inherit; }
   h1 small,
-  h1 .small, h2 small,
-  h2 .small, h3 small,
+  h1 .small, h2 small, .patient_file-summary-demographics table.table_header span.title small,
+  h2 .small, .patient_file-summary-demographics table.table_header span.title .small, h3 small,
   h3 .small, h4 small,
   h4 .small, h5 small,
   h5 .small, h6 small,
@@ -1162,15 +1163,16 @@ h1, h2, h3, h4, h5, h6,
     color: #777777; }
 
 h1, .h1,
-h2, .h2,
+h2,
+.patient_file-summary-demographics table.table_header span.title, .h2,
 h3, .h3 {
   margin-top: 20px;
   margin-bottom: 10px; }
   h1 small,
   h1 .small, .h1 small,
   .h1 .small,
-  h2 small,
-  h2 .small, .h2 small,
+  h2 small, .patient_file-summary-demographics table.table_header span.title small,
+  h2 .small, .patient_file-summary-demographics table.table_header span.title .small, .h2 small,
   .h2 .small,
   h3 small,
   h3 .small, .h3 small,
@@ -1196,7 +1198,7 @@ h6, .h6 {
 h1, .h1 {
   font-size: 36px; }
 
-h2, .h2 {
+h2, .patient_file-summary-demographics table.table_header span.title, .h2 {
   font-size: 30px; }
 
 h3, .h3 {
@@ -5898,12 +5900,14 @@ body {
 
 a, a:active {
   color: #0000cc;
-  text-decoration: none !important; }
+  text-decoration: none !important;
+  outline: 0 !important; }
   a:visited, a:active:visited {
     color: #0000cc; }
   a:hover, a:active:hover {
     color: #ff5555;
-    text-decoration: none !important; }
+    text-decoration: none !important;
+    outline: 0; }
   a:active, a:active:active {
     outline: none !important; }
 
@@ -6007,7 +6011,7 @@ a, a:active {
   color: #000000; }
 
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS classes 
+ * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 .body_top {
@@ -6087,7 +6091,7 @@ a, a:active {
   border-right: 1px solid #a9cff5;
   color: #ffffff !important;
   display: block;
-  font-family: 'Source Sans Pro';
+  font-family: 'source_sans_pro';
   font-weight: 100;
   height: 100%;
   margin: 0px;
@@ -6099,53 +6103,63 @@ a, a:active {
     background: transparent;
     color: #ffffff !important; }
 
-.patient_summary_demographics {
+.patient_file-summary-demographics {
   margin: 0px;
   padding: 0px; }
-  .patient_summary_demographics section.title {
-    background: #555555;
-    background: -moz-linear-gradient(top, #555555 0%, #777777 100%);
-    background: -webkit-linear-gradient(top, #555555 0%, #777777 100%);
-    background: linear-gradient(to bottom, #555555 0%, #777777 100%);
+  .patient_file-summary-demographics table.table_header {
+    background: #555555 !important;
+    background: -moz-linear-gradient(top, #555555 0%, #777777 100%) !important;
+    background: -webkit-linear-gradient(top, #555555 0%, #777777 100%) !important;
+    background: linear-gradient(to bottom, #555555 0%, #777777 100%) !important;
     color: #ffffff !important;
     display: block;
-    padding: 25px;
+    padding: 25px !important;
     padding-bottom: 0px;
     color: #ffffff;
-    font-weight: 100; }
-    .patient_summary_demographics section.title h2 {
+    font-weight: 100;
+    width: 100%; }
+    .patient_file-summary-demographics table.table_header td.delete {
+      float: right; }
+    .patient_file-summary-demographics table.table_header span.title {
+      text-transform: uppercase;
       display: inline-block;
-      font-family: 'Source Sans Pro';
+      font-family: 'source_sans_pro' !important;
       font-weight: 100;
       margin: 5px 0px 15px 0px; }
-    .patient_summary_demographics section.title a.css_button {
+    .patient_file-summary-demographics table.table_header a.css_button {
       border: 1px solid #f7f7f7;
       background-color: transparent !important;
       color: #ffffff !important;
-      font-size: 1.5rem;
+      font-size: 1em !important;
       float: right; }
-      .patient_summary_demographics section.title a.css_button[href*="deleter"]:hover {
+      .patient_file-summary-demographics table.table_header a.css_button[href*="deleter"]:hover {
         background-color: #ff5d5a !important;
         color: #ffffff !important; }
-      .patient_summary_demographics section.title a.css_button:hover {
+      .patient_file-summary-demographics table.table_header a.css_button:hover {
         background-color: rgba(255, 255, 255, 0.15) !important; }
-    .patient_summary_demographics section.title small, .patient_summary_demographics section.title .small {
+    .patient_file-summary-demographics table.table_header small, .patient_file-summary-demographics table.table_header .small {
       font-size: 1.25rem !important; }
-    .patient_summary_demographics section.title .deceased {
-      text-transform: capitalize !important; }
-    .patient_summary_demographics section.title nav {
-      font-size: 1.5rem;
-      margin-top: 15px;
-      padding-bottom: 5px; }
-      .patient_summary_demographics section.title nav a {
-        color: #ffffff !important;
-        font-family: 'Source Sans Pro'; }
-        .patient_summary_demographics section.title nav a:hover {
-          color: #a9cff5 !important; }
-    .patient_summary_demographics section.title table tr td {
+    .patient_file-summary-demographics table.table_header .deceased {
+      text-transform: capitalize !important;
+      color: #ffffff; }
+    .patient_file-summary-demographics table.table_header table tr td {
       color: #ffffff !important; }
-  .patient_summary_demographics .main {
-    margin-left: 25px; }
+  .patient_file-summary-demographics table.subnav {
+    background: #777777 !important;
+    color: #ffffff !important;
+    display: block;
+    width: 100%;
+    font-size: 1.8rem;
+    padding: 15px 25px !important; }
+    .patient_file-summary-demographics table.subnav a {
+      color: #ffffff !important;
+      font-family: 'source_sans_pro'; }
+      .patient_file-summary-demographics table.subnav a:hover {
+        color: #a9cff5 !important; }
+    .patient_file-summary-demographics table.subnav .small {
+      color: #ffffff; }
+  .patient_file-summary-demographics .main {
+    margin-left: 25px !important; }
 
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
@@ -6273,7 +6287,7 @@ a, a:active {
   padding-right: 5px; }
 
 #DEM .label {
-  color: #888888 !important;
+  color: #222222 !important;
   display: block;
   font-size: 1em;
   font-weight: 400;
@@ -6312,6 +6326,7 @@ select {
   height: 2em; }
 
 #HIS .label {
+  color: #222222 !important;
   font-weight: bold;
   font-size: 9pt;
   vertical-align: top; }
@@ -6606,7 +6621,8 @@ input[type="text"] {
 #pt_table tbody tr:hover td {
   background-color: #4597e9 !important;
   color: #ffffff;
-  cursor: pointer; }
+  cursor: pointer;
+  font-weight: 700; }
 
 .sellistclass {
   float: left; }
@@ -6703,14 +6719,17 @@ div.notab-right {
   margin-bottom: 10px;
   width: 100%; }
 
-.section-header {
-  margin-bottom: 5px;
-  width: 685px;
-  border-bottom: 1px solid; }
-
+.section-header,
 .section-header-dynamic {
-  margin-bottom: 5px;
-  border-bottom: 1px solid; }
+  display: block;
+  border-bottom: 1px solid #d7d7d7;
+  color: #1976D2 !important;
+  padding: 5px 0px;
+  margin-bottom: 5px; }
+  .section-header .small .text b,
+  .section-header-dynamic .small .text b {
+    color: #222222;
+    font-weight: 600; }
 
 .summary_item {
   background: #FFFFFF;
@@ -6853,8 +6872,7 @@ div.notab-right {
 #navigation-slide,
 #navigation-slide * {
   padding-left: 0px;
-  margin-left: 0px;
-  font-size: 1.1rem !important; }
+  margin-left: 0px; }
   #navigation-slide li,
   #navigation-slide * li {
     list-style: none;
@@ -6864,7 +6882,7 @@ div.notab-right {
       background-color: none;
       color: #222222;
       display: block;
-      font-size: 16px;
+      font-size: 16px !important;
       padding: 8px 0px 8px 8px;
       width: 100%; }
       #navigation-slide li a:hover,
