@@ -153,7 +153,7 @@ function tableHasIndex($tblname, $colname) {
  * @return boolean true if the table has been created using specified engine
  */
 function tableHasEngine($tblname, $engine) {
-  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine!=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
   return (empty($row)) ? false : true;
 }
 
@@ -287,6 +287,7 @@ function getTablesList( $arg = array() ) {
 }
 
 
+<<<<<<< HEAD
 /**
  * Convert table engine. 
  * @param string $table
@@ -295,6 +296,17 @@ function getTablesList( $arg = array() ) {
  */
 function MigrateTableEngine( $table, $engine ) {
     $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+=======
+
+function MigrateTableEngine( $table, $engine ) {
+    if( tableHasEngine( $table, $engine)) {
+        echo "proceed $table";
+        $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+        var_dump( $r);
+        flush();
+    }
+    
+>>>>>>> 3ca96bb00eeb6f364a65716b5961b191db9c33ed
 }
 
 
