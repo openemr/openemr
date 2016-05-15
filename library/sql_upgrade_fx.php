@@ -153,7 +153,7 @@ function tableHasIndex($tblname, $colname) {
  * @return boolean true if the table has been created using specified engine
  */
 function tableHasEngine($tblname, $engine) {
-  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine!=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
   return (empty($row)) ? false : true;
 }
 
@@ -287,7 +287,6 @@ function getTablesList( $arg = array() ) {
 }
 
 
-<<<<<<< HEAD
 /**
  * Convert table engine. 
  * @param string $table
@@ -296,17 +295,6 @@ function getTablesList( $arg = array() ) {
  */
 function MigrateTableEngine( $table, $engine ) {
     $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
-=======
-
-function MigrateTableEngine( $table, $engine ) {
-    if( tableHasEngine( $table, $engine)) {
-        echo "proceed $table";
-        $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
-        var_dump( $r);
-        flush();
-    }
-    
->>>>>>> 3ca96bb00eeb6f364a65716b5961b191db9c33ed
 }
 
 
@@ -621,20 +609,17 @@ function upgradeFromSqlFile($filename) {
       if( count($tables_list)==0 ) {
         $skipping = true;
       } else {
+        $skipping = false;
         echo '<font color="black">Starting migration to InnoDB, please wait.</font>',"\n";
-        try {
-            foreach( $tables_list as $k=>$t ) {
-              $res = MigrateTableEngine( $t, 'InnoDB' );
-              if( $res === TRUE) {
-                printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
-              } else {
-                printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
-                error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
-              }
-            } 
-        } catch( Exception $e ) {
-            echo "Exception",$e->getMessage();
-        }
+        foreach( $tables_list as $k=>$t ) {
+          $res = MigrateTableEngine( $t, 'InnoDB' );
+          if( $res === TRUE) {
+            printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
+          } else {
+            printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
+            error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
+          }
+        } 
       }
       if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
