@@ -65,6 +65,7 @@ case "$1" in
       INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
       #php and apache files
       PHP=/etc/php5/apache2/php.ini
+      PHP_ALTERNATE=/etc/php/7.0/apache2/php.ini
       #web user and group
       WEB_GROUP=www-data
       WEB_USER=www-data
@@ -298,6 +299,11 @@ case "$1" in
 
       #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
       log_only "Configuring PHP for OpenEMR"
+
+      #check if PHP7 config file exists; if it does then use it.
+      if [ -f $PHP_ALTERNATE ]; then
+         PHP=$PHP_ALTERNATE
+      fi 
 
       #check to ensure the php configuration file exists
       if [ -f $PHP ]; then
