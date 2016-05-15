@@ -239,7 +239,6 @@ case "$1" in
          chown -Rf root:root $OPENEMR
          chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
-         chmod 600 $OPENEMR/sl_convert.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
@@ -539,7 +538,6 @@ case "$1" in
          #remove global permission to all setup scripts
          chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
-         chmod 600 $OPENEMR/sl_convert.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
