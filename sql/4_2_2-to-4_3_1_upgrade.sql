@@ -72,19 +72,36 @@
 --    Custom function for creating Occupation List
 
 --  #IfTableEngine
---    desc:      Execute block of SQL if the table has been created engine specified.
+--    desc:      Execute SQL if the table has been created with given engine specified.
 --    arguments: table_name engine
---    behavior:  Use when engine conversion can not be done with ALTER TABLE
+--    behavior:  Use when engine conversion requires more than one ALTER TABLE
 
 --  #IfInnoDBMigrationNeeded
 --    desc: find all MyISAM tables and convert them to InnoDB.
 --    arguments: none
+--    behavior: can take a long time.
 
+
+#IfTableEngine ar_activity MyISAM
+ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Ar_activity sequence_no, incremented in code';
+ALTER TABLE `ar_activity` ENGINE="InnoDB";
+#EndIf
 
 #IfTableEngine claims MyISAM
 ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Claim version, incremented in code';
 ALTER TABLE `claims` ENGINE="InnoDB";
 #EndIf
+
+#IfTableEngine procedure_answers MyISAM
+ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Procedure_answers answer_seq, incremented in code';
+ALTER TABLE `procedure_answers` ENGINE="InnoDB";
+#EndIf
+
+#IfTableEngine procedure_order_code MyISAM
+ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Procedure_order_code procedure_order_seq, incremented in code';
+ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
+#EndIf
+
 
 #IfInnoDBMigrationNeeded
 #EndIf
