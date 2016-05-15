@@ -8,4 +8,4 @@ CREATE TABLE `form_painmap` (
   `activity` tinyint(4) DEFAULT NULL,
   `data` text DEFAULT '' NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM
+) ENGINE=InnoDB;

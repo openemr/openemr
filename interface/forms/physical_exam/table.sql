@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS form_physical_exam_diagnoses (
  ordering        int(11)      NOT NULL DEFAULT 0,
  diagnosis       varchar(255) NOT NULL DEFAULT '',
  KEY (line_id, ordering)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
