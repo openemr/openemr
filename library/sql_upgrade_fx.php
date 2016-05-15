@@ -294,7 +294,8 @@ function getTablesList( $arg = array() ) {
  * ADODB will fail if there was an error during conversion
  */
 function MigrateTableEngine( $table, $engine ) {
-    $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+  $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+  return true;
 }
 
 

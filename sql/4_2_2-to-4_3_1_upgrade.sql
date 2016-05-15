@@ -83,22 +83,22 @@
 
 
 #IfTableEngine ar_activity MyISAM
-ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Ar_activity sequence_no, incremented in code';
+ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code';
 ALTER TABLE `ar_activity` ENGINE="InnoDB";
 #EndIf
 
 #IfTableEngine claims MyISAM
-ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Claim version, incremented in code';
+ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Version, incremented in code';
 ALTER TABLE `claims` ENGINE="InnoDB";
 #EndIf
 
 #IfTableEngine procedure_answers MyISAM
-ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Procedure_answers answer_seq, incremented in code';
+ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Supports multiple-choice questions. Answer_seq, incremented in code';
 ALTER TABLE `procedure_answers` ENGINE="InnoDB";
 #EndIf
 
 #IfTableEngine procedure_order_code MyISAM
-ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Procedure_order_code procedure_order_seq, incremented in code';
+ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code';
 ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 #EndIf
 
