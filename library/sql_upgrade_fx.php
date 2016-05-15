@@ -611,13 +611,13 @@ function upgradeFromSqlFile($filename) {
         $skipping = true;
       } else {
         $skipping = false;
-        echo '<font color="black">Starting migration to InnoDB, please wait.</font>',"\n";
+        echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
         foreach( $tables_list as $k=>$t ) {
           $res = MigrateTableEngine( $t, 'InnoDB' );
           if( $res === TRUE) {
-            printf( '<font color="green">Table %s migrated to InnoDB.</font>', $t );
+            printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );
           } else {
-            printf( '<font color="red">Error migrating table %s to InnoDB</font>', $t ); 
+            printf( '<font color="red">Error migrating table %s to InnoDB</font><br />', $t );
             error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
           }
         } 
