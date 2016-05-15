@@ -303,7 +303,7 @@ case "$1" in
       #check if PHP7 config file exists; if it does then use it.
       if [ -f $PHP_ALTERNATE ]; then
          PHP=$PHP_ALTERNATE
-      fi 
+      fi
 
       #check to ensure the php configuration file exists
       if [ -f $PHP ]; then
