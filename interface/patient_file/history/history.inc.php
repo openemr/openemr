@@ -11,15 +11,6 @@
  // Exams: database name and descriptive name, in order of on-screen
  // presentation, and with the exam results index for last_exam_results:
  //
- if ($GLOBALS['athletic_team']) {
-  $exams = array(
-   "last_cardiac_echo"              => '08 ' . xl('Cardiac Echo'),
-   "last_ecg"                       => '07 ' . xl('ECG'),
-   "last_physical_exam"             => '05 ' . xl('Physical Exam'),
-   "last_breast_exam"               => '00 ' . xl('Breast Exam'),
-   "last_mammogram"                 => '01 ' . xl('Mammogram')
-  );
- } else {
   $exams = array(
    "last_breast_exam"               => '00 ' . xl('Breast Exam'),
    "last_cardiac_echo"              => '08 ' . xl('Cardiac Echo'),
@@ -38,7 +29,6 @@
    "last_hemoglobin"                => '13 ' . xl('Hemoglobin'),
    "last_psa"                       => '14 ' . xl('PSA')
   );
- }
 
  // Deprecated surgery date items that should be shown only if there
  // is data, and which should be moved to the lists table:

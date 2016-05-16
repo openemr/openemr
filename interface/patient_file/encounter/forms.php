@@ -580,20 +580,6 @@ if ( $esign->isButtonViewable() ) {
 }
 ?>
 
-<?php if ($GLOBALS['athletic_team'] && $GLOBALS['concurrent_layout'] == 2) { ?>
-<script language='JavaScript'>
- // If this is the top frame then show the encounters list in the bottom frame.
- // var n  = parent.parent.left_nav;
- var n  = top.left_nav;
- var nf = n.document.forms[0];
- if (parent.window.name == 'RTop' && nf.cb_bot.checked) {
-  var othername = 'RBot';
-  n.setRadio(othername, 'ens');
-  n.loadFrame('ens1', othername, 'patient_file/history/encounters.php');
- }
-</script>
-<?php } ?>
-
 </div> <!-- end large encounter_forms DIV -->
 </body>
 
