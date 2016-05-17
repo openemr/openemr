@@ -157,7 +157,7 @@ function snomed_import($us_extension=FALSE) {
             `SNOMEDID` varchar(8) NOT NULL,
             `IsPrimitive` tinyint(1) NOT NULL,
             PRIMARY KEY (`ConceptId`)
-            ) ENGINE=MyISAM",
+            ) ENGINE=InnoDB",
         "sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_descriptions`",
         "sct_descriptions_structure"=>"CREATE TABLE IF NOT EXISTS `sct_descriptions` (
             `DescriptionId` bigint(20) NOT NULL,
@@ -168,7 +168,7 @@ function snomed_import($us_extension=FALSE) {
             `DescriptionType` int(11) NOT NULL,
             `LanguageCode` varchar(8) NOT NULL,
             PRIMARY KEY (`DescriptionId`)
-            ) ENGINE=MyISAM",
+            ) ENGINE=InnoDB",
         "sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_relationships`",
         "sct_relationships_structure"=>"CREATE TABLE IF NOT EXISTS `sct_relationships` (
             `RelationshipId` bigint(20) NOT NULL,
@@ -179,7 +179,7 @@ function snomed_import($us_extension=FALSE) {
             `Refinability` int(11) NOT NULL,
             `RelationshipGroup` int(11) NOT NULL,
             PRIMARY KEY (`RelationshipId`)
-            ) ENGINE=MyISAM"
+            ) ENGINE=InnoDB"
 );
 
     // set up paths

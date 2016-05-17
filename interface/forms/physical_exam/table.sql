@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS form_physical_exam (
  diagnosis       varchar(255) NOT NULL DEFAULT '',
  comments        varchar(255) NOT NULL DEFAULT '',
  PRIMARY KEY (forms_id, line_id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS form_physical_exam_diagnoses (
  line_id         char(8)      NOT NULL,

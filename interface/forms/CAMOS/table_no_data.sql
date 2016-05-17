@@ -12,7 +12,7 @@ item TEXT,
 content TEXT,
 
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `form_CAMOS_category` (
 id bigint(20) NOT NULL auto_increment,
