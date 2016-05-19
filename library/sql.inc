@@ -677,4 +677,57 @@ function sqlRollbackTrans()
     $GLOBALS['adodb']['db']->RollbackTrans();
 }
 
+/**
+ * This function imitate special MyISAM feature to InnoDB tables.
+ * This feature create internal auto increment for every multiple-column index in the table.
+ * More info - http://dev.mysql.com/doc/refman/5.6/en/example-auto-increment.html#idm139866976916160
+ * For imitate it the system manage custom sequences in a few tables.
+ * @param (string) table name
+ * @param (array) primary keys (without auto increment column). format - array(column_name => value)
+ * @return (int) current sequence number
+ */
+function getCurrentSequence($table, array $primaryKeys){
+
+    $sequencesTable = $table . '_seq';
+
+    switch($sequencesTable){
+
+        case 'ar_activity_seq':
+            $insert_query = "INSERT INTO $sequencesTable (`pid`, `encounter`, `counter`) VALUES (?,?,1) ";
+            $select_query = "SELECT counter FROM $sequencesTable WHERE `pid` =? AND `encounter` =?";
+            $array_binding = array($primaryKeys['pid'], $primaryKeys['encounter']);
+            break;
+
+        case 'claims_seq':
+            $insert_query = "INSERT INTO $sequencesTable (`patient_id`, `encounter_id`, `counter`) VALUES (?, ?, 1) ";
+            $select_query = "SELECT counter FROM $sequencesTable WHERE `patient_id`=? AND `encounter_id`=?";
+            $array_binding = array($primaryKeys['patient_id'], $primaryKeys['encounter_id']);
+            break;
+
+        case 'procedure_answers_seq':
+            $insert_query = "INSERT INTO $sequencesTable (`procedure_order_id`, `encounter_id`, `question_code`, `counter`) VALUES (?, ?, ? ,1) ";
+            $select_query = "SELECT counter FROM  $sequencesTable WHERE `procedure_order_id` =? AND `encounter_id` =? AND `question_code` = ?";
+            $array_binding = array($primaryKeys['procedure_order_id'], $primaryKeys['procedure_order_seq'], $primaryKeys['question_code']);
+            break;
+
+        case 'procedure_order_code_seq':
+            $insert_query = "INSERT INTO $sequencesTable (`procedure_order_id`, `counter`) VALUES (?, 1) ";
+            $select_query = "SELECT counter FROM $sequencesTable WHERE `procedure_order_id`=?";
+            $array_binding = array($primaryKeys['procedure_order_id']);
+            break;
+    }
+
+    $insert_query .= "ON DUPLICATE KEY UPDATE counter=counter+1";
+
+    sqlBeginTrans();
+    //inserting a new sequence number
+    sqlQueryNoLog($insert_query, $array_binding);
+    //taking a new number
+    $result =  sqlQueryNoLog($select_query, $array_binding);
+    sqlCommitTrans();
+
+    return $result['counter'];
+}
+
+
 ?>
