@@ -82,6 +82,57 @@
 --    behavior: can take a long time.
 
 
+#IfTableEngine history_data MyISAM
+ALTER TABLE `history_data` MODIFY `exams` TEXT NOT NULL, MODIFY userarea11 TEXT NOT NULL, MODIFY userarea12 TEXT NOT NULL;
+ALTER TABLE `history_data` ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine lang_custom MyISAM
+ALTER TABLE `lang_custom` MODIFY `constant_name` mediumtext NOT NULL, MODIFY `definition` mediumtext NOT NULL, ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine layout_options MyISAM
+ALTER TABLE `layout_options` MODIFY `conditions` text NOT NULL COMMENT 'serialized array of skip conditions';
+ALTER TABLE `layout_options` ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine patient_data MyISAM
+ALTER TABLE `patient_data` MODIFY  `billing_note` text, ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine rule_action_item MyISAM
+ALTER TABLE `rule_action_item` MODIFY `reminder_message` text  NOT NULL COMMENT 'Custom message in patient reminder', ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine procedure_providers MyISAM
+ALTER TABLE `procedure_providers` MODIFY `notes` text NOT NULL, ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine procedure_questions MyISAM
+ALTER TABLE `procedure_questions` MODIFY `options` text NOT NULL COMMENT 'choices for fldtype S and T', ENGINE=InnoDB;
+#EndIf
+
+
+#IfTableEngine procedure_order MyISAM
+ALTER TABLE `procedure_order` MODIFY `patient_instructions` TEXT NOT NULL, ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine procedure_order_code MyISAM
+ALTER TABLE `procedure_order_code` MODIFY `diagnoses` text NOT NULL COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine procedure_report MyISAM
+ALTER TABLE `procedure_report` MODIFY `report_notes` text NOT NULL COMMENT 'notes from the lab', ENGINE=InnoDB;
+#EndIf
+
+#IfTableEngine procedure_result MyISAM
+ALTER TABLE `procedure_result` MODIFY comments TEXT NOT NULL COMMENT 'comments from the lab', ENGINE=InnoDB;
+#EndIf
+
+
+
+-- The following table needs sequence table and a trigger --
+
 #IfTableEngine ar_activity MyISAM
 ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code';
 ALTER TABLE `ar_activity` ENGINE="InnoDB";
