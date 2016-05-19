@@ -8101,10 +8101,10 @@ CREATE TABLE IF NOT EXISTS `ar_activity_seq` (
 DELIMITER $$
 
 CREATE TRIGGER ar_activity_seq_after_delete
-AFTER DELETE
-   ON ar_activity FOR EACH ROW
+  AFTER DELETE
+  ON ar_activity FOR EACH ROW
 
-BEGIN
+  BEGIN
   DECLARE c INT;
 
   SELECT COUNT(*) INTO c FROM ar_activity WHERE pid = OLD.pid AND encounter = OLD.encounter;
@@ -8112,7 +8112,7 @@ BEGIN
       DELETE FROM ar_activity_seq WHERE pid = OLD.pid AND encounter = OLD.encounter;
   END IF;
 
-END $$
+  END $$
 DELIMITER ;
 -- --------------------------------------------------------
 
@@ -8131,10 +8131,10 @@ CREATE TABLE IF NOT EXISTS `claims_seq` (
 DELIMITER $$
 
 CREATE TRIGGER claims_seq_after_delete
-AFTER DELETE
+  AFTER DELETE
    ON claims FOR EACH ROW
 
-BEGIN
+  BEGIN
   DECLARE c INT;
 
   SELECT COUNT(*) INTO c FROM claims WHERE patient_id = OLD.patient_id AND encounter_id = OLD.encounter_id;
@@ -8142,7 +8142,7 @@ BEGIN
       DELETE FROM claims_seq WHERE patient_id = OLD.patient_id AND encounter_id = OLD.encounter_id;
   END IF;
 
-END $$
+  END $$
 DELIMITER ;
 -- --------------------------------------------------------
 
@@ -8162,10 +8162,10 @@ CREATE TABLE IF NOT EXISTS `procedure_answers_seq` (
 DELIMITER $$
 
 CREATE TRIGGER procedure_answers_seq_after_delete
-AFTER DELETE
+  AFTER DELETE
    ON procedure_answers FOR EACH ROW
 
-BEGIN
+  BEGIN
   DECLARE c INT;
 
   SELECT COUNT(*) INTO c FROM procedure_answers WHERE procedure_order_id = OLD.procedure_order_id AND procedure_order_seq = OLD.procedure_order_seq AND question_code = OLD.question_code;
@@ -8173,7 +8173,7 @@ BEGIN
       DELETE FROM procedure_answers_seq WHERE procedure_order_id = OLD.procedure_order_id AND procedure_order_seq = OLD.procedure_order_seq AND question_code = OLD.question_code;
   END IF;
 
-END $$
+  END $$
 DELIMITER ;
 -- --------------------------------------------------------
 
@@ -8191,10 +8191,10 @@ CREATE TABLE IF NOT EXISTS `procedure_order_code_seq` (
 DELIMITER $$
 
 CREATE TRIGGER procedure_order_code_seq_after_delete
-AFTER DELETE
+  AFTER DELETE
    ON procedure_order_code FOR EACH ROW
 
-BEGIN
+  BEGIN
   DECLARE c INT;
 
   SELECT COUNT(*) INTO c FROM procedure_order_code WHERE procedure_order_id = OLD.procedure_order_id;
@@ -8202,7 +8202,7 @@ BEGIN
       DELETE FROM procedure_order_code_seq WHERE procedure_order_id = OLD.procedure_order_id;
   END IF;
 
-END $$
+  END $$
 DELIMITER ;
 -- --------------------------------------------------------
 
