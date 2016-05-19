@@ -715,6 +715,10 @@ function getCurrentSequence($table, array $primaryKeys){
             $select_query = "SELECT counter FROM $sequencesTable WHERE `procedure_order_id`=?";
             $array_binding = array($primaryKeys['procedure_order_id']);
             break;
+
+        default:
+            return 'NULL';
+
     }
 
     $insert_query .= "ON DUPLICATE KEY UPDATE counter=counter+1";

@@ -555,12 +555,10 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
           "patient_id,payment_method,adjustment_code,post_to_date) VALUES('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
           array($_SESSION['authId'],$fee,$pid));
 
-        sqlBeginTrans();
-        $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($pid, $encounter));
         SqlStatement("INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,".
           "pay_amount,account_code) VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-          array($pid,$encounter,$sequence_no['increment'],$ct0,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
-        sqlCommitTrans();
+          array($pid,$encounter,getCurrentSequence('ar_activity', array('pid' => $pid, 'encounter' => $encounter)),$ct0,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
+
       }else{
         //editing copay saved to ar_session and ar_activity
         if($fee < 0){

@@ -195,12 +195,9 @@ if ($_POST['form_save']) {
 				 " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
 				 array($_SESSION['authId'],$form_source,$amount,$form_pid,$form_method));
 
-                 sqlBeginTrans();
-                 $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
 				  $insrt_id=sqlInsert("INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
 				   " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-					 array($form_pid,$enc,$sequence_no['increment'],$Codetype,$Code,$Modifier,$_SESSION['authId'],$session_id,$amount));
-				 sqlCommitTrans();
+					 array($form_pid,$enc,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $enc)),$Codetype,$Code,$Modifier,$_SESSION['authId'],$session_id,$amount));
 
 				 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
 			 }
@@ -281,8 +278,6 @@ if ($_POST['form_save']) {
 								$insert_value=$amount;
 								$amount=0;
 						   }
-                          sqlBeginTrans();
-                          $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
 						  sqlStatement("insert into ar_activity set "    .
 							"pid = ?"       .
 							", encounter = ?"     .
@@ -297,14 +292,11 @@ if ($_POST['form_save']) {
 							", pay_amount = ?" .
 							", adj_amount = ?"    .
 							", account_code = 'PP'",
-							array($form_pid,$enc,$sequence_no['increment'],$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$insert_value,0));
-                            sqlCommitTrans();
+							array($form_pid,$enc,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $enc)),$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$insert_value,0));
 						 }//if
 					  }//while
 					 if($amount!=0)//if any excess is there.
 					  {
-                          sqlBeginTrans();
-                          $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
                           sqlStatement("insert into ar_activity set "    .
 							"pid = ?"       .
 							", encounter = ?"     .
@@ -319,8 +311,7 @@ if ($_POST['form_save']) {
 							", pay_amount = ?" .
 							", adj_amount = ?"    .
 							", account_code = 'PP'",
-							array($form_pid,$enc,$sequence_no['increment'],$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$amount,0));
-                          sqlCommitTrans();
+							array($form_pid,$enc,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $enc)),$Codetype,$Code,$Modifier,0,$_SESSION['authUserID'],$payment_id,$amount,0));
 					  }
 
 	//--------------------------------------------------------------------------------------------------------------------

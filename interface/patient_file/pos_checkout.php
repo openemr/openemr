@@ -676,8 +676,6 @@ if ($_POST['form_save']) {
     }
     $memo = xl('Discount');
       $time = date('Y-m-d H:i:s');
-      sqlBeginTrans();
-      $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
       $query = "INSERT INTO ar_activity ( " .
         "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
         "session_id, memo, adj_amount " .
@@ -694,8 +692,7 @@ if ($_POST['form_save']) {
         "?, " .
         "? " .
         ")";
-      sqlStatement($query, array($form_pid,$form_encounter,$sequence_no['increment'],$_SESSION['authUserID'],$time,$memo,$amount) );
-      sqlCommitTrans();
+      sqlStatement($query, array($form_pid,$form_encounter,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $form_encounter)),$_SESSION['authUserID'],$time,$memo,$amount) );
     }
 
   // Post payment.
@@ -722,12 +719,9 @@ if ($_POST['form_save']) {
         " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
         array($_SESSION['authId'],$form_source,$dosdate,$amount,$form_pid,$paydesc));
 
-      sqlBeginTrans();
-      $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
       $insrt_id=sqlInsert("INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
         " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-        array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
-      sqlCommitTrans();
+        array($form_pid,$form_encounter,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $form_encounter)),$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
   }
 
   // If applicable, set the invoice reference number.
