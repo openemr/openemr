@@ -65,6 +65,7 @@ case "$1" in
       INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
       #php and apache files
       PHP=/etc/php5/apache2/php.ini
+      PHP_ALTERNATE=/etc/php/7.0/apache2/php.ini
       #web user and group
       WEB_GROUP=www-data
       WEB_USER=www-data
@@ -239,7 +240,6 @@ case "$1" in
          chown -Rf root:root $OPENEMR
          chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
-         chmod 600 $OPENEMR/sl_convert.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
@@ -300,6 +300,11 @@ case "$1" in
       #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
       log_only "Configuring PHP for OpenEMR"
 
+      #check if PHP7 config file exists; if it does then use it.
+      if [ -f $PHP_ALTERNATE ]; then
+         PHP=$PHP_ALTERNATE
+      fi
+
       #check to ensure the php configuration file exists
       if [ -f $PHP ]; then
          # First, collect php variables
@@ -309,8 +314,6 @@ case "$1" in
          collect_php_commented_out () {
             echo `grep -i "^;[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[       M]//gi'`
          }
-         TAG_TEXT="short_open_tag"
-         TAG=$(collect_php "$TAG_TEXT")
          EXEC_TEXT="max_execution_time"
          EXEC=$(collect_php "$EXEC_TEXT")
          INPUT_TEXT="max_input_time"
@@ -368,9 +371,6 @@ case "$1" in
             fi
          }
          for i in `seq 1 2`; do
-            if [ ! -z "$TAG" ] && [ "$TAG" != "On" ]; then
-               process_php "$TAG_TEXT" "On" $i
-            fi
             if [ ! -z "$EXEC" ] && [ "$EXEC" -lt "60" ]; then
                process_php "$EXEC_TEXT" "60" $i
             fi
@@ -419,7 +419,6 @@ case "$1" in
       else
          #can't find php config file, so just echo instructions
          log_only "We recommend ensuring you have below settings in your php configuration file:"
-         log_only "short_open_tag = On"
          log_only "max_execution_time = 60"
          log_only "max_input_time = 90"
          log_only "memory_limit = 128M"
@@ -545,7 +544,6 @@ case "$1" in
          #remove global permission to all setup scripts
          chmod 600 $OPENEMR/acl_setup.php
          chmod 600 $OPENEMR/acl_upgrade.php
-         chmod 600 $OPENEMR/sl_convert.php
          chmod 600 $OPENEMR/setup.php
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php

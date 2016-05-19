@@ -2306,11 +2306,6 @@ function display_layout_rows($formtype, $result1, $result2='') {
     $currvalue  = '';
 
     if ($formtype == 'DEM') {
-      if ($GLOBALS['athletic_team']) {
-        // Skip fitness level and return-to-play date because those appear
-        // in a special display/update form on this page.
-        if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
-      }
       if (strpos($field_id, 'em_') === 0) {
         // Skip employer related fields, if it's disabled.
         if ($GLOBALS['omit_employers']) continue;
@@ -2454,11 +2449,6 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 
 
 					if ($formtype == 'DEM') {
-					  if ($GLOBALS['athletic_team']) {
-						// Skip fitness level and return-to-play date because those appear
-						// in a special display/update form on this page.
-						if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
-					  }
 					  if (strpos($field_id, 'em_') === 0) {
 					// Skip employer related fields, if it's disabled.
 						if ($GLOBALS['omit_employers']) continue;
@@ -2597,11 +2587,6 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					$currvalue  = '';
 
 					if ($formtype == 'DEM') {
-					  if ($GLOBALS['athletic_team']) {
-						// Skip fitness level and return-to-play date because those appear
-						// in a special display/update form on this page.
-						if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
-					  }
 					  if (strpos($field_id, 'em_') === 0) {
 					// Skip employer related fields, if it's disabled.
 						if ($GLOBALS['omit_employers']) continue;

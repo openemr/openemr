@@ -136,6 +136,12 @@ if (!$disable_utf8_flag) {
   }
 }
 
+// Turn off STRICT SQL
+$sql_strict_set_success = $database->Execute("SET sql_mode = ''");
+if (!$sql_strict_set_success) {
+ error_log("Unable to set strict sql setting: ".getSqlLastError(), 0);
+}
+
 // set up associations in adodb calls (not sure why above define
 //  command does not work)
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);

@@ -71,9 +71,6 @@ function selpopup(selobj) {
 <?php } ?>
      <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
      <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
-<?php if ($GLOBALS['athletic_team']) { ?>
-     <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
-<?php } ?>
      <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
 <?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
      <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>

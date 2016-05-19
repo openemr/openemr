@@ -84,7 +84,7 @@ function upload_file_to_client_pdf($file_to_send) {
 //Function reads a text file and converts to pdf.
 
   global $STMT_TEMP_FILE_PDF;
-  $pdf =& new Cezpdf('LETTER');//pdf creation starts
+  $pdf = new Cezpdf('LETTER');//pdf creation starts
   $pdf->ezSetMargins(36,0,36,0);
   $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
   $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);

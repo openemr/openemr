@@ -104,6 +104,8 @@ else if ($state > 3) {
 
 <style>
 .noclone { }
+table.phpset { border-collapse:collapse;   }
+table.phpset td, table.phpset th { font-size:9pt; border:1px solid gray; padding:2px; }
 </style>
 
 <script type="text/javascript" src="library/js/jquery.js"></script>
@@ -128,7 +130,20 @@ function cloneClicked() {
   echo "It appears that you have register_globals enabled in your php.ini\n" .
    "configuration file.  This causes unacceptable security risks.  You must\n" .
    "turn it off before continuing with installation.\n";
-  exit();
+  exit(1);
+ }
+ 
+ if(!extension_loaded("xml")) {
+   echo "Error: PHP XML extension missing. To continue, install PHP XML extension, then restart web server.";
+   exit(1);
+ }
+ if( !(extension_loaded("mysql") || extension_loaded("mysqlnd") || extension_loaded("mysqli"))   ) {
+   echo "Error: PHP MySQL extension missing. To continue, install and enable MySQL extension, then restart web server.";
+   exit(1);
+ }
+ if( !(extension_loaded("mbstring") )   ) {
+   echo "Error: PHP mb_string extension missing. To continue, install and enable mb_string extension, then restart web server.";
+   exit(1);
  }
 ?>
 
@@ -527,7 +542,19 @@ else {
         $gotFileFlag = 1;
       }
     }
-echo "<li>To ensure proper functioning of OpenEMR you must make sure that settings in php.ini file include  \"short_open_tag = On\", \"display_errors = Off\", \"register_globals = Off\", \"max_execution_time\" set to at least 60, \"max_input_time\" set to at least 90, \"post_max_size\" set to at least 30M, and \"memory_limit\" set to at least \"128M\".</li>\n";
+echo "<li>","To ensure proper functioning of OpenEMR you must make sure that PHP settings include:";
+echo "<table class='phpset'><tr><th>Setting</th><th>Required value</th><th>Current value</th></tr>";
+echo "<tr><td>short_open_tag  </td><td>Off</td><td>", ini_get('short_open_tag')?'On':'Off',   "</td></tr>\n";
+echo "<tr><td>display_errors  </td><td>Off</td><td>", ini_get('display_errors')?'On':'Off',   "</td></tr>\n";
+echo "<tr><td>register_globals   </td><td>Off</td><td>", ini_get('register_globals')?'On':'Off', "</td></tr>\n";
+echo "<tr><td>max_input_vars     </td><td>at least 3000</td><td>", ini_get('max_input_vars'), "</td></tr>\n";
+echo "<tr><td>max_execution_time </td><td>at least 60</td><td>", ini_get('max_execution_time'), "</td></tr>\n";
+echo "<tr><td>max_input_time     </td><td>at least 90</td><td>", ini_get('max_input_time'), "</td></tr>\n";
+echo "<tr><td>post_max_size      </td><td>at least 30M</td><td>", ini_get('post_max_size'), "</td></tr>\n";
+echo "<tr><td>memory_limit       </td><td>at least 128M</td><td>", ini_get('memory_limit'), "</td></tr>\n";
+echo "</table>";
+echo "</li>";
+
 echo "<li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.</li>\n";
 if (!$gotFileFlag) {
     echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";

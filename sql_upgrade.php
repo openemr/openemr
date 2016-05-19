@@ -109,8 +109,8 @@ if (!empty($_POST['form_submit'])) {
 <?php
 foreach ($versions as $version => $filename) {
   echo " <option value='$version'";
-  // Defaulting to most recent version, which is now 4.2.1.
-  if ($version === '4.2.1') echo " selected";
+  // Defaulting to most recent version, which is now 4.2.2.
+  if ($version === '4.2.2') echo " selected";
   echo ">$version</option>\n";
 }
 ?>
