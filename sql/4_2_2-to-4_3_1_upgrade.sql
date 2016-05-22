@@ -150,25 +150,6 @@ CREATE TABLE IF NOT EXISTS `ar_activity_seq` (
 -- ar_activity table
 INSERT INTO `ar_activity_seq`
 SELECT `pid`, `encounter`, MAX(`sequence_no`) FROM `ar_activity` GROUP BY `pid`, `encounter`;
-
--- Trigger on delete from ar_activity table
-DELIMITER $$
-
-CREATE TRIGGER ar_activity_seq_after_delete
-AFTER DELETE
-   ON ar_activity FOR EACH ROW
-
-BEGIN
-  DECLARE c INT;
-
-  SELECT COUNT(*) INTO c FROM ar_activity WHERE pid = OLD.pid AND encounter = OLD.encounter;
-  IF c = 0 THEN
-      DELETE FROM ar_activity_seq WHERE pid = OLD.pid AND encounter = OLD.encounter;
-  END IF;
-
-END $$
-DELIMITER ;
-
 #EndIf
 
 #IfTableEngine claims MyISAM
@@ -188,25 +169,6 @@ CREATE TABLE IF NOT EXISTS `claims_seq` (
 -- claims table
 INSERT INTO `claims_seq`
 SELECT `patient_id`, `encounter_id`, MAX(`version`) FROM `claims` GROUP BY `patient_id`, `encounter_id`;
-
--- Trigger on delete from claims table
-DELIMITER $$
-
-CREATE TRIGGER claims_seq_after_delete
-AFTER DELETE
-   ON claims FOR EACH ROW
-
-BEGIN
-  DECLARE c INT;
-
-  SELECT COUNT(*) INTO c FROM claims WHERE patient_id = OLD.patient_id AND encounter_id = OLD.encounter_id;
-  IF c = 0 THEN
-      DELETE FROM claims_seq WHERE patient_id = OLD.patient_id AND encounter_id = OLD.encounter_id;
-  END IF;
-
-END $$
-DELIMITER ;
-
 #EndIf
 
 #IfTableEngine procedure_answers MyISAM
@@ -227,25 +189,6 @@ CREATE TABLE IF NOT EXISTS `procedure_answers_seq` (
 -- procedure_answers table
 INSERT INTO `procedure_answers_seq`
 SELECT `procedure_order_id`, `procedure_order_seq`, `question_code`, MAX(`answer_seq`) FROM `procedure_answers` GROUP BY `procedure_order_id`, `procedure_order_seq`, `question_code`;
-
--- Trigger on delete from procedure_answers table
-DELIMITER $$
-
-CREATE TRIGGER procedure_answers_seq_after_delete
-AFTER DELETE
-   ON procedure_answers FOR EACH ROW
-
-BEGIN
-  DECLARE c INT;
-
-  SELECT COUNT(*) INTO c FROM procedure_answers WHERE procedure_order_id = OLD.procedure_order_id AND procedure_order_seq = OLD.procedure_order_seq AND question_code = OLD.question_code;
-  IF c = 0 THEN
-      DELETE FROM procedure_answers_seq WHERE procedure_order_id = OLD.procedure_order_id AND procedure_order_seq = OLD.procedure_order_seq AND question_code = OLD.question_code;
-  END IF;
-
-END $$
-DELIMITER ;
-
 #EndIf
 
 #IfTableEngine procedure_order_code MyISAM
@@ -264,26 +207,6 @@ CREATE TABLE IF NOT EXISTS `procedure_order_code_seq` (
 -- procedure_order_code table
 INSERT INTO `procedure_order_code_seq`
 SELECT `procedure_order_id`, MAX(`procedure_order_seq`) FROM `procedure_order_code` GROUP BY `procedure_order_id`;
-
-
--- Trigger on delete from procedure_order_code table
-DELIMITER $$
-
-CREATE TRIGGER procedure_order_code_seq_after_delete
-AFTER DELETE
-   ON procedure_order_code FOR EACH ROW
-
-BEGIN
-  DECLARE c INT;
-
-  SELECT COUNT(*) INTO c FROM procedure_order_code WHERE procedure_order_id = OLD.procedure_order_id;
-  IF c = 0 THEN
-      DELETE FROM procedure_order_code_seq WHERE procedure_order_id = OLD.procedure_order_id;
-  END IF;
-
-END $$
-DELIMITER ;
-
 #EndIf
 
 #IfInnoDBMigrationNeeded

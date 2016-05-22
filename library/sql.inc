@@ -733,5 +733,66 @@ function getCurrentSequence($table, array $primaryKeys){
     return $result['counter'];
 }
 
+/**
+ * Remove all rows from sequences table that don't exist in parent table
+ * @param (string) table name
+ * @return {void}
+ */
+function removeSequence($table){
+
+    switch($table){
+
+        case 'ar_activity':
+            //remove ar_activity sequences
+            $rows_deleted = sqlStatement("SELECT s.pid,s.encounter
+                        FROM `ar_activity_seq` s
+                        LEFT JOIN ar_activity s1 ON s1.pid=s.pid and s1.encounter=s.encounter
+                        WHERE s1.pid IS NULL");
+
+            while ($row = sqlFetchArray($rows_deleted)) {
+                    sqlStatement("DELETE FROM ar_activity_seq WHERE pid = {$row['pid']} AND encounter = {$row['encounter']}");
+            }
+            break;
+
+        case 'claims':
+            //remove claims sequences
+            $rows_deleted = sqlStatement("SELECT s.patient_id,s.encounter_id
+                                FROM `claims_seq` s LEFT JOIN
+                                claims s1 ON s1.patient_id=s.patient_id and s1.encounter_id=s.encounter_id
+                                WHERE s1.patient_id IS NULL");
+
+            while ($row = sqlFetchArray($rows_deleted)) {
+                sqlStatement("DELETE FROM claims_seq WHERE patient_id = {$row['patient_id']} AND encounter_id = {$row['encounter_id']}");
+            }
+            break;
+
+        case 'procedure_answers':
+            $rows_deleted = sqlStatement("SELECT s.procedure_order_id,s.procedure_order_seq, s.question_code
+                                      FROM `procedure_answers_seq` s LEFT JOIN
+                                      procedure_answers s1 ON s1.procedure_order_id=s.procedure_order_id AND s1.procedure_order_seq=s.procedure_order_seq AND s1.question_code = s.question_code
+                                      WHERE s1.procedure_order_id IS NULL
+                                      ");
+
+            while ($row = sqlFetchArray($rows_deleted)) {
+                    sqlStatement("DELETE FROM procedure_answers_seq WHERE procedure_order_id = {$row['procedure_order_id']} AND procedure_order_seq = {$row['procedure_order_seq']}  AND question_code = {$row['question_code']}");
+            }
+            break;
+
+        case 'procedure_order_code':
+            $rows_deleted = sqlStatement("SELECT s.procedure_order_id
+                                      FROM `procedure_order_code_seq` s LEFT JOIN
+                                      procedure_order_code s1 ON s1.procedure_order_id=s.procedure_order_id
+                                      WHERE s1.procedure_order_id IS NULL");
+            while ($row = sqlFetchArray($rows_deleted)) {
+                    sqlStatement("DELETE FROM procedure_order_code_seq WHERE procedure_order_id = {$row['procedure_order_id']}");
+
+            }
+            break;
+
+        default:
+            return null;
+    }
+}
+
 
 ?>

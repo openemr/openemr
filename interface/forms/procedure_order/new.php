@@ -113,6 +113,8 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     array($formid));
   sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
     array($formid));
+  removeSequence('procedure_answers');
+  removeSequence('procedure_order_code');
 
   for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
     $ptid = $_POST['form_proc_type'][$i] + 0;

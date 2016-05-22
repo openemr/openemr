@@ -189,7 +189,6 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
           "version = " . getCurrentSequence('claims', array('patient_id' => $patient_id, 'encounter_id' => $encounter_id));
     }
     sqlStatement($sql);
-
   }
 
   // Otherwise update the existing claim row.
