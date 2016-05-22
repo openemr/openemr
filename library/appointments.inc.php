@@ -282,7 +282,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 		array_push($sqlBindArray, $facility_id, $facility_id);
 	}
 
-	$appointments = fetchEvents( $from_date, $to_date, $where );
+	$appointments = fetchEvents( $from_date, $to_date, $where, null, false, 0, $sqlBindArray );
 	return $appointments;
 }
 
@@ -330,7 +330,7 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 		$where = " AND e.pc_facility = 0";
 	}
 
-	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX );
+	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray );
 	return $appointments;
 }
 
