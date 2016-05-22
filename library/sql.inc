@@ -736,7 +736,7 @@ function getCurrentSequence($table, array $primaryKeys){
 /**
  * Remove all rows from sequences table that don't exist in parent table
  * @param (string) table name
- * @return {void}
+ * @return boolean
  */
 function removeSequence($table){
 
@@ -790,8 +790,10 @@ function removeSequence($table){
             break;
 
         default:
-            return null;
+            return true;
     }
+
+    return true;
 }
 
 
