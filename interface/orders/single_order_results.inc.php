@@ -278,7 +278,7 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
 <?php if ($genstyles) { ?>
         <style>
 
-            <?php if ($_SESSION['language_direction'] == 'ltr') { ?>
+            <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
 
             .labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
             .labres tr.detail { font-size:10pt; }
@@ -294,11 +294,13 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
                 border-width: 0px 1px 1px 0px;
                 border-color: black;
             }
+            /***** What is this for? Seems ugly to me. --Rod
             .labres tr{
                 background-color: #cccccc;
             }
+            *****/
 
-            <?php }else{ ?>
+            <?php } else { ?>
 
             .labres tr.head   { font-size:10pt;  text-align:center; }
             .labres tr.detail { font-size:10pt; }
