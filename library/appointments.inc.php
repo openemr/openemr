@@ -48,9 +48,9 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
   if($query_param) {
 
-  $query = $query_param;
+    $query = $query_param;
 
-  if($bind_param) $sqlBindArray = $bind_param;
+    if($bind_param) $sqlBindArray = $bind_param;
 
   } else {
     //////
@@ -68,7 +68,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
         "((e.pc_endDate >= ? AND e.pc_eventDate <= ? AND e.pc_recurrtype > '0') OR " .
         "(e.pc_eventDate >= ? AND e.pc_eventDate <= ?))";
 
-        array_push($sqlBindArray, $from_date, $to_date, $from_date, $to_date);
+      array_push($sqlBindArray, $from_date, $to_date, $from_date, $to_date);
 
     }
 
@@ -311,7 +311,7 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 
 	//Appointment Status Checking
 	if($pc_appstatus != ''){
-		$where = " AND e.pc_apptstatus = ?";
+		$where .= " AND e.pc_apptstatus = ?";
 		array_push($sqlBindArray, $pc_appstatus);
 	}
 
@@ -322,12 +322,12 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 
 	//Without Provider checking
 	if($with_out_provider != ''){
-		$where = " AND e.pc_aid = ''";
+		$where .= " AND e.pc_aid = ''";
 	}
 
 	//Without Facility checking
 	if($with_out_facility != ''){
-		$where = " AND e.pc_facility = 0";
+		$where .= " AND e.pc_facility = 0";
 	}
 
 	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray );
