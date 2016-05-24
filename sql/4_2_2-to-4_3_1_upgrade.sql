@@ -128,10 +128,10 @@ ALTER TABLE `procedure_questions` MODIFY `options` text COMMENT 'choices for fld
 ALTER TABLE `procedure_order` MODIFY `patient_instructions` TEXT, ENGINE=InnoDB;
 #EndIf
 
-#IfTableEngine procedure_order_code MyISAM
+-- #IfTableEngine procedure_order_code MyISAM - see below
 -- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_order_code` MODIFY `diagnoses` TEXT COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', ENGINE=InnoDB;
-#EndIf
+-- ALTER TABLE `procedure_order_code` MODIFY `diagnoses` TEXT COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', ENGINE=InnoDB;
+-- #EndIf
 
 #IfTableEngine procedure_report MyISAM
 -- remove NOT NULL DEFAULT "" declaration from TEXT field.
@@ -163,8 +163,7 @@ CREATE TABLE IF NOT EXISTS `ar_activity_seq` (
 ) ENGINE=InnoDB;
 
 -- ar_activity table
-INSERT INTO `ar_activity_seq`
-SELECT `pid`, `encounter`, MAX(`sequence_no`) FROM `ar_activity` GROUP BY `pid`, `encounter`;
+INSERT INTO `ar_activity_seq` SELECT `pid`, `encounter`, MAX(`sequence_no`) FROM `ar_activity` GROUP BY `pid`, `encounter`;
 
 ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code', ENGINE="InnoDB";
 #EndIf
@@ -186,8 +185,7 @@ CREATE TABLE IF NOT EXISTS `claims_seq` (
 ) ENGINE=InnoDB;
 
 -- populate claim sequence table 
-INSERT INTO `claims_seq`
-SELECT `patient_id`, `encounter_id`, MAX(`version`) FROM `claims` GROUP BY `patient_id`, `encounter_id`;
+INSERT INTO `claims_seq` SELECT `patient_id`, `encounter_id`, MAX(`version`) FROM `claims` GROUP BY `patient_id`, `encounter_id`;
 
 ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Version, incremented in code';
 ALTER TABLE `claims` ENGINE="InnoDB";
@@ -242,8 +240,13 @@ SELECT `procedure_order_id`, MAX(`procedure_order_seq`) FROM `procedure_order_co
 
 
 -- Modify the table for InnoDB
-ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq incremented in code';
-ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
+-- remove NOT NULL DEFAULT "" declaration from TEXT field.
+-- remove AUTO_INCREMENT field declaration
+ALTER TABLE `procedure_order_code` 
+  MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq incremented in code',
+  MODIFY `diagnoses` TEXT COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', 
+  ENGINE=InnoDB;
+
 #EndIf
 
 
@@ -252,5 +255,5 @@ ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 -- Warning: running this query can take a long time.
 --
 #IfInnoDBMigrationNeeded
--- Modifies all MyISAM tables to InnoDB
+-- Modifies all remaining MyISAM tables to InnoDB 
 #EndIf
