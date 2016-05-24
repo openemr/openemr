@@ -2170,7 +2170,7 @@ CREATE TABLE `history_data` (
   `name_2` varchar(255) default NULL,
   `value_2` varchar(255) default NULL,
   `additional_history` text,
-  `exams`      text         NOT NULL DEFAULT '',
+  `exams`      text,
   `usertext11` TEXT NOT NULL,
   `usertext12` varchar(255) NOT NULL DEFAULT '',
   `usertext13` varchar(255) NOT NULL DEFAULT '',
@@ -2309,7 +2309,7 @@ CREATE TABLE `icd10_pcs_order_code` (
   `revision` int default 0,
   KEY `pcs_code` (`pcs_code`),
   KEY `active` (`active`)
-) ENGINE=InnoDBInnoDB;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
