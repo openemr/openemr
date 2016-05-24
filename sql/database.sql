@@ -301,6 +301,19 @@ CREATE TABLE `claims` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `claims_seq`
+--
+DROP TABLE IF EXISTS `claims_seq`;
+CREATE TABLE IF NOT EXISTS `claims_seq` (
+  `patient_id` int(11) NOT NULL,
+  `encounter_id` int(11) NOT NULL,
+  `counter` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`patient_id` , `encounter_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `clinical_plans`
 --
 
@@ -6518,6 +6531,14 @@ CREATE TABLE ar_activity (
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `ar_activity_seq`;
+CREATE TABLE IF NOT EXISTS `ar_activity_seq` (
+  `pid` int(11) NOT NULL,
+  `encounter` int(11) NOT NULL,
+  `counter` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`pid` , `encounter`)
+) ENGINE=InnoDB;
+
 CREATE TABLE `users_facility` (
   `tablename` varchar(64) NOT NULL,
   `table_id` int(11) NOT NULL,
@@ -6643,6 +6664,13 @@ CREATE TABLE `procedure_order_code` (
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `procedure_order_code_seq`;
+CREATE TABLE IF NOT EXISTS `procedure_order_code_seq` (
+  `procedure_order_id` bigint(20) NOT NULL,
+  `counter` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`procedure_order_id`)
+) ENGINE=InnoDB;
+
 CREATE TABLE `procedure_answers` (
   `procedure_order_id`  bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq` int(11)      NOT NULL DEFAULT 0  COMMENT 'references procedure_order_code.procedure_order_seq',
@@ -6651,6 +6679,16 @@ CREATE TABLE `procedure_answers` (
   `answer`              varchar(255) NOT NULL DEFAULT '' COMMENT 'answer data',
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `procedure_answers_seq`;
+CREATE TABLE IF NOT EXISTS `procedure_answers_seq` (
+  `procedure_order_id` bigint(20) NOT NULL DEFAULT '0',
+  `procedure_order_seq` int(11) NOT NULL DEFAULT '0',
+  `question_code` varchar(31) NOT NULL DEFAULT '',
+  `counter` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`)
+) ENGINE=InnoDB;
+
 
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
@@ -8084,54 +8122,6 @@ CREATE TABLE `form_clinical_instructions` (
   `activity` TINYINT DEFAULT 1 NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB;
--- --------------------------------------------------------
-
--- --------------------------------------------------------
---
--- Table structure for table `ar_activity_sequences`
---
-CREATE TABLE IF NOT EXISTS `ar_activity_seq` (
-  `pid` int(11) NOT NULL,
-  `encounter` int(11) NOT NULL,
-  `counter` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`pid` , `encounter`)
-) ENGINE=InnoDB;
--- --------------------------------------------------------
-
--- --------------------------------------------------------
---
--- Table structure for table `claims_sequences`
---
-CREATE TABLE IF NOT EXISTS `claims_seq` (
-  `patient_id` int(11) NOT NULL,
-  `encounter_id` int(11) NOT NULL,
-  `counter` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`patient_id` , `encounter_id`)
-) ENGINE=InnoDB;
--- --------------------------------------------------------
-
--- --------------------------------------------------------
---
--- Table structure for table `procedure_answers_sequences`
---
-CREATE TABLE IF NOT EXISTS `procedure_answers_seq` (
-  `procedure_order_id` bigint(20) NOT NULL DEFAULT '0',
-  `procedure_order_seq` int(11) NOT NULL DEFAULT '0',
-  `question_code` varchar(31) NOT NULL DEFAULT '',
-  `counter` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`)
-) ENGINE=InnoDB;
--- --------------------------------------------------------
-
--- --------------------------------------------------------
---
--- Table structure for table `procedure_order_code_sequences`
---
-CREATE TABLE IF NOT EXISTS `procedure_order_code_seq` (
-  `procedure_order_id` bigint(20) NOT NULL,
-  `counter` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`procedure_order_id`)
-) ENGINE=InnoDB;
 -- --------------------------------------------------------
 
 
