@@ -1170,9 +1170,9 @@ $GLOBALS_METADATA = array(
      'first_day_week' => array(
        xl('First day in the week') ,
        array(
-         '1' => 'Monday',
-         '0' => 'Sunday',
-         '6' => 'Saturday'
+         '1' => xl('Monday'),
+         '0' => xl('Sunday'),
+         '6' => xl('Saturday')
        ),
        '1',
        xl('Your first day in the week.')

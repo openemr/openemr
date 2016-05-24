@@ -25,7 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-
+require_once(dirname(__FILE__) . '/calendar.inc');
 require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
 
