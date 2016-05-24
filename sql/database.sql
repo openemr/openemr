@@ -2183,7 +2183,7 @@ CREATE TABLE `history_data` (
   `name_2` varchar(255) default NULL,
   `value_2` varchar(255) default NULL,
   `additional_history` text,
-  `exams`      text,
+  `exams` text,
   `usertext11` TEXT NOT NULL,
   `usertext12` varchar(255) NOT NULL DEFAULT '',
   `usertext13` varchar(255) NOT NULL DEFAULT '',
@@ -2209,8 +2209,8 @@ CREATE TABLE `history_data` (
   `userdate13` date DEFAULT NULL,
   `userdate14` date DEFAULT NULL,
   `userdate15` date DEFAULT NULL,
-  `userarea11` text NOT NULL DEFAULT '',
-  `userarea12` text NOT NULL DEFAULT '',
+  `userarea11` text,
+  `userarea12` text,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -2675,8 +2675,8 @@ DROP TABLE IF EXISTS `lang_custom`;
 CREATE TABLE `lang_custom` (
   `lang_description` varchar(100) NOT NULL default '',
   `lang_code` char(2) NOT NULL default '',
-  `constant_name` mediumtext NOT NULL default '',
-  `definition` mediumtext NOT NULL default ''
+  `constant_name` mediumtext NOT NULL,
+  `definition` mediumtext
 ) ENGINE=InnoDB ;
 
 -- --------------------------------------------------------
@@ -2705,7 +2705,7 @@ CREATE TABLE `layout_options` (
   `fld_rows` int(11) NOT NULL default '0',
   `list_backup_id` varchar(31) NOT NULL default '',
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
-  `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions',
+  `conditions` text COMMENT 'serialized array of skip conditions',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=InnoDB;
 
@@ -4950,7 +4950,7 @@ CREATE TABLE `patient_data` (
   `migrantseasonal` varchar(255) NOT NULL default '',
   `family_size` varchar(255) NOT NULL default '',
   `monthly_income` varchar(255) NOT NULL default '',
-  `billing_note` text NOT NULL default '',
+  `billing_note` text,
   `homeless` varchar(255) NOT NULL default '',
   `financial_review` datetime default NULL,
   `pubpid` varchar(255) NOT NULL default '',
@@ -5524,7 +5524,7 @@ CREATE TABLE `rule_action_item` (
   `category` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_action_category',
   `item` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_action',
   `clin_rem_link` varchar(255) NOT NULL DEFAULT '' COMMENT 'Custom html link in clinical reminder widget',
-  `reminder_message` text  NOT NULL DEFAULT '' COMMENT 'Custom message in patient reminder',
+  `reminder_message` TEXT COMMENT 'Custom message in patient reminder',
   `custom_flag` tinyint(1) NOT NULL default 0 COMMENT '1 indexed to rule_patient_data, 0 indexed within main schema',
   PRIMARY KEY  (`category`,`item`)
 ) ENGINE=InnoDB ;
@@ -6622,7 +6622,7 @@ CREATE TABLE `procedure_questions` (
   `required`            tinyint(1)   NOT NULL DEFAULT 0   COMMENT '1 = required, 0 = not',
   `maxsize`             int          NOT NULL DEFAULT 0   COMMENT 'maximum length if text input field',
   `fldtype`             char(1)      NOT NULL DEFAULT 'T' COMMENT 'Text, Number, Select, Multiselect, Date, Gestational-age',
-  `options`             text         NOT NULL DEFAULT ''  COMMENT 'choices for fldtype S and T',
+  `options`             text                              COMMENT 'choices for fldtype S and T',
   `tips`                varchar(255) NOT NULL DEFAULT ''  COMMENT 'Additional instructions for answering the question',
   `activity`            tinyint(1)   NOT NULL DEFAULT 1   COMMENT '1 = active, 0 = inactive',
   PRIMARY KEY (`lab_id`, `procedure_code`, `question_code`)
@@ -6637,7 +6637,7 @@ CREATE TABLE `procedure_order` (
   `date_ordered`           date         DEFAULT NULL,
   `order_priority`         varchar(31)  NOT NULL DEFAULT '',
   `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
-  `patient_instructions`   text         NOT NULL DEFAULT '',
+  `patient_instructions`   text,
   `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
   `control_id`             varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
   `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
@@ -6658,7 +6658,7 @@ CREATE TABLE `procedure_order_code` (
   `procedure_code`      varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
   `procedure_name`      varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
   `procedure_source`    char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
-  `diagnoses`           text        NOT NULL DEFAULT ''     COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
+  `diagnoses`           text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
   `do_not_send`         tinyint(1)  NOT NULL DEFAULT '0'    COMMENT '0 = normal, 1 = do not transmit to lab',
   `procedure_order_title` varchar( 255 ) NULL DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
@@ -6702,7 +6702,7 @@ CREATE TABLE `procedure_report` (
   `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
   `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',
   `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',  
-  `report_notes`        text           NOT NULL DEFAULT '' COMMENT 'notes from the lab',
+  `report_notes`        text           COMMENT 'notes from the lab',
   PRIMARY KEY (`procedure_report_id`),
   KEY procedure_order_id (procedure_order_id)
 ) ENGINE=InnoDB;
@@ -6719,7 +6719,7 @@ CREATE TABLE `procedure_result` (
   `result`              varchar(255) NOT NULL DEFAULT '',
   `range`               varchar(255) NOT NULL DEFAULT '',
   `abnormal`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'no,yes,high,low',
-  `comments`            text         NOT NULL DEFAULT '' COMMENT 'comments from the lab',
+  `comments`            text                             COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
   PRIMARY KEY (`procedure_result_id`),

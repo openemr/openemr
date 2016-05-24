@@ -114,7 +114,7 @@ ALTER TABLE `rule_action_item` MODIFY `reminder_message` text COMMENT 'Custom me
 
 #IfTableEngine procedure_providers MyISAM
 -- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_providers` MODIFY `notes`, ENGINE=InnoDB;
+ALTER TABLE `procedure_providers` MODIFY `notes` TEXT, ENGINE=InnoDB;
 #EndIf
 
 #IfTableEngine procedure_questions MyISAM
