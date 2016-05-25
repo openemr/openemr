@@ -98,7 +98,7 @@ define('_SETTING_USE_POPUPS',       pnModGetVar(__POSTCALENDAR__,'pcUsePopups'))
 define('_SETTING_USE_INT_DATES',   pnModGetVar(__POSTCALENDAR__,'pcUseInternationalDates'));
 define('_SETTING_OPEN_NEW_WINDOW', pnModGetVar(__POSTCALENDAR__,'pcEventsOpenInNewWindow'));
 define('_SETTING_DAY_HICOLOR',       pnModGetVar(__POSTCALENDAR__,'pcDayHighlightColor'));
-define('_SETTING_FIRST_DAY_WEEK',  pnModGetVar(__POSTCALENDAR__,'pcFirstDayOfWeek'));
+define('_SETTING_FIRST_DAY_WEEK', pnModGetVar(__POSTCALENDAR__,'pcFirstDayOfWeek'));
 define('_SETTING_DATE_FORMAT',       pnModGetVar(__POSTCALENDAR__,'pcEventDateFormat'));
 define('_SETTING_TIME_24HOUR',       pnModGetVar(__POSTCALENDAR__,'pcTime24Hours'));
 define('_SETTING_DIRECT_SUBMIT',   pnModGetVar(__POSTCALENDAR__,'pcAllowDirectSubmit'));
