@@ -787,13 +787,18 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         // from the physician or as a "reflex" from the lab.
         // procedure_source = '2' indicates this.
         if (!$dryrun) {
+
+          sqlBeginTrans();
+          $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
           sqlInsert("INSERT INTO procedure_order_code SET " .
             "procedure_order_id = ?, " .
+            "procedure_order_seq = ?, " .
             "procedure_code = ?, " .
             "procedure_name = ?, " .
             "procedure_source = '2'",
-            array($in_orderid, $in_procedure_code, $in_procedure_name));
+            array($in_orderid, $procedure_order_seq['increment'], $in_procedure_code, $in_procedure_name));
           $pcrow = sqlQuery($pcquery, $pcqueryargs);
+          sqlCommitTrans();
         }
         else {
           // Dry run, make a dummy procedure_order_code row.
