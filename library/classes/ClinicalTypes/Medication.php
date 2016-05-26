@@ -43,6 +43,9 @@ class Medication extends ClinicalType
     const SMOKING_CESSATION = 'med_active_smoking_cessation';
     const SMOKING_CESSATION_ORDER = 'med_order_smoking_cessation';
     
+    const ANTIBIOTIC_FOR_PHARYNGITIS = 'med_antibiotic_pharyngitis';
+    const INFLUENZA_VACCINE = 'med_influenza_vaccination';
+    
     public function getListId() {
         return "Clinical_Rules_Med_Types";
     }   

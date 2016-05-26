@@ -630,10 +630,16 @@ else {
  <thead>
   <th>
    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+   <?php echo $type_report;?>
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Total Patients'), ENT_NOQUOTES); ?>
+   <?php 
+   		if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
+   	 		echo htmlspecialchars( xl('Initial Patient Population'), ENT_NOQUOTES);
+   		else
+   			echo htmlspecialchars( xl('Total Patients'), ENT_NOQUOTES);
+   ?>
   </th>
 
   <th>
@@ -646,7 +652,12 @@ else {
 
   <?php if ($type_report != "amc") { ?>
    <th>
-    <?php echo htmlspecialchars( xl('Excluded Patients'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars( xl('Denominator Exclusion'), ENT_NOQUOTES); ?></a>
+   </th>
+   <?php }?>
+   <?php if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {?>
+   <th>
+    <?php echo htmlspecialchars( xl('Denominator Exception'), ENT_NOQUOTES); ?></a>
    </th>
   <?php } ?>
 
@@ -739,7 +750,11 @@ else {
        echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
      }
      echo "</td>";
-     echo "<td align='center'>" . $row['total_patients'] . "</td>";
+     
+     if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
+     	echo "<td align='center'>" . $row['initial_population'] . "</td>";
+     else 
+     	echo "<td align='center'>" . $row['total_patients'] . "</td>";
 
      if ( isset($row['itemized_test_id']) && ($row['pass_filter'] > 0) ) {
        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['pass_filter'] . "</a></td>";
@@ -757,6 +772,17 @@ else {
        else {
          echo "<td align='center'>" . $row['excluded'] . "</td>";
        }
+     }
+     
+     if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014'){
+	     // Note that amc will likely support in exception items in the future for MU2
+    	 if ( isset($row['itemized_test_id']) && ($row['exception'] > 0) ) {
+     		// Note standard reporting exluded is different than cqm/amc and will not support itemization
+     		echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['exception'] . "</a></td>";
+     	}
+     else {
+     	echo "<td align='center'>" . $row['exception'] . "</td>";
+     }
      }
 
      if ( isset($row['itemized_test_id']) && ($row['pass_target'] > 0) ) {
