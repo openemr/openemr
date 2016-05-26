@@ -185,7 +185,7 @@ function cancelClicked() {
 	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
 <?php
  $cres = sqlStatement("SELECT pc_catid, pc_catname " .
-  "FROM openemr_postcalendar_categories ORDER BY pc_catname");
+  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
   if ($catid < 9 && $catid != 5) continue;
