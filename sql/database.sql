@@ -2309,7 +2309,7 @@ CREATE TABLE `icd10_pcs_order_code` (
   `revision` int default 0,
   KEY `pcs_code` (`pcs_code`),
   KEY `active` (`active`)
-) ENGINE=InnoDBInnoDB;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
