@@ -113,6 +113,8 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     array($formid));
   sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
     array($formid));
+  removeSequence('procedure_answers');
+  removeSequence('procedure_order_code');
 
   for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
     $ptid = $_POST['form_proc_type'][$i] + 0;
@@ -120,13 +122,14 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
     $prefix = "ans$i" . "_";
 
-    $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
+      $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
       "procedure_order_id = ?, " .
       "diagnoses = ?, " .
 	  "procedure_order_title = ?, " .
       "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
-      "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)",
-      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid));
+      "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
+      "procedure_order_seq = ? ",
+      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, getCurrentSequence('procedure_order_code', array('procedure_order_id' => $formid))));
 
     $qres = sqlStatement("SELECT " .
       "q.procedure_code, q.question_code, q.options, q.fldtype " .
@@ -157,8 +160,11 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
           "procedure_order_id = ?, " .
           "procedure_order_seq = ?, " .
           "question_code = ?, " .
+          "answer_seq = ?, " .
           "answer = ?",
-          array($formid, $poseq, $qcode, strip_escape_custom($datum)));
+          array($formid, $poseq, $qcode,
+              getCurrentSequence('procedure_answers', array('procedure_order_id' => $formid, 'procedure_order_seq' => $poseq , 'question_code' => $qcode)),
+              strip_escape_custom($datum)));
       }
     }
   }

@@ -787,12 +787,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         // from the physician or as a "reflex" from the lab.
         // procedure_source = '2' indicates this.
         if (!$dryrun) {
+
           sqlInsert("INSERT INTO procedure_order_code SET " .
             "procedure_order_id = ?, " .
+            "procedure_order_seq = ?, " .
             "procedure_code = ?, " .
             "procedure_name = ?, " .
             "procedure_source = '2'",
-            array($in_orderid, $in_procedure_code, $in_procedure_name));
+            array($in_orderid, getCurrentSequence('procedure_order_code', array('procedure_order_id' => $in_orderid)), $in_procedure_code, $in_procedure_name));
           $pcrow = sqlQuery($pcquery, $pcqueryargs);
         }
         else {

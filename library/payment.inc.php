@@ -90,9 +90,11 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		 {
 		  $AccountCode="PP";
 		 }
+
 	  sqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '" . getCurrentSequence('ar_activity', array('pid' => trim(formData('hidden_patient_code' )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   )))) .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -120,10 +122,10 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		  $AccountCode="PA";
 		 }
 
-
-	  idSqlStatement("insert into ar_activity set "    .
+	  sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData('hidden_patient_code' )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   )))) .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -141,9 +143,10 @@ function DistributionInsert($CountRow,$created_time,$user_id)
    }
   if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0)
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData('hidden_patient_code' )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   ))))  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -157,13 +160,14 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
 		"', account_code = '" . "Deduct"  .
 		"'");
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData('hidden_patient_code' )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   )))) .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -176,13 +180,14 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', adj_amount = '"    . 0 .
 		"', account_code = '" . "Takeback"  .
 		"'");
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     .getCurrentSequence('ar_activity', array('pid' => trim(formData('hidden_patient_code' )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   ))))  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -196,7 +201,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', follow_up = '"    . "y" .
 		"', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
 		"'");
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if($Affected=='yes')
    {

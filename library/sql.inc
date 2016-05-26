@@ -650,4 +650,151 @@ function generic_sql_insert_id()
   return mysqli_insert_id($GLOBALS['dbh']);
 }
 
+
+/**
+ * Begin a Transaction.
+ */
+function sqlBeginTrans()
+{
+    $GLOBALS['adodb']['db']->BeginTrans();
+}
+
+
+/**
+ * Commit a transaction
+ */
+function sqlCommitTrans($ok=true)
+{
+    $GLOBALS['adodb']['db']->CommitTrans();
+}
+
+
+/**
+ * Rollback a transaction
+ */
+function sqlRollbackTrans()
+{
+    $GLOBALS['adodb']['db']->RollbackTrans();
+}
+
+/**
+ * This function imitate special MyISAM feature to InnoDB tables.
+ * This feature create internal auto increment for every multiple-column index in the table.
+ * More info - http://dev.mysql.com/doc/refman/5.6/en/example-auto-increment.html#idm139866976916160
+ * For imitate it the system manage custom sequences in a few tables.
+ * @param (string) table name
+ * @param (array) primary keys (without auto increment column). format - array(column_name => value)
+ * @return (int) current sequence number
+ */
+function getCurrentSequence($table, array $primaryKeys){
+
+    $sequencesTable = $table . '_seq';
+
+    switch($sequencesTable){
+
+        case 'ar_activity_seq':
+            $insertQuery = "INSERT INTO $sequencesTable (`pid`, `encounter`, `counter`) VALUES (?,?,1) ";
+            $selectQuery = "SELECT counter FROM $sequencesTable WHERE `pid` =? AND `encounter` =?";
+            $arrayBinding = array($primaryKeys['pid'], $primaryKeys['encounter']);
+            break;
+
+        case 'claims_seq':
+            $insertQuery = "INSERT INTO $sequencesTable (`patient_id`, `encounter_id`, `counter`) VALUES (?, ?, 1) ";
+            $selectQuery = "SELECT counter FROM $sequencesTable WHERE `patient_id`=? AND `encounter_id`=?";
+            $arrayBinding = array($primaryKeys['patient_id'], $primaryKeys['encounter_id']);
+            break;
+
+        case 'procedure_answers_seq':
+            $insertQuery = "INSERT INTO $sequencesTable (`procedure_order_id`, `encounter_id`, `question_code`, `counter`) VALUES (?, ?, ? ,1) ";
+            $selectQuery = "SELECT counter FROM  $sequencesTable WHERE `procedure_order_id` =? AND `encounter_id` =? AND `question_code` = ?";
+            $arrayBinding = array($primaryKeys['procedure_order_id'], $primaryKeys['procedure_order_seq'], $primaryKeys['question_code']);
+            break;
+
+        case 'procedure_order_code_seq':
+            $insertQuery = "INSERT INTO $sequencesTable (`procedure_order_id`, `counter`) VALUES (?, 1) ";
+            $selectQuery = "SELECT counter FROM $sequencesTable WHERE `procedure_order_id`=?";
+            $arrayBinding = array($primaryKeys['procedure_order_id']);
+            break;
+
+        default:
+            return 'NULL';
+
+    }
+
+    $insertQuery .= "ON DUPLICATE KEY UPDATE counter=counter+1";
+
+    sqlBeginTrans();
+    //inserting a new sequence number
+    sqlQueryNoLog($insertQuery, $arrayBinding);
+    //taking a new number
+    $result =  sqlQueryNoLog($selectQuery, $arrayBinding);
+    sqlCommitTrans();
+
+    return $result['counter'];
+}
+
+/**
+ * Remove all rows from sequences table that don't exist in parent table.
+ * This function must run after delete action in the parent table.
+ * @param (string) table name
+ * @return boolean
+ */
+function removeSequence($table){
+
+    switch($table){
+
+        case 'ar_activity':
+            //remove ar_activity sequences
+            $rowsDeleted = sqlStatement("SELECT s.pid,s.encounter
+                        FROM `ar_activity_seq` s
+                        LEFT JOIN ar_activity s1 ON s1.pid=s.pid and s1.encounter=s.encounter
+                        WHERE s1.pid IS NULL");
+
+            while ($row = sqlFetchArray($rowsDeleted)) {
+                    sqlStatement("DELETE FROM ar_activity_seq WHERE pid = ? AND encounter = ?", array($row['pid'], $row['encounter']));
+            }
+            break;
+
+        case 'claims':
+            //remove claims sequences
+            $rowsDeleted = sqlStatement("SELECT s.patient_id,s.encounter_id
+                                FROM `claims_seq` s LEFT JOIN
+                                claims s1 ON s1.patient_id=s.patient_id and s1.encounter_id=s.encounter_id
+                                WHERE s1.patient_id IS NULL");
+
+            while ($row = sqlFetchArray($rowsDeleted)) {
+                sqlStatement("DELETE FROM claims_seq WHERE patient_id = ? AND encounter_id = ?", array($row['patient_id'], $row['encounter_id']));
+            }
+            break;
+
+        case 'procedure_answers':
+            $rowsDeleted = sqlStatement("SELECT s.procedure_order_id,s.procedure_order_seq, s.question_code
+                                      FROM `procedure_answers_seq` s LEFT JOIN
+                                      procedure_answers s1 ON s1.procedure_order_id=s.procedure_order_id AND s1.procedure_order_seq=s.procedure_order_seq AND s1.question_code = s.question_code
+                                      WHERE s1.procedure_order_id IS NULL
+                                      ");
+
+            while ($row = sqlFetchArray($rowsDeleted)) {
+                    sqlStatement("DELETE FROM procedure_answers_seq WHERE procedure_order_id = ? AND procedure_order_seq = ?  AND question_code = ?", array($row['procedure_order_id'], $row['procedure_order_seq'], $row['question_code']));
+            }
+            break;
+
+        case 'procedure_order_code':
+            $rowsDeleted = sqlStatement("SELECT s.procedure_order_id
+                                      FROM `procedure_order_code_seq` s LEFT JOIN
+                                      procedure_order_code s1 ON s1.procedure_order_id=s.procedure_order_id
+                                      WHERE s1.procedure_order_id IS NULL");
+            while ($row = sqlFetchArray($rowsDeleted)) {
+                    sqlStatement("DELETE FROM procedure_order_code_seq WHERE procedure_order_id = ?", array($row['procedure_order_id']));
+
+            }
+            break;
+
+        default:
+            return true;
+    }
+    return true;
+}
+
+
 ?>

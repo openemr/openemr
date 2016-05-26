@@ -176,9 +176,10 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
-				  sqlStatement("insert into ar_activity set "    .
+					 sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow"   )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData("HiddenPId$CountRow"   )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   )))) .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -203,6 +204,7 @@ if (isset($_POST["mode"]))
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount>0");
+			removeSequence('ar_activity');
 		   }
 //==============================================================================================================================
 		  if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"]*1!=0)
@@ -245,6 +247,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     .getCurrentSequence('ar_activity', array('pid' => trim(formData("HiddenPId$CountRow"   )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   )))) .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -270,6 +273,7 @@ if (isset($_POST["mode"]))
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and adj_amount!=0");
+		   removeSequence('ar_activity');
 		   }
 //==============================================================================================================================
 		  if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0)
@@ -301,6 +305,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData("HiddenPId$CountRow"   )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   ))))  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -325,6 +330,7 @@ if (isset($_POST["mode"]))
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and memo like 'Deductable%'");
+		   removeSequence('ar_activity');
 		   }
 //==============================================================================================================================
 		  if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
@@ -356,6 +362,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData("HiddenPId$CountRow"   )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   ))))  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -379,6 +386,7 @@ if (isset($_POST["mode"]))
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount < 0");
+			removeSequence('ar_activity');
 		   }
 //==============================================================================================================================
 		  if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
@@ -410,6 +418,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . getCurrentSequence('ar_activity', array('pid' => trim(formData("HiddenPId$CountRow"   )), 'encounter' => trim(formData("HiddenEncounter$CountRow"   ))))  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -434,6 +443,7 @@ if (isset($_POST["mode"]))
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and follow_up ='y'");
+		   removeSequence('ar_activity');
 		   }
 //==============================================================================================================================
 	   }

@@ -31,4 +31,4 @@ injury longtext,
 day_care longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

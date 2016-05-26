@@ -129,6 +129,7 @@ function form_delete($formdir, $formid) {
     row_delete("procedure_report", "procedure_order_id = '" . add_escape_custom($formid) . "'");
     row_delete("procedure_order_code", "procedure_order_id = '" . add_escape_custom($formid) . "'");
     row_delete("procedure_order", "procedure_order_id = '" . add_escape_custom($formid) . "'");
+    removeSequence('procedure_order_code');
   }
   else if ($formdir == 'physical_exam') {
     row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
@@ -336,6 +337,11 @@ function popup_close() {
   else if ($transaction) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
    row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");
+  }
+  else if($patient || $encounterid || $billing){
+      //remove table sequences
+      removeSequence('ar_activity');
+      removeSequence('claims');
   }
   else {
    die("Nothing was recognized to delete!");

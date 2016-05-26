@@ -677,9 +677,10 @@ if ($_POST['form_save']) {
     $memo = xl('Discount');
       $time = date('Y-m-d H:i:s');
       $query = "INSERT INTO ar_activity ( " .
-        "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+        "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
         "session_id, memo, adj_amount " .
         ") VALUES ( " .
+        "?, " .
         "?, " .
         "?, " .
         "'', " .
@@ -691,7 +692,7 @@ if ($_POST['form_save']) {
         "?, " .
         "? " .
         ")";
-      sqlStatement($query, array($form_pid,$form_encounter,$_SESSION['authUserID'],$time,$memo,$amount) );
+      sqlStatement($query, array($form_pid,$form_encounter,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $form_encounter)),$_SESSION['authUserID'],$time,$memo,$amount) );
     }
 
   // Post payment.
@@ -713,13 +714,14 @@ if ($_POST['form_save']) {
 				$Code='';
 				$Modifier='';
 			}
-      $session_id=idSqlStatement("INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
+      $session_id=sqlInsert("INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
         " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
         array($_SESSION['authId'],$form_source,$dosdate,$amount,$form_pid,$paydesc));
-      $insrt_id=idSqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
-        " VALUES (?,?,?,?,?,0,?,?,?,?,'PCP')",
-        array($form_pid,$form_encounter,$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
+
+      $insrt_id=sqlInsert("INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
+        " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
+        array($form_pid,$form_encounter,getCurrentSequence('ar_activity', array('pid' => $form_pid, 'encounter' => $form_encounter)),$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
   }
 
   // If applicable, set the invoice reference number.

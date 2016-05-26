@@ -143,6 +143,22 @@ function tableHasIndex($tblname, $colname) {
   $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
   return (empty($row)) ? false : true;
 }
+
+
+/**
+ * Check if a table has a certain engine
+ *
+ * @param string $tblname database table Name
+ * @param string $engine engine name ( myisam, memory, innodb )...
+ * @return boolean true if the table has been created using specified engine
+ */
+function tableHasEngine($tblname, $engine) {
+  $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+  return (empty($row)) ? false : true;
+}
+
+
+
 /**
 * Check if a list exists.
 *
@@ -243,6 +259,47 @@ function CreateImmunizationManufacturerList() {
 }
 
 /**
+ * Request to information_schema
+ * 
+ * @param array $arg possible arguments: engine, table_name
+ * @return SQLStatement
+ */
+function getTablesList( $arg = array() ) {
+    $binds = array();
+    $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
+    
+    if( !empty($arg['engine'])) {
+        $binds[] = $arg['engine'];
+        $sql .= ' AND engine=?';
+    }
+    
+    if( !empty($arg['table_name'])) {
+        $binds[] = $arg['table_name'];
+        $sql .= ' AND table_name=?';        
+    }
+    $res = sqlStatement( $sql, $binds );
+
+    $records = array();
+    while($row = sqlFetchArray($res)) {
+        $records[ $row['table_name'] ] = $row['table_name'];  
+    }
+    return $records;
+}
+
+
+/**
+ * Convert table engine. 
+ * @param string $table
+ * @param string $engine
+ * ADODB will fail if there was an error during conversion
+ */
+function MigrateTableEngine( $table, $engine ) {
+  $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+  return true;
+}
+
+
+/**
 * Upgrade or patch the database with a selected upgrade/patch file.
 *
 * The following "functions" within the selected file will be processed:
@@ -316,6 +373,16 @@ function CreateImmunizationManufacturerList() {
 * 
 * #IfNotListReaction
 * Custom function for creating Reaction List
+* 
+* #IfTableEngine
+*   desc:      Execute SQL if the table has been created with given engine specified.
+*   arguments: table_name engine
+*   behavior:  Use when engine conversion requires more than one ALTER TABLE
+*
+* #IfInnoDBMigrationNeeded
+*   desc: find all MyISAM tables and convert them to InnoDB.
+*   arguments: none
+*   behavior: can take a long time.
 * 
 * #EndIf
 *   all blocks are terminated with a #EndIf statement.
@@ -531,6 +598,31 @@ function upgradeFromSqlFile($filename) {
         echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";        
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    // perform special actions if table has specific engine
+    else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
+      $skipping = !tableHasEngine( $matches[1], $matches[2] );
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    // find MyISAM tables and attempt to convert them
+    else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+      $tables_list = getTablesList( array('engine'=>'MyISAM'));
+      if( count($tables_list)==0 ) {
+        $skipping = true;
+      } else {
+        $skipping = false;
+        echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
+        foreach( $tables_list as $k=>$t ) {
+          $res = MigrateTableEngine( $t, 'InnoDB' );
+          if( $res === TRUE) {
+            printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );
+          } else {
+            printf( '<font color="red">Error migrating table %s to InnoDB</font><br />', $t );
+            error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
+          }
+        } 
+      }
+      if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#EndIf/', $line)) {
       $skipping = false;

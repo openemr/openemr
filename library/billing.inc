@@ -174,21 +174,20 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
     ****/
     if($crossover<>1)
     {
-    $sql = "INSERT INTO claims SET " .
-      "patient_id = '$patient_id', " .
-      "encounter_id = '$encounter_id', " .
-      "bill_time = NOW() $claimset";
-      }
-     else
-     {//Claim automatic forward case.
-     
-     $sql = "INSERT INTO claims SET " .
-      "patient_id = '$patient_id', " .
-      "encounter_id = '$encounter_id', " .
-      "bill_time = NOW(), status=$status";
-     
-     }
-    
+      $sql .= "INSERT INTO claims SET " .
+          "patient_id = $patient_id, " .
+          "encounter_id = $encounter_id, " .
+          "bill_time = NOW() $claimset ," .
+          "version = " . getCurrentSequence('claims', array('patient_id' => $patient_id, 'encounter_id' => $encounter_id));
+    }
+    else
+    {//Claim automatic forward case.startTra
+      $sql= "INSERT INTO claims SET " .
+          "patient_id = $patient_id, " .
+          "encounter_id = $encounter_id, " .
+          "bill_time = NOW(), status=$status ," .
+          "version = " . getCurrentSequence('claims', array('patient_id' => $patient_id, 'encounter_id' => $encounter_id));
+    }
     sqlStatement($sql);
   }
 
