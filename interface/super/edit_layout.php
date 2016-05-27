@@ -753,12 +753,14 @@ a, a:visited, a:hover { color:#0000cc; }
 .optin    { background: transparent; }
 .group {
     margin: 0pt 0pt 8pt 0pt;
-    padding: 0;
-    width: 100%;
+    padding :0pt;
+    width: 100%;   
 }
+
 .group table {
     border-collapse: collapse;
     width: 100%;
+    
 }
 .odd td {
     background-color: #ddddff;
@@ -779,7 +781,8 @@ a, a:visited, a:hover { color:#0000cc; }
     background-color: yellow;
     color: black;
 }
-</style>
+
+</style> 
 
 <script language="JavaScript">
 
@@ -965,8 +968,9 @@ function myChangeCheck() {
 <!-- elements used to select more than one field -->
 <input type="hidden" name="selectedfields" id="selectedfields" value="">
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
-
-<p><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
+<div class="menubar">
+<div>
+<b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
@@ -976,14 +980,18 @@ foreach ($layouts as $key => $value) {
   echo ">$value</option>\n";
 }
 ?>
-</select></p>
-
+</select></div><div><p>
 <?php if ($layout_id) { ?>
-<div style='margin: 0 0 8pt 0;'>
 <input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group','e','\'','\''); ?>/>
+<span style="font-size:90%"> &nbsp;
+<input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' /></span> &nbsp;&nbsp;
+<?php xl('With selected:', 'e');?>
+<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" /></span>
+</p></div>
 </div>
+<div class="container">
 <?php } ?>
-
 <?php 
 $prevgroup = "!@#asdf1234"; // an unlikely group name
 $firstgroup = true; // flag indicates it's the first group to be displayed
@@ -1014,7 +1022,6 @@ while ($row = sqlFetchArray($res)) {
     echo "</div>";
     $firstgroup = false;
 ?>
-
 <table>
 <thead>
  <tr class='head'>
@@ -1058,7 +1065,7 @@ while ($row = sqlFetchArray($res)) {
 </table></div>
 
 <?php echo $extra_html; ?>
-
+<!----
 <?php if ($layout_id) { ?>
 <span style="font-size:90%">
 <?php xl('With selected:', 'e');?>
@@ -1068,7 +1075,7 @@ while ($row = sqlFetchArray($res)) {
 <p>
 <input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' />
 </p>
-<?php } ?>
+<?php } ?>---->
 
 </form>
 
@@ -1296,13 +1303,10 @@ $(document).ready(function(){
     $(".savenewgroup").click(function() { SaveNewGroup(this); });
     $(".deletegroup").click(function() { DeleteGroup(this); });
     $(".cancelnewgroup").click(function() { CancelNewGroup(this); });
-
     $(".movegroup").click(function() { MoveGroup(this); });
-
     $(".renamegroup").click(function() { RenameGroup(this); });
     $(".saverenamegroup").click(function() { SaveRenameGroup(this); });
     $(".cancelrenamegroup").click(function() { CancelRenameGroup(this); });
-
     $(".addfield").click(function() { AddField(this); });
     $("#deletefields").click(function() { DeleteFields(this); });
     $(".selectfield").click(function() { 
@@ -1316,6 +1320,7 @@ $(document).ready(function(){
             if ($(this).attr("checked") == true) {
                 $("#deletefields").removeAttr("disabled");
                 $("#movefields").removeAttr("disabled");
+              
             }
         });
     });
