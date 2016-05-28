@@ -2658,7 +2658,7 @@ DROP TABLE IF EXISTS `lang_custom`;
 CREATE TABLE `lang_custom` (
   `lang_description` varchar(100) NOT NULL default '',
   `lang_code` char(2) NOT NULL default '',
-  `constant_name` mediumtext NOT NULL,
+  `constant_name` mediumtext,
   `definition` mediumtext
 ) ENGINE=InnoDB ;
 

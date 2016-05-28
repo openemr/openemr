@@ -89,7 +89,7 @@
 
 #IfTableEngine history_data MyISAM
 -- remove NOT NULL DEFAULT "" declaration from TEXT fields.
-ALTER TABLE `history_data` MODIFY `exams` TEXT, MODIFY userarea11 TEXT, MODIFY userarea12 TEXT NOT NULL, ENGINE=InnoDB;
+ALTER TABLE `history_data` MODIFY `exams` TEXT, MODIFY `userarea11` TEXT, MODIFY `userarea12` TEXT, ENGINE=InnoDB;
 #EndIf
 
 #IfTableEngine lang_custom MyISAM
