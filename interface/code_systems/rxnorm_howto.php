@@ -41,5 +41,6 @@ require_once("../../interface/globals.php");
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the full monthly RxNorm release is currently supported"); ?></h5>
+<h5 class="error_msg"><?php echo xlt("NOTE: The import can take up to several hours"); ?></h5>
 </p>
 </div>

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS form_track_anything (
   procedure_type_id bigint(20) DEFAULT NULL,
   comment varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS form_track_anything_results (
   id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS form_track_anything_results (
   comment varchar(255) DEFAULT NULL,
   notes varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS form_track_anything_type (
   track_anything_type_id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS form_track_anything_type (
   position int(11) DEFAULT NULL,
   active int(11) DEFAULT NULL,
   PRIMARY KEY (track_anything_type_id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
