@@ -6560,7 +6560,7 @@ CREATE TABLE `procedure_providers` (
   `password`     varchar(255) NOT NULL DEFAULT '',
   `orders_path`  varchar(255) NOT NULL DEFAULT '',
   `results_path` varchar(255) NOT NULL DEFAULT '',
-  `notes`        text         NOT NULL DEFAULT '',
+  `notes`        text,
   `lab_director` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ppid`)
 ) ENGINE=InnoDB;

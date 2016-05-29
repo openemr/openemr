@@ -140,7 +140,7 @@ ALTER TABLE `procedure_report` MODIFY `report_notes` TEXT COMMENT 'notes from th
 
 #IfTableEngine procedure_result MyISAM
 -- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_result` MODIFY comments TEXT COMMENT 'comments from the lab', ENGINE=InnoDB;
+ALTER TABLE `procedure_result` MODIFY `comments` TEXT COMMENT 'comments from the lab', ENGINE=InnoDB;
 #EndIf
 
 
