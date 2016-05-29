@@ -475,7 +475,7 @@ $(window).load(function() {
 
 </head>
 
-<body class="body_top patient_file-summary-demographics">
+<body class="body_top patient-demographics">
 
 <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
@@ -492,6 +492,7 @@ if (!$thisauth) {
     exit();
 }
 if ($thisauth): ?>
+
 <table class="table_header">
     <tr>
         <td>
@@ -572,7 +573,7 @@ if ($thisauth): ?>
         // If patient is deceased, then show this (along with the number of days patient has been deceased for)
         $days_deceased = is_patient_deceased($pid);
         if ($days_deceased): ?>
-            <td style='padding-left:1em;' class="deceased">
+            <td class="deceased">
                 <?php
                 $deceased = htmlspecialchars(xl('Deceased'), ENT_NOQUOTES);
                 $days = htmlspecialchars($days_deceased, ENT_NOQUOTES);
