@@ -511,9 +511,13 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             $tfname == 'style_blue.css' || $tfname == 'style_pdf.css')
             continue;
           echo "<option value='$tfname'";
+          // Drop the "style_" part and any replace any underscores with spaces
+          $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+          // Strip the ".css" and uppercase the first character
+          $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
           if ($tfname == $fldvalue) echo " selected";
           echo ">";
-          echo $tfname;
+          echo $styleDisplayName;
           echo "</option>\n";
         }
         closedir($dh);
