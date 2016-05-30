@@ -587,3 +587,7 @@ DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_
 DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 10;
 #EndIf
 
+#IfMissingColumn documents thumb_url
+ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
+#EndIf
+

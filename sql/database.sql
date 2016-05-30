@@ -848,6 +848,7 @@ CREATE TABLE `documents` (
   `size` int(11) default NULL,
   `date` datetime default NULL,
   `url` varchar(255) default NULL,
+  `thumb_url` varchar(255) default NULL,
   `mimetype` varchar(255) default NULL,
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
