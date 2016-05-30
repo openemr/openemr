@@ -623,6 +623,10 @@ function upgradeFromSqlFile($filename) {
           }
           // If above query didn't work, then error will be outputted via the sqlStatement function.
           echo "<font color='green'>" . text($item['table_name']) . "." . text($item['column_name'])  . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</font><br />\n";
+
+          // debugging
+          error_log("DEBUG: Converts *text field for ".$item['table_name'].".".$item['column_name']);
+
         }
       }
       if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
@@ -644,6 +648,10 @@ function upgradeFromSqlFile($filename) {
           $res = MigrateTableEngine( $t, 'InnoDB' );
           if( $res === TRUE) {
             printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );
+
+            // debugging
+            error_log("DEBUG: Converted following table to InnoDB: ".$t);
+
           } else {
             printf( '<font color="red">Error migrating table %s to InnoDB</font><br />', $t );
             error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
