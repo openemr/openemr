@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `amendments` (
   `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
   `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
   `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
-  `amendment_desc` text NOT NULL COMMENT 'Amendment Details',
+  `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `modified_by`	int(11) NULL COMMENT 'references users.id for session owner',
   `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `amendments` (
 DROP TABLE IF EXISTS `amendments_history`;
 CREATE TABLE IF NOT EXISTS `amendments_history` (
   `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
-  `amendment_note` text NOT NULL COMMENT 'Amendment requested from',
+  `amendment_note` text COMMENT 'Amendment requested from',
   `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
@@ -102,7 +102,7 @@ CREATE TABLE `audit_master` (
   `pid` bigint(20) NOT NULL,
   `user_id` bigint(20) NOT NULL COMMENT 'The Id of the user who approves or denies',
   `approval_status` tinyint(4) NOT NULL COMMENT '1-Pending,2-Approved,3-Denied,4-Appointment directly updated to calendar table,5-Cancelled appointment',
-  `comments` text NOT NULL,
+  `comments` text,
   `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_time` datetime NOT NULL,
   `ip_address` varchar(100) NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE `audit_details` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `table_name` VARCHAR(100) NOT NULL COMMENT 'openemr table name',
   `field_name` VARCHAR(100) NOT NULL COMMENT 'openemr table''s field name',
-  `field_value` TEXT NOT NULL COMMENT 'openemr table''s field value',
+  `field_value` TEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
   PRIMARY KEY (`id`)
@@ -667,8 +667,8 @@ CREATE TABLE `clinical_rules_log` (
   `pid` bigint(20) NOT NULL DEFAULT '0',
   `uid` bigint(20) NOT NULL DEFAULT '0',
   `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
-  `value` TEXT NOT NULL,
-  `new_value` TEXT NOT NULL,
+  `value` TEXT,
+  `new_value` TEXT,
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `uid` (`uid`),
@@ -877,7 +877,7 @@ CREATE TABLE `documents_legal_detail` (
   `dld_sign_level` int(11) NOT NULL COMMENT 'Sign flow level',
   `dld_content` varchar(50) NOT NULL COMMENT 'Layout sign position',
   `dld_file_for_pdf_generation` blob NOT NULL COMMENT 'The filled details in the fdf file is stored here.Patient Registration Screen',
-  `dld_denial_reason` longtext NOT NULL,
+  `dld_denial_reason` longtext,
   `dld_moved` tinyint(4) NOT NULL DEFAULT '0',
   `dld_patient_comments` text COMMENT 'Patient comments stored here',
   PRIMARY KEY (`dld_id`)
@@ -1241,7 +1241,7 @@ CREATE TABLE  `facility_user_ids` (
   `uid` bigint(20) DEFAULT NULL,
   `facility_id` bigint(20) DEFAULT NULL,
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT NOT NULL,
+  `field_value` TEXT,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`,`facility_id`,`field_id`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1 ;
@@ -2171,7 +2171,7 @@ CREATE TABLE `history_data` (
   `value_2` varchar(255) default NULL,
   `additional_history` text,
   `exams` text,
-  `usertext11` TEXT NOT NULL,
+  `usertext11` TEXT,
   `usertext12` varchar(255) NOT NULL DEFAULT '',
   `usertext13` varchar(255) NOT NULL DEFAULT '',
   `usertext14` varchar(255) NOT NULL DEFAULT '',
@@ -4509,7 +4509,7 @@ CREATE TABLE `log` (
   `user_notes` longtext,
   `patient_id` bigint(20) default NULL,
   `success` tinyint(1) default 1,
-  `checksum` longtext default NULL,
+  `checksum` longtext,
   `crt_user` varchar(255) default NULL,
   `log_from` VARCHAR(20) DEFAULT 'open-emr',
   `menu_item_id` INT(11) DEFAULT NULL,
@@ -4984,7 +4984,7 @@ CREATE TABLE `patient_data` (
   `cmsportal_login` varchar(60) NOT NULL default '',
   `care_team` int(11) DEFAULT NULL,
   `county` varchar(40) NOT NULL default '',
-  `industry` TEXT NOT NULL,
+  `industry` TEXT,
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -5360,7 +5360,7 @@ CREATE TABLE `prescriptions` (
   `prescriptionguid` VARCHAR(50) DEFAULT NULL,
   `erx_source` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-OpenEMR 1-External',
   `erx_uploaded` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-Pending NewCrop upload 1-Uploaded to NewCrop',
-  `drug_info_erx` TEXT DEFAULT NULL,
+  `drug_info_erx` TEXT,
   `external_id` VARCHAR(20) DEFAULT NULL,
   `end_date` date default NULL,
   `indication` text,
@@ -6279,8 +6279,8 @@ CREATE TABLE `users` (
   `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   `abook_type` varchar(31) NOT NULL DEFAULT '',
   `pwd_expiration_date` date default NULL,
-  `pwd_history1` longtext default NULL,
-  `pwd_history2` longtext default NULL,
+  `pwd_history1` longtext,
+  `pwd_history2` longtext,
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
   `irnpool` varchar(31) NOT NULL DEFAULT '',
   `state_license_number` VARCHAR(25) DEFAULT NULL,
@@ -6393,7 +6393,7 @@ CREATE TABLE `automatic_notification` (
   `next_app_date` date NOT NULL,
   `next_app_time` varchar(10) NOT NULL,
   `provider_name` varchar(100) NOT NULL,
-  `message` text NOT NULL,
+  `message` text,
   `email_sender` varchar(100) NOT NULL,
   `email_subject` varchar(100) NOT NULL,
   `type` enum('SMS','Email') NOT NULL default 'SMS',
@@ -6421,11 +6421,11 @@ CREATE TABLE `notification_log` (
   `pc_eid` int(11) unsigned NULL,
   `sms_gateway_type` varchar(50) NOT NULL,
   `smsgateway_info` varchar(255) NOT NULL,
-  `message` text NOT NULL,
+  `message` text,
   `email_sender` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
   `type` enum('SMS','Email') NOT NULL,
-  `patient_info` text NOT NULL,
+  `patient_info` text,
   `pc_eventDate` date NOT NULL,
   `pc_endDate` date NOT NULL,
   `pc_startTime` time NOT NULL,
@@ -6481,7 +6481,7 @@ CREATE TABLE ar_session (
   modified_time datetime NOT NULL,
   global_amount decimal( 12, 2 ) NOT NULL ,
   payment_type varchar( 50 ) NOT NULL ,
-  description text NOT NULL ,
+  description text,
   adjustment_code varchar( 50 ) NOT NULL ,
   post_to_date date NOT NULL ,
   patient_id int( 11 ) NOT NULL ,
@@ -6507,7 +6507,7 @@ CREATE TABLE ar_activity (
   adj_amount     decimal(12,2) NOT NULL DEFAULT 0,
   modified_time datetime NOT NULL,
   follow_up char(1) NOT NULL,
-  follow_up_note text NOT NULL,
+  follow_up_note text,
   account_code varchar(15) NOT NULL,
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   PRIMARY KEY (pid, encounter, sequence_no),
@@ -6524,14 +6524,14 @@ CREATE TABLE `users_facility` (
 CREATE TABLE `lbf_data` (
   `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT NOT NULL,
+  `field_value` TEXT,
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=InnoDB COMMENT='contains all data from layout-based forms';
 
 CREATE TABLE `lbt_data` (
   `form_id`     bigint(20)   NOT NULL COMMENT 'references transactions.id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT         NOT NULL,
+  `field_value` TEXT,
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=InnoDB COMMENT='contains all data from layout-based transactions';
 
@@ -7720,7 +7720,7 @@ CREATE TABLE `customlists` (
   `cl_list_item_id` int(10) unsigned DEFAULT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_item_id)+1',
   `cl_list_type` int(10) unsigned NOT NULL COMMENT '0=>List Name 1=>list items 2=>Context 3=>Template 4=>Sentence 5=> SavedTemplate 6=>CustomButton',
   `cl_list_item_short` varchar(10) DEFAULT NULL,
-  `cl_list_item_long` text NOT NULL,
+  `cl_list_item_long` text,
   `cl_list_item_level` int(11) DEFAULT NULL COMMENT 'Flow level for List Designation',
   `cl_order` int(11) DEFAULT NULL,
   `cl_deleted` tinyint(1) DEFAULT '0',
@@ -7805,7 +7805,7 @@ CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `log_id` int(11) NOT NULL,
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
-  `checksum` longtext NOT NULL,
+  `checksum` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
@@ -7815,7 +7815,7 @@ CREATE TABLE `shared_attributes` (
   `field_id`     varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
   `last_update`  datetime     NOT NULL COMMENT 'time of last update',
   `user_id`      bigint(20)   NOT NULL COMMENT 'user who last updated',
-  `field_value`  TEXT         NOT NULL,
+  `field_value`  TEXT,
   PRIMARY KEY (`pid`, `encounter`, `field_id`)
 );
 

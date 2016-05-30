@@ -110,7 +110,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add=TRUE) {
   $column_exists = !empty($tmp);
 
   if ($add && !$column_exists) {
-    sqlStatement("ALTER TABLE `$tablename` ADD `$field_id` TEXT NOT NULL");
+    sqlStatement("ALTER TABLE `$tablename` ADD `$field_id` TEXT");
     newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
       "$tablename ADD $field_id");
   }

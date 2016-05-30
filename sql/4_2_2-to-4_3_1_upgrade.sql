@@ -71,6 +71,10 @@
 --  #IfNotListOccupation
 --    Custom function for creating Occupation List
 
+--  #IfTextNullFixNeeded
+--    desc: convert all text fields without default null to have default null.
+--    arguments: none
+
 --  #IfTableEngine
 --    desc:      Execute SQL if the table has been created with given engine specified.
 --    arguments: table_name engine
@@ -82,118 +86,51 @@
 --    behavior: can take a long time.
 
 
---
--- The following tables contains TEXT NOT NULL DEFAULT "" declaration which is not compatible with InnoDB.
--- We omit NOT NULL DEFAULT "" declaration.
---
-
-#IfTableEngine history_data MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT fields.
-ALTER TABLE `history_data` MODIFY `exams` TEXT, MODIFY `userarea11` TEXT, MODIFY `userarea12` TEXT, ENGINE=InnoDB;
+-- To ensure proper compatibility with MySQL/MariaDB and InnoDB, changing all *TEXT fields to
+-- correctly use NULL as default.
+#IfTextNullFixNeeded
 #EndIf
-
-#IfTableEngine lang_custom MyISAM
--- remove NOT NULL DEFAULT "" declaration from MEDIUMTEXT fields.
-ALTER TABLE `lang_custom` MODIFY `constant_name` mediumtext, MODIFY `definition` mediumtext, ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine layout_options MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `layout_options` MODIFY `conditions` text COMMENT 'serialized array of skip conditions', ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine patient_data MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `patient_data` MODIFY  `billing_note` text, ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine rule_action_item MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `rule_action_item` MODIFY `reminder_message` text COMMENT 'Custom message in patient reminder', ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine procedure_providers MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_providers` MODIFY `notes` TEXT, ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine procedure_questions MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_questions` MODIFY `options` text COMMENT 'choices for fldtype S and T', ENGINE=InnoDB;
-#EndIf
-
-
-#IfTableEngine procedure_order MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_order` MODIFY `patient_instructions` TEXT, ENGINE=InnoDB;
-#EndIf
-
--- #IfTableEngine procedure_order_code MyISAM - see below
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
--- ALTER TABLE `procedure_order_code` MODIFY `diagnoses` TEXT COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', ENGINE=InnoDB;
--- #EndIf
-
-#IfTableEngine procedure_report MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_report` MODIFY `report_notes` TEXT COMMENT 'notes from the lab', ENGINE=InnoDB;
-#EndIf
-
-#IfTableEngine procedure_result MyISAM
--- remove NOT NULL DEFAULT "" declaration from TEXT field.
-ALTER TABLE `procedure_result` MODIFY `comments` TEXT COMMENT 'comments from the lab', ENGINE=InnoDB;
-#EndIf
-
 
 --
--- The following 4 tables were using AUTO_INCREMENT field in the end of primary key.
+-- The following 4 tables were using AUTO_INCREMENT field in the end of primary key, which needed to be
+-- modified to support InnoDB,
 --
 
 -- 1. ar_activity
 --
 #IfTableEngine ar_activity MyISAM
--- Modify the table for InnoDB
-ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code', ENGINE="InnoDB";
+ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code';
+ALTER TABLE `ar_activity` ENGINE="InnoDB";
 #EndIf
 
---
 -- 2. claims
 --
-
 #IfTableEngine claims MyISAM
--- Modify the table for InnoDB
 ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Version, incremented in code';
 ALTER TABLE `claims` ENGINE="InnoDB";
 #EndIf
 
---
 -- 3. procedure_answers 
 --
 #IfTableEngine procedure_answers MyISAM
--- Modify the table for InnoDB
 ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Supports multiple-choice questions. Answer_seq, incremented in code';
 ALTER TABLE `procedure_answers` ENGINE="InnoDB";
 #EndIf
 
--- 
 -- 4. procedure_order_code 
 --
-
 #IfTableEngine procedure_order_code MyISAM
 -- Modify the table for InnoDB
 -- remove NOT NULL DEFAULT "" declaration from TEXT field.
 -- remove AUTO_INCREMENT field declaration
-ALTER TABLE `procedure_order_code` 
-  MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq incremented in code',
-  MODIFY `diagnoses` TEXT COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)', 
-  ENGINE=InnoDB;
-
+ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq incremented in code';
+ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 #EndIf
 
-
 --
--- Other tables do not need special treatment before convertion to InnoDB.
+-- Other tables do not need special treatment before conversion to InnoDB.
 -- Warning: running this query can take a long time.
---
 #IfInnoDBMigrationNeeded
 -- Modifies all remaining MyISAM tables to InnoDB 
 #EndIf
+

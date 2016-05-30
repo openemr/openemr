@@ -373,6 +373,10 @@ function MigrateTableEngine( $table, $engine ) {
 * 
 * #IfNotListReaction
 * Custom function for creating Reaction List
+*
+* #IfTextNullFixNeeded
+*   desc: convert all text fields without default null to have default null.
+*   arguments: none
 * 
 * #IfTableEngine
 *   desc:      Execute SQL if the table has been created with given engine specified.
@@ -598,6 +602,30 @@ function upgradeFromSqlFile($filename) {
         echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";        
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    // convert all *text types to use default null setting
+    else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+      $items_to_convert = sqlStatement("SELECT `table_name`, `column_name`, `data_type`, `column_comment` " .
+                                       "FROM `information_schema`.`columns` " .
+                                       "WHERE (`data_type`='tinytext' OR `data_type`='text' OR `data_type`='mediumtext' OR `data_type`='longtext' ) " .
+                                       "AND is_nullable='NO' AND table_schema=database()");
+      if(sqlNumRows($items_to_convert) == 0) {
+        $skipping = true;
+      } else {
+        $skipping = false;
+        echo '<font color="black">Starting conversion of *TEXT types to use default NULL.</font><br />',"\n";
+        while($item = sqlFetchArray($items_to_convert)) {
+          if (!empty($item['column_comment'])) {
+            $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type'])  . " COMMENT '" . add_escape_custom($item['column_comment']) . "'");
+          }
+          else {
+            $res = sqlStatement("ALTER TABLE `" . add_escape_custom($item['table_name']) . "` MODIFY `" . add_escape_custom($item['column_name']) . "` " . add_escape_custom($item['data_type']));
+          }
+          // If above query didn't work, then error will be outputted via the sqlStatement function.
+          echo "<font color='green'>" . text($item['table_name']) . "." . text($item['column_name'])  . " sql column was successfully converted to " . text($item['data_type']) . " with default NULL setting.</font><br />\n";
+        }
+      }
+      if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     // perform special actions if table has specific engine
     else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
