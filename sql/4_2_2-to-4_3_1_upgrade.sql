@@ -73,5 +73,5 @@
 
 
 #IfMissingColumn layout_options validation
-ALTER TABLE patient_data ADD COLUMN validation varchar(255) default NULL;
+ALTER TABLE layout_options ADD COLUMN validation varchar(255) default NULL;
 #EndIf
