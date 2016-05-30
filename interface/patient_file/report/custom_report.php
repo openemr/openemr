@@ -844,7 +844,7 @@ foreach ($ar as $key => $val) {
                   else {
                     echo "<img src='" . $GLOBALS['webroot'] .
                       "/controller.php?document&retrieve&patient_id=&document_id=" .
-                      $document_id . "&as_file=false'><br><br>";
+                      $document_id . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
                   }
                 }
                 else {
