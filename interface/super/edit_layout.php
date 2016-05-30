@@ -160,6 +160,12 @@ if ($_POST['formaction'] == "save" && $layout_id) {
           );
         }
         $conditions = empty($condarr) ? '' : serialize($condarr);
+        //Validation field should be a json string. Escape in case is json_decode fails
+        $validation=NULL;
+        if ( json_decode( $iter['validation'] ) != false ){
+            $validation = $iter['validation'];
+        }
+
 
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
@@ -179,7 +185,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "edit_options = '"  . formTrim($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "', " .
-                "conditions = '"    . add_escape_custom($conditions) . "' " .
+                "conditions = '"    . add_escape_custom($conditions) . "', " .
+                "validation = '"   . formTrim($validation)   . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
@@ -637,7 +644,7 @@ function writeFieldLine($linedata) {
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='bold' id='querytd_$fld_line_no' style='cursor:pointer;";
-    if (!empty($linedata['conditions'])) echo "background-color:#77ff77;";
+    if (!empty($linedata['conditions']) || !empty($linedata['validation'])) echo "background-color:#77ff77;";
     echo "' onclick='extShow($fld_line_no, this)' align='center' ";
     echo "title='" . xla('Click here to view/edit more details') . "'>";
     echo "&nbsp;?&nbsp;";
@@ -727,8 +734,25 @@ function writeFieldLine($linedata) {
         " </tr>\n";
     }
     $extra_html .=
-      "</table>\n" .
-      "</div>\n";
+      "</table>\n";
+
+    $extra_html .=  "<table width='100%'>\n" .
+    " <tr>\n" .
+    "  <td colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+    xlt('will have the folowing validation rules') . ":</td>\n" .
+    " </tr>\n" .
+    " <tr>\n" .
+    "  <td align='left' class='bold'>" . xlt('JSON string  ') . "</td>\n" .
+    " </tr>\n".
+    " <tr>\n" .
+    "  <td align='left' title='" . xla('JSON string') . "'>\n" .
+    "   <input type='text' name='fld[$fld_line_no][validation]' value='" .
+    $linedata['validation'] ."' size='60' maxlength='255' />\n" .
+    "  </td>\n";
+
+     $extra_html .=
+         "</table>\n" .
+       "</div>\n";
 }
 ?>
 <html>
