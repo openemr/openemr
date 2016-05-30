@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2010, 2016 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -40,6 +40,7 @@
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -49,10 +50,6 @@
   // dlgopen('../patient_file/front_payment.php?receipt=1&payid=' + payid, '_blank', 550, 400);
   return false;
  }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

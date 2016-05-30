@@ -301,6 +301,7 @@ else {
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -313,10 +314,6 @@ function checkAll(checked) {
    f.elements[i].checked = checked;
  }
 }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

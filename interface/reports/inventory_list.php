@@ -89,6 +89,7 @@ table.mymaintable td, table.mymaintable th {
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -99,10 +100,6 @@ table.mymaintable td, table.mymaintable th {
   top.restoreSession();
   f.submit();
  }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

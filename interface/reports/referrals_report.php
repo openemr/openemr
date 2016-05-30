@@ -52,6 +52,7 @@
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -94,10 +95,6 @@
 </style>
 
 <script language="JavaScript">
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

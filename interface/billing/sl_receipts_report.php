@@ -109,6 +109,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -137,10 +138,6 @@ function sel_procedure() {
 function sel_diagnosis() {
  dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
 }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

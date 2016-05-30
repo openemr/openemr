@@ -2,12 +2,11 @@
 /*
  *  Encounters report. (/interface/reports/encounters_report.php
  *  
- *
  *  This report shows past encounters with filtering and sorting, 
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  * 
  * Copyright (C) 2015 Terry Hill <terry@lillysystems.com> 
- * Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
  * 
  * LICENSE: This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License 
@@ -177,6 +176,7 @@ $res = sqlStatement($query);
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -191,10 +191,6 @@ $res = sqlStatement($query);
  function refreshme() {
   document.forms[0].submit();
  }
-
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
 
 </script>
 

@@ -98,17 +98,12 @@ $grand_total_amt_balance  = 0;
 <script type="text/javascript" src="../../library/js/jquery-ui.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<script language="JavaScript">
-$(document).ready(function() {
-  oeFixedHeaderSetup(document.getElementById('mymaintable'));
-});
-</script>
-
 <title><?php echo xlt('Financial Summary by Service Code') ?></title>
 
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
