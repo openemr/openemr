@@ -2693,6 +2693,7 @@ CREATE TABLE `layout_options` (
   `list_backup_id` varchar(31) NOT NULL default '',
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
   `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions',
+  `validation` varchar(255) DEFAULT NULL COMMENT 'json string with validation rules',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=MyISAM;
 

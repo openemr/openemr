@@ -72,3 +72,6 @@
 --    Custom function for creating Occupation List
 
 
+#IfMissingColumn layout_options validation
+ALTER TABLE patient_data ADD COLUMN validation varchar(255) default NULL;
+#EndIf
