@@ -18,6 +18,7 @@ class LBF_Validation{
     const TYPE_FLOAT = "float";
     const TYPE_EMAIL = "email";
     const TYPE_URL = "url";
+    const TYPE_NAME = "name";
 
     const NUM_MIN='min';
     const NUM_MAX='max';
@@ -65,12 +66,16 @@ class LBF_Validation{
             case self::TYPE_INT:
                $rules=self::numericality($validations);
             break;
+            /*Name is a predefined regular expression that accespt letters spaces ' and -*/
+            case self::TYPE_NAME:
+                $rules[self::VJS_FORMAT][self::VJS_PATTERN] = "[a-zA-z]+([ '-\\s][a-zA-Z]+)*" ;
+            break;
             case self::TYPE_EMAIL:
                 $rules[self::VJS_TYPE_EMAIL] = true;
             break;
             case self::TYPE_URL:
                 $rules[self::VJS_TYPE_URL] = true;
-                break;
+            break;
 
         }
         return $rules;
