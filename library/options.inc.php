@@ -1054,7 +1054,7 @@ function generate_form_field($frow, $currvalue) {
       $description, $showEmpty ? $empty_title : '', '', $onchange, '', null, true, $backup_list);
   	
   }
-  echo "<span id='error_form_".$field_id."'></span>";
+  echo "<span id='error_form_".$field_id."' style='color:red;display:block'></span>";
 }
 
 function generate_print_field($frow, $currvalue) {
