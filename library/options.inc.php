@@ -1054,6 +1054,7 @@ function generate_form_field($frow, $currvalue) {
       $description, $showEmpty ? $empty_title : '', '', $onchange, '', null, true, $backup_list);
   	
   }
+  echo "<span id='error_form_".$field_id."'></span>";
 }
 
 function generate_print_field($frow, $currvalue) {
@@ -3137,5 +3138,6 @@ function lbf_current_value($frow, $formid, $encounter) {
   }
   return $currvalue;
 }
+
 
 ?>

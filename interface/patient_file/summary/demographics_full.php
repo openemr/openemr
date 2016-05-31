@@ -9,6 +9,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+require_once("$srcdir/validation/LBF_Validation.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -66,6 +67,8 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/validate/validate.min.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
@@ -219,7 +222,7 @@ function trimlen(s) {
  return j + 1 - i;
 }
 
-function validate(f) {
+function validate_old(f) {
  var errCount = 0;
  var errMsgs = new Array();
 <?php generate_layout_validation('DEM'); ?>
@@ -308,13 +311,6 @@ function validate(f) {
  return errMsgs.length < 1;
 }
 
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  top.restoreSession();
-  f.submit();
- }
-}
 
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.
 function policykeyup(e) {
@@ -351,7 +347,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
+<form action='demographics_save.php' name='demographics_form' id="demographics_form" method='post' onsubmit='return submitme("db_rules",event)'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -367,9 +363,7 @@ $(document).ready(function() {
 			&nbsp;&nbsp;
 		</td>
 		<td>
-			<a href="javascript:submitme();" class='css_button'>
-				<span><?php xl('Save','e'); ?></span>
-			</a>
+            <button class="button gray" type="submit" name="submit"><?php xl('Save','e'); ?></button>
 		</td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -757,6 +751,37 @@ $group_seq=0; // this gives the DIV blocks unique IDs
         checkSkipConditions();
     });
 </script>
+<script language='JavaScript'>
+    function submitme(validation_type,e) {
+        //Use the old validation script if no parameter sent (backward compatibility)
+        if (typeof validation_type === 'undefined') {
+            var f = document.forms[0];
+            if (validate_old(f)) {
+                top.restoreSession();
+                f.submit();
+            }
+        } else {
+            <?php $constraints = LBF_Validation::generate_validate_constraints('DEM');?>
+            var constraints =<?=$constraints?>;
+
+            var form = document.querySelector("form#demographics_form");
+            var errors = validate(form, constraints);
+            if (typeof  errors !== 'undefined') {
+                e.preventDefault();
+                 showErrors(form, errors);
+            }
+
+            function showErrors(form, errors) {
+                for (var key in errors) {
+                    if (errors.hasOwnProperty(key)) {
+                        document.getElementById("error_" + key).innerHTML = errors[key][0];
+                    }
+                }
+            }
+
+        }
+    }
+</script>    
 
 
 </html>
