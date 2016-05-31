@@ -11,14 +11,13 @@ class LBF_Validation{
     const VJS_FORMAT = "format";
     const VJS_PATTERN = "pattern";
     const VJS_TYPE_EMAIL = "email";
-
-
-
+    const VJS_TYPE_URL = "url";
 
     const KEY_TYPE = "type";
     const TYPE_INT = "int";
     const TYPE_FLOAT = "float";
     const TYPE_EMAIL = "email";
+    const TYPE_URL = "url";
 
     const NUM_MIN='min';
     const NUM_MAX='max';
@@ -65,16 +64,17 @@ class LBF_Validation{
             case self::TYPE_FLOAT:
             case self::TYPE_INT:
                $rules=self::numericality($validations);
-               break;
+            break;
             case self::TYPE_EMAIL:
                 $rules[self::VJS_TYPE_EMAIL] = true;
-               break;
+            break;
+            case self::TYPE_URL:
+                $rules[self::VJS_TYPE_URL] = true;
+                break;
+
         }
         return $rules;
     }
-
-
-
     /**
     * Create the numerical rules
     * Examples:
@@ -88,8 +88,7 @@ class LBF_Validation{
          notEven: "must be evenly divisible by two"
        }
     }
-    
-     * float numbers:Using regular expressions
+    * float numbers:Using regular expressions
        "form_drivers_license":{
           "numericality":{
             "format":{
