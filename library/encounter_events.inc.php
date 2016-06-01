@@ -1,36 +1,31 @@
-	<?php
-// +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
-//
-// +------------------------------------------------------------------------------+
+<?php
+/**
+ * This file handles the events of payment screen.
+ *
+ * Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package OpenEMR
+ * @author  Eldho Chacko <eldho@zhservices.com>
+ * @author  Paul Simon K <paul@zhservices.com>
+ * @author  Ian Jardine  ( github.com/epsdky )
+ * @link    http://www.open-emr.org
+ */
+
 
 require_once(dirname(__FILE__) . '/calendar.inc');
 require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
-
-//===============================================================================
-//This section handles the events of payment screen.
 //===============================================================================
 define('REPEAT_EVERY_DAY',     0);
 define('REPEAT_EVERY_WEEK',    1);
@@ -38,98 +33,31 @@ define('REPEAT_EVERY_MONTH',   2);
 define('REPEAT_EVERY_YEAR',    3);
 define('REPEAT_EVERY_WORK_DAY',4);
 //===============================================================================
-//Create event in calender as arrived
+//
+// If one or more appointments exist for today create an encounter
+// and set each appt's status to '@'.
+//
 function calendar_arrived($form_pid) {
-	$Today=date('Y-m-d');
-	//Take all recurring events relevent for today.
-	$result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_recurrtype != '0' and pc_pid = ? and pc_endDate != '0000-00-00'
-		and pc_eventDate < ? and pc_endDate >= ? ",
-		array($form_pid,$Today,$Today));
-	if(sqlNumRows($result_event)==0)//no repeating appointment
-	 {
-		$result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
-			array($form_pid,$Today));
-		if(sqlNumRows($result_event)==0)//no appointment
-		 {
-			echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
-			die;
-		 }
-		else//one appointment
-		 {
-			 $enc = todaysEncounterCheck($form_pid);//create encounter
-			 $zero_enc=0;
-			 sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
-				 array($form_pid,$Today));
-		 }
-	 }
-	else//repeating appointment set
-	 {
-		while($row_event=sqlFetchArray($result_event))
-		 {
-			$pc_eid = $row_event['pc_eid'];
-			$pc_eventDate = $row_event['pc_eventDate'];
-			$pc_recurrspec_array = unserialize($row_event['pc_recurrspec']);
-			while(1)
-			 {
-				if($pc_eventDate==$Today)//Matches so insert.
-				 {
-				 if(!$exist_eid=check_event_exist($pc_eid))
-					{ 
-					 update_event($pc_eid);
-					}
-				 else
-					{
-					 sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?",
-						 array($exist_eid));
-					}
-					 $enc = todaysEncounterCheck($form_pid);//create encounter
-					 $zero_enc=0;
-				 break;
-				 }
-				elseif($pc_eventDate>$Today)//the frequency does not match today,no need to increment furthur.
-				 {
-					echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
-					die;
-				 break;
-				 }
-
-        // Added by Rod to handle repeats on nth or last given weekday of a month:
-        if ($row_event['pc_recurrtype'] == 2) {
-          $my_repeat_on_day = $pc_recurrspec_array['event_repeat_on_day'];
-          $my_repeat_on_num = $pc_recurrspec_array['event_repeat_on_num'];
-          $adate = getdate(strtotime($pc_eventDate));
-          $adate['mon'] += 1;
-          if ($adate['mon'] > 12) {
-            $adate['year'] += 1;
-            $adate['mon'] -= 12;
-          }
-          if ($my_repeat_on_num < 5) { // not last
-            $adate['mday'] = 1;
-            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-            if ($dow > $my_repeat_on_day) $dow -= 7;
-            $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-          }
-          else { // last weekday of month
-            $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
-            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-            if ($dow < $my_repeat_on_day) $dow += 7;
-            $adate['mday'] += $my_repeat_on_day - $dow;
-          }
-          $pc_eventDate = date('Y-m-d', mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']));
-        } // end recurrtype 2
-
-        else { // pc_recurrtype is 1
-				  $pc_eventDate_array = explode('-', $pc_eventDate);
-				  // Find the next day as per the frequency definition.
-				  $pc_eventDate =& __increment($pc_eventDate_array[2], $pc_eventDate_array[1], $pc_eventDate_array[0],
-            $pc_recurrspec_array['event_repeat_freq'], $pc_recurrspec_array['event_repeat_freq_type']);
-        }
-
-			 }
-		 }
-	 }
-	return $enc;
+  //
+  $appts = array();
+  $today = date('Y-m-d');
+  $appts = fetchAppointments($today, $today, $form_pid);
+  if($appts) {
+    $enc = todaysEncounterCheck($form_pid);
+    foreach($appts as $row) {
+    if($row['pc_recurrtype'] == 0) {
+    sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", array($row['pc_eid']));
+    } else {
+      update_event($row['pc_eid']);
+    }
+  }
+  return $enc;
+  } else {
+    echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
+    die;
+  }
 }
+
 //===============================================================================
 // Checks for the patient's encounter ID for today, creating it if there is none.
 //
