@@ -47,6 +47,13 @@ while ($lrow = sqlFetchArray($lres)) {
   $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
+// Include predefined Validation Rules from list
+$validations=[];
+$lres = sqlStatement("SELECT * FROM list_options " .
+    "WHERE list_id = 'LBF_Validations' ORDER BY seq, title");
+while ($lrow = sqlFetchArray($lres)) {
+    $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
+}
 // array of the data_types of the fields
 $datatypes = array(
   "1"  => xl("List box"), 
@@ -160,13 +167,6 @@ if ($_POST['formaction'] == "save" && $layout_id) {
           );
         }
         $conditions = empty($condarr) ? '' : serialize($condarr);
-        //Validation field should be a json string. Escape in case is json_decode fails
-        $validation=NULL;
-        if ( json_decode( $iter['validation'] ) != false ){
-            $validation = $iter['validation'];
-        }
-
-
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
                 "source = '"        . formTrim($iter['source'])    . "', " .
@@ -186,7 +186,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . formTrim($validation)   . "' " .
+                "validation = '"   . formTrim($iter['validation'])   . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
@@ -402,7 +402,7 @@ function genFieldOptionList($current='') {
 // Write one option line to the form.
 //
 function writeFieldLine($linedata) {
-    global $fld_line_no, $sources, $lbfonly, $extra_html;
+    global $fld_line_no, $sources, $lbfonly, $extra_html,$validations;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
   
@@ -739,16 +739,26 @@ function writeFieldLine($linedata) {
     $extra_html .=  "<table width='100%'>\n" .
     " <tr>\n" .
     "  <td colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
-    xlt('will have the folowing validation rules') . ":</td>\n" .
+    xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('JSON string  ') . "</td>\n" .
+    "  <td align='left' class='bold'>" . xlt('Validation rule  ') . "</td>\n" .
     " </tr>\n".
     " <tr>\n" .
-    "  <td align='left' title='" . xla('JSON string') . "'>\n" .
-    "   <input type='text' name='fld[$fld_line_no][validation]' value='" .
-    $linedata['validation'] ."' size='60' maxlength='255' />\n" .
-    "  </td>\n";
+    "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
+        
+
+    "   <select name='fld[$fld_line_no][validation]'>\n" .
+    "   <option value=''";
+        if (empty($linedata['validation'])) $extra_html .= " selected";
+        $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
+    foreach ($validations as $key=>$value){
+        $extra_html .= "    <option value='$key'";
+        if ($key == $linedata['validation']) $extra_html .= " selected";
+        $extra_html .= ">" . text($value) . "</option>\n";
+    }
+    $extra_html .="</select>\n" .
+        "  </td>\n";
 
      $extra_html .=
          "</table>\n" .
