@@ -67,7 +67,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="../../../library/js/vendors/validate/validate.min.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/moment.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/validate/validate.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/validate/validate_extend.js"></script>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
