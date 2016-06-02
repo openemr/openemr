@@ -73,5 +73,11 @@
 
 
 #IfMissingColumn layout_options validation
-ALTER TABLE layout_options ADD COLUMN validation varchar(255) default NULL;
+ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
 #EndIf
+#IfNotRow list_options option_id LBF_Validations
+INSERT INTO `list_options` ( list_id, option_id, title, seq, is_default, option_value ) VALUES ( 'lists','LBF_Validations','LBF_Validations', '400','1', '0');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`,`mapping`,`notes`,`codes`,`toggle_setting_1`,`toggle_setting_2`,`activity`,`subtype`) VALUES ('LBF_Validations','int1','Integers1-100',1,0,0,'','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`,`mapping`,`notes`,`codes`,`toggle_setting_1`,`toggle_setting_2`,`activity`,`subtype`) VALUES ('LBF_Validations','name','Names',2,0,0,'','{\"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\s][a-zA-Z]+)*\"}}','',0,0,1,'');
+#EndIf
+
