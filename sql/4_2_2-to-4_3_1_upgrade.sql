@@ -82,6 +82,8 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','birthdate','Birth Date','{\"date\":{\"dateOnly\":true},\"onlyPast\":{\"message\":\"must be past date\"}}','30');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','postal_code','Postal Code','{\"format\":{\"pattern\":\"^(\\\\d{5}|\\\\d{7})$\"}}','60');
+
 
 #EndIf
 
