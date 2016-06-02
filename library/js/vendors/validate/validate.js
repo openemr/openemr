@@ -572,7 +572,7 @@
         }
         values[input.name] = value;
       }
-debugger;
+
       inputs = form.querySelectorAll("select[name]");
       for (i = 0; i < inputs.length; ++i) {
         input = inputs.item(i);

@@ -54,7 +54,7 @@
 
 --  #IfIndex
 --    desc:      This function is most often used for dropping of indexes/keys.
---    arguments: table_name colname
+--    arguments: table_name 2colname
 --    behavior:  If the table and index exist the relevant statements are executed, otherwise not.
 
 --  #IfNotIndex
@@ -79,5 +79,6 @@ ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
 INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Validations','LBF_Validations');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','birthdate','Birth Date','{\"date\":{\"dateOnly\":true},\"onlyPast\":{\"message\":\"must be past date\"}}','30');
 #EndIf
 
