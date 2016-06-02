@@ -110,7 +110,7 @@ function rxnorm_import($is_windows_flag) {
     foreach($file_array as $val){
         if(trim($val)!='')
         {
-            sqlStatement($val);
+            sqlStatementNoLog($val);
         }
     }
 
@@ -119,10 +119,14 @@ function rxnorm_import($is_windows_flag) {
     foreach($indexes_array as $val1){
         if(trim($val1)!='')
         {
-            sqlStatement($val1);
+            sqlStatementNoLog($val1);
         }
     }
 
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
     $data=explode(";",$data_load);
     foreach($data as $val)
     {
@@ -135,11 +139,15 @@ function rxnorm_import($is_windows_flag) {
             if(strpos($val,$file_name) !== false) {
                 $val1 = str_replace($file_name,$replacement,$val);
         	if(trim($val1)!='') {
-            	    sqlStatement($val1);
+            	    sqlStatementNoLog($val1);
         	}
             }
         }
     }
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("COMMIT");
+    sqlStatementNoLog("SET autocommit=1");
+
     return true;
 }
 
