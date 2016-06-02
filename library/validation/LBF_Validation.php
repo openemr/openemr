@@ -17,22 +17,28 @@ class LBF_Validation{
             "AND list_options.list_id='LBF_Validations' " .
             "ORDER BY layout_options.group_name, layout_options.seq ", array($form_id) );
         $constraints=[];
+        $validation_arr=[];
+        $required=[];
         while ($frow = sqlFetchArray($fres)) {
             $id = 'form_'.$frow['field_id'];
+            $validation_arr=[];
+            $required=[];
             //Keep "required" option from the LBF form
             if($frow['uor'] == 2 ){
-                $constraints[$id] = [self::VJS_KEY_REQUIRED=>true];
+                $required = [self::VJS_KEY_REQUIRED=>true];
             }
-           
             if ($frow['validation_json']){
                 if(json_decode($frow['validation_json'])) {
                     $validation_arr=json_decode($frow['validation_json'],true);
-                    $constraints[$id] = $validation_arr;
+
                 }else{
                     trigger_error($frow['validation_json']. " is not a valid json ", E_USER_WARNING);
                 }
             }
+            $constraints[$id]=array_merge($required,$validation_arr);
+
         }
+
         return json_encode($constraints);
 
     }
