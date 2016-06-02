@@ -4448,6 +4448,7 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','postal_code','Postal Code','{\"format\":{\"pattern\":\"^(\\\\d{5}|\\\\d{7})$\"}}','60');
+INSERT INTO `list_options` (`list_id`,`option_id`,`notes`,`seq`) VALUES ('LBF_Validations','il_phone','IL Phone','{\"format\":{\"pattern\":\"^((\\\\+972|972)|0)( |-)?([1-468-9]( |-)?\\\\d{7}|(5|7)[0-9]( |-)?\\\\d{7})$\"}}','70');
 
 -- --------------------------------------------------------
 
