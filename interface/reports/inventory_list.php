@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2008-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -72,14 +72,24 @@ body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; }
 a, a:visited, a:hover { color:#0000cc; }
+
+table.mymaintable, table.mymaintable td, table.mymaintable th {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td, table.mymaintable th {
+ padding: 1pt 4pt 1pt 4pt;
+}
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -142,7 +152,7 @@ a, a:visited, a:hover { color:#0000cc; }
 <?php if ($form_action) { // if submit ?>
 
 <div id="report_results">
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table width='98%' id='mymaintable' class='mymaintable'>
  <thead style='display:table-header-group'>
   <tr class='head'>
    <th><?php  xl('Name','e'); ?></th>

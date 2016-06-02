@@ -223,6 +223,14 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
             error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mycrypt module is not installed",0);
             $fldvalue=0;
           }
+          // special treatment for some vars
+          switch ($fldid) {
+            case 'first_day_week':
+              // update PostCalendar config as well
+              sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
+              break;
+          }
+
           sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
             "VALUES ( '$fldid', '0', '$fldvalue' )");
         }
@@ -386,7 +394,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
           if ($globalValue == $key) $globalTitle = $value;
         }
         echo "   <option value='$key'";
-        if ($key == $fldvalue) echo " selected";
+
+        //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
+        //Tried to use === but it will fail in already existing variables
+        if ((string)$key == (string)$fldvalue) echo " selected";
         echo ">";
         echo $value;
         echo "</option>\n";
@@ -500,9 +511,13 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             $tfname == 'style_blue.css' || $tfname == 'style_pdf.css')
             continue;
           echo "<option value='$tfname'";
+          // Drop the "style_" part and any replace any underscores with spaces
+          $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+          // Strip the ".css" and uppercase the first character
+          $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
           if ($tfname == $fldvalue) echo " selected";
           echo ">";
-          echo $tfname;
+          echo $styleDisplayName;
           echo "</option>\n";
         }
         closedir($dh);

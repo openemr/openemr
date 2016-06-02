@@ -119,6 +119,8 @@ $timeslotHeightUnit="px";
  $NEXT_WEEK_URL = $this->_tpl_vars['NEXT_WEEK_URL'];
  $PREV_DAY_URL  = $this->_tpl_vars['PREV_DAY_URL'];
  $NEXT_DAY_URL  = $this->_tpl_vars['NEXT_DAY_URL'];
+ $PREV_MONTH_URL = $this->_tpl_vars['PREV_MONTH_URL'];
+ $NEXT_MONTH_URL = $this->_tpl_vars['NEXT_MONTH_URL'];
 
  $Date =  postcalendar_getDate();
  if (!isset($y)) $y = substr($Date, 0, 4);
@@ -239,7 +241,7 @@ foreach ($atmp as $currdate) {
     if (date('m', $currdate) != $month) {
         $tdClass = "tdOtherMonthDay-small";
     }
-    if ((date('w', $currdate) == 0) || (date('w', $currdate) == 6)) {
+    if (is_weekend_day(date('w', $currdate))) {
         $tdClass = "tdWeekend-small";
     }
 
@@ -390,7 +392,8 @@ foreach ($providers as $provider) {
                         'pc_topic'=>$topic));
 
         if (date("w", strtotime($date)) == $DOWlist[0]) { echo "<tr>"; }
-        echo "<td class='schedule'>";
+        $classForWeekend = is_weekend_day(date('w', strtotime($date))) ? 'weekend-day' : 'work-day';
+        echo "<td class='schedule " . $classForWeekend . "'>";
 
         echo "<div class='calendar_day'>\n";
 

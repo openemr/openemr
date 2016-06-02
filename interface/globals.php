@@ -217,6 +217,9 @@ if (!empty($glrow)) {
         $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
         $temp_css_theme_name = $gl_value;
     }
+    else if ($gl_name == 'weekend_days') {
+        $GLOBALS[$gl_name] = explode(',', $gl_value);
+    }
     else if ($gl_name == 'specific_application') {
       if ($gl_value == '2') $GLOBALS['ippf_specific'] = true;
       else if ($gl_value == '3') $GLOBALS['weight_loss_clinic'] = true;

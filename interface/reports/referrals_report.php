@@ -38,13 +38,13 @@
 
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
-
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -52,6 +52,7 @@
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -92,6 +93,11 @@
 }
 
 </style>
+
+<script language="JavaScript">
+
+</script>
+
 </head>
 
 <body class="body_top">
@@ -176,7 +182,7 @@
  if ($_POST['form_refresh']) {
 ?>
 <div id="report_results">
-<table>
+<table width='98%' id='mymaintable'>
  <thead>
   <th> <?php xl('Refer To','e'); ?> </th>
   <th> <?php xl('Refer Date','e'); ?> </th>

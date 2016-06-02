@@ -25,7 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-
+require_once(dirname(__FILE__) . '/calendar.inc');
 require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
 
@@ -374,18 +374,25 @@ function &__increment($d,$m,$y,$f,$t)
         // we can check to see if the day is a Sat/Sun and increment
         // the frequency count so as to ignore the weekend. hmmmm....
         $orig_freq = $f;
-        for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
-            $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$daycount),$y));
-            if ($nextWorkDOW == "Sat") { $f++; }
-            else if ($nextWorkDOW == "Sun") { $f++; }
-        }
-        // and finally make sure we haven't landed on a Sat/Sun
-        // adjust as necessary
-        $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$f),$y));
-        if ($nextWorkDOW == "Sat") { $f+=2; }
-        else if ($nextWorkDOW == "Sun") { $f++; }
+		for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
+			$nextWorkDOW = date('w',mktime(0,0,0,$m,($d+$daycount),$y));
+			if (is_weekend_day($nextWorkDOW)) { $f++; }
+		}
 
-        return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
+        // and finally make sure we haven't landed on a end week days
+        // adjust as necessary
+        $nextWorkDOW = date('w',mktime(0,0,0,$m,($d+$f),$y));
+        if (count($GLOBALS['weekend_days']) === 2){
+			if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+				$f+=2;
+			}elseif($nextWorkDOW == $GLOBALS['weekend_days'][1]){
+				 $f++;
+			}
+		} elseif(count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+			$f++;
+		}
+
+		return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
 
     } elseif($t == REPEAT_EVERY_WEEK) {
         return date('Y-m-d',mktime(0,0,0,$m,($d+(7*$f)),$y));
