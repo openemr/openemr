@@ -32,7 +32,9 @@
  require_once "$srcdir/formdata.inc.php";
 
  $from_date = (isset($_POST['form_from_date']))  ? fixDate($_POST['form_from_date'], date('Y-m-d')) : '';
+ $form_from_date = $from_date;
  $to_date   = (isset($_POST['form_to_date']))    ? fixDate($_POST['form_to_date'], date('Y-m-d')) : '';;
+ $form_to_date = $to_date;
  $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 ?>
 <html>
