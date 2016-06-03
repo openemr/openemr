@@ -650,4 +650,31 @@ function generic_sql_insert_id()
   return mysqli_insert_id($GLOBALS['dbh']);
 }
 
+
+/**
+ * Begin a Transaction.
+ */
+function sqlBeginTrans()
+{
+    $GLOBALS['adodb']['db']->BeginTrans();
+}
+
+
+/**
+ * Commit a transaction
+ */
+function sqlCommitTrans($ok=true)
+{
+    $GLOBALS['adodb']['db']->CommitTrans();
+}
+
+
+/**
+ * Rollback a transaction
+ */
+function sqlRollbackTrans()
+{
+    $GLOBALS['adodb']['db']->RollbackTrans();
+}
+
 ?>

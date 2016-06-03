@@ -294,7 +294,7 @@ authorized tinyint(4) default NULL,
 activity tinyint(4) default NULL,
 DATABASEFIELDS
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 START
 
 #view.php
