@@ -9,8 +9,10 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 $esignApi = new Esign\Api();
 ?>
+<?php if (empty($hide)) { // if not included by forms.php ?>
 <html>
 <head>
+<?php } ?>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
@@ -278,6 +280,7 @@ if($StringEcho){
   </tr>
 </table>
 </dl>
-
+<?php if (empty($hide)) { ?>
 </body>
 </html>
+<?php } ?>
