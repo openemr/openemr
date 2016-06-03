@@ -101,7 +101,7 @@ if (!empty($_POST['bn_upload'])) {
         if (!$form_replace) {
           $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
             array($code_type_id, $code));
-          if ($tmp['count']) {
+          if ($tmp['id']) {
             sqlStatement("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
               array($a[14], $code_type_id, $code));
             ++$repcount;
