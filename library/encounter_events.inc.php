@@ -45,13 +45,13 @@ function calendar_arrived($form_pid) {
   if($appts) {
     $enc = todaysEncounterCheck($form_pid);
     foreach($appts as $row) {
-    if($row['pc_recurrtype'] == 0) {
-    sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", array($row['pc_eid']));
-    } else {
-      update_event($row['pc_eid']);
+      if($row['pc_recurrtype'] == 0) {
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", array($row['pc_eid']));
+      } else {
+        update_event($row['pc_eid']);
+      }
     }
-  }
-  return $enc;
+    return $enc;
   } else {
     echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
     die;
