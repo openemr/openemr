@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__) . "/ORDataObject.class.php");
 require_once(dirname(__FILE__) . "/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/thumbnail/Thumbnail.class.php");
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
@@ -57,6 +58,12 @@ class Document extends ORDataObject{
 	*	@var string
 	*/
 	var $url;
+
+	/*
+	*	URL which point to the thumbnail document, may be a file URL, a web URL, a db BLOB URL, or others
+	*	@var string
+	*/
+	var $thumb_url;
 	
 	/*
 	*	Mimetype of the document if available
@@ -293,6 +300,12 @@ class Document extends ORDataObject{
 	function get_url() {
 		return $this->url;
 	}
+	function set_thumb_url($url) {
+		$this->thumb_url = $url;
+	}
+	function get_thumb_url() {
+		return $this->thumb_url;
+	}
 	/**
 	* this returns the url stripped down to basename
 	*/
@@ -490,16 +503,36 @@ class Document extends ORDataObject{
    * @param  string  $filename     Desired filename, may be modified for uniqueness
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
+   * @param  string  $tmpfile      The tmp location of file
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
    * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
    * @return string                Empty string if success, otherwise error message text
    */
-  function createDocument($patient_id, $category_id, $filename, $mimetype, &$data,
+  function createDocument($patient_id, $category_id, $filename, $mimetype, &$data,$tmpfile,
     $higher_level_path='', $path_depth=1, $owner=0) {
     // The original code used the encounter ID but never set it to anything.
     // That was probably a mistake, but we reference it here for documentation
     // and leave it empty. Logically, documents are not tied to encounters.
+
+	if($GLOBALS['generate_thumb']) {
+
+		$thumb_size = ($GLOBALS['thumb_size'] > 0) ? $GLOBALS['thumb_size'] : null;
+		$thumbnail_class = new Thumbnail($thumb_size);
+		$has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
+
+		if ($has_thumbnail) {
+			$thumbnail_resource = $thumbnail_class->create_thumbnail(null, $data);
+			if ($thumbnail_resource) {
+				$thumbnail_data = $thumbnail_class->get_string_file($thumbnail_resource);
+			} else {
+				$has_thumbnail = false;
+			}
+		}
+	} else {
+		$has_thumbnail = false;
+	}
+
     $encounter_id = '';
     $this->storagemethod = $GLOBALS['document_storage_method'];
     $this->mimetype = $mimetype;
@@ -509,8 +542,14 @@ class Document extends ORDataObject{
       $docname = $_SESSION['authId'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
       $docid = $couch->stringToId($docname);
       $json = json_encode(base64_encode($data));
+	  if ($has_thumbnail) {
+		  $th_json = json_encode(base64_encode($thumbnail_data));
+		  $this->thumb_url = $this->get_thumb_name($filename);
+	  } else {
+		  $th_json = false;
+	  }
       $db = $GLOBALS['couchdb_dbase'];
-      $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json);
+      $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json, $th_json);
       $resp = $couch->check_saveDOC($couchdata);
       if(!$resp->id || !$resp->_rev) {
         // Not sure what this is supposed to do.  The references to id, rev,
@@ -587,6 +626,14 @@ class Document extends ORDataObject{
       if (file_put_contents($filepath . $filename, $data) === FALSE) {
         return xl('Failed to create') . " $filepath$filename";
       }
+	  if( $has_thumbnail ) {
+		 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
+		 // Store the file into its proper directory.
+		 if (file_put_contents($filepath . 'th_' . $filename, $thumbnail_data) === FALSE) {
+			return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
+		 }
+	  }
+
     }
     $this->size  = strlen($data);
     $this->hash  = sha1($data);
@@ -602,6 +649,13 @@ class Document extends ORDataObject{
       $this->_db->Execute($sql);
     }
     return '';
+  }
+
+  /**
+   * Return file name for thumbnail (adding 'th_')
+   */
+  function get_thumb_name($file_name) {
+	  return 'th_' . $file_name;
   }
 
   /**

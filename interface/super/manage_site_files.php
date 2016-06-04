@@ -16,6 +16,7 @@ $fake_register_globals = false;
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
+require_once($GLOBALS['srcdir'].'/classes/thumbnail/ThumbnailGenerator.php');
 /* for formData() */
 require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
@@ -99,6 +100,42 @@ if (!empty($_POST['bn_save'])) {
   }
 
 }
+
+/**
+ * Thumbnails generator
+ * generating  thumbnail image to all images files from documents table
+ */
+
+switch((int)$GLOBALS['document_storage_method']){
+    case 0:
+        $storage_method = 'on Disc';
+        break;
+    case 1:
+        $storage_method = 'in CouchDB';
+        break;
+}
+
+if(isset($_POST['generate_thumbnails'])) {
+
+    $thumb_generator = new ThumbnailGenerator();
+    $results = $thumb_generator->generate_all();
+
+    $thumbnail_msg = "<p style='color: green'>" . xl('Generated thumbnail(s)') . " : {$results['sum_success']}</p>";
+    $thumbnail_msg .= "<p style='color: red'>" . xl('Failed to generate') . ": {$results['sum_failed']}</p>";
+    foreach($results['failed'] as $key => $file){
+        $num = $key +1;
+        $thumbnail_msg .= "<p style='color: red; font-size: 11px'>$num.". " .$file</p>";
+    }
+} else {
+
+    $count_not_generated = ThumbnailGenerator::count_not_generated();
+
+    $thumbnail_msg = "<p>" .  xl('Files with empty thumbnail') . ": $count_not_generated</p>";
+}
+
+
+
+
 ?>
 <html>
 
@@ -109,6 +146,19 @@ if (!empty($_POST['bn_save'])) {
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ #generate_thumb{
+     width: 95%;
+     margin: 50px auto;
+     border: 2px solid dimgrey;
+ }
+ #generate_thumb table{
+     font-size: 14px;
+     text-align: center;
+ }
+ #generate_thumb table td{
+     border-right: 1px solid dimgrey;
+     padding: 0 15px;
+ }
 </style>
 
 <script language="JavaScript">
@@ -209,6 +259,28 @@ function msfFileChanged() {
 </center>
 
 </form>
+
+<div id="generate_thumb">
+    <table>
+        <tr>
+            <td class="thumb_title" width="19%">
+                <b><?php echo xl('Generate Thumbnails')?></b>
+            </td>
+            <td class="thumb_subtitle" width="28%">
+                <span><?php echo xl('The thumbnails will be store ' . $storage_method) ?></span>
+            </td>
+            <td class="thumb_msg" width="49%">
+                <span><?php echo $thumbnail_msg ?></span>
+            </td>
+            <td  class="thumb_form" width="16%" style="border-right:none">
+                <form method='post' action='manage_site_files.php#generate_thumb'>
+                    <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo htmlspecialchars(xl('Generate')) ?>">
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+
 </body>
 </html>
 

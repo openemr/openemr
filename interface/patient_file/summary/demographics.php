@@ -125,16 +125,17 @@ function image_widget($doc_id,$doc_catg)
         global $pid, $web_root;
         $docobj = new Document($doc_id);
         $image_file = $docobj->get_url_file();
+        $image_width = $GLOBALS['generate_thumb'] == 1 ? '' : 'width=100';
         $extension = substr($image_file, strrpos($image_file,"."));
         $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // image ext supported by fancybox viewer
         if ( in_array($extension,$viewable_types) ) { // extention matches list
                 $to_url = "<td> <a href = $web_root" .
-				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
-				"/tmp$extension" .  // Force image type URL for fancybox
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false&original_file=true&disable_exit=false&show_original=true" .
+				"/tmp$extension" .  // Force image type URL for fancybo
 				" onclick=top.restoreSession(); class='image_modal'>" .
                 " <img src = $web_root" .
-				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
-				" width=100 alt='$doc_catg:$image_file'>  </a> </td> <td valign='center'>".
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false" .
+				" $image_width alt='$doc_catg:$image_file'>  </a> </td> <td valign='center'>".
                 htmlspecialchars($doc_catg) . '<br />&nbsp;' . htmlspecialchars($image_file) .
 				"</td>";
         }

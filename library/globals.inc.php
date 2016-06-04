@@ -1115,7 +1115,18 @@ $GLOBALS_METADATA = array(
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received MDM documents.')
     ),
-
+    'generate_thumb' => array(
+        xl('Generate thumbnail'),
+        'bool',
+        '0',
+        xl('Generate thumbnail images'),
+    ),
+    'thumb_size' => array(
+        xl('Thumbnail size'),
+        'text',          // data type
+        '100',           // default
+        xl('Maximum size of thumbnail file')
+    ),
   ),
 
   // Calendar Tab
