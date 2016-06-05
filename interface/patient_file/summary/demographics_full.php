@@ -768,7 +768,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
             var constraints = <?=$constraints?>;
             var error_msg ='<?=xl('is not valid')?>';
             var form = document.querySelector("form#demographics_form");
-            var errors = validate(form, constraints,options);
+            var errors = validate(form, constraints);
             if (typeof  errors !== 'undefined') {
                 e.preventDefault();
                  showErrors(form, errors);
