@@ -254,7 +254,7 @@ while ($currdate <= $enddate) {
     if (date('m', $currdate) != $month) {
         $tdClass = "tdOtherMonthDay-small";
     }
-    if ((date('w', $currdate) == 0) || (date('w', $currdate) == 6)) {
+    if (is_weekend_day(date('w', $currdate))) {
         $tdClass = "tdWeekend-small";
     }
 
@@ -407,7 +407,8 @@ foreach ($providers as $provider) {
     // having a 'title' for the TD makes the date appear by the mouse pointer
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
-    echo "<td class='schedule' title='".htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES)."' date='".date("Ymd",$caldate )."' provider='$providerid'>";
+    $classForWeekend = is_weekend_day(date('w', $caldate)) ? 'weekend-day' : 'work-day';
+    echo "<td class='schedule " . $classForWeekend . "' title='".htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES)."' date='".date("Ymd",$caldate )."' provider='$providerid'>";
     echo "<div class='providerheader'>";
     echo htmlspecialchars($provider['fname'],ENT_QUOTES)." ".htmlspecialchars($provider['lname'],ENT_QUOTES)."</div>";
     echo "<div class='calendar_day'>";

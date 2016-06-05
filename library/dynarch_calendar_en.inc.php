@@ -45,7 +45,7 @@ Calendar._SDN = new Array
 
 // First day of the week. "0" means display Sunday first, "1" means display
 // Monday first, etc.
-Calendar._FD = 0;
+Calendar._FD = <?php echo $GLOBALS['first_day_week']; ?>
 
 // full month names
 Calendar._MN = new Array
@@ -113,7 +113,7 @@ Calendar._TT["DAY_FIRST"] = "Display %s first";
 // This may be locale-dependent.  It specifies the week-end days, as an array
 // of comma-separated numbers.  The numbers are from 0 to 6: 0 means Sunday, 1
 // means Monday, etc.
-Calendar._TT["WEEKEND"] = "0,6";
+Calendar._TT["WEEKEND"] = "<?php echo implode(',', $GLOBALS['weekend_days']);?>";
 
 Calendar._TT["CLOSE"] = "<?php xl("Close","e"); ?>";
 Calendar._TT["TODAY"] = "<?php xl("Today","e"); ?>";

@@ -1134,7 +1134,7 @@ $classpati='';
 
  <tr>
   <td width='1%' nowrap>
-   <b><?php echo ($GLOBALS['athletic_team'] ? xlt('Team/Squad') : xlt('Category')); ?>:</b>
+   <b><?php echo xlt('Category'); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_category' onchange='set_category()' style='width:100%'>
@@ -1187,7 +1187,7 @@ $classpati='';
 
  <tr>
   <td nowrap>
-   <b><?php echo ($GLOBALS['athletic_team'] ? xlt('Team/Squad') : xlt('Title')); ?>:</b>
+   <b><?php echo xlt('Title'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_title' value='<?php echo attr($row['pc_title']); ?>'
@@ -1431,7 +1431,7 @@ if  ($GLOBALS['select_multi_providers']) {
 
  <tr>
   <td nowrap>
-   <span id='title_apptstatus'><b><?php echo ($GLOBALS['athletic_team'] ? xlt('Session Type') : xlt('Status')); ?>:</b></span>
+   <span id='title_apptstatus'><b><?php echo xlt('Status'); ?>:</b></span>
    <span id='title_prefcat' style='display:none'><b><?php echo xlt('Pref Cat'); ?>:</b></span>
   </td>
   <td nowrap>

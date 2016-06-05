@@ -1048,7 +1048,6 @@ function ibr_277_filetohtml($filepath, $err_only = false) {
 			$ar_277_vals = ibr_277_parse($ar_277_segs);
 		} else {
 			$html_str .= "failed to get segments for $fp <br />" .PHP_EOL;
-			continue;
 		}
         $idx = 0;
         foreach($ar_277_vals as $isa) { 

@@ -215,30 +215,6 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <?php } ?>
  }
 
- function validate() {
-  var f = document.forms[0];
-<?php
-if ($GLOBALS['athletic_team']) {
-  echo "  if (f.form_userdate1.value != f.form_original_userdate1.value) {\n";
-  $irow = sqlQuery("SELECT id, title FROM lists WHERE " .
-    "pid = ? AND enddate IS NULL ORDER BY begdate DESC LIMIT 1", array($pid));
-  if (!empty($irow)) {
-?>
-   if (confirm('Do you wish to also set this new return date in the issue titled "<?php echo htmlspecialchars($irow['title'],ENT_QUOTES); ?>"?')) {
-    f.form_issue_id.value = '<?php echo htmlspecialchars($irow['id'],ENT_QUOTES); ?>';
-   } else {
-    alert('OK, you will need to manually update the return date in any affected issue(s).');
-   }
-<?php } else { ?>
-   alert('You have changed the return date but there are no open issues. You probably need to create or modify one.');
-<?php
-  } // end empty $irow
-  echo "  }\n";
-} // end athletic team
-?>
-  return true;
- }
-
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 775, 375);
   return false;
@@ -662,7 +638,7 @@ if ($GLOBALS['patient_id_category_name']) {
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
-      <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
+      <tr>
        <td>
 <?php
 // Billing expand collapse widget
@@ -1300,58 +1276,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  echo "   <br />&nbsp;<br />\n";
 	}
 
-	// This stuff only applies to athletic team use of OpenEMR.  The client
-	// insisted on being able to quickly change fitness and return date here:
-	//
-	if (false && $GLOBALS['athletic_team']) {
-	  //                  blue      green     yellow    red       orange
-	  $fitcolors = array('#6677ff','#00cc00','#ffff00','#ff3333','#ff8800','#ffeecc','#ffccaa');
-	  if (!empty($GLOBALS['fitness_colors'])) $fitcolors = $GLOBALS['fitness_colors'];
-	  $fitcolor = $fitcolors[0];
-	  $form_fitness   = $_POST['form_fitness'];
-	  $form_userdate1 = fixDate($_POST['form_userdate1'], '');
-	  $form_issue_id  = $_POST['form_issue_id'];
-	  if ($form_submit) {
-		$returndate = $form_userdate1 ? "'$form_userdate1'" : "NULL";
-		sqlStatement("UPDATE patient_data SET fitness = ?, " .
-		  "userdate1 = ? WHERE pid = ?", array($form_fitness, $returndate, $pid) );
-		// Update return date in the designated issue, if requested.
-		if ($form_issue_id) {
-		  sqlStatement("UPDATE lists SET returndate = ? WHERE " .
-		    "id = ?", array($returndate, $form_issue_id) );
-		}
-	  } else {
-		$form_fitness = $result['fitness'];
-		if (! $form_fitness) $form_fitness = 1;
-		$form_userdate1 = $result['userdate1'];
-	  }
-	  $fitcolor = $fitcolors[$form_fitness - 1];
-	  echo "   <form method='post' action='demographics.php' onsubmit='return validate()'>\n";
-	  echo "   <span class='bold'>Fitness to Play:</span><br />\n";
-	  echo "   <select name='form_fitness' style='background-color:$fitcolor'>\n";
-	  $res = sqlStatement("SELECT * FROM list_options WHERE " .
-		"list_id = 'fitness' ORDER BY seq");
-	  while ($row = sqlFetchArray($res)) {
-		$key = $row['option_id'];
-		echo "    <option value='" . htmlspecialchars($key,ENT_QUOTES) . "'";
-		if ($key == $form_fitness) echo " selected";
-		echo ">" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</option>\n";
-	  }
-	  echo "   </select>\n";
-	  echo "   <br /><span class='bold'>Return to Play:</span><br>\n";
-	  echo "   <input type='text' size='10' name='form_userdate1' id='form_userdate1' " .
-		"value='$form_userdate1' " .
-		"title='" . htmlspecialchars(xl('yyyy-mm-dd Date of return to play'),ENT_QUOTES) . "' " .
-		"onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
-		"   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' " .
-		"id='img_userdate1' border='0' alt='[?]' style='cursor:pointer' " .
-		"title='" . htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES) . "'>\n";
-	  echo "   <input type='hidden' name='form_original_userdate1' value='" . htmlspecialchars($form_userdate1,ENT_QUOTES) . "' />\n";
-	  echo "   <input type='hidden' name='form_issue_id' value='' />\n";
-	  echo "<p><input type='submit' name='form_submit' value='Change' /></p>\n";
-	  echo "   </form>\n";
-	}
-
 	// Show current and upcoming appointments.
 	if (isset($pid) && !$GLOBALS['disable_calendar']) {
         // 
@@ -1549,11 +1473,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 </div> <!-- end main content div -->
 
-<?php if (false && $GLOBALS['athletic_team']) { ?>
-<script language='JavaScript'>
- Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
-</script>
-<?php } ?>
 <script language='JavaScript'>
 // Array of skip conditions for the checkSkipConditions() function.
 var skipArray = [
