@@ -349,7 +349,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' id="demographics_form" method='post' onsubmit='return submitme("db_rules",event)'>
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit='return submitme("db_rules",event,"DEM")'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -755,7 +755,9 @@ $group_seq=0; // this gives the DIV blocks unique IDs
     });
 </script>
 
-<?/*Include the validation script and rules for this form*/?>
+<?/*Include the validation script and rules for this form*/
+$form_id="DEM";
+?>
 <?include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>

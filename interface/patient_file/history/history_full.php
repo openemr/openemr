@@ -33,6 +33,7 @@ require_once("history.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
+require_once("$srcdir/validation/LBF_Validation.php");
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -66,6 +67,9 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/moment.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/validate/validate.js"></script>
+<script type="text/javascript" src="../../../library/js/vendors/validate/validate_extend.js"></script>    
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
@@ -102,18 +106,12 @@ function trimlen(s) {
  return j + 1 - i;
 }
 
-function validate(f) {
+function validate_old(f) {
 <?php generate_layout_validation('HIS'); ?>
  return true;
 }
 
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  top.restoreSession();
-  f.submit();
- }
-}
+
 
 function submit_history() {
     top.restoreSession();
@@ -238,7 +236,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" name='history_form' method='post' onsubmit='return validate(this)' >
+<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit='return submitme("db_rules",event,"HIS")' >
     <input type='hidden' name='mode' value='save'>
 
     <div>
@@ -248,9 +246,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <a href="javascript:submit_history();" class='css_button'>
-            <span><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES); ?></span>
-        </a>
+        <button class="button gray" type="submit" name="submit"><?php xl('Save','e'); ?></button>
         <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
@@ -292,5 +288,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
         checkSkipConditions();
     });
 </script>
+
+<?/*Include the validation script and rules for this form*/
+$form_id="HIS";
+?><?include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>
