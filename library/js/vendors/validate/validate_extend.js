@@ -43,19 +43,19 @@ validate.validators.pastDate = function(value, options) {
     if (options.onlyYear != undefined && options.onlyYear) {
         if(value < 1800 || value > now.getFullYear ) {
 
-            this.throwError('Must be year format');
+            throwError('Must be year format');
         }
     }
 
     var date =  new Date(value);
     var mls_date = date.getTime();
     if(isNaN(mls_date)) {
-        this.throwError('Must be valid date');
+        throwError('Must be valid date');
     }
 
     if(now < mls_date) {
 
-        this.throwError( 'Must be past date');
+        throwError( 'Must be past date');
     }
 
     // throw error
