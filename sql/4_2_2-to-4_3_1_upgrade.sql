@@ -80,10 +80,12 @@ INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Va
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','postal_code','Postal Code','{\"format\":{\"pattern\":\"^(\\\\d{5}|\\\\d{7})$\"}}','60');
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','70');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','il_phone','IL Phone','{\"format\":{\"pattern\":\"^((\\\\+972|972)|0)( |-)?([1-468-9]( |-)?\\\\d{7}|(5|7)[0-9]( |-)?\\\\d{7})$\"}}','70');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','israel_id','Isreali ID','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
 
 #EndIf
 

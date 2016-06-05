@@ -59,7 +59,7 @@ validate.validators.pastDate = function(value, options) {
     }
 
     // throw error
-    this.throwError  = function(message){
+    function throwError(message){
         if(validate.isObject(options) && options.message != undefined) {
             return options.message;
         } else {
