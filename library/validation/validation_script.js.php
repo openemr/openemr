@@ -1,4 +1,8 @@
 
+<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+
 <script language='JavaScript'>
     function submitme(validation_type,e,form_id) {
     //Use the old validation script if no parameter sent (backward compatibility)
