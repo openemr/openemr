@@ -64,7 +64,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="../../../library/js/vendors/moment.js"></script>
@@ -777,10 +777,34 @@ $group_seq=0; // this gives the DIV blocks unique IDs
             function showErrors(form, errors) {
                 for (var key in errors) {
                     if (errors.hasOwnProperty(key)) {
+
+                        var input = $('#'+key);
+                        //append 'span' tag for error massages if not exist
+                        if($("#error_" + key).length == 0) {
+
+                             $(input).after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+                        }
+                        //show error message
                         var title= form.elements.namedItem(key).title;
-                        document.getElementById("error_" + key).innerHTML =title +' '+error_msg;
+                        $("#error_" + key).text(title +' '+error_msg);
+
+                        $(input).css('border', '1px solid red');
+                        //bind hide function on focus/select again
+                        $(input).on('click focus select', function(){
+                           hideErrors(this);
+                        });
+
                     }
                 }
+            }
+            /*
+            * hide error message
+            * @param element
+            * */
+            function hideErrors(element){
+
+                $(element).removeAttr('style');
+                $(element).next().text('');
             }
 
         }

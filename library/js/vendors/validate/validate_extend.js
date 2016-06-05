@@ -43,19 +43,19 @@ validate.validators.pastDate = function(value, options) {
     if (options.onlyYear != undefined && options.onlyYear) {
         if(value < 1800 || value > now.getFullYear ) {
 
-            throwError('Must be year format');
+            return throwError('Must be year format');
         }
     }
 
     var date =  new Date(value);
     var mls_date = date.getTime();
     if(isNaN(mls_date)) {
-        throwError('Must be valid date');
+       return throwError('Must be valid date');
     }
 
     if(now < mls_date) {
 
-        throwError( 'Must be past date');
+       return throwError( 'Must be past date');
     }
 
     // throw error
@@ -111,5 +111,6 @@ validate.validators.luhn = function(value, options) {
         }
     }
 }
+
 
 
