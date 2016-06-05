@@ -151,11 +151,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     <?php if ($focustype == "allergy") { ?>
       <th style='text-align:left'><?php echo xlt('Reaction'); ?></th>
     <?php } ?>
-    <?php if ($GLOBALS['athletic_team']) { ?>
-      <th style='text-align:left'><?php echo xlt('Missed'); ?></th>
-    <?php } else { ?>
-      <th style='text-align:left'><?php echo xlt('Referred By'); ?></th>
-    <?php } ?>
+    <th style='text-align:left'><?php echo xlt('Referred By'); ?></th>
     <th style='text-align:left'><?php echo xlt('Modify Date'); ?></th>
     <th style='text-align:left'><?php echo xlt('Comments'); ?></th>
     <th><?php echo xlt('Enc'); ?></th>
@@ -241,12 +237,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
       echo "</td>\n";
     }
-    if ($GLOBALS['athletic_team']) {
-        echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
-    }
-    else {
-        echo "  <td>" . text($row['referredby']) . "</td>\n";
-    }
+    echo "  <td>" . text($row['referredby']) . "</td>\n";
     echo "  <td>" . text($row['modifydate']) . "</td>\n";
     echo "  <td>" . text($row['comments']) . "</td>\n";
     echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";

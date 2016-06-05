@@ -1,3 +1,9 @@
+git-openemr (1.0.0-6) stable; urgency=low
+
+  * Fix to work with PHP7 and PhpMyAdmin..
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 13 May 2016 22:56:45 -0700
+
 git-openemr (1.0.0-5) stable; urgency=low
 
   * Fix to work with new versions of Ubuntu (15.10+).

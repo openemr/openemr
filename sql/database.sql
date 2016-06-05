@@ -2594,10 +2594,6 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','default','allergy','Allergies','Allergy','A','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','default','surgery','Surgeries','Surgery','S','0','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','default','dental','Dental Issues','Dental','D','0','0');
-INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','athletic_team','football_injury','Football Injuries','Injury','I','2','1');
-INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','athletic_team','medical_problem','Medical Problems','Medical','P','0','0');
-INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','athletic_team','allergy','Allergies','Allergy','A','1','0');
-INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','athletic_team','general','General','General','G','1','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','ippf_specific','medical_problem','Medical Problems','Problem','P','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','ippf_specific','medication','Medications','Medication','M','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','ippf_specific','allergy','Allergies','Allergy','Y','0','1');
@@ -4448,6 +4444,7 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','postal_code','Postal Code','{\"format\":{\"pattern\":\"^(\\\\d{5}|\\\\d{7})$\"}}','60');
+INSERT INTO `list_options` (`list_id`,`option_id`,`notes`,`seq`) VALUES ('LBF_Validations','il_phone','IL Phone','{\"format\":{\"pattern\":\"^((\\\\+972|972)|0)( |-)?([1-468-9]( |-)?\\\\d{7}|(5|7)[0-9]( |-)?\\\\d{7})$\"}}','70');
 
 -- --------------------------------------------------------
 

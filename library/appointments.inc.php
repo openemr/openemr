@@ -11,10 +11,8 @@
 
 
 
-////////////
 require_once(dirname(__FILE__)."/encounter_events.inc.php");
 require_once(dirname(__FILE__)."/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
-////////////
 
 
 $COMPARE_FUNCTION_HASH = array(
@@ -43,22 +41,36 @@ $ORDERHASH = array(
     'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
-function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0 )
+function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null )
 {
-  //////
-  if($nextX) {
+	
+  $sqlBindArray = array();
 
-    $where =
-      "((e.pc_endDate >= '$from_date' AND e.pc_recurrtype > '0') OR " .
-      "(e.pc_eventDate >= '$from_date'))";
+  if($query_param) {
+
+    $query = $query_param;
+
+    if($bind_param) $sqlBindArray = $bind_param;
 
   } else {
-  //////
-    $where =
-      "((e.pc_endDate >= '$from_date' AND e.pc_eventDate <= '$to_date' AND e.pc_recurrtype > '0') OR " .
-      "(e.pc_eventDate >= '$from_date' AND e.pc_eventDate <= '$to_date'))";
+    //////
+    if($nextX) {
 
-  }
+      $where =
+        "((e.pc_endDate >= ? AND e.pc_recurrtype > '0') OR " .
+        "(e.pc_eventDate >= ?))";
+
+      array_push($sqlBindArray, $from_date, $from_date);
+
+    } else {
+    //////
+      $where =
+        "((e.pc_endDate >= ? AND e.pc_eventDate <= ? AND e.pc_recurrtype > '0') OR " .
+        "(e.pc_eventDate >= ? AND e.pc_eventDate <= ?))";
+
+      array_push($sqlBindArray, $from_date, $to_date, $from_date, $to_date);
+
+    }
 
     if ( $where_param ) $where .= $where_param;
 	
@@ -94,13 +106,20 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     "WHERE $where " . 
     "ORDER BY $order_by";
 
+    if($bind_param) $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+
+  }
+
 
   ///////////////////////////////////////////////////////////////////////
-  // The following code is from the calculateEvents function in the
-  // PostCalendar Module modified and inserted here by epsdky
+  // The following code is from the calculateEvents function in the    //
+  // PostCalendar Module modified and inserted here by epsdky          //
+  ///////////////////////////////////////////////////////////////////////
 
   $events2 = array();
-  $res = sqlStatement($query);
+
+  $res = sqlStatement($query, $sqlBindArray);
+
   ////////
   if($nextX) {
   global $resNotNull;
@@ -246,71 +265,72 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
   return $events2;
 ////////////////////// End of code inserted by epsdky
 }
-//////////////////////
 
 function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id = null )
 {
-	$where = "";
-	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
+	$sqlBindArray = array();
 
-	$facility_filter = '';
-	if ( $facility_id ) {
-		$event_facility_filter = " AND e.pc_facility = '" . add_escape_custom($facility_id) . "'"; //escape $facility_id
-		$provider_facility_filter = " AND u.facility_id = '" . add_escape_custom($facility_id) . "'"; //escape $facility_id 
-		$facility_filter = $event_facility_filter . $provider_facility_filter;
+	$where = "";
+
+	if ( $provider_id ) {
+		$where .= " AND e.pc_aid = ?";
+		array_push($sqlBindArray, $provider_id);
 	}
-	
-	$where .= $facility_filter;
-	$appointments = fetchEvents( $from_date, $to_date, $where );
+
+	if ( $facility_id ) {
+		$where .= " AND e.pc_facility = ? AND u.facility_id = ?";
+		array_push($sqlBindArray, $facility_id, $facility_id);
+	}
+
+	$appointments = fetchEvents( $from_date, $to_date, $where, null, false, 0, $sqlBindArray );
 	return $appointments;
 }
 
 function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0 )
 {
+	$sqlBindArray = array();
+
 	$where = "";
-	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
+
+	if ( $provider_id ) {
+		$where .= " AND e.pc_aid = ?";
+		array_push($sqlBindArray, $provider_id);
+	}
+
 	if ( $patient_id ) {
-		$where .= " AND e.pc_pid = '$patient_id'";
+		$where .= " AND e.pc_pid = ?";
+		array_push($sqlBindArray, $patient_id);
 	} else {
 		$where .= " AND e.pc_pid != ''";
-	}		
+	}
 
-	$facility_filter = '';
 	if ( $facility_id ) {
-		$event_facility_filter = " AND e.pc_facility = '" . add_escape_custom($facility_id) . "'"; // escape $facility_id
-		$provider_facility_filter = " AND u.facility_id = '" . add_escape_custom($facility_id) . "'"; // escape $facility_id
-		$facility_filter = $event_facility_filter . $provider_facility_filter;
+		$where .= " AND e.pc_facility = ? AND u.facility_id = ?";
+		array_push($sqlBindArray, $facility_id, $facility_id);
 	}
-	
-	$where .= $facility_filter;
-	
-	//Appointment Status Checking
-	$filter_appstatus = '';
-	if($pc_appstatus != ''){
-		$filter_appstatus = " AND e.pc_apptstatus = '".$pc_appstatus."'";
-	}
-	$where .= $filter_appstatus;
 
-        if($pc_catid !=null)
-        {
-            $where .= " AND e.pc_catid=".intval($pc_catid); // using intval to escape this parameter
-        }
-        
+	//Appointment Status Checking
+	if($pc_appstatus != ''){
+		$where .= " AND e.pc_apptstatus = ?";
+		array_push($sqlBindArray, $pc_appstatus);
+	}
+
+	if($pc_catid !=null) {
+		$where .= " AND e.pc_catid = ?";
+		array_push($sqlBindArray, $pc_catid);
+	}
+
 	//Without Provider checking
-	$filter_woprovider = '';
 	if($with_out_provider != ''){
-		$filter_woprovider = " AND e.pc_aid = ''";
+		$where .= " AND e.pc_aid = ''";
 	}
-	$where .= $filter_woprovider;
-	
+
 	//Without Facility checking
-	$filter_wofacility = '';
 	if($with_out_facility != ''){
-		$filter_wofacility = " AND e.pc_facility = 0";
+		$where .= " AND e.pc_facility = 0";
 	}
-	$where .= $filter_wofacility;
-	
-	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX );
+
+	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray );
 	return $appointments;
 }
 

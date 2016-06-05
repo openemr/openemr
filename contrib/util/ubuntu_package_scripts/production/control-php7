@@ -1,14 +1,14 @@
 Package: openemr
-Version: 4.2.1-2
+Version: 4.2.2-1
 Maintainer: Brady Miller <brady@sparmy.com>
-Installed-Size: 127000
+Installed-Size: 220000
 Priority: optional
 Section: web
 Architecture: all
 Source: openemr
 Homepage: http://www.open-emr.org/
 Pre-Depends: debconf
-Depends: mysql-server, apache2, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, php5-json, imagemagick, php-gettext 
+Depends: mysql-server | mariadb-server, apache2, makepasswd, libapache2-mod-php, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php, php-mysql, php-cli, php-gd, php-xsl, php-curl, php-mcrypt, php-soap, php-json, imagemagick, php-gettext, php-mbstring, php-zip
 Description: Comprehensive Medical Practice Management Application
  OpenEMR provides office scheduling, electronic medical records,
  prescriptions, insurance billing, accounting and access controls.

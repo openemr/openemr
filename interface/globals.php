@@ -169,7 +169,6 @@ require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 
 // Defaults for specific applications.
-$GLOBALS['athletic_team'] = false;
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
 $GLOBALS['cene_specific'] = false;
@@ -218,9 +217,11 @@ if (!empty($glrow)) {
         $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
         $temp_css_theme_name = $gl_value;
     }
+    else if ($gl_name == 'weekend_days') {
+        $GLOBALS[$gl_name] = explode(',', $gl_value);
+    }
     else if ($gl_name == 'specific_application') {
-      if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
-      else if ($gl_value == '2') $GLOBALS['ippf_specific'] = true;
+      if ($gl_value == '2') $GLOBALS['ippf_specific'] = true;
       else if ($gl_value == '3') $GLOBALS['weight_loss_clinic'] = true;
     }
     else if ($gl_name == 'inhouse_pharmacy') {

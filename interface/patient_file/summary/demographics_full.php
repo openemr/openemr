@@ -431,9 +431,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	</div>
 </div>
 <br>
-  <div class="section-header">
-    <span class="text"><b><?php xl("Insurance", "e" )?></b></span>
-</div>
+
 <div id="DEM" >
 
 
@@ -447,6 +445,9 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	  $insurance_info[3] = getInsuranceData($pid,"tertiary");
 
 	?>
+     <div class="section-header">
+         <span class="text"><b><?php xl("Insurance", "e" )?></b></span>
+     </div>
 	<div id="INSURANCE" >
 		<ul class="tabNav">
 		<?php

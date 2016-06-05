@@ -143,7 +143,7 @@ if ($_POST['formaction']=="generate") {
     if ($form_format == "pdf") {
       // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
       require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-      $pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+      $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
       $pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
                       ,$GLOBALS['rx_left_margin']
