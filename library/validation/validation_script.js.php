@@ -1,3 +1,4 @@
+
 <script language='JavaScript'>
     function submitme(validation_type,e) {
     //Use the old validation script if no parameter sent (backward compatibility)
@@ -19,12 +20,37 @@
             }
 
             function showErrors(form, errors) {
+
                 for (var key in errors) {
                     if (errors.hasOwnProperty(key)) {
-                        var title= form.elements.namedItem(key).title;
-                        document.getElementById("error_" + key).innerHTML =title +' '+error_msg;
+
+                    var input = $('#'+key);
+                    //append 'span' tag for error massages if not exist
+                    if($("#error_" + key).length == 0) {
+
+                    $(input).after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+                    }
+                    //show error message
+                    var title= form.elements.namedItem(key).title;
+                    $("#error_" + key).text(title +' '+error_msg);
+
+                    $(input).css('border', '1px solid red');
+                        //bind hide function on focus/select again
+                        $(input).on('click focus select', function(){
+                        hideErrors(this);
+                    });
+
                     }
                 }
+            }
+            /*
+            * hide error message
+            * @param element
+            * */
+            function hideErrors(element){
+
+                $(element).removeAttr('style');
+                $(element).next().text('');
             }
 
         }
