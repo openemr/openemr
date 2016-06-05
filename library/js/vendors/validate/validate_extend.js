@@ -28,32 +28,88 @@ validate.extend(validate.validators.datetime, {
 /**
 * validate that date is past date, recommended to put it after {date: {dateOnly: true}}
 * you can specify the message option {onlyPast:{message:'text example'}}
-*
+* optional options -
+* 1)(string) massage
+* 2)(boolean) onlyYear
 */
-validate.validators.onlyPast = function(value, options, key, attributes) {
-
+validate.validators.pastDate = function(value, options) {
+    //exit if empty value
+    if(validate.isEmpty(value)) { return;}
     // exit if options = false
     if(!options) return;
+
+    var now = new Date().getTime();
+    //if set onlyYear option
+    if (options.onlyYear != undefined && options.onlyYear) {
+        if(value < 1800 || value > now.getFullYear ) {
+
+            this.throwError('Must be year format');
+        }
+    }
 
     var date =  new Date(value);
     var mls_date = date.getTime();
     if(isNaN(mls_date)) {
-        return 'must be valid date';
+        this.throwError('Must be valid date');
     }
 
-    var now = new Date().getTime();
     if(now < mls_date) {
-       if(validate.isObject(options) && options.message != undefined) {
-           return options.message;
-       } else {
-           return 'must be past date';
-       }
+
+        this.throwError( 'Must be past date');
+    }
+
+    // throw error
+    this.throwError  = function(message){
+        if(validate.isObject(options) && options.message != undefined) {
+            return options.message;
+        } else {
+            return message;
+        }
     }
 };
 
 
+/**
+ * Luhn algorithm in JavaScript: validate credit card number supplied as string of numbers
+ * @author ShirtlessKirk. https://gist.github.com/ShirtlessKirk/2134376
+ * you can specify the message option {luhn:{message:'text example'}}
+ *
+ */
 
+validate.validators.luhn = function(value, options) {
 
+    //calculate Luhn algorithm
+    var luhnChk = (function (arr) {
+        return function (ccNum) {
+            var
+                len = ccNum.length,
+                bit = 1,
+                sum = 0,
+                val;
 
+            while (len) {
+                val = parseInt(ccNum.charAt(--len), 10);
+                sum += (bit ^= 1) ? arr[val] : val;
+            }
+
+            return sum && sum % 10 === 0;
+        };
+    }([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]));
+
+    //exit if empty value
+    if(validate.isEmpty(value)) { return; }
+    // exit if options = false
+    if(!options) return;
+
+    var valid = luhnChk(value);
+
+    if(!valid) {
+        if(validate.isObject(options) && options.message != undefined) {
+            return options.message;
+        } else {
+            return 'Invalid luhn algorithm';
+        }
+    }
+}
 
 
