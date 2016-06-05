@@ -765,10 +765,10 @@ $group_seq=0; // this gives the DIV blocks unique IDs
             }
         } else {
             <?php $constraints = LBF_Validation::generate_validate_constraints('DEM');?>
-            var constraints =<?=$constraints?>;
-
+            var constraints = <?=$constraints?>;
+            var error_msg ='<?=xl('is not valid')?>';
             var form = document.querySelector("form#demographics_form");
-            var errors = validate(form, constraints);
+            var errors = validate(form, constraints,options);
             if (typeof  errors !== 'undefined') {
                 e.preventDefault();
                  showErrors(form, errors);
@@ -777,7 +777,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
             function showErrors(form, errors) {
                 for (var key in errors) {
                     if (errors.hasOwnProperty(key)) {
-                        document.getElementById("error_" + key).innerHTML = errors[key][0];
+                        var title= form.elements.namedItem(key).title;
+                        document.getElementById("error_" + key).innerHTML =title +' '+error_msg;
                     }
                 }
             }
