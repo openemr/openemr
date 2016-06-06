@@ -846,11 +846,11 @@ while ($lrow = sqlFetchArray($lres)) {
 }); // end document.ready
 
 </script>
-<?/*Include the validation script and rules for this form*/
+<?php /*Include the validation script and rules for this form*/
 $form_id="DEM";
 ?>
 
-<?include_once("$srcdir/validation/validation_script.js.php");?>
+<?php include_once("$srcdir/validation/validation_script.js.php");?>
 <script language='JavaScript'>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
