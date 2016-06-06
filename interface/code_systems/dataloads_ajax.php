@@ -61,7 +61,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 
 // placemaker for when support DSMIV
 // var db_list = [ "DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED"];
-var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED"];
+var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED", "SNOMED_RF2"];
 var accOpts = {
     header: "h3", 
     autoHeight: false,
@@ -130,7 +130,7 @@ var accOpts = {
 			var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
   			$(stg_load_id).show();
 			var thisInterval; 
-      		        var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version');
+      		var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&snomed_extension=' + $(this).attr('snomed_extension');
 			var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
 			$activeAccordionSection = $("#accordion").accordion('option', 'active');
 
@@ -270,7 +270,7 @@ div.tooltip p {
 //
 // placemaker for when support DSMIV
 //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-$db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED");
+$db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED", "SNOMED_RF2");
 foreach ($db_list as $db) {
     ?>
     <h3><a href="#"><?php echo attr($db); ?></a></h3>

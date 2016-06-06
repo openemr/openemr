@@ -91,6 +91,7 @@ if (!empty($sqlReturn)) {
 $file_revision_path = ''; //Holds the database file
 $file_revision_date = ''; //Holds the database file revision date
 $version = '';
+$snomed_extension = '';
 $revisions = array();
 $files_array = array();
 if (is_dir($mainPATH)) {
@@ -125,6 +126,16 @@ if (is_dir($mainPATH)) {
                     array_push($revisions,$temp_date);
 	    	    $supported_file = 1;
                 }
+            }
+            else if ($db == 'SNOMED_RF2') {
+            	if (preg_match("/SnomedCT_RF2Release_([A-Z]+)_([0-9]{8}).zip/", $file, $matches)) {	//import RF2-format
+            		$version = $matches[1];				//'INT' signals the International core
+            		$snomed_extension = "_".$matches[1]."_".$matches[2];
+            		$date_release = substr($matches[2],0,4)."-".substr($matches[2],4,-2)."-".substr($matches[2],6);
+            		$temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+            		array_push($revisions,$temp_date);
+            		$supported_file = 1;
+            	}
             }
             else if ($db == 'SNOMED') {
                 if (preg_match("/SnomedCT_INT_([0-9]{8}).zip/",$file,$matches)) {
@@ -383,7 +394,7 @@ if ($supported_file === 1) {
     }
     if (strlen($action) > 0) {
     ?>
-	  <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
+	  <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" snomed_extension="<?php echo attr($snomed_extension); ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
 	  </div> 
     <?php
     }
