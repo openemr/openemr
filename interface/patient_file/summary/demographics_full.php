@@ -738,6 +738,12 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
 
+<?/*Include the validation script and rules for this form*/
+$form_id="DEM";
+?>
+<?include_once("$srcdir/validation/validation_script.js.php");?>
+
+
 </body>
 <script language='JavaScript'>
     // Array of skip conditions for the checkSkipConditions() function.
@@ -753,9 +759,5 @@ $group_seq=0; // this gives the DIV blocks unique IDs
     });
 </script>
 
-<?/*Include the validation script and rules for this form*/
-$form_id="DEM";
-?>
-<?include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>

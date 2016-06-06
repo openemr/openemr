@@ -2,8 +2,8 @@
 if($new_validate) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
-    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js" > < / script >
-    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js" > < / script >
+    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js" > </script>
+    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js" > </script>
 <?php
  }
 ?>
