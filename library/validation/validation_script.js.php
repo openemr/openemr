@@ -1,5 +1,5 @@
 <?php
-if($new_validate) {
+if($GLOBALS['new_validate']) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
@@ -32,9 +32,14 @@ if($new_validate) {
             var form = document.querySelector("form#"+form_id);
             var errors = validate(form, constraints);
             if (typeof  errors !== 'undefined') {
-                e.preventDefault();
+                //prevent default if trigger is submit button
+                if(typeof (e) !== 'undefined') {
+                    e.preventDefault();
+                }
                 showErrors(form, errors);
                 valid = false;
+            } else {
+                $("form#"+form_id).submit();
             }
 
             function showErrors(form, errors) {

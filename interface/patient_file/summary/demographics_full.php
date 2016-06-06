@@ -11,7 +11,6 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
-$new_validate = false;
  // Session pid must be right or bad things can happen when demographics are saved!
  //
  include_once("$srcdir/pid.inc");
@@ -347,7 +346,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit='return submitme(<?php echo $new_validate ? 1 : 0;?>,event,"DEM")'>
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -362,9 +361,11 @@ $(document).ready(function() {
 			</a>
 			&nbsp;&nbsp;
 		</td>
-		<td>
-            <button class="button gray" type="submit" name="submit"><?php xl('Save','e'); ?></button>
-		</td>
+        <td>
+            <a href="javascript:submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM');" class='css_button'>
+                <span><?php xl('Save','e'); ?></span>
+            </a>
+        </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
