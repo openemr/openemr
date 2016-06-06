@@ -12,7 +12,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-$new_validate = true;
+
 // Check authorization.
 if (!acl_check('patients','demo','',array('write','addonly') ))
   die("Adding demographics is not authorized.");
@@ -376,7 +376,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $new_validate ? 1 : 0;?>,event,"DEM")'>
+<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM")'>
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
@@ -779,8 +779,8 @@ enable_modals();
     $('#create').click(function() { check()});
 
     var check = function() {
-      <?php if($new_validate){?>
-            var valid = submitme(<?php echo $new_validate ? 1 : 0;?>,event,"DEM");
+      <?php if($GLOBALS['new_validate']){?>
+            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM");
       <?}else{?>
             top.restoreSession();
             var f = document.forms[0];

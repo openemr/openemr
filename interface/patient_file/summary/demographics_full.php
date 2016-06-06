@@ -346,7 +346,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post'>
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM')">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -362,9 +362,7 @@ $(document).ready(function() {
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <a href="javascript:submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM');" class='css_button'>
-                <span><?php xl('Save','e'); ?></span>
-            </a>
+            <input class="css_btn" type="submit" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>

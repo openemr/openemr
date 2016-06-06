@@ -9,6 +9,7 @@ if($GLOBALS['new_validate']) {
 ?>
 
 <script language='JavaScript'>
+
     function submitme(new_validate,e,form_id) {
     //Use the old validation script if no parameter sent (backward compatibility)
         if (new_validate !== 1) {
@@ -38,8 +39,6 @@ if($GLOBALS['new_validate']) {
                 }
                 showErrors(form, errors);
                 valid = false;
-            } else {
-                $("form#"+form_id).submit();
             }
 
             function showErrors(form, errors) {

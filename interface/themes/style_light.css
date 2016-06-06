@@ -695,6 +695,27 @@ tr.odd, td.even {
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
   background: #1050b6;
 }
+.css_btn {
+  background: #fcfcfc;
+  background-image: -webkit-linear-gradient(top, #fcfcfc, #c1ced1);
+  background-image: -moz-linear-gradient(top, #fcfcfc, #c1ced1);
+  background-image: -ms-linear-gradient(top, #fcfcfc, #c1ced1);
+  background-image: -o-linear-gradient(top, #fcfcfc, #c1ced1);
+  background-image: linear-gradient(to bottom, #fcfcfc, #c1ced1);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font: bold 10px arial, sans-serif;
+  color: #444;
+  font-size: 10px;
+  padding: 6px 15px 6px 15px;
+  border: solid #8d9194 1px;
+  text-decoration: none;
+  height: 24px;
+}
+.css_btn:hover{
+  color: orangered;
+}
 
 input[type="button"][style="background-color:#ffff55"] {
   background: #2672ec !important;
