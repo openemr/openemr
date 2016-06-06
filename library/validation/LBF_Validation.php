@@ -17,16 +17,16 @@ class LBF_Validation{
               LEFT JOIN list_options ON layout_options.validation=list_options.option_id
               WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != '' 
               ORDER BY layout_options.group_name, layout_options.seq ", array($form_id) );
-        $constraints=[];
-        $validation_arr=[];
-        $required=[];
+        $constraints=array();
+        $validation_arr=array();
+        $required=array();
         while ($frow = sqlFetchArray($fres)) {
             $id = 'form_'.$frow['field_id'];
-            $validation_arr=[];
-            $required=[];
+            $validation_arr=array();
+            $required=array();
             //Keep "required" option from the LBF form
             if($frow['uor'] == 2 ){
-                $required = [self::VJS_KEY_REQUIRED=>true];
+                $required = array(self::VJS_KEY_REQUIRED=>true);
             }
             if ($frow['validation_json']){
                 if(json_decode($frow['validation_json'])) {

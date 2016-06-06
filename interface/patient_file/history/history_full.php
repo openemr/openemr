@@ -288,8 +288,8 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
     });
 </script>
 
-<?/*Include the validation script and rules for this form*/
+<?php /*Include the validation script and rules for this form*/
 $form_id="HIS";
-?><?include_once("$srcdir/validation/validation_script.js.php");?>
+?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>
