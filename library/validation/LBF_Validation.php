@@ -11,11 +11,12 @@ class LBF_Validation{
     public static function generate_validate_constraints($form_id){
 
 
-        $fres = sqlStatement("SELECT layout_options.*,list_options.notes as validation_json FROM layout_options  " .
-            "LEFT JOIN list_options ON layout_options.validation=list_options.option_id " .
-            "WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != '' " .
-            "AND list_options.list_id='LBF_Validations' " .
-            "ORDER BY layout_options.group_name, layout_options.seq ", array($form_id) );
+        $fres = sqlStatement(
+             "SELECT layout_options.*,list_options.notes as validation_json 
+              FROM layout_options  
+              LEFT JOIN list_options ON layout_options.validation=list_options.option_id
+              WHERE layout_options.form_id = ? AND layout_options.uor > 0 AND layout_options.field_id != '' 
+              ORDER BY layout_options.group_name, layout_options.seq ", array($form_id) );
         $constraints=[];
         $validation_arr=[];
         $required=[];
@@ -35,7 +36,9 @@ class LBF_Validation{
                     trigger_error($frow['validation_json']. " is not a valid json ", E_USER_WARNING);
                 }
             }
-            $constraints[$id]=array_merge($required,$validation_arr);
+            if(!empty($required) || !empty($validation_arr)) {
+                $constraints[$id] = array_merge($required, $validation_arr);
+            }
 
         }
 
