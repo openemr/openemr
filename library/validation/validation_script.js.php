@@ -54,10 +54,10 @@ if($GLOBALS['new_validate']) {
                             //If have another element after the input
                             if($(input).next().length > 0) {
 
-                                $(input).next().after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+                                $(input).next().after("<span id='error_" + key +"' class='error-message' '></span>");
 
                             } else {
-                                $(input).after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+                                $(input).after("<span id='error_" + key +"' class='error-message'></span>");
 
                             }
                         }
@@ -65,7 +65,7 @@ if($GLOBALS['new_validate']) {
                         var title= form.elements.namedItem(key).title;
                         $("#error_" + key).text(title +' '+error_msg);
 
-                        $(input).css('border', '1px solid red');
+                        $(input).addClass('error-border');
                         //bind hide function on focus/select again
                         $(input).on('click focus select', function(){
                              hideErrors(this);
@@ -86,7 +86,7 @@ if($GLOBALS['new_validate']) {
             * @param element
             * */
             function hideErrors(input){
-                $(input).removeAttr('style');
+                $(input).removeClass('error-border');
                 var id = $(input).attr('id');
                 $("#error_" + id).text('');
             }
