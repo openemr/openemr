@@ -34,6 +34,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+
+$new_validate = true;
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -103,7 +105,7 @@ function trimlen(s) {
  return j + 1 - i;
 }
 
-function validate_old(f) {
+function validate(f) {
 <?php generate_layout_validation('HIS'); ?>
  return true;
 }
@@ -233,7 +235,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit='return submitme("db_rules",event,"HIS")' >
+<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit='return submitme(<?php echo $new_validate ? 1 : 0;?>,event,"HIS")' >
     <input type='hidden' name='mode' value='save'>
 
     <div>
