@@ -11,7 +11,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
-$new_validate = true;
+$new_validate = false;
  // Session pid must be right or bad things can happen when demographics are saved!
  //
  include_once("$srcdir/pid.inc");

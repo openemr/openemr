@@ -2,8 +2,8 @@
 if($new_validate) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
-    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js" > </script>
-    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js" > </script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
 <?php
  }
 ?>
@@ -12,11 +12,12 @@ if($new_validate) {
     function submitme(new_validate,e,form_id) {
     //Use the old validation script if no parameter sent (backward compatibility)
         if (new_validate !== 1) {
-            e.preventDefault();
             var f = document.forms[0];
             if (validate(f)) {
                 top.restoreSession();
-                $(f).submit();
+                f.submit();
+            } else {
+                e.preventDefault();
             }
         } else {
 
@@ -43,6 +44,7 @@ if($new_validate) {
 
                         //append 'span' tag for error massages if not exist
                         if($("#error_" + key).length == 0) {
+                            //If have another element after the input
                             if($(input).next().length > 0) {
 
                                 $(input).next().after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
@@ -61,6 +63,13 @@ if($new_validate) {
                         $(input).on('click focus select', function(){
                              hideErrors(this);
                         });
+                        //for datepicker button
+                        if($(input).next().is('img')){
+                            $(input).next().click(function(){
+
+                                hideErrors($(this).prev());
+                            });
+                        }
 
                     }
                 }
