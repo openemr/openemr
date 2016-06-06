@@ -25,6 +25,7 @@ if($new_validate) {
             $constraints = LBF_Validation::generate_validate_constraints($form_id);
 
             ?>
+            var valid = true ;
             var constraints = <?=$constraints?>;
             var error_msg ='<?=xl('is not valid')?>';
             var form = document.querySelector("form#"+form_id);
@@ -32,6 +33,7 @@ if($new_validate) {
             if (typeof  errors !== 'undefined') {
                 e.preventDefault();
                 showErrors(form, errors);
+                valid = false;
             }
 
             function showErrors(form, errors) {
@@ -74,7 +76,7 @@ if($new_validate) {
                 var id = $(input).attr('id');
                 $("#error_" + id).text('');
             }
-
+            return valid;
         }
     }
 </script>
