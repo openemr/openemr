@@ -11,6 +11,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
+$new_validate = true;
  // Session pid must be right or bad things can happen when demographics are saved!
  //
  include_once("$srcdir/pid.inc");
@@ -221,7 +222,7 @@ function trimlen(s) {
  return j + 1 - i;
 }
 
-function validate_old(f) {
+function validate(f) {
  var errCount = 0;
  var errMsgs = new Array();
 <?php generate_layout_validation('DEM'); ?>
@@ -346,7 +347,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit='return submitme("db_rules",event,"DEM")'>
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit='return submitme(<?php echo $new_validate ? 1 : 0;?>,event,"DEM")'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>

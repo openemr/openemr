@@ -1,16 +1,22 @@
-
-<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+<?php
+if($new_validate) {
+?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
+    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js" > < / script >
+    <script type = "text/javascript" src = "<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js" > < / script >
+<?php
+ }
+?>
 
 <script language='JavaScript'>
-    function submitme(validation_type,e,form_id) {
+    function submitme(new_validate,e,form_id) {
     //Use the old validation script if no parameter sent (backward compatibility)
-        if (typeof validation_type === 'undefined') {
+        if (new_validate !== 1) {
+            e.preventDefault();
             var f = document.forms[0];
-            if (validate_old(f)) {
+            if (validate(f)) {
                 top.restoreSession();
-                f.submit();
+                $(f).submit();
             }
         } else {
 
@@ -33,21 +39,28 @@
                 for (var key in errors) {
                     if (errors.hasOwnProperty(key)) {
 
-                    var input = $('#'+key);
-                    //append 'span' tag for error massages if not exist
-                    if($("#error_" + key).length == 0) {
+                        var input = $('#'+key);
 
-                    $(input).after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
-                    }
-                    //show error message
-                    var title= form.elements.namedItem(key).title;
-                    $("#error_" + key).text(title +' '+error_msg);
+                        //append 'span' tag for error massages if not exist
+                        if($("#error_" + key).length == 0) {
+                            if($(input).next().length > 0) {
 
-                    $(input).css('border', '1px solid red');
+                                $(input).next().after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+
+                            } else {
+                                $(input).after("<span id='error_" + key +"' style='color:red;display:block;white-space: nowrap;font-weight: normal;font-size: 11px;'></span>");
+
+                            }
+                        }
+                        //show error message
+                        var title= form.elements.namedItem(key).title;
+                        $("#error_" + key).text(title +' '+error_msg);
+
+                        $(input).css('border', '1px solid red');
                         //bind hide function on focus/select again
                         $(input).on('click focus select', function(){
-                        hideErrors(this);
-                    });
+                             hideErrors(this);
+                        });
 
                     }
                 }
@@ -56,10 +69,10 @@
             * hide error message
             * @param element
             * */
-            function hideErrors(element){
-
-                $(element).removeAttr('style');
-                $(element).next().text('');
+            function hideErrors(input){
+                $(input).removeAttr('style');
+                var id = $(input).attr('id');
+                $("#error_" + id).text('');
             }
 
         }
