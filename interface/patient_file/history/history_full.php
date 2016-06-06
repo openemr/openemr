@@ -35,7 +35,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 
-$new_validate = true;
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -235,7 +234,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit='return submitme(<?php echo $new_validate ? 1 : 0;?>,event,"HIS")' >
+<form action="history_save.php" id="HIS" name='history_form' method='post' >
     <input type='hidden' name='mode' value='save'>
 
     <div>
@@ -245,7 +244,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <button class="button gray" type="submit" name="submit"><?php xl('Save','e'); ?></button>
+        <a href="javascript:submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS');" class='css_button'>
+            <span><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES); ?></span>
+        </a>
         <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
