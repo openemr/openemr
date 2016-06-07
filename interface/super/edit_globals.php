@@ -194,8 +194,8 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
    */
   
   // Get all the globals from DB
-  $old_globals = $GLOBALS['adodb']['db']->getAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true);
-  
+  $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true );
+
   $i = 0;
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
@@ -221,7 +221,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
       }
       else {
         /* check value of single field. Don't update if the database holds the same value */
-        if (isset($_POST["form_$i"])) {
+        if (isset($_POST["form_$i"])) { 
           $fldvalue = formData("form_$i", "P", true);
         }
         else {
@@ -229,13 +229,13 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
         }
         if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
 
-        if( !isset( $old_globals[$fldid]) ) {
-          // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
-        } else { // previous value was in the DB
-          if( $old_globals[ $fldid ]['gl_value'] === $fldvalue )  {
-            // No need to update
-          } else {
-
+        // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
+        
+        if( 
+             !isset( $old_globals[$fldid]) // if the key not found in database - update database
+              ||              
+             ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
+        ) {
             // Need to force enable_auditlog_encryption off if the php mcrypt module
             // is not installed.
             if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
@@ -252,7 +252,8 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
             // Replace old values
             sqlStatement( 'DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ) );
             sqlStatement( 'INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue )  );
-          }
+        } else {
+          error_log("No need to update $fldid");
         }
       }
       ++$i;
