@@ -657,6 +657,7 @@ font-weight: bold;
     border: solid #8d9194 1px;
     text-decoration: none;
     height: 24px;
+    outline: none;
 }
 .css_btn:hover{
     color: orangered;

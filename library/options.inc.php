@@ -207,6 +207,13 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	else {
 		$s .= "</select>";
 	}
+    // add default selected to 'Unassigned' for multiple select
+    if(!$got_selected && !$got_selected_backup && $multiple) {
+
+        $s = str_replace("value=''", "value='' selected ", $s);
+    }
+
+
 	return $s;
 	
 }
