@@ -253,7 +253,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
             sqlStatement( 'DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ) );
             sqlStatement( 'INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue )  );
         } else {
-          error_log("No need to update $fldid");
+          //error_log("No need to update $fldid");
         }
       }
       ++$i;
