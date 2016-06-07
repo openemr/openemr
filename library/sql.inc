@@ -266,6 +266,24 @@ function sqlFetchArray($r)
     return $r->FetchRow();
 }
 
+
+/**
+ * Wrapper for ADODB getAssoc
+ * 
+ * @see http://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getassoc
+ * 
+ * @param string $sql
+ * @param string[] $bindvars
+ * @param boolean $forceArray
+ * @param boolean $first2Cols
+ * @return array
+ */
+function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=false ) {
+  
+  return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
+  
+}
+
 /**
 * Standard sql insert query in OpenEMR.
 *
