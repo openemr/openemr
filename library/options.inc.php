@@ -2408,7 +2408,7 @@ function display_layout_tabs($formtype, $result1, $result2='') {
 	  if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
       ?>
 		<li <?php echo $first ? 'class="current"' : '' ?>>
-			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo ".htmlspecialchars($group_name,ENT_QUOTES)."?>">
+			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo htmlspecialchars(str_replace(' ', '_', $group_name),ENT_QUOTES)?>">
                         <?php echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES); ?></a>
 		</li>
 	  <?php
@@ -2578,7 +2578,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 		"ORDER BY seq", array($formtype,$this_group) );
 	?>
 
-		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo $group_name_esc?>" >
+		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_',$group_name_esc)?>" >
 			<table border='0' cellpadding='0'>
 
 			<?php

@@ -90,6 +90,15 @@ if($GLOBALS['new_validate']) {
                 $("#error_" + id).text(title +' '+error_msg);
 
                 $(input).addClass('error-border');
+
+                //mark the tub
+                var parent_div = $(input).parents('div.tab');
+                if($(parent_div).is('div')) {
+                    var div_id = $(parent_div).attr('id');
+                    var type_tab = div_id.substr(4);
+                    $('a#header_tab_'+type_tab).css('color', 'red');
+                 }
+
                 //bind hide function on focus/select again
                 $(input).on('click focus select', function(){
                     hideErrors(this, id);
@@ -110,6 +119,13 @@ if($GLOBALS['new_validate']) {
             function hideErrors(input, id){
                 $(input).removeClass('error-border');
                 $("#error_" + id).text('');
+
+                var parent_div = $(input).parents('div.tab');
+                if($(parent_div).is('div')) {
+                    var div_id = $(parent_div).attr('id');
+                    var type_tab = div_id.substr(4);
+                    $('a#header_tab_'+type_tab).css('color', 'black');
+                }
             }
             return valid;
         }
