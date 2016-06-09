@@ -574,7 +574,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 						$code = $code_text = $code_rx = $code_text_rx = $code_snomed = $code_text_snomed = $reaction_text = $reaction_code = '';
 						$get_code_details = explode(':',$single_code);
 	
-						if($get_code_details[0] == 'RXNORM'){
+						if($get_code_details[0] == 'RxNorm'){
 							$code_rx 			= $get_code_details[1];
 							$code_text_rx = lookup_code_descriptions($single_code);
 						}
@@ -591,12 +591,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 						
 						if($row['enddate']){
 							$active 			= 'completed';
+							$allergy_status = 'completed';
 							$status_table = 'Resolved';
 							$status_code  = '73425007';							
 						}
 						else{
 							$active 			= 'completed';
-							$status_table = 'Pending';
+							$allergy_status = 'active';
+							$status_table 	= 'Active';
 							$status_code  = '55561003';							
 						}
 							
@@ -617,6 +619,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 							<snomed_code_text>".htmlspecialchars(($code_text_snomed ? \Application\Listener\Listener::z_xlt($code_text_snomed) : 'NULL'),ENT_QUOTES)."</snomed_code_text>
 							<status_table>".($status_table ? $status_table : 'NULL')."</status_table>
 							<status>".($active ? $active : 'NULL')."</status>
+							<allergy_status>".($allergy_status ? $allergy_status : 'NULL')."</allergy_status>
 							<status_code>".($status_code ? $status_code : 0)."</status_code>
 							<outcome>".htmlspecialchars(($row['observation'] ? \Application\Listener\Listener::z_xlt($row['observation']) : 'NULL'),ENT_QUOTES)."</outcome>
 							<outcome_code>".htmlspecialchars(($row['observation_code'] ? $row['observation_code'] : 0),ENT_QUOTES)."</outcome_code>
@@ -636,8 +639,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getMedications($pid,$encounter)
     {
         $medications    = '';
-        $query      = "select l.id, l.date_added, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, l3.notes as route_code,
-                       l.rxnorm_drugcode, l1.title as unit,l2.title as form, l3.title as route, l4.title as `interval`,
+        $query      = "select l.id, l.date_added, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
+                       l.rxnorm_drugcode, l1.title as unit, l1.codes as unit_code,l2.title as form,SUBSTRING(l2.codes, LOCATE(':',l2.codes)+1, LENGTH(l2.codes)) AS form_code, l3.title as route, l4.title as `interval`,
                        u.title, u.fname, u.lname, u.mname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1, l.note
                        from prescriptions as l
                        left join list_options as l1 on l1.option_id=unit AND l1.list_id = ?
@@ -689,7 +692,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 						<dosage>".htmlspecialchars($row['dosage'],ENT_QUOTES)."</dosage>
 						<size>".htmlspecialchars(($row['size'] ? $row['size'] : 0),ENT_QUOTES)."</size>
 						<unit>".htmlspecialchars(($row['unit'] ? preg_replace('/\s*/', '', \Application\Listener\Listener::z_xlt($row['unit'])) : 'Unit'),ENT_QUOTES)."</unit>
+						<unit_code>".htmlspecialchars(($row['unit_code'] ? $row['unit_code']: 0),ENT_QUOTES)."</unit_code>
 						<form>".htmlspecialchars(\Application\Listener\Listener::z_xlt($row['form']),ENT_QUOTES)."</form>
+						<form_code>".htmlspecialchars(\Application\Listener\Listener::z_xlt($row['form_code']),ENT_QUOTES)."</form_code>
 						<route_code>".htmlspecialchars($row['route_code'],ENT_QUOTES)."</route_code>
 						<route>".htmlspecialchars($row['route'],ENT_QUOTES)."</route>
 						<interval>".htmlspecialchars(\Application\Listener\Listener::z_xlt($row['interval']),ENT_QUOTES)."</interval>
@@ -744,7 +749,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 					}
 					else{
 						$status 				= 'active';
-						$status_table 	= 'Pending';
+						$status_table 	= 'Active';
 						$status_code    = '55561003';
 					}
 				
@@ -766,7 +771,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 						<status_code>".$status_code."</status_code>
 						<observation>".htmlspecialchars(($observation ? \Application\Listener\Listener::z_xlt($observation) : 'NULL'),ENT_QUOTES)."</observation>
 						<observation_code>".htmlspecialchars(($observation_code ? $observation_code : 0),ENT_QUOTES)."</observation_code>
-						<diagnosis>".htmlspecialchars(($get_code_details[0] == 'ICD9' ? $diagnosis_code : 0),ENT_QUOTES)."</diagnosis>
+						<diagnosis>".htmlspecialchars($code ? $code : 0)."</diagnosis>
 					</problem>";
 				}
       }
@@ -778,9 +783,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
 	$immunizations = '';
 	$query 	    = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
-		    DATE_FORMAT(administered_date,'%Y%m') AS administered_formatted, lo.title as route_of_administration,
+		    DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
 		    u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
-		    f.name, f.phone, lo.notes as route_code
+		    f.name, f.phone, SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS route_code
 		    FROM immunizations AS im
 		    LEFT JOIN codes AS cd ON cd.code = im.cvx_code
 		    JOIN code_types AS ctype ON ctype.ct_key = 'CVX' AND ctype.ct_id=cd.code_type
@@ -1599,7 +1604,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <status_code>".htmlspecialchars(($snomeds[$tobacco[3]] ? $snomeds[$tobacco[3]] : 0),ENT_QUOTES)."</status_code>
                                   <status>".htmlspecialchars(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : 'NULL'),ENT_QUOTES)."</status>
                                   <date>".($tobacco[2] ? htmlspecialchars($this->date_format($tobacco[2]),ENT_QUOTES) : 0)."</date>
-                                  <date_formatted>".($tobacco[2] ? htmlspecialchars(preg_replace('/-/', '', $tobacco[2]),ENT_QUOTES) : 0)."000000</date_formatted>
+                                  <date_formatted>".($tobacco[2] ? htmlspecialchars(preg_replace('/-/', '', $tobacco[2]),ENT_QUOTES) : 0)."</date_formatted>
                                   <code>".htmlspecialchars(($arr['smoking'] ? $arr['smoking'] : 0),ENT_QUOTES)."</code>
                             </history_element>";        
             $alcohol        = explode('|',$row['alcohol']);
@@ -1611,7 +1616,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <status_code>".htmlspecialchars(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0),ENT_QUOTES)."</status_code> 
                                   <status>".htmlspecialchars(($alcohol_status[$alcohol[1]] ? $alcohol_status[$alcohol[1]] : 'completed'),ENT_QUOTES)."</status>
                                   <date>".($alcohol[2] ? htmlspecialchars($this->date_format($alcohol[2]),ENT_QUOTES) : 0)."</date>
-                                  <date_formatted>".($alcohol[2] ? htmlspecialchars(preg_replace('/-/', '', $alcohol[2]),ENT_QUOTES) : 0)."000000</date_formatted>
+                                  <date_formatted>".($alcohol[2] ? htmlspecialchars(preg_replace('/-/', '', $alcohol[2]),ENT_QUOTES) : 0)."</date_formatted>
                                   <code>".htmlspecialchars($arr['alcohol'],ENT_QUOTES)."</code>
                             </history_element>";        
         }

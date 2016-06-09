@@ -191,4 +191,14 @@ class CommonPlugin extends AbstractPlugin
       $escapeHtml         = $viewHelperManager->get('escapeHtml'); // $escapeHtml can be called as function because of its __invoke method
       return $escapeHtml($string);
   }
+  
+  public function getListtitle($listId,$listOptionId)
+  {
+      $appTable = new ApplicationTable();
+      $sql = "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? ";
+      $result = $appTable->zQuery($sql, array($listId,$listOptionId));
+      $row = $result->current();
+      $return = xl_list_label($row['title']);
+      return $return;
+  }
 }
