@@ -6,6 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
@@ -187,55 +188,74 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
   // Check the current status of Audit Logging
   $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
 
+  /*
+   * Compare form values with old database values.
+   * Only save if values differ. Improves speed.
+   */
+  
+  // Get all the globals from DB
+  $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true );
+
   $i = 0;
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
       list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
 	  if($fldtype == 'pwd'){
-	  $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = '$fldid'");
-	  $fldvalueold = $pass['gl_value'];
+        $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = '$fldid'");
+        $fldvalueold = $pass['gl_value'];
 	  }
-      sqlStatement("DELETE FROM globals WHERE gl_name = '$fldid'");
 
+      /* Multiple choice fields - do not compare , overwrite */
       if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
         if (isset($_POST["form_$i"])) {
           $fldindex = 0;
+          
+          sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ) );
+          
           foreach ($_POST["form_$i"] as $fldvalue) {
             $fldvalue = formDataCore($fldvalue, true);
-            sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-              "VALUES ( '$fldid', '$fldindex', '$fldvalue' )");
+            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue )  );
             ++$fldindex;
           }
         }
       }
       else {
-        if (isset($_POST["form_$i"])) {
+        /* check value of single field. Don't update if the database holds the same value */
+        if (isset($_POST["form_$i"])) { 
           $fldvalue = formData("form_$i", "P", true);
         }
         else {
           $fldvalue = "";
         }
-        if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold;
-        if(fldvalue){
-          // Need to force enable_auditlog_encryption off if the php mycrypt module
-          // is not installed.
-          if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
-            error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mycrypt module is not installed",0);
-            $fldvalue=0;
-          }
-          // special treatment for some vars
-          switch ($fldid) {
-            case 'first_day_week':
-              // update PostCalendar config as well
-              sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
-              break;
-          }
+        if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
 
-          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-            "VALUES ( '$fldid', '0', '$fldvalue' )");
+        // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
+        
+        if( 
+             !isset( $old_globals[$fldid]) // if the key not found in database - update database
+              ||              
+             ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
+        ) {
+            // Need to force enable_auditlog_encryption off if the php mcrypt module
+            // is not installed.
+            if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
+              error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed",0);
+              $fldvalue=0;
+            }
+            // special treatment for some vars
+            switch ($fldid) {
+              case 'first_day_week':
+                // update PostCalendar config as well
+                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
+                break;
+            }
+            // Replace old values
+            sqlStatement( 'DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ) );
+            sqlStatement( 'INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue )  );
+        } else {
+          //error_log("No need to update $fldid");
         }
       }
-
       ++$i;
     }
   }
