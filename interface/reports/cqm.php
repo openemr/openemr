@@ -630,7 +630,6 @@ else {
  <thead>
   <th>
    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
-   <?php echo $type_report;?>
   </th>
 
   <th>

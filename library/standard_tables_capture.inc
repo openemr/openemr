@@ -401,8 +401,10 @@ function icd_import($type) {
 function valueset_import($type){
 	$dir_valueset = $GLOBALS['temporary_files_dir']."/".$type."/";
     	$dir = str_replace('\\','/',$dir_valueset);
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
+
+	// Settings to drastically speed up import with InnoDB
+	sqlStatementNoLog("SET autocommit=0");
+	sqlStatementNoLog("START TRANSACTION");
 	if( is_dir($dir) && $handle = opendir($dir)) {
 		while (false !== ($filename = readdir($handle))) {
 			if(stripos($filename, ".xml")){
@@ -427,6 +429,8 @@ function valueset_import($type){
 			}
 		}
 	}
+
+	// Settings to drastically speed up import with InnoDB
 	sqlStatementNoLog("COMMIT");
 	sqlStatementNoLog("SET autocommit=1");
         return true;

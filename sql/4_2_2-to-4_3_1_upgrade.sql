@@ -135,12 +135,12 @@ ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 #EndIf
 
 #IfNotTable valueset
-CREATE TABLE IF NOT EXISTS `valueset` (
-  `nqf_code` varchar(255) NOT NULL,
-  `code` varchar(255) NOT NULL,
-  `code_system` varchar(255) NOT NULL,
+CREATE TABLE `valueset` (
+  `nqf_code` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `code_system` varchar(255) NOT NULL DEFAULT '',
   `code_type` varchar(255) DEFAULT NULL,
-  `valueset` varchar(255) NOT NULL,
+  `valueset` varchar(255) NOT NULL DEFAULT '',
   `description` varchar(255) DEFAULT NULL,
   `valueset_name` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
