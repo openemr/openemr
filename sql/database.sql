@@ -8100,11 +8100,11 @@ CREATE TABLE `form_clinical_instructions` (
 -- Table structure for table 'valueset'
 --
 CREATE TABLE IF NOT EXISTS `valueset` (
-  `nqf_code` varchar(255) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `code_system` varchar(255) DEFAULT NULL,
+  `nqf_code` varchar(255) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  `code_system` varchar(255) NOT NULL,
   `code_type` varchar(255) DEFAULT NULL,
-  `valueset` varchar(255) DEFAULT NULL,
+  `valueset` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `valueset_name` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
