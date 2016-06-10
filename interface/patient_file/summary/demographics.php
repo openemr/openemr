@@ -1365,7 +1365,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
               if($row['pc_eventDate'] == $extraApptDate) $apptStyle = " style='background-color:#ffe6ff;'";
               else $apptStyle = " style='background-color:#e6ffe6;'";
             } else {
-              If($row['pc_eventDate'] != $priorDate) {
+              if($row['pc_eventDate'] != $priorDate) {
                 $priorDate = $row['pc_eventDate'];
                 $toggleSet = !$toggleSet;
               }
