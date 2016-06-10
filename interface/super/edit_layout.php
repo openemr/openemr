@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2015 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -926,6 +926,26 @@ function cidChanged(lino, seq) {
   setListItemOptions(lino, seq, false);
 }
 
+// Call this to disable the warning about unsaved changes and submit the form.
+function mySubmit() {
+ somethingChanged = false;
+ top.restoreSession();
+ document.forms[0].submit();
+}
+
+// User is about to do something that would discard any unsaved changes.
+// Return true if that is OK.
+function myChangeCheck() {
+  if (somethingChanged) {
+    if (!confirm('<?php echo xls('You have unsaved changes. Abandon them?'); ?>')) {
+      return false;
+    }
+    // Do not set somethingChanged to false here because if they cancel the
+    // action then the previously changed values will still be of interest.
+  }
+  return true;
+}
+
 </script>
 
 </head>
@@ -1238,6 +1258,9 @@ foreach ($datatypes as $key=>$value) {
 // used when selecting a list-name for a field
 var selectedfield;
 
+// Support for beforeunload handler.
+var somethingChanged = false;
+
 // Get the next logical sequence number for a field in the specified group.
 // Note it guesses and uses the existing increment value.
 function getNextSeq(group) {
@@ -1261,7 +1284,13 @@ function getNextSeq(group) {
 
 $(document).ready(function(){
     $("#save").click(function() { SaveChanges(); });
-    $("#layout_id").change(function() { $('#theform').submit(); });
+    $("#layout_id").change(function() {
+      if (!myChangeCheck()) {
+        $("#layout_id").val("<?php echo $layout_id; ?>");
+        return;
+      }
+      mySubmit();
+    });
 
     $(".addgroup").click(function() { AddGroup(this); });
     $(".savenewgroup").click(function() { SaveNewGroup(this); });
@@ -1304,7 +1333,7 @@ $(document).ready(function(){
     // Save the changes made to the form
     var SaveChanges = function () {
         $("#formaction").val("save");
-        $("#theform").submit();
+        mySubmit();
     }
 
     /****************************************************/
@@ -1313,6 +1342,8 @@ $(document).ready(function(){
 
     // display the 'new group' DIV
     var AddGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         // show the field details DIV
         $('#groupdetail').css('visibility', 'visible');
         $('#groupdetail').css('display', 'block');
@@ -1381,7 +1412,7 @@ $(document).ready(function(){
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
-        $("#theform").submit();
+        mySubmit();
     }
 
     // actually delete an entire group from the database
@@ -1403,24 +1434,27 @@ $(document).ready(function(){
         $('#groupdetail').css('display', 'none');
         // reset the new group values to a default
         $('#groupdetail > #newgroupname').val("");
+        $("#save").attr("disabled", false);
     };
 
     // display the 'new field' DIV
     var MoveGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
         var btnid = $(btnObj).attr("id");
         var parts = btnid.split("~");
         var groupid = parts[0];
         var direction = parts[1];
-
         // submit the form to change group order
         $("#formaction").val("movegroup");
         $("#movegroupname").val(groupid);
         $("#movedirection").val(direction);
-        $("#theform").submit();
+        mySubmit();
     }
 
     // show the rename group DIV
     var RenameGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         $('#renamegroupdetail').css('visibility', 'visible');
         $('#renamegroupdetail').css('display', 'block');
         $(btnObj).parent().append($("#renamegroupdetail"));
@@ -1441,7 +1475,7 @@ $(document).ready(function(){
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("renamegroup");
-        $("#theform").submit();
+        mySubmit();
     }
 
     // just hide the new field DIV
@@ -1460,6 +1494,8 @@ $(document).ready(function(){
 
     // display the 'new field' DIV
     var AddField = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         // update the fieldgroup value to be the groupid
         var btnid = $(btnObj).attr("id");
         var parts = btnid.split("~");
@@ -1474,6 +1510,7 @@ $(document).ready(function(){
     };
 
     var DeleteFields = function(btnObj) {
+        if (!myChangeCheck()) return;
         if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the selected fields?','e'); ?>")) {
             var delim = "";
             $(".selectfield").each(function(i) {
@@ -1487,7 +1524,7 @@ $(document).ready(function(){
             });
             // submit the form to delete the field(s)
             $("#formaction").val("deletefields");
-            $("#theform").submit();
+            mySubmit();
         }
     };
     
@@ -1532,7 +1569,7 @@ $(document).ready(function(){
     
         // submit the form to add a new field to a specific group
         $("#formaction").val("addfield");
-        $("#theform").submit();
+        mySubmit();
     };
     
     // just hide the new field DIV
@@ -1542,6 +1579,7 @@ $(document).ready(function(){
         $('#fielddetail').css('display', 'none');
         // reset the new field values to a default
         ResetNewFieldValues();
+        $("#save").attr("disabled", false);
     };
 
     // show the popup choice of lists
@@ -1552,6 +1590,7 @@ $(document).ready(function(){
     
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
+        if (!myChangeCheck()) return;
         window.open("./show_groups_popup.php?layout_id=<?php echo $layout_id;?>", "groups", "width=300,height=300,scrollbars=yes");
     };
     
@@ -1584,6 +1623,18 @@ $(document).ready(function(){
         setListItemOptions(lino, seq, true);
       }
     }
+
+  // Support for beforeunload handler.
+  $('tbody input, tbody select, tbody textarea').not('.selectfield').change(function() {
+    somethingChanged = true;
+  });
+  window.addEventListener("beforeunload", function (e) {
+    if (somethingChanged) {
+      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      e.returnValue = msg;     // Gecko, Trident, Chrome 34+
+      return msg;              // Gecko, WebKit, Chrome <34
+    }
+  });
 
 });
 
@@ -1672,7 +1723,7 @@ function MoveFields(targetgroup) {
         }
     });
     $("#formaction").val("movefields");
-    $("#theform").submit();
+    mySubmit();
 };
 
 // set the new-field values to a default state
