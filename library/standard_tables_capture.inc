@@ -410,16 +410,16 @@ function valueset_import($type){
 			if(stripos($filename, ".xml")){
 					$abs_path = $dir.$filename;
 					$xml  = simplexml_load_file($abs_path,null,null,'ns0',true);
-					$nqf_code = null;
 					foreach($xml->DescribedValueSet as $vset){
 						$vset_attr = $vset->attributes();
 						$nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
-						$nqf_code = $nqf[0];
 						foreach($vset->ConceptList as $cp){
+						foreach($nqf as $nqf_code){
 							foreach($cp->Concept as $con){
 								$con_attr = $con->attributes();
 								sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)",array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
 							}
+						}
 						}	
 					}
         			
