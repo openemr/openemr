@@ -460,7 +460,7 @@ function update_tracker_table($type,$revision,$version,$file_checksum) {
         return true;
     }
     else if($type == 'CQM_VALUESET'){
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`) VALUES (NOW(),'CQM_VALUESET',?)", array($revision) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
     else { // $type == 'ICD10') 
