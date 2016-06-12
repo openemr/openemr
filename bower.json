@@ -1,0 +1,20 @@
+{
+  "name": "openemr",
+  "homepage": "http://open-emr.dev",
+  "authors": [
+    "OpenEMR"
+  ],
+  "description": "",
+  "main": "",
+  "license": "GPL3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "font-awesome": "^4.6.3"
+  }
+}
