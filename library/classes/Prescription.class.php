@@ -136,6 +136,7 @@ class Prescription extends ORDataObject {
     var $provider;
     var $note;
     var $drug;
+    var $rxnorm_drugcode;
     var $form;
     var $dosage;
     var $quantity;
@@ -229,6 +230,7 @@ class Prescription extends ORDataObject {
         	."Provider ID: " . $this->provider->id. "\n"
         	."Note: " . $this->note. "\n"
         	."Drug: " . $this->drug. "\n"
+          ."Code: " . $this->rxnorm_drugcode. "\n"
         	."Form: " . $this->form_array[$this->form]. "\n"
         	."Dosage: " . $this->dosage. "\n"
         	."Qty: " . $this->quantity. "\n"
@@ -494,6 +496,13 @@ class Prescription extends ORDataObject {
         return $this->drug;
     }
 
+    function set_rxnorm_drugcode($rxnorm_drugcode) {
+        $this->rxnorm_drugcode = $rxnorm_drugcode;
+    }
+    function get_rxnorm_drugcode() {
+        return $this->rxnorm_drugcode;
+    }
+    
     function get_filled_by_id() {
         return $this->pharmacist->id;
     }
