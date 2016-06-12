@@ -215,9 +215,9 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('public
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','recall_only_no_calls','Recall only - no calls','07', '70');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','reminder_recall_to_provider','Reminder/recall - to provider','08', '80');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','reminder_to_provider','Reminder to provider','09', '90');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','only_reminder_to_provider_no_recall','Only reminder to provider, no recall','10', '100');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','reminder_to_provider_no_recall','Only reminder to provider, no recall','10', '100');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','recall_to_provider','Recall to provider','11', '110');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','only_recall_to_provider_no_reminder','Only recall to provider, no reminder','12', '120');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('publicity_code','recall_to_provider_no_reminder','Only recall to provider, no reminder','12', '120');
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id immunization_refusal_reason
@@ -390,7 +390,7 @@ ALTER TABLE patient_data ADD COLUMN `guardiansname` TEXT;
 
 #IfMissingColumn patient_data guardianrelationship
 ALTER TABLE `patient_data` ADD COLUMN `guardianrelationship` TEXT;
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianrelationship'  , '8Guardian', 'Relationship'  ,20, 1, 1,0,0, 'next_of_kin_relationship', 1, 1, '', '', 'Realtionship', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianrelationship'  , '8Guardian', 'Relationship'  ,20, 1, 1,0,0, 'next_of_kin_relationship', 1, 1, '', '', 'Relationship', 0);
 #EndIf
 
 #IfMissingColumn patient_data guardiansex
@@ -439,13 +439,13 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`d
 #EndIf
 
 #IfNotRow2D list_options list_id drug_units title mL
-SET @option_id = (SELECT MAX(option_id) FROM list_options WHERE list_id = 'drug_units');
+SET @option_id = (SELECT MAX(CAST(option_id AS UNSIGNED)) FROM list_options WHERE list_id = 'drug_units');
 SET @seq = (SELECT MAX(seq) FROM list_options WHERE list_id = 'drug_units');
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('drug_units', @option_id+1, 'mL', @seq+1, 0);
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id drug_route option_id intramuscular title Intramuscular
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','intramuscular','Intramuscular' ,20, 0, 'IM');
+INSERT INTO list_options ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `notes`, `codes` ) VALUES ('drug_route','intramuscular','Intramuscular' ,20, 0, 'IM', 'NCI-CONCEPT-ID:C28161');
 #EndIf
 
 #IfNotRow3D list_options list_id yesno option_id NO notes N
@@ -460,13 +460,8 @@ UPDATE `list_options` SET notes='Y' WHERE list_id='yesno' and option_id='YES';
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `codes` ) VALUES ('reaction', 'shortness_of_breath', 'Shortness of Breath', 40, 'SNOMED-CT:267036007');
 #EndIf
 
-UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C28161' WHERE list_id='drug_route' AND (option_id='intramuscular' OR title='Intramuscular');
-
-UPDATE `list_options` SET codes='SNOMED-CT:267036007' WHERE list_id='reaction' AND (option_id='shortness_of_breath' OR title='Shortness of Breath');
-
-#IfNotRow2D list_options list_id drug_route title Inhale
-SET @seq = (SELECT MAX(seq) FROM list_options WHERE list_id = 'drug_route');
-INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `notes`, `codes` ) VALUES ('drug_route','inhale','Inhale' ,@seq+1, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
+#IfNotRow2Dx2 list_options list_id drug_route option_id inhale title Inhale
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `notes`, `codes` ) VALUES ('drug_route','inhale','Inhale' , 16, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
 #EndIf
 
 #IfNotRow3D list_options list_id drug_route codes NCI-CONCEPT-ID:C38288 title Per Oris 
@@ -474,7 +469,7 @@ UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C38288' WHERE list_id='drug_rout
 #EndIf
 
 #IfNotColumnType immunizations cvx_code varchar(10)
-ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) ; 
+ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) default NULL; 
 #EndIf
 
 #IfMissingColumn drugs drug_code
@@ -538,10 +533,6 @@ UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C28254' WHERE list_id='drug_form
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C44278' WHERE list_id='drug_form' and title='units';
 #EndIf
 
-#IfNotRow3D list_options list_id drug_form title units codes NCI-CONCEPT-ID:C44278
-UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C44278' WHERE list_id='drug_form' and title='units';
-#EndIf
-
 #IfNotRow3D list_options list_id drug_form title inhalations codes NCI-CONCEPT-ID:C42944
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42944' WHERE list_id='drug_form' and title='inhalations';
 #EndIf
@@ -558,8 +549,10 @@ UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C28944' WHERE list_id='drug_form
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42966' WHERE list_id='drug_form' and title='ointment';
 #EndIf
 
-#IfNotRow3D list_options list_id drug_form title puff codes NCI-CONCEPT-ID:C42944
-UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42944' WHERE list_id='drug_form' and title='puff';
+#IfNotRow2D list_options list_id drug_form title puff
+SET @option_id = (SELECT MAX(CAST(option_id AS UNSIGNED)) FROM list_options WHERE list_id = 'drug_form');
+SET @seq = (SELECT MAX(seq) FROM list_options WHERE list_id = 'drug_form');
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `codes` ) VALUES ('drug_form', @option_id+1, 'puff', @seq+1, 0, 'NCI-CONCEPT-ID:C42944');
 #EndIf
 
 #IfNotRow3D list_options list_id drug_route title Inhale codes NCI-CONCEPT-ID:C38216
