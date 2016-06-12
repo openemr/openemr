@@ -342,7 +342,7 @@ ALTER TABLE patient_data ADD COLUMN `guardiansname` TEXT;
 
 #IfMissingColumn patient_data guardianrelationship
 ALTER TABLE `patient_data` ADD COLUMN `guardianrelationship` TEXT;
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianrelationship'  , '8Guardian', 'Relationship'  ,20, 1, 1,0,0, 'next_of_kin_relationship', 1, 1, '', '', 'Realtionship', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianrelationship'  , '8Guardian', 'Relationship'  ,20, 1, 1,0,0, 'next_of_kin_relationship', 1, 1, '', '', 'Relationship', 0);
 #EndIf
 
 #IfMissingColumn patient_data guardiansex
@@ -490,10 +490,6 @@ UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C28254' WHERE list_id='drug_form
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C44278' WHERE list_id='drug_form' and title='units';
 #EndIf
 
-#IfNotRow3D list_options list_id drug_form title units codes NCI-CONCEPT-ID:C44278
-UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C44278' WHERE list_id='drug_form' and title='units';
-#EndIf
-
 #IfNotRow3D list_options list_id drug_form title inhalations codes NCI-CONCEPT-ID:C42944
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42944' WHERE list_id='drug_form' and title='inhalations';
 #EndIf
@@ -510,8 +506,10 @@ UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C28944' WHERE list_id='drug_form
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42966' WHERE list_id='drug_form' and title='ointment';
 #EndIf
 
-#IfNotRow3D list_options list_id drug_form title puff codes NCI-CONCEPT-ID:C42944
-UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C42944' WHERE list_id='drug_form' and title='puff';
+#IfNotRow2D list_options list_id drug_form title puff
+SET @option_id = (SELECT MAX(option_id) FROM list_options WHERE list_id = 'drug_form');
+SET @seq = (SELECT MAX(seq) FROM list_options WHERE list_id = 'drug_form');
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `codes` ) VALUES ('drug_form', @option_id+1, 'puff', @seq+1, 0, 'NCI-CONCEPT-ID:C42944');
 #EndIf
 
 #IfNotRow3D list_options list_id drug_route title Inhale codes NCI-CONCEPT-ID:C38216

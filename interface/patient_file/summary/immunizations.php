@@ -449,7 +449,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <option value=""></option>
               <?php
                 $sql = "select id, CONCAT_WS(' ',lname,fname) as full_name " .
-                       "from users where username != '' " .
+                       "from users where username != '' and password != 'NoLogin' " .
                        "order by full_name";
 
                 $result = sqlStatement($sql);
@@ -539,7 +539,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <option value=""></option>
               <?php
                 $sql = "select id, CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
-                       "from users where username != '' " .
+                       "from users where username != '' and password != 'NoLogin' " .
                        "order by full_name";
 
                 $result = sqlStatement($sql);
