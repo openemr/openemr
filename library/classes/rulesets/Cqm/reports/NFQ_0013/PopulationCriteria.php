@@ -47,4 +47,8 @@ class NFQ_0013_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     {
 		return new NFQ_0013_Exclusion();
     }
+    
+    public function createDenominatorException(){
+    	return new ExceptionsNone();
+    }
 }

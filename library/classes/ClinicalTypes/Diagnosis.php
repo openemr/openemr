@@ -35,6 +35,11 @@ class Diagnosis extends ClinicalType
     const POLYCYSTIC_OVARIES = 'diag_polycystic_ovaries';
     const GESTATIONAL_DIABETES = 'diag_gestational_diabetes';
     const STEROID_INDUCED_DIABETES = 'diag_steroid_induced_diabetes';
+    const END_STAGE_RENAL_DISEASE='diag_end_stage_renal_disease';
+    const CHRONIC_KIDNEY_DISEASE='diag_chrnoic_kidney_disease';
+    const ACUTE_PHARYNGITIS = 'diag_acute_pharyngitis';
+    const ACUTE_TONSILLITIS = 'diag_acute_tonsillitis';
+    const LIMITED_LIFE = 'diag_limited_life_expectancy';
     
     public function getListType() {
         return 'medical_problem';

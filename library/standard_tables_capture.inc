@@ -398,6 +398,44 @@ function icd_import($type) {
     return true;
 }
 
+function valueset_import($type){
+	$dir_valueset = $GLOBALS['temporary_files_dir']."/".$type."/";
+    	$dir = str_replace('\\','/',$dir_valueset);
+
+	// Settings to drastically speed up import with InnoDB
+	sqlStatementNoLog("SET autocommit=0");
+	sqlStatementNoLog("START TRANSACTION");
+	if( is_dir($dir) && $handle = opendir($dir)) {
+		while (false !== ($filename = readdir($handle))) {
+			if(stripos($filename, ".xml")){
+					$abs_path = $dir.$filename;
+					$xml  = simplexml_load_file($abs_path,null,null,'ns0',true);
+					foreach($xml->DescribedValueSet as $vset){
+						$vset_attr = $vset->attributes();
+						$nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
+						foreach($vset->ConceptList as $cp){
+						foreach($nqf as $nqf_code){
+							foreach($cp->Concept as $con){
+								$con_attr = $con->attributes();
+								sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)",array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
+							}
+						}
+						}	
+					}
+        			
+        			sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
+        			sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
+        			sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
+			}
+		}
+	}
+
+	// Settings to drastically speed up import with InnoDB
+	sqlStatementNoLog("COMMIT");
+	sqlStatementNoLog("SET autocommit=1");
+        return true;
+}
+
 // Function to clean up temp files
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type) {
@@ -419,6 +457,10 @@ function update_tracker_table($type,$revision,$version,$file_checksum) {
     }
     else if ($type == 'ICD9') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum) );
+        return true;
+    }
+    else if($type == 'CQM_VALUESET'){
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
     }
     else { // $type == 'ICD10') 

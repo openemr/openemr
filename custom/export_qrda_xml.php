@@ -42,11 +42,26 @@ require_once "qrda_functions.php";
 set_time_limit(0);
 
 //DENEXCEP NOT NEEDED rules
-$denExcepNotNeedRules = array('0002', '0018', '0024', '0038', '0043', '0384', '0421');
+$denExcepNotNeedRules = array('0002', '0018', '0024', '0038', '0043', '0059', '0421');
 
 //Predefined QRDA HQMF ID's for CQM rules
 $preDefinedUniqIDRules = array();
 $preDefPopIdArr = array();
+
+// CMS147v4/0041 - Preventive Care and Screening: Influenza Immunization HQMF ID: 40280381-4600-425F-0146-EE66F0005509 
+$preDefinedUniqIDRules['0041'] = '40280381-4600-425F-0146-EE66F0005509';
+$preDefPopIdArr['0041']['IPP'] = 'F48702E6-D39A-49D8-BE3C-8FAB5C6AADDA';
+$preDefPopIdArr['0041']['DENOM'] = 'B61EC2DC-0841-4906-A84B-5BE5024DA7F1';
+$preDefPopIdArr['0041']['NUMER'] = '0ED7B212-369B-489A-A5B5-07BC146FA557';
+$preDefPopIdArr['0041']['DENEXCEP'] = 'B5C9EC50-3011-43DC-AD07-CED2D3B770B2';
+
+// CMS122v3/0059 - Diabetes: Hemoglobin A1c Poor Control: HQMF_ID: 40280381-4555-E1C1-0145-90AC70DE2C73 
+$preDefinedUniqIDRules['0059'] = '40280381-4555-E1C1-0145-90AC70DE2C73';
+$preDefPopIdArr['0059']['IPP'] = 'EDED90E9-E4FE-47E6-90AC-29D9AA3E861A';
+$preDefPopIdArr['0059']['DENOM'] = '6721D6DA-E87D-4E42-A34A-C8490686598C';
+$preDefPopIdArr['0059']['NUMER'] = '7549BA9E-1841-4231-8CAA-095BDF0AB8A1';
+
+
 //CMS139v3/0101 - Falls: Screening for Future Fall Risk: HQMF_ID: 40280381-4555-E1C1-0145-672613970D15 
 $preDefinedUniqIDRules['0101'] = '40280381-4555-E1C1-0145-672613970D15';
 $preDefPopIdArr['0101']['IPP'] = '2448B0C6-6848-4DCB-AA6D-F199337A2C5C';
@@ -61,17 +76,17 @@ $preDefPopIdArr['0043']['DENOM'] = 'FF7016E1-E8C7-43BA-9D56-2BEF649F36FA';
 $preDefPopIdArr['0043']['NUMER'] = '201F5A6E-4DDE-43A2-BDFC-CE85A98560DA';
 
 //CMS69v3/0421 - Preventive Care and Screening: Body Mass Index (BMI) Screening and Follow-Up Plan: HQMF_ID: 40280381-4555-E1C1-0145-D2B36DBB3FE6 
-$preDefinedUniqIDRules['0421']['Numerator 2'] = '40280381-4555-E1C1-0145-D2B36DBB3FE6';
-$preDefPopIdArr['0421']['Numerator 2']['IPP'] = '1C936855-E644-44C0-B264-49A28756FDB1';
-$preDefPopIdArr['0421']['Numerator 2']['DENOM'] = '27F1591C-2060-462C-B5D7-7FE86A44B534';
-$preDefPopIdArr['0421']['Numerator 2']['DENEX'] = '9B0C3C26-D621-4EA3-81FB-A839A3012044';
-$preDefPopIdArr['0421']['Numerator 2']['NUMER'] = '3095531C-24D7-4AFB-9BCB-F1901FF0FF69';
-
 $preDefinedUniqIDRules['0421']['Numerator 1'] = '40280381-4555-E1C1-0145-D2B36DBB3FE6';
-$preDefPopIdArr['0421']['Numerator 1']['IPP'] = '6E701B1C-6CA5-4AD5-98C9-5F766745EA89';
-$preDefPopIdArr['0421']['Numerator 1']['DENOM'] = 'E4DC29B8-EB26-4A01-ABB0-4F99FC03BA39';
-$preDefPopIdArr['0421']['Numerator 1']['DENEX'] = 'BB1B4301-C275-4BAC-87C9-6E960B1601DA';
-$preDefPopIdArr['0421']['Numerator 1']['NUMER'] = '7669026D-3683-44CC-A2C5-3D62EB2F8A33';
+$preDefPopIdArr['0421']['Numerator 1']['IPP'] = '1C936855-E644-44C0-B264-49A28756FDB1';
+$preDefPopIdArr['0421']['Numerator 1']['DENOM'] = '27F1591C-2060-462C-B5D7-7FE86A44B534';
+$preDefPopIdArr['0421']['Numerator 1']['DENEX'] = '9B0C3C26-D621-4EA3-81FB-A839A3012044';
+$preDefPopIdArr['0421']['Numerator 1']['NUMER'] = '3095531C-24D7-4AFB-9BCB-F1901FF0FF69';
+
+$preDefinedUniqIDRules['0421']['Numerator 2'] = '40280381-4555-E1C1-0145-D2B36DBB3FE6';
+$preDefPopIdArr['0421']['Numerator 2']['IPP'] = '6E701B1C-6CA5-4AD5-98C9-5F766745EA89';
+$preDefPopIdArr['0421']['Numerator 2']['DENOM'] = 'E4DC29B8-EB26-4A01-ABB0-4F99FC03BA39';
+$preDefPopIdArr['0421']['Numerator 2']['DENEX'] = 'BB1B4301-C275-4BAC-87C9-6E960B1601DA';
+$preDefPopIdArr['0421']['Numerator 2']['NUMER'] = '7669026D-3683-44CC-A2C5-3D62EB2F8A33';
 
 //CMS117v3/0038 - Childhood Immunization Status: HQMF_ID: 40280381-4555-E1C1-0145-D7C003364261
 $preDefinedUniqIDRules['0038'] = '40280381-4555-E1C1-0145-D7C003364261';
@@ -253,42 +268,44 @@ if(count($dataSheet) > 0){
 		if($row['cqm_nqf_code'] == "0024"){
 			if( $row['population_label'] == "Population Criteria 2" ){
 				if($row['numerator_label'] == "Numerator 1"){
-					$firstElement = count($row['init_patients']);
-					$thirdElement = count($row['exclude_patients']);
-					$fifthElement = count($row['denom_patients']);
-					$seventhElement = count($row['numer_patients']);
+					$stratum_1_ipp 		= $row['initial_population'];
+					$stratum_1_exclude  = $row['excluded'];
+					$stratum_1_denom	= $row['pass_filter'];
+					$stratum_1_numer1  = $row['pass_target'];
 				}else if($row['numerator_label'] == "Numerator 2"){
-					$fifteenElement = count($row['numer_patients']);
+					$stratum_1_numer2 = $row['pass_target'];
 				}else if($row['numerator_label'] == "Numerator 3"){
-					$twentyThreeElement = count($row['numer_patients']);
+					$stratum_1_numer3 = $row['pass_target'];
 				}
 			}else if( $row['population_label'] == "Population Criteria 3" ){
 				if($row['numerator_label'] == "Numerator 1"){
-					$secondElement = count($row['init_patients']);
-					$sixElement = count($row['exclude_patients']);
-					$fouthElement = count($row['denom_patients']);
-					$eigthElement = count($row['numer_patients']);
+					$stratum_2_ipp 		= $row['initial_population'];
+					$stratum_2_exclude  = $row['excluded'];
+					$stratum_2_denom	= $row['pass_filter'];
+					$stratum_2_numer1  = $row['pass_target'];
 				}else if($row['numerator_label'] == "Numerator 2"){
-					$sixteenElement = count($row['numer_patients']);
+					$stratum_2_numer2 = $row['pass_target'];
 				}else if($row['numerator_label'] == "Numerator 3"){
-					$twentyFourElement = count($row['numer_patients']);
+					$stratum_2_numer3 = $row['pass_target'];
 				}
 			}
 		}
 		
-		//Stratum Array for Cypress Version 2.6.0 acceptable format for NQF 0024 rule
-		$stratumCheckArr[1] = array('1'=> $firstElement, '2' => $secondElement);
-		$stratumCheckArr[2] = array('1'=> $thirdElement, '2' => $fouthElement);
-		$stratumCheckArr[3] = array('1'=> $fifthElement, '2' => $sixElement);
-		$stratumCheckArr[4] = array('1'=> $seventhElement, '2' => $eigthElement);
-		$stratumCheckArr[5] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[6] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[7] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[8] = array('1'=> $fifteenElement, '2' => $sixteenElement);
-		$stratumCheckArr[9] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[10] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[11] = array('1'=>'0', '2' =>'0');//Always 0
-		$stratumCheckArr[12] = array('1'=> $twentyThreeElement, '2' => $twentyFourElement);
+		$stratum = array();
+		$stratum[1] = array('init_patients' => $stratum_1_ipp,
+							'exclude_patients' => $stratum_1_exclude, 
+							'denom_patients' => $stratum_1_denom,
+							'numer_patients' => $stratum_1_numer1,
+							'numer2' => $stratum_1_numer2,
+							'numer3' => $stratum_1_numer3);
+		
+		$stratum[2] = array('init_patients' => $stratum_2_ipp,
+							'exclude_patients' => $stratum_2_exclude, 
+							'denom_patients' => $stratum_2_denom,
+							'numer_patients' => $stratum_2_numer1,
+							'numer2' => $stratum_2_numer2,
+							'numer3' => $stratum_2_numer3);
+		
 	}
 }
 
@@ -445,7 +462,7 @@ $xml->open_customTag('performer', array('typeCode'=>'PRF'));
 
 $xml->open_customTag('assignedEntity');
 
-$npi_provider = $userRow['npi'];
+$npi_provider = !empty($userRow['npi']) ? $userRow['npi'] : '123456789';
 $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' =>$npi_provider));
 
 if($userRow['phone'] != ""){
@@ -844,7 +861,7 @@ if(count($dataSheet) > 0){
 			$xml->self_customTag('statusCode', $arr);
 			
 			$percentage = str_replace("%", '', $row['percentage']);
-			$arr = array('xsi:type'=>'REAL', 'value'=>$percentag/100);
+			$arr = array('xsi:type'=>'REAL', 'value'=>$percentage/100);
 			$xml->self_customTag('value', $arr);
 
 			//reference Start
@@ -895,6 +912,11 @@ if(count($dataSheet) > 0){
 			//DENEXCEP(Denominator Exception not needed for some rules are skipping here)
 			if( (in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients") ) continue;
 			
+			//cqm 0024 alllowing only nuemerator 2 and numerator 3 for ipp1,ipp2 and 1pp3 to avoid repeatation 
+			if($row['cqm_nqf_code'] == '0024' && ($row['numerator_label'] == "Numerator 2" || $row['numerator_label'] == "Numerator 3") && $cqmKey != 'numer_patients') continue;
+			if($row['cqm_nqf_code'] == '0024' && ($row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3")) continue;
+			
+						
 			//get Itemized Data
 			if($cqmKey == "init_patients")
 				$itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey]);
@@ -959,11 +981,16 @@ if(count($dataSheet) > 0){
 			$xml->close_customTag();
 			
 			#### Stratum Start (Stratification)#####
-			if( ($row['cqm_nqf_code'] == "0024") && ( $row['population_label'] == "Population Criteria 1" || $row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3") ){
-				
-				if($cnt <= 12){
-					$stratumCheckArrSub = $stratumCheckArr[$cnt];
-					for($i=1;$i<=2;$i++){
+			if($row['cqm_nqf_code'] == '0024'){
+			$strat_count = 1;
+			for(;$strat_count <= 2;$strat_count++){
+								
+					 	$strata_value = $stratum[$strat_count][$cqmKey];
+					 	
+					 	if($row['numerator_label'] == "Numerator 2") $strata_value = $stratum[$strat_count]['numer2'];
+					 	
+					 	else if($row['numerator_label'] == "Numerator 3") $strata_value = $stratum[$strat_count]['numer3'];
+					 	
 						//entryRelationship Open
 						$xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
 						
@@ -986,7 +1013,7 @@ if(count($dataSheet) > 0){
 						$xml->open_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'OTH'));
 						
 						$stratumText = $preDefPopIdArr[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']]['DISPLAY_TEXT'];
-						$xml->element('originalText', "Stratum".$i); 
+						$xml->element('originalText', "Stratum ".$strat_count); 
 						
 						//value Close
 						$xml->close_customTag();
@@ -1003,7 +1030,7 @@ if(count($dataSheet) > 0){
 						$arr = array('code'=>'MSRAGG', 'displayName'=>'rate aggregation', 'codeSystem'=>'2.16.840.1.113883.5.4', 'codeSystemName'=>'ActCode');
 						$xml->self_codeCustom($arr);
 						
-						$arr = array('xsi:type'=>'INT', 'value'=>$stratumCheckArrSub[$i]);
+						$arr = array('xsi:type'=>'INT', 'value'=>$strata_value);
 						$xml->self_customTag('value', $arr);
 						
 						$arr = array('code'=>'COUNT', 'displayName'=>'Count', 'codeSystem'=>'2.16.840.1.113883.5.84', 'codeSystemName'=>'ObservationMethod');
@@ -1025,7 +1052,7 @@ if(count($dataSheet) > 0){
 						
 						//Modified HQMF_ID for CQM IDS
 						//$refID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']]['STRAT'];
-						$refID = $preDefPopIdArr[$row['cqm_nqf_code']]['STRAT'.$i];
+						$refID = $preDefPopIdArr[$row['cqm_nqf_code']]['STRAT'.$strat_count];
 						
 						$xml->self_customId($refID);
 						
@@ -1040,9 +1067,8 @@ if(count($dataSheet) > 0){
 						
 						//entryRelationship Close
 						$xml->close_customTag();
-					}
-				}
-				$cnt++;
+				
+			}
 			}
 			#### Stratum END #####
 			

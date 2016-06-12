@@ -2506,7 +2506,7 @@ function convertDobtoAgeMonthDecimal($dob,$target) {
  */
 function calculate_percentage($pass_filt,$exclude_filt,$pass_targ) {
   if ($pass_filt > 0) {
-    $perc = number_format(($pass_targ/($pass_filt-$exclude_filt))*100) . xl('%');
+    $perc = number_format(($pass_targ/($pass_filt-$exclude_filt))*100,4) . xl('%');
   }
   else {
     $perc = "0". xl('%');

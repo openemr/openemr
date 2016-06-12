@@ -30,45 +30,19 @@ class NFQ_0002_Numerator implements CqmFilterIF
 
     public function test( CqmPatient $patient, $beginDate, $endDate )
     {
-		//Pharyngitis Array
-		$pharyngitisArr = array('ICD9:034', 'ICD9:462', 'ICD9:463', 'ICD10:J02.0',  'ICD10:J02.8', 'ICD10:J02.9', 'ICD10:J03.80', 'ICD10:J03.81', 'ICD10:J03.90', 'ICD10:J03.91');
+		
 		//Group A Streptococcus Test Array 
-		$streptococcusArr = array('11268-0', '17656-0', '18481-2', '31971-5', '49610-9');
+		$strep_test_code = "'".implode("','",Codes::lookup(LabResult::STREPTOCOCCUS_TEST,'LOINC'))."'";
 		
 		//Patients who were tested for Streptococcus A during the same encounter that the antibiotic was prescribed, Encounter category should be office visit.
 		$query = "SELECT count(*) as cnt FROM form_encounter fe ".
 				 "INNER JOIN openemr_postcalendar_categories opc ON fe.pc_catid = opc.pc_catid ".
-				 "INNER JOIN lists l ON l.type = 'medication' AND fe.pid = l.pid ".
 				 "INNER JOIN procedure_order po ON po.encounter_id = fe.encounter ".
 				 "INNER JOIN procedure_order_code pc ON po.procedure_order_id = pc.procedure_order_id ".
-				 "WHERE opc.pc_catname = 'Office Visit' ";
-		
-		//Pharyngitis Check
-		$pharyngitisStr = "(";
-		$cnt = 0;
-		foreach($pharyngitisArr as $pharyngitisCode){
-			if($cnt == 0)
-				$pharyngitisStr .= " l.diagnosis LIKE '%".$pharyngitisCode."%' ";
-			else
-				$pharyngitisStr .= " OR l.diagnosis LIKE '%".$pharyngitisCode."%' ";
-			$cnt++;
-		}
-		$pharyngitisStr .= ")";
-		$query .= " AND ".$pharyngitisStr;
-		
-		//Group A Streptococcus Check
-		$streptococcusStr = "(";
-		$cnt = 0;
-		foreach($streptococcusArr as $streproCode){
-			if($cnt == 0)
-				$streptococcusStr .= " pc.procedure_code = '".$streproCode."' ";
-			else
-				$streptococcusStr .= " OR pc.procedure_code =  '".$streproCode."' ";
-			$cnt++;
-		}
-		$streptococcusStr .= ")";
-		$query .= " AND ".$streptococcusStr;
-		$query .= " AND fe.pid = ? AND (fe.date BETWEEN ? AND ?)";
+				 "INNER JOIN procedure_report pr on pr.procedure_order_id = po.procedure_order_id ".
+				 "INNER JOIN procedure_result pres on pres.procedure_report_id = pr.procedure_report_id ".
+				 "WHERE opc.pc_catname = 'Office Visit' AND fe.pid = ? AND (fe.date BETWEEN ? AND  ? ) ".
+				 " AND pres.result_code in ($strep_test_code) AND ( DATEDIFF(po.date_ordered,fe.date) between 0 and 3 or DATEDIFF(fe.date,po.date_ordered) between 0 and 3)";
 		
 		$check = sqlQuery( $query, array($patient->id, $beginDate, $endDate) );   
 		if ($check['cnt'] > 0){
