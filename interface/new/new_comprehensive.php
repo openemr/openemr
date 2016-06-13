@@ -781,11 +781,11 @@ enable_modals();
     var check = function() {
       <?php if($GLOBALS['new_validate']){?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM");
-      <?}else{?>
+      <?php }else{?>
             top.restoreSession();
             var f = document.forms[0];
             var valid = validate(f);
-      <?}?>
+      <?php }?>
         if (valid) {
             if (force_submit) {
                 // In this case dups were shown already and Save should just save.
