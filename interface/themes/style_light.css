@@ -696,23 +696,17 @@ tr.odd, td.even {
   background: #1050b6;
 }
 .css_btn {
-  background: #fcfcfc;
-  background-image: -webkit-linear-gradient(top, #fcfcfc, #c1ced1);
-  background-image: -moz-linear-gradient(top, #fcfcfc, #c1ced1);
-  background-image: -ms-linear-gradient(top, #fcfcfc, #c1ced1);
-  background-image: -o-linear-gradient(top, #fcfcfc, #c1ced1);
-  background-image: linear-gradient(to bottom, #fcfcfc, #c1ced1);
-  -webkit-border-radius: 28;
-  -moz-border-radius: 28;
-  border-radius: 28px;
-  font: bold 10px arial, sans-serif;
-  color: #444;
-  font-size: 10px;
-  padding: 6px 15px 6px 15px;
-  border: solid #8d9194 1px;
+  background: #2672ec;
+  color: #ffffff !important;
+  display: block;
+  float: left;
+  font-weight: 300;
+  margin-right: 3px;
+  padding-right: 10px;
+  /* sliding doors padding */
   text-decoration: none;
-  height: 24px;
-  outline: none;
+  padding: 5px 12px 5px;
+  border: none;
 }
 .css_btn:hover{
   color: orangered;
@@ -1236,5 +1230,5 @@ div.notab-right {
   font-size: 11px;
 }
 .error-border{
-  border: 1px solid red;
+  border: 1px solid red !important;
 }
