@@ -71,4 +71,66 @@
 --  #IfNotListOccupation
 --    Custom function for creating Occupation List
 
+--  #IfTextNullFixNeeded
+--    desc: convert all text fields without default null to have default null.
+--    arguments: none
+
+--  #IfTableEngine
+--    desc:      Execute SQL if the table has been created with given engine specified.
+--    arguments: table_name engine
+--    behavior:  Use when engine conversion requires more than one ALTER TABLE
+
+--  #IfInnoDBMigrationNeeded
+--    desc: find all MyISAM tables and convert them to InnoDB.
+--    arguments: none
+--    behavior: can take a long time.
+
+
+-- To ensure proper compatibility with MySQL/MariaDB and InnoDB, changing all *TEXT fields to
+-- correctly use NULL as default.
+#IfTextNullFixNeeded
+#EndIf
+
+--
+-- The following 4 tables were using AUTO_INCREMENT field in the end of primary key, which needed to be
+-- modified to support InnoDB,
+--
+
+-- 1. ar_activity
+--
+#IfTableEngine ar_activity MyISAM
+ALTER TABLE `ar_activity` MODIFY `sequence_no` int UNSIGNED NOT NULL COMMENT 'Sequence_no, incremented in code';
+ALTER TABLE `ar_activity` ENGINE="InnoDB";
+#EndIf
+
+-- 2. claims
+--
+#IfTableEngine claims MyISAM
+ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Version, incremented in code';
+ALTER TABLE `claims` ENGINE="InnoDB";
+#EndIf
+
+-- 3. procedure_answers 
+--
+#IfTableEngine procedure_answers MyISAM
+ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Supports multiple-choice questions. Answer_seq, incremented in code';
+ALTER TABLE `procedure_answers` ENGINE="InnoDB";
+#EndIf
+
+-- 4. procedure_order_code 
+--
+#IfTableEngine procedure_order_code MyISAM
+-- Modify the table for InnoDB
+-- remove NOT NULL DEFAULT "" declaration from TEXT field.
+-- remove AUTO_INCREMENT field declaration
+ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq incremented in code';
+ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
+#EndIf
+
+--
+-- Other tables do not need special treatment before conversion to InnoDB.
+-- Warning: running this query can take a long time.
+#IfInnoDBMigrationNeeded
+-- Modifies all remaining MyISAM tables to InnoDB 
+#EndIf
 

@@ -134,4 +134,4 @@ referrals_cu longtext,
 referrals_docs longtext,
 referrals_or longtext,
 PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

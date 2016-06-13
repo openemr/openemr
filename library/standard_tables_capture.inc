@@ -110,7 +110,7 @@ function rxnorm_import($is_windows_flag) {
     foreach($file_array as $val){
         if(trim($val)!='')
         {
-            sqlStatement($val);
+            sqlStatementNoLog($val);
         }
     }
 
@@ -119,10 +119,14 @@ function rxnorm_import($is_windows_flag) {
     foreach($indexes_array as $val1){
         if(trim($val1)!='')
         {
-            sqlStatement($val1);
+            sqlStatementNoLog($val1);
         }
     }
 
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
     $data=explode(";",$data_load);
     foreach($data as $val)
     {
@@ -135,11 +139,15 @@ function rxnorm_import($is_windows_flag) {
             if(strpos($val,$file_name) !== false) {
                 $val1 = str_replace($file_name,$replacement,$val);
         	if(trim($val1)!='') {
-            	    sqlStatement($val1);
+            	    sqlStatementNoLog($val1);
         	}
             }
         }
     }
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("COMMIT");
+    sqlStatementNoLog("SET autocommit=1");
+
     return true;
 }
 
@@ -157,7 +165,7 @@ function snomed_import($us_extension=FALSE) {
             `SNOMEDID` varchar(8) NOT NULL,
             `IsPrimitive` tinyint(1) NOT NULL,
             PRIMARY KEY (`ConceptId`)
-            ) ENGINE=MyISAM",
+            ) ENGINE=InnoDB",
         "sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_descriptions`",
         "sct_descriptions_structure"=>"CREATE TABLE IF NOT EXISTS `sct_descriptions` (
             `DescriptionId` bigint(20) NOT NULL,
@@ -168,7 +176,7 @@ function snomed_import($us_extension=FALSE) {
             `DescriptionType` int(11) NOT NULL,
             `LanguageCode` varchar(8) NOT NULL,
             PRIMARY KEY (`DescriptionId`)
-            ) ENGINE=MyISAM",
+            ) ENGINE=InnoDB",
         "sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_relationships`",
         "sct_relationships_structure"=>"CREATE TABLE IF NOT EXISTS `sct_relationships` (
             `RelationshipId` bigint(20) NOT NULL,
@@ -179,7 +187,7 @@ function snomed_import($us_extension=FALSE) {
             `Refinability` int(11) NOT NULL,
             `RelationshipGroup` int(11) NOT NULL,
             PRIMARY KEY (`RelationshipId`)
-            ) ENGINE=MyISAM"
+            ) ENGINE=InnoDB"
 );
 
     // set up paths

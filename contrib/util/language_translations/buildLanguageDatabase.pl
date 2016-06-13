@@ -419,7 +419,7 @@ CREATE TABLE `lang_languages` (
   `lang_description` varchar(100) default NULL,
   `lang_is_rtl` TINYINT DEFAULT 0,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
@@ -478,7 +478,7 @@ CREATE TABLE `lang_constants` (
   `constant_name` mediumtext BINARY,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `constant_name` (`constant_name`(100))
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
@@ -553,7 +553,7 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `cons_id` (`cons_id`) 
-) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`

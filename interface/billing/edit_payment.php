@@ -176,9 +176,12 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
-				  sqlStatement("insert into ar_activity set "    .
+					 sqlBeginTrans();
+					 $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData("HiddenPId$CountRow"   )), trim(formData("HiddenEncounter$CountRow"   ))));
+					 sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow"   )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . $sequence_no['increment']  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -192,6 +195,7 @@ if (isset($_POST["mode"]))
 					"', adj_amount = '"    . 0 .
 					"', account_code = '" . "$AccountCode"  .
 					"'");
+					 sqlCommitTrans();
 				 }
 		   }
 		  else
@@ -242,9 +246,12 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
+				  sqlBeginTrans();
+				  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData("HiddenPId$CountRow"   )), trim(formData("HiddenEncounter$CountRow"   ))));
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . $sequence_no['increment']  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -258,6 +265,7 @@ if (isset($_POST["mode"]))
 					"', memo = '" . "$AdjustString"  .
 					"', account_code = '" . "$AccountCode"  .
 					"'");
+					sqlCommitTrans();
 				 }
 
 		   }
@@ -298,9 +306,12 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
+				  sqlBeginTrans();
+				  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData("HiddenPId$CountRow")), trim(formData("HiddenEncounter$CountRow"))));
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . $sequence_no['increment']  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -314,6 +325,7 @@ if (isset($_POST["mode"]))
 					"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
 					"', account_code = '" . "Deduct"  .
 					"'");
+				  sqlCommitTrans();
 				 }
 		   }
 		  else
@@ -353,9 +365,12 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
+				  sqlBeginTrans();
+				  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData("HiddenPId$CountRow"   )), trim(formData("HiddenEncounter$CountRow"   ))));
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . $sequence_no['increment']  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -368,6 +383,7 @@ if (isset($_POST["mode"]))
 					"', adj_amount = '"    . 0 .
 					"', account_code = '" . "Takeback"  .
 					"'");
+					sqlCommitTrans();
 				 }
 		   }
 		  else
@@ -407,9 +423,12 @@ if (isset($_POST["mode"]))
 				 }
 				else
 				 {
+				  sqlBeginTrans();
+				  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData("HiddenPId$CountRow"   )), trim(formData("HiddenEncounter$CountRow"   ))));
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+					"', sequence_no = '"     . $sequence_no['increment']  .
                                         "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -423,6 +442,7 @@ if (isset($_POST["mode"]))
 					"', follow_up = '"    . "y" .
 					"', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
 					"'");
+				  sqlCommitTrans();
 				 }
 		   }
 		  else

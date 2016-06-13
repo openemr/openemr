@@ -87,6 +87,10 @@ if (!empty($_POST['bn_upload'])) {
       sqlStatement("DELETE FROM codes WHERE code_type = ?", array($code_type_id));
     }
 
+
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("SET autocommit=0");
+    sqlStatementNoLog("START TRANSACTION");
     while (($line = fgets($eres)) !== false) {
 
       if ($code_type == 'RXCUI') {
@@ -102,13 +106,13 @@ if (!empty($_POST['bn_upload'])) {
           $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
             array($code_type_id, $code));
           if ($tmp['id']) {
-            sqlStatement("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
+            sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
               array($a[14], $code_type_id, $code));
             ++$repcount;
             continue;
           }
         }
-        sqlStatement("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
+        sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
           "fee = 0, units = 0",
           array($code_type_id, $code, $a[14]));
         ++$inscount;
@@ -117,6 +121,10 @@ if (!empty($_POST['bn_upload'])) {
       // TBD: Clone/adapt the above for each new code type.
 
     }
+    // Settings to drastically speed up import with InnoDB
+    sqlStatementNoLog("COMMIT");
+    sqlStatementNoLog("SET autocommit=1");
+
     fclose($eres);
     $zipin->close();
   }
