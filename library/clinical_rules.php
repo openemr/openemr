@@ -1892,20 +1892,38 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
   if ($table == 'immunizations') {
     $customSQL = " AND `added_erroneously` = '0' ";
   }
+  
+  //adding table list for where condition 
+  $whereTables = '';
+  if($table == 'procedure_result'){
+  	$whereTables = ", procedure_order_code, " .
+               "procedure_order, " .
+               "procedure_type, " .
+               "procedure_report " ;
+  	$customSQL =" AND procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
+               "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
+               "procedure_order.lab_id = procedure_type.lab_id AND " .
+               "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
+               "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
+               "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
+               "procedure_type.procedure_type = 'ord' ";
+  }
 
   // check for items
   if (empty($column)) {
     // simple search for any table entries
     $sql = sqlStatementCdrEngine("SELECT * " .
       "FROM `" . add_escape_custom($table)  . "` " .
-      "WHERE `" . add_escape_custom($patient_id_label)  . "`=? " . $customSQL, array($patient_id) );
+      " ". $whereTables. " ".
+      "WHERE " . add_escape_custom($patient_id_label)  . "=? " . $customSQL, array($patient_id) );
   }
   else {
     // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
       "FROM `" . add_escape_custom($table)  . "` " .
+      " ". $whereTables. " ".
       "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
-      "AND `" . add_escape_custom($patient_id_label)  . "`=? " . $customSQL .
+      "AND " . add_escape_custom($patient_id_label)  . "=? " . $customSQL .
       $dateSql, array($data,$patient_id) );
   }
 
@@ -2248,6 +2266,32 @@ function collect_database_label($label,$table) {
     }
     else if ($label == "date") {
       $returnedLabel = "`administered_date`";
+    }
+    else {
+      // unknown label, so return the original label
+      $returnedLabel = $label;
+    }
+  }
+  else if ($table == 'prescriptions'){
+	// return requested label for prescriptions table
+	if ($label == "pid") {
+		$returnedLabel = "patient_id";
+	}
+	else if ($label == "date") {
+		$returnedLabel = 'date_added';
+	}
+	else{
+		// unknown label, so return the original label
+		$returnedLabel = $label;
+	}
+  }
+  else if($table == 'procedure_result'){
+	// return requested label for prescriptions table
+    if ($label == "pid") {
+      $returnedLabel = "procedure_order.patient_id";
+    }
+    else if ($label == "date") {
+      $returnedLabel = "procedure_report.date_collected";
     }
     else {
       // unknown label, so return the original label
