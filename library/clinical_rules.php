@@ -1898,15 +1898,11 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
   if($table == 'procedure_result'){
   	$whereTables = ", procedure_order_code, " .
                "procedure_order, " .
-               "procedure_type, " .
                "procedure_report " ;
-  	$customSQL =" AND procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
-               "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
-               "procedure_order.lab_id = procedure_type.lab_id AND " .
+  	$customSQL = " AND procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
                "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
                "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
-               "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
-               "procedure_type.procedure_type = 'ord' ";
+               "procedure_result.procedure_report_id = procedure_report.procedure_report_id ";
   }
 
   // check for items
