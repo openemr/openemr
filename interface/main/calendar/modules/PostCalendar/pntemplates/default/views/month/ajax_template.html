@@ -524,9 +524,14 @@ foreach ($providers as $provider) {
                     $content .= "</a>";
                 }
                 else {
+                //Category Clinic
+                    if ( $catid == 99){
+                        $content  = $event['title'];
+                    }else{
                     // no patient id, just output the category name
-                    $content .= " ".$catname;
-                }
+                        $content .= $catname;
+                     }
+                    }
             }
             $divTitle .= "\n(" . xl('double click to edit') . ")";
             if($_SESSION['pc_facility'] == 0){

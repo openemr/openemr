@@ -290,6 +290,12 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     overflow: hidden;
     border: 1px solid #cfc;
 }
+.event_holiday {
+    background-color: mediumpurple;
+    z-index:2;
+    overflow: hidden;
+    border: 1px solid #cfc;
+}
 .event_highlight { 
     font-weight: bold; 
     border-top: 1px solid #999;
