@@ -71,4 +71,11 @@
 --  #IfNotListOccupation
 --    Custom function for creating Occupation List
 
-
+#IfNotTable calendar_external
+CREATE TABLE calendar_external (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
+  `description` VARCHAR(45) NOT NULL,
+  `source` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`));
+#EndIf

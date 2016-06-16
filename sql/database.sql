@@ -8081,3 +8081,13 @@ CREATE TABLE `form_clinical_instructions` (
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB;
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar external dates (holidays)
+--
+CREATE TABLE calendar_external (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
+  `description` VARCHAR(45) NOT NULL,
+  `source` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`));
