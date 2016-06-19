@@ -24,6 +24,16 @@ class Holidays_Storage{
             $holidays[] = $row;
         }
         return $holidays;
+    }
+
+    public function get_holidays_by_dates($star_date,$end_date){
+        $holidays= array();
+        $sql = sprintf('SELECT * FROM %s WHERE (pc_catid="6" OR pc_catid="7") AND pc_eventDate >= "%s" AND pc_eventDate <= "%s"', 'openemr_postcalendar_events',$star_date,$end_date);
+        $res=sqlStatement($sql);
+        while ($row = sqlFetchArray($res)) {
+            $holidays[] = $row['pc_eventDate'];
+        }
+        return $holidays;
 
     }
 

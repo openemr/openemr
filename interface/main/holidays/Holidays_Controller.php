@@ -1,5 +1,5 @@
 <?php
-
+require_once("Holidays_Storage.php");
 /**
  * Created by PhpStorm.
  * User: sharonco
@@ -47,6 +47,13 @@ class Holidays_Controller{
         $events = $this->storage->create_events($holidays);
         
         
+    }
+
+    public function get_holidays_by_date_range($start_date,$end_date){
+        $holidaye = array();
+        $this->storage = new Holidays_Storage();
+        $holidays = $this->storage->get_holidays_by_dates($start_date,$end_date);
+        return $holidays;
     }
     
 
