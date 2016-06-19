@@ -690,8 +690,8 @@ foreach ($providers as $provider) {
                     $content .= "</a>";
                 }
                 else {
-                      //Category Clinic
-                    if ( $catid == 99){
+                      //Category Clinic closaed or holiday take the event title
+                    if ( $catid ==6  || $catid == 7){
                          $content = $event['title'];
                     }else{
                         // no patient id, just output the category name

@@ -16,7 +16,7 @@ require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/sql.inc");
 require_once("Holidays_Controller.php");
-require_once("Holidays_Storage.php");
+
 
 //require_once($GLOBALS['srcdir'] . '/htmlspecialchars.inc.php');
 //require_once($GLOBALS['srcdir'] . '/formdata.inc.php');

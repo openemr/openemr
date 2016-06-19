@@ -1,4 +1,5 @@
 <?php
+require_once("Holidays_Storage.php");
 
 /**
  * Created by PhpStorm.
@@ -6,8 +7,13 @@
  * Date: 6/16/16
  * Time: 12:28 PM
  */
+
+
 class Holidays_Storage{
     const TABLE_NAME = "calendar_external";
+    const CALENDAR_CATEGORY_HOLIDAY = "6";
+    const CALENDAR_CATEGORY_CLOSED = "7";
+
     
     public function get_holidays(){
         $holidays= array();
@@ -25,7 +31,7 @@ class Holidays_Storage{
 
         foreach ($holidays as $holiday){
             $row=array(
-                /*catgory*/99,/*TODO change me*/
+                /*catgory*/self::CALENDAR_CATEGORY_HOLIDAY,/*TODO change me*/
                 /*authid*/$_SESSION['authUserID'],
                 /*pid*/0,
                 /*title*/$holiday['description'],
