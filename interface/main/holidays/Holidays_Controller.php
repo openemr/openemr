@@ -25,8 +25,20 @@ class Holidays_Controller{
         if (move_uploaded_file($files["form_file"]["tmp_name"], self::TARGET_FILE)) {
             return true;
         }
-
         return false;
+    }
+
+    public function import_holidays_from_csv(){
+        $file=$this->get_file_csv_data();
+        if(empty($file)){
+            return false;
+        }
+        $this->storage = new Holidays_Storage();
+        $this->storage->import_holidays(self::TARGET_FILE);
+        
+
+       
+
 
     }
 

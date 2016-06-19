@@ -35,9 +35,13 @@ if (!empty($_POST['bn_upload'])) {
     //Upload and save the csv
     $saved = $holidays_controller->upload_csv($_FILES);
 }
+if (!empty($_POST['import_holidays'])) {
+    //Import from the csv file to the calendar external table
+    $saved = $holidays_controller->import_holidays_from_csv();
+}
 if (!empty($_POST['sync'])) {
     //Upload and save the csv
-    $saved = $holidays_controller->create_holiday_event($_FILES);
+    $saved = $holidays_controller->create_holiday_event();
 }
 
 
@@ -99,6 +103,27 @@ if ($saved){
 
 
 </form>
+
+    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+
+        <p class='text'>
+        <table border='1' cellpadding='4'>
+            <tr bgcolor='#dddddd' class='dehead'>
+                <td align='center' colspan='2'>
+                    <?php echo xlt('Add holidays to calendar'); ?>
+                </td>
+            </tr>
+            <tr bgcolor='#dddddd'>
+                <td align='center' class='detail' colspan='2'>
+                    <input type='submit' name='import_holidays' value='<?php echo xlt('Import holiday events ') ?>' />
+                </td>
+            </tr>
+        </table>
+        </p>
+
+
+
+    </form>
 <table border='1' cellpadding='4'>
     <tr bgcolor='#dddddd' class='dehead'>
         <td align='center' colspan='2'>

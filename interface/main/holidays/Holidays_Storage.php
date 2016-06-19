@@ -61,6 +61,22 @@ class Holidays_Storage{
         }
 
     }
-    
+
+    public function import_holidays($file){
+        $handle = fopen($file,"r");
+        do {
+            if ($data[0]) {
+
+                sqlInsert("INSERT INTO ".self::TABLE_NAME ." VALUES
+                (   
+                    '',
+                    '".htmlspecialchars($data[0])."',
+                    '".htmlspecialchars($data[1])."',
+                    'csv'
+                )
+            ");
+            }
+        } while ($data = fgetcsv($handle,1000,",","'"));
+    }
 
 }
