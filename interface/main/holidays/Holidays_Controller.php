@@ -50,10 +50,24 @@ class Holidays_Controller{
     }
 
     public function get_holidays_by_date_range($start_date,$end_date){
-        $holidaye = array();
+        $holidays = array();
         $this->storage = new Holidays_Storage();
         $holidays = $this->storage->get_holidays_by_dates($start_date,$end_date);
         return $holidays;
+    }
+
+    /**
+     * Return true if the date is a holiday/closed
+     * @param $date
+     */
+    public function is_holiday($date){
+        $holidays = array();
+        $this->storage = new Holidays_Storage();
+        $holidays = $this->storage->get_holidays_by_dates($date,$date);
+        if(in_array($date,$holidays)){
+            return true;
+        }
+        return false;
     }
     
 

@@ -206,4 +206,17 @@ function is_weekend_day($day){
 	}
 }
 
+/**
+ * Check if day is weekend day
+ * @param (int) $day
+ * @return boolean
+ */
+function is_holiday($date){
+	$holidays =array();
+	require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+	$holidays_controller = new Holidays_Controller();
+	return $holidays_controller->is_holiday($date);
+	
+}
+
 ?>

@@ -258,6 +258,9 @@ while ($currdate <= $enddate) {
     if (is_weekend_day(date('w', $currdate))) {
         $tdClass = "tdWeekend-small";
     }
+    if (is_holiday(date('Y-m-d', $currdate))) {
+        $tdClass = "tdHoliday-small";
+    }
 
     if ((date('Ymd',$currdate) >= date('Ymd', $caldate)) &&
         (date('Ymd',$currdate) <= date('Ymd', $caldateEnd)))
