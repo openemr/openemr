@@ -42,7 +42,7 @@ class Holidays_Storage{
         foreach ($holidays as $holiday){
             $row=array(
                 /*catgory*/self::CALENDAR_CATEGORY_HOLIDAY,/*TODO change me*/
-                /*authid*/$_SESSION['authUserID'],
+                /*authid*/0,
                 /*pid*/0,
                 /*title*/$holiday['description'],
                 /*date*/$holiday['date'],
@@ -50,12 +50,13 @@ class Holidays_Storage{
                 /*recurrspec*/"a:6:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";s:6:\"exdate\";s:0:\"\";}",
                 /*allday*/1,
                 /*status*/1,
-                /*facility*/$_SESSION['pc_facility']
+                /*facility*/$_SESSION['pc_facility'],
+                /*sharing*/3 /*SHARING_GLOBAL*/
             );
             $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid,  pc_aid, pc_pid, pc_title, pc_time, " .
-                "pc_eventDate,  pc_duration, " . "pc_recurrspec,  pc_alldayevent, " . " pc_eventstatus, pc_facility" .
-                ") VALUES (?,?,?,?,NOW(),?,?,?,?,?,?)",
+                "pc_eventDate,  pc_duration, " . "pc_recurrspec,  pc_alldayevent, " . " pc_eventstatus, pc_facility,pc_sharing" .
+                ") VALUES (?,?,?,?,NOW(),?,?,?,?,?,?,?)",
                 $row
             );
         }

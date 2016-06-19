@@ -531,7 +531,8 @@ foreach ($providers as $provider) {
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-            if ($providerid != $event['aid']) { continue; }
+
+            if ($providerid != $event['aid'] && $providerid < 1) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
