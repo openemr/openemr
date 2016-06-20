@@ -188,6 +188,15 @@ class Installer
     }
     $query = "";
     $line = "";
+
+    // Settings to drastically speed up installation with InnoDB
+    if ( ! $this->execute_sql("SET autocommit=0;") ){
+      return FALSE;
+    }
+    if ( ! $this->execute_sql("START TRANSACTION;") ){
+      return FALSE;
+    }    
+
     while (!feof ($fd)){
             $line = fgets($fd,1024);
             $line = rtrim($line);
@@ -207,6 +216,15 @@ class Installer
                     $query = "";
             }
     }
+
+    // Settings to drastically speed up installation with InnoDB
+    if ( ! $this->execute_sql("COMMIT;") ){
+      return FALSE;
+    }
+    if ( ! $this->execute_sql("SET autocommit=1;") ){
+      return FALSE;
+    }
+
     $sql_results .= "OK<br>\n";
     fclose($fd);
     return $sql_results;

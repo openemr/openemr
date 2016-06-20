@@ -38,8 +38,8 @@ class NFQ_0013_Numerator implements CqmFilterIF
                  "LEFT JOIN `enc_category_map` " .
                  "ON (enc_category_map.main_cat_id = form_encounter.pc_catid) " .
                  "WHERE form_vitals.pid = ?" .
-                 "AND form_vitals.bps IS NOT NULL " .
-                 "AND form_vitals.bpd IS NOT NULL " .
+                 "AND form_vitals.bps IS NOT NULL  AND form_vitals.bps between 100 and 140 " .
+                 "AND form_vitals.bpd IS NOT NULL  AND form_vitals.bpd between 60 and 90 " .
                  "AND form_vitals.date >= ? " .
                  "AND form_vitals.date <= ? " .
                  "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' OR enc_category_map.rule_enc_id = 'enc_nurs_fac' )";

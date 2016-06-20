@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -204,17 +204,27 @@ $form_proc_code = $tmp_code_array[1];
         display: none;
     }
 }
+
+table.mymaintable, table.mymaintable td {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td {
+ padding: 1pt 4pt 1pt 4pt;
+}
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
- $(document).ready(function() {
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
- });
+});
 
 // This is for callback by the find-code popup.
 // Erases the current entry
@@ -349,17 +359,18 @@ function sel_procedure() {
 ?>
 <div id="report_results">
 
-<table>
+<table width='98%' id='mymaintable' class='mymaintable'>
 
  <thead>
+ <tr bgcolor="#dddddd">
   <th>
-   <?xl('Method','e')?>
+   <?php xl('Method','e') ?>
   </th>
   <th>
-   <?xl('Date','e')?>
+   <?php xl('Date','e') ?>
   </th>
   <th>
-   <?xl('Invoice','e')?>
+   <?php xl('Invoice','e') ?>
   </th>
 <?php if ($showing_ppd) { ?>
   <th>
@@ -381,9 +392,10 @@ function sel_procedure() {
   <th align="right">
    <?xl('Payments','e')?>
   </th>
+ </tr>
  </thead>
+ <tbody>
 <?php
-
 
 if ($_POST['form_refresh']) {
   $from_date = $form_from_date;
@@ -574,6 +586,7 @@ if ($_POST['form_refresh']) {
 } // end form refresh
 ?>
 
+ </tbody>
 </table>
 </div>
 <?php } else { ?>

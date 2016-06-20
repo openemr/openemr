@@ -213,7 +213,7 @@ if (is_array($info['match'])) {
 }
 
 foreach ($info as $infokey => $infoval) {
-  if ($infokey == 'match' || $infokey = 'select') continue;
+  if ($infokey == 'match' || $infokey == 'select') continue;
   $count = 0;
   if (is_array($infoval['mssgs'])) {
     foreach ($infoval['mssgs'] as $message) {

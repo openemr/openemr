@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -45,18 +45,21 @@ else {
 <?php html_header_show();?>
 <title><?php xl('Patient List','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 $(document).ready(function() {
- top.printLogSetup(document.getElementById('printbutton'));
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
+  top.printLogSetup(document.getElementById('printbutton'));
 });
 
 </script>
+
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <style type="text/css">
 
@@ -204,7 +207,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 ?>
 
 <div id="report_results">
-<table>
+<table id='mymaintable'>
  <thead>
   <th> <?php xl('Last Visit','e'); ?> </th>
   <th> <?php xl('Patient','e'); ?> </th>

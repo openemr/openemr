@@ -41,7 +41,10 @@ if (isset($_GET['mode'])) {
 					  expiration_date = if(?,?,NULL),
 					  route = ?,
 					  administration_site = ? ,
-                                          completion_status = ?";
+                      completion_status = ?,
+                      information_source = ?,
+                      refusal_reason = ?,
+                      ordering_provider = ?";
 	$sqlBindArray = array(
 	             trim($_GET['id']),
 		     trim($_GET['administered_date']), trim($_GET['administered_date']),
@@ -62,13 +65,20 @@ if (isset($_GET['mode'])) {
 			 trim($_GET['immuniz_exp_date']), trim($_GET['immuniz_exp_date']),
 			 trim($_GET['immuniz_route']),
 			 trim($_GET['immuniz_admin_ste']),
-                         trim($_GET['immuniz_completion_status'])
+                trim($_GET['immuniz_completion_status']),
+                trim($_GET['immunization_informationsource']),
+                trim($_GET['immunization_refusal_reason']),
+                trim($_GET['ordered_by_id'])          
 		     );
-        sqlStatement($sql,$sqlBindArray);
+        $newid = sqlInsert($sql,$sqlBindArray);
         $administered_date=date('Y-m-d H:i');
 		$education_date=date('Y-m-d');
-        $immunization_id=$cvx_code=$manufacturer=$lot_number=$administered_by_id=$note=$id="";
+        $immunization_id=$cvx_code=$manufacturer=$lot_number=$administered_by_id=$note=$id=$ordered_by_id="";
         $administered_by=$vis_date="";
+        $newid = $_GET['id'] ? $_GET['id'] : $newid;
+        if($GLOBALS['observation_results_immunization']) {
+          saveImmunizationObservationResults($newid,$_GET);
+        }
 		
     }
     elseif ($_GET['mode'] == "delete" ) {
@@ -114,10 +124,12 @@ if (isset($_GET['mode'])) {
         $manufacturer = $result['manufacturer'];
         $lot_number = $result['lot_number'];
         $administered_by_id = ($result['administered_by_id'] ? $result['administered_by_id'] : 0);
+        $ordered_by_id      = ($result['ordering_provider'] ? $result['ordering_provider'] : 0);
+	$entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
 
 		$administered_by = "";
 		if (!$result['administered_by'] && !$row['administered_by_id']) { 
-    		$stmt = "select concat(lname,', ',fname) as full_name ".
+    		$stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             		"from users where ".
             		"id=?";
     		$user_result = sqlQuery($stmt, array($result['administered_by_id']));
@@ -132,12 +144,17 @@ if (isset($_GET['mode'])) {
 		$isAddedError = $result['added_erroneously'];
 		
 	$immuniz_completion_status = $result['completion_status'];	
+        $immuniz_information_source = $result['information_source'];	
+        $immuniz_refusal_reason     = $result['refusal_reason'];
 	//set id for page
 	$id = $_GET['id'];
 	
+        $imm_obs_data = getImmunizationObservationResults();	
     }
 }
 
+$observation_criteria = getImmunizationObservationLists('1');
+$observation_criteria_value = getImmunizationObservationLists('2');
 // Decide whether using the CVX list or the custom list in list_options
 if ($GLOBALS['use_custom_immun_list']) {
   // user forces the use of the custom list
@@ -164,13 +181,127 @@ if (!$sortby) { $sortby = 'vacc'; }
 
 // set the default value of 'administered_by'
 if (!$administered_by && !$administered_by_id) { 
-    $stmt = "select concat(lname,', ',fname) as full_name ".
+    $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             " from users where ".
             " id=?";
     $row = sqlQuery($stmt, array($_SESSION['authId']));
     $administered_by = $row['full_name'];
 }
 
+// get the entered username
+if ($entered_by_id) { 
+    $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
+            " from users where ".
+            " id=?";
+    $row = sqlQuery($stmt, array($entered_by_id));
+    $entered_by = $row['full_name'];
+}
+
+if($_POST['type'] == 'duplicate_row'){
+    $observation_criteria = getImmunizationObservationLists('1');
+    echo json_encode($observation_criteria);
+    exit;
+}
+if($_POST['type'] == 'duplicate_row_2'){
+    $observation_criteria_value = getImmunizationObservationLists('2');
+    echo json_encode($observation_criteria_value);
+    exit;
+}
+
+function getImmunizationObservationLists($k)
+{
+    if($k == 1) {
+        $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('immunization_observation'));
+        for ($iter = 0; $row = sqlFetchArray($observation_criteria_res); $iter++) {
+            $observation_criteria[0]['option_id'] = '';
+            $observation_criteria[0]['title']     = 'Unassigned';
+            $observation_criteria[++$iter] = $row;
+        }
+        return $observation_criteria;
+    }else {
+        $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array('imm_vac_eligibility_results'));
+        for ($iter = 0; $row = sqlFetchArray($observation_criteria_value_res); $iter++) {
+            $observation_criteria_value[0]['option_id'] = '';
+            $observation_criteria_value[0]['title']     = 'Unassigned';
+            $observation_criteria_value[++$iter] = $row;
+        }
+        return $observation_criteria_value;
+    }
+}
+
+function getImmunizationObservationResults()
+{
+    $obs_res_q = "SELECT 
+                  * 
+                FROM
+                  immunization_observation 
+                WHERE imo_pid = ? 
+                  AND imo_im_id = ?";
+    $res = sqlStatement($obs_res_q, array($_SESSION["pid"],$_GET['id']));
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+        $imm_obs_data[$iter] = $row;
+    return $imm_obs_data;
+}
+
+function saveImmunizationObservationResults($id,$immunizationdata)
+{ 
+    $imm_obs_data = getImmunizationObservationResults();
+    if(count($imm_obs_data) > 0) {
+        foreach($imm_obs_data as $key=>$val) {
+            if($val['imo_id'] && $val['imo_id'] != 0 ) {
+                $sql2                   = " DELETE 
+                                            FROM
+                                              immunization_observation 
+                                            WHERE imo_im_id = ? 
+                                              AND imo_pid = ?";
+                $result2                = sqlQuery($sql2,array($val['imo_im_id'],$val['imo_pid']));
+            }
+        }
+    }
+    for($i = 0; $i < $immunizationdata['tr_count']; $i++) {
+        if($immunizationdata['observation_criteria'][$i] == 'vaccine_type') {
+            $code                     = $immunizationdata['cvx_vac_type_code'][$i];
+            $code_text                = $immunizationdata['code_text_hidden'][$i];
+            $code_type                = $immunizationdata['code_type_hidden'][$i];
+            $vis_published_dateval    = $immunizationdata['vis_published_date'][$i] ? $immunizationdata['vis_published_date'][$i] : '';
+            $vis_presented_dateval    = $immunizationdata['vis_presented_date'][$i] ? $immunizationdata['vis_presented_date'][$i] : '';
+            $imo_criteria_value       = '';
+        } else if($immunizationdata['observation_criteria'][$i] == 'disease_with_presumed_immunity') {
+            $code                     = $immunizationdata['sct_code'][$i];
+            $code_text                = $immunizationdata['codetext'][$i];
+            $code_type                = $immunizationdata['codetypehidden'][$i];
+            $imo_criteria_value       = '';
+            $vis_published_dateval    = '';
+            $vis_presented_dateval    = '';
+        }else if($immunizationdata['observation_criteria'][$i] == 'funding_program_eligibility') {
+            $imo_criteria_value       = $immunizationdata['observation_criteria_value'][$i];
+            $code                     = '';
+            $code_text                = '';
+            $code_type                = '';
+            $vis_published_dateval    = '';
+            $vis_presented_dateval    = '';
+        }
+
+        if($immunizationdata['observation_criteria'][$i] != '') {
+            $sql                      = " INSERT INTO immunization_observation (
+                                          imo_im_id,
+                                          imo_pid,
+                                          imo_criteria,
+                                          imo_criteria_value,
+                                          imo_user,
+                                          imo_code,
+                                          imo_codetext,
+                                          imo_codetype,
+                                          imo_vis_date_published,
+                                          imo_vis_date_presented
+                                        ) 
+                                        VALUES
+                                          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $res                      = sqlQuery($sql, array($id,$_SESSION["pid"],$immunizationdata['observation_criteria'][$i],$imo_criteria_value,$_SESSION['authId'],$code, $code_text, $code_type,$vis_published_dateval,$vis_presented_dateval));
+        }
+    }
+    return;
+}
 ?>
 <html>
 <head>
@@ -317,9 +448,9 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <select name="administered_by_id" id='administered_by_id'>
             <option value=""></option>
               <?php
-                $sql = "select id, concat(lname,', ',fname) as full_name " .
-                       "from users where username != '' " .
-                       "order by concat(lname,', ',fname)";
+                $sql = "select id, CONCAT_WS(' ',lname,fname) as full_name " .
+                       "from users where username != '' and password != 'NoLogin' " .
+                       "order by full_name";
 
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
@@ -368,7 +499,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <tr>
           <td align="right" class='text'><?php echo htmlspecialchars( xl('Administration Site'), ENT_NOQUOTES); ?></td>
           <td>
-		  	<?php echo generate_select_list('immuniz_admin_ste', 'proc_body_site', $immuniz_admin_ste, 'Select Administration Site', ' ');?>
+		  	<?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '','','',null,false,'proc_body_site');?>
 		  </td>
         </tr>
         <tr>
@@ -379,9 +510,210 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         </tr>
         <tr>
           <td align="right" class='text'>
+              <?php echo htmlspecialchars( xl('Information Source'), ENT_NOQUOTES); ?>          
+          </td>
+          <td>
+            <?php echo generate_select_list('immunization_informationsource', 'immunization_informationsource', $immuniz_information_source, 'Select Information Source', ' ');?>
+          </td>
+        </tr>
+        <tr>
+          <td align="right" class='text'>
               <?php echo htmlspecialchars( xl('Completion Status'), ENT_NOQUOTES); ?>          </td>
           <td>
             <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', $immuniz_completion_status, 'Select Completion Status', ' ');?>          </td>
+        </tr>
+        <tr>
+          <td align="right" class='text'>
+              <?php echo htmlspecialchars( xl('Substance Refusal Reason'), ENT_NOQUOTES); ?>          
+          </td>
+          <td>
+            <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', $immuniz_refusal_reason, 'Select Refusal Reason', ' ');?>
+          </td>
+        </tr>
+        <tr>
+          <td align="right" class='text'>
+              <?php echo htmlspecialchars( xl('Immunization Ordering Provider'), ENT_NOQUOTES); ?>          
+          </td>
+          <td>
+            <select name="ordered_by_id" id='ordered_by_id'>
+            <option value=""></option>
+              <?php
+                $sql = "select id, CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
+                       "from users where username != '' and password != 'NoLogin' " .
+                       "order by full_name";
+
+                $result = sqlStatement($sql);
+                while($row = sqlFetchArray($result)){
+                  echo '<OPTION VALUE=' . htmlspecialchars( $row{'id'}, ENT_QUOTES);
+                  echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authId']) == $row{'id'} ? ' selected>' : '>';
+                  echo htmlspecialchars( $row{'full_name'}, ENT_NOQUOTES) . '</OPTION>';
+                }
+              ?>
+            </select>
+          </td>
+        </tr>
+	<?php
+	if($entered_by){
+	?>
+	<tr>
+		<td align="right" class='text'>
+			<?php echo htmlspecialchars( xl('Entered By'), ENT_NOQUOTES); ?>          
+		 </td>
+		<td>
+			<?php echo htmlspecialchars( $entered_by, ENT_NOQUOTES); ?>
+		</td>
+	</tr>
+	<?php
+	}
+  if($GLOBALS['observation_results_immunization']) {
+	?>
+        <tr>
+          <td colspan="3" align="center">
+            <img src='../../pic/add.png' onclick="showObservationResultSection();" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to see observation results'); ?>'>
+          </td>
+  </tr><?php } ?>
+        <tr>
+          <td align="center" colspan="3">
+            <div class="observation_results" style="display:none;">
+              <fieldset class="obs_res_head">
+                <legend><?php echo htmlspecialchars( xl('Observation Results'), ENT_QUOTES); ?></legend>
+                <table class="obs_res_table">
+                  <?php if(count($imm_obs_data) > 0) {
+                    foreach($imm_obs_data as $key=>$value) { 
+                      $key_snomed = 0; $key_cvx = 0; $style= '';?>
+                      <tr id="or_tr_<?php echo $key + 1 ;?>">
+                        <?php 
+                        if($id == 0 ) {
+                            if($key == 0)
+                                $style = 'display: table-cell;width:765px !important';
+                            else
+                                $style = 'display: none;width:765px !important';
+                        }
+                        else
+                            $style = 'display : table-cell;width:765px !important';
+                        ?>
+                        <td id="observation_criteria_td_<?php echo $key + 1 ;?>" style="<?php echo $style;?>">
+                          <label><?php echo htmlspecialchars( xl('Observation Criteria'), ENT_QUOTES);?></label>
+                          <select id="observation_criteria_<?php echo $key + 1 ;?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;">
+                              <?php foreach ($observation_criteria as $keyo=> $valo) { ?>
+                              <option value="<?php echo attr($valo['option_id']);?>" <?php if($valo['option_id'] == $value['imo_criteria'] && $id !=0) echo 'selected = "selected"' ;?> ><?php echo text($valo['title']);?></option>
+                              <?php }
+                              ?>
+                          </select>
+                        </td> 
+                        <td <?php if($value['imo_criteria'] != 'funding_program_eligibility' || $id == 0) { ?> style="display: none;" <?php } ?> class="observation_criteria_value_td" id="observation_criteria_value_td_<?php echo $key + 1 ;?>">
+                          <label><?php echo htmlspecialchars( xl('Observation Criteria Value'), ENT_QUOTES); ?></label>
+                          <select name="observation_criteria_value[]" id="observation_criteria_value_<?php echo $key + 1 ;?>" style="width: 220px;">
+                              <?php foreach ($observation_criteria_value as $keyoc=> $valoc) { ?>
+                              <option value="<?php echo attr($valoc['option_id']);?>" <?php if($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) echo 'selected = "selected"' ;?>><?php echo text($valoc['title']);?></option>
+                              <?php }
+                              ?>
+                          </select>
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) { ?> style="display: none;" <?php } ?> class="code_serach_td" id="code_search_td_<?php echo $key + 1 ;?>">
+                          <?php $key_snomed = ($key > 0) ? (($key*2) + 2) : ($key + 2);?>
+                          <label><?php echo htmlspecialchars( xl('SNOMED-CT Code'), ENT_QUOTES);?></label>
+                          <input type="text" id="sct_code_<?php echo $key_snomed; ?>" style="width:140px" name="sct_code[]" class="code" value="<?php if($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') echo attr($value['imo_code']);?>"  onclick='sel_code(this.id);'><br>
+                          <span id="displaytext_<?php echo $key_snomed; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php  echo text($value['imo_codetext']);?></span>
+                          <input type="hidden" id="codetext_<?php echo $key_snomed; ?>" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
+                          <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden<?php echo $key_snomed; ?>" /> 
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_<?php echo $key + 1 ;?>">
+                          <label><?php echo htmlspecialchars( xl('CVX Code'), ENT_QUOTES);?></label>
+                          <?php $key_cvx = ($key > 0) ? (($key*2) + 3) : ($key + 3);?>
+                          <input type="text" id="cvx_code<?php echo $key_cvx ;?>" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);" 
+                                 value="<?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo attr($value['imo_code']);?>" style="width:140px;" />
+                          <div class="imm-imm-add-12" id="imm-imm-add-12<?php echo $key_cvx ;?>"><?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo text($value['imo_codetext']);?></div> 
+                          <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden<?php echo $key_cvx ;?>" /> 
+                          <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden<?php echo $key_cvx ;?>" value="<?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo attr($value['imo_codetext']);?>"/> 
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_published_date_td" id="vis_published_date_td_<?php echo $key + 1 ;?>">
+                          <label><?php echo htmlspecialchars( xl('Date VIS Published'), ENT_QUOTES); ?></label>
+                          <?php 
+                            $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars( $value['imo_vis_date_published'], ENT_QUOTES) : '';
+                          ?>
+                          <input type="text" name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_<?php echo $key + 1 ;?>" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
+                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_published_<?php echo $key + 1 ;?>' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_<?php echo $key + 1 ;?>">
+                          <label><?php echo htmlspecialchars( xl('Date VIS Presented'), ENT_QUOTES); ?></label>
+                          <?php 
+                            $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars( $value['imo_vis_date_presented'], ENT_QUOTES) : '';
+                          ?>
+                          <input type="text" name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_<?php echo $key + 1 ;?>" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
+                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_presented_<?php echo $key + 1 ;?>' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                        </td>
+                        <?php if($key != 0 && $id != 0) {?>
+                        <td>
+                          <img src='../../pic/remove.png' id ="<?php echo $key +1;?>" onclick="RemoveRow(this.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
+                        </td>
+                        <?php } ?>
+                      </tr>
+                    <?php }
+                  }else{?>
+                      <tr id="or_tr_1">
+                        <td id="observation_criteria_td_1">
+                          <label><?php echo htmlspecialchars( xl('Observation Criteria'), ENT_QUOTES); ?></label>
+                          <select id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;">
+                              <?php foreach ($observation_criteria as $keyo=> $valo) { ?>
+                              <option value="<?php echo attr($valo['option_id']);?>" <?php if($valo['option_id'] == $value['imo_criteria'] && $id !=0) echo 'selected = "selected"' ;?> ><?php echo text($valo['title']);?></option>
+                              <?php }
+                              ?>
+                          </select>
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'funding_program_eligibility') { ?> style="display: none;" <?php } ?> class="observation_criteria_value_td" id="observation_criteria_value_td_1">
+                          <label><?php echo htmlspecialchars( xl('Observation Criteria Value'), ENT_QUOTES); ?></label>
+                          <select id="observation_criteria_value_1" name="observation_criteria_value[]" style="width: 220px;">
+                              <?php foreach ($observation_criteria_value as $keyoc=> $valoc) { ?>
+                              <option value="<?php echo attr($valoc['option_id']);?>" <?php if($valoc['option_id'] == $value['imo_criteria_value'] && $id != 0) echo 'selected = "selected"' ;?>><?php echo text($valoc['title']);?></option>
+                              <?php }
+                              ?>
+                          </select>
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) { ?> style="display: none;" <?php } ?> class="code_serach_td" id="code_search_td_1">
+                          <label><?php echo htmlspecialchars( xl('SNOMED-CT Code'), ENT_QUOTES);?></label>
+                          <input type="text" id="sct_code_2" style="width:140px" name="sct_code[]" class="code" value="<?php if($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') echo attr($value['imo_code']);?>"  onclick='sel_code(this.id);'><br>
+                          <span id="displaytext_2" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php  echo text($value['imo_codetext']);?></span>
+                          <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
+                          <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" /> 
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+                          <label><?php echo htmlspecialchars( xl('CVX Code'), ENT_QUOTES);?></label>
+                          <input type="text" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);" 
+                                 value="<?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo attr($value['imo_code']);?>" style="width:140px;" />
+                          <div class="imm-imm-add-12" id="imm-imm-add-123"><?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo text($value['imo_codetext']);?></div> 
+                          <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/> 
+                          <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo attr($value['imo_codetext']);?>"/> 
+                        </td>
+                         <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_published_date_td" id="vis_published_date_td_1">
+                          <label><?php echo htmlspecialchars( xl('Date VIS Published'), ENT_QUOTES); ?></label>
+                          <?php 
+                            $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars( $value['imo_vis_date_published'], ENT_QUOTES) : '';
+                          ?>
+                          <input type="text" name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_1"  autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
+                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_published_1' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                        </td>
+                        <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_1">
+                          <label><?php echo htmlspecialchars( xl('Date VIS Presented'), ENT_QUOTES); ?></label>
+                          <?php 
+                            $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars( $value['imo_vis_date_presented'], ENT_QUOTES) : '';
+                          ?>
+                          <input type="text" name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_1" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
+                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_presented_1' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                        </td>
+                      </tr>
+                  <?php }?>
+                </table>
+                <div>
+                  <center style="cursor: pointer;">
+                    <img src='../../pic/add.png' onclick="addNewRow();" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to add new row'); ?>'>
+                  </center>
+                </div>
+                <input type ="hidden" name="tr_count" id="tr_count" value="<?php echo (count($imm_obs_data)>0) ? count($imm_obs_data) : 1 ;?>">
+                <input type="hidden" id="clickId" value="">
+              </fieldset>
+            </div>
+          </td>
         </tr>
         <tr>
           <td colspan="3" align="center">
@@ -488,9 +820,9 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["administered_by"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["education_date"], ENT_NOQUOTES) . $del_tag_close . "</td>";
 			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";			
-			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']) . $del_tag_close . "</td>";
+			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
 			echo "<td>" . $del_tag_open . htmlspecialchars( $row["note"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-                        echo "<td>" . $del_tag_open . htmlspecialchars( $row["completion_status"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+                        echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";
 			
 			if ($isError) {
 				$checkbox = "checked";
@@ -512,11 +844,14 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
   </body>
 
 <script language="javascript">
+var tr_count = $('#tr_count').val();
 /* required for popup calendar */
 Calendar.setup({inputField:"administered_date", ifFormat:"%Y-%m-%d %H:%M", button:"img_administered_date", showsTime:true});
 Calendar.setup({inputField:"immuniz_exp_date", ifFormat:"%Y-%m-%d", button:"img_immuniz_exp_date"});
 Calendar.setup({inputField:"education_date", ifFormat:"%Y-%m-%d", button:"img_education_date"});
 Calendar.setup({inputField:"vis_date", ifFormat:"%Y-%m-%d", button:"img_vis_date"});
+Calendar.setup({inputField:"vis_published_date_"+tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_published_"+tr_count});
+Calendar.setup({inputField:"vis_presented_date_"+tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_presented_"+tr_count});
 
 // jQuery stuff to make the page a little easier to use
 
@@ -584,7 +919,9 @@ var ErrorImm = function(imm) {
 //This is for callback by the find-code popup.
 //Appends to or erases the current list of diagnoses.
 function set_related(codetype, code, selector, codedesc) {
+    if(codetype == 'CVX') {
 	var f = document.forms[0][current_sel_name];
+        if(!f.length) {
 	var s = f.value;
 	
 	if (code) {
@@ -595,11 +932,40 @@ function set_related(codetype, code, selector, codedesc) {
 	}
 	
 	f.value = s;
+            if(f.name != 'cvx_vac_type_code[]'){
 	$("#cvx_description").text( codedesc );
 	$("#form_immunization_id").attr( "value", "" );
 	$("#form_immunization_id").change();
+            }else{
+                id_arr = f.id.split('cvx_code');
+                counter = id_arr[1];
+                $('#imm-imm-add-12'+counter).html(codedesc);
+                $('#code_text_hidden'+counter).val(codedesc);
+            }
+        }else {
+            var index = document.forms[0][current_sel_name].length -1;
+            var elem = document.forms[0][current_sel_name][index];
+            var ss = elem.value;
+            if (code) {
+                ss = code;
+            }
+            else {
+                ss = '';
 }
 
+            elem.value = ss;
+            arr = elem.id.split('cvx_code');
+            count = arr[1];
+            $('#imm-imm-add-12'+count).html(codedesc);
+            $('#code_text_hidden'+count).val(codedesc);
+        }
+    }else {
+        var checkId = $('#clickId').val();
+        $("#sct_code_" + checkId).val(code);
+        $("#codetext_" + checkId).val(codedesc);
+        $("#displaytext_" + checkId).html(codedesc);
+    }
+}
 
 // This invokes the find-code popup.
 function sel_cvxcode(e) {
@@ -619,6 +985,168 @@ function validate_cvx() {
  }   
 }
 
+function showObservationResultSection()
+{
+    $('.observation_results').slideToggle();
+}
+
+function selectCriteria(id,value)
+{
+    var arr = id.split('observation_criteria_');
+    var key = arr[1];
+    if(value == 'funding_program_eligibility') { 
+        $('.obs_res_table').css('width','50%');
+        if(key > 1) {
+            var target = $("#observation_criteria_value_"+key);
+            $.ajax({
+                type: "POST",
+                url:  "immunizations.php",
+                dataType: "json",
+                data: {
+                    type : 'duplicate_row_2'
+                },
+                success: function(thedata){
+                    $.each(thedata,function(i,item) {
+                        target.append($('<option />').val(item.option_id).text(item.title));
+                    });
+                    $('#observation_criteria_value_'+key+' option[value=""]').attr('selected','selected');
+                },
+                error:function(){
+                  alert("ajax error");
+                }
+            });
+        }
+        $("#code_search_td_"+key).hide(); 
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#observation_criteria_value_td_"+key).show(); 
+    }
+    if(value == 'vaccine_type')
+    {
+        $("#observation_criteria_value_td_"+key).hide(); 
+        $("#code_search_td_"+key).hide(); 
+        $("#code_serach_vaccine_type_td_"+key).show(); 
+        $("#vis_published_date_td_"+key).show();
+        $("#vis_presented_date_td_"+key).show();
+        if(key == 1) {
+            key = parseInt(key) + 2;
+        }
+        else {
+            key = (parseInt(key) * 2) + 1;
+        }
+        $("#cvx_code"+key).css("background-color", "red");
+        $("#cvx_code"+key).focus();
+        return false;
+    }
+    if(value == 'disease_with_presumed_immunity')
+    {
+        $('.obs_res_table').css('width','50%');
+        $("#observation_criteria_value_td_"+key).hide(); 
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#code_search_td_"+key).show(); 
+        if(key == 1) {
+            key = parseInt(key) + 1;
+        }
+        else {
+            key = (parseInt(key) * 2);
+        }
+        $("#sct_code_"+key).css("background-color", "red");
+        $("#sct_code_"+key).focus(); 
+        return false;
+    }
+    if(value == '')
+    {
+        $("#observation_criteria_value_td_"+key).hide(); 
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#code_search_td_"+key).hide(); 
+    }
+}
+
+function RemoveRow(id) 
+{
+    tr_count = parseInt($("#tr_count").val());
+    new_tr_count = tr_count-1;
+    $("#tr_count").val(new_tr_count);
+    $("#or_tr_"+id).remove();
+}
+
+function addNewRow() 
+{ 
+    tr_count = parseInt($("#tr_count").val());
+    new_tr_count = tr_count+1; 
+    new_tr_count_2 = (new_tr_count * 2);
+    new_tr_count_3 = (new_tr_count *2) + 1;
+    $("#tr_count").val(new_tr_count);
+    label1 = "<?php echo htmlspecialchars( xl('Observation Criteria'), ENT_QUOTES); ?>";
+    label2 = "<?php echo htmlspecialchars( xl('Observation Criteria Value'), ENT_QUOTES); ?>";
+    label3 = "<?php echo htmlspecialchars( xl('SNOMED-CT Code'), ENT_QUOTES); ?>";
+    label4 = "<?php echo htmlspecialchars( xl('CVX Code'), ENT_QUOTES); ?>";
+    label5 = "<?php echo htmlspecialchars( xl('Date VIS Published'), ENT_QUOTES); ?>";
+    label6 = "<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>";
+    label7 = "<?php echo htmlspecialchars( xl('Date VIS Presented'), ENT_QUOTES); ?>";
+    label8 = "<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>";
+    label9 = "<?php echo htmlspecialchars( xl('Click here to delete the row'), ENT_QUOTES); ?>";
+    str = '<tr id ="or_tr_'+new_tr_count+'">'+
+              '<td id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;"></select>'+
+              '</td>'+
+              '<td id="observation_criteria_value_td_'+new_tr_count+'" class="observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'" style="width: 220px;"></select>'+
+              '</td>'+  
+              '<td class="code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
+                '<input type="text" id="sct_code_'+new_tr_count_2+'" style="width:140px" name="sct_code[]" class="code" onclick=sel_code(this.id) /><br>'+
+                '<span id="displaytext_'+new_tr_count_2+'" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"></span>'+
+                '<input type="hidden" id="codetext_'+new_tr_count_2+'" name="codetext[]" class="codetext">'+
+                '<input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden'+new_tr_count_2+'" /> '+
+             '</td>'+       
+             '<td class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_'+new_tr_count+'" style="display: none;"><label>'+label4+'</label>'+
+               '<input type="text" id="cvx_code'+new_tr_count_3+'" name="cvx_vac_type_code[]" onclick=sel_cvxcode(this); style="width:140px;" />'+
+               '<div class="imm-imm-add-12" id="imm-imm-add-12'+new_tr_count_3+'"></div> '+
+               '<input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden'+new_tr_count_3+'" /> '+
+               '<input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden'+new_tr_count_3+'" value="" />'+ 
+             '</td>'+
+             '<td id="vis_published_date_td_'+new_tr_count+'" class="vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" autocomplete=off onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc);" style="width:140px">'+
+             '<img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_immuniz_vis_date_published_'+new_tr_count+'" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="'+label6+'"></td>'+
+             '<td id="vis_presented_date_td_'+new_tr_count+'" class="vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" autocomplete=off onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc);" style="width:140px">'+
+             '<img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_immuniz_vis_date_presented_'+new_tr_count+'" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="'+label8+'"></td>'+
+             '<td><img src="../../pic/remove.png" id ="'+new_tr_count+'" onclick="RemoveRow(this.id);" align="absbottom" width="24" height="22" border="0" style="cursor:pointer;cursor:hand" title="'+label9+'"></td></tr>';     
+       
+    $(".obs_res_table").append(str);
+      
+    var ajax_url = 'immunizations.php';
+    var target = $("#observation_criteria_"+new_tr_count);
+    $.ajax({
+        type: "POST",
+        url: ajax_url,
+        dataType: "json",
+        data: {
+            type : 'duplicate_row'
+        },
+        success: function(thedata){
+            $.each(thedata,function(i,item) {
+                target.append($('<option></option>').val(item.option_id).text(item.title));
+            });
+            $('#observation_criteria_'+new_tr_count+' option[value=""]').attr('selected','selected');
+        },
+        error:function(){
+          alert("ajax error");
+        }
+    });
+    
+    Calendar.setup({inputField:"vis_published_date_"+new_tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_published_"+new_tr_count});
+    Calendar.setup({inputField:"vis_presented_date_"+new_tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_presented_"+new_tr_count});
+}
+
+function sel_code(id)
+{
+    id = id.split('sct_code_');
+    var checkId = id[1];
+    $('#clickId').val(checkId);
+    dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
+}
 </script>
 
 </html>

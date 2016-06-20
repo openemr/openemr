@@ -12,4 +12,5 @@ interface CqmPopulationCrtiteriaFactory extends RsFilterIF
     public function createDenominator();
     public function createNumerators();
     public function createExclusion();
+    public function createDenominatorException();
 }

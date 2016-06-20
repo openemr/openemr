@@ -232,6 +232,10 @@ function displayAlert()
             <td><span class="text"><?php xl('CLIA Number','e'); ?>:</span></td>
             <td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo htmlspecialchars($facility['domain_identifier'], ENT_QUOTES) ?>"></td>
         </tr>
+        <tr>
+            <td><span class="text"><?php xl('Facility ID','e'); ?>:</span></td>
+            <td colspan="4"><input type="text" name="facility_id" size="45" value="<?php echo htmlspecialchars($facility['facility_code'], ENT_QUOTES) ?>"></td>
+        </tr>
         <tr height="20" valign="bottom">
             <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xl('Required','e');?></span></td>
         </tr>

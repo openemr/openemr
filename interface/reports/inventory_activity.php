@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -376,20 +376,30 @@ else {
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+
+table.mymaintable, table.mymaintable td, table.mymaintable th {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td, table.mymaintable th {
+ padding: 1pt 4pt 1pt 4pt;
+}
 </style>
 
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -511,8 +521,8 @@ echo "      </select>\n";
 <?php if ($form_action) { // if submit (already not export here) ?>
 
 <div id="report_results">
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
+<table width='98%' id='mymaintable' class='mymaintable'>
+ <thead>
  <tr bgcolor="#dddddd">
   <td class="dehead">
    <?php echo htmlspecialchars($product_first ? xl('Product') : xl('Warehouse')); ?>
@@ -554,6 +564,8 @@ echo "      </select>\n";
    <?php echo htmlspecialchars(xl('End')); ?>
   </td>
  </tr>
+ </thead>
+ <tbody>
 <?php
 } // end if submit
 } // end not export
@@ -679,6 +691,7 @@ if ($form_action) { // if submit or export
 if ($form_action != 'export') {
   if ($form_action) {
 ?>
+ </tbody>
 </table>
 </div>
 <?php

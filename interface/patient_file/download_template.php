@@ -164,7 +164,7 @@ function doSubs($s) {
       $patientid = $ptrow['pid'];
       $DOS = substr($enrow['date'], 0, 10);
       // Prefer appointment comment if one is present.
-      $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = '$patientid' ");
+      $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
       foreach ($evlist as $tmp) {
         if ($tmp['pc_pid'] == $pid && !empty($tmp['pc_hometext'])) {
           $cc = $tmp['pc_hometext'];

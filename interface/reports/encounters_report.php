@@ -2,12 +2,11 @@
 /*
  *  Encounters report. (/interface/reports/encounters_report.php
  *  
- *
  *  This report shows past encounters with filtering and sorting, 
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  * 
  * Copyright (C) 2015 Terry Hill <terry@lillysystems.com> 
- * Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
  * 
  * LICENSE: This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License 
@@ -169,13 +168,15 @@ $res = sqlStatement($query);
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $web_root;?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script LANGUAGE="JavaScript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -328,8 +329,7 @@ $res = sqlStatement($query);
  if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 ?>
 <div id="report_results">
-<table>
-
+<table id='mymaintable'>
  <thead>
 <?php if ($form_details) { ?>
   <th>
@@ -493,5 +493,4 @@ if ($res) {
 <?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 
 </script>
-
 </html>

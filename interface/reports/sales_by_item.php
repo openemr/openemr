@@ -3,7 +3,7 @@
  * This is a report of sales by item description. 
  *
  * Copyright (C) 2015-2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,9 +21,10 @@
  * @author  Terry Hill <terry@lillysystems.com>
  * @link    http://www.open-emr.org
  */
+
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
- 
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -270,6 +271,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <head>
 <?php html_header_show();?>
 <style type="text/css">
+
 /* specifically include & exclude from printing */
 @media print {
     #report_parameters {
@@ -292,20 +294,33 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         display: none;
     }
 }
+
+table.mymaintable, table.mymaintable td {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td {
+ padding: 1pt 4pt 1pt 4pt;
+}
+
 </style>
 
-<title><?php echo xlt('Sales by Item') ?></title>
-
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
- $(document).ready(function() {
+
+$(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
- });
+});
+
 </script>
 
 </head>
+
+<title><?php echo xlt('Sales by Item') ?></title>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 
@@ -422,8 +437,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <?php
  if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 ?>
+
 <div id="report_results">
-<table >
+<table width='98%' id='mymaintable' class='mymaintable'>
  <thead>
   <th>
    <?php echo xlt('Category'); ?>
@@ -469,6 +485,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    <?php echo xlt('Amount'); ?>
   </th>
  </thead>
+ <tbody>
 <?php
   } // end not export
 }
@@ -631,6 +648,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
       if($_POST['form_refresh']){
 ?>
 
+</tbody>
 </table>
 </div> <!-- report results -->
 <?php } else { ?>
