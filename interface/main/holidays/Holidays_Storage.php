@@ -51,7 +51,7 @@ class Holidays_Storage{
                 /*allday*/1,
                 /*status*/1,
                 /*facility*/$_SESSION['pc_facility'],
-                /*sharing*/3 /*SHARING_GLOBAL*/
+                /*sharing*/2 /*SHARING_PUBLIC*/
             );
             $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid,  pc_aid, pc_pid, pc_title, pc_time, " .
