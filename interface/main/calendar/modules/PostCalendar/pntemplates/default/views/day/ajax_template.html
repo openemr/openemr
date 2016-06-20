@@ -369,6 +369,16 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 </div> <!-- end bottomLeft -->
 <div id="bigCal">
 [-php-]
+/* used in debugging
+    foreach ($A_EVENTS as $date => $events) {
+        echo $date." = ";
+        foreach ($events as $oneE) {
+            print_r($oneE);
+            echo "<br><br>";
+        }
+        echo "<hr width=100%>";
+    }
+*/
 
 echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 
@@ -510,7 +520,7 @@ foreach ($providers as $provider) {
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-            if ($providerid != $event['aid']) { continue; }
+            if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
             
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
