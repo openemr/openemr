@@ -10,19 +10,29 @@ class Holidays_Controller{
 
     const UPLOAD_DIR = "uploads";
     const FILE_NAME = "holidays_to_import.csv";
-    const TARGET_FILE = self::UPLOAD_DIR."/".self::FILE_NAME;
+
     
     public $storage;
+    public $target_file;
 
+    function __construct(){
+        $this->set_target_file();
+        $this->storage = new Holidays_Storage();
+    }
+
+    public function set_target_file(){
+            $this->target_file =  self::UPLOAD_DIR."/".self::FILE_NAME;
+    }
+    public function get_target_file(){
+        return $this->target_file;
+    }
 
     public function upload_csv($files){
-
-        $file_type = pathinfo(self::TARGET_FILE,PATHINFO_EXTENSION);
-      
+        $file_type = pathinfo($this->target_file,PATHINFO_EXTENSION);
         if($file_type != "csv"){
             return false;
         }
-        if (move_uploaded_file($files["form_file"]["tmp_name"], self::TARGET_FILE)) {
+        if (move_uploaded_file($files["form_file"]["tmp_name"], $this->target_file)) {
             return true;
         }
         return false;
@@ -33,19 +43,15 @@ class Holidays_Controller{
         if(empty($file)){
             return false;
         }
-        $this->storage = new Holidays_Storage();
-        $this->storage->import_holidays(self::TARGET_FILE);
-        
 
-       
-
+        $this->storage->import_holidays($this->target_file);
 
     }
 
     public function get_file_csv_data(){
         $file=array();
-        if (file_exists(self::TARGET_FILE)){
-            $file['date']= date ("d/m/Y H:i:s", filemtime(self::TARGET_FILE));
+        if (file_exists($this->target_file)){
+            $file['date']= date ("d/m/Y H:i:s", filemtime($this->target_file));
         }
         return $file;
     }
@@ -54,7 +60,6 @@ class Holidays_Controller{
      *
      */
     public function create_holiday_event(){
-        $this->storage = new Holidays_Storage();
         $holidays = $this->storage->get_holidays();
         $events = $this->storage->create_events($holidays);
         
@@ -63,7 +68,6 @@ class Holidays_Controller{
 
     public function get_holidays_by_date_range($start_date,$end_date){
         $holidays = array();
-        $this->storage = new Holidays_Storage();
         $holidays = $this->storage->get_holidays_by_dates($start_date,$end_date);
         return $holidays;
     }
@@ -74,7 +78,6 @@ class Holidays_Controller{
      */
     public function is_holiday($date){
         $holidays = array();
-        $this->storage = new Holidays_Storage();
         $holidays = $this->storage->get_holidays_by_dates($date,$date);
         if(in_array($date,$holidays)){
             return true;

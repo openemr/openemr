@@ -139,7 +139,7 @@ if ($saved){
         <td class='detail' nowrap>
             <?php
                 if(!empty($csv_file_data)){?>
-                     <a href='<?php echo $holidays_controller::TARGET_FILE;?>'><?php echo $csv_file_data['date'];?></a>
+                     <a href='<?php echo $holidays_controller->get_target_file();?>'><?php echo $csv_file_data['date'];?></a>
                 <?php }else{
                      echo htmlspecialchars(xl('File not found'));
                 }?>
