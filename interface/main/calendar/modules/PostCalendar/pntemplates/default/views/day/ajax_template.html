@@ -444,7 +444,7 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
 
                 // skip events for other providers
-                if ($providerid != $e1['aid']  && $providerid < 1) { continue; }
+                if ($providerid != $e1['aid']  && $event['aid']!=0) { continue; }
             
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {

@@ -411,7 +411,7 @@ foreach ($providers as $provider) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
 
-            if ($providerid != $event['aid']  && $providerid < 1) { continue; }
+            if ($providerid != $event['aid']  && $event['aid']!=0) { continue; }
 
             // Omit IN and OUT events to reduce clutter in this month view
             if (($event['catid'] == 2) || ($event['catid'] == 3)) { continue; }

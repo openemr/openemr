@@ -380,7 +380,7 @@ foreach ($A_EVENTS as $date => $events) {
     echo "<hr width=100%>";
 }
 */
-    
+
 
 // This loops once for each provider to be displayed.
 //
@@ -532,7 +532,7 @@ foreach ($providers as $provider) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
 
-            if ($providerid != $event['aid'] && $providerid < 1) { continue; }
+            if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
