@@ -1403,8 +1403,8 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('repeat_on_day',$repeat_on_day);
 
     unset($in);
-    $in = array(_PC_CAT_PATIENT,_PC_CAT_PROVIDER);
-    $keys = array(TYPE_ON_PATIENT,TYPE_ON_PROVIDER);
+    $in = array(_PC_CAT_PATIENT,_PC_CAT_PROVIDER,_PC_CAT_CLINIC);
+    $keys = array(TYPE_ON_PATIENT,TYPE_ON_PROVIDER,TYPE_ON_CLINIC);
     $cat_type = array();
     foreach($in as $k=>$v) {
         array_push($cat_type,array('value'=>$keys[$k],
