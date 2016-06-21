@@ -27,6 +27,11 @@ class Holidays_Controller{
         return $this->target_file;
     }
 
+    /**
+     * This function uploads the csv file
+     * @param $files
+     * @return bool
+     */
     public function upload_csv($files){
         $file_type = pathinfo($this->target_file,PATHINFO_EXTENSION);
         if($file_type != "csv"){
@@ -38,6 +43,10 @@ class Holidays_Controller{
         return false;
     }
 
+    /**
+     * Trys to reach the file (csv) and sends the rows to the storage to import the holidays to the calendar external table
+     * @return bool
+     */
     public function import_holidays_from_csv(){
         $file=$this->get_file_csv_data();
         if(empty($file)){
@@ -49,6 +58,10 @@ class Holidays_Controller{
 
     }
 
+    /**
+     * Checks if the file exists and returns the last modification date or empty array if the file doesn't exists
+     * @return array
+     */
     public function get_file_csv_data(){
         $file=array();
         if (file_exists($this->target_file)){
@@ -58,7 +71,7 @@ class Holidays_Controller{
     }
 
     /**
-     *
+     * Gets all the holidays and send the result to create the events for the calendar
      */
     public function create_holiday_event(){
         $holidays = $this->storage->get_holidays();
@@ -67,6 +80,12 @@ class Holidays_Controller{
         
     }
 
+    /**
+     * Returns an array of the holiday that are in the calendar_external table
+     * @param $start_date
+     * @param $end_date
+     * @return array
+     */
     public function get_holidays_by_date_range($start_date,$end_date){
         $holidays = array();
         $holidays = $this->storage->get_holidays_by_dates($start_date,$end_date);
