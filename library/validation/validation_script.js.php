@@ -1,4 +1,5 @@
 <?php
+/*If the validation (new) that uses the validate.js library was set on "on" in globals include the following libraries*/
 if($GLOBALS['new_validate']) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
@@ -9,32 +10,42 @@ if($GLOBALS['new_validate']) {
 ?>
 
 <script language='JavaScript'>
+    <?php /*Added 2 parameters to the already existing submitme form*/
+    /*new validate: Use the new validation library (comes from globals)*/
+    /*e: event*/
+    /*form id: used to get the validation rules*/?>
 
     function submitme(new_validate,e,form_id) {
 
     //Use the old validation script if no parameter sent (backward compatibility)
+    //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
+    // was on code up to today (the validat library was not loaded ( look at the top of this file)
         if (new_validate !== 1) {
             var f = document.forms[0];
             if (validate(f)) {
                 top.restoreSession();
                 f.submit();
-            } else {
+            } else { //If there was an error prevent the form submit in order to display them
                 e.preventDefault();
             }
-        } else {
-
+        } else { //If the new validation library is used :
             <?php
-
+            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
             $constraints = LBF_Validation::generate_validate_constraints($form_id);
-
             ?>
+            //Variables used for the validation library and validation mechanism
             var valid = true ;
             var constraints = <?php echo $constraints;?>;
+            //We use a common error for all the errors because of the multilanguage capability of openemr
+            //TODO: implement a traslation mechanism of the errors that the library returns
             var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
+            //gets all the "elements" in the form and sends them to the validate library
+            //for more information @see https://validatejs.org/
             var elements = validate.collectFormValues(form);
-
             //custom validate for multiple select(failed validate.js)
+            //the validate js cannot handle the LBF multiple select fields
+
             for(key in elements){
                 if(key.slice(-2) == '[]'){
                     new_key = key.substring(0, key.length - 2);
@@ -47,7 +58,7 @@ if($GLOBALS['new_validate']) {
                     delete elements[key];
                 }
             }
-
+            //error conatins an list of the elements and their errors
             var errors = validate(elements, constraints);
             if (typeof  errors !== 'undefined') {
                 //prevent default if trigger is submit button
@@ -57,7 +68,7 @@ if($GLOBALS['new_validate']) {
                 showErrors(form, errors);
                 valid = false;
             }
-
+            //In case there were errors they are displayed with this functionn
             function showErrors(form, errors) {
 
                 for (var key in errors) {
