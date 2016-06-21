@@ -1,4 +1,7 @@
 <?php
+//Require once the holidays controller for the is holiday function
+
+require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 //function returns the next most recent appointment given a pid
 function getNextAppointment ($pid) {
 $query = "select * from calendar where pid=$pid and time>now() order by time limit 1";
@@ -207,14 +210,15 @@ function is_weekend_day($day){
 }
 
 /**
- * Check if day is weekend day
+ * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed  event in the events table
  * @param (int) $day
  * @return boolean
  */
 function is_holiday($date){
 	$holidays =array();
-	require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
-	$holidays_controller = new Holidays_Controller();
+	if(!$holidays_controller) {
+		$holidays_controller = new Holidays_Controller();
+	}
 	return $holidays_controller->is_holiday($date);
 	
 }
