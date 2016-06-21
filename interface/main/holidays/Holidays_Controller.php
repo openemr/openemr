@@ -8,7 +8,7 @@ require_once("Holidays_Storage.php");
  */
 class Holidays_Controller{
 
-    const UPLOAD_DIR = "uploads";
+    const UPLOAD_DIR = "/documents";
     const FILE_NAME = "holidays_to_import.csv";
 
     
@@ -21,7 +21,7 @@ class Holidays_Controller{
     }
 
     public function set_target_file(){
-            $this->target_file =  self::UPLOAD_DIR."/".self::FILE_NAME;
+            $this->target_file = $GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/".self::FILE_NAME;
     }
     public function get_target_file(){
         return $this->target_file;

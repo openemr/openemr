@@ -191,11 +191,11 @@ CREATE TABLE calendar_external (
 #EndIf
 
 #IfNotRow openemr_postcalendar_categories pc_catid 6
-INSERT INTO `openemr_postcalendar_categories` VALUES (6, 'Holidays', '#9676DB', 'Clinic holiday', '0', NULL, 'a:5:{s:17: "event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 2);
+INSERT INTO `openemr_postcalendar_categories` VALUES (6,'Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6);
 #EndIf
 
 #IfNotRow openemr_postcalendar_categories pc_catid 7
-INSERT INTO `openemr_postcalendar_categories` VALUES (7, 'Closed', '#F123A5', 'Clinic closed', '0', NULL, 'a:5:{s:17: "event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 2);
+INSERT INTO `openemr_postcalendar_categories` VALUES (7,'Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7);
 #EndIf
 
 
