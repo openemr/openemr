@@ -15,11 +15,8 @@ class NFQ_0043_InitialPatientPopulation implements CqmFilterIF
     
     public function test( CqmPatient $patient, $beginDate, $endDate ) 
     {
-        if ( $patient->calculateAgeOnDate( $beginDate ) >= 64 ) {
-            $endMinus1Year = date( 'Y-m-d 00:00:00', strtotime( '-1 year', strtotime( $endDate ) ) );
-			if ( Helper::checkEncounter( Encounter::ENC_OUTPATIENT, $patient, $endMinus1Year, $endDate ) ) {
-				return true;
-			}
+        if ( $patient->calculateAgeOnDate( $beginDate ) >= 65 && (Helper::checkEncounter( Encounter::ENC_OUTPATIENT, $patient, $beginDate, $endDate ))) {
+            return true;
         }
         
         return false;

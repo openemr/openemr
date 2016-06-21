@@ -166,7 +166,7 @@
 	
 	function allEncPat($patient_id, $from_date, $to_date){
 		$encArr = array();
-		$patQry = "SELECT encounter, date FROM form_encounter WHERE pid = ? AND (DATE(date) BETWEEN ? AND ?)";
+		$patQry = "SELECT encounter, date,pc_catid FROM form_encounter WHERE pid = ? AND (DATE(date) BETWEEN ? AND ?)";
 		$patRes = sqlStatement($patQry, array($patient_id, $from_date, $to_date));
 		while( $patRow = sqlFetchArray($patRes ) ){
 			$encArr[] = $patRow;
@@ -186,11 +186,33 @@
 		return $diagArr;
 	}
 	
+	function allOrderMedsPat($patient_id,$from_date,$to_date){
+		$medArr = array();
+		$medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 0 AND (DATE(date_added) BETWEEN ? AND ?)";
+		$medRes = sqlStatement($medQry, array($patient_id, $from_date, $to_date));
+		while( $medRow = sqlFetchArray($medRes) ){
+			$medArr[] = $medRow;
+		}
+		
+		return $medArr;
+	}
+	
+	function allActiveMedsPat($patient_id,$from_date,$to_date){
+		$medArr = array();
+		$medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 1 AND (DATE(date_added) BETWEEN ? AND ?)";
+		$medRes = sqlStatement($medQry, array($patient_id, $from_date, $to_date));
+		while( $medRow = sqlFetchArray($medRes) ){
+			$medArr[] = $medRow;
+		}
+	
+		return $medArr;
+	}
+	
 	function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date){
 		$procArr = array();
-		$procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter FROM form_encounter fe ".
-					"INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order_oemr' ".
-					"INNER JOIN procedure_order po ON po.procedure_order_id = f.form_id ".
+		$procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe ".
+					"INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' ".
+					"INNER JOIN procedure_order po ON po.encounter_id = f.encounter ".
 					"INNER JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id ".
 					"WHERE poc.procedure_order_title = ? AND po.patient_id = ? ".
 					"AND (po.date_ordered BETWEEN ? AND ?)";
@@ -204,7 +226,7 @@
 	
 	function allVitalsPat($patient_id, $from_date, $to_date){
 		$vitArr = array();
-		$vitQry = "SELECT fe.encounter, v.bps, v.date FROM form_encounter fe ".
+		$vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe ".
 					"INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'vitals' ".
 					"INNER JOIN form_vitals v ON v.id = f.form_id ".
 					"WHERE v.pid = ? ".

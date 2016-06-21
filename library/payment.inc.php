@@ -90,9 +90,13 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		 {
 		  $AccountCode="PP";
 		 }
+
+	  sqlBeginTrans();
+	  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow"   ))));
 	  sqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '" . $sequence_no['increment'] .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -105,6 +109,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', adj_amount = '"    . 0 .
 		"', account_code = '" . "$AccountCode"  .
 		"'");
+	  sqlCommitTrans();
 	  $Affected='yes';
    }
   if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"]*1!=0)
@@ -120,10 +125,12 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		  $AccountCode="PA";
 		 }
 
-
-	  idSqlStatement("insert into ar_activity set "    .
+	  sqlBeginTrans();
+	  $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow"   ))));
+	  sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . $sequence_no['increment']  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -137,13 +144,17 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', memo = '" . "$AdjustString"  .
 		"', account_code = '" . "$AccountCode"  .
 		"'");
+	   sqlCommitTrans();
 	  $Affected='yes';
    }
   if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0)
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlBeginTrans();
+	   $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow"   ))));
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . $sequence_no['increment']  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -157,13 +168,17 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
 		"', account_code = '" . "Deduct"  .
 		"'");
+	   sqlCommitTrans();
 	  $Affected='yes';		
    }
   if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlBeginTrans();
+	   $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow"   ))));
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . $sequence_no['increment']  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -176,13 +191,17 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', adj_amount = '"    . 0 .
 		"', account_code = '" . "Takeback"  .
 		"'");
+	   sqlCommitTrans();
 	  $Affected='yes';		
    }
   if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
    {
-	  idSqlStatement("insert into ar_activity set "    .
+	   sqlBeginTrans();
+	   $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow"   ))));
+	   sqlInsert("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+		"', sequence_no = '"     . $sequence_no['increment']  .
                 "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
@@ -196,6 +215,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', follow_up = '"    . "y" .
 		"', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
 		"'");
+	   sqlCommitTrans();
 	  $Affected='yes';		
    }
   if($Affected=='yes')
