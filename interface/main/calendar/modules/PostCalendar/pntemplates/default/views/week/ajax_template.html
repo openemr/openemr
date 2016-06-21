@@ -531,7 +531,8 @@ foreach ($providers as $provider) {
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-
+            // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
+            // we dont want to exclude those events from being displayed
             if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
 
             // skip events without an ID (why they are in the loop, I have no idea)
