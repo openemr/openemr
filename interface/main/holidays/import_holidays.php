@@ -49,27 +49,23 @@ if (!empty($_POST['sync'])) {
 
 <html>
 <head>
-    <title><?php echo xlt('Upload Holidays'); ?></title>
+    <title><?php echo xlt('Holidays management '); ?></title>
     <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-
-    <style type="text/css">
-        .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
-        .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
-    </style>
 
 </head>
 
 <body class="body_top">
-
-<center>
 <?php
 if ($saved){
     echo "<p style='color:green'>" .
-        xlt('Upload Succesful');
+        xlt('Successfully Completed ');
         "</p>\n";
-}elseif(!empty($_POST['bn_upload'])){
+}elseif(!empty($_POST['bn_upload'])             &&
+        !empty($_POST['import_holidays'])       &&
+        !empty($_POST['sync'])
+        ){
     echo "<p style='color:red'>" .
-        xlt('Upload Failed');
+        xlt('Operation Failed' );
     "</p>\n";
 }
 ?>
@@ -80,7 +76,7 @@ if ($saved){
         <table border='1' cellpadding='4'>
             <tr bgcolor='#dddddd' class='dehead'>
                 <td align='center' colspan='2'>
-                    <?php echo xlt('Upload Holidays'); ?>
+                    <?php echo xlt('CSV'); ?>
                 </td>
             </tr>
             <tr>
@@ -92,83 +88,57 @@ if ($saved){
                     <input type="file" name="form_file" size="40" />
                 </td>
             </tr>
-            <tr bgcolor='#dddddd'>
+            <tr>
+                <td class='detail' nowrap>
+                    <?php echo xlt('File on server (modification date)'); ?>
+                </td>
+                <td class='detail' nowrap>
+                    <?php
+                    if(!empty($csv_file_data)){?>
+                        <a href='<?php echo $holidays_controller->get_target_file();?>'><?php echo $csv_file_data['date'];?></a>
+                    <?php }else{
+                        echo htmlspecialchars(xl('File not found'));
+                    }?>
+                </td>
+            </tr>
+
+        <tr bgcolor='#dddddd'>
                 <td align='center' class='detail' colspan='2'>
                     <input type='submit' name='bn_upload' value='<?php echo xlt('Upload / Save ') ?>' />
                 </td>
             </tr>
         </table>
         </p>
-
-
-
 </form>
+        <table border='1'>
 
-    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+        <tr >
+            <td >
+                <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+                    <input type='submit' name='import_holidays' value='<?php echo xlt('Import holiday events ') ?>'></br>
 
-        <p class='text'>
-        <table border='1' cellpadding='4'>
-            <tr bgcolor='#dddddd' class='dehead'>
-                <td align='center' colspan='2'>
-                    <?php echo xlt('Add holidays to calendar'); ?>
+                </form>
+            </td>
+
+            <td>
+                    <?php echo xlt('CSV to calendar_external table'); ?></br>
+                    If  the csv has been uploaded please click on "parse and insert" button</br>
+                    **NOTE: clicking on the button will remove all the existing rows in the calendar external table
                 </td>
-            </tr>
-            <tr bgcolor='#dddddd'>
-                <td align='center' class='detail' colspan='2'>
-                    <input type='submit' name='import_holidays' value='<?php echo xlt('Import holiday events ') ?>' />
+        </tr>
+            <tr >
+                <td >
+                    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+                        <input type='submit' name='sync' value='<?php echo xlt('Syncronize ') ?>' /></br>
+                    </form>
                 </td>
-            </tr>
-        </table>
-        </p>
+                <td >
+                    <?php echo xlt('calendar_External to events'); ?></br>
+                    If you have already filled the calendar external table please click on create events to have the holidays n the calendar view </br>
+                    **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays
 
-
-
-    </form>
-<table border='1' cellpadding='4'>
-    <tr bgcolor='#dddddd' class='dehead'>
-        <td align='center' colspan='2'>
-            <?php echo xlt('Download CSV'); ?>
-        </td>
-    </tr>
-
-    <tr>
-        <td class='detail' nowrap>
-            <?php echo htmlspecialchars(xl('Last Modification')); ?>
-
-        </td>
-        <td class='detail' nowrap>
-            <?php
-                if(!empty($csv_file_data)){?>
-                     <a href='<?php echo $holidays_controller->get_target_file();?>'><?php echo $csv_file_data['date'];?></a>
-                <?php }else{
-                     echo htmlspecialchars(xl('File not found'));
-                }?>
-        </td>
-    </tr>
-</table>
-
-    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-
-        <p class='text'>
-        <table border='1' cellpadding='4'>
-            <tr bgcolor='#dddddd' class='dehead'>
-                <td align='center' colspan='2'>
-                    <?php echo xlt('Add holidays to calendar'); ?>
-                </td>
-            </tr>
-            <tr bgcolor='#dddddd'>
-                <td align='center' class='detail' colspan='2'>
-                    <input type='submit' name='sync' value='<?php echo xlt('Syncronize ') ?>' />
                 </td>
             </tr>
         </table>
-        </p>
-
-
-
-    </form>
-
-</center>
-
 </body>
 </html>

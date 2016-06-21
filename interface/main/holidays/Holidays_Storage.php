@@ -50,7 +50,12 @@ class Holidays_Storage{
      * @param array $holidays
      */
     public function create_events(array $holidays){
+        $deleted = false;
         foreach ($holidays as $holiday){
+            if(!$deleted){
+                $this->delete_holiday_events();
+                $deleted = true;
+            }
             $row=array(
                 self::CALENDAR_CATEGORY_HOLIDAY,//catgory
                 0,//authid
@@ -64,6 +69,7 @@ class Holidays_Storage{
                 $_SESSION['pc_facility'],//facility
                 2 //SHARING_PUBLIC
             );
+
             $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid,  pc_aid, pc_pid, pc_title, pc_time, " .
                 "pc_eventDate,  pc_duration, " . "pc_recurrspec,  pc_alldayevent, " . " pc_eventstatus, pc_facility,pc_sharing" .
@@ -71,6 +77,7 @@ class Holidays_Storage{
                 $row
             );
         }
+        return true;
 
     }
 
@@ -82,10 +89,15 @@ class Holidays_Storage{
      * @param $file (string containing the file name)
      */
     public function import_holidays($file){
+        $data = array();
         $handle = fopen($file,"r");
+        $deleted = false;
         do {
             if ($data[0]) {
-
+                if(!$deleted){
+                    $this->delete_calendar_external();
+                    $deleted = true;
+                }
                 sqlInsert("INSERT INTO ".self::TABLE_NAME ." VALUES
                 (   
                     '',
@@ -96,6 +108,22 @@ class Holidays_Storage{
             ");
             }
         } while ($data = fgetcsv($handle,1000,",","'"));
+        return true;
+    }
+
+    private function delete_calendar_external(){
+        $sql = sprintf(
+            'DELETE FROM %s ',
+            self::TABLE_NAME);
+        $res=sqlStatement($sql);
+    }
+
+    private function delete_holiday_events(){
+        $sql = sprintf(
+            'DELETE FROM %s WHERE pc_catid="%d"',
+            'openemr_postcalendar_events',self::CALENDAR_CATEGORY_HOLIDAY);
+        $res=sqlStatement($sql);
+
     }
 
 }
