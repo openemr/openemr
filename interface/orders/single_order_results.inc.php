@@ -568,7 +568,7 @@ function educlick(codetype, codevalue) {
       echo " <tr>\n";
       echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
       // <pre> tag because white space and a fixed font are often used to line things up.
-      echo "  <td><pre>" . text($value) . "</pre></td>\n";
+      echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
       echo " </tr>\n";
     }
     echo "</table>\n";

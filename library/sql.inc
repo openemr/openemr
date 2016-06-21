@@ -266,6 +266,24 @@ function sqlFetchArray($r)
     return $r->FetchRow();
 }
 
+
+/**
+ * Wrapper for ADODB getAssoc
+ * 
+ * @see http://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getassoc
+ * 
+ * @param string $sql
+ * @param string[] $bindvars
+ * @param boolean $forceArray
+ * @param boolean $first2Cols
+ * @return array
+ */
+function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=false ) {
+  
+  return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
+  
+}
+
 /**
 * Standard sql insert query in OpenEMR.
 *
@@ -648,6 +666,33 @@ function generic_sql_affected_rows()
 function generic_sql_insert_id()
 {
   return mysqli_insert_id($GLOBALS['dbh']);
+}
+
+
+/**
+ * Begin a Transaction.
+ */
+function sqlBeginTrans()
+{
+    $GLOBALS['adodb']['db']->BeginTrans();
+}
+
+
+/**
+ * Commit a transaction
+ */
+function sqlCommitTrans($ok=true)
+{
+    $GLOBALS['adodb']['db']->CommitTrans();
+}
+
+
+/**
+ * Rollback a transaction
+ */
+function sqlRollbackTrans()
+{
+    $GLOBALS['adodb']['db']->RollbackTrans();
 }
 
 ?>

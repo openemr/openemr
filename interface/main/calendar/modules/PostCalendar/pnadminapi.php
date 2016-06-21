@@ -317,16 +317,18 @@ function postcalendar_adminapi_addCategories($args)
     $end_date_type = pnVarPrepForStore($end_date_type);
     $end_date_freq = pnVarPrepForStore($end_date_freq);
     $end_all_day = pnVarPrepForStore($end_all_day);
+    $active = pnVarPrepForStore($active);
+    $sequence = pnVarPrepForStore($sequence);
     
     $sql = "INSERT INTO $pntable[postcalendar_categories] 
                                 (pc_catid,pc_catname,pc_catdesc,pc_catcolor,
                                 pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
     							pc_dailylimit,pc_end_date_flag,pc_end_date_type,
-    							pc_end_date_freq,pc_end_all_day,pc_cattype)
+    							pc_end_date_freq,pc_end_all_day,pc_cattype,pc_active,pc_seq)
                                 VALUES ('','$name','$desc','$color',
                                 '$recurrtype','$recurrspec','$recurrfreq',
                                 '$duration','$limitid','$end_date_flag','$end_date_type',
-                                '$end_date_freq','$end_all_day','$value_cat_type')";
+                                '$end_date_freq','$end_all_day','$value_cat_type',$active,$sequence)";
                                 
                                 
     //print "sql is $sql \n";

@@ -413,6 +413,7 @@ function collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass='al
   }
 
   $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
+  
   if ($sqllimit != "all") $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
   if ($count) {

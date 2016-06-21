@@ -80,6 +80,15 @@
                 							&nbsp;	[-$DurationMinTitle-]
                 							<input type="text" name="new[-$InputDurationMin-]" value="0" size="4" />
                 						</td>
+                						<td valign="top" align="left">
+                							[-$_PC_ACTIVE-]:<br/>
+                							<input type="radio" name="newactive" value="1"/> [-$ActiveTitleYes-]<br/>
+                							<input type="radio" name="newactive" value="0"/> [-$ActiveTitleNo-]<br/>
+                						</td>
+                						<td valign="top" align="left">
+                							[-$_PC_SEQ-]:<br/>
+                							<input type="text" name="newsequence" value="0" size="4" />
+                						</td>
             						</tr>
             					</table>
             				</td>
@@ -244,6 +253,15 @@
                 							<br />
                 							&nbsp;	[-$DurationMinTitle-]
                 							<input type="text" name="[-$InputDurationMin-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_durationm-]" size="4" />
+                						</td>
+                						<td valign="top" align="left">
+                							[-$_PC_ACTIVE-]:<br/>
+                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="1" data='[-$cat.active-]' [-if $cat.active == 1-]checked[-/if-]/>  [-$ActiveTitleYes-]<br/>
+                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="0" data='[-$cat.active-]' [-if $cat.active == 0-]checked[-/if-]/>  [-$ActiveTitleNo-]<br/>
+                						</td>
+                						<td valign="top" align="left">
+                							[-$_PC_SEQ-]:<br/>
+                							<input type="text" name="sequence[]" value="[-$cat.sequence-]" size="4" />
                 						</td>
             						</tr>
             					</table>
