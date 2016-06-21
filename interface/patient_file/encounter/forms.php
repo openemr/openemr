@@ -35,6 +35,7 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 <script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+
 <?php 
 $esignApi = new Api();
 ?>
@@ -48,6 +49,26 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
  <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
 <?php } ?>
+
+<?php
+// If the user requested attachment of any orphaned procedure orders, do it.
+if (!empty($_GET['attachid'])) {
+  $attachid = explode(',', $_GET['attachid']);
+  foreach ($attachid as $aid) {
+    $aid = intval($aid);
+    if (!$aid) continue;
+    $tmp = sqlQuery("SELECT COUNT(*) AS count FROM procedure_order WHERE " .
+      "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
+      array($aid, $pid));
+    if (!empty($tmp['count'])) {
+      sqlStatement("UPDATE procedure_order SET encounter_id = ? WHERE " .
+        "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
+        array($encounter, $aid, $pid));
+      addForm($encounter, "Procedure Order", $aid, "procedure_order", $pid, $userauthorized);
+    }
+  }
+}
+?>
 
 <script type="text/javascript">
 $.noConflict();
@@ -191,6 +212,29 @@ jQuery(document).ready( function($) {
         top.Main.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
         <?php endif; ?>
     }
+
+<?php
+  // If the user was not just asked about orphaned orders, build javascript for that.
+  if (!isset($_GET['attachid'])) {
+    $ares = sqlStatement("SELECT procedure_order_id, date_ordered " .
+      "FROM procedure_order WHERE " .
+      "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
+      "ORDER BY procedure_order_id",
+      array($pid));
+    echo "  // Ask about attaching orphaned orders to this encounter.\n";
+    echo "  var attachid = '';\n";
+    while ($arow = sqlFetchArray($ares)) {
+      $orderid   = $arow['procedure_order_id'];
+      $orderdate = $arow['date_ordered'];
+      echo "  if (confirm('" . xls('There is a lab order') . " $orderid " .
+        xls('dated') . " $orderdate " .
+        xls('for this patient not yet assigned to any encounter.') . " " .
+        xls('Assign it to this one?') . "')) attachid += '$orderid,';\n";
+    }
+    echo "  if (attachid) location.href = 'forms.php?attachid=' + attachid;\n";
+  }
+?>
+
 });
 
  // Process click on Delete link.
@@ -280,15 +324,12 @@ function divtoggle(spanid, divid) {
     }
 </style>
 
-</head>
 <?php
 $hide=1;
 require_once("$incdir/patient_file/encounter/new_form.php");
 ?>
-<body class="body_top">
 
 <div id="encounter_forms">
-
 
 <?php
 $dateres = getEncounterDateByEncounter($encounter);

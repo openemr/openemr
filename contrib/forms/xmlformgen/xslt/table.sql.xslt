@@ -57,11 +57,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     ]]></xsl:text>
 </xsl:if>
 <xsl:if test="@type='exams'">
-<xsl:text disable-output-escaping="yes"><![CDATA[ TEXT NOT NULL,
+<xsl:text disable-output-escaping="yes"><![CDATA[ TEXT,
     ]]></xsl:text>
 </xsl:if>
 <xsl:if test="@type='textbox'">
-<xsl:text disable-output-escaping="yes"><![CDATA[ longtext default NULL,
+<xsl:text disable-output-escaping="yes"><![CDATA[ longtext,
     ]]></xsl:text>
 </xsl:if>
 <xsl:if test="@type='textarea'">

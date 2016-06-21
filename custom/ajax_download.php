@@ -97,7 +97,7 @@ if ( count($patients) ) {
         unlink($zipFileFullPath); 
 
 	foreach ( $patients as $patient ) {
-		$xml = new QRDAXml();
+		$xml = new QRDAXml($ruleID);
 		$fileName = mainQrdaCatOneGenerate($xml, $patient, $ruleID, $provider_id);
 		$files[] = $fileName;
 	}

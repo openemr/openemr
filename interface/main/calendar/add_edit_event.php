@@ -816,7 +816,7 @@ if ($_POST['form_action'] == "save") {
 
  // Get event categories.
  $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
-  "FROM openemr_postcalendar_categories ORDER BY pc_catname");
+  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
 
  // Fix up the time format for AM/PM.
  $startampm = '1';
@@ -859,7 +859,7 @@ td { font-size:0.8em; }
  }
  $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
   "pc_recurrtype, pc_duration, pc_end_all_day " .
-  "FROM openemr_postcalendar_categories ORDER BY pc_catname");
+  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
  $catoptions = "";
  $prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
  $thisduration = 0;

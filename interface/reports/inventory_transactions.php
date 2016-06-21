@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -181,13 +181,19 @@ else {
   #report_parameters_daterange {visibility: visible; display: inline;}
   #report_results {margin-top: 30px;}
  }
+
  /* specifically exclude some from the screen */
  @media screen {
   #report_parameters_daterange {visibility: hidden; display: none;}
  }
+
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+
+ #report_results table thead {
+  font-size:10pt;
+ }
 </style>
 
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
@@ -195,10 +201,12 @@ else {
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -304,7 +312,8 @@ foreach (array(
 <?php if ($form_action) { // if submit (already not export here) ?>
 
 <div id="report_results">
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table border='0' cellpadding='1' cellspacing='2' width='98%' id='mymaintable' class='mymaintable'>
+ <thead>
  <tr bgcolor="#dddddd">
   <td class="dehead">
    <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>
@@ -337,6 +346,8 @@ foreach (array(
    <?php echo htmlspecialchars(xl('Notes'), ENT_NOQUOTES); ?>
   </td>
  </tr>
+ </thead>
+ <tbody>
 <?php
 } // end if submit
 } // end not export
@@ -415,6 +426,7 @@ if ($form_action) { // if submit or export
 if ($form_action != 'export') {
   if ($form_action) {
 ?>
+ </tbody>
 </table>
 </div>
 <?php

@@ -6,7 +6,7 @@
  * (TLH) Added ability to download selected invoices only or all for patient
  *
  * Copyright (C) 2015 Terry Hill <terry@lillysystems.com> 
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License 
@@ -295,11 +295,13 @@ else {
 
 </style>
 
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -840,7 +842,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 ?>
 
 <div id="report_results">
-<table>
+<table id='mymaintable'>
 
  <thead>
 <?php if ($is_due_ins) { ?>

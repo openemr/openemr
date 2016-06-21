@@ -8,7 +8,7 @@
  * many other practices have this same need. - rod@sunsetsystems.com
  *
  * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -102,11 +102,14 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -282,7 +285,7 @@ function sel_diagnosis() {
  if ($_POST['form_refresh']) {
 ?>
 <div id="report_results">
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table border='0' cellpadding='1' cellspacing='2' width='98%' id='mymaintable'>
  <thead>
   <th>
    <?php echo xlt('Practitioner') ?>

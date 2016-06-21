@@ -8,7 +8,7 @@
  * Administration->Service section by assigning code with
  * 'Service Reporting'.
  *
- * Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -65,12 +65,8 @@ $grand_total_amt_balance  = 0;
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <?php html_header_show();?>
+
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {
@@ -96,11 +92,18 @@ $grand_total_amt_balance  = 0;
 }
 </style>
 
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <title><?php echo xlt('Financial Summary by Service Code') ?></title>
 
 <script language="JavaScript">
 
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
@@ -108,6 +111,7 @@ $grand_total_amt_balance  = 0;
 </script>
 
 </head>
+
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
 <form method='post' action='svc_code_financial_report.php' id='theform'>
@@ -273,7 +277,7 @@ $grand_total_amt_balance  = 0;
                 }
               } else {
 ?> <div id="report_results">
-<table >
+<table id='mymaintable'>
  <thead>
   <th>
    <?php echo xlt('Procedure Codes'); ?>

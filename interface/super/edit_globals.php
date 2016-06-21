@@ -1,10 +1,29 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Script for the globals editor.
+ *
+ * Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2016 Brady Miller <brady@sparmy.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
@@ -18,7 +37,7 @@ require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity
 if ($_GET['mode'] != "user") {
   // Check authorization.
   $thisauth = acl_check('admin', 'super');
-  if (!$thisauth) die(xl('Not authorized'));
+  if (!$thisauth) die(xlt('Not authorized'));
 }
 
 function checkCreateCDB(){
@@ -106,7 +125,7 @@ if ($_POST['form_save'] && $_GET['mode'] == "user") {
         if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
           list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
           $label = "global:".$fldid;
-          $fldvalue = trim(strip_escape_custom($_POST["form_$i"]));
+          $fldvalue = trim($_POST["form_$i"]);
           setUserSetting($label,$fldvalue,$_SESSION['authId'],FALSE);
           if ( $_POST["toggle_$i"] == "YES" ) {
             removeUserSetting($label);
@@ -163,7 +182,7 @@ if ($_POST['form_download']) {
     ob_end_clean();
     ?>
     <script type="text/javascript">
-      alert('<?php echo xlt('Offsite Portal web Service Failed').":\\n".text($response['value']);?>');
+      alert('<?php echo xls('Offsite Portal web Service Failed').":\\n".text($response['value']);?>');
     </script>
     <?php    
   }
@@ -187,55 +206,74 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
   // Check the current status of Audit Logging
   $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
 
+  /*
+   * Compare form values with old database values.
+   * Only save if values differ. Improves speed.
+   */
+  
+  // Get all the globals from DB
+  $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true );
+
   $i = 0;
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
       list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
 	  if($fldtype == 'pwd'){
-	  $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = '$fldid'");
-	  $fldvalueold = $pass['gl_value'];
+        $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ?", array($fldid) );
+        $fldvalueold = $pass['gl_value'];
 	  }
-      sqlStatement("DELETE FROM globals WHERE gl_name = '$fldid'");
 
+      /* Multiple choice fields - do not compare , overwrite */
       if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
         if (isset($_POST["form_$i"])) {
           $fldindex = 0;
+          
+          sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ) );
+          
           foreach ($_POST["form_$i"] as $fldvalue) {
-            $fldvalue = formDataCore($fldvalue, true);
-            sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-              "VALUES ( '$fldid', '$fldindex', '$fldvalue' )");
+            $fldvalue = trim($fldvalue);
+            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue )  );
             ++$fldindex;
           }
         }
       }
       else {
-        if (isset($_POST["form_$i"])) {
-          $fldvalue = formData("form_$i", "P", true);
+        /* check value of single field. Don't update if the database holds the same value */
+        if (isset($_POST["form_$i"])) { 
+          $fldvalue = trim($_POST["form_$i"]);
         }
         else {
           $fldvalue = "";
         }
-        if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold;
-        if(fldvalue){
-          // Need to force enable_auditlog_encryption off if the php mycrypt module
-          // is not installed.
-          if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
-            error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mycrypt module is not installed",0);
-            $fldvalue=0;
-          }
-          // special treatment for some vars
-          switch ($fldid) {
-            case 'first_day_week':
-              // update PostCalendar config as well
-              sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
-              break;
-          }
+        if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
 
-          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-            "VALUES ( '$fldid', '0', '$fldvalue' )");
+        // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
+        
+        if( 
+             !isset( $old_globals[$fldid]) // if the key not found in database - update database
+              ||              
+             ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
+        ) {
+            // Need to force enable_auditlog_encryption off if the php mcrypt module
+            // is not installed.
+            if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
+              error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed",0);
+              $fldvalue=0;
+            }
+            // special treatment for some vars
+            switch ($fldid) {
+              case 'first_day_week':
+                // update PostCalendar config as well
+                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
+                break;
+            }
+            // Replace old values
+            sqlStatement( 'DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ) );
+            sqlStatement( 'INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue )  );
+        } else {
+          //error_log("No need to update $fldid");
         }
       }
-
       ++$i;
     }
   }
@@ -272,9 +310,9 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <?php if ($_GET['mode'] == "user") { ?>
-  <title><?php  xl('User Settings','e'); ?></title>
+  <title><?php  echo xlt('User Settings'); ?></title>
 <?php } else { ?>
-  <title><?php  xl('Global Settings','e'); ?></title>
+  <title><?php echo xlt('Global Settings'); ?></title>
 <?php } ?>
 
 <style>
@@ -319,9 +357,9 @@ input     { font-size:10pt; }
 <?php } ?>
 
 <?php if ($_GET['mode'] == "user") { ?>
-  <p><b><?php xl('Edit User Settings','e'); ?></b>
+  <p><b><?php echo xlt('Edit User Settings'); ?></b>
 <?php } else { ?>
-  <p><b><?php xl('Edit Global Settings','e'); ?></b>
+  <p><b><?php echo xlt('Edit Global Settings'); ?></b>
 <?php } ?>
 
 <ul class="tabNav">
@@ -331,7 +369,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
     echo " <li" . ($i ? "" : " class='current'") .
       "><a href='/play/javascript-tabbed-navigation/'>" .
-      xl($grpname) . "</a></li>\n";
+      xlt($grpname) . "</a></li>\n";
     ++$i;
   }
 }
@@ -365,7 +403,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     // Most parameters will have a single value, but some will be arrays.
     // Here we cater to both possibilities.
     $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
-      "gl_name = '$fldid' ORDER BY gl_index");
+      "gl_name = ? ORDER BY gl_index", array($fldid));
     $glarr = array();
     while ($glrow = sqlFetchArray($glres)) $glarr[] = $glrow;
 
@@ -385,7 +423,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
     }
 
-    echo " <tr title='$flddesc'><td valign='top'><b>$fldname </b></td><td valign='top'>\n";
+    echo " <tr title='" . attr($flddesc) . "'><td valign='top'><b>" . text($fldname) . "</b></td><td valign='top'>\n";
 
     if (is_array($fldtype)) {
       echo "  <select name='form_$i' id='form_$i'>\n";
@@ -393,13 +431,13 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         if ($_GET['mode'] == "user") {
           if ($globalValue == $key) $globalTitle = $value;
         }
-        echo "   <option value='$key'";
+        echo "   <option value='" . attr($key) . "'";
 
         //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
         //Tried to use === but it will fail in already existing variables
         if ((string)$key == (string)$fldvalue) echo " selected";
         echo ">";
-        echo $value;
+        echo text($value);
         echo "</option>\n";
       }
       echo "  </select>\n";
@@ -424,7 +462,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='text' name='form_$i' id='form_$i' " .
-        "size='6' maxlength='15' value='$fldvalue' />\n";
+        "size='6' maxlength='15' value='" . attr($fldvalue) . "' />\n";
     }
 
     else if ($fldtype == 'text') {
@@ -432,7 +470,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='text' name='form_$i' id='form_$i' " .
-        "size='50' maxlength='255' value='$fldvalue' />\n";
+        "size='50' maxlength='255' value='" . attr($fldvalue) . "' />\n";
     }
     else if ($fldtype == 'pwd') {
 	  if ($_GET['mode'] == "user") {
@@ -447,17 +485,17 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='password' name='form_$i' " .
-        "size='50' maxlength='255' value='$fldvalue' />\n";
+        "size='50' maxlength='255' value='" . attr($fldvalue) . "' />\n";
     }
 
     else if ($fldtype == 'lang') {
       $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
       echo "  <select name='form_$i' id='form_$i'>\n";
       while ($row = sqlFetchArray($res)) {
-        echo "   <option value='" . $row['lang_description'] . "'";
+        echo "   <option value='" . attr($row['lang_description']) . "'";
         if ($row['lang_description'] == $fldvalue) echo " selected";
         echo ">";
-        echo xl($row['lang_description']);
+        echo xlt($row['lang_description']);
         echo "</option>\n";
       }
       echo "  </select>\n";
@@ -480,7 +518,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       $res = sqlStatement("SELECT * FROM lang_languages  ORDER BY lang_description");
       echo "  <select multiple name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
       while ($row = sqlFetchArray($res)) {
-        echo "   <option value='" . $row['lang_description'] . "'";
+        echo "   <option value='" . attr($row['lang_description']) . "'";
         foreach ($glarr as $glrow) {
           if ($glrow['gl_value'] == $row['lang_description']) {
             echo " selected";
@@ -488,7 +526,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
           }
         }
         echo ">";
-        echo xl($row['lang_description']);
+        echo xlt($row['lang_description']);
         echo "</option>\n";
       }
       echo "  </select>\n";
@@ -510,10 +548,14 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
           if (!preg_match("/^style_.*\.css$/", $tfname) ||
             $tfname == 'style_blue.css' || $tfname == 'style_pdf.css')
             continue;
-          echo "<option value='$tfname'";
+          echo "<option value='" . attr($tfname) . "'";
+          // Drop the "style_" part and any replace any underscores with spaces
+          $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+          // Strip the ".css" and uppercase the first character
+          $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
           if ($tfname == $fldvalue) echo " selected";
           echo ">";
-          echo $tfname;
+          echo text($styleDisplayName);
           echo "</option>\n";
         }
         closedir($dh);
@@ -540,10 +582,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
     if ($_GET['mode'] == "user") {
       echo " </td>\n";
-      echo "<td align='center' style='color:red;'>" . $globalTitle . "</td>\n";
+      echo "<td align='center' style='color:red;'>" . attr($globalTitle) . "</td>\n";
       echo "<td>&nbsp</td>";
-      echo "<td align='center'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . $settingDefault . "/></td>\n";
-      echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . $globalValue . "'>\n";
+      echo "<td align='center'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . attr($settingDefault) . "/></td>\n";
+      echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
       echo "</tr>\n";
     }
     else {

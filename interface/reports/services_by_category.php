@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,6 +28,9 @@ if (empty($_REQUEST['include_uncat']))
 <head>
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -52,19 +55,31 @@ if (empty($_REQUEST['include_uncat']))
         display: none;
     }
 }
+
+table.mymaintable, table.mymaintable td, table.mymaintable th {
+ border: 1px solid #aaaaaa;
+ border-collapse: collapse;
+}
+table.mymaintable td, table.mymaintable th {
+ padding: 1pt 4pt 1pt 4pt;
+}
 </style>
 <title><?php xl('Services by Category','e'); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
+
  $(document).ready(function() {
+  oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
  });
+
 </script>
 
 </head>
@@ -142,7 +157,7 @@ if (empty($_REQUEST['include_uncat']))
 <div id="report_results">
 
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table width='98%' id='mymaintable' class='mymaintable'>
  <thead style='display:table-header-group'>
   <tr bgcolor="#dddddd">
    <th class='bold'><?php xl('Category'   ,'e'); ?></th>

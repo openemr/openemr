@@ -49,6 +49,8 @@
 	$preDefinedUniqIDRules['0018'] = '40280381-4600-425F-0146-1F6F722B0F17';
 	$preDefinedUniqIDRules['0013'] = '40280381-4600-425F-0146-1F6F722B0F17';
 	$preDefinedUniqIDRules['0024'] = '40280381-4555-E1C1-0145-85C7311720F5';
+	$preDefinedUniqIDRules['0059'] = '40280381-4555-E1C1-0145-90AC70DE2C73';
+	$preDefinedUniqIDRules['0041'] = '40280381-4600-425F-0146-EE66F0005509';
 	
 	$qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
 	
@@ -75,6 +77,7 @@
 		}
 		return $patients;
 	}
+	
 	
 
 ?>
