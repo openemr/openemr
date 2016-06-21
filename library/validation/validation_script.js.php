@@ -29,8 +29,8 @@ if($GLOBALS['new_validate']) {
 
             ?>
             var valid = true ;
-            var constraints = <?=$constraints?>;
-            var error_msg ='<?=xl('is not valid')?>';
+            var constraints = <?php echo $constraints;?>;
+            var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
             var elements = validate.collectFormValues(form);
 
