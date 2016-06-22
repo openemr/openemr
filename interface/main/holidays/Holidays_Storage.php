@@ -31,7 +31,7 @@ class Holidays_Storage{
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
-    public function get_holidays_by_dates($start_date,$end_date){
+    public static function get_holidays_by_dates($start_date,$end_date){
         $holidays= array();
         $sql = sprintf(
             'SELECT * FROM %s WHERE (pc_catid="%d" OR pc_catid="%d") AND pc_eventDate >= "%s" AND pc_eventDate <= "%s"',

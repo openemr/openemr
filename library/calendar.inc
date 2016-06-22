@@ -215,12 +215,7 @@ function is_weekend_day($day){
  * @return boolean
  */
 function is_holiday($date){
-	$holidays =array();
-	if(!$holidays_controller) {
-		$holidays_controller = new Holidays_Controller();
-	}
-	return $holidays_controller->is_holiday($date);
-	
+	Holidays_Controller::is_holiday($date);
 }
 
 ?>
