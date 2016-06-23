@@ -180,6 +180,7 @@ CREATE TABLE `valueset` (
 
 -- updating nqf code for cqm measure blood pressure
 UPDATE `clinical_rules` set `cqm_nqf_code` = '0018' where `id` = 'rule_htn_bp_measure_cqm';
+
 --
 
 #IfMissingColumn immunizations information_source
@@ -557,5 +558,96 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 
 #IfNotRow3D list_options list_id drug_route title Inhale codes NCI-CONCEPT-ID:C38216
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C38216' WHERE list_id='drug_route' and title='Inhale';
+#EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_catname Ophthalmological Services
+       SET @catid = (SELECT MAX(pc_catid) FROM  openemr_postcalendar_categories);
+       INSERT INTO `openemr_postcalendar_categories` VALUES (@catid+1, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,@catid+1);
+       INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_ophthal_serv', @catid+1);
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_hea_and_beh main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_hea_and_beh main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_hea_and_beh main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 10;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_18_older main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_18_older main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_18_older main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 10;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_40_older main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_40_older main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_ser_40_older main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 10;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_ind_counsel main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_ind_counsel main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id  enc_pre_ind_counsel main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 10;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_group_counsel main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_group_counsel main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_group_counsel main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 10;
+#EndIf
+
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_other_serv main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_other_serv main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pre_med_other_serv main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 10;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pregnancy main_cat_id 5
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 5;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pregnancy main_cat_id 9
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 9;
+#EndIf
+
+#IfRow2D enc_category_map rule_enc_id enc_pregnancy main_cat_id 10
+	DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 10;
 #EndIf
 
