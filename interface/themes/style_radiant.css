@@ -8316,17 +8316,12 @@ a.css_button[value='Add']:before {
 }
 .patient-demographics table.table_header .deceased {
   background: #ff5d5a;
-  color: #fff;
+  color: #fff !important;
   display: block;
-  font-weight: 800;
+  font-weight: 800 !important;
   margin-left: 15px;
-  padding: 15px 10px;
+  padding: 15px 10px !important;
   text-align: center;
-  text-transform: capitalize !important;
-}
-.patient-demographics table.table_header .deceased:before {
-  content: '\f06a';
-  font-family: 'FontAwesome';
 }
 .patient-demographics table.table_header table tr td {
   color: #fff !important;
@@ -9582,10 +9577,6 @@ div.notab-right {
   width: 40%;
   border: 1px solid Black;
   background-color: #fff;
-}
-
-#allergy_ps_expand td:before {
-  content: '!';
 }
 
 #sddm li {

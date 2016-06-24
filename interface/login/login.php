@@ -57,7 +57,7 @@ function imsubmitted() {
 </script>
 
 </head>
-<body onload="javascript:document.login_form.authUser.focus();" class="login-login">
+<body onload="javascript:document.login_form.authUser.focus();">
 <span class="text"></span>
 <center>
 

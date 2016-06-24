@@ -535,8 +535,8 @@ if ($thisauth): ?>
                     <a class='css_button iframe small_modal' 
                        href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>' 
                        onclick='top.restoreSession()'>
-                        <?php $display = (empty($portalLogin)) ? 'Create' : 'Reset';?>
-                        <span><?php echo htmlspecialchars(xl($display.' Onsite Portal Credentials'));?></span>
+                        <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
+                        <span><?php echo $display; ?></span>
                     </a>
                 </td>
             <?php
@@ -554,8 +554,8 @@ if ($thisauth): ?>
                        href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>' 
                        onclick='top.restoreSession()'>
                         <span>
-                            <?php $text = (empty($portalLogin)) ? 'Create' : 'Reset'; ?>
-                            <?php echo htmlspecialchars(xl($text.' Offiset Portal Credentials',ENT_NOQUOTES));?>
+                            <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
+                            <?php echo $text; ?>
                         </span>
                     </a>
                 </td>
@@ -574,7 +574,7 @@ if ($thisauth): ?>
         // If patient is deceased, then show this (along with the number of days patient has been deceased for)
         $days_deceased = is_patient_deceased($pid);
         if ($days_deceased): ?>
-            <td class="deceased">
+            <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
                 <?php
                 $deceased = htmlspecialchars(xl('Deceased'), ENT_NOQUOTES);
                 $days = htmlspecialchars($days_deceased, ENT_NOQUOTES);
@@ -589,11 +589,7 @@ if ($thisauth): ?>
 <?php
 endif; // $thisauth
 ?>
-<table>
-  <tr>
-    <td id='accountstatus'></td>
-  </tr>
-</table>
+
 <?php
 // Get the document ID of the patient ID card if access to it is wanted here.
 $idcard_doc_id = false;
@@ -676,7 +672,7 @@ if ($GLOBALS['patient_id_category_name']) {
                 <!-- start left column div -->
                 <div style='float:left; margin-right:20px'>
                     <table cellspacing=0 cellpadding=0>
-                        <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
+                        <tr>
                             <td>
                                 <?php
                                 // Billing expand collapse widget
