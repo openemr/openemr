@@ -335,9 +335,9 @@ function genFindBlock() {
 <html>
 <head>
 <title>Navigation</title>
-  
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['rootdir'];?>/static/font-awesome/css/font-awesome.css" type="text/css">
 <style type="text/css">
  body {
   font-size:8pt;
@@ -1013,20 +1013,19 @@ $(document).ready(function(){
       $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
-    $("#navigation-slide > li  > a#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#pfb0").prepend('<img src="../../images/pfb.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#app0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#ppo0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#invimg").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
-		$("#navigation-slide > li  > a#modimg").prepend('<img src="../../images/module.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-calendar"></i>&nbsp;');
+    $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt"></i>&nbsp;');
+    $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o"></i>&nbsp;');
+    $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart"></i>&nbsp;');
+    $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar"></i>&nbsp;');
+    $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
+    $("#navigation-slide > li  > a#invimg").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
+    $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-cogs"></i>&nbsp;');
+    $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-cog"></i>&nbsp;');
+    $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-stethoscope"></i>&nbsp;');
+		$("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-puzzle-piece"></i>&nbsp;');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1056,7 +1055,7 @@ $(document).ready(function(){
 
 </head>
 
-<body class="body_nav">
+<body class="body_nav main-left">
 
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
@@ -1101,7 +1100,7 @@ $(document).ready(function(){
     }
   ?>
 
-  <li class="open"><a class="expanded" id="patimg" ><span><?php xl('Patient/Client','e') ?></span></a>
+  <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-user"></i>&nbsp;<span><?php xl('Patient/Client','e') ?></span></a>
     <ul>
       <?php genMiscLink('RTop','fin','0',xl('Patients'),'main/finder/dynamic_finder.php'); ?>
       <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>

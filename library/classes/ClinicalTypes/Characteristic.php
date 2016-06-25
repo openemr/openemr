@@ -29,6 +29,7 @@ class Characteristic extends ClinicalType
         else if ( $this->getOptionId() == self::TOBACCO_USER ) 
         {
             $tobaccoHistory = getHistoryData( $patient->id, "tobacco", $beginDate, $endDate );
+            
             if ( isset( $tobaccoHistory['tobacco'] ) ) {
                 $tmp = explode( '|', $tobaccoHistory['tobacco'] );
                 $tobaccoStatus = $tmp[1];

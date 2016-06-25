@@ -944,6 +944,17 @@ while ($row = sqlFetchArray($res)) {
                         xl('Marital Status','e');
                   } else if ( $list_id == 'county' ) {
                         xl('INCITS Code','e'); //International Committee for Information Technology Standards
+                  }else if ( $list_id == 'immunization_registry_status' || $list_id == 'imm_vac_eligibility_results' ) {
+                        xl('IIS Code','e');
+                  }else if ( $list_id == 'publicity_code' ) {
+                        xl('CDC Code','e');
+                  }else if ( $list_id == 'immunization_refusal_reason' || $list_id == 'immunization_informationsource' ) {
+                        xl('CDC-NIP Code','e');
+                  }else if ( $list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
+                        xl('HL7 Code','e');
+                  }else if ( $list_id == 'immunization_observation' ) {
+                        xl('LOINC Code','e'); 
+                  
       } else {
 		  	xl('Notes','e');
 		  } 

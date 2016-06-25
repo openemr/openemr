@@ -165,6 +165,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     sqlStatement("UPDATE drugs SET " .
      "name = '"           . escapedff('form_name')          . "', " .
      "ndc_number = '"     . escapedff('form_ndc_number')    . "', " .
+     "drug_code = '"      . escapedff('form_drug_code')    . "', " .
      "on_order = '"       . escapedff('form_on_order')      . "', " .
      "reorder_point = '"  . escapedff('form_reorder_point') . "', " .
      "max_level = '"      . escapedff('form_max_level')     . "', " .
@@ -192,12 +193,13 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   else if ($_POST['form_save']) { // saving a new drug
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
-    "name, ndc_number, on_order, reorder_point, max_level, form, " .
+    "name, ndc_number, drug_code, on_order, reorder_point, max_level, form, " .
     "size, unit, route, cyp_factor, related_code, " .
     "allow_multiple, allow_combining, active " .
     ") VALUES ( " .
     "'" . escapedff('form_name')          . "', " .
     "'" . escapedff('form_ndc_number')    . "', " .
+    "'" . escapedff('form_drug_code')    . "', " .
     "'" . escapedff('form_on_order')      . "', " .
     "'" . escapedff('form_reorder_point') . "', " .
     "'" . escapedff('form_max_level')     . "', " .
@@ -340,7 +342,14 @@ else {
     />
   </td>
  </tr>
-
+<tr>
+  <td valign='top' nowrap><b><?php echo xlt('Drug Code'); ?>:</b></td>
+  <td>
+   <input type='text' size='5' name='form_drug_code' maxlength='10'
+    value='<?php echo attr($row['drug_code']) ?>'
+    />
+  </td>
+</tr>
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('On Order'); ?>:</b></td>
   <td>

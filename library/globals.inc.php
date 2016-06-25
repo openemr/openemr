@@ -770,6 +770,13 @@ $GLOBALS_METADATA = array(
 	   xl('Allow Administrators to Delete Patients')
 
     ),	
+         
+    'observation_results_immunization' => array(
+      xl('Immunization Observation Results'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Observation Results in Immunization')
+    ),
 	
    ),   
     // Report Tab

@@ -55,6 +55,7 @@
    selchoose(f.form, d[1]);
    f.dosage.value = d[2];
    f.size.value = d[3];
+   f.rxnorm_drugcode.value = d[11];
    selchoose(f.unit, d[4]);
    selchoose(f.route, d[5]);
    selchoose(f.interval, d[6]);
@@ -176,6 +177,7 @@
 		<select name="drug_id" onchange="drugselected(this)">
     {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
 		</select>
+		<input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode}">
 	</td>
 </tr>
 {/if}

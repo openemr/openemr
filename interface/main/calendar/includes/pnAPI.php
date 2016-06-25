@@ -642,20 +642,25 @@ function pnVarPrepForDisplay()
     // This search and replace finds the text 'x@y' and replaces
     // it with HTML entities, this provides protection against
     // email harvesters
-    static $search = array('/(.)@(.)/se');
-
-    static $replace = array('"&#" .
-                            sprintf("%03d", ord("\\1")) .
-                            ";&#064;&#" .
-                            sprintf("%03d", ord("\\2")) . ";";');
+    static $search = array('/(.)@(.)/s');
 
     $resarray = array();
+
     foreach (func_get_args() as $ourvar) {
 
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
 
-        $ourvar = preg_replace($search, $replace, $ourvar);
+        $ourvar = preg_replace_callback($search, function ($m) {
+
+            $output = "";
+            for ($i = 0; $i < (strlen($m[0])); $i++) {
+                $output .= '&#' . ord($m[0][$i]) . ';';
+            }
+            return $output;
+        },
+        $ourvar);
+
 
         // Add to array
         array_push($resarray, $ourvar);

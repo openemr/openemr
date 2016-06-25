@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS form_sports_fitness (
  vertical_jump_meters     float(4,2)      NOT NULL DEFAULT 0.00,
  agility_505              float(4,2)      NOT NULL DEFAULT 0.00,
  sit_and_reach_cm         float(4,1)      NOT NULL DEFAULT 0.0,
- other                    text            NOT NULL DEFAULT '',
+ other                    text,
 
  PRIMARY KEY (id)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

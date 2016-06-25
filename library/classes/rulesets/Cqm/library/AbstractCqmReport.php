@@ -177,7 +177,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
                     $percentage = calculate_percentage( $pass_filt, $exclude_filt, $pass_targ );
                     $this->_resultsArray[]= new CqmResult( $this->_rowRule, $title, $populationCriteria->getTitle(),
-                        $totalPatients, $pass_filt, $exclude_filt, $pass_targ, $percentage );
+                        $totalPatients, $pass_filt, $exclude_filt, $pass_targ, $percentage, $initialPatientPopulation,$exceptionsPatientPopulation);
                 }
             }
         }

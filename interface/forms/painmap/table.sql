@@ -6,6 +6,6 @@ CREATE TABLE `form_painmap` (
   `groupname` varchar(255) DEFAULT NULL,
   `authorized` tinyint(4) DEFAULT NULL,
   `activity` tinyint(4) DEFAULT NULL,
-  `data` text DEFAULT '' NULL,
+  `data` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM
+) ENGINE=InnoDB;

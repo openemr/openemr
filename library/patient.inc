@@ -387,6 +387,10 @@ function getHistoryData($pid, $given = "*", $dateStart='',$dateEnd='')
     else {
         $res = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
     }
+    
+    if($given == 'tobacco'){
+    	$res = sqlQuery("select $given from history_data where pid = ? and tobacco is not null and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
+    }
 
     return $res;
 }

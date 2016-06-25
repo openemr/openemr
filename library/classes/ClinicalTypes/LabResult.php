@@ -14,7 +14,7 @@ class LabResult extends ClinicalType
     
     const HB1AC_TEST = 'lab_hb1ac_test';
     const LDL_TEST = 'lab_ldl_test';
-    
+    const STREPTOCOCCUS_TEST = 'lab_streptococcus_test';
     public function getListId() 
     {
         return 'Clinical_Rules_Lab_Res_Types';
