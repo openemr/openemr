@@ -337,7 +337,7 @@ function genFindBlock() {
 <title>Navigation</title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['rootdir'];?>/static/font-awesome/css/font-awesome.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome/css/font-awesome.css" type="text/css">
 <style type="text/css">
  body {
   font-size:8pt;

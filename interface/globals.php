@@ -144,6 +144,10 @@ $include_root = "$webserver_root/interface";
 // Absolute path to the location of documentroot directory for use with include statements:
 $GLOBALS['webroot'] = $web_root;
 
+// Static assets directory, relative to the webserver root.
+// (it is very likely that this path will be changed in the future))
+$GLOBALS['assets_static_relative'] = "$web_root/interface/static";
+
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
