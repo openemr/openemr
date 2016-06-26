@@ -159,12 +159,10 @@ function delete_document($document) {
             }
             break;
         //for CouchDB store
-        // todo - make sure that missing deleting from CouchDB is bug.
-        /*case 1:
+        case 1:
             $couchDB = new CouchDB();
             $couchDB->DeleteDoc($GLOBALS['couchdb_dbase'], $trow['couch_docid'], $trow['couch_revid']);
             break;
-        */
     }
 
 }

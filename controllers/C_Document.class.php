@@ -392,7 +392,7 @@ class C_Document extends Controller {
 	 * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
 	 * */
 	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false,$show_original=false) {
-	    
+
 	    $encrypted = $_POST['encrypted'];
 		$passphrase = $_POST['passphrase'];
 		$doEncryption = false;

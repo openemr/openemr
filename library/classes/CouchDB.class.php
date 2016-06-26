@@ -69,7 +69,6 @@ class CouchDB {
         }
 
         $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
-        //$resp = $this->send("PUT", "/".$db."/".$docid, '{"_id":"'.$docid.'","pid":"'.$patient_id.'","encounter":"'.$encounter.'","mimetype":"'.$type.'","data":'.$json.'}');
         return json_decode($resp);
     }
     

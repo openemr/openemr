@@ -106,31 +106,22 @@ if (!empty($_POST['bn_save'])) {
  * generating  thumbnail image to all images files from documents table
  */
 
-switch((int)$GLOBALS['document_storage_method']){
-    case 0:
-        $storage_method = 'on Disc';
-        break;
-    case 1:
-        $storage_method = 'in CouchDB';
-        break;
-}
-
 if(isset($_POST['generate_thumbnails'])) {
 
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
 
-    $thumbnail_msg = "<p style='color: green'>" . xl('Generated thumbnail(s)') . " : {$results['sum_success']}</p>";
-    $thumbnail_msg .= "<p style='color: red'>" . xl('Failed to generate') . ": {$results['sum_failed']}</p>";
+    $thumbnail_msg = "<p style='color: green'>" . xlt('Generated thumbnail(s)') . " : " . text($results['sum_success']) . "</p>";
+    $thumbnail_msg .= "<p style='color: red'>" . xlt('Failed to generate') . " : " .  text($results['sum_failed']) . "</p>";
     foreach($results['failed'] as $key => $file){
         $num = $key +1;
-        $thumbnail_msg .= "<p style='color: red; font-size: 11px'>$num.". " .$file</p>";
+        $thumbnail_msg .= "<p style='color: red; font-size: 11px'> " .text($num) . ". " . text($file) . "</p>";
     }
 } else {
 
     $count_not_generated = ThumbnailGenerator::count_not_generated();
 
-    $thumbnail_msg = "<p>" .  xl('Files with empty thumbnail') . ": $count_not_generated</p>";
+    $thumbnail_msg = "<p>" .  xlt('Files with empty thumbnail') . ": " . text($count_not_generated) . " </p>";
 }
 
 
@@ -261,20 +252,17 @@ function msfFileChanged() {
 </form>
 
 <div id="generate_thumb">
-    <table>
+    <table style="width: 100%">
         <tr>
-            <td class="thumb_title" width="19%">
-                <b><?php echo xl('Generate Thumbnails')?></b>
+            <td class="thumb_title" style="width: 33%">
+                <b><?php echo xlt('Generate Thumbnails')?></b>
             </td>
-            <td class="thumb_subtitle" width="28%">
-                <span><?php echo xl('The thumbnails will be store ' . $storage_method) ?></span>
-            </td>
-            <td class="thumb_msg" width="49%">
+            <td class="thumb_msg" style="width: 50%">
                 <span><?php echo $thumbnail_msg ?></span>
             </td>
-            <td  class="thumb_form" width="16%" style="border-right:none">
+            <td  class="thumb_form" style="width:17%;border-right:none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo htmlspecialchars(xl('Generate')) ?>">
+                    <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
                 </form>
             </td>
         </tr>

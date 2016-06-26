@@ -58,7 +58,7 @@ class ThumbnailGenerator{
 
         $feedback = array('sum_success' => 0, 'sum_failed' => 0, 'success' => array(), 'failed' => array());
 
-        $sql = "SELECT id, url, couch_docid, storagemethod FROM documents
+        $sql = "SELECT id, url, couch_docid, storagemethod, path_depth FROM documents
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
 
         $results = sqlStatement($sql);
@@ -67,7 +67,7 @@ class ThumbnailGenerator{
             switch((int)$row['storagemethod']) {
                 //for hard disk store
                 case 0:
-                    $new_file = $this->generate_HD_file($row['url']);
+                    $new_file = $this->generate_HD_file($row['url'], $row['path_depth']);
                     break;
                 //for CouchDB store
                 case 1:
@@ -100,15 +100,38 @@ class ThumbnailGenerator{
      * @param $url
      * @return bool|string
      */
-    private function generate_HD_file($url)
+    private function generate_HD_file($url, $path_depth)
     {
         //remove 'file://'
-        $url = substr($url, 7);
-        $path_parts = pathinfo($url);
+        $url = preg_replace("|^(.*)://|","",$url);
 
-        if(!is_file($url) || empty($path_parts['extension'])) {
+        //change full path to current webroot.  this is for documents that may have
+        //been moved from a different filesystem and the full path in the database
+        //is not current.  this is also for documents that may of been moved to
+        //different patients. Note that the path_depth is used to see how far down
+        //the path to go. For example, originally the path_depth was always 1, which
+        //only allowed things like documents/1/<file>, but now can have more structured
+        //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+        // etc.
+        // NOTE that $from_filename and basename($url) are the same thing
+        $from_all = explode("/",$url);
+        $from_filename = array_pop($from_all);
+        $from_pathname_array = array();
+        for ($i=0;$i<$path_depth;$i++) {
+            $from_pathname_array[] = array_pop($from_all);
+        }
+        $from_pathname_array = array_reverse($from_pathname_array);
+        $from_pathname = implode("/",$from_pathname_array);
+
+        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+
+        if (file_exists($temp_url)) {
+            $url = $temp_url;
+        } else {
             return false;
         }
+
+        $path_parts = pathinfo($url);
 
         $resource = $this->thumb_obj->create_thumbnail($url);
         if(!$resource) {
