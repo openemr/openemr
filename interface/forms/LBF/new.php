@@ -256,6 +256,20 @@ div.section {
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script language="JavaScript">
+//Autosave LBF
+$(window).load(function(){
+var timeoutId;
+$('form input, form textarea').on('input propertychange change', function() {
+    console.log('Textarea Change');
+    
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(function() {
+        // Runs 5 minutes (300000 ms) after the last change    
+       document.getElementById("bn_save").click();}, 300000);
+  });	
+        
+});
+
 $(document).ready(function() {
   // fancy box
   if (window.enable_modals) {
