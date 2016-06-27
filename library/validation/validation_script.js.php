@@ -40,24 +40,34 @@ if($GLOBALS['new_validate']) {
             //TODO: implement a traslation mechanism of the errors that the library returns
             var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
+
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
             var elements = validate.collectFormValues(form);
+
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
+            var element, new_key;
+            for(var key in elements){
 
-            for(key in elements){
-                if(key.slice(-2) == '[]'){
+                element = $('[name="'+ key + '"]');
+
+                if($(element).is('select[multiple]')) {
+
                     new_key = key.substring(0, key.length - 2);
-                    elements[new_key] = elements[key];
+                    if(validate.isObject(constraints[new_key])) {
 
-                    if(validate.isObject(constraints[new_key]) && elements[key] == null){
-                        var select = $('[name="'+ key + '"]');
-                        appendError(select, new_key);
+                        if(constraints[new_key].presence && elements[key] === null) {
+
+                            appendError(element, new_key);
+                        }
                     }
+                    //remove multi select key to prevent errors
                     delete elements[key];
+                    delete constraints[new_key];
                 }
             }
+
             //error conatins an list of the elements and their errors
             var errors = validate(elements, constraints);
             if (typeof  errors !== 'undefined') {
@@ -68,13 +78,15 @@ if($GLOBALS['new_validate']) {
                 showErrors(form, errors);
                 valid = false;
             }
+
             //In case there were errors they are displayed with this functionn
             function showErrors(form, errors) {
 
                 for (var key in errors) {
+                    element = $('[name="'+ key + '"]');
                     if (errors.hasOwnProperty(key)) {
 
-                        appendError($('#'+key), key)
+                        appendError(element, key)
                     }
                 }
             }
@@ -109,6 +121,19 @@ if($GLOBALS['new_validate']) {
                     var type_tab = div_id.substr(4);
                     $('a#header_tab_'+type_tab).css('color', 'red');
                  }
+
+                //open tab for new patient form
+                parent_div = $(input).parents('div.section');
+                if(parent_div !== undefined) {
+                    $(parent_div).css('display' , 'block');
+                    div_id = $(parent_div).attr('id');
+                    if(div_id !== undefined) {
+                        div_id = div_id.substr(-1);
+                        var input_checkbox = document.getElementById('form_cb_' + div_id);
+                        input_checkbox.checked = true;
+                    }
+                }
+
 
                 //bind hide function on focus/select again
                 $(input).on('click focus select', function(){

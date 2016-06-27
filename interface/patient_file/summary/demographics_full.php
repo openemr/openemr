@@ -709,6 +709,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <script language="JavaScript">
 
+// hard code validation for old validation, in the new validation possible to add match rules
+<?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -721,6 +723,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);
 <?php } ?>
+
+<?php }?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']) . "'"; ?>);
