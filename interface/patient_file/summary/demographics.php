@@ -573,14 +573,18 @@ if ($thisauth): ?>
 
         // If patient is deceased, then show this (along with the number of days patient has been deceased for)
         $days_deceased = is_patient_deceased($pid);
-        if ($days_deceased): ?>
+        if ($days_deceased != null): ?>
             <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
                 <?php
-                $deceased = htmlspecialchars(xl('Deceased'), ENT_NOQUOTES);
-                $days = htmlspecialchars($days_deceased, ENT_NOQUOTES);
-                $days_ago = htmlspecialchars(xl('days ago'), ENT_NOQUOTES);
-                $days_ago_full = $days . " " . $days_ago; ?>
-                <?php echo $deceased;?> (<?php echo $days_ago_full;?>)
+                if ($days_deceased == 0) {
+                    echo xlt("DECEASED (Today)");
+                }
+                else if ($days_deceased == 1) {
+                    echo xlt("DECEASED (1 day ago)");
+                }
+                else {
+                    echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
+                } ?>
             </td>
         <?php endif; ?>
     </tr>

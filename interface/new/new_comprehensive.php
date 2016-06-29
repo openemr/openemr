@@ -291,10 +291,25 @@ function validate(f) {
   }
   msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'),ENT_QUOTES); ?>";
  
-  if ( errMsgs.length > 0 ) {
-         alert(msg);
-         return false;
-  }
+  
+//Misc  Deceased Date Validation for Future Date 
+var dateVal = document.getElementById("form_deceased_date").value;
+var currentDate;
+var d = new Date();
+month = '' + (d.getMonth() + 1),
+day = '' + d.getDate(),
+year = d.getFullYear();
+if (month.length < 2) month = '0' + month;
+if (day.length < 2) day = '0' + day;
+currentDate = year+'-'+month+'-'+day;
+if(errMsgs.length > 0 || dateVal > currentDate)
+{
+if(errMsgs.length > 0)	
+	alert(msg);
+if(dateVal > currentDate)
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	return false;
+} 
  return true;
 }
 

@@ -249,7 +249,23 @@ function validate(f) {
  if ( errMsgs.length > 0 ) {
 	alert(msg);
  }
- 
+
+ //Misc  Deceased Date Validation for Future Date 
+var dateVal = document.getElementById("form_deceased_date").value;
+var currentDate;
+var d = new Date();
+month = '' + (d.getMonth() + 1),
+day = '' + d.getDate(),
+year = d.getFullYear();
+if (month.length < 2) month = '0' + month;
+if (day.length < 2) day = '0' + day;
+currentDate = year+'-'+month+'-'+day;
+if(dateVal > currentDate)
+{
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	return false;
+} 
+
 //Patient Data validations
  <?php if($GLOBALS['erx_enable']){ ?>
  alertMsg='';
