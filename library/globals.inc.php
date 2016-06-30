@@ -1115,13 +1115,13 @@ $GLOBALS_METADATA = array(
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received MDM documents.')
     ),
-    'generate_thumb' => array(
+    'generate_doc_thumb' => array(
         xl('Generate thumbnail'),
         'bool',
         '0',
         xl('Generate thumbnail images'),
     ),
-    'thumb_size' => array(
+    'thumb_doc_max_size' => array(
         xl('Thumbnail size'),
         'text',          // data type
         '100',           // default

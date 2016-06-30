@@ -503,23 +503,28 @@ class Document extends ORDataObject{
    * @param  string  $filename     Desired filename, may be modified for uniqueness
    * @param  string  $mimetype     MIME type
    * @param  string  &$data        The actual data to store (not encoded)
-   * @param  string  $tmpfile      The tmp location of file
    * @param  string  $higher_level_path Optional subdirectory within the local document repository
    * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
    * @param  integer $owner        Owner/user/service that is requesting this action
+   * @param  string  $tmpfile      The tmp location of file (require for thumbnail generator)
    * @return string                Empty string if success, otherwise error message text
    */
-  function createDocument($patient_id, $category_id, $filename, $mimetype, &$data,$tmpfile,
-    $higher_level_path='', $path_depth=1, $owner=0) {
+  function createDocument($patient_id, $category_id, $filename, $mimetype, &$data,
+    $higher_level_path='', $path_depth=1, $owner=0, $tmpfile = null) {
     // The original code used the encounter ID but never set it to anything.
     // That was probably a mistake, but we reference it here for documentation
     // and leave it empty. Logically, documents are not tied to encounters.
 
-	if($GLOBALS['generate_thumb']) {
+	if($GLOBALS['generate_doc_thumb']) {
 
-		$thumb_size = ($GLOBALS['thumb_size'] > 0) ? $GLOBALS['thumb_size'] : null;
+		$thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
 		$thumbnail_class = new Thumbnail($thumb_size);
-		$has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
+
+		if(!is_null($tmpfile)) {
+			$has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
+		} else {
+			$has_thumbnail = false;
+		}
 
 		if ($has_thumbnail) {
 			$thumbnail_resource = $thumbnail_class->create_thumbnail(null, $data);

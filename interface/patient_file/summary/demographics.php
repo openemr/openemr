@@ -125,7 +125,7 @@ function image_widget($doc_id,$doc_catg)
         global $pid, $web_root;
         $docobj = new Document($doc_id);
         $image_file = $docobj->get_url_file();
-        $image_width = $GLOBALS['generate_thumb'] == 1 ? '' : 'width=100';
+        $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
         $extension = substr($image_file, strrpos($image_file,"."));
         $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // image ext supported by fancybox viewer
         if ( in_array($extension,$viewable_types) ) { // extention matches list

@@ -24,7 +24,7 @@ class Thumbnail
 {
 
     //max size of thumbnail
-    public $max_size = 100;
+    const MAX_SIZE = 100;
     public $thumbnail_type = 'jpg';
     /**
      * Enable to set max size of thumbnail
@@ -32,7 +32,11 @@ class Thumbnail
      */
     public function __construct($max_size = null)
     {
-        if(!is_null($max_size))$this->max_size = $max_size;
+        if(!is_null($max_size)) {
+            $this->max_size = $max_size;
+        } else {
+            $this->max_size = self::MAX_SIZE;
+        }
 
     }
 

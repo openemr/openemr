@@ -145,10 +145,10 @@ class C_Document extends Controller {
                     }
                     $d = new Document();
                     $rc = $d->createDocument($patient_id, $category_id, $fname,
-                      $_FILES['file']['type'][$key], $filetext, $_FILES['file']['tmp_name'][$key],
+                      $_FILES['file']['type'][$key], $filetext,
                       empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
                       empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
-                      $non_HTTP_owner);
+                      $non_HTTP_owner, $_FILES['file']['tmp_name'][$key]);
                     if ($rc) {
                       $error .= $rc . "\n";
                     }

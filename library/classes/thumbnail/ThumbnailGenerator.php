@@ -23,7 +23,7 @@ class ThumbnailGenerator{
      */
     public function __construct()
     {
-        $thumb_size = ($GLOBALS['thumb_size'] > 0) ? $GLOBALS['thumb_size'] : null;
+        $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
         $this->thumb_obj = new Thumbnail($thumb_size);
     }
 

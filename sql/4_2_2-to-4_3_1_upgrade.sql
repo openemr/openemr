@@ -72,5 +72,5 @@
 --    Custom function for creating Occupation List
 
 #IfMissingColumn documents thumb_url
-ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL
+ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
 #EndIf
