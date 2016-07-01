@@ -1,10 +1,23 @@
-    <?php
+<?php
 /**
  * Adding thumbnails to all files
- * User: amiel
- * Date: 30/05/16
- * Time: 14:55
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Amiel Elboim <amielel@matrix.co.il>
+ * @link    http://www.open-emr.org
  */
+
 require_once dirname(__FILE__) . '/../../../interface/globals.php';
 require_once dirname(__FILE__) . '/Thumbnail.class.php';
 require_once dirname(__FILE__) . '/../CouchDB.class.php';
