@@ -950,7 +950,7 @@ function myChangeCheck() {
 
 </head>
 
-<body class="body_top">
+<body class="body_top admin-layout">
 
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="formaction" id="formaction" value="">

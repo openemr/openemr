@@ -1204,3 +1204,8 @@ div.notab-right {
 .report_search_bar {
   background-color: #EADDB4;
 }
+
+body.admin-layout .layouts_title input[type="button"] {
+    display: inline-block;
+    float: none;
+}

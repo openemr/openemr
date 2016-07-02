@@ -476,87 +476,125 @@ $(window).load(function() {
 
 </head>
 
-<body class="body_top">
+<body class="body_top patient-demographics">
 
 <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
 <?php
- $thisauth = acl_check('patients', 'demo');
- if ($thisauth) {
-  if ($result['squad'] && ! acl_check('squads', $result['squad']))
-   $thisauth = 0;
- }
- if (!$thisauth) {
-  echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
- }
- if ($thisauth) {
-  echo "<table><tr><td><span class='title'>" .
-   htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
-   "</span></td>";
-
-  if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) {
-   echo "<td style='padding-left:1em;'><a class='css_button iframe' href='../deleter.php?patient=" . 
-    htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>" .
-    "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).
-    "</span></a></td>";
-  }
-  if($GLOBALS['erx_enable']){
-	echo '<td style="padding-left:1em;"><a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">';
-	echo "<span>".htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES)."</span></a></td>";
-	echo '<td style="padding-left:1em;"><a class="css_button iframe1" href="../../soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()">';
-	echo "<span>".htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES)."</span></a></td><td id='accountstatus'></td>";
-   }
-  //Patient Portal
-  $portalUserSetting = true; //flag to see if patient has authorized access to portal
-  if($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']){
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-    if ($portalStatus['allow_patient_portal']=='YES') {
-      $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));
-      echo "<td style='padding-left:1em;'><a class='css_button iframe small_modal' href='create_portallogin.php?portalsite=on&patient=" . htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>";
-      if (empty($portalLogin)) {
-        echo "<span>".htmlspecialchars(xl('Create Onsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
-      }
-      else {
-        echo "<span>".htmlspecialchars(xl('Reset Onsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
-      }
+$thisauth = acl_check('patients', 'demo');
+if ($thisauth) {
+    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+        $thisauth = 0;
     }
-    else {
-      $portalUserSetting = false;
-    }
-  }
-  if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']){
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-    if ($portalStatus['allow_patient_portal']=='YES') {
-      $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
-      echo "<td style='padding-left:1em;'><a class='css_button iframe small_modal' href='create_portallogin.php?portalsite=off&patient=" . htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>";
-      if (empty($portalLogin)) {
-        echo "<span>".htmlspecialchars(xl('Create Offsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
-      }
-      else {
-        echo "<span>".htmlspecialchars(xl('Reset Offsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
-      }
-    }
-    else {
-      $portalUserSetting = false;
-    }
-  }
-  if (!($portalUserSetting)) {
-    // Show that the patient has not authorized portal access
-    echo "<td style='padding-left:1em;'>" . htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES) . "</td>";
-  }
-  //Patient Portal
+}
+if (!$thisauth) {
+    echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
+if ($thisauth): ?>
 
-  // If patient is deceased, then show this (along with the number of days patient has been deceased for)
-  $days_deceased = is_patient_deceased($pid);
-  if ($days_deceased) {
-    echo "<td style='padding-left:1em;font-weight:bold;color:red'>" . htmlspecialchars( xl('DECEASED') ,ENT_NOQUOTES) . " (" . htmlspecialchars($days_deceased,ENT_NOQUOTES) . " " .  htmlspecialchars( xl('days ago') ,ENT_NOQUOTES) . ")</td>";
-  }
+<table class="table_header">
+    <tr>
+        <td>
+            <span class='title'>
+                <?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?>
+            </span>
+        </td>
+        <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
+        <td style='padding-left:1em;' class="delete">
+            <a class='css_button iframe' 
+               href='../deleter.php?patient="<?php echo htmlspecialchars($pid,ENT_QUOTES);?>' 
+               onclick='top.restoreSession()'>
+                <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
+            </a>
+        </td>
+        <?php endif; // Allow PT delete
+        if($GLOBALS['erx_enable']): ?>
+        <td style="padding-left:1em;" class="erx">
+            <a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                <span><?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?></span>
+            </a>
+        </td>
+        <td style="padding-left:1em;">
+            <a class="css_button iframe1" 
+               href="../../soap_functions/soap_accountStatusDetails.php" 
+               onclick="top.restoreSession()">
+                <span><?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?></span>
+            </a>
+        </td>
+        <td id='accountstatus'></td>
+        <?php endif; // eRX Enabled
+        //Patient Portal
+        $portalUserSetting = true; //flag to see if patient has authorized access to portal
+        if($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']):
+            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+            if ($portalStatus['allow_patient_portal']=='YES'):
+                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
+                <td style='padding-left:1em;'>
+                    <a class='css_button iframe small_modal' 
+                       href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>' 
+                       onclick='top.restoreSession()'>
+                        <?php $display = (empty($portalLogin)) ? 'Create' : 'Reset';?>
+                        <span><?php echo htmlspecialchars(xl($display.' Onsite Portal Credentials'));?></span>
+                    </a>
+                </td>
+            <?php
+            else:
+                $portalUserSetting = false;
+            endif; // allow patient portal
+        endif; // Onsite Patient Portal
+        if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
+            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+            if ($portalStatus['allow_patient_portal']=='YES'):
+                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
+                ?>
+                <td style='padding-left:1em;'>
+                    <a class='css_button iframe small_modal' 
+                       href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>' 
+                       onclick='top.restoreSession()'>
+                        <span>
+                            <?php $text = (empty($portalLogin)) ? 'Create' : 'Reset'; ?>
+                            <?php echo htmlspecialchars(xl($text.' Offiset Portal Credentials',ENT_NOQUOTES));?>
+                        </span>
+                    </a>
+                </td>
+            <?php 
+            else:
+                $portalUserSetting = false;
+            endif; // allow_patient_portal
+        endif; // portal_offsite_enable
+        if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
+            <td style='padding-left:1em;'>
+                <?php echo htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
+            </td>
+        <?php endif;
+        //Patient Portal
 
-  echo "</tr></table>";
- }
+        // If patient is deceased, then show this (along with the number of days patient has been deceased for)
+        $days_deceased = is_patient_deceased($pid);
+        if ($days_deceased): ?>
+            <td class="deceased">
+                <?php
+                $deceased = htmlspecialchars(xl('Deceased'), ENT_NOQUOTES);
+                $days = htmlspecialchars($days_deceased, ENT_NOQUOTES);
+                $days_ago = htmlspecialchars(xl('days ago'), ENT_NOQUOTES);
+                $days_ago_full = $days . " " . $days_ago; ?>
+                <?php echo $deceased;?> (<?php echo $days_ago_full;?>)
+            </td>
+        <?php endif; ?>
+    </tr>
+</table>
 
+<?php
+endif; // $thisauth
+?>
+<table>
+  <tr>
+    <td id='accountstatus'></td>
+  </tr>
+</table>
+<?php
 // Get the document ID of the patient ID card if access to it is wanted here.
 $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
@@ -564,31 +602,31 @@ if ($GLOBALS['patient_id_category_name']) {
 }
 
 ?>
-<table cellspacing='0' cellpadding='0' border='0'>
- <tr>
-  <td class="small" colspan='4'>
-<a href="../history/history.php" onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-|
-<?php //note that we have temporarily removed report screen from the modal view ?>
-<a href="../report/patient_report.php" onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
-|
-<?php //note that we have temporarily removed document screen from the modal view ?>
-<a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
-|
-<a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
-|
-<a href="stats_full.php?active=all" onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
-|
-<a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
-<?php echo xlt('Ledger'); ?></a>
-|
-<a href="../../reports/external_data.php" onclick='top.restoreSession()'>
-<?php echo xlt('External Data'); ?></a>
+<table cellspacing='0' cellpadding='0' border='0' class="subnav">
+  <tr>
+      <td class="small" colspan='4'>
+          <a href="../history/history.php" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
+          |
+          <?php //note that we have temporarily removed report screen from the modal view ?>
+          <a href="../report/patient_report.php" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
+          |
+          <?php //note that we have temporarily removed document screen from the modal view ?>
+          <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
+          |
+          <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
+          |
+          <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
+          |
+          <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
+          <?php echo xlt('Ledger'); ?></a>
+          |
+          <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
+          <?php echo xlt('External Data'); ?></a>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
@@ -627,41 +665,40 @@ if ($GLOBALS['patient_id_category_name']) {
 	?>
 <!-- DISPLAYING HOOKS ENDS HERE -->
 
-  </td>
- </tr>
- 
+        </td>
+    </tr>
 </table> <!-- end header -->
 
-<div style='margin-top:10px'> <!-- start main content div -->
- <table border="0" cellspacing="0" cellpadding="0" width="100%">
-  <tr>
-      <td class="demographics-box" align="left" valign="top">
-    <!-- start left column div -->
-    <div style='float:left; margin-right:20px'>
-     <table cellspacing=0 cellpadding=0>
-      <tr>
-       <td>
-<?php
-// Billing expand collapse widget
-$widgetTitle = xl("Billing");
-$widgetLabel = "billing";
-$widgetButtonLabel = xl("Edit");
-$widgetButtonLink = "return newEvt();";
-$widgetButtonClass = "";
-$linkMethod = "javascript";
-$bodyClass = "notab";
-$widgetAuth = false;
-$fixedWidth = true;
-if ($GLOBALS['force_billing_widget_open']) {
-  $forceExpandAlways = true;
-}
-else {
-  $forceExpandAlways = false;
-}
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth, $forceExpandAlways);
-?>
+<div style='margin-top:10px' class="main"> <!-- start main content div -->
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tr>
+            <td class="demographics-box" align="left" valign="top">
+                <!-- start left column div -->
+                <div style='float:left; margin-right:20px'>
+                    <table cellspacing=0 cellpadding=0>
+                        <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
+                            <td>
+                                <?php
+                                // Billing expand collapse widget
+                                $widgetTitle = xl("Billing");
+                                $widgetLabel = "billing";
+                                $widgetButtonLabel = xl("Edit");
+                                $widgetButtonLink = "return newEvt();";
+                                $widgetButtonClass = "";
+                                $linkMethod = "javascript";
+                                $bodyClass = "notab";
+                                $widgetAuth = false;
+                                $fixedWidth = true;
+                                if ($GLOBALS['force_billing_widget_open']) {
+                                  $forceExpandAlways = true;
+                                }
+                                else {
+                                  $forceExpandAlways = false;
+                                }
+                                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+                                  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+                                  $widgetAuth, $fixedWidth, $forceExpandAlways);
+                                ?>
         <br>
 <?php
 		//PATIENT BALANCE,INS BALANCE naina@capminds.com
