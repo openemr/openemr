@@ -1218,7 +1218,7 @@ div.notab-right {
   background-color: #EADDB4;
 }
 
-body.admin-layout .layouts_title input[type="button"] {
+body.admin-layout input[type="button"] {
     display: inline-block;
     float: none;
 }

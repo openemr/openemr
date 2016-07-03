@@ -8459,6 +8459,16 @@ a:active :active {
   outline: none !important;
 }
 
+.menuBar {
+  width:100%;
+  height:auto;
+  display:block;
+  position:fixed;
+  top:0;
+  background-color:#FFFFFF !important;
+  z-index:100;
+}
+
 .menu {
   font-size: 11pt;
   font-style: italic;
