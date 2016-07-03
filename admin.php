@@ -119,7 +119,7 @@ foreach ($siteslist as $sfname) {
       echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
     }
     else {
-      echo "  <td><a href='interface/login/login_frame.php?site=$sfname'>Log In</a></td>\n";
+      echo "  <td><a href='interface/login/login.php?site=$sfname'>Log In</a></td>\n";
     }
   }
   echo " </tr>\n";
