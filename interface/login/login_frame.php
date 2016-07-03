@@ -5,19 +5,18 @@ include_once ("../globals.php");
 <HTML>
 <head>
 <?php html_header_show(); ?>
-<TITLE><?php xl ('Login','e'); ?></TITLE>
+<TITLE><?php xl ('OpenEMR Login','e'); ?></TITLE>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
 
 </HEAD>
 
-<frameset rows="<?php echo "$GLOBALS[logoBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="NO" border="0" framespacing="0">
-  <frame class="logobar" src="<?php echo $rootdir;?>/login/filler.php" name="Filler Top" scrolling="no" noresize frameborder="NO">
-  <frame class="titlebar" src="<?php echo $rootdir;?>/login/login_title.php" name="Title" scrolling="no" noresize frameborder="NO">
-  <frame src="<?php echo $rootdir;?>/login/login.php" name="Login" scrolling="auto" frameborder="NO">
-  <!--<frame src="<?php echo $rootdir;?>/login/filler.php" name="Filler Bottom" scrolling="no" noresize frameborder="NO">-->
-</frameset>
+<?php
+  include 'header.php';
+  include 'login_title.php';
+  include 'login.php';
+?>
 
 <noframes><body bgcolor="#FFFFFF">
 
