@@ -504,9 +504,10 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle starting of a new data cell.
   if ($datacols > 0) {
+      $id_field_text = "text_".$frow['field_id']; 
     end_cell();
-    echo "<td colspan='$datacols' class='text'";
-    if ($cell_count > 0) echo " style='padding-left:5pt'";
+    echo "<td colspan='$datacols' class='text data'";
+    if ($cell_count > 0) echo " style='padding-left:5pt'". " id='".$id_field_text."'";
     echo ">";
     $cell_count += $datacols;
   }
