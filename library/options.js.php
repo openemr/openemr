@@ -83,7 +83,8 @@ function checkSkipConditions() {
         }
     }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
-    if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
+    if (srcelem == null) srcelem = document.getElementById('form_' + tofind) || $("#[id^='form_"+ tofind+"']")[0];
+
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
 
     if (srcelem == null) {
@@ -142,8 +143,10 @@ function checkSkipConditions() {
     }
     // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
     var colspan = 0;
-    if (trgelem1) colspan += trgelem1.colSpan;
-    if (trgelem2) colspan += trgelem2.colSpan;
+    if (trgelem1 && trgelem1.colSpan !=undefined )
+        colspan += trgelem1.colSpan;
+    if (trgelem2 && trgelem2.colSpan !=undefined) 
+        colspan += trgelem2.colSpan;
     if (colspan < 4) {
       if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
       if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
