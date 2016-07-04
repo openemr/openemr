@@ -1,6 +1,6 @@
 {
   "name": "openemr",
-  "homepage": "http://open-emr.dev",
+  "homepage": "http://www.open-emr.org",
   "authors": [
     "OpenEMR"
   ],
@@ -15,6 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "font-awesome": "^4.6.3"
+    "font-awesome-4-6-3": "font-awesome#4.6.3"
   }
 }
