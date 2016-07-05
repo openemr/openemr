@@ -35,7 +35,7 @@ include_once("$srcdir/sql.inc");
 <html>
 <head>
 <?php html_header_show();?>
-<TITLE><?php xl ('OpenEMR Login','e'); ?></TITLE>
+<title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
@@ -65,7 +65,7 @@ function imsubmitted() {
 </div>
 <div class="body_title">
     <span class="title_bar">
-        <div class="title_name"><?php echo "$openemr_name" ?></div>
+        <div class="title_name"><?php echo text($openemr_name); ?></div>
     </span>
     <br>
 </div>
