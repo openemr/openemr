@@ -634,7 +634,7 @@ class Document extends ORDataObject{
 	  if( $has_thumbnail ) {
 		 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
 		 // Store the file into its proper directory.
-		 if (file_put_contents($filepath . 'th_' . $filename, $thumbnail_data) === FALSE) {
+		 if (file_put_contents($filepath . $this->get_thumb_name($filename), $thumbnail_data) === FALSE) {
 			return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
 		 }
 	  }
