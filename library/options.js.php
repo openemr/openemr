@@ -196,7 +196,7 @@ function lbfCanvasSetup(canid, canWidth, canHeight) {
     strokeWidths: [1, 2, 3, 5, 8, 12],
     defaultStrokeWidth: 2,
     backgroundShapes: [shape],
-    imageURLPrefix: '<?php echo $GLOBALS['webroot'] ?>/library/js/literallycanvas/img'
+    imageURLPrefix: '<?php echo $GLOBALS['assets_static_relative'] ?>/literallycanvas-0-4-13/img'
   });
   if (canHeight > 261) {
     // TBD: Do something to make the widget bigger?
