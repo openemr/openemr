@@ -48,6 +48,7 @@ if($GLOBALS['new_validate']) {
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
             var element, new_key;
+
             for(var key in elements){
 
                 element = $('[name="'+ key + '"]');
@@ -56,10 +57,12 @@ if($GLOBALS['new_validate']) {
 
                     new_key = key.substring(0, key.length - 2);
                     if(validate.isObject(constraints[new_key])) {
-
-                        if(constraints[new_key].presence && elements[key] === null) {
+                        //check if select multiple does empty (empty or unassigned)
+                        if(constraints[new_key].presence && (elements[key].length == 0 || elements[key][0] == null )) {
 
                             appendError(element, new_key);
+                            e.preventDefault();
+                            valid = false;
                         }
                     }
                     //remove multi select key to prevent errors
@@ -163,6 +166,7 @@ if($GLOBALS['new_validate']) {
                     $('a#header_tab_'+type_tab).css('color', 'black');
                 }
             }
+
             return valid;
         }
     }
