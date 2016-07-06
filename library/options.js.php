@@ -60,6 +60,7 @@ function updateAgeString(fieldid, asof, format) {
 //
 var cskerror = false; // to avoid repeating error messages
 function checkSkipConditions() {
+    debugger;
   var myerror = cskerror;
   var prevandor = '';
   var prevcond = false;
@@ -83,7 +84,7 @@ function checkSkipConditions() {
         }
     }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
-    if (srcelem == null) srcelem = document.getElementById('form_' + tofind) || $("#[id^='form_"+ tofind+"']")[0];
+    if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
 
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
 
@@ -110,6 +111,31 @@ function checkSkipConditions() {
         if(elem_val == null) elem_val = srcelem.innerText;
 
     }
+    var multipleValues=[];
+    //this is a feature fix for the multiple select list option
+    //collect all the multiselect controll values:
+    if(srcelem.multiple)
+    {
+        for (var k = 0; k < srcelem.length; k++) {
+            if (srcelem.options[k].selected) {
+                if( multipleValues.indexOf(srcelem.options[k].value)<0)
+                    multipleValues.push(srcelem.options[k].value)
+                }
+        }
+
+        //find the condition value in the list created above
+        for(var l=0;l<multipleValues.length;l++)
+        {
+              elem_val_array=multipleValues[l];
+              if(elem_val_array == value)
+              {
+                  elem_val=elem_val_array;
+
+              }
+        }
+
+    }
+
     if (operator == 'eq') condition = elem_val == value; else
     if (operator == 'ne') condition = elem_val != value; else
     if (operator == 'se') condition = srcelem.checked       ; else
@@ -145,7 +171,7 @@ function checkSkipConditions() {
     var colspan = 0;
     if (trgelem1 && trgelem1.colSpan !=undefined )
         colspan += trgelem1.colSpan;
-    if (trgelem2 && trgelem2.colSpan !=undefined) 
+    if (trgelem2 && trgelem2.colSpan !=undefined)
         colspan += trgelem2.colSpan;
     if (colspan < 4) {
       if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';

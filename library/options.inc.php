@@ -85,9 +85,9 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	
 	$tag_name_esc = attr($tag_name);
 	
-	if ($multiple) {
+	/*if ($multiple) {
 		$tag_name_esc = $tag_name_esc . "[]";
-	}
+	}*/
 	$s .= "<select name='$tag_name_esc'";
 	
 	if ($multiple) {
@@ -99,9 +99,9 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		$tag_id_esc = attr($tag_id);
 	}
 	
-	if ($multiple) {
+	/*if ($multiple) {
 		$tag_id_esc = $tag_id_esc . "[]";
-	}
+	}*/
 	$s .= " id='$tag_id_esc'";
 	
 	if ($class) {
