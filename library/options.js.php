@@ -60,7 +60,7 @@ function updateAgeString(fieldid, asof, format) {
 //
 var cskerror = false; // to avoid repeating error messages
 function checkSkipConditions() {
-    debugger;
+    
   var myerror = cskerror;
   var prevandor = '';
   var prevcond = false;
