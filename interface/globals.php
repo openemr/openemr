@@ -460,4 +460,5 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
+require_once $webserver_root . "/vendor/autoload.php";
 ?>

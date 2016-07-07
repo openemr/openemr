@@ -1,0 +1,13 @@
+{
+    "name": "openemr/openemr",
+    "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
+    "license": "GPL3",
+    "authors": [],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Patient\\": "library/Patient/src",
+            "OpenEMR\\ViewHelper\\": "library/ViewHelper/src"
+        }
+    }
+}
