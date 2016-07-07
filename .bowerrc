@@ -1,5 +1,5 @@
 {
-  "directory": "interface/static",
+  "directory": "public/assets",
   "ignoredDependencies": [
     "react"
   ]
