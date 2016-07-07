@@ -221,7 +221,7 @@ use ESign\Api;
  function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="") {
   global $disallowed;
   if (empty($disallowed[$name])) {
-	 
+
    $id = $name . $level;
    echo "<li><a href='' id='$id' title='$mouseovertext' onclick=\"";
    if ($mono) {
@@ -263,7 +263,7 @@ function genPopupsList($style='') {
 <?php if (!$GLOBALS['ippf_specific']) { ?>
  <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
  <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
-<?php } 
+<?php }
  if (!$GLOBALS['disable_calendar']) { ?>
  <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;} ?>'><?php xl('Appts','e'); ?></option>
 <?php } ;
@@ -391,35 +391,35 @@ function genFindBlock() {
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language='JavaScript'>
- 
+
  // tajemo work by CB 2012/01/31 12:32:57 PM dated reminders counter
- function getReminderCount(){ 
+ function getReminderCount(){
    top.restoreSession();
    // Send the skip_timeout_reset parameter to not count this as a manual entry in the
    //  timing out mechanism in OpenEMR.
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-     { skip_timeout_reset: "1" }, 
+     { skip_timeout_reset: "1" },
      function(data) {
        $("#reminderCountSpan").html(data);
-    // run updater every 60 seconds 
-     var repeater = setTimeout("getReminderCount()", 60000); 
+    // run updater every 60 seconds
+     var repeater = setTimeout("getReminderCount()", 60000);
    });
    //piggy-back on this repeater to run other background-services
    //this is a silent task manager that returns no output
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
       { skip_timeout_reset: "1", ajax: "1" });
- }   
- 
+ }
+
  $(document).ready(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
-   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>   
+   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>
    $("input[name=cb_bot]").trigger('click');
    toggleFrame(2);
    <?php } ?>
- }) 
+ })
  // end of tajemo work dated reminders counter
- 
+
  // Master values for current pid and encounter.
  var active_pid = 0;
  var active_encounter = 0;
@@ -484,7 +484,7 @@ function genFindBlock() {
   if (frame == 'RTop') topName = fname; else botName = fname;
   return false;
  }
- 
+
  function loadFrame3(fname, frame, url) {
   var f = document.forms[0];
   top.restoreSession();
@@ -636,7 +636,7 @@ function clearactive() {
 		top.frames['RBot'].location='messages/messages.php?form_active=1';
 	  }
 	});
-    
+
 	$(parent.Title.document.getElementById('clear_active')).hide();
 }
  // Reference to the search.php window.
@@ -720,10 +720,10 @@ function clearactive() {
    setRadio('rb_bot', 'ens');
   }
  }
- 
+
   //
   // Commented out this code block are part of the removal of the athletic team code TLH
-  // 
+  //
   // Clear and reload issue-related menu items for active_pid.
   // Currently this only applies to athletic teams, but might be implemented
   // in the general menu at some future time.
@@ -755,28 +755,28 @@ function clearactive() {
   // }
  //?>
   //} // end function reloadIssues
- 
+
   // This is referenced in left_nav_issues_ajax.php and is called when [Add]
   // is clicked for an issue menu item to add a new encounter for the issue.
   // So far this only applies to the Athletic Team version of the menu.
   //
   //function addEncNotes(issue) {
- 
+
    // top.restoreSession();
    // $.getScript('../../library/ajax/left_nav_encounter_ajax.php?createvisit=1&issue=' + issue);
- 
+
    // The above AJAX call was to create the encounter right away, but we later
    // (2012-07-03) decided it's better to present the New Encounter form instead.
    // Note the issue ID is passed so it will be pre-selected in that form.
    //loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=&issue=' + issue);
- 
+
    //return false;
   //}
   //
   // Commented out the above code block are part of the removal of the athletic team code TLH
-  // 
-  
-  
+  //
+
+
  // Call this to announce that the patient has changed.  You must call this
  // if you change the session PID, so that the navigation frame will show the
  // correct patient and so that the other frame will be reloaded if it contains
@@ -866,10 +866,10 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});	    
+	});
 	return encounter_locked;
 	<?php } else { ?>
-	// If encounter locking isn't enabled, just tell the left_nav that the encounter 
+	// If encounter locking isn't enabled, just tell the left_nav that the encounter
     // isn't locked.
 	return false;
 	<?php } ?>
@@ -1090,7 +1090,7 @@ $(document).ready(function(){
 
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','pfb',xl('Flow Board')); ?>
-  <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
+  <?php genTreeLink('RBot','msg',xl('Messages')); ?>
   <?php if ($GLOBALS['lab_exchange_enable']) genTreeLink('RTop', 'lab', xl('Check Lab Results'));?>
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
   <?php
@@ -1171,7 +1171,7 @@ if (!empty($reg)) {
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php if ($GLOBALS['use_charges_panel']) genTreeLink('RBot','cod',xl('Charges')); ?>
       <?php genMiscLink('RBot','pay','1',xl('Payment'),'patient_file/front_payment.php'); ?>
-      <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?> 
+      <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
 	  <?php genTreeLink('RTop','npa',xl('Batch Payments'),false,2);?>
 	  <?php genMiscLink('RTop','eob','0',xl('Posting'), 'billing/sl_eob_search.php'); ?>
@@ -1184,8 +1184,8 @@ if (!empty($reg)) {
     <ul>
 	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
 	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
-      
-	<?php 	
+
+	<?php
 		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
 		if (sqlNumRows($module_query)) {
 		  while ($modulerow = sqlFetchArray($module_query)) {
@@ -1197,11 +1197,11 @@ if (!empty($reg)) {
 		  			$modulePath = $GLOBALS['customModDir'];
 		  			$added		= "";
 		  		}
-		  		else{ 	
+		  		else{
 					$added		= "index";
 		  			$modulePath = $GLOBALS['zendModDir'];
 		  		}
-		  			
+
 		 		$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
                                 $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
 			?>
@@ -1286,7 +1286,7 @@ if (!empty($reg)) {
             if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('eRx Logs'),'logview/erx_logview.php');
           }
           ?>
-          <?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
+          <?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) genMiscLink('RTop','adm','0',xl('Database'),'../vendor/phpmyadmin/phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Native Data Loads'),'../interface/super/load_codes.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('External Data Loads'),'../interface/code_systems/dataloads_ajax.php'); ?>
@@ -1299,9 +1299,9 @@ if (!empty($reg)) {
   <?php } ?>
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
-				<?php 	
+				<?php
 				$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
 				if (sqlNumRows($module_query)) {
 					$jid = 0;
@@ -1313,14 +1313,14 @@ if (!empty($reg)) {
 								$modulePath = $GLOBALS['customModDir'];
 								$added		= "";
 							}
-							else{ 	
+							else{
 								$added		= "index";
 								$modulePath = $GLOBALS['zendModDir'];
 							}
-								
+
 						$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
 						$mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
-						
+
 						if($jid==0 || ($modid!=$modulerow['mod_id'])){
 							if($modid!='')
 							echo "</ul>";
@@ -1358,7 +1358,7 @@ if (!empty($reg)) {
       <li><a class="collapsed_lv2"><span><?php xl('Visits','e') ?></span></a>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
-          <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Patient Flow Board'),'reports/patient_flow_board_report.php'); ?>          
+          <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Patient Flow Board'),'reports/patient_flow_board_report.php'); ?>
           <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appt-Enc'),'reports/appt_encounter_report.php'); ?>
 <?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>
@@ -1366,7 +1366,7 @@ if (!empty($reg)) {
 <?php } ?>
 	  <?php  genMiscLink('RTop','rep','0',xl('Eligibility'),'reports/edi_270.php'); ?>
 	  <?php  genMiscLink('RTop','rep','0',xl('Eligibility Response'),'reports/edi_271.php'); ?>
-	  
+
 
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Chart Activity'),'reports/chart_location_activity.php'); ?>
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Charts Out'),'reports/charts_checked_out.php'); ?>
@@ -1453,7 +1453,7 @@ if (!empty($reg)) {
   </li>
   <li><a class="collapsed" id="misimg" ><span><?php xl('Miscellaneous','e') ?></span></a>
     <ul>
-      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?> 
+      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>

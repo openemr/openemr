@@ -1,0 +1,14 @@
+{
+	"name": "openemr/openemr",
+	"description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
+	"license": "GPL",
+	"require": {
+		"phpmyadmin/phpmyadmin": "4.5.4.1"
+	},
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://www.phpmyadmin.net/packages.json"
+		}
+	]
+}
