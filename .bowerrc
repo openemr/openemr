@@ -1,6 +1,8 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "jquery",
+    "imagesloaded",
     "react"
   ]
 }
