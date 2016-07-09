@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column nowrap" order="1">
+
+<css lib="datatables fixedcolumns select"/>
+<js lib="jquery datatables fixedcolumns select">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		scrollY:        300,
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true,
+		select:         true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Select - whole row</title>
+
+<info><![CDATA[
+
+This example shows the [Select extension](//datatables.net/extensions/select) for DataTables being used with FixedColumns. With Select the end user has the ability to select elements in the table - in the case below this is done by clicking on the table cells (including in the fixed column) to select cells. Select is enabled using `se-init select`, which also provides its own configuration options.
+
+]]></info>
+
+</dt-example>

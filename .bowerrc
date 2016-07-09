@@ -1,6 +1,7 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "datatables",
     "jquery",
     "imagesloaded",
     "react"

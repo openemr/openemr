@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="FixedColumns">
+	<name>fixedColumns.heightMatch</name>
+	<summary>Row height matching algorithm to use</summary>
+	<since>3.1.0</since>
+
+	<type type="string">
+		<description>
+			The algorithm to use. This can be one of (see below for full description):
+
+			* `-string none`
+			* `-string semiauto`
+			* `-string auto`
+		</description>
+	</type>
+
+	<default value="semiauto">
+		The `-string semiauto` algorithm is used.
+	</default>
+
+	<description>
+		FixedColumns operates by cloning the cells from the original table and then inserting them into the document, positioned visually above the DataTable - thus allowing them to appear fixed.
+
+		As the fixed columns are separate HTML tables from the main table the row heights for the two must be matched - otherwise misalignment can occur.
+
+		FixedColumns has three different algorithms that it can use:
+
+		* `-string none` - will result in no height matching being applied by FixedColumns (height matching could be forced by CSS in this case)
+		* `-string semiauto` - whereby the height calculation will be performed once, and the result cached to be used again
+		* `-string auto` - height matching is performed on every draw (slowest but must accurate).
+	</description>
+
+	<example title="Allow CSS to set the row height"><![CDATA[
+
+$('#example').DataTable( {
+	fixedColumns: {
+		heightMatch: 'none'
+	}
+} );
+
+]]></example>
+</dt-option>

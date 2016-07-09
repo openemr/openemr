@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="0">
+
+<title lib="FixedHeader">Initialisation and options</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+The following examples show how FixedHeader can be enabled on a DataTable and its various options used.
+
+]]></info>
+
+</dt-example>

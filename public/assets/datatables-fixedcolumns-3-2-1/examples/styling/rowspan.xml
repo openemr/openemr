@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-complex-header" table-class="stripe row-border order-column" order="4">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td {
+		white-space: nowrap;
+		padding-left: 40px !important;
+		padding-right: 40px !important;
+	}
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Complex headers</title>
+
+<info><![CDATA[
+
+If you are using multiple rows in the table header, it can be useful to have a rowspanning cell on the column(s) you have fixed in place - equally at other times it can be useful to not and make use of the two or more cells per column. FixedColumns builds on the complex header support in DataTables to make this trivial to use in FixedColumns. Just initialise your FixedColumns instance as you normally would!
+
+]]></info>
+
+</dt-example>

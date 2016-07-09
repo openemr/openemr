@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="7">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+
+	tr { height: 50px; }
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   {
+			heightMatch: 'none'
+		}
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">CSS row sizing</title>
+
+<info><![CDATA[
+
+Because of the method FixedColumns uses to display the fixed columns, an important consideration is the alignment of the rows due to different heights in the individual rows of the table. There are two different algorithms in FixedColumns which can be used, or you can switch off automatic row sizing all together. This is controlled through the `heightMatch` parameter. If can take the following values:
+
+*   `dt-string none` - no automatic row height matching is performed. CSS can be used in this case and is useful when speed is of primary importance.
+*   `dt-string semiauto` (default) - the height calculation will be performed once, and the result cached to be used again (`fnRecalculateHeight` can be used to force recalculation)
+*   `dt-string auto` - height matching is performed on every draw (slowest but must accurate)
+
+This example shows row height matching switched off but there is a CSS statement of `tr { height: 50px }` to force all rows to the same height.
+
+]]></info>
+
+</dt-example>

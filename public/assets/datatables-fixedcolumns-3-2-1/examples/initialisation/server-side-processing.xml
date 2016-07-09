@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="ajax" table-class="stripe row-border order-column" order="6">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 600px;
+		margin: 0 auto;
+	}
+
+	/* Lots of padding for the cells as SSP has limited data in the demo */
+	th,
+	td {
+		padding-left: 40px !important;
+		padding-right: 40px !important;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		ajax:           "../../../../examples/server_side/scripts/server_processing.php",
+		serverSide:     true,
+		fixedColumns:   true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Server-side processing</title>
+
+<info><![CDATA[
+
+This example shows how FixedColumns can be used with server-side processing in DataTables to cope with very large tables. No special considerations are required, just initialise FixedColumns as you normally would!
+
+Note that the table width is constrained in this example to allow scrolling to occur as the server-side processing data set has a limited number of columns in this demo!
+
+]]></info>
+
+</dt-example>
