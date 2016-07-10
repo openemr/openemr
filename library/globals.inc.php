@@ -111,6 +111,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'calendar_view_type',
                                'event_color',
                                'pat_trkr_timer',
+                               'ptkr_visit_reason',
                                'checkout_roll_off',
                                'ptkr_pt_list_new_window',                               
                                'erx_import_status_message');
@@ -1265,6 +1266,27 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('When Checked, Demographics Will Open in New Window from Patient Flow Board.')
     ),
+    
+    'ptkr_visit_reason' => array(
+      xl('Show Visit Reason in Patient Flow Board'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('When Checked, Visit Reason Will Show in Patient Flow Board.')
+    ),  
+
+    'ptkr_show_pid' => array(
+      xl('Show Patient ID in Patient Flow Board'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('When Checked, Patient ID Will Show in Patient Flow Board.')
+    ),  
+	
+    'ptkr_show_encounter' => array(
+      xl('Show Patient Encounter Number in Patient Flow Board'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
+    ),  
 	
     'pat_trkr_timer' => array(
       xl('Patient Flow Board Timer Interval'),
