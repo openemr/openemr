@@ -102,7 +102,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     }
     else {
       // Main OpenEMR use
-      header('Location: ../login/login_frame.php?site='.$tmp); // Assuming in the interface/main directory
+      header('Location: ../login/login.php?site='.$tmp); // Assuming in the interface/main directory
     }
     exit;
   }
@@ -146,7 +146,7 @@ $GLOBALS['webroot'] = $web_root;
 
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
-$GLOBALS['assets_static_relative'] = "$web_root/interface/static";
+$GLOBALS['assets_static_relative'] = "$web_root/public/assets";
 
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;

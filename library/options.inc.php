@@ -1054,6 +1054,28 @@ function generate_form_field($frow, $currvalue) {
       $description, $showEmpty ? $empty_title : '', '', $onchange, '', null, true, $backup_list);
   	
   }
+
+  // Canvas and related elements for browser-side image drawing.
+  // Note you must invoke lbf_canvas_head() (below) to use this field type in a form.
+  else if ($data_type == 40) {
+    // Unlike other field types, width and height are in pixels.
+    $canWidth  = intval($frow['fld_length']);
+    $canHeight = intval($frow['fld_rows']);
+    if (empty($currvalue)) {
+      if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', $frow['description'], $matches)) {
+        // If defined this is the filename of the default starting image.
+        $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
+      }
+    }
+    echo "<div id='form_$field_id_esc'></div>";
+    // Hidden form field exists to send updated data to the server at submit time.
+    echo "<input type='hidden' name='form_$field_id_esc' value='' />";
+    // Hidden image exists to support initialization of the canvas.
+    echo "<img src='" . attr($currvalue) . "' id='form_{$field_id_esc}_img' style='display:none'>";
+    // $date_init is a misnomer but it's the place for browser-side setup logic.
+    $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
+  }
+
 }
 
 function generate_print_field($frow, $currvalue) {
@@ -1639,6 +1661,11 @@ function generate_print_field($frow, $currvalue) {
   	}
   }
 
+  // Image from canvas drawing
+  else if ($data_type == 40) {
+    echo "<img src='" . attr($currvalue) . "'>";
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -1977,26 +2004,27 @@ function generate_display_field($frow, $currvalue) {
   //  Supports backup lists
   else if ($data_type == 36) {
     $values_array = explode("|", $currvalue);
-    
     $i = 0;
     foreach($values_array as $value) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-          "WHERE list_id = ? AND option_id = ?", array($list_id,$value) );
-      
+        "WHERE list_id = ? AND option_id = ?", array($list_id,$value) );
       if ($lrow == 0 && !empty($backup_list)) {
-      	//use back up list
-      	$lrow = sqlQuery("SELECT title FROM list_options " .
-      			"WHERE list_id = ? AND option_id = ?", array($backup_list,$value) );
+        //use back up list
+        $lrow = sqlQuery("SELECT title FROM list_options " .
+          "WHERE list_id = ? AND option_id = ?", array($backup_list,$value) );
       }
-      
       if ($i > 0) {
         $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
-	  } else {
+	    } else {
         $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
       }
-
       $i++;
     }
+  }
+
+  // Image from canvas drawing
+  else if ($data_type == 40) {
+    $s .= "<img src='" . attr($currvalue) . "'>";
   }
 
   return $s;
@@ -2769,12 +2797,23 @@ function generate_layout_validation($form_id) {
     "ORDER BY group_name, seq", array($form_id) );
 
   while ($frow = sqlFetchArray($fres)) {
-    if ($frow['uor'] < 2) continue;
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];
     $fldtitle  = $frow['title'];
     if (!$fldtitle) $fldtitle  = $frow['description'];
-    $fldname   = htmlspecialchars( "form_$field_id", ENT_QUOTES);
+    $fldname   = htmlspecialchars("form_$field_id", ENT_QUOTES);
+
+    if ($data_type == 40) {
+      $fldid = addslashes("form_$field_id");
+      // Move canvas image data to its hidden form field so the server will get it.
+      echo
+      " var canfld = f['$fldid'];\n" .
+      " if (canfld) canfld.value = lbfCanvasGetData('$fldid');\n";
+      continue;
+    }
+
+    if ($frow['uor'] < 2) continue;
+
     switch($data_type) {
       case  1:
       case 11:
@@ -3121,6 +3160,51 @@ function lbf_current_value($frow, $formid, $encounter) {
     if (function_exists($deffname)) $currvalue = call_user_func($deffname);
   }
   return $currvalue;
+}
+
+// This returns stuff that needs to go into the <head> section of a caller using
+// the drawable image field type in a form.
+// A TRUE argument makes the widget 25% less tall.
+//
+function lbf_canvas_head($small=FALSE) {
+  $s = <<<EOD
+<link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-dom.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/js/literallycanvas.min.js"></script>
+EOD;
+  if ($small) $s .= <<<EOD
+<style>
+/* Custom LiterallyCanvas styling.
+ * This makes the widget 25% less tall and adjusts some other things accordingly.
+ */
+.literally {
+  min-height:292px;min-width:300px;        /* Was 400, unspecified */
+}
+.literally .lc-picker .toolbar-button {
+  width:20px;height:20px;line-height:20px; /* Was 26, 26, 26 */
+}
+.literally .color-well {
+  font-size:8px;width:49px;                /* Was 10, 60 */
+}
+.literally .color-well-color-container {
+  width:21px;height:21px;                  /* Was 28, 28 */
+}
+.literally .lc-picker {
+  width:50px;                              /* Was 61 */
+}
+.literally .lc-drawing.with-gui {
+  left:50px;                               /* Was 61 */
+}
+.literally .lc-options {
+  left:50px;                               /* Was 61 */
+}
+.literally .color-picker-popup {
+  left:49px;bottom:0px;                   /* Was 60, 31 */
+}
+</style>
+EOD;
+  return $s;
 }
 
 ?>

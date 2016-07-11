@@ -338,6 +338,9 @@
 		//Procedures
 		getAllProcedures($xml, $patient_id);
 		
+		//Lab Tests
+		getAllLabTests($xml, $patient_id);
+		
 		//Interventions
 		getAllInterventionProcedures($xml,$patient_id);
 		
@@ -611,6 +614,51 @@
 			}
 		}
 	}
+	
+	function getAllLabTests($xml, $patient_id){
+		global $encCheckUniqId, $from_date, $to_date;
+		$procArr = allProcPat("laboratory_test", $patient_id, $from_date, $to_date);
+		foreach($procArr as $procRow){
+			$vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($procRow['procedure_code'],$xml->nqf_code));
+			if(!empty($vset['valueset'])){
+				//Entry open
+				$xml->open_entry();
+					
+				//procedure Open
+				$xml->open_customTag('procedure', array('classCode'=>'PROC', 'moodCode'=>'EVN'));
+										
+				$tempID = "2.16.840.1.113883.10.20.24.3.38";
+				$xml->self_templateid($tempID);
+						
+				//$refID = getUuid();
+				$refID = $encCheckUniqId[$procRow['encounter']];
+				$xml->self_customId($refID);
+					
+					
+				$arr = array('code'=>$procRow['procedure_code'], 'codeSystem'=> $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+				//code Open
+				$xml->open_customTag('code', $arr);
+				$xml->element('originalText', $procRow['procedure_name']);
+				//code Close
+				$xml->close_customTag();
+					
+				$xml->element('text', $procRow['procedure_name']);
+					
+				$arr = array('code'=>'completed');
+				$xml->self_customTag('statusCode', $arr);
+					
+				$timeArr = array('low'=>date('Ymdhis', strtotime($procRow['date_ordered'])), 'high'=>date('Ymdhis', strtotime($procRow['date_ordered'])));
+				$xml->add_entryEffectTimeQRDA($timeArr);
+					
+				//procedure Close
+				$xml->close_customTag();
+					
+				//Entry close
+				$xml->close_entry();
+			}
+		}
+	}
+	
 	
 	function getAllInterventionProcedures($xml, $patient_id){
 		global $encCheckUniqId, $from_date, $to_date;
@@ -924,12 +972,14 @@
 	
 	//Encounters function
 	function getAllPatientEncounters($xml, $patient_id){
-		global $encCheckUniqId, $from_date, $to_date;
+		global $encCheckUniqId, $from_date, $to_date,$EncounterCptCodes;
 		$encArr = allEncPat($patient_id, $from_date, $to_date);
 		
 		foreach($encArr as $encRow){
 			
 			$encRow['encounter'];
+			$cpt_code = $EncounterCptCodes[str_replace(' ','_',strtolower($encRow['pc_catname']))];
+			$cpt_code = empty($cpt_code) ? '99201' : $cpt_code;
 			$vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?",array('99201',$xml->nqf_code));
 			foreach ($vset as $v){
 			//Entry open
@@ -949,7 +999,7 @@
 			$encCheckUniqId[$encRow['encounter']] = $refID;
 			
 			
-			$arr = array('code'=>'99201', 'codeSystem'=>$v['code_system'],'sdtc:valueSet' => $v['valueset']);
+			$arr = array('code'=>$cpt_code, 'codeSystem'=>$v['code_system'],'sdtc:valueSet' => $v['valueset']);
 			$xml->self_codeCustom($arr);
 			
 			$arr = array('code'=>'completed');

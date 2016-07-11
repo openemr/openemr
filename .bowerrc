@@ -1,3 +1,9 @@
 {
-	"directory": "interface/static"
+  "directory": "public/assets",
+  "ignoredDependencies": [
+    "datatables",
+    "jquery",
+    "imagesloaded",
+    "react"
+  ]
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2015 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -74,7 +74,8 @@ $datatypes = array(
   "33" => xl("Race and Ethnicity"),
   "34" => xl("NationNotes"),
   "35" => xl("Facilities"),
-  "36" => xl("Multiple Select List")
+  "36" => xl("Multiple Select List"),
+  "40" => xl("Image canvas"),
 );
 
 $sources = array(
@@ -477,17 +478,18 @@ function writeFieldLine($linedata) {
       $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
       $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
       $linedata['data_type'] == 27 || $linedata['data_type'] == 28 ||
-      $linedata['data_type'] == 32)
-    {
+      $linedata['data_type'] == 32 || $linedata['data_type'] == 15 ||
+      $linedata['data_type'] == 40
+    ) {
       // Show the width field
       echo "<input type='text' name='fld[$fld_line_no][lengthWidth]' value='" .
         htmlspecialchars($linedata['fld_length'], ENT_QUOTES) .
-        "' size='1' maxlength='10' class='optin' title='" . xla('Width') . "' />";
-      if ($linedata['data_type'] == 3) {
+        "' size='2' maxlength='10' class='optin' title='" . xla('Width') . "' />";
+      if ($linedata['data_type'] == 3 || $linedata['data_type'] == 40) {
         // Show the height field
         echo "<input type='text' name='fld[$fld_line_no][lengthHeight]' value='" .
           htmlspecialchars($linedata['fld_rows'], ENT_QUOTES) .
-          "' size='1' maxlength='10' class='optin' title='" . xla('Height') . "' />";
+          "' size='2' maxlength='10' class='optin' title='" . xla('Height') . "' />";
       }
       else {
         // Hide the height field
@@ -753,12 +755,14 @@ a, a:visited, a:hover { color:#0000cc; }
 .optin    { background: transparent; }
 .group {
     margin: 0pt 0pt 8pt 0pt;
-    padding: 0;
-    width: 100%;
+    padding :0pt;
+    width: 100%;   
 }
+
 .group table {
     border-collapse: collapse;
     width: 100%;
+    
 }
 .odd td {
     background-color: #ddddff;
@@ -779,7 +783,8 @@ a, a:visited, a:hover { color:#0000cc; }
     background-color: yellow;
     color: black;
 }
-</style>
+
+</style> 
 
 <script language="JavaScript">
 
@@ -926,11 +931,31 @@ function cidChanged(lino, seq) {
   setListItemOptions(lino, seq, false);
 }
 
+// Call this to disable the warning about unsaved changes and submit the form.
+function mySubmit() {
+ somethingChanged = false;
+ top.restoreSession();
+ document.forms[0].submit();
+}
+
+// User is about to do something that would discard any unsaved changes.
+// Return true if that is OK.
+function myChangeCheck() {
+  if (somethingChanged) {
+    if (!confirm('<?php echo xls('You have unsaved changes. Abandon them?'); ?>')) {
+      return false;
+    }
+    // Do not set somethingChanged to false here because if they cancel the
+    // action then the previously changed values will still be of interest.
+  }
+  return true;
+}
+
 </script>
 
 </head>
 
-<body class="body_top">
+<body class="body_top admin-layout">
 
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="formaction" id="formaction" value="">
@@ -945,8 +970,9 @@ function cidChanged(lino, seq) {
 <!-- elements used to select more than one field -->
 <input type="hidden" name="selectedfields" id="selectedfields" value="">
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
-
-<p><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
+<div class="menubar">
+<div>
+<b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
@@ -956,14 +982,18 @@ foreach ($layouts as $key => $value) {
   echo ">$value</option>\n";
 }
 ?>
-</select></p>
-
+</select></div><div><p>
 <?php if ($layout_id) { ?>
-<div style='margin: 0 0 8pt 0;'>
 <input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group','e','\'','\''); ?>/>
+<span style="font-size:90%"> &nbsp;
+<input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' /></span> &nbsp;&nbsp;
+<?php xl('With selected:', 'e');?>
+<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" /></span>
+</p></div>
 </div>
+<div class="container">
 <?php } ?>
-
 <?php 
 $prevgroup = "!@#asdf1234"; // an unlikely group name
 $firstgroup = true; // flag indicates it's the first group to be displayed
@@ -994,7 +1024,6 @@ while ($row = sqlFetchArray($res)) {
     echo "</div>";
     $firstgroup = false;
 ?>
-
 <table>
 <thead>
  <tr class='head'>
@@ -1038,17 +1067,6 @@ while ($row = sqlFetchArray($res)) {
 </table></div>
 
 <?php echo $extra_html; ?>
-
-<?php if ($layout_id) { ?>
-<span style="font-size:90%">
-<?php xl('With selected:', 'e');?>
-<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" />
-</span>
-<p>
-<input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' />
-</p>
-<?php } ?>
 
 </form>
 
@@ -1238,6 +1256,9 @@ foreach ($datatypes as $key=>$value) {
 // used when selecting a list-name for a field
 var selectedfield;
 
+// Support for beforeunload handler.
+var somethingChanged = false;
+
 // Get the next logical sequence number for a field in the specified group.
 // Note it guesses and uses the existing increment value.
 function getNextSeq(group) {
@@ -1261,19 +1282,22 @@ function getNextSeq(group) {
 
 $(document).ready(function(){
     $("#save").click(function() { SaveChanges(); });
-    $("#layout_id").change(function() { $('#theform').submit(); });
+    $("#layout_id").change(function() {
+      if (!myChangeCheck()) {
+        $("#layout_id").val("<?php echo $layout_id; ?>");
+        return;
+      }
+      mySubmit();
+    });
 
     $(".addgroup").click(function() { AddGroup(this); });
     $(".savenewgroup").click(function() { SaveNewGroup(this); });
     $(".deletegroup").click(function() { DeleteGroup(this); });
     $(".cancelnewgroup").click(function() { CancelNewGroup(this); });
-
     $(".movegroup").click(function() { MoveGroup(this); });
-
     $(".renamegroup").click(function() { RenameGroup(this); });
     $(".saverenamegroup").click(function() { SaveRenameGroup(this); });
     $(".cancelrenamegroup").click(function() { CancelRenameGroup(this); });
-
     $(".addfield").click(function() { AddField(this); });
     $("#deletefields").click(function() { DeleteFields(this); });
     $(".selectfield").click(function() { 
@@ -1287,6 +1311,7 @@ $(document).ready(function(){
             if ($(this).attr("checked") == true) {
                 $("#deletefields").removeAttr("disabled");
                 $("#movefields").removeAttr("disabled");
+              
             }
         });
     });
@@ -1304,7 +1329,7 @@ $(document).ready(function(){
     // Save the changes made to the form
     var SaveChanges = function () {
         $("#formaction").val("save");
-        $("#theform").submit();
+        mySubmit();
     }
 
     /****************************************************/
@@ -1313,6 +1338,8 @@ $(document).ready(function(){
 
     // display the 'new group' DIV
     var AddGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         // show the field details DIV
         $('#groupdetail').css('visibility', 'visible');
         $('#groupdetail').css('display', 'block');
@@ -1381,7 +1408,7 @@ $(document).ready(function(){
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
-        $("#theform").submit();
+        mySubmit();
     }
 
     // actually delete an entire group from the database
@@ -1403,24 +1430,27 @@ $(document).ready(function(){
         $('#groupdetail').css('display', 'none');
         // reset the new group values to a default
         $('#groupdetail > #newgroupname').val("");
+        $("#save").attr("disabled", false);
     };
 
     // display the 'new field' DIV
     var MoveGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
         var btnid = $(btnObj).attr("id");
         var parts = btnid.split("~");
         var groupid = parts[0];
         var direction = parts[1];
-
         // submit the form to change group order
         $("#formaction").val("movegroup");
         $("#movegroupname").val(groupid);
         $("#movedirection").val(direction);
-        $("#theform").submit();
+        mySubmit();
     }
 
     // show the rename group DIV
     var RenameGroup = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         $('#renamegroupdetail').css('visibility', 'visible');
         $('#renamegroupdetail').css('display', 'block');
         $(btnObj).parent().append($("#renamegroupdetail"));
@@ -1441,7 +1471,7 @@ $(document).ready(function(){
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("renamegroup");
-        $("#theform").submit();
+        mySubmit();
     }
 
     // just hide the new field DIV
@@ -1460,6 +1490,8 @@ $(document).ready(function(){
 
     // display the 'new field' DIV
     var AddField = function(btnObj) {
+        if (!myChangeCheck()) return;
+        $("#save").attr("disabled", true);
         // update the fieldgroup value to be the groupid
         var btnid = $(btnObj).attr("id");
         var parts = btnid.split("~");
@@ -1474,6 +1506,7 @@ $(document).ready(function(){
     };
 
     var DeleteFields = function(btnObj) {
+        if (!myChangeCheck()) return;
         if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the selected fields?','e'); ?>")) {
             var delim = "";
             $(".selectfield").each(function(i) {
@@ -1487,7 +1520,7 @@ $(document).ready(function(){
             });
             // submit the form to delete the field(s)
             $("#formaction").val("deletefields");
-            $("#theform").submit();
+            mySubmit();
         }
     };
     
@@ -1532,7 +1565,7 @@ $(document).ready(function(){
     
         // submit the form to add a new field to a specific group
         $("#formaction").val("addfield");
-        $("#theform").submit();
+        mySubmit();
     };
     
     // just hide the new field DIV
@@ -1542,6 +1575,7 @@ $(document).ready(function(){
         $('#fielddetail').css('display', 'none');
         // reset the new field values to a default
         ResetNewFieldValues();
+        $("#save").attr("disabled", false);
     };
 
     // show the popup choice of lists
@@ -1552,6 +1586,7 @@ $(document).ready(function(){
     
     // show the popup choice of groups
     var ShowGroups = function(btnObj) {
+        if (!myChangeCheck()) return;
         window.open("./show_groups_popup.php?layout_id=<?php echo $layout_id;?>", "groups", "width=300,height=300,scrollbars=yes");
     };
     
@@ -1584,6 +1619,18 @@ $(document).ready(function(){
         setListItemOptions(lino, seq, true);
       }
     }
+
+  // Support for beforeunload handler.
+  $('tbody input, tbody select, tbody textarea').not('.selectfield').change(function() {
+    somethingChanged = true;
+  });
+  window.addEventListener("beforeunload", function (e) {
+    if (somethingChanged && !top.timed_out) {
+      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      e.returnValue = msg;     // Gecko, Trident, Chrome 34+
+      return msg;              // Gecko, WebKit, Chrome <34
+    }
+  });
 
 });
 
@@ -1672,7 +1719,7 @@ function MoveFields(targetgroup) {
         }
     });
     $("#formaction").val("movefields");
-    $("#theform").submit();
+    mySubmit();
 };
 
 // set the new-field values to a default state

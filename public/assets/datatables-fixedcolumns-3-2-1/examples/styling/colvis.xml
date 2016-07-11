@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="5">
+
+<css lib="datatables fixedcolumns buttons">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+
+	div.ColVis {
+		float: left;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns buttons buttons-colvis">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		dom:            "Bfrtip",
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		buttons:        [ 'colvis' ],
+		fixedColumns:   {
+			leftColumns: 2
+		}
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Column visibility integration</title>
+
+<info><![CDATA[
+
+FixedColumns operates with DataTables' built-in column visibility options (`dt-init columns.visible` and `dt-api column().visible()`), which columns that are hidden not being shown in the fixed columns. This integration also means that FixedColumns works well with the column visibility module of the [Buttons extension](http://datatables.net/extensions/buttons), with columns that are dynamically shown and hidden updated immediately in the fixed columns.
+
+The example below shows Buttons and FixedColumns working together. Two columns have been fixed on the left-hand-side of the table to show FixedColumns ability to work effortlessly with column visibility.
+
+]]></info>
+
+</dt-example>

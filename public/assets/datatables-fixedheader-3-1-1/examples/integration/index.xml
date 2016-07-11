@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="0">
+
+<title lib="FixedHeader">Integration with other DataTables extensions</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+FixedHeader will work "out of the box" with most other DataTables extensions. The following examples show it being used with various other extensions.
+
+]]></info>
+
+</dt-example>

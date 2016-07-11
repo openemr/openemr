@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="9">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		margin: 0 auto;
+	}
+
+	div.container {
+		width: 80%;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		columnDefs: [
+			{ width: '20%', targets: 0 }
+		],
+		fixedColumns: true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Fluid column width</title>
+
+<info><![CDATA[
+
+The columns that are fixed in place by FixedColumns take their width from the parent DataTable. As such, the width of the column can be controlled using the `dt-init columns.width` option.
+
+This example shows the first column being set to `width: 20%` (note that this is not pixel perfect in a table, the browser will make some adjustments!), a width that is reflected in the fixed column. Resize the browser window horizontally and you will be able to see that the fixed column retains its proportional width (again with a small margin dictated by the browser) in the resizing table.
+
+]]></info>
+
+</dt-example>

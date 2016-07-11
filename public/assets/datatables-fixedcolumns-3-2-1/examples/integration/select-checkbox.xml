@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide-index" table-class="stripe row-border order-column nowrap" order="2">
+
+<css lib="datatables fixedcolumns select"/>
+<js lib="jquery datatables fixedcolumns select">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		scrollY:        300,
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true,
+		columnDefs: [ {
+			orderable: false,
+			className: 'select-checkbox',
+			targets:   0
+		} ],
+		select: {
+			style:    'os',
+			selector: 'td:first-child'
+		},
+		order: [[ 1, 'asc' ]]
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Select - checkboxes</title>
+
+<info><![CDATA[
+
+The [Select extension](//datatables.net/extensions/select) for DataTables has the ability to show a checkbox column to allow row selection and this is a natural fit for FixedColumns where you can have the checkbox column fixed and easily accessible.
+
+The [Select extension's documentation](//datatables.net/extensions/select/examples/initialisation/checkbox.html) details the checkbox selection options in detail, but note that support is automatic for FixedColumns. No additional configuration is required in order to be able use both together.
+
+]]></info>
+
+</dt-example>

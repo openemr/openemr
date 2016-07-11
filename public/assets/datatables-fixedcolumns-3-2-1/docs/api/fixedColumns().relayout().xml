@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedColumns">
+	<name>fixedColumns().relayout()</name>
+	<summary>Redraw the fixed columns based on new table size</summary>
+	<since>3.1.0</since>
+
+	<type type="function">
+		<signature>fixedColumns().relayout()</signature>
+		<returns type="DataTables.Api">
+			DataTables API instance
+		</returns>
+		<description>
+			Recalculate the fixed columns sizes and positions, redrawing them on pages based on the latest DataTable data and position.
+		</description>
+	</type>
+
+	<description>
+		If a table's position on the page is altered or its visibility is changed (for example it is created while hidden in a tab) then the fixed columns will need to be updated to match the table's new sizing. This method provides that ability.
+
+		Note that this method will automatically call `fc-api fixedColumns().update()`. You are not required to call these methods separately.
+	</description>
+
+	<example title="Recalculate the layout for all visible tables on a page"><![CDATA[
+
+$.fn.dataTable
+	.tables( { visible: true, api: true } )
+	.columns.adjust()
+	.fixedColumns().relayout();
+
+]]></example>
+</dt-api>

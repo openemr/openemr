@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="Scroller">
+	<name>scroller</name>
+	<summary>Enable and configure the Scroller extension for DataTables</summary>
+
+	<type type="boolean">
+		<description>
+			As a boolean value this property will enable Scroller on the DataTable that is being created. `true` will enable Scroller, while `false` will not.
+
+			This is a short-cut option to enable Scroller with the default configuration options. Customisations can be made by giving this parameter as an object, see below.
+		</description>
+	</type>
+
+	<type type="object">
+		<description>
+			If given as an object, Scroller will be enabled on the target DataTable, with default values (`$.fn.dataTable.Scroller.defaults`) extended, and potentially overwritten, by the options provided in this object. This is how Scroller can be configured on an individual table basis, or through the defaults.
+		</description>
+	</type>
+
+	<default value="undefined">
+		Scroller will not be initialised by default
+	</default>
+
+	<description>
+		Scroller is an extension for DataTables that provides _virtual rendering_ support - i.e. it will draw only the small visible section of the table (plus a small overlap for smooth scrolling), even although in the scrolling viewport it will appear visually to the end user that the whole table is available. This can significantly improve performance for large data sets where you don't wish to display paging controls.
+
+		There are two important requirements to consider when using Scroller:
+
+		* Paging _must_ be enabled in DataTables (`dt-init paging` - it is by default)
+		* All rows _must_ be of equal height. This is to allow row height calculations for rows which have not yet been rendered.
+
+		This option provides the ability to enable and configure Scroller for DataTables. In its simplest form as the boolean `true` it will enable Scroller with the default configuration options (as defined by `$.fn.dataTable.Scroller.defaults`). It can also be used as an object to provide custom configuration options as described below.
+
+		Please note that as with all other configuration options for Scroller, this option is an extension to the [default set of DataTables options](/reference/option). This property should be set in the DataTables initialisation object.
+	</description>
+
+	<example title="Enable Scroller for a table"><![CDATA[
+
+$('#example').DataTable( {
+	ajax:        '/api/data',
+	deferRender: true,
+	scrollY:     true,
+	scroller:    true
+} );
+
+]]></example>
+
+	<example title="Enable Scroller with configuration options"><![CDATA[
+
+$('#example').DataTable( {
+	ajax:        '/api/data',
+	deferRender: true,
+	scrollY:     true,
+	scroller: {
+		loadingIndicator: true
+	}
+} );
+
+]]></example>
+
+</dt-option>

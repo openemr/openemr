@@ -1,0 +1,9 @@
+
+div.DTFC_LeftWrapper table.dataTable,
+div.DTFC_RightWrapper table.dataTable {
+	z-index: 2;
+
+	&.no-footer {
+		border-bottom: none;
+	}
+}

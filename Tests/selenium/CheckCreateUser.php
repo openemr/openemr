@@ -11,7 +11,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
     const BROWSER = "chrome";
     const BROWSER_URL = "http://localhost/openemr";
-    const URL = "http://localhost/openemr/interface/login/login_frame.php?site=default";
+    const URL = "http://localhost/openemr/interface/login/login.php?site=default";
     const VAR_AUTHUSER = "admin";
     const VAR_PASS = "pass";
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="0">
+
+<title lib="FixedColumns">FixedColumns examples</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+When making use of DataTables' x-axis scrolling feature (`dt-init scrollX`), you may wish to fix the left or right most columns in place. This extension for DataTables provides exactly this option (for non-scrolling tables, please use the [FixedHeader extension](//datatables.net/extensions/fixedheader), which can fix headers, footers and columns). Key features include:
+
+* Freezes the left most column to the side of the table
+* Option to freeze two or more columns
+* Full integration with DataTables' scrolling options
+
+]]></info>
+
+</dt-example>

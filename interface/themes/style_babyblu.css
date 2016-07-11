@@ -26,6 +26,19 @@ a:hover {
     text-decoration: none;
     text-align: left;
 }
+.menuBar{
+    width:100%;
+    height:auto;
+    display:block;
+    position:fixed;
+    top:0;
+    background-color:#EAE6FF;
+    z-index:100;
+     }
+    
+    .container{ 
+    margin-top:95px;
+}
 
 .menu_selected {
     font-family: sans-serif;

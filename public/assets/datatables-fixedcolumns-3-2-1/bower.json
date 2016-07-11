@@ -1,0 +1,11 @@
+{
+	"name": "datatables-fixedcolumns",
+	"main": [
+		"js/dataTables.fixedColumns.js",
+		"css/fixedColumns.dataTables.scss"
+	],
+	"dependencies": {
+		"jquery": ">=1.7.0",
+		"datatables": ">=1.8.0"
+	}
+}

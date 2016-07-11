@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="Scroller">
+	<name>row().scrollTo()</name>
+	<summary>Scroll to a specific row</summary>
+	<since>1.3.0</since>
+
+	<type type="function">
+		<signature>row().scrollTo( animate )</signature>
+		<description>Redraw the table's scrolling display to show the row selected by the `dt-api row()` method.</description>
+		<parameter type="boolean" name="animate" default="true">
+			Animate the scroll (`true`) or not (`false`).
+		</parameter>
+		<returns type="DataTables.Api">DataTables API instance for chaining</returns>
+	</type>
+
+	<description>
+		This method can be used to jump to a specific row in the DataTable. The row is selected using the `dt-api row()` method, so all of the options available for the `-type row-selector` data type are available.
+	</description>
+
+	<example title="Animated scroll to row index 100"><![CDATA[
+
+table.row( 100 ).scrollTo();
+
+]]></example>
+
+	<example title="Immediate draw at row index 0"><![CDATA[
+
+table.row( 0 ).scrollTo();
+
+]]></example>
+</dt-api>
