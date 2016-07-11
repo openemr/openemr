@@ -798,9 +798,9 @@ enable_modals();
     $('#search').click(function() { searchme(); });
     $('#create').click(function() { check()});
 
-    var check = function() {
+    var check = function(e) {
       <?php if($GLOBALS['new_validate']){?>
-            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM");
+            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM");
       <?php }else{?>
             top.restoreSession();
             var f = document.forms[0];
