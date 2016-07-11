@@ -95,52 +95,60 @@ function checkSkipConditions() {
     }
 
     var condition = false;
-
-
+    var is_multiple = false;
+    var elem_val;
     if ( is_radio){
         for (var k = 0; k < document.getElementsByName('form_' + tofind).length; k++){
             if (document.getElementsByName('form_' + tofind)[k].checked){
-                var elem_val= document.getElementsByName('form_' + tofind)[k].value;
+                elem_val= document.getElementsByName('form_' + tofind)[k].value;
             }
         }
-    }else if( typeof srcelem.options!=="undefined"){
-        var elem_val=srcelem.options[srcelem.selectedIndex].value;
-    }else{
-        var elem_val=srcelem.value;
-        if(elem_val == null) elem_val = srcelem.getAttribute("data-value");
-        if(elem_val == null) elem_val = srcelem.innerText;
-
-    }
-    var multipleValues=[];
-    //this is a feature fix for the multiple select list option
-    //collect all the multiselect controll values:
-    if(srcelem.multiple)
-    {
+    }else if( typeof srcelem.options!=="undefined" && srcelem.type == 'select-one' ){
+        elem_val=srcelem.options[srcelem.selectedIndex].value;
+        
+    }else if( srcelem.type == 'select-multiple' ) {
+        elem_val = new Array();
+        is_multiple = true;
         for (var k = 0; k < srcelem.length; k++) {
             if (srcelem.options[k].selected) {
-                if( multipleValues.indexOf(srcelem.options[k].value)<0)
-                    multipleValues.push(srcelem.options[k].value)
+                if( elem_val.indexOf(srcelem.options[k].value)<0) {
+                    elem_val.push(srcelem.options[k].value);
                 }
+            }
         }
+    } else {
+        elem_val=srcelem.value;
 
-        //find the condition value in the list created above
-        for(var l=0;l<multipleValues.length;l++)
-        {
-              elem_val_array=multipleValues[l];
-              if(elem_val_array == value)
-              {
-                  elem_val=elem_val_array;
-
-              }
-        }
-
+        if(elem_val == null) {
+            elem_val = srcelem.getAttribute("data-value");
+            if( elem_val !== null && elem_val.indexOf("|") !== -1 ) {
+                elem_val = elem_val.split("|");
+                is_multiple = true;
+            }
+        } 
+        if(elem_val == null) elem_val = srcelem.innerText;
     }
-
-    if (operator == 'eq') condition = elem_val == value; else
-    if (operator == 'ne') condition = elem_val != value; else
-    if (operator == 'se') condition = srcelem.checked       ; else
-    if (operator == 'ns') condition = !srcelem.checked;
-
+    //this is a feature fix for the multiple select list option
+    //collect all the multiselect control values:
+    if( is_multiple ) {
+        switch(operator) {
+            case 'eq':
+                condition = (-1 !== elem_val.indexOf(value));break;
+            case 'ne':
+                condition = (-1 == elem_val.indexOf(value)); break;
+            case 'se':
+                condition = srcelem.checked  ; break; // doesn't make sense?
+            case 'ns': 
+                condition = !srcelem.checked;  break;
+        }
+                
+    } else {
+        if (operator == 'eq') condition = elem_val == value; else
+        if (operator == 'ne') condition = elem_val != value; else
+        if (operator == 'se') condition = srcelem.checked  ; else
+        if (operator == 'ns') condition = !srcelem.checked;
+    }
+    
     // Logic to accumulate multiple conditions for the same target.
     // alert('target = ' + target + ' prevandor = ' + prevandor + ' prevcond = ' + prevcond); // debugging
     if (prevandor == 'and') condition = condition && prevcond; else
