@@ -755,12 +755,25 @@ class CarecoordinationTable extends AbstractTableGateway
 	
 	public function fetch_referral_value($referral_data)
 	{ 
+    if(is_array($referral_data['text']['paragraph'])) {
+      $i = 1;
+      foreach ($referral_data['text']['paragraph'] as $key => $value) {
+        if($value) {
+          $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$value);
+          $this->ccda_data_array['entry_identification_array']['referral'][$i]     = $i;
+          $i++;
+        }
+      }
+      
+    }
+    else {
 		$i = count($this->ccda_data_array['field_name_value_array']['referral']) + 1;
 		$this->ccda_data_array['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'];
 		$this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$referral_data['text']['paragraph']);
 
-                $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
+    $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
 		unset($referral_data);
+    }
 		return;
 	}
         
@@ -3686,8 +3699,10 @@ class CarecoordinationTable extends AbstractTableGateway
     public function InsertReferrals($arr_referral, $pid, $revapprove = 1) {
         $appTable = new ApplicationTable();
         foreach ($arr_referral as $key => $value) {
-            $query_insert = "INSERT INTO transactions(date,title,body,pid,groupname,user)VALUES(?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'Referral', $value['body'], $pid, $_SESSION["authProvider"], $_SESSION["authUser"]));
+            $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
+            $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"], $_SESSION["authUser"],$_SESSION["userauthorized"]));
+            $trans_id = $res->getGeneratedValue();
+            $appTable->zQuery("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", array($trans_id, 'body', $value['body']));
         }
     }
 

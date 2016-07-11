@@ -48,7 +48,7 @@ $form->prepare();
         <div class="se_in_15 se_in_16">
             <table>
                 <tr>
-                    <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Date'); ?></label></td>
+                    <td class="se_in_16_label"><label><?php echo $listener->z_xlt('Date'); ?></label></td>
                     <td nowrap>
                             <?php echo  $this->formRow($form->get('from_date'));?>
                             <?php echo  $this->formRow($form->get('to_date'));?>
@@ -67,6 +67,10 @@ $form->prepare();
                     </td>
                 </tr>
                 <tr>
+                    <td><label><?php echo $listener->z_xlt('Patient Name/ID'); ?></label></td>
+                    <td><input  style="width: 46% !important;" type="text" name="patient_id" value="<?php echo $this->escapeHtml($this->form_data['patient_id']);?>" /><br/></td>
+                </tr>
+                <tr>
                     <td></td>
                     <td>
                         <?php echo $this->formRow($form->get('search')); ?>
@@ -79,7 +83,7 @@ $form->prepare();
         <div class="body_inner_wrapper">
             <div class="header_wrap">
                 <div class="header_wrap_left">
-                    <div class="search_button" id="searchbutton" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
+                    <div class="search_button" id="searchbutton" title="<?php echo $listener->z_xla('Search');?>"><?php echo $listener->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
                     <?php if(count($res) > 0){?>
                     <?php echo $this->formRow($form->get('hl7button')); ?>&nbsp;&nbsp;
                     <?php
@@ -90,12 +94,12 @@ $form->prepare();
                         $this->layout('immunization/layout/layout');
                         echo $this->partial("application/sendto/send",$arr);
                     ?>
-                    <div class="se_in_3" title="reload" onclick="reloadPage();"></div>
+                    <div class="se_in_3" title="<?php echo $listener->z_xla('Reload');?>" onclick="reloadPage();"></div>
                     <?php }?>
                 </div>
                 <div class="header_wrap_right" style="<?php if(count($res) == 0){ ?>display: none;<?php } ?>">
                     <div class="se_in_4">
-                        <label style="font-size:12px;"><?php echo $this->listenerObject->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" id="form_results" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label style="font-size:12px;">&nbsp;<?php echo $this->listenerObject->z_xlt('Immunizations'); ?></label>
+                        <label style="font-size:12px;"><?php echo $listener->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" id="form_results" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label style="font-size:12px;">&nbsp;<?php echo $listener->z_xlt('Immunizations'); ?></label>
                     </div>
                     <div class="se_in_6">
                         <div class="se_in_5">
@@ -106,7 +110,7 @@ $form->prepare();
                         </div>
                         <div class="clear"></div>
                         <div class="se_in_7">
-                            <label><?php echo $this->listenerObject->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $this->listenerObject->z_xlt('of');?> <?php echo $this->escapeHtml($this->form_data['total_pages']);?></label>
+                            <label><?php echo $listener->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $listener->z_xlt('of');?> <?php echo $this->escapeHtml($this->form_data['total_pages']);?></label>
                         </div><!-- se_in_7 -->
                     </div><!-- se_in_6 -->
                 </div>
@@ -120,11 +124,11 @@ $form->prepare();
            <table class="responsive"> 
                 <tr class="se_in_9">
                         <th width="2%">#</th>
-                        <th width="10%" ><?php echo $this->listenerObject->z_xlt('Patient Id'); ?></th>
-                        <th width="15%"><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
-                        <th width="18%"><?php echo $this->listenerObject->z_xlt('Immunization Code'); ?></th>
-                        <th><?php echo $this->listenerObject->z_xlt('Immunization Title'); ?></th>
-                        <th><?php echo $this->listenerObject->z_xlt('Immunization Date'); ?></th>	
+                        <th width="10%" ><?php echo $listener->z_xlt('Patient Id'); ?></th>
+                        <th width="15%"><?php echo $listener->z_xlt('Patient Name'); ?></th>
+                        <th width="18%"><?php echo $listener->z_xlt('Immunization Code'); ?></th>
+                        <th><?php echo $listener->z_xlt('Immunization Title'); ?></th>
+                        <th><?php echo $listener->z_xlt('Immunization Date'); ?></th>	
                 </tr>
                 <?php 
                 $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']); 
@@ -136,20 +140,20 @@ $form->prepare();
                         <td width="10%"><?php echo $this->escapeHtml($value['patientid']); ?></td>
                         <td><?php echo $this->escapeHtml($value['patientname']); ?></td>
                         <td><?php echo $this->escapeHtml($value['cvx_code']); ?></td>
-                        <td><?php echo $this->escapeHtml($this->listenerObject->z_xlt($value['immunizationtitle'])); ?></td>
+                        <td><?php echo $this->escapeHtml($listener->z_xlt($value['immunizationtitle'])); ?></td>
                         <td><?php echo $this->commonplugin->date_format($value['immunizationdate'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></td>	
                 </tr>
                  <?php endforeach; ?>
                 <tr>
                     <th colspan="6">
-                    <?php echo $this->listenerObject->z_xlt('Total Number of Immunizations').':'; ?>
+                    <?php echo $listener->z_xlt('Total Number of Immunizations').':'; ?>
                     <?php echo $this->escapeHtml(sizeof($res));?>
                     </th>
                 </tr>
            </table> 
            <?php } else {?>
                 <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
-                    <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
+                    <?php echo $listener->z_xlt('Nothing to display');?>
                 </div>
            <?php }?>
         </div>
@@ -159,6 +163,5 @@ $form->prepare();
         <input type="hidden" name="form_count" id="form_count" value="<?php echo $this->escapeHtml($this->form_data['res_count']);?>" />
         <input type="hidden" name="form_new_search" id="form_new_search" value="" />
     </body>
-    <!--</div>-->
 
 <?php echo $this->form()->closeTag(); ?>

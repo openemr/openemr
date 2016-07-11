@@ -160,6 +160,7 @@ $(document).ready(function(){
         <th width="8px">&nbsp;</th>
 		    <th width="8px">&nbsp;</th>
         <th width="180px">{xl t='Drug'}</th>
+        <th>{xl t='Code'}</th>
         <th>{xl t='Created'}<br />{xl t='Changed'}</th>
         <th>{xl t='Dosage'}</th>
         <th>{xl t='Qty'}.</th>
@@ -182,12 +183,18 @@ $(document).ready(function(){
     </td>
 	<td class="editscript"  id="{$prescription->id}">
 	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note}
     </td>
 	{else}
+  <td>&nbsp;</td>
     <td id="{$prescription->id}">
 	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
+  <br />{$prescription->note}
     </td>
 	{/if}
+    <td id="{$prescription->id}">
+      {$prescription->rxnorm_drugcode}&nbsp;
+    </td>
     <td id="{$prescription->id}">
       {$prescription->date_added}<br />
       {$prescription->date_modified}&nbsp;

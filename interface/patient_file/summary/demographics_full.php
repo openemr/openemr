@@ -73,6 +73,10 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
+
+// Support for beforeunload handler.
+var somethingChanged = false;
+
 $(document).ready(function(){
     tabbify();
     enable_modals();
@@ -85,6 +89,17 @@ $(document).ready(function(){
 		'frameWidth' : 650
 	});
 
+  // Support for beforeunload handler.
+  $('.tab input, .tab select, .tab textarea').change(function() {
+    somethingChanged = true;
+  });
+  window.addEventListener("beforeunload", function (e) {
+    if (somethingChanged && !top.timed_out) {
+      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      e.returnValue = msg;     // Gecko, Trident, Chrome 34+
+      return msg;              // Gecko, WebKit, Chrome <34
+    }
+  });
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -236,7 +251,23 @@ function validate(f) {
  if ( errMsgs.length > 0 ) {
 	alert(msg);
  }
- 
+
+ //Misc  Deceased Date Validation for Future Date 
+var dateVal = document.getElementById("form_deceased_date").value;
+var currentDate;
+var d = new Date();
+month = '' + (d.getMonth() + 1),
+day = '' + d.getDate(),
+year = d.getFullYear();
+if (month.length < 2) month = '0' + month;
+if (day.length < 2) day = '0' + day;
+currentDate = year+'-'+month+'-'+day;
+if(dateVal > currentDate)
+{
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	return false;
+} 
+
 //Patient Data validations
  <?php if($GLOBALS['erx_enable']){ ?>
  alertMsg='';
@@ -309,6 +340,7 @@ function validate(f) {
 
  return errMsgs.length < 1;
 }
+
 
 
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.

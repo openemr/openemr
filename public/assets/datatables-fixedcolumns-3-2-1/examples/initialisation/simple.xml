@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="1">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		scrollY:        300,
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Basic initialisation</title>
+
+<info><![CDATA[
+
+When displaying a table which scrolls along the x-axis, it can sometimes be useful to the end user for the left most column to be fixed in place, if it shows grouping, index or similar information. This is basically the same idea as 'freeze columns' in Excel. This can be achieved with the FixedColumns plug-in for DataTables, as shown below.
+
+Note that FixedColumns is suitable only for use with the scrolling features in [DataTables](http://datatables.net). If you want to achieve a similar effect without scrolling enabled, please checkout [FixedHeader](http://datatables.net/extensions/fixedheader), also for DataTables.
+
+FixedColumns is initialised using the `fc-init fixedColumns` option as part of the DataTables construction as shown below. This example also has vertical scrolling enabled (`dt-init scrollY`) and paging disabled (`dt-init paging`).
+
+]]></info>
+
+</dt-example>

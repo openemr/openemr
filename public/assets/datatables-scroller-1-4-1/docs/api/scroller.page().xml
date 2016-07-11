@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="Scroller">
+	<name>scroller.page()</name>
+	<summary>Get information about the rows that are currently being displayed</summary>
+	<since>1.4.1</since>
+
+	<type type="function">
+		<signature>scroller.page()</signature>
+		<description>Determine the display index of the top and bottom most visible rows in the DataTable (this includes partially visible rows).</description>
+		<returns type="object">An object with the parameters `start` and `end`, defining the start and end, 0 based, _display_ indexes of the rows that are visible in the table's scrolling viewport.</returns>
+	</type>
+
+	<description>
+		It can often be useful to know what rows are being displayed in a DataTable, but this is made a bit harder in a table with Scroller enabled since it will draw only a section of the table's data, and only a part of that data will actually be visible in the viewport. This method makes it possible to know what the _display_ indexes of the shows show are.
+
+		It is important to note that these indexes are 0 based - i.e. the first row in the table is index 0. Also the indexes are in display order and do not directly map to the data index. Use the `:eq()` operator to select rows (`dt-api row()`) based on display order (see example below).
+	</description>
+
+	<example title="Get the data for the first visible row in the table"><![CDATA[
+
+var table = $('#myTable').DataTable();
+var displayIndexes = table.scroller.page();
+
+var data = table.row( ':eq('+displayIndexes.start+')', {order:'applied', search:'applied'} ).data();
+
+]]></example>
+
+	<related>dt-api page.info()</related>
+</dt-api>

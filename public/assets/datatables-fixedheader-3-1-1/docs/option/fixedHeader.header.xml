@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="FixedHeader">
+	<name>fixedHeader.header</name>
+	<summary>Enable / disable fixed header</summary>
+	<since>3.0.0</since>
+
+	<default type="boolean" value="true"/>
+
+	<type type="boolean">
+		<description>
+			Enable the fixing of the table header (`true`) or disable (`false`).
+		</description>
+	</type>
+
+	<description>
+		This parameter simply provides the ability to enable or disable the fixed header aspect of the FixedHeader extension. When enabled the table's header will be _sticky_, so it will always be visible while the end user scrolls through a DataTables.
+	</description>
+
+	<example title="Disable the header, but enable footer"><![CDATA[
+
+$('#example').DataTable( {
+	fixedHeader: {
+		header: false,
+		footer: true
+	}
+} );
+
+]]></example>
+</dt-option>

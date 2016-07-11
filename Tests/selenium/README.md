@@ -28,6 +28,7 @@ To have a complete set of test they should include:
 ## Installation:
 
 The test works for OpenEMR installed on local computer. You'll need Chrome browser :)
+(Note that with a simple code change, there is also the option of using the Firefox browser)
 
 ### Install Composer and packages
 

@@ -60,7 +60,7 @@ class C_Prescription extends Controller {
 
 			$res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
 				"d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
-				"t.period, t.quantity, t.refills " .
+				"t.period, t.quantity, t.refills, d.drug_code " .
 				"FROM drug_templates AS t, drugs AS d WHERE " .
 				"d.drug_id = t.drug_id ORDER BY t.selector");
 
@@ -83,7 +83,8 @@ class C_Prescription extends Controller {
 					$row['substitute'] . ","   . //  7
 					$row['quantity']   . ","   . //  8
 					$row['refills']    . ","   . //  9
-					$row['quantity']   . "]";    // 10 quantity per_refill
+					$row['quantity']   . ","   . //  10 quantity per_refill
+					$row['drug_code']  . "]";    //  11 rxnorm drug code
 			}
 			$this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
 			$this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);

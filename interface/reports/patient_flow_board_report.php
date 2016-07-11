@@ -433,8 +433,6 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         $tracker_id = $appointment['pt_tracker_id'];
         $last_seq = $appointment['lastseq'];
         $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
-        # if there is a recurring appointment I just want the expanded entry.
-        if ($appointment['pc_recurrtype'] == '1' ) continue;
         # only get items with a tracker id.
         if ($tracker_id == '' ) continue;
         # only get the drug screens that are set to yes.

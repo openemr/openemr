@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="2">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   {
+			leftColumns: 2
+		}
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Multiple fixed columns</title>
+
+<info><![CDATA[
+
+FixedColumns allows more than one column to be frozen into place using the `fc-init fixedColumns.leftColumns` parameter. The example below shows two columns fixed.
+
+]]></info>
+
+</dt-example>

@@ -35,6 +35,8 @@ include_once("$srcdir/sql.inc");
 <html>
 <head>
 <?php html_header_show();?>
+<title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
 
@@ -57,7 +59,16 @@ function imsubmitted() {
 </script>
 
 </head>
-<body onload="javascript:document.login_form.authUser.focus();" >
+<body onload="javascript:document.login_form.authUser.focus();">
+<div class="logobar">
+    <img style="position:absolute;top:0;left:0;"src=" <?php echo $GLOBALS['webroot']?>/interface/pic/logo.gif" />
+</div>
+<div class="body_title">
+    <span class="title_bar">
+        <div class="title_name"><?php echo text($openemr_name); ?></div>
+    </span>
+    <br>
+</div>
 <span class="text"></span>
 <center>
 

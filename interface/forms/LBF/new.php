@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2009-2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2009-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -255,8 +255,16 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
+<!-- LiterallyCanvas support -->
+<?php echo lbf_canvas_head(); ?>
+
 <script language="JavaScript">
+
+// Support for beforeunload handler.
+var somethingChanged = false;
+
 $(document).ready(function() {
+
   // fancy box
   if (window.enable_modals) {
     enable_modals();
@@ -278,6 +286,19 @@ $(document).ready(function() {
     // add drag and drop functionality to fancybox
     $("#fancy_outer").easydrag();
   });
+
+  // Support for beforeunload handler.
+  $('.lbfdata input, .lbfdata select, .lbfdata textarea').change(function() {
+    somethingChanged = true;
+  });
+  window.addEventListener("beforeunload", function (e) {
+    if (somethingChanged && !top.timed_out) {
+      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      e.returnValue = msg;     // Gecko, Trident, Chrome 34+
+      return msg;              // Gecko, WebKit, Chrome <34
+    }
+  });
+
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -340,12 +361,24 @@ function sel_related(elem, codetype) {
  dlgopen(url, '_blank', 500, 400);
 }
 
+// Compute the length of a string without leading and trailing spaces.
+function trimlen(s) {
+ var i = 0;
+ var j = s.length - 1;
+ for (; i <= j && s.charAt(i) == ' '; ++i);
+ for (; i <= j && s.charAt(j) == ' '; --j);
+ if (i > j) return 0;
+ return j + 1 - i;
+}
+
 // Validation logic for form submission.
 function validate(f) {
 <?php generate_layout_validation($formname); ?>
+ somethingChanged = false; // turn off "are you sure you want to leave"
  top.restoreSession();
  return true;
 }
+
 <?php if (function_exists($formname . '_javascript')) call_user_func($formname . '_javascript'); ?>
 
 </script>
@@ -498,7 +531,7 @@ function validate(f) {
         echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
       }
       // echo " <table border='0' cellpadding='0' width='100%'>\n";
-      echo " <table border='0' cellspacing='0' cellpadding='0' width='100%'>\n";
+      echo " <table border='0' cellspacing='0' cellpadding='0' width='100%' class='lbfdata'>\n";
       $display_style = 'none';
 
       // Initialize historical data array and write date headers.

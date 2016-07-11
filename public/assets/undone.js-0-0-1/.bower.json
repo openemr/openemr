@@ -1,0 +1,14 @@
+{
+  "name": "undone.js-0-0-1",
+  "homepage": "https://github.com/yckart/undone.js",
+  "version": "0.0.1",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.1",
+    "commit": "a5e73ac79a2011d5a0850dc0dc97855db8b009f6"
+  },
+  "_source": "https://github.com/yckart/undone.js.git",
+  "_target": "0.0.1",
+  "_originalSource": "https://github.com/yckart/undone.js.git"
+}

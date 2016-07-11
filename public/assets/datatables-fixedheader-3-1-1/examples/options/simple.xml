@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="1">
+
+<css lib="datatables fixedheader" />
+<js lib="jquery datatables fixedheader">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		fixedHeader: true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedHeader">Basic initialisation</title>
+
+<info><![CDATA[
+
+When displaying large amounts of data in a table, it can often be useful for the end user to have the column titles (the `dt-tag thead` element as a whole in fact) always visible. This is particularly true if using DataTables with pagination disabled, or the display length is set to a high value.
+
+The FixedHeader extension for DataTables will ensure that your column titles will scroll with the page, showing at the top of the table at all times. Try the demo shown below - you might want to try resizing the window for full effect! Note also that the column titles remain clickable to perform ordering on the table.
+
+FixedHeader is initialised by using the `fh-init fixedHeader` option. This can be set to true to use the default options or given as an object for additional options. In this example we just use the defaults.
+
+]]></info>
+
+</dt-example>

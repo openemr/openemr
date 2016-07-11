@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="FixedColumns">
+	<name>fixedColumns.rightColumns</name>
+	<summary>Number of columns to fix to the right of the table</summary>
+	<since>3.1.0</since>
+
+	<type type="integer">
+		<description>
+			The number of columns on the right hand side of the table to fix in place.
+		</description>
+	</type>
+
+	<default value="0">
+		No columns will be fixed to the right hand side of the table.
+	</default>
+
+	<description>
+		FixedColumns can fix columns to both the left and right hand sides of the DataTable. By default only a single left hand column is fixed in place, but this parameter provides the option to specify how many columns should be fixed on the right. This is a simple integer that indicates that number of columns.
+	</description>
+
+	<example title="Left and right columns fixed"><![CDATA[
+
+$('#example').DataTable( {
+	fixedColumns: {
+		rightColumns: 1
+	}
+} );
+
+]]></example>
+
+	<example title="Fix no columns on the left of the table"><![CDATA[
+
+$('#example').DataTable( {
+	fixedColumns: {
+		leftColumns: 0,
+		rightColumns: 1
+	}
+} );
+
+]]></example>
+
+</dt-option>

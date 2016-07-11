@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="Scroller">
+	<name>scroller.serverWait</name>
+	<summary>Time delay before new data is requested when server-side processing is enabled</summary>
+
+	<type type="number">
+		<description>
+			Time to wait before loading additional data after scrolling ends - milliseconds.
+		</description>
+	</type>
+
+	<default value="200">
+		Wait 200mS before drawing when server-side processing is enabled
+	</default>
+
+	<description>
+		When using server-side processing (`dt-init serverSide`), Scroller will wait a small amount of time to allow the scrolling to finish before requesting more data from the server. This can be useful to help prevent you from DDoSing your own server with frequent Ajax requests as the user scrolls through a table!
+
+		The wait time can be configured by this parameter.
+	</description>
+
+	<example title="Wait 0.5s after scrolling ends before loading new data"><![CDATA[
+
+$('#example').DataTable( {
+	scrollY: true,
+	scroller: {
+		serverWait: 500
+	}
+} );
+
+]]></example>
+
+</dt-option>
