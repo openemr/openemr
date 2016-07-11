@@ -628,7 +628,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 							<reaction_text>".htmlspecialchars($reaction_text ? \Application\Listener\Listener::z_xlt($reaction_text) : 'NULL', ENT_QUOTES)."</reaction_text>
 							<reaction_code>".htmlspecialchars($reaction_code ? $reaction_code : 0, ENT_QUOTES)."</reaction_code>
 							<RxNormCode>".htmlspecialchars($code_rx, ENT_QUOTES)."</RxNormCode>
-							<RxNormCode_text>".htmlspecialchars($code_text_rx, ENT_QUOTES)."</RxNormCode_text>
+							<RxNormCode_text>".htmlspecialchars(!empty($code_text_rx) ? $code_text_rx : $row['title'], ENT_QUOTES)."</RxNormCode_text>
 						</allergy>";
 					}
         }
