@@ -84,8 +84,13 @@ td { font-size:10pt; }
 </script>
 
 </head>
-
-<body class="body_top" OnLoad="document.theform.search_term.focus();">
+<?php 
+  if ($_REQUEST['search_term']) {
+    $focus = "document.theform.bn_search.focus();";
+  } else {
+    $focus = "document.theform.search_term.focus();";
+  } ?>
+<body class="body_top" OnLoad="<?php echo $focus; ?>">
 
 <?php
 $string_target_element = "";
