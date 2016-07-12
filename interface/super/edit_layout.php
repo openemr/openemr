@@ -750,7 +750,7 @@ function writeFieldLine($linedata) {
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
         
 
-    "   <select name='fld[$fld_line_no][validation]'>\n" .
+    "   <select name='fld[$fld_line_no][validation]' onchange='valChanged($fld_line_no)'>\n" .
     "   <option value=''";
         if (empty($linedata['validation'])) $extra_html .= " selected";
         $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
@@ -959,10 +959,24 @@ function setListItemOptions(lino, seq, init) {
 
 // This is called whenever a condition's field ID selection is changed.
 function cidChanged(lino, seq) {
-  var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
-  var thistd = document.getElementById("querytd_" + lino);
-  thistd.style.backgroundColor = thisid ? '#77ff77' : '';
+  changeColor(lino);
   setListItemOptions(lino, seq, false);
+}
+
+// This is called whenever a validation rule field ID selection is changed.
+function valChanged(lino) {
+    changeColor(lino);
+}
+
+function changeColor(lino){
+    var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
+    var thisValId = document.forms[0]['fld[' + lino + '][validation]'].value;
+    var thistd = document.getElementById("querytd_" + lino);
+    if(thisid !='' || thisValId!='') {
+        thistd.style.backgroundColor = '#77ff77';
+    }else{
+        thistd.style.backgroundColor ='';
+    }
 }
 
 // Call this to disable the warning about unsaved changes and submit the form.
