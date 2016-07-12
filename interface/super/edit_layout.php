@@ -48,7 +48,7 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 
 // Include predefined Validation Rules from list
-$validations=[];
+$validations = array();
 $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = 'LBF_Validations' ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
