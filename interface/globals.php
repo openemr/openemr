@@ -147,6 +147,8 @@ $GLOBALS['webroot'] = $web_root;
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
+//Composer vendor directory, absolute to the webserver root.
+$GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
@@ -158,7 +160,7 @@ $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 // Include the translation engine. This will also call sql.inc to
 //  open the openemr mysql connection.
-include_once (dirname(__FILE__) . "/../library/translation.inc.php");
+require_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 // Include convenience functions with shorter names than "htmlspecialchars" (for security)
 require_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
@@ -170,7 +172,10 @@ require_once (dirname(__FILE__) . "/../library/formdata.inc.php");
 require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
 
 // Includes functions for date internationalization
-include_once (dirname(__FILE__) . "/../library/date_functions.php");
+require_once (dirname(__FILE__) . "/../library/date_functions.php");
+
+// Includes compoaser autoload
+require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
