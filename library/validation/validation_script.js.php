@@ -1,4 +1,29 @@
 <?php
+/**
+ * library/validation/validation_script.js
+ *
+ * Validation functions that work with the validate.js library
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see
+ * http://www.gnu.org/licenses/licenses.html#GPL .
+ *
+ * @package OpenEMR
+ * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
+ * @author  Sharon Cohen <sharonco@matrix.co.il>
+ * @author  Amiel Elboim <amielel@matrix.co.il>
+ * @link    http://www.open-emr.org
+ */
+
+
 /*If the validation (new) that uses the validate.js library was set on "on" in globals include the following libraries*/
 if($GLOBALS['new_validate']) {
 ?>
