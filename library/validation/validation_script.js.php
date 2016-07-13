@@ -16,7 +16,7 @@ if($GLOBALS['new_validate']) {
     /*form id: used to get the validation rules*/?>
 
     function submitme(new_validate,e,form_id) {
-
+        somethingChanged = false;
     //Use the old validation script if no parameter sent (backward compatibility)
     //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
     // was on code up to today (the validat library was not loaded ( look at the top of this file)
