@@ -16,13 +16,14 @@ if($GLOBALS['new_validate']) {
     /*form id: used to get the validation rules*/?>
 
     function submitme(new_validate,e,form_id) {
-        somethingChanged = false;
+
     //Use the old validation script if no parameter sent (backward compatibility)
     //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
     // was on code up to today (the validat library was not loaded ( look at the top of this file)
         if (new_validate !== 1) {
             var f = document.forms[0];
             if (validate(f)) {
+                somethingChanged = false;
                 top.restoreSession();
                 f.submit();
             } else { //If there was an error prevent the form submit in order to display them
@@ -80,6 +81,8 @@ if($GLOBALS['new_validate']) {
                 }
                 showErrors(form, errors);
                 valid = false;
+            }else{
+                somethingChanged = false;
             }
 
             //In case there were errors they are displayed with this functionn
