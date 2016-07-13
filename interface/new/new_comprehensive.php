@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
+require_once("$srcdir/validation/LBF_Validation.php");
 
 // Check authorization.
 if (!acl_check('patients','demo','',array('write','addonly') ))
@@ -91,7 +92,7 @@ div.section {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
@@ -390,7 +391,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
+<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM")'>
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
@@ -762,12 +763,17 @@ if (! $GLOBALS['simplified_demographics']) {
 
 <script language="JavaScript">
 
+// hard code validation for old validation, in the new validation possible to add match rules
+<?php if($GLOBALS['new_validate'] == 0) { ?>
+
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
 if (f.form_phone_home   ) phonekeyup(f.form_phone_home   ,mypcc);
 if (f.form_phone_biz    ) phonekeyup(f.form_phone_biz    ,mypcc);
 if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
+
+<?php }?>
 
 <?php echo $date_init; ?>
 
@@ -788,51 +794,56 @@ enable_modals();
     <?php for ($i=1;$i<=3;$i++) { ?>
     $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
-	
+
     $('#search').click(function() { searchme(); });
-    $('#create').click(function() { submitme(); });
+    $('#create').click(function() { check()});
 
-    var submitme = function() {
-      top.restoreSession();
-      var f = document.forms[0];
+    var check = function(e) {
+      <?php if($GLOBALS['new_validate']){?>
+            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM");
+      <?php }else{?>
+            top.restoreSession();
+            var f = document.forms[0];
+            var valid = validate(f);
+      <?php }?>
+        if (valid) {
+            if (force_submit) {
+                // In this case dups were shown already and Save should just save.
+                f.submit();
+                return;
+            }
 
-      if (validate(f)) {
-        if (force_submit) {
-          // In this case dups were shown already and Save should just save.
-          f.submit();
-          return;
+      <?php
+        // D in edit_options indicates the field is used in duplication checking.
+        // This constructs a list of the names of those fields.
+        $mflist = "";
+        $mfres = sqlStatement("SELECT * FROM layout_options " .
+            "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+            "edit_options LIKE '%D%' " .
+            "ORDER BY group_name, seq");
+        while ($mfrow = sqlFetchArray($mfres)) {
+            $field_id  = $mfrow['field_id'];
+            if (strpos($field_id, 'em_') === 0) continue;
+            if (!empty($mflist)) $mflist .= ",";
+            $mflist .= "'" . htmlentities($field_id) . "'";
         }
-<?php
-// D in edit_options indicates the field is used in duplication checking.
-// This constructs a list of the names of those fields.
-$mflist = "";
-$mfres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-  "edit_options LIKE '%D%' " .
-  "ORDER BY group_name, seq");
-while ($mfrow = sqlFetchArray($mfres)) {
-  $field_id  = $mfrow['field_id'];
-  if (strpos($field_id, 'em_') === 0) continue;
-  if (!empty($mflist)) $mflist .= ",";
-  $mflist .= "'" . htmlentities($field_id) . "'";
-}
 ?>
         // Build and invoke the URL to create the dup-checker dialog.
         var url = 'new_search_popup.php';
         var flds = new Array(<?php echo $mflist; ?>);
         var separator = '?';
         for (var i = 0; i < flds.length; ++i) {
-          var fval = $('#form_' + flds[i]).val();
-          if (fval && fval != '') {
-            url += separator;
-            separator = '&';
-            url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
-          }
+            var fval = $('#form_' + flds[i]).val();
+            if (fval && fval != '') {
+                url += separator;
+                separator = '&';
+                url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+            }
         }
         dlgopen(url, '_blank', 700, 500);
-
-      } // end if validate
+        } // end function
     } // end function
+
 
 // Set onclick/onfocus handlers for toggling background color.
 <?php
@@ -855,6 +866,11 @@ while ($lrow = sqlFetchArray($lres)) {
 }); // end document.ready
 
 </script>
+<?php /*Include the validation script and rules for this form*/
+$form_id="DEM";
+?>
+
+<?php include_once("$srcdir/validation/validation_script.js.php");?>
 <script language='JavaScript'>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [

@@ -1,0 +1,44 @@
+
+Client side validation!
+
+This development was created to solve the client side validation on the LBF forms
+using the validate.js library (https://validatejs.org/).
+
+note!! this development doesn't support "Exam results" and "Lifestyle status" data type.
+
+Phase 1:
+
+* Change the global - security->new_validation->checkit.
+
+* Add validation for some fields in demographics or history LBF forms - administration->layout->demographics(for example)->"?"(window in the right of screen)
+
+* Start using only the validation rules that we added in the list (LBF_Validations lists) +Play with it and enjoy the results!
+
+Phase 2:
+
+*Try to add more rules following the validation https://validatejs.org/ usage - administration->lists->LBF_Validation
+
+*Add this rules to demographics or history forms
+
+
+Example -
+
+Adding new rule for phone number:
+1. go to administration->lists->LBF_Validation and check if already have validation for phone.
+2. if not exist you can add new validation, you need fill in 'ID' and 'Title' and the new rule in the 'Notes' column.
+   the rule contain json with key and value according validate.js library you can for example config regular expression for phone number
+   like - {"format":{"pattern":"^((\\+972|972)|0)( |-)?([1-468-9]( |-)?\\d{7}|(5|7)[0-9]( |-)?\\d{7})$"}}.
+   have very good guide in https://validatejs.org/
+   for developers - possible to adding custom validation more than have in validate.js (according the user guide),
+   the new validation store in library/js/vendors/validate/validate_extend.js file.
+3. go to each layout with phone number field and in the right box (under "?" link) choose the phone number validation.
+4. now you can't to enter wrong phone number in this field.
+5. just don't remember to check 'new validation' in the administration->security.
+
+Enjoy.
+
+
+
+
+
+

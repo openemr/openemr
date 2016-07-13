@@ -1412,6 +1412,12 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Email address, if any, to receive emergency login user activation messages.')
     ),
+     'new_validate' => array(
+      xl('New form validation'),
+      'bool',
+      '0',
+      ''
+     ),
 
   ),
 

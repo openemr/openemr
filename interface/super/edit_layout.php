@@ -47,6 +47,13 @@ while ($lrow = sqlFetchArray($lres)) {
   $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
+// Include predefined Validation Rules from list
+$validations = array();
+$lres = sqlStatement("SELECT * FROM list_options " .
+    "WHERE list_id = 'LBF_Validations' ORDER BY seq, title");
+while ($lrow = sqlFetchArray($lres)) {
+    $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
+}
 // array of the data_types of the fields
 $datatypes = array(
   "1"  => xl("List box"), 
@@ -161,7 +168,6 @@ if ($_POST['formaction'] == "save" && $layout_id) {
           );
         }
         $conditions = empty($condarr) ? '' : serialize($condarr);
-
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
                 "source = '"        . formTrim($iter['source'])    . "', " .
@@ -180,7 +186,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "edit_options = '"  . formTrim($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "', " .
-                "conditions = '"    . add_escape_custom($conditions) . "' " .
+                "conditions = '"    . add_escape_custom($conditions) . "', " .
+                "validation = '"   . formTrim($iter['validation'])   . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
@@ -396,7 +403,7 @@ function genFieldOptionList($current='') {
 // Write one option line to the form.
 //
 function writeFieldLine($linedata) {
-    global $fld_line_no, $sources, $lbfonly, $extra_html;
+    global $fld_line_no, $sources, $lbfonly, $extra_html,$validations;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
   
@@ -639,7 +646,7 @@ function writeFieldLine($linedata) {
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='bold' id='querytd_$fld_line_no' style='cursor:pointer;";
-    if (!empty($linedata['conditions'])) echo "background-color:#77ff77;";
+    if (!empty($linedata['conditions']) || !empty($linedata['validation'])) echo "background-color:#77ff77;";
     echo "' onclick='extShow($fld_line_no, this)' align='center' ";
     echo "title='" . xla('Click here to view/edit more details') . "'>";
     echo "&nbsp;?&nbsp;";
@@ -729,8 +736,35 @@ function writeFieldLine($linedata) {
         " </tr>\n";
     }
     $extra_html .=
-      "</table>\n" .
-      "</div>\n";
+      "</table>\n";
+
+    $extra_html .=  "<table width='100%'>\n" .
+    " <tr>\n" .
+    "  <td colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+    xlt('will have the following validation rules') . ":</td>\n" .
+    " </tr>\n" .
+    " <tr>\n" .
+    "  <td align='left' class='bold'>" . xlt('Validation rule  ') . "</td>\n" .
+    " </tr>\n".
+    " <tr>\n" .
+    "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
+        
+
+    "   <select name='fld[$fld_line_no][validation]' onchange='valChanged($fld_line_no)'>\n" .
+    "   <option value=''";
+        if (empty($linedata['validation'])) $extra_html .= " selected";
+        $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
+    foreach ($validations as $key=>$value){
+        $extra_html .= "    <option value='$key'";
+        if ($key == $linedata['validation']) $extra_html .= " selected";
+        $extra_html .= ">" . text($value) . "</option>\n";
+    }
+    $extra_html .="</select>\n" .
+        "  </td>\n";
+
+     $extra_html .=
+         "</table>\n" .
+       "</div>\n";
 }
 ?>
 <html>
@@ -925,10 +959,24 @@ function setListItemOptions(lino, seq, init) {
 
 // This is called whenever a condition's field ID selection is changed.
 function cidChanged(lino, seq) {
-  var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
-  var thistd = document.getElementById("querytd_" + lino);
-  thistd.style.backgroundColor = thisid ? '#77ff77' : '';
+  changeColor(lino);
   setListItemOptions(lino, seq, false);
+}
+
+// This is called whenever a validation rule field ID selection is changed.
+function valChanged(lino) {
+    changeColor(lino);
+}
+
+function changeColor(lino){
+    var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
+    var thisValId = document.forms[0]['fld[' + lino + '][validation]'].value;
+    var thistd = document.getElementById("querytd_" + lino);
+    if(thisid !='' || thisValId!='') {
+        thistd.style.backgroundColor = '#77ff77';
+    }else{
+        thistd.style.backgroundColor ='';
+    }
 }
 
 // Call this to disable the warning about unsaved changes and submit the form.

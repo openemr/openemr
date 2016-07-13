@@ -2599,7 +2599,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 		"ORDER BY seq", array($formtype,$this_group) );
 	?>
 
-		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo $group_name_esc?>" >
+		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_',$group_name_esc)?>" >
 			<table border='0' cellpadding='0'>
 
 			<?php

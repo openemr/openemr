@@ -317,4 +317,14 @@ height: 300px !important;
 	background-color:#E1E4E9;
 }
 
-
+/* error message = new validation */
+.error-message{
+	color:red;
+	display:block;
+	white-space: nowrap;
+	font-weight: normal;
+	font-size: 11px;
+}
+.error-border{
+	border: 1px solid red;
+}
