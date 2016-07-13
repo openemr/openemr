@@ -9,6 +9,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+require_once("$srcdir/validation/LBF_Validation.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -63,9 +64,10 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
@@ -339,14 +341,7 @@ if(dateVal > currentDate)
  return errMsgs.length < 1;
 }
 
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  somethingChanged = false; // turn off "are you sure you want to leave"
-  top.restoreSession();
-  f.submit();
- }
-}
+
 
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.
 function policykeyup(e) {
@@ -383,7 +378,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM')">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -398,11 +393,9 @@ $(document).ready(function() {
 			</a>
 			&nbsp;&nbsp;
 		</td>
-		<td>
-			<a href="javascript:submitme();" class='css_button'>
-				<span><?php xl('Save','e'); ?></span>
-			</a>
-		</td>
+        <td>
+            <input class="css_btn" type="submit" value="<?php xl('Save','e'); ?>">
+        </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
@@ -748,6 +741,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <script language="JavaScript">
 
+// hard code validation for old validation, in the new validation possible to add match rules
+<?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -760,6 +755,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);
 <?php } ?>
+
+<?php }?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']) . "'"; ?>);
@@ -775,6 +772,12 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+
+<?php /*Include the validation script and rules for this form*/
+$form_id="DEM";
+?>
+<?php  include_once("$srcdir/validation/validation_script.js.php");?>
+
 
 </body>
 <script language='JavaScript'>

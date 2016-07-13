@@ -39,8 +39,8 @@ a:hover {
     background-color:#FFFFFF !important;
     z-index:100;
      }
-    
-    .container{ 
+
+    .container{
     margin-top:95px;
 }
 
@@ -708,6 +708,22 @@ tr.odd, td.even {
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
   background: #1050b6;
 }
+.css_btn {
+  background: #2672ec;
+  color: #ffffff !important;
+  display: block;
+  float: left;
+  font-weight: 300;
+  margin-right: 3px;
+  padding-right: 10px;
+  /* sliding doors padding */
+  text-decoration: none;
+  padding: 5px 12px 5px;
+  border: none;
+}
+.css_btn:hover{
+  color: orangered;
+}
 
 input[type="button"][style="background-color:#ffff55"] {
   background: #2672ec !important;
@@ -1221,4 +1237,16 @@ div.notab-right {
 body.admin-layout input[type="button"] {
     display: inline-block;
     float: none;
+}
+
+/* error message = new validation */
+.error-message{
+  color:red;
+  display:block;
+  white-space: nowrap;
+  font-weight: normal;
+  font-size: 11px;
+}
+.error-border{
+  border: 1px solid red !important;
 }

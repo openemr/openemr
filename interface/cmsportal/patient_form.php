@@ -299,12 +299,17 @@ else {
 
 <script language="JavaScript">
 
+// hard code validation for old validation, in the new validation possible to add match rules
+<?php if($GLOBALS['new_validate'] == 0) { ?>
+
 // Fix inconsistently formatted phone numbers from the database.
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
 if (f.form_phone_home   ) phonekeyup(f.form_phone_home   ,mypcc);
 if (f.form_phone_biz    ) phonekeyup(f.form_phone_biz    ,mypcc);
 if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
+
+<?php }?>
 
 randompass();
 

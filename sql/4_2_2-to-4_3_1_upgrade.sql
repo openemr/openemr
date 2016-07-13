@@ -382,7 +382,7 @@ UPDATE `layout_options` SET group_name='8Guardian',title='Name',seq='10' WHERE f
 #EndIf
 
 #IfNotColumnType patient_data guardiansname TEXT
-ALTER TABLE `patient_data` MODIFY `guardiansname` TEXT; 
+ALTER TABLE `patient_data` MODIFY `guardiansname` TEXT;
 #EndIf
 
 #IfMissingColumn patient_data guardiansname
@@ -465,12 +465,12 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `codes` ) V
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `notes`, `codes` ) VALUES ('drug_route','inhale','Inhale' , 16, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
 #EndIf
 
-#IfNotRow3D list_options list_id drug_route codes NCI-CONCEPT-ID:C38288 title Per Oris 
+#IfNotRow3D list_options list_id drug_route codes NCI-CONCEPT-ID:C38288 title Per Oris
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C38288' WHERE list_id='drug_route' and title='Per Oris';
 #EndIf
 
 #IfNotColumnType immunizations cvx_code varchar(10)
-ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) default NULL; 
+ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) default NULL;
 #EndIf
 
 #IfMissingColumn drugs drug_code
@@ -590,4 +590,23 @@ DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_
 #IfMissingColumn documents thumb_url
 ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
 #EndIf
+
+
+
+#IfMissingColumn layout_options validation
+ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id LBF_Validations
+INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Validations','LBF_Validations');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
+
+#EndIf
+
 
