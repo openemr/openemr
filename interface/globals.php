@@ -147,6 +147,8 @@ $GLOBALS['webroot'] = $web_root;
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
+//Composer vendor directory, relative to the webserver root.
+$GLOBALS['vendor_dir'] = "$web_root/vendor";
 
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
@@ -171,6 +173,9 @@ require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
 
 // Includes functions for date internationalization
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
+
+// Includes compoaser autoload
+include_once (dirname(__FILE__) . "/../vendor/autoload.php");
 
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
