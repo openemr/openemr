@@ -1,0 +1,15 @@
+[
+    {
+        "name": "phpmyadmin/phpmyadmin",
+        "version": "4.5.4.1",
+        "version_normalized": "4.5.4.1",
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpmyadmin.net/phpMyAdmin/4.5.4.1/phpMyAdmin-4.5.4.1-all-languages.zip",
+            "reference": null,
+            "shasum": null
+        },
+        "type": "library",
+        "installation-source": "dist"
+    }
+]
