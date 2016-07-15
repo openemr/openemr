@@ -27,7 +27,7 @@
 /*If the validation (new) that uses the validate.js library was set on "on" in globals include the following libraries*/
 if($GLOBALS['new_validate']) {
 ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/moment.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
 <?php
