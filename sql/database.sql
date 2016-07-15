@@ -2698,6 +2698,7 @@ CREATE TABLE `layout_options` (
   `list_backup_id` varchar(31) NOT NULL default '',
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
   `conditions` text COMMENT 'serialized array of skip conditions',
+  `validation` varchar(100) default NULL,
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=InnoDB;
 
