@@ -1416,7 +1416,7 @@ $GLOBALS_METADATA = array(
       xl('New form validation'),
       'bool',
       '0',
-      ''
+      xl('New form validation')
      ),
 
   ),
