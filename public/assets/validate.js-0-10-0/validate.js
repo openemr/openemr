@@ -58,7 +58,7 @@
       major: 0,
       minor: 10,
       patch: 0,
-      metadata: "development",
+      metadata: null,
       toString: function() {
         var version = v.format("%{major}.%{minor}.%{patch}", v.version);
         if (!v.isEmpty(v.version.metadata)) {
@@ -146,17 +146,30 @@
     // Takes the output from runValidations and converts it to the correct
     // output format.
     processValidationResults: function(errors, options) {
+      var attr;
+
       errors = v.pruneEmptyErrors(errors, options);
       errors = v.expandMultipleErrors(errors, options);
       errors = v.convertErrorMessages(errors, options);
 
-      var format = options.format || "grouped";
+      switch (options.format || "grouped") {
+        case "detailed":
+          // Do nothing more to the errors
+          break;
 
-      if(typeof v.formatters[format] === 'function') {
-        errors = v.formatters[format](errors);
-      }
-      else {
-        throw new Error(v.format("Unknown format %{format}", options));
+        case "flat":
+          errors = v.flattenErrorsToArray(errors);
+          break;
+
+        case "grouped":
+          errors = v.groupErrorsByAttribute(errors);
+          for (attr in errors) {
+            errors[attr] = v.flattenErrorsToArray(errors[attr]);
+          }
+          break;
+
+        default:
+          throw new Error(v.format("Unknown format %{format}", options));
       }
 
       return v.isEmpty(errors) ? undefined : errors;
@@ -216,9 +229,18 @@
         }
 
         return memo.then(function() {
-          return result.error.then(function(error) {
-            result.error = error || null;
-          });
+          return result.error.then(
+            function(error) {
+              result.error = error || null;
+            },
+            function(error) {
+              if (error instanceof Error) {
+                throw error;
+              }
+              v.error("Rejecting promises with the result is deprecated. Please use the resolve callback instead.");
+              result.error = error;
+            }
+          );
         });
       }, new v.Promise(function(r) { r(); })); // A resolved promise
     },
@@ -510,10 +532,8 @@
     collectFormValues: function(form, options) {
       var values = {}
         , i
-        , j
         , input
         , inputs
-        , option
         , value;
 
       if (v.isJqueryElement(form)) {
@@ -556,18 +576,7 @@
       inputs = form.querySelectorAll("select[name]");
       for (i = 0; i < inputs.length; ++i) {
         input = inputs.item(i);
-        if (input.multiple) {
-          value = [];
-
-          for (j in input.options) {
-            option = input.options[j];
-            if (option.selected) {
-              value.push(v.sanitizeFormValue(option.value, options));
-            }
-          }
-        } else {
-          value = v.sanitizeFormValue(input.options[input.selectedIndex].value, options);
-        }
+        value = v.sanitizeFormValue(input.options[input.selectedIndex].value, options);
         values[input.name] = value;
       }
 
@@ -1119,20 +1128,6 @@
       if (!PATTERN.exec(value)) {
         return message;
       }
-    }
-  };
-
-  validate.formatters = {
-    detailed: function(errors) {return errors;},
-    flat: v.flattenErrorsToArray,
-    grouped: function(errors) {
-      var attr;
-
-      errors = v.groupErrorsByAttribute(errors);
-      for (attr in errors) {
-        errors[attr] = v.flattenErrorsToArray(errors[attr]);
-      }
-      return errors;
     }
   };
 
