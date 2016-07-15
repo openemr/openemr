@@ -28,8 +28,8 @@
 if($GLOBALS['new_validate']) {
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/validate.js-0-10-0/validate.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/validate_extend.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
 <?php
  }
 ?>
