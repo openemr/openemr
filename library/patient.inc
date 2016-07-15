@@ -558,7 +558,8 @@ function getPatientNameSplit($term) {
             $n['last'] = end($names);
         }
     } else {
-        $n['last'] = $term;       
+        $n['last'] = $term;
+	if(empty($n['last'])) $n['last'] = '%';
     }
     // Trim whitespace off the names before returning
     foreach($n as $key => $val) {
