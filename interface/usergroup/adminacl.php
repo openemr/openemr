@@ -28,7 +28,7 @@ if (!isset($phpgacl_location)) {
 		
 <html>
 <head>
- <script type="text/JavaScript" src="../../library/js/jquery121.js"></script>
+ <script type="text/JavaScript" src="<?php echo $GLOBALS[assets_static_relative]; ?>/jquery-min-1-2-1/index.js"></script>
  <script type="text/JavaScript" src="../../library/js/jquery.livequery101.js"></script>	
  <script type="text/JavaScript">
 	

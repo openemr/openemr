@@ -33,6 +33,8 @@ require_once("history.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
+require_once("$srcdir/validation/LBF_Validation.php");
+
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -64,7 +66,7 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -107,13 +109,7 @@ function validate(f) {
  return true;
 }
 
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  top.restoreSession();
-  f.submit();
- }
-}
+
 
 function submit_history() {
     top.restoreSession();
@@ -238,7 +234,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" name='history_form' method='post' onsubmit='return validate(this)' >
+<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS')">
     <input type='hidden' name='mode' value='save'>
 
     <div>
@@ -248,9 +244,8 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <a href="javascript:submit_history();" class='css_button'>
-            <span><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES); ?></span>
-        </a>
+        <input class="css_btn"  type="submit" value="<?php xl('Save','e'); ?>">
+
         <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
@@ -292,5 +287,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
         checkSkipConditions();
     });
 </script>
+
+<?php /*Include the validation script and rules for this form*/
+$form_id="HIS";
+?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>
