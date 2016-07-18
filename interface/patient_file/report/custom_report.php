@@ -49,7 +49,6 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-  require_once("$srcdir/html2pdf/vendor/autoload.php");
   $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
                        $GLOBALS['pdf_size'],
                        $GLOBALS['pdf_language'],

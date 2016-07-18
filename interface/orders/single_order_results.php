@@ -51,9 +51,6 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
-  // Borrowing the general strategy here from custom_report.php.
-  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-  require_once("$srcdir/html2pdf/html2pdf.class.php");
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
   $pdf = new HTML2PDF('P', 'Letter', 'en');
   ob_start();

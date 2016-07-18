@@ -1,0 +1,33 @@
+{
+    "name": "spipu/html2pdf",
+    "type": "library",
+    "description": "HTML2PDF is a HTML to PDF converter written in PHP5 (it uses TCPDF). OFFICIAL PACKAGE",
+    "keywords": ["html", "pdf", "html2pdf"],
+    "homepage": "http://html2pdf.fr/",
+    "license": "LGPL",
+    "authors": [
+        {
+            "name": "Spipu",
+            "homepage": "https://github.com/spipu",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "tecnickcom/tcpdf": "~6.2.0"
+    },
+    "suggest": {
+        "fagundes/zff-html2pdf": "zff-html2pdf module ~0.1.1, if you need to integrate HTML2PDF with Zend Framework 2 (zf2)",
+        "ext-gd": "Allows to embed images into the PDF"
+    },
+    "autoload": {
+        "files": [
+            "html2pdf.class.php",
+            "_class/exception.class.php",
+            "_class/locale.class.php",
+            "_class/myPdf.class.php",
+            "_class/parsingHtml.class.php",
+            "_class/parsingCss.class.php"
+        ]
+    }
+}
