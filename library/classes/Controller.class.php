@@ -1,10 +1,6 @@
 <?php
 
-//require_once(dirname(__FILE__) . "/../Smarty/Smarty.class.php");
 require_once(dirname(__FILE__) . "/../formdata.inc.php");
-// if (!defined('SMARTY_DIR')) {
-//     define("SMARTY_DIR", dirname(__FILE__) . "/../Smarty/");
-// }
 
 
 class Controller extends Smarty {
