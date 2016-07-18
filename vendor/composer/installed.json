@@ -1,1 +1,55 @@
-[]
+[
+    {
+        "name": "smarty/smarty",
+        "version": "v2.6.29",
+        "version_normalized": "2.6.29.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/smarty-php/smarty.git",
+            "reference": "47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83",
+            "reference": "47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2"
+        },
+        "time": "2015-06-21 13:10:14",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.6.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "libs/Smarty.class.php",
+                "libs/Smarty_Compiler.class.php",
+                "libs/Config_File.class.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Monte Ohrt",
+                "email": "monte@ohrt.com"
+            },
+            {
+                "name": "Uwe Tews",
+                "email": "uwe.tews@googlemail.com"
+            }
+        ],
+        "description": "Smarty - the compiling PHP template engine",
+        "homepage": "http://www.smarty.net",
+        "keywords": [
+            "templating"
+        ]
+    }
+]

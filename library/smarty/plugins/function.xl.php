@@ -38,5 +38,4 @@ function smarty_function_xl($params, &$smarty)
 }
 
 /* vim: set expandtab: */
-
 ?>

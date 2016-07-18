@@ -6,4 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Config_File' => $vendorDir . '/smarty/smarty/libs/Config_File.class.php',
+    'Smarty' => $vendorDir . '/smarty/smarty/libs/Smarty.class.php',
+    'Smarty_Compiler' => $vendorDir . '/smarty/smarty/libs/Smarty_Compiler.class.php',
 );
