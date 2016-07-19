@@ -6,9 +6,16 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
 {
+    public static $classMap = array (
+        'Config_File' => __DIR__ . '/..' . '/smarty/smarty/libs/Config_File.class.php',
+        'Smarty' => __DIR__ . '/..' . '/smarty/smarty/libs/Smarty.class.php',
+        'Smarty_Compiler' => __DIR__ . '/..' . '/smarty/smarty/libs/Smarty_Compiler.class.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->classMap = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$classMap;
 
         }, null, ClassLoader::class);
     }

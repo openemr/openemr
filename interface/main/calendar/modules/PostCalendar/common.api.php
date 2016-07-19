@@ -1,4 +1,4 @@
-<?php
+    <?php
 /**
  *  $Id$
  *
@@ -145,12 +145,6 @@ unset($userlang);
 //=========================================================================
 //  Setup Smarty defines
 //=========================================================================
-if(!class_exists('Smarty')) {
-    define('_PC_SMARTY_LOADED',true);
-//    define('SMARTY_DIR',"modules/$pcDir/pnincludes/Smarty/");
-    define('SMARTY_DIR', $GLOBALS['srcdir'] . "/Smarty/");
-    require_once(SMARTY_DIR.'Smarty.class.php');
-}
 require_once("modules/$pcDir/pcSmarty.class.php");
 //=========================================================================
 //  utility functions for postcalendar

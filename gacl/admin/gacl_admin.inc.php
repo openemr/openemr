@@ -31,6 +31,8 @@
 require_once(dirname(__FILE__).'/../gacl.class.php');
 require_once(dirname(__FILE__).'/../gacl_api.class.php');
 require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
+require_once(dirname(__FILE__).'/../../vendor/autoload.php');
+
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -57,16 +59,6 @@ $gacl_api = new gacl_admin_api($gacl_options);
 $gacl = &$gacl_api;
 
 $db = &$gacl->db;
-
-//Setup the Smarty Class.
-if (file_exists($gacl_options['smarty_dir'].'/Smarty.class.php')) {
-  //this is for standard use phpgacl
-  require_once($gacl_options['smarty_dir'].'/Smarty.class.php');
-}
-else {
-  //this is for during the phpgacl install process within OpenEMR installation setup
-  require_once(dirname(__FILE__).'/../../library/Smarty/Smarty.class.php');
-}
 
 $smarty = new Smarty;
 $smarty->compile_check = TRUE;
