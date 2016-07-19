@@ -404,6 +404,11 @@ class HTML2PDF_parsingHtml
                     }
                     $param[$key] = $val;
                     break;
+                case 'color':
+                    if ($name == 'font') {
+                        $param['style'] .= 'color: ' . $val . ';';
+                    }
+                    break;
             }
         }
 

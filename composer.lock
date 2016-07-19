@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "83292b9f57161e8608b83fad89fed5fc",
-    "content-hash": "16a8d38d3d2fbdba682bbabe3879b3e8",
+    "hash": "7bde35fc24d3d98c7a1d5f33b2e02de6",
+    "content-hash": "0a0bd9a175622cccb32abb8df75dc707",
     "packages": [
         {
             "name": "setasign/fpdi",
@@ -105,16 +105,16 @@
         },
         {
             "name": "spipu/html2pdf",
-            "version": "v4.5.0",
+            "version": "v4.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spipu/html2pdf.git",
-                "reference": "d254c2a36e87f13ab9c93de221865615b8d09997"
+                "reference": "dd88130923dbd833e07062405e461759530b5eb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spipu/html2pdf/zipball/d254c2a36e87f13ab9c93de221865615b8d09997",
-                "reference": "d254c2a36e87f13ab9c93de221865615b8d09997",
+                "url": "https://api.github.com/repos/spipu/html2pdf/zipball/dd88130923dbd833e07062405e461759530b5eb6",
+                "reference": "dd88130923dbd833e07062405e461759530b5eb6",
                 "shasum": ""
             },
             "require": {
@@ -154,7 +154,7 @@
                 "html2pdf",
                 "pdf"
             ],
-            "time": "2015-12-18 18:57:52"
+            "time": "2016-03-30 14:08:17"
         },
         {
             "name": "tecnickcom/tcpdf",

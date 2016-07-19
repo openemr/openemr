@@ -1,3 +1,14 @@
+4.6.0 (2016-03-30)
+    Support 'start' attribute for ordered list
+    Enable RTL languages support
+    Add a fallback support for images
+
+4.5.1 (2016-03-03)
+    Support the "inherit" value for font-family
+    Allow the HTML font tag to define a color attribute
+    Support for max-width and max-height attributes for images
+    Fix "border: 0" being displayed
+
 4.5.0 (2015-12-18)
     add tag 'end_last_page' with property 'end_height'. Update example 5 to use it
     better composer.json file

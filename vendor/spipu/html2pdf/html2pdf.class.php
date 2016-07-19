@@ -40,6 +40,7 @@ class HTML2PDF
     protected $_testTdInOnepage  = true;        // test of TD that can not take more than one page
     protected $_testIsImage      = true;        // test if the images exist or not
     protected $_testIsDeprecated = false;       // test the deprecated functions
+    protected $_fallbackImage    = null;        // fallback image to use in img tags
 
     protected $_parsePos         = 0;           // position in the parsing
     protected $_tempPos          = 0;           // temporary position for complex table
@@ -259,6 +260,18 @@ class HTML2PDF
     public function setTestIsImage($mode = true)
     {
         $this->_testIsImage = $mode ? true : false;
+
+        return $this;
+    }
+
+    /**
+     * @param string $fallback Path or URL to the fallback image
+     *
+     * @return $this
+     */
+    public function setFallbackImage($fallback)
+    {
+        $this->_fallbackImage = $fallback;
 
         return $this;
     }
@@ -1160,7 +1173,7 @@ class HTML2PDF
      * @param  string $style : lower-alpha, ...
      * @param  string $img
      */
-    protected function _listeAddLevel($type = 'ul', $style = '', $img = null)
+    protected function _listeAddLevel($type = 'ul', $style = '', $img = null, $start = null)
     {
         // get the url of the image, if we want to use a image
         if ($img) {
@@ -1182,8 +1195,14 @@ class HTML2PDF
             else                $style = 'decimal';
         }
 
+        if (is_null($start) || (int) $start<1) {
+            $start=0;
+        } else {
+            $start--;
+        }
+
         // add the new level
-        $this->_defList[count($this->_defList)] = array('style' => $style, 'nb' => 0, 'img' => $img);
+        $this->_defList[count($this->_defList)] = array('style' => $style, 'nb' => $start, 'img' => $img);
     }
 
     /**
@@ -1340,29 +1359,51 @@ class HTML2PDF
                 throw new HTML2PDF_exception(6, $src);
             }
 
-            // else, display a gray rectangle
-            $src = null;
-            $infos = array(16, 16);
+            if ($this->_fallbackImage) {
+                // display a fallback if provided
+                $src = $this->_fallbackImage;
+                $infos = @getimagesize($src);
+            } else {
+                // else, display a gray rectangle
+                $src = null;
+                $infos = array(16, 16);
+            }
         }
 
         // convert the size of the image in the unit of the PDF
         $imageWidth = $infos[0]/$this->pdf->getK();
         $imageHeight = $infos[1]/$this->pdf->getK();
 
+        $ratio = $imageWidth / $imageHeight;
         // calculate the size from the css style
         if ($this->parsingCss->value['width'] && $this->parsingCss->value['height']) {
             $w = $this->parsingCss->value['width'];
             $h = $this->parsingCss->value['height'];
         } else if ($this->parsingCss->value['width']) {
             $w = $this->parsingCss->value['width'];
-            $h = $imageHeight*$w/$imageWidth;
+            $h = $w / $ratio;
         } else if ($this->parsingCss->value['height']) {
             $h = $this->parsingCss->value['height'];
-            $w = $imageWidth*$h/$imageHeight;
+            $w = $h * $ratio;
         } else {
             // convert px to pt
             $w = 72./96.*$imageWidth;
             $h = 72./96.*$imageHeight;
+        }
+
+        if (isset($this->parsingCss->value['max-width']) && $this->parsingCss->value['max-width'] < $w) {
+            $w = $this->parsingCss->value['max-width'];
+            if (!$this->parsingCss->value['height']) {
+                // reprocess the height if not constrained
+                $h = $w / $ratio;
+            }
+        }
+        if (isset($this->parsingCss->value['max-height']) && $this->parsingCss->value['max-height'] < $h) {
+            $h = $this->parsingCss->value['max-height'];
+            if (!$this->parsingCss->value['width']) {
+                // reprocess the width if not constrained
+                $w = $h * $ratio;
+            }
         }
 
         // are we in a float
@@ -4430,7 +4471,8 @@ class HTML2PDF
         $this->_tag_open_TABLE($param, $other);
 
         // add a level of list
-        $this->_listeAddLevel($other, $this->parsingCss->value['list-style-type'], $this->parsingCss->value['list-style-image']);
+        $start = (isset($this->parsingCss->value['start']) ? $this->parsingCss->value['start'] : null);
+        $this->_listeAddLevel($other, $this->parsingCss->value['list-style-type'], $this->parsingCss->value['list-style-image'], $start);
 
         return true;
     }

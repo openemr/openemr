@@ -576,47 +576,62 @@ class HTML2PDF_myPdf extends TCPDF
 
     /**
      * we redifine the original SetX method, because we don't want the automatic treatment.
-     * It is HTML2PDF that make the treatment
+     * It is HTML2PDF that make the treatment.
+     * If language is RTL direction this method will call to parent (TCPDF class).
      *
      * @param float   $x
-     * @param boolean $rtloff NOT USED
+     * @param boolean $rtloff
      * @access public
      */
     public function SetX($x, $rtloff=false)
     {
-        $this->x=$x;
+        if (!$rtloff AND $this->rtl) {
+            parent::SetX($x, $rtloff);
+        } else {
+            $this->x=$x;
+        }
     }
 
     /**
      * we redifine the original SetY method, because we don't want the automatic treatment.
-     * It is HTML2PDF that make the treatment
+     * It is HTML2PDF that make the treatment.
+     * If language is RTL direction this method will call to parent (TCPDF class).
      *
      * @param float   $y
      * @param boolean $resetx Reset the X position
-     * @param boolean $rtloff NOT USED
+     * @param boolean $rtloff 
      * @access public
      */
     public function SetY($y, $resetx=true, $rtloff=false)
     {
-        if ($resetx)
-            $this->x=$this->lMargin;
+        if (!$rtloff AND $this->rtl) {
+            parent::SetY($y, $resetx, $rtloff);
+        } else {
+            if ($resetx)
+                $this->x=$this->lMargin;
 
-        $this->y=$y;
+            $this->y=$y;
+        }
     }
 
     /**
      * we redifine the original SetXY method, because we don't want the automatic treatment.
-     * It is HTML2PDF that make the treatment
+     * It is HTML2PDF that make the treatment.
+     * If language is RTL direction this method will call to parent (TCPDF class).
      *
      * @param integer $x
      * @param integer $y
-     * @param boolean $rtloff NOT USED
+     * @param boolean $rtloff
      * @access public
      */
     public function SetXY($x, $y, $rtloff=false)
     {
-        $this->x=$x;
-        $this->y=$y;
+        if (!$rtloff AND $this->rtl) {
+            parent::SetXY($x, $y, $rtloff);
+        } else {
+            $this->x=$x;
+            $this->y=$y;
+        }
     }
 
     /**
