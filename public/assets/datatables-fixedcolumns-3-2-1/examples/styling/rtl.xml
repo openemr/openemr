@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="11">
+
+<css lib="datatables fixedcolumns">
+	div.dataTables_wrapper {
+		direction: rtl;
+	}
+
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		scrollY:        300,
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Right-to-left text direction</title>
+
+<info><![CDATA[
+
+FixedColumns supports right to left text layout, which is automatically detected by the CSS `direction` parameter that has been applied to the table. In this case, `direction: rtl` has been set for the whole table container.
+
+]]></info>
+
+</dt-example>

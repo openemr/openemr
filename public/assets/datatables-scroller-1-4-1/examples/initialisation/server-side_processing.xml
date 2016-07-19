@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="scroller" table-class="display nowrap" order="4">
+
+<css lib="datatables scroller" />
+<js lib="jquery datatables scroller">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		serverSide: true,
+		ordering: false,
+		searching: false,
+		ajax: function ( data, callback, settings ) {
+			var out = [];
+
+			for ( var i=data.start, ien=data.start+data.length ; i<ien ; i++ ) {
+				out.push( [ i+'-1', i+'-2', i+'-3', i+'-4', i+'-5' ] );
+			}
+
+			setTimeout( function () {
+				callback( {
+					draw: data.draw,
+					data: out,
+					recordsTotal: 5000000,
+					recordsFiltered: 5000000
+				} );
+			}, 50 );
+		},
+		scrollY: 200,
+		scroller: {
+			loadingIndicator: true
+		}
+	} );
+} );
+]]>
+</js>
+
+<title lib="Scroller">Server-side processing (5,000,000 rows)</title>
+
+<info><![CDATA[
+
+DataTables' server-side processing mode is a feature that naturally fits in with Scroller perfectly. Server-side processing can be used to show large data sets, with the server being used to do the data processing, and Scroller optimising the display of the data in a scrolling viewport.
+
+When using server-side processing, Scroller will wait a small amount of time to allow the scrolling to finish before requesting more data from the server (200mS by default). This prevents you from DoSing your own server!
+
+This example shows Scroller using server-side processing mode and 5 million rows. **Important** This particular example uses `dt-init ajax` as a function to _fake_ the data to show Scroller's ability to show large data sets. It does not have a real database behind it! You would normally not use `dt-init ajax` as a function to generate data, but rather as a url for where to fetch the real data!
+
+In this example we also enable the `s-init scroller.loadingIndicator` option of Scroller to show the end user what is happening when they scroll passed the currently loaded data.
+
+]]></info>
+
+</dt-example>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedColumns">
+	<name>fixedColumns().update()</name>
+	<summary>Update the data shown in the FixedColumns</summary>
+	<since>3.1.0</since>
+
+	<type type="function">
+		<signature>fixedColumns().update()</signature>
+		<returns type="DataTables.Api">
+			DataTables API instance
+		</returns>
+		<description>
+			Redraw the fixed columns, re-reading the data from the source DataTable.
+		</description>
+	</type>
+
+	<description>
+		If the data in the host DataTable changes, the FixedColumns must be updated to reflect this new data. This method provides the ability, simply redrawing the fixed columns with the latest data in the DataTable.
+
+		In future this will be automated once DataTables added events for table update actions, but at the moment this method must be called.
+	</description>
+
+	<example title="Update data in a table and then redraw the fixed columns"><![CDATA[
+
+var table = $('#myTable').DataTable();
+
+table.cell( 0, 0 ).data( 'New data' ).draw();
+table.fixedColumns().update();
+
+]]></example>
+</dt-api>

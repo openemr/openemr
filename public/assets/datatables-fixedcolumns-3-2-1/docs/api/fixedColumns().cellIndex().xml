@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedColumns">
+	<name>fixedColumns().cellIndex()</name>
+	<summary>Get the cell index of a cell in a fixed column</summary>
+	<since>3.1.0</since>
+
+	<type type="function">
+		<signature>fixedColumns().cellIndex( row )</signature>
+		<parameter type="jQuery|node" name="row">
+			The cell (`-tag td` or `-tag th`) to get the cell index of. This can be either a cell in the fixed columns or in the host DataTable.
+		</parameter>
+		<returns type="object">
+			The cell index for the given cell.
+		</returns>
+		<description>
+			Get the cell index (`dt-api cell().index()`) for a `-tag td`/`-tag th` element, regardless of if the cell is contained in a fixed column, or in the scrolling table.
+		</description>
+	</type>
+
+	<deprecated>
+		<version>3.2.1</version>
+		<description>
+			As of DataTables 1.10.11 and FixedColumns 3.2.1 this method is no longer required to obtain a cell index from a node as the `dt-api cell()` method will accept the `-tag td` elements in the fixed column as selector arguments.
+		</description>
+		<example title="Get the cell index for any cell clicked upon in a table (from the fixed column, or the main table)"><![CDATA[
+
+var table = $('myTable').DataTable();
+
+$(table.table().container()).on( 'click', 'td', function () {
+	var cell = table.cell( this );
+	
+	console.log( cell.index() );
+} );
+
+]]>
+		</example>
+	</deprecated>
+
+	<description>
+		When working with FixedColumns, there is additional complexity in the DataTable as the fixed columns are not technically part of the host DataTables - they just look like it! They are in fact HTML `-tag table` elements themselves, with specific styling to visually integrate them with the host table.
+
+		Since the fixed columns are the ones that the end user sees, they are also the ones that the user will interact with - for example clicking on a cell in the fixed column will give the fixed column cell and _not_ the cell in the DataTable!
+
+		This method is provided to be able to convert from a cell in the fixed columns into a DataTables cell, by returning the cell data index (this is _not_ the visible index, but rather an index internal to DataTables!). That index can then be used with the `dt-api cell()` method to obtain a reference to the main DataTable cell.
+	</description>
+
+	<example title="Get the cell index for any cell clicked upon in a table"><![CDATA[
+
+$(document).on( 'click', 'td', function () {
+	console.log(
+		$('#example').DataTable().fixedColumns().cellIndex()
+	);
+} );
+
+]]></example>
+</dt-api>

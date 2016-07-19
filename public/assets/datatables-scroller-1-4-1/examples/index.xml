@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="0">
+
+<title lib="Scroller">Scroller examples</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+Scroller is a virtual rendering plug-in for DataTables which allows large datasets to be drawn on screen every quickly. What the virtual rendering means is that only the visible portion of the table (and a bit to either side to make the scrolling smooth) is drawn, while the scrolling container gives the visual impression that the whole table is visible. This is done by making use of the pagination abilities of DataTables and moving the table around in the scrolling container DataTables adds to the page. The scrolling container is forced to the height it would be for the full table display using an extra element.
+
+Scroller is initialised by simply including the letter `S` in the `dt-init dom` for the table you want to have this feature enabled on. Note that the `S` must come after the `t` parameter in `dt-init dom`.
+
+Key features include:
+
+* Speed! The aim of Scroller for DataTables is to make rendering large data sets fast
+* Full compatibility with DataTables' deferred rendering for maximum speed
+* Integration with state saving in DataTables (scrolling position is saved)
+* Easy to use
+
+]]></info>
+
+</dt-example>

@@ -35,6 +35,7 @@ class NFQ_0028_2014_InitialPatientPopulation implements CqmFilterIF
     
         if ( $patient->calculateAgeOnDate( $beginDate ) >= 18 &&
              ( Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate, $twoEncounters ) ||
+               Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OPHTHAL, $patient, $beginDate, $endDate, $twoEncounters ) || 
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_HEA_AND_BEH, $patient, $beginDate, $endDate, $twoEncounters ) ||
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OCC_THER, $patient, $beginDate, $endDate, $twoEncounters ) ||
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PSYCH_AND_PSYCH, $patient, $beginDate, $endDate, $twoEncounters ) ||

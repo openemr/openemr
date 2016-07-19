@@ -180,6 +180,7 @@ CREATE TABLE `valueset` (
 
 -- updating nqf code for cqm measure blood pressure
 UPDATE `clinical_rules` set `cqm_nqf_code` = '0018' where `id` = 'rule_htn_bp_measure_cqm';
+
 --
 
 #IfMissingColumn immunizations information_source
@@ -381,7 +382,7 @@ UPDATE `layout_options` SET group_name='8Guardian',title='Name',seq='10' WHERE f
 #EndIf
 
 #IfNotColumnType patient_data guardiansname TEXT
-ALTER TABLE `patient_data` MODIFY `guardiansname` TEXT; 
+ALTER TABLE `patient_data` MODIFY `guardiansname` TEXT;
 #EndIf
 
 #IfMissingColumn patient_data guardiansname
@@ -464,12 +465,12 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `codes` ) V
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `notes`, `codes` ) VALUES ('drug_route','inhale','Inhale' , 16, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
 #EndIf
 
-#IfNotRow3D list_options list_id drug_route codes NCI-CONCEPT-ID:C38288 title Per Oris 
+#IfNotRow3D list_options list_id drug_route codes NCI-CONCEPT-ID:C38288 title Per Oris
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C38288' WHERE list_id='drug_route' and title='Per Oris';
 #EndIf
 
 #IfNotColumnType immunizations cvx_code varchar(10)
-ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) default NULL; 
+ALTER TABLE `immunizations` MODIFY `cvx_code` varchar(10) default NULL;
 #EndIf
 
 #IfMissingColumn drugs drug_code
@@ -558,4 +559,54 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 #IfNotRow3D list_options list_id drug_route title Inhale codes NCI-CONCEPT-ID:C38216
 UPDATE `list_options` SET codes='NCI-CONCEPT-ID:C38216' WHERE list_id='drug_route' and title='Inhale';
 #EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_catname Ophthalmological Services
+SET @catid = (SELECT MAX(pc_catid) FROM  openemr_postcalendar_categories);
+INSERT INTO `openemr_postcalendar_categories` (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`) VALUES (@catid+1, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,@catid+1);
+INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_ophthal_serv', @catid+1);
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_hea_and_beh' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_18_older' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_ser_40_older' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_ind_counsel' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_group_counsel' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pre_med_other_serv' and main_cat_id = 10;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 5;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 9;
+DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_id = 10;
+#EndIf
+
+#IfMissingColumn documents thumb_url
+ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
+#EndIf
+
+
+
+#IfMissingColumn layout_options validation
+ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id LBF_Validations
+INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Validations','LBF_Validations');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
+
+#EndIf
+
 

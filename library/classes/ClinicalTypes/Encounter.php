@@ -29,6 +29,7 @@ class Encounter extends ClinicalType
     const ENC_NURS_DISCHARGE = 'enc_nurs_discharge'; // encounter nursing discharge
     const ENC_NONAC_INP_OUT_OR_OPTH = 'enc_nonac_inp_out_or_opth'; // encounter non-acute inpt, outpatient, or ophthalmology
     const ENC_INFLUENZA = 'enc_influenza';
+    const ENC_OPHTHAL = 'enc_ophthal_serv';
     
     public static function getEncounterTypes()
     {

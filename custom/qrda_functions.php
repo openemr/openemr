@@ -166,7 +166,7 @@
 	
 	function allEncPat($patient_id, $from_date, $to_date){
 		$encArr = array();
-		$patQry = "SELECT encounter, date,pc_catid FROM form_encounter WHERE pid = ? AND (DATE(date) BETWEEN ? AND ?)";
+		$patQry = "SELECT fe.encounter, fe.date,fe.pc_catid,opc.pc_catname FROM form_encounter fe inner join openemr_postcalendar_categories opc on opc.pc_catid = fe.pc_catid WHERE fe.pid = ? AND (DATE(fe.date) BETWEEN ? AND ?)";
 		$patRes = sqlStatement($patQry, array($patient_id, $from_date, $to_date));
 		while( $patRow = sqlFetchArray($patRes ) ){
 			$encArr[] = $patRow;

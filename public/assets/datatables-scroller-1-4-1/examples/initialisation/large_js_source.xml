@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="scroller" table-class="display nowrap" order="3">
+
+<css lib="datatables scroller" />
+<js lib="jquery datatables scroller">
+<![CDATA[
+	$(document).ready(function() {
+		var data = [];
+		for ( var i=0 ; i<50000 ; i++ ) {
+			data.push( [ i, i, i, i, i ] );
+		}
+		
+		$('#example').DataTable( {
+			data:           data,
+			deferRender:    true,
+			scrollY:        200,
+			scrollCollapse: true,
+			scroller:       true
+		} );
+	} );
+]]>
+</js>
+
+<title lib="Scroller">Client-side data source (50,000 rows)</title>
+
+<info><![CDATA[
+
+This example is completely artificial in that the data generated is created on the client-side by just looping around a Javascript array and then passing that to DataTables. However, it does show quite nicely that DataTables and Scroller can cope with large amounts of data on the client-side quite nicely. Typically data such as this would be Ajax sourced and server-side processing should be considered.
+
+Please be aware that the performance of this page will depend on your browser as the array of data is generated - for example IE6 will crawl!
+
+]]></info>
+
+</dt-example>

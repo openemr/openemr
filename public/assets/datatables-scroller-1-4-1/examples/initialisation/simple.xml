@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="scroller" table-class="display nowrap" order="1">
+
+<css lib="datatables scroller" />
+<js lib="jquery datatables scroller">
+<![CDATA[
+$(document).ready(function() {
+	$('#example').DataTable( {
+		ajax:           "../data/2500.txt",
+		deferRender:    true,
+		scrollY:        200,
+		scrollCollapse: true,
+		scroller:       true
+	} );
+} );
+]]>
+</js>
+
+<title lib="Scroller">Basic initialisation</title>
+
+<info><![CDATA[
+
+Scroller is a plug-in for DataTables which enhances DataTables' built-in scrolling features to allow large amounts of data to be rendered on page very quickly. This is done by Scroller through the use of a virtual rendering technique that will render only the part of the table that is actually required for the current view.
+
+Note that Scroller **requires** that all rows are of the same height (in order to preform its positional calculations). You can use the `nowrap` class of the [DataTables default stylesheet](https://datatables.net/manual/styling/classes#nowrap), or add `th, td { white-space: nowrap; }` to your CSS, to ensure that text in rows does not wrap.
+
+This example shows how Scroller for DataTables can be initialised, when the Scroller Javascript file is included, by simply setting the `s-init scroller` option to `true`. This option can also be given as an object to specify initialisation options for Scroller.
+
+Deferred rendering (`dt-init deferRender`) should be used when Scroller is enabled to gain the speed benefits offered by Scroller. The data source for this example is an Ajax file (`dt-init ajax`).
+
+]]></info>
+
+</dt-example>

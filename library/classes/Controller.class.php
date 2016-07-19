@@ -1,10 +1,6 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../Smarty/Smarty.class.php");
 require_once(dirname(__FILE__) . "/../formdata.inc.php");
-if (!defined('SMARTY_DIR')) {
-    define("SMARTY_DIR", dirname(__FILE__) . "/../Smarty/");
-}
 
 
 class Controller extends Smarty {
@@ -20,10 +16,9 @@ class Controller extends Smarty {
                $this->_state = true;
                $this->compile_dir = $GLOBALS['fileroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
                $this->compile_check = true;
-               $this->plugins_dir = array(dirname(__FILE__) . "/../Smarty/plugins");
+               $this->plugins_dir = array(dirname(__FILE__) . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
                $this->assign("PROCESS", "true");
-               $this->assign("HEADER", "<html><head>
-<?php html_header_show();?></head><body>");
+               $this->assign("HEADER", "<html><head><?php html_header_show();?></head><body>");
                $this->assign("FOOTER", "</body></html>");
                $this->assign("CONTROLLER", "controller.php?");
                $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);

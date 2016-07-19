@@ -114,6 +114,11 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+// This flag indicates if another window or frame is trying to reload the login
+// page to this top-level window.  It is set by javascript returned by auth.inc
+// and is checked by handlers of beforeunload events.
+var timed_out = false;
+
 // This counts the number of frames that have reported themselves as loaded.
 // Currently only left_nav and Title do this, so the maximum will be 2.
 // This is used to determine when those frames are all loaded.

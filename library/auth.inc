@@ -33,8 +33,6 @@ require_once("$srcdir/authentication/login_operations.php");
 
 $incoming_site_id = '';
 
-
-
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['clearPass']) && isset($_POST['authProvider']))
 {
@@ -72,7 +70,7 @@ else if ( (isset($_GET['auth'])) && ($_GET['auth'] == "logout") )
 {
     newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
     authCloseSession();
-    authLoginScreen();
+    authLoginScreen(true);
 }
 else
 {
@@ -104,7 +102,7 @@ if (!isset($_SESSION["last_update"])) {
     if ((time() - $_SESSION["last_update"]) > $timeout) {
         newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
         authCloseSession();
-        authLoginScreen();
+        authLoginScreen(true);
     } else {
         // Have a mechanism to skip the timeout reset mechanism if a skip_timeout_reset parameter exists. This
         //  can be used by scripts that continually request information from the server; for example the Messages
@@ -156,11 +154,27 @@ function authCloseSession ()
   unset($_COOKIE[session_name()]);
 }
 
-function authLoginScreen()
+function authLoginScreen($timed_out = false)
 {
   // See comment in authCloseSession().
   global $incoming_site_id;
-  header("Location: {$GLOBALS['login_screen']}?error=1&site=$incoming_site_id");
+?>
+<script>
+ // Find the top level window for this instance of OpenEMR, set a flag indicating
+ // session timeout has occurred, and reload the login page into it.  This is so
+ // that beforeunload event handlers will not obstruct the process in this case.
+ var w = window;
+ while (w.opener) { // in case we are in a dialog window
+  var wtmp = w;
+  w = w.opener;
+  wtmp.close();
+ }
+<?php if ($timed_out) { ?>
+ w.top.timed_out = true;
+<?php } ?>
+ w.top.location.href = '<?php echo "{$GLOBALS['login_screen']}?error=1&site=$incoming_site_id"; ?>';
+</script>
+<?php
   exit;
 }
 

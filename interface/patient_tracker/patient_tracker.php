@@ -156,15 +156,24 @@ function openNewTopWindow(newpid,newencounterid) {
 <table border='0' cellpadding='1' cellspacing='2' width='100%'>
 
  <tr bgcolor="#cccff">
+  <?php if ($GLOBALS['ptkr_show_pid']) { ?>
    <td class="dehead" align="center">
    <?php  echo xlt('PID'); ?>
   </td>
+  <?php } ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Patient'); ?>
   </td>
+  <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+  <td class="dehead" align="center">
+   <?php  echo xlt('Reason'); ?>
+  </td>
+  <?php } ?>
+  <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Encounter'); ?>
   </td>
+  <?php } ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Exam Room #'); ?>
   </td>
@@ -236,6 +245,10 @@ $appointments = sortAppointments( $appointments, 'time' );
                 $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
                 $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
                 $tracker_id = $appointment['id'];
+                # reason for visit
+                if ($GLOBALS['ptkr_visit_reason']) {
+                  $reason_visit = $appointment['pc_hometext'];
+                }
                 $newarrive = collect_checkin($tracker_id);
                 $newend = collect_checkout($tracker_id);
                 $colorevents = (collectApptStatusSettings($status));
@@ -250,16 +263,26 @@ $appointments = sortAppointments( $appointments, 'time' );
                 }
 ?>
         <tr bgcolor='<?php echo $bgcolor ?>'>
+        <?php if ($GLOBALS['ptkr_show_pid']) { ?>
         <td class="detail" align="center">
         <?php echo text($appt_pid) ?>
          </td>
+        <?php } ?>
         <td class="detail" align="center">
         <a href="#" onclick="return topatient('<?php echo attr($appt_pid);?>','<?php echo attr($appt_enc);?>')" >
         <?php echo text($ptname); ?></a>
          </td>
+         <!-- reason -->
+         <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+         <td class="detail" align="center">
+         <?php echo text($reason_visit) ?>
+         </td>
+         <?php } ?>
+		 <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
 		 <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
          </td>
+		 <?php } ?>
          <td class="detail" align="center">
          <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
          </td>

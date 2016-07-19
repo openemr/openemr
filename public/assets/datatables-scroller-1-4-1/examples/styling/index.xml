@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example order="0">
+
+<title lib="Scroller">Styling</title>
+
+<info><![CDATA[
+
+Like all DataTables components Scroller can be styling to integrate seamlessly with Bootstrap, Foundation and other CSS frameworks. These examples in this section demonstrate this.
+
+]]></info>
+
+</dt-example>

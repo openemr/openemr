@@ -31,6 +31,7 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
+require_once dirname(__FILE__) . '/../../library/classes/CouchDB.class.php';
 
  $patient     = $_REQUEST['patient'];
  $encounterid = $_REQUEST['encounterid'];
@@ -141,14 +142,29 @@ function form_delete($formdir, $formid) {
 // Delete a specified document including its associated relations and file.
 //
 function delete_document($document) {
-  $trow = sqlQuery("SELECT url FROM documents WHERE id = ?", array($document));
+  $trow = sqlQuery("SELECT url, thumb_url, storagemethod, couch_docid, couch_revid FROM documents WHERE id = ?", array($document));
   $url = $trow['url'];
+  $thumb_url = $trow['thumb_url'];
   row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
   row_delete("documents", "id = '" . add_escape_custom($document) . "'");
   row_delete("gprelations", "type1 = 1 AND id1 = '" . add_escape_custom($document) . "'");
-  if (substr($url, 0, 7) == 'file://') {
-    @unlink(substr($url, 7));
-  }
+
+    switch((int)$trow['storagemethod']) {
+        //for hard disk store
+        case 0:
+            @unlink(substr($url, 7));
+
+            if(!is_null($thumb_url)){
+                @unlink(substr($thumb_url, 7));
+            }
+            break;
+        //for CouchDB store
+        case 1:
+            $couchDB = new CouchDB();
+            $couchDB->DeleteDoc($GLOBALS['couchdb_dbase'], $trow['couch_docid'], $trow['couch_revid']);
+            break;
+    }
+
 }
 ?>
 <html>
