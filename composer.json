@@ -10,6 +10,6 @@
         "source": "http://github.com/openemr/openemr"
     },
 	"require": {
-		
+		"adodb/adodb-php": "5.20.2"
 	}
 }
