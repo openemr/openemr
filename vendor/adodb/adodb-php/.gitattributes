@@ -1,0 +1,17 @@
+# Default behavior
+* text=auto
+
+# Text files to be normalized to lf line endings
+*.php	text
+*.htm*	text
+*.sql	text
+*.txt	text
+*.xml	text
+*.xsl	text
+
+# Windows-only files
+*.bat	eol=crlf
+
+# Binary files
+*.gif	binary
+

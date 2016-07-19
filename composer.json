@@ -11,7 +11,8 @@
     },
 	"require": {
 
-        "smarty/smarty": "2.6.29"
+        "smarty/smarty": "2.6.29",
+        "adodb/adodb-php": "5.20.2"
 		
 	}
 }
