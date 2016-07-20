@@ -25,3 +25,7 @@ function safe_delete() {
 ## Remove example/CLI scripts. 
 safe_delete vendor/adodb/adodb-php/tests
 safe_delete vendor/smarty/smart/demo
+
+##############################################################################
+## Remove .gitignore & .gitattribute files from vendor folder   
+find ./vendor/** -name ".git*" -exec rm -rf {} \;
