@@ -81,27 +81,26 @@ function optionalAge($frow, $date, &$asof) {
 //
 function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '',
 		$onchange = '', $tag_id = '', $custom_attributes = null, $multiple = false, $backup_list = '') {
-	$s = '';	
+        $s = '';	
 	
 	$tag_name_esc = attr($tag_name);
-	
-	if ($multiple) {
-		$tag_name_esc = $tag_name_esc . "[]";
-	}
+
+        if ($multiple) {		
+            $tag_name_esc = $tag_name_esc . "[]";		
+        }
+ 
 	$s .= "<select name='$tag_name_esc'";
 	
 	if ($multiple) {
 		$s .= " multiple='multiple'";
 	}
 	
-	$tag_id_esc = $tag_name_esc;
+	$tag_id_esc = attr( $tag_name );
+        
 	if ($tag_id != '') {
-		$tag_id_esc = attr($tag_id);
+		$tag_id_esc = attr($tag_id); 
 	}
-	
-	if ($multiple) {
-		$tag_id_esc = $tag_id_esc . "[]";
-	}
+        
 	$s .= " id='$tag_id_esc'";
 	
 	if ($class) {
@@ -2473,7 +2472,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					$field_id      = $group_fields['field_id'];
 					$list_id       = $group_fields['list_id'];
 					$currvalue     = '';
-                    $condition_str = get_conditions_str($condition_str,$group_fields);
+                                        $condition_str = get_conditions_str($condition_str,$group_fields);
 
 
 					if ($formtype == 'DEM') {
