@@ -14,5 +14,13 @@
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.2"
 		
-	}
+	},
+    "scripts": {
+        "post-install-cmd": [
+          "bash contrib/util/installScripts/composer/post-install.sh"
+        ],
+        "post-update-cmd": [
+          "bash contrib/util/installScripts/composer/post-install.sh"
+        ]
+    }
 }
