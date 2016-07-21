@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# ------------------------------------------------------------------------
+# The phing build script for Unix based systems
+# $Id: ecfa9e749f177126fd428080c9dc4419f00f2594 $
+# ------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Do not change anything below this line unless you know what you're doing.
+# -------------------------------------------------------------------------
+
+if (test -z "$PHP_COMMAND") ; then
+	#echo "WARNING: PHP_COMMAND environment not set. (Assuming php on PATH)"
+	PHP_COMMAND="@PHP-BIN@"
+	export PHP_COMMAND
+fi
+
+$PHP_COMMAND -d phar.readonly=off -d html_errors=off -qC @PEAR-DIR@/phing.php "$@"

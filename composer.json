@@ -1,7 +1,7 @@
 {
-	"name": "openemr/openemr",
-	"description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
-	"license": "GPL",
+    "name": "openemr/openemr",
+    "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
+    "license": "GPL",
     "support": {
         "website": "http://www.open-emr.org/",
         "issues": "https://sourceforge.net/p/openemr/bugs/",
@@ -9,18 +9,23 @@
         "wiki": "http://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
         "source": "http://github.com/openemr/openemr"
     },
-	"require": {
+    "require": {
 
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.2"
-		
-	},
+        
+    },
+    "require-dev": {
+
+        "phing/phing": "2.14.0"
+        
+    },
     "scripts": {
         "post-install-cmd": [
-          "bash contrib/util/installScripts/composer/post-install.sh"
+          "php vendor/phing/phing/bin/phing vendor-clean"
         ],
         "post-update-cmd": [
-          "bash contrib/util/installScripts/composer/post-install.sh"
+          "php vendor/phing/phing/bin/phing vendor-clean"
         ]
     }
 }
