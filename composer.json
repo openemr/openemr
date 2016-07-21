@@ -19,13 +19,5 @@
 
         "phing/phing": "2.14.0"
         
-    },
-    "scripts": {
-        "post-install-cmd": [
-          "php vendor/phing/phing/bin/phing vendor-clean"
-        ],
-        "post-update-cmd": [
-          "php vendor/phing/phing/bin/phing vendor-clean"
-        ]
     }
 }
