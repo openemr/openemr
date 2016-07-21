@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedColumns">
+	<name>fixedColumns()</name>
+	<summary>Namespace for FixedColumns methods</summary>
+	<since>3.1.0</since>
+
+	<type type="function">
+		<signature>fixedColumns()</signature>
+		<returns type="DataTables.Api">
+			DataTables API instance with the FixedColumns methods available.
+		</returns>
+		<description>
+			Namespacing for FixedColumns methods - FixedColumns' methods are available available on the returned API instance.
+		</description>
+	</type>
+
+	<description>
+		This method does not perform any functions itself, but rather serves as a simple namespacing method to group the other methods that FixedColumns makes available. Please refer to the documentation for those methods for full details on how they can be used.
+	</description>
+
+	<related>fc-api fixedColumns().update()</related>
+	<related>fc-api fixedColumns().relayout()</related>
+	<related>fc-api fixedColumns().rowIndex()</related>
+	<related>fc-api fixedColumns().cellIndex()</related>
+</dt-api>

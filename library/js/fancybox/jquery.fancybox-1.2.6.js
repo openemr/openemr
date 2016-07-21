@@ -33,7 +33,7 @@
 	};
 
 	var elem, opts, busy = false, imagePreloader = new Image, loadingTimer, loadingFrame = 1, imageRegExp = /\.(jpg|gif|png|bmp|jpeg)(.*)?$/i;
-	var ieQuirks = null, IE6 = $.browser.msie && $.browser.version.substr(0,1) == 6 && !window.XMLHttpRequest, oldIE = IE6 || ($.browser.msie && $.browser.version.substr(0,1) == 7);
+	var ieQuirks = null, IE6 = false, oldIE = false;
 
 	$.fn.fancybox = function(o) {
 		var settings		= $.extend({}, $.fn.fancybox.defaults, o);
@@ -565,9 +565,6 @@
 
 		$('<table cellspacing="0" cellpadding="0" border="0"><tr><td class="fancy_title" id="fancy_title_left"></td><td class="fancy_title" id="fancy_title_main"><div></div></td><td class="fancy_title" id="fancy_title_right"></td></tr></table>').appendTo('#fancy_title');
 
-		if ($.browser.msie) {
-			$(".fancy_bg").fixPNG();
-		}
 
 		if (IE6) {
 			$("div#fancy_overlay").css("position", "absolute");
@@ -610,7 +607,7 @@
 	};
 
 	$(document).ready(function() {
-		ieQuirks = $.browser.msie && !$.boxModel;
+		ieQuirks = false;
 
 		if ($("#fancy_outer").length < 1) {
 			$.fn.fancybox.build();

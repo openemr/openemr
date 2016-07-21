@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="Scroller">
+	<name>scroller.measure()</name>
+	<summary>Recalculate the cached measurements that Scroller uses</summary>
+	<since>1.2.0</since>
+
+	<type type="function">
+		<signature>scroller.measure( [ redraw ] )</signature>
+		<description>Recalculate the measurements that Scroller uses for its virtual display calculations</description>
+		<parameter type="boolean" name="redraw" default="true">
+			Flag to indicate if the table should immediately redraw or not. `true` will redraw the table, `false` will not.
+		</parameter>
+		<returns type="DataTables.Api">DataTables API instance for chaining</returns>
+	</type>
+
+	<description>
+		This method will cause Scroller to take the measurements for the elements it depends upon and recalculate its display values based on the newly read values. The measurements required include the scrolling viewport height and the height of the rows in the table.
+
+		This can be particularly useful if the table is initially drawn in a hidden element - for example in a tab.
+	</description>
+
+	<example title="Perform Scroller measurements when the table was hidden in a Bootstrap tab"><![CDATA[
+
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+	$.fn.dataTable
+		.tables( { visible: true, api: true } )
+		.scroller.measure();
+})
+
+]]></example>
+</dt-api>

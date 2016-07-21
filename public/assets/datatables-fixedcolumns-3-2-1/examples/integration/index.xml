@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="2">
+
+<title lib="FixedColumns">Integration</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+The examples in this section show FixedColumns being used with other DataTables extensions.
+
+]]></info>
+
+</dt-example>

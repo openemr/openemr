@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" table-class="display nowrap" order="2" framework="bootstrap">
+
+<css lib="datatables fixedheader responsive" />
+<js lib="jquery datatables fixedheader responsive">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		responsive: true
+	} );
+
+	new $.fn.dataTable.FixedHeader( table );
+} );
+]]>
+</js>
+
+<title lib="FixedHeader">Responsive integration (Bootstrap)</title>
+
+<info><![CDATA[
+
+FixedHeader will automatically work with the [Responsive](https://datatables.net/extensions/responsive) extension for DataTables. All you need to do is enable both options on the table and they will automatically cooperate.
+
+]]></info>
+
+</dt-example>

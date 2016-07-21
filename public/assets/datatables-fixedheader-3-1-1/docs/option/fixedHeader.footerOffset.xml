@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-option library="FixedHeader">
+	<name>fixedHeader.footerOffset</name>
+	<summary>Offset the table's fixed footer</summary>
+	<since>3.0.0</since>
+
+	<default type="integer" value="0"/>
+
+	<type type="integer">
+		<description>
+			Set the offset (in pixels) of the footer element's offset for the scrolling calculations.
+		</description>
+	</type>
+
+	<description>
+		Although less common that fixed a header in place on a web-page or app, it can sometimes be useful to provide a fixed position element at the bottom of a page, giving quick access to common functions and links for an end user. The offset introduced by this fixed element needs to be accounted for when using FixedHeader for correct positioning of the fixed element.
+
+		This parameter provides a method that you can use to inform FixedHeader that an offset should be applied to the footer, and what that offset should be.
+	</description>
+
+	<example title="Set the footer offset to a known value"><![CDATA[
+
+$('#example').DataTable( {
+	fixedHeader: {
+		footer: true,
+		footerOffset: 40
+	}
+} );
+
+]]></example>
+
+	<example title="Use jQuery to calculate a required offset"><![CDATA[
+
+$('#example').DataTable( {
+	fixedHeader: {
+		footer: true,
+		footerOffset: $('#navMenu').outerHeight()
+	}
+} );
+
+]]></example>
+
+	<related>fh-init fixedHeader.headerOffset</related>
+	<related>fh-api fixedHeader.footerOffset()</related>
+</dt-option>

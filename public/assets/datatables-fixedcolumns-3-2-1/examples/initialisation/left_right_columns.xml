@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column" order="1">
+
+<css lib="datatables fixedcolumns">
+	/* Ensure that the demo table scrolls */
+	th, td { white-space: nowrap; }
+	div.dataTables_wrapper {
+		width: 800px;
+		margin: 0 auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        "300px",
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   {
+			leftColumns: 1,
+			rightColumns: 1
+		}
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">Left and right fixed columns</title>
+
+<info><![CDATA[
+
+FixedColumns allows columns to be fixed from both the left and right hand sides of the table. Fixing right hand-side columns is done by using the `fc-init fixedColumns.rightColumns` initialisation parameter, which works just the same as `fc-init fixedColumns.leftColumns` does for the left side of the table. This example shows both the left and right columns being fixed in place.
+
+]]></info>
+
+</dt-example>

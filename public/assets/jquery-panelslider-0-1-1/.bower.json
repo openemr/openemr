@@ -1,0 +1,37 @@
+{
+  "name": "jquery-panelslider",
+  "main": "jquery.panelslider.js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/eduardomb/jquery-panelslider",
+  "authors": [
+    "Eduardo Barbosa <eduardomb@ufmg.br>"
+  ],
+  "description": "Side panel slider plugin (jQuery) that also slides page (inspired on medium)",
+  "keywords": [
+    "panel",
+    "menu",
+    "slider",
+    "jquery",
+    "medium"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.0"
+  },
+  "_release": "0.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.1",
+    "commit": "057a3d706648e136d1cb60092eb9d872cff1f2f7"
+  },
+  "_source": "https://github.com/eduardomb/jquery-panelslider.git",
+  "_target": "0.1.1",
+  "_originalSource": "jquery-panelslider"
+}

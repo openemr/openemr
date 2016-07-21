@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedColumns">
+	<name>rows().recalcHeight()</name>
+	<summary>Recalculate the height of one or more rows after a data change</summary>
+	<since>3.1.0</since>
+
+	<type type="function">
+		<signature>rows().recalcHeight()</signature>
+		<returns type="DataTables.Api">
+			DataTables API instance - unmodified.
+		</returns>
+		<description>
+			Mark the heights of the selected rows (from `dt-api rows()`) to be recalculated on the next draw.
+		</description>
+	</type>
+
+	<description>
+		This method can be used to flag one or more rows in the table to have their heights recalculated when using `-string semiauto` row height matching (`fc-init fixedColumns.heightMatch`) on the next draw (`dt-api draw()`). This function will have no effect when `-string none` or `-string auto` row height matching is used.
+
+		This can be useful when the data in a DataTable has changed, potentially effecting the heights of the rows in question.
+
+		In future this will be automated once DataTables added events for table update actions, but at the moment this method must be called.
+	</description>
+
+	<example title="Recalculate the heights of all rows"><![CDATA[
+
+var table = $('#myTable').DataTable();
+
+table.rows().recalcHeight().draw();
+
+]]></example>
+</dt-api>

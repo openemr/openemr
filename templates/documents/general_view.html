@@ -100,7 +100,7 @@ function set_checkbox() {literal}{{/literal}
 <table valign="top" width="100%">
     <tr>
         <td>
-            <a class="css_button" href="{$web_path}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
+            <a class="css_button" href="{$web_path}" title="{xl t='Original file'}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
             {$delete_string}
             {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
@@ -270,7 +270,7 @@ function set_checkbox() {literal}{{/literal}
 	</tr>
 	<tr>
 		<td>
-            <div class="text"><b>{xl t='Content'}</b></div>
+            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b></div>
             {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or

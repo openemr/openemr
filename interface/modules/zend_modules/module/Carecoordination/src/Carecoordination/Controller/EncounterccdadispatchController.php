@@ -79,6 +79,7 @@ class EncounterccdadispatchController extends AbstractActionController
 			$sent_by            = isset($parameterArray['sent_by']) ? $parameterArray['sent_by'] : '';
 			$send            	= isset($parameterArray['send']) ? $parameterArray['send'] : 0;
 			$view            	= isset($parameterArray['view']) ? $parameterArray['view'] : 0;
+                        $emr_transfer       = isset($parameterArray['emr_transfer']) ? $parameterArray['emr_transfer'] : 0;
             $this->recipients	= isset($parameterArray['recipients']) ? $parameterArray['recipients'] : '';
 
             if ($this->recipients == 'patient') {
@@ -131,7 +132,7 @@ class EncounterccdadispatchController extends AbstractActionController
 					xmlns:mif="urn:hl7-org:v3/mif">
 					<!--';
 					$content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-					$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send);					
+					$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);					
                     try {
                         $event = isset ($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
@@ -170,7 +171,7 @@ class EncounterccdadispatchController extends AbstractActionController
 				xmlns:mif="urn:hl7-org:v3/mif">
 				<!--';
 				$content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-				$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send);
+				$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
                 try {
                     $event = isset ($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                     $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';

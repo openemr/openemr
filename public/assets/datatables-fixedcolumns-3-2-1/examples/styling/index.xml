@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html" order="3">
+
+<title lib="FixedColumns">Styling</title>
+
+<js lib="jquery" />
+<info><![CDATA[
+
+The examples in this section demonstrate how FixedColumns can be styling by CSS frameworks such as Bootstrap.
+
+]]></info>
+
+</dt-example>

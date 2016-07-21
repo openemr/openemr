@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-api library="FixedHeader">
+	<name>fixedHeader.disable()</name>
+	<summary>Disable the fixed elements</summary>
+	<since>3.0.1</since>
+
+	<type type="function">
+		<signature>fixedHeader.disable()</signature>
+		<returns type="DataTables.Api">
+			The DataTables API for chaining
+		</returns>
+		<description>
+			Disable the fixed elements. When disabled, the table will remain static, regardless of end user scrolling.
+		</description>
+	</type>
+
+	<description>
+		This method can be used to disable the table's fixed elements (i.e. header and footer). This can be useful if you wish to show and hide the table (see also `fh-api fixedHeader.adjust()`) or otherwise manipulate the table in its original state.
+	</description>
+
+	<example title="Disable the FixedHeader"><![CDATA[
+
+var table = $('#myTable').DataTable();
+
+table.fixedHeader.disable();
+
+]]></example>
+
+	<related>fh-api fixedHeader.enable()</related>
+</dt-api>

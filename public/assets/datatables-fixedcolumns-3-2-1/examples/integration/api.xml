@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dt-example table-type="html-wide" table-class="stripe row-border order-column nowrap" order="3">
+
+<css lib="datatables fixedcolumns">
+	#click-output {
+		margin-bottom: 1em;
+		padding: 1em;
+		background-color: #f6f6f6;
+		border: 1px solid #999;
+		border-radius: 3px;
+		height: 100px;
+		overflow: auto;
+	}
+</css>
+<js lib="jquery datatables fixedcolumns">
+<![CDATA[
+$(document).ready(function() {
+	var table = $('#example').DataTable( {
+		scrollY:        300,
+		scrollX:        true,
+		scrollCollapse: true,
+		paging:         false,
+		fixedColumns:   true
+	} );
+
+	$(table.table().container()).on( 'click', 'td', function () {
+		var cell = table.cell( this );
+		
+		$('#click-output').prepend(
+			'<div>'+cell.data()+'</div>'
+		);
+	} );
+} );
+]]>
+</js>
+
+<title lib="FixedColumns">DataTables API</title>
+
+<info><![CDATA[
+
+This example shows how the cells in the fixed columns operate seamlessly with the [DataTables API](//datatables.net/manual/api). Specifically in this case, a click event is used to show the data for the cell that was clicked on by using the `dt-api cell()` selector method and `dt-api cell().data()` to obtain the data.
+
+Obviously this is a trivial use case, but it demonstrates clearly how the cells in the fixed columns operate with the DataTables API selector methods.
+
+Note that the `dt-api table().container()` method is used to get the table's wrapper `-tag div` to use as the base element for the delegated _click_ event. This is appropriate in this case rather than simply using `#example` since the fixed column elements are not inside the original `-tag table` element.
+
+]]></info>
+
+<demo-html>
+	<div id="click-output">Clicked on cell data - new events added at the top</div>
+</demo-html>
+
+</dt-example>
