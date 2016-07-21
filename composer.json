@@ -10,6 +10,8 @@
         "source": "http://github.com/openemr/openemr"
     },
 	"require": {
+
+        "smarty/smarty": "2.6.29"
 		
 	}
 }
