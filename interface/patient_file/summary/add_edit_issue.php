@@ -720,6 +720,17 @@ function divclick(cb, divid) {
   </td>
  </tr>
 
+ <tr id='row_returndate'>
+   <td>
+   <input type='hidden'  name='form_return' id='form_return' />
+   <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
+  <img  
+    id='img_return'/>
+  </td>
+ </tr>
+
+
+
  <tr id='row_occurrence'>
   <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
   <td>
