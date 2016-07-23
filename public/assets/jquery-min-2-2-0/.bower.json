@@ -1,0 +1,13 @@
+{
+  "name": "jquery-min-2-2-0",
+  "_cacheHeaders": {
+    "ETag": "W/\"56901603-14e55\"",
+    "Last-Modified": "Fri, 08 Jan 2016 20:03:15 GMT",
+    "Content-Type": "application/javascript; charset=utf-8"
+  },
+  "_release": "e-tag:W/\"5690160",
+  "main": "index.js",
+  "_source": "https://code.jquery.com/jquery-2.2.0.min.js",
+  "_target": "*",
+  "_originalSource": "https://code.jquery.com/jquery-2.2.0.min.js"
+}

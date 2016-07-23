@@ -1,0 +1,35 @@
+{
+  "name": "knockout",
+  "homepage": "http://knockoutjs.com/",
+  "description": "Knockout makes it easier to create rich, responsive UIs with JavaScript",
+  "main": "dist/knockout.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "knockout",
+    "mvvm",
+    "mvc",
+    "spa"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "spec",
+    "build/output"
+  ],
+  "version": "3.4.0",
+  "_release": "3.4.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v3.4.0",
+    "commit": "b294bf04260a4a2033f09868981e026f254a582a"
+  },
+  "_source": "https://github.com/SteveSanderson/knockout.git",
+  "_target": "3.4.0",
+  "_originalSource": "knockout"
+}

@@ -33,17 +33,20 @@
     "jquery-min-1-7-2": "https://code.jquery.com/jquery-1.7.2.min.js",
     "jquery-min-1-9-1": "https://code.jquery.com/jquery-1.9.1.min.js",
     "jquery-min-1-10-2": "https://code.jquery.com/jquery-1.10.2.min.js",
+    "jquery-min-2-2-0": "https://code.jquery.com/jquery-2.2.0.min.js",
     "jquery-modern-blink-0-1-3":"https://github.com/leonderijke/jQuery-Modern-Blink.git#0.1.3",
     "jquery-panelslider-0-1-1": "jquery-panelslider#0.1.1",
     "jquery-ui-1-10-4": "jquery-ui#1.10.4",
     "jquery-ui-1-11-4": "jquery-ui#1.11.4",
     "jscolor-1-4-5": "https://github.com/EastDesire/jscolor.git#1.4.5",
     "knockout-2-2-1": "knockout#2.2.1",
+    "knockout-3-4-0": "knockout#3.4.0",
     "literallycanvas-0-4-13": "literallycanvas#0.4.13",
     "moment-2-13-0": "moment#2.13.0",
     "pure-0-5-0": "pure#0.5.0",
     "qtip2-2-2-1": "qtip2#v2.2.1",
     "react-15-1-0": "react#15.1.0",
+    "typicons-2-0-7": "typicons#2.0.7",
     "undone.js-0-0-1": "https://github.com/yckart/undone.js.git#0.0.1"
   }
 }
