@@ -31,7 +31,7 @@ class AMC_304a_1_Numerator implements AmcFilterIF
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
 		// MEASURE STAGE2: Radiology Order(s) Created CPOE
-		if ( $patient->object['cpoe_stat'] == 'Yes')  {
+    	if ( isset($patient->object['procedure_name']) && !empty($patient->object['procedure_name']))  {
           return true;
         }else {
           return false;

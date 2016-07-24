@@ -261,7 +261,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 break;
 			
 			case "lab_radiology":
-				$sql = "SELECT  IF( u.cpoe = '1', 'Yes', 'No') as cpoe_stat FROM procedure_order pr ".
+				$sql = "SELECT prc.* FROM procedure_order pr ".
 					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
 					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
@@ -272,7 +272,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 break;
 			
 			case "cpoe_lab_orders":
-				$sql = "SELECT IF( u.cpoe = '1', 'Yes', 'No') as cpoe_stat FROM procedure_order pr ".
+				$sql = "SELECT prc.* FROM procedure_order pr ".
 					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
 					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
@@ -295,12 +295,12 @@ abstract class AbstractAmcReport implements RsReportIF
                 break;
 				
 			case "lab_orders":
-               $sql = "SELECT procedure_order_id FROM " .
-                       "procedure_order " .
-                       "WHERE " .
-                       "patient_id = ? " .
-					   "AND (date_ordered BETWEEN ? AND ?)"; 
-                array_push($sqlBindArray, $patient->id, $begin, $end);
+               $sql = "SELECT prc.* FROM procedure_order pr ".
+					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+					  "WHERE pr.patient_id = ? ".
+					  "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) ".
+					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
         }
 

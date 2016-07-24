@@ -37,18 +37,13 @@ class AMC_314g_1_2_14_Numerator implements AmcFilterIF
                 // Still TODO
                 // AMC MU2 TODO :
                 // This needs to be converted to the Z&H offsite portal solution.
-                //
-                //$portalQry = "SELECT count(*) as cnt FROM patient_data pd ".
-                    //"INNER JOIN ccda_log cl ON pd.pid = cl.patient_id AND cl.user_type = 2 AND cl.event IN ('patient-record-view', 'patient-record-download', 'patient-record-transmit') ".
-                    //"WHERE  pd.pid = ? AND cl.date BETWEEN ? AND ?";
-                //$check = sqlQuery( $portalQry, array($patient->id, $beginDate, $endDate) );  
-                //if ($check['cnt'] > 0){
-                    //return true;
-                //}else{
-
-                    return false;
-
-                //}
+			
+    			$check = sqlQuery('select count(id) as count from ccda where pid = ? and (view = 1 or emr_transfer = 1) and user_id is null and updated_date >= ? and updated_date <= ?',array($patient->id,$beginDate,$endDate));
+    			if($check['count'] > 0)
+    				return true;
+    			else
+    				return false;
+    				
     }
 }
 ?>

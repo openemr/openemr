@@ -51,5 +51,154 @@
         "keywords": [
             "templating"
         ]
+    },
+    {
+        "name": "adodb/adodb-php",
+        "version": "v5.20.2",
+        "version_normalized": "5.20.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ADOdb/ADOdb.git",
+            "reference": "17979685639d642791c546202ebe3f03d6b0a7d7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/17979685639d642791c546202ebe3f03d6b0a7d7",
+            "reference": "17979685639d642791c546202ebe3f03d6b0a7d7",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2"
+        },
+        "time": "2015-12-27 15:22:27",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "adodb.inc.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "John Lim",
+                "email": "jlim@natsoft.com",
+                "role": "Author"
+            },
+            {
+                "name": "Damien Regad",
+                "role": "Current maintainer"
+            },
+            {
+                "name": "Mark Newnham",
+                "role": "Developer"
+            }
+        ],
+        "description": "ADOdb is a PHP database abstraction layer library",
+        "homepage": "http://adodb.sourceforge.net/",
+        "keywords": [
+            "abstraction",
+            "database",
+            "layer",
+            "library",
+            "php"
+        ]
+    },
+    {
+        "name": "phing/phing",
+        "version": "2.14.0",
+        "version_normalized": "2.14.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phingofficial/phing.git",
+            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/phingofficial/phing/zipball/7dd73c83c377623def54b58121f46b4dcb35dd61",
+            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2.0"
+        },
+        "require-dev": {
+            "ext-pdo_sqlite": "*",
+            "lastcraft/simpletest": "@dev",
+            "mikey179/vfsstream": "^1.6",
+            "pdepend/pdepend": "2.x",
+            "pear/archive_tar": "1.4.x",
+            "pear/http_request2": "dev-trunk",
+            "pear/net_growl": "dev-trunk",
+            "pear/pear-core-minimal": "1.10.1",
+            "pear/versioncontrol_git": "@dev",
+            "pear/versioncontrol_svn": "~0.5",
+            "phpdocumentor/phpdocumentor": "2.x",
+            "phploc/phploc": "~2.0.6",
+            "phpmd/phpmd": "~2.2",
+            "phpunit/phpunit": ">=3.7",
+            "sebastian/git": "~1.0",
+            "sebastian/phpcpd": "2.x",
+            "squizlabs/php_codesniffer": "~2.2",
+            "symfony/yaml": "~2.7"
+        },
+        "suggest": {
+            "pdepend/pdepend": "PHP version of JDepend",
+            "pear/archive_tar": "Tar file management class",
+            "pear/versioncontrol_git": "A library that provides OO interface to handle Git repository",
+            "pear/versioncontrol_svn": "A simple OO-style interface for Subversion, the free/open-source version control system",
+            "phpdocumentor/phpdocumentor": "Documentation Generator for PHP",
+            "phploc/phploc": "A tool for quickly measuring the size of a PHP project",
+            "phpmd/phpmd": "PHP version of PMD tool",
+            "phpunit/php-code-coverage": "Library that provides collection, processing, and rendering functionality for PHP code coverage information",
+            "phpunit/phpunit": "The PHP Unit Testing Framework",
+            "sebastian/phpcpd": "Copy/Paste Detector (CPD) for PHP code",
+            "tedivm/jshrink": "Javascript Minifier built in PHP"
+        },
+        "time": "2016-03-10 21:39:23",
+        "bin": [
+            "bin/phing"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.14.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "classes/phing/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "include-path": [
+            "classes"
+        ],
+        "license": [
+            "LGPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Michiel Rook",
+                "email": "mrook@php.net"
+            },
+            {
+                "name": "Phing Community",
+                "homepage": "https://www.phing.info/trac/wiki/Development/Contributors"
+            }
+        ],
+        "description": "PHing Is Not GNU make; it's a PHP project build system or build tool based on Apache Ant.",
+        "homepage": "https://www.phing.info/",
+        "keywords": [
+            "build",
+            "phing",
+            "task",
+            "tool"
+        ]
     }
 ]
