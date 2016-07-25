@@ -1,4 +1,29 @@
 <?php
+
+//this part download the CSV file after the click on the href link
+if($_GET['download_file']==1)
+{
+    if ( ! file_exists($_GET['filename']))
+    {
+        echo 'file missing';
+    }
+    else
+    {
+        header('HTTP/1.1 200 OK');
+        header('Cache-Control: no-cache, must-revalidate');
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename='holiday.csv'");
+        readfile($_GET['filename']);
+        exit;
+    }
+    die();
+}
+// end download section
+
+?>
+<?php
 /**
  *
  * @package OpenEMR
@@ -95,7 +120,15 @@ if ($saved){
                 <td class='detail' nowrap>
                     <?php
                     if(!empty($csv_file_data)){?>
-                        <a href='<?php echo $holidays_controller->get_target_file();?>'><?php echo $csv_file_data['date'];?></a>
+
+                        <?php $path=explode("/",$holidays_controller->get_target_file());?>
+                        <?php $filename=$path[count($path)-1];?>
+                        <?php unset($path[count($path)-1]);?>
+
+                        <?php
+                        // build the path to the for the download request
+                        $phppagepath = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]?filename=";?>
+                        <a href="#" onclick='window.open("<?php echo $phppagepath; echo $holidays_controller->get_target_file();?>&download_file=1")'><?php echo $csv_file_data['date'];?></a>
                     <?php }else{
                         echo htmlspecialchars(xl('File not found'));
                     }?>
