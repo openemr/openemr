@@ -566,7 +566,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -733,7 +740,13 @@ foreach ($providers as $provider) {
 
             // output the DIV and content
 			if($_SESSION['pc_facility'] == 0){
-				// output the DIV and content
+
+
+                //This is to differentiate between the events of holiday(6) or vacation(4) in order to disable
+                //the ability to double click and edit this events
+                if ($event['catid']!="6" && $event['catid']!="4" )
+                {
+                // output the DIV
 				echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
 						"; background-color:".$color.
 						"; $divWidth".
@@ -741,6 +754,19 @@ foreach ($providers as $provider) {
 						"' title='".$divTitle."'".
 						" id='".$eventdate."-".$eventid."-".$pccattype."'".
 						">";
+                }
+                else
+                {
+                // output the DIV
+                echo "<div class='".$evtClass." hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+						"; background-color:".$color.
+						"; $divWidth".
+						"; $divLeft".
+						"' title='".$divTitle."'".
+                " id='".$eventdate."-".$eventid."-".$pccattype."'".
+                ">";
+                }
+                //output the content
 				echo $content;
 				echo "</div>\n";
 			}
@@ -752,6 +778,7 @@ foreach ($providers as $provider) {
 						"' title='".$divTitle."'".
 						" id='".$eventdate."-".$eventid."-".$pccattype."'".
 						">";
+            // output the content
 				echo $content;
 				echo "</div>\n";
 			}

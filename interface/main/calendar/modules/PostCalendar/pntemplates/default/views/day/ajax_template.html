@@ -555,7 +555,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                     break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -738,14 +745,31 @@ foreach ($providers as $provider) {
 
           // output the DIV and content
           // For "OUT" events, applying the background color in CSS.
-          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$color;
-          echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+
+            if ($event['catid']!="6" && $event['catid']!="4" ){
+              $background_string= ($event['catid'] == 3) ? "" : ";background-color:".$color;
+              echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
               "' title='".$divTitle."'".
               " id='".$eventdate."-".$eventid."-".$pccattype."'".
               ">";
+            }
+            else{
+             $background_string= ";background-color:".$color;
+            echo "<div class='".$evtClass." hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+              $background_string.
+              "; $divWidth".
+              "; $divLeft".
+              "' title='".$divTitle."'".
+            " id='".$eventdate."-".$eventid."-".$pccattype."'".
+            ">";
+            }
+
+
+           //
+
           // second part for the special IN event
           if ($event['catid'] != 2) { echo $content; }
           echo "</div>\n";
