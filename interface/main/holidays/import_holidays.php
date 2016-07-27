@@ -20,28 +20,6 @@
  * @link    http://www.open-emr.org
  */
 
-//this part download the CSV file after the click on the href link
-if($_GET['download_file']==1)
-{
-    if ( ! file_exists($_GET['filename']))
-    {
-        echo 'file missing';
-    }
-    else
-    {
-        header('HTTP/1.1 200 OK');
-        header('Cache-Control: no-cache, must-revalidate');
-        header("Pragma: no-cache");
-        header("Expires: 0");
-        header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename='holiday.csv'");
-        readfile($_GET['filename']);
-        exit;
-    }
-    die();
-}
-// end download section
-
 ?>
 <?php
 /**
@@ -64,9 +42,32 @@ require_once("Holidays_Controller.php");
 
 if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
 
-// Handle uploads.
 $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();
+
+//this part download the CSV file after the click on the href link
+if($_GET['download_file']==1) {
+    $target_file=$holidays_controller->get_target_file();
+    if ( ! file_exists($target_file))
+    {
+        echo 'file missing';
+    }
+    else
+    {
+        header('HTTP/1.1 200 OK');
+        header('Cache-Control: no-cache, must-revalidate');
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename='holiday.csv'");
+        readfile($target_file);
+        exit;
+    }
+    die();
+}
+// end download section
+
+// Handle uploads.
 
 if (!empty($_POST['bn_upload'])) {
     //Upload and save the csv
@@ -140,7 +141,7 @@ if ($saved){
                         <?php
                         // build the path to the for the download request
                         $phppagepath = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]?filename=";?>
-                        <a href="#" onclick='window.open("<?php echo $phppagepath; echo $holidays_controller->get_target_file();?>&download_file=1")'><?php echo text($csv_file_data['date']);?></a>
+                        <a href="#" onclick='window.open("import_holidays.php?download_file=1")'><?php echo text($csv_file_data['date']);?></a>
                     <?php }else{
                         echo htmlspecialchars(xl('File not found'));
                     }?>
