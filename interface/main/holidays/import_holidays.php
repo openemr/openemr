@@ -72,6 +72,10 @@ if($_GET['download_file']==1) {
 if (!empty($_POST['bn_upload'])) {
     //Upload and save the csv
     $saved = $holidays_controller->upload_csv($_FILES);
+    if($saved) {
+        $csv_file_data = $holidays_controller->get_file_csv_data();
+    }
+
 }
 if (!empty($_POST['import_holidays'])) {
     //Import from the csv file to the calendar external table
@@ -168,7 +172,7 @@ if ($saved){
 
             <td>
                     <?php echo xla('CSV to calendar_external table'); ?></br>
-                <?php echo xla('If  the csv has been uploaded please click on "parse and insert" button
+                <?php echo xla('If  the csv has been uploaded please click on "Import holiday events" button
                     **NOTE: clicking on the button will remove all the existing rows in the calendar external table')?>
                 </td>
         </tr>
@@ -180,7 +184,7 @@ if ($saved){
                 </td>
                 <td >
                     <?php echo xla('calendar_External to events'); ?></br>
-                    <?php echo xla('If you have already filled the calendar external table please click on create events to have the holidays n the calendar view 
+                    <?php echo xla('If you have already filled the calendar external table please click on "Syncronize" to have the holidays n the calendar view 
                     **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays')?>
                 </td>
             </tr>
