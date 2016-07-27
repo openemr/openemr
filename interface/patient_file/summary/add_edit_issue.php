@@ -731,6 +731,7 @@ function divclick(cb, divid) {
  </tr>
 
  <tr id='row_classification'>
+
   <td valign='top' nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
   <td>
    <select name='form_classification'>
