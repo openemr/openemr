@@ -840,5 +840,23 @@ function divclick(cb, divid) {
  Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
  Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
+
+<!--Page Form Validations-->
+
+<?php if(isset($_GLOBALS['validate_pages']))  :?>
+    <?php foreach($_GLOBALS['validate_pages'] as $validation) :?>
+        <?php if($validation['page_name']==basename(__FILE__)):?>
+            <?php include_once("$srcdir/validation/validation_script.js.php");?>
+            <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/jquery-1.9.1.min.js"></script>
+            <script type="text/javascript">
+                var form = document.getElementsByName("theform");
+                form.id="theform";
+                <!--Use validation script js Validations-->
+                $("form").attr("onclick",'return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"theform",<?php echo $validation['rules'];?>)');
+            </script>
+        <?php endif;?>
+    <?php endforeach;?>
+<?php endif;?>
+
 </body>
 </html>

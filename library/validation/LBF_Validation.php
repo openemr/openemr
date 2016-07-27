@@ -28,7 +28,10 @@ class LBF_Validation{
  * Using the data save in layout options validation
  */
     public static function generate_validate_constraints($form_id){
-
+        //to prevent an empty form id error do :
+        if(!$form_id || $form_id==''){
+            return json_encode(array());
+        }
 
         $fres = sqlStatement(
              "SELECT layout_options.*,list_options.notes as validation_json 
