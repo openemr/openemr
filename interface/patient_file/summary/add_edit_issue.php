@@ -378,6 +378,7 @@ if (!empty($irow['type'])) {
 <html>
 <head>
 <?php html_header_show();?>
+
 <title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -398,6 +399,7 @@ div.section {
 
 </style>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
 <?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
@@ -855,5 +857,9 @@ function divclick(cb, divid) {
  Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
  Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
+
+<?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
+
+
 </body>
 </html>
