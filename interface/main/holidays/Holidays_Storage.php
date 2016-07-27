@@ -1,10 +1,29 @@
 <?php
-
 /**
- * User: sharonco@matrix.co.il
- * Date: 6/15/16
- * This class contains all the interaction with the database that are used by the holidays/clinic closed events
+ * interface/main/holidays/Holidays_Storage.php holidays/clinic interaction with the database
+ *
+ * This class contains all the interaction with the database
+ * that are used by the holidays/clinic closed events.
+ *
+ * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  sharonco <sharonco@matrix.co.il>
+ * @link    http://www.open-emr.org
  */
+
+
 class Holidays_Storage{
     const TABLE_NAME = "calendar_external";
     const CALENDAR_CATEGORY_HOLIDAY = "6";
@@ -16,8 +35,7 @@ class Holidays_Storage{
      */
     public function get_holidays(){
         $holidays= array();
-
-        $sql = sprintf('SELECT * FROM %s', self::TABLE_NAME);
+        $sql = ("SELECT * FROM " . self::TABLE_NAME);
         $res=sqlStatement($sql);
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row;
@@ -33,10 +51,8 @@ class Holidays_Storage{
      */
     public static function get_holidays_by_dates($start_date,$end_date){
         $holidays= array();
-        $sql = sprintf(
-            'SELECT * FROM %s WHERE (pc_catid="%d" OR pc_catid="%d") AND pc_eventDate >= "%s" AND pc_eventDate <= "%s"',
-            'openemr_postcalendar_events',self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date);
-        $res=sqlStatement($sql);
+        $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
+        $res=sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date) );
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row['pc_eventDate'];
         }
@@ -98,30 +114,22 @@ class Holidays_Storage{
                     $this->delete_calendar_external();
                     $deleted = true;
                 }
-                sqlInsert("INSERT INTO ".self::TABLE_NAME ." VALUES
-                (   
-                    '',
-                    '".htmlspecialchars($data[0])."',
-                    '".htmlspecialchars($data[1])."',
-                    'csv'
-                )
-            ");
+
+                $row=array($data[0],$data[1]);
+                sqlInsert("INSERT INTO ".self::TABLE_NAME . "(id,date,description,source)"." VALUES ('',?,?,'csv')",$row);
+
             }
         } while ($data = fgetcsv($handle,1000,",","'"));
         return true;
     }
 
     private function delete_calendar_external(){
-        $sql = sprintf(
-            'DELETE FROM %s ',
-            self::TABLE_NAME);
+        $sql = "DELETE FROM ".self::TABLE_NAME;
         $res=sqlStatement($sql);
     }
 
     private function delete_holiday_events(){
-        $sql = sprintf(
-            'DELETE FROM %s WHERE pc_catid="%d"',
-            'openemr_postcalendar_events',self::CALENDAR_CATEGORY_HOLIDAY);
+        $sql = "DELETE FROM 'openemr_postcalendar_events' WHERE pc_catid=".self::CALENDAR_CATEGORY_HOLIDAY;
         $res=sqlStatement($sql);
 
     }

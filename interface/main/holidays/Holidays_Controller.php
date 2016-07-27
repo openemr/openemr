@@ -1,14 +1,32 @@
 <?php
-require_once("Holidays_Storage.php");
 /**
- * Created by PhpStorm.
- * User: sharonco
- * Date: 6/15/16
- * This class contains the implementation of all the logic included in the holidays calendar story
+ * interface/main/holidays/Holidays_Controller.php implementation of holidays logic.
+ *
+ * This class contains the implementation of all the logic
+ * included in the holidays calendar story.
+ *
+ * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  sharonco <sharonco@matrix.co.il>
+ * @link    http://www.open-emr.org
  */
+
+require_once("Holidays_Storage.php");
 class Holidays_Controller{
 
-    const UPLOAD_DIR = "documents";
+    const UPLOAD_DIR = "documents/documents_storage";
     const FILE_NAME = "holidays_to_import.csv";
 
     

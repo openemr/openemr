@@ -1,4 +1,24 @@
 <?php
+/**
+ * interface/main/holidays/import_holidays.php holidays/clinic handle import/download holidays files
+ *
+ * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  sharonco <sharonco@matrix.co.il>
+ * @link    http://www.open-emr.org
+ */
 
 //this part download the CSV file after the click on the href link
 if($_GET['download_file']==1)
@@ -42,15 +62,7 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/sql.inc");
 require_once("Holidays_Controller.php");
 
-
-//require_once($GLOBALS['srcdir'] . '/htmlspecialchars.inc.php');
-//require_once($GLOBALS['srcdir'] . '/formdata.inc.php');
-//require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-
 if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
-
-//$form_replace = !empty($_POST['form_replace']);
-//$code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 // Handle uploads.
 $holidays_controller = new Holidays_Controller();
@@ -74,7 +86,7 @@ if (!empty($_POST['sync'])) {
 
 <html>
 <head>
-    <title><?php echo xlt('Holidays management '); ?></title>
+    <title><?php echo xlt('Holidays management'); ?></title>
     <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 </head>
@@ -83,7 +95,7 @@ if (!empty($_POST['sync'])) {
 <?php
 if ($saved){
     echo "<p style='color:green'>" .
-        xlt('Successfully Completed ');
+        xlt('Successfully Completed');
         "</p>\n";
 }elseif(!empty($_POST['bn_upload'])             &&
         !empty($_POST['import_holidays'])       &&
@@ -128,7 +140,7 @@ if ($saved){
                         <?php
                         // build the path to the for the download request
                         $phppagepath = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]?filename=";?>
-                        <a href="#" onclick='window.open("<?php echo $phppagepath; echo $holidays_controller->get_target_file();?>&download_file=1")'><?php echo $csv_file_data['date'];?></a>
+                        <a href="#" onclick='window.open("<?php echo $phppagepath; echo $holidays_controller->get_target_file();?>&download_file=1")'><?php echo text($csv_file_data['date']);?></a>
                     <?php }else{
                         echo htmlspecialchars(xl('File not found'));
                     }?>
@@ -137,7 +149,7 @@ if ($saved){
 
         <tr bgcolor='#dddddd'>
                 <td align='center' class='detail' colspan='2'>
-                    <input type='submit' name='bn_upload' value='<?php echo xlt('Upload / Save ') ?>' />
+                    <input type='submit' name='bn_upload' value='<?php echo xla('Upload / Save') ?>' />
                 </td>
             </tr>
         </table>
@@ -148,13 +160,13 @@ if ($saved){
         <tr >
             <td >
                 <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                    <input type='submit' name='import_holidays' value='<?php echo xlt('Import holiday events ') ?>'></br>
+                    <input type='submit' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'></br>
 
                 </form>
             </td>
 
             <td>
-                    <?php echo xlt('CSV to calendar_external table'); ?></br>
+                    <?php echo xla('CSV to calendar_external table'); ?></br>
                     If  the csv has been uploaded please click on "parse and insert" button</br>
                     **NOTE: clicking on the button will remove all the existing rows in the calendar external table
                 </td>
@@ -162,16 +174,19 @@ if ($saved){
             <tr >
                 <td >
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type='submit' name='sync' value='<?php echo xlt('Syncronize ') ?>' /></br>
+                        <input type='submit' name='sync' value='<?php echo xla('Syncronize') ?>' /></br>
                     </form>
                 </td>
                 <td >
-                    <?php echo xlt('calendar_External to events'); ?></br>
+                    <?php echo xla('calendar_External to events'); ?></br>
                     If you have already filled the calendar external table please click on create events to have the holidays n the calendar view </br>
                     **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays
-
                 </td>
             </tr>
         </table>
 </body>
 </html>
+
+
+
+
