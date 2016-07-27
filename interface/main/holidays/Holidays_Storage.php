@@ -35,7 +35,7 @@ class Holidays_Storage{
      */
     public function get_holidays(){
         $holidays= array();
-        $sql = ("SELECT * FROM " . self::TABLE_NAME);
+        $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
         $res=sqlStatement($sql);
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row;
@@ -116,7 +116,7 @@ class Holidays_Storage{
                 }
 
                 $row=array($data[0],$data[1]);
-                sqlInsert("INSERT INTO ".self::TABLE_NAME . "(id,date,description,source)"." VALUES ('',?,?,'csv')",$row);
+                sqlInsert("INSERT INTO ".escape_table_name(self::TABLE_NAME) . "(id,date,description,source)"." VALUES ('',?,?,'csv')",$row);
 
             }
         } while ($data = fgetcsv($handle,1000,",","'"));
@@ -124,13 +124,13 @@ class Holidays_Storage{
     }
 
     private function delete_calendar_external(){
-        $sql = "DELETE FROM ".self::TABLE_NAME;
+        $sql = "DELETE FROM ".escape_table_name(self::TABLE_NAME);
         $res=sqlStatement($sql);
     }
 
     private function delete_holiday_events(){
-        $sql = "DELETE FROM 'openemr_postcalendar_events' WHERE pc_catid=".self::CALENDAR_CATEGORY_HOLIDAY;
-        $res=sqlStatement($sql);
+        $row = array(self::CALENDAR_CATEGORY_HOLIDAY);
+        sqlStatement("DELETE FROM 'openemr_postcalendar_events' WHERE pc_catid = ?", $row);
 
     }
 
