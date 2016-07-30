@@ -1,11 +1,11 @@
 /**
  * jscolor, JavaScript Color Picker
  *
- * @version 1.4.4
+ * @version 1.4.5
  * @license GNU Lesser General Public License, http://www.gnu.org/copyleft/lesser.html
  * @author  Jan Odvarko, http://odvarko.cz
  * @created 2008-06-15
- * @updated 2014-12-09
+ * @updated 2015-09-19
  * @link    http://jscolor.com
  */
 
@@ -351,6 +351,7 @@ var jscolor = {
 		this.pickerMode = 'HSV'; // HSV | HVS
 		this.pickerPosition = 'bottom'; // left | right | top | bottom
 		this.pickerSmartPosition = true; // automatically adjust picker position when necessary
+		this.pickerFixedPosition = false; // set to true to stop picker from moving on scroll
 		this.pickerButtonHeight = 20; // px
 		this.pickerClosable = false;
 		this.pickerCloseText = 'Close';
@@ -700,7 +701,7 @@ var jscolor = {
 			p.box.style.height = dims[1] + 'px';
 
 			// picker border
-			p.boxB.style.position = 'absolute';
+			p.boxB.style.position = THIS.pickerFixedPosition ? 'fixed' : 'absolute';
 			p.boxB.style.clear = 'both';
 			p.boxB.style.left = x+'px';
 			p.boxB.style.top = y+'px';
