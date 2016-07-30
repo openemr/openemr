@@ -465,4 +465,16 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
+//Create page validation array -- all the pahges that have to fire validatejs and their rules
+if (!empty($_SESSION['authUserID'])) {
+    $pages = sqlStatement("SELECT * " .
+        "FROM `list_options` WHERE list_id='PageValidation'");
+
+    for($iter=0; $row=sqlFetchArray($pages); $iter++) {
+        //remove global_ prefix from label
+        $_GLOBALS['validate_pages'][$row['option_id']]= array('page_name'=>$row['option_id'].".php", 'rules'=>$row['notes']);
+    }
+
+}
+
 ?>
