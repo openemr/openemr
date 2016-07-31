@@ -2,6 +2,9 @@
   "directory": "public/assets",
   "ignoredDependencies": [
     "datatables",
+    "datatables.net-jqui",
+    "datatables.net-scroller",
+    "datatables.net",
     "jquery",
     "imagesloaded",
     "react"

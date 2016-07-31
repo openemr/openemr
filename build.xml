@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="OpenEMR" description="OpenEMR is a Free and Open Source electronic health records and medical practice management application" default="dist" basedir="." >
+
+<property name="dir.src" value="${project.basedir}"/>
+<property name="dir.vendor" value="${project.basedir}/vendor"/>
+
+<target name="vendor-clean">
+	<echo msg="Trying to clean up vendor dir" />
+	<phingcall target="clean-vendor-dir">
+	</phingcall>
+</target>	
+
+
+<target name="clean-vendor-dir">
+	<!-- Delete git files from vendor  -->
+	<delete verbose="true">
+    <fileset dir="${dir.vendor}" includes="**/*.git*" defaultexcludes="false"/>
+    <fileset dir="${dir.vendor}" includes="**/*.cvs*" defaultexcludes="false"/>
+	</delete>
+
+	<delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
+	<delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
+
+	<delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
+
+</target>
+</project>

@@ -621,7 +621,7 @@ a, a:visited, a:hover { color:#0000cc; }
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jscolor/jscolor.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
 
 <script language="JavaScript">
 

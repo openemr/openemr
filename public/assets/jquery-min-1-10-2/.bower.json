@@ -1,0 +1,14 @@
+{
+  "name": "jquery-min-1-10-2",
+  "_cacheHeaders": {
+    "ETag": "\"54499a47-16bb3\"",
+    "Last-Modified": "Fri, 24 Oct 2014 00:16:07 GMT",
+    "Content-Length": "38145",
+    "Content-Type": "application/javascript; charset=utf-8"
+  },
+  "_release": "e-tag:54499a47-",
+  "main": "index.js",
+  "_source": "https://code.jquery.com/jquery-1.10.2.min.js",
+  "_target": "*",
+  "_originalSource": "https://code.jquery.com/jquery-1.10.2.min.js"
+}
