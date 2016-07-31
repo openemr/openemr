@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
 {
+    public static $files = array (
+        'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
+    );
+
     public static $classMap = array (
         'Config_File' => __DIR__ . '/..' . '/smarty/smarty/libs/Config_File.class.php',
         'Smarty' => __DIR__ . '/..' . '/smarty/smarty/libs/Smarty.class.php',

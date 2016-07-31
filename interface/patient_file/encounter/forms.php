@@ -466,6 +466,14 @@ if ( $esign->isButtonViewable() ) {
                 <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
                 </td>
                 </tr>
+                <tr>
+                <td>
+                <input type="checkbox" id="soc_provided" DISABLED>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Summary of Care Provided?') ?></span>
+                </td>
+                </tr>
                 </table>
             <?php } ?>
         </div>

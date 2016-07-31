@@ -69,6 +69,16 @@ function set_checkbox() {literal}{{/literal}
 	{literal}}{/literal}
 {literal}}{/literal}
 
+// For tagging it with image procedure
+function ImgProcedure() {literal}{{/literal}
+	var f = document.forms['img_procedure_tag'];
+	if(f.image_procedure_id.value == 0 ) {literal}{{/literal}
+		alert("{xl t='Please select image procedure'}");
+		return false;
+	{literal}}{/literal}
+	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
+	document.forms['img_procedure_tag'].submit();	
+{literal}}{/literal}
  // Process click on Import link.
  function import_ccr(docid) {literal}{
   top.restoreSession();
@@ -219,6 +229,24 @@ function set_checkbox() {literal}{{/literal}
 			   </div>
 			   </form>
 		   </div>
+		   <br/>
+		   <div class="text">
+			<form method="post" name="img_procedure_tag" id="img_procedure_tag" action="{$IMG_PROCEDURE_TAG_ACTION}" onsubmit="return top.restoreSession()">
+			<input type='hidden' name='procedure_code' value=''>
+			<div>
+				<div style="float:left">
+					<b>{xl t='Tag to Image Procedure'}</b>&nbsp;
+				</div>
+				<div style="float:none">
+					<a href="javascript:;" onclick="ImgProcedure();">(<span>{xl t='submit'})</span></a>
+				</div>
+			</div>
+			<div>
+				<select id="image_procedure_id"  name="image_procedure_id">{$IMAGE_PROCEDURE_LIST}</select>&nbsp;
+				<a href="{$clear_procedure_tag}">(<span>{xl t='clear'})</span></a>
+			</div>
+			</form>
+		   </div>	
 
             <br/>
 

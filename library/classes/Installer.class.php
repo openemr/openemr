@@ -71,6 +71,21 @@ class Installer
     return TRUE;
   }
 
+  public function char_is_valid($input_text)
+  {
+    // to prevent php injection
+    trim($input_text);
+    if ($input_text == '')
+      {
+        return FALSE;
+      }
+    if (preg_match('@[\\\\;()<>/\'"]@', $input_text))
+      {
+        return FALSE;
+      }
+      return TRUE;
+  }
+
   public function iuser_is_valid()
   {
     if ( strpos($this->iuser, " ") ) {
