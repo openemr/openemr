@@ -169,8 +169,8 @@ if ($saved){
             </td>
 
             <td>
-                    <?php echo xla('CSV to calendar_external table'); ?></br>
-                <?php echo xla('If  the csv has been uploaded please click on "Import holiday events" button **NOTE: clicking on the button will remove all the existing rows in the calendar external table')?>
+                    <?php echo xlt('CSV to calendar_external table'); ?></br>
+                <?php echo xlt('If  the csv has been uploaded please click on "Import holiday events" button **NOTE: clicking on the button will remove all the existing rows in the calendar external table')?>
                 </td>
         </tr>
             <tr >
@@ -180,8 +180,8 @@ if ($saved){
                     </form>
                 </td>
                 <td >
-                    <?php echo xla('calendar_External to events'); ?></br>
-                    <?php echo xla('If you have already filled the calendar external table please click on "Syncronize" to have the holidays n the calendar view **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays')?>
+                    <?php echo xlt('calendar_External to events'); ?></br>
+                    <?php echo xlt('If you have already filled the calendar external table please click on "Syncronize" to have the holidays n the calendar view **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays')?>
                 </td>
             </tr>
         </table>
