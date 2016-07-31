@@ -48,7 +48,7 @@ if($_GET['download_file']==1) {
     $target_file=$holidays_controller->get_target_file();
     if ( ! file_exists($target_file))
     {
-        echo 'file missing';
+        echo xlt('file missing');
     }
     else
     {
