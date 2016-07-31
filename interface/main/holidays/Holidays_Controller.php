@@ -51,7 +51,7 @@ class Holidays_Controller{
      * @return bool
      */
     public function upload_csv($files){
-        if (!file_exists($this->target_file)) {
+        if (!file_exists($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR)) {
             if (!mkdir($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/",0700)) {
                 return false;
             }

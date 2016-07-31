@@ -124,7 +124,7 @@ class Holidays_Storage{
     }
 
     private function delete_calendar_external(){
-        $sql = "DELETE FROM ".escape_table_name(self::TABLE_NAME);
+        $sql = "TRUNCATE TABLE ".escape_table_name(self::TABLE_NAME);
         $res=sqlStatement($sql);
     }
 
