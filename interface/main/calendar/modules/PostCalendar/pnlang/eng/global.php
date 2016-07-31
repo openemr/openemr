@@ -188,4 +188,5 @@ define('_PC_ADMIN_EVENTS_DELETED', xl ('Your event has been deleted.') );
 @ define('_NO_DIRECT_ACCESS', xl ('You can not access this function directly.') );
 define('_PC_CAT_PATIENT', xl ('Patient') );
 define('_PC_CAT_PROVIDER', xl ('Provider') );
+define('_PC_CAT_CLINIC', xl ('Clinic') );
 ?>

@@ -544,7 +544,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -669,16 +676,33 @@ foreach ($providers as $provider) {
 
             $divTitle .= "\n(double click to edit)";
 
-            // output the DIV and content
-            echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+                    //This is to differentiate between the events of holiday(6) or vacation(4) in order to disable
+                    //the ability to double click and edit this events
+                    if ($event['catid']!="6" && $event['catid']!="4" )
+                    {
+                    // output the DIV
+                    echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
                     "; background-color:".$event["catcolor"].
                     "; $divWidth".
                     "; $divLeft".
                     "' ".
                     " id='".$eventdate."-".$eventid."'".
                     ">";
-            echo $content;
-            echo "</div>\n";
+                    }
+                    else
+                    {
+                    // output the DIV
+                    echo "<div class='".$evtClass." hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+                    "; background-color:".$event["catcolor"].
+                    "; $divWidth".
+                    "; $divLeft".
+                    "' ".
+                    " id='".$eventdate."-".$eventid."'".
+                    ">";
+                    }
+                    // output the content
+                    echo $content;
+                    echo "</div>\n";
         } // end EVENT loop
 
         echo "</div>";

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Add or edit an event in the calendar.
  *
@@ -42,7 +43,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
-
+require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
    die(xl('Access not allowed'));
