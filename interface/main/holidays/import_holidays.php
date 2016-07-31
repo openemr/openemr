@@ -20,15 +20,6 @@
  * @link    http://www.open-emr.org
  */
 
-?>
-<?php
-/**
- *
- * @package OpenEMR
- * @author  sharon cohen <sharonco@matrix.co.il>
- * @link    http://www.open-emr.org
- */
-
 set_time_limit(0);
 
 // Disable magic quotes and fake register globals.
@@ -141,8 +132,6 @@ if ($saved){
                         <?php unset($path[count($path)-1]);?>
 
                         <?php
-                        // build the path to the for the download request
-                        $phppagepath = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]?filename=";?>
                         <a href="#" onclick='window.open("import_holidays.php?download_file=1")'><?php echo text($csv_file_data['date']);?></a>
                     <?php }else{
                         echo htmlspecialchars(xl('File not found'));
@@ -170,18 +159,18 @@ if ($saved){
 
             <td>
                     <?php echo xlt('CSV to calendar_external table'); ?></br>
-                <?php echo xlt('If  the csv has been uploaded please click on "Import holiday events" button **NOTE: clicking on the button will remove all the existing rows in the calendar external table')?>
+                <?php echo xlt('If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table')?>
                 </td>
         </tr>
             <tr >
                 <td >
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type='submit' name='sync' value='<?php echo xla('Syncronize') ?>' /></br>
+                        <input type='submit' name='sync' value='<?php echo xla('Synchronize') ?>' /></br>
                     </form>
                 </td>
                 <td >
-                    <?php echo xlt('calendar_External to events'); ?></br>
-                    <?php echo xlt('If you have already filled the calendar external table please click on "Syncronize" to have the holidays n the calendar view **NOTE: clicking on the button will remove all the existing rows in the events table related to holidays')?>
+                    <?php echo xlt('calendar_external to events'); ?></br>
+                    <?php echo xlt('If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays')?>
                 </td>
             </tr>
         </table>
