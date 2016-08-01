@@ -73,8 +73,12 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 
 }
 else {
-    print "window.onload = function () {
-      document.getElementById('create').addEventListener(\"click\",  submitme(" . $new_validate . ",event,\"DEM\")); }";
+    print "<script>";
+    print "$(document).ready(function(){
+      $(\"#DEM\").submit(function(e){
+      submitme(" . $new_validate . ",e,\"DEM\"); 
+      })});";
+    print "</script>";
 }
 
 function getLayoutRes() {
