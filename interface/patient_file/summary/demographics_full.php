@@ -10,6 +10,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -378,6 +379,50 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
+
+<?php //Check if new patient is added to hooks
+if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
+{
+	$hook = checkIfPatientValidationHookIsActive();
+
+	if($hook){
+
+		print "<script>";
+		//ajax call to the zend PatientValidation controller.
+		print "window.onload = function () {
+        
+           
+            
+           document.getElementById('submit').addEventListener(\"click\", function(e) {
+            e.stopPropagation();
+           
+                $.ajax({
+                        url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
+                        data: {
+                               'fname':document.getElementById('form_fname').value, 
+                               'lname':document.getElementById('form_lname').value,
+                               'sex':document.getElementById('form_sex').options[document.getElementById('form_sex').selectedIndex].value,
+                               'DOB':document.getElementById('form_DOB').value
+                              },
+                                success:function(data){
+                                alert(data); 
+                                document.getElementById('DEM').submit();
+                            }
+                        });
+           
+        
+          
+        },false)};";
+		print "</script>";
+
+
+
+	}
+
+}
+?>
+
+
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM')">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
@@ -394,7 +439,7 @@ $(document).ready(function() {
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input class="css_btn" type="submit" value="<?php xl('Save','e'); ?>">
+            <input class="css_btn" id="submit" type="submit" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>

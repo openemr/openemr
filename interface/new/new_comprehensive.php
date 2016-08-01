@@ -6,12 +6,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
 if (!acl_check('patients','demo','',array('write','addonly') ))
@@ -22,8 +26,48 @@ $CPR = 4; // cells per row
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 
-$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2');
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3');
+$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
+
+if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
+{
+    $hook = checkIfPatientValidationHookIsActive();
+
+    if($hook){
+
+        print "<script>";
+        //ajax call to the zend PatientValidation controller.
+        print "window.onload = function () {
+        
+           
+            
+           document.getElementById('create').addEventListener(\"click\", function(e) {
+            e.stopPropagation();
+           
+                $.ajax({
+                        url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
+                        data: {
+                               'fname':document.getElementById('form_fname').value, 
+                               'lname':document.getElementById('form_lname').value,
+                               'sex':document.getElementById('form_sex').options[document.getElementById('form_sex').selectedIndex].value,
+                               'DOB':document.getElementById('form_DOB').value
+                              },
+                                success:function(data){
+                                alert(data); 
+                                document.getElementById('DEM').submit();
+                            }
+                        });
+           
+        
+          
+        },false)};";
+        print "</script>";
+
+
+
+    }
+
+}
 
 function getLayoutRes() {
   global $SHORT_FORM;
@@ -32,6 +76,11 @@ function getLayoutRes() {
     ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
     "ORDER BY group_name, seq");
 }
+
+
+
+
+
 
 // Determine layout field search treatment from its data type:
 // 1 = text field
