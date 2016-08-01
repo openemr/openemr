@@ -2885,7 +2885,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`d
 DROP TABLE IF EXISTS `list_options`;
 CREATE TABLE `list_options` (
   `list_id` varchar(31) NOT NULL default '',
-  `option_id` varchar(31) NOT NULL default '',
+  `option_id` varchar(255) NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `is_default` tinyint(1) NOT NULL default '0',
@@ -8301,6 +8301,6 @@ CREATE TABLE `immunization_observation` (
 --
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('lists', 'PageValidation', 'PageValidation', 298, 1, 0, '', '', '', 0, 0, 1, ''),
-('PageValidation', 'add_edit_issue', 'add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
+('PageValidation', 'add_edit_issue', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
 
 -- --------------------------------------------------------

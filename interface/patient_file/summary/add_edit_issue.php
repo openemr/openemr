@@ -843,22 +843,19 @@ function divclick(cb, divid) {
 </script>
 
 <!--Page Form Validations-->
+<?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
+<?php $collectThis=collectValidationPageRules("add_edit_issue",$_SERVER['PHP_SELF'])?>
 
-<?php if(isset($_GLOBALS['validate_pages']))  :?>
-    <?php foreach($_GLOBALS['validate_pages'] as $validation) :?>
-        <?php if($validation['page_name']==basename(__FILE__)):?>
-
+<?php if ($collectThis):?>
             <!--//include new rules of submitme functionallity-->
-            <?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
+
 
             <script type="text/javascript">
                 var form = document.getElementsByName("theform");
                 form.id="theform";
                 <!--Use validation script js Validations-->
-                $("form").attr("onclick",'return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"theform",<?php echo $validation['rules'];?>)');
+                $("form").attr("onclick",'return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"theform",<?php echo $collectThis['rules'];?>)');
             </script>
-        <?php endif;?>
-    <?php endforeach;?>
 <?php endif;?>
 
 </body>

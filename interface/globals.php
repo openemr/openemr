@@ -465,16 +465,23 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
-//Create page validation array -- all the pahges that have to fire validatejs and their rules
-if (!empty($_SESSION['authUserID'])) {
-    $pages = sqlStatement("SELECT * " .
-        "FROM `list_options` WHERE list_id='PageValidation'");
+//Create page validation array -- all the pages that have to fire validatejs and their rules
+function collectValidationPageRules($option_id,$title){
+    if (!empty($_SESSION['authUserID'])) {
 
-    for($iter=0; $row=sqlFetchArray($pages); $iter++) {
-        //remove global_ prefix from label
-        $_GLOBALS['validate_pages'][$row['option_id']]= array('page_name'=>$row['option_id'].".php", 'rules'=>$row['notes']);
+
+        $pages = sqlStatement("SELECT * " .
+            "FROM `list_options` WHERE list_id='PageValidation' AND option_id='$option_id' AND title='$title'");
+
+          $row = sqlFetchArray($pages);
+          if($row) {
+              return array('page_name' => $row['option_id'] . ".php", 'rules' => $row['notes']);
+          }
+          else{
+              return null;
+          }
+
+
     }
-
 }
-
 ?>
