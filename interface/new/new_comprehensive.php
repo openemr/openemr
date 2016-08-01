@@ -29,6 +29,8 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
 
+//this will hold the javascript submit me param new_validate;
+$new_validate = $GLOBALS['new_validate'] ? 1 : 0;
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
     $hook = checkIfPatientValidationHookIsActive();
@@ -39,11 +41,13 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
         //ajax call to the zend PatientValidation controller.
         print "window.onload = function () {
         
-           
+                       
             
            document.getElementById('create').addEventListener(\"click\", function(e) {
             e.stopPropagation();
-           
+           var submitmeValidation =  submitme(".$new_validate.",e,\"DEM\") ;
+                 if(submitmeValidation === true)
+                 {
                 $.ajax({
                         url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
                         data: {
@@ -53,20 +57,24 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
                                'DOB':document.getElementById('form_DOB').value
                               },
                                 success:function(data){
-                                alert(data); 
-                                document.getElementById('DEM').submit();
-                            }
+                                //Todo check data validation and continue
+                                //for example uncheck this alert(data);
+                                }
                         });
            
-        
-          
-        },false)};";
+                 }
+                },false)
+        };";
         print "</script>";
 
 
 
     }
 
+}
+else {
+    print "window.onload = function () {
+      document.getElementById('create').addEventListener(\"click\",  submitme(" . $new_validate . ",event,\"DEM\")); }";
 }
 
 function getLayoutRes() {
@@ -440,7 +448,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM")'>
+<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' >
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 

@@ -381,22 +381,26 @@ $(document).ready(function() {
 <body class="body_top">
 
 <?php //Check if new patient is added to hooks
+//this will hold the javascript submit me param new_validate;
+$new_validate = $GLOBALS['new_validate'] ? 1 : 0;
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
-	$hook = checkIfPatientValidationHookIsActive();
+    $hook = checkIfPatientValidationHookIsActive();
 
-	if($hook){
+    if($hook){
 
-		print "<script>";
-		//ajax call to the zend PatientValidation controller.
-		print "window.onload = function () {
+        print "<script>";
+        //ajax call to the zend PatientValidation controller.
+        print "window.onload = function () {
         
-           
+                    
             
            document.getElementById('submit').addEventListener(\"click\", function(e) {
             e.stopPropagation();
-           
-                $.ajax({
+                var submitmeValidation =  submitme(".$new_validate.",e,\"DEM\") ;
+                if(submitmeValidation === true)
+                 {
+                  $.ajax({
                         url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
                         data: {
                                'fname':document.getElementById('form_fname').value, 
@@ -405,25 +409,29 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
                                'DOB':document.getElementById('form_DOB').value
                               },
                                 success:function(data){
-                                alert(data); 
-                                document.getElementById('DEM').submit();
-                            }
+                                //Todo check data validation and continue
+                                //for example uncheck this alert(data);
+                          }
                         });
            
-        
+                  }
           
         },false)};";
-		print "</script>";
+        print "</script>";
 
 
 
-	}
+    }
 
+}
+else {
+    print "window.onload = function () {
+      document.getElementById('create').addEventListener(\"click\",  submitme(" . $new_validate . ",event,\"DEM\")); }";
 }
 ?>
 
 
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM')">
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' >
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
