@@ -847,7 +847,7 @@ function divclick(cb, divid) {
     <?php foreach($_GLOBALS['validate_pages'] as $validation) :?>
         <?php if($validation['page_name']==basename(__FILE__)):?>
             <?php include_once("$srcdir/validation/validation_script.js.php");?>
-            <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/jquery-1.9.1.min.js"></script>
+            <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
             <script type="text/javascript">
                 var form = document.getElementsByName("theform");
                 form.id="theform";
