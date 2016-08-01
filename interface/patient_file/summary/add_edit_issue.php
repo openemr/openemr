@@ -375,6 +375,7 @@ if (!empty($irow['type'])) {
 <html>
 <head>
 <?php html_header_show();?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -846,8 +847,10 @@ function divclick(cb, divid) {
 <?php if(isset($_GLOBALS['validate_pages']))  :?>
     <?php foreach($_GLOBALS['validate_pages'] as $validation) :?>
         <?php if($validation['page_name']==basename(__FILE__)):?>
-            <?php include_once("$srcdir/validation/validation_script.js.php");?>
-            <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+
+            <!--//include new rules of submitme functionallity-->
+            <?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
+
             <script type="text/javascript">
                 var form = document.getElementsByName("theform");
                 form.id="theform";
