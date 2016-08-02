@@ -844,13 +844,12 @@ function divclick(cb, divid) {
 </script>
 
 <!--Page Form Validations-->
-<?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
+
 <?php $collectThis=collectValidationPageRules("add_edit_issue",$_SERVER['PHP_SELF'])?>
 
 <?php if ($collectThis):?>
             <!--//include new rules of submitme functionallity-->
-
-
+            <?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
             <script type="text/javascript">
                 var form = document.getElementsByName("theform");
                 form.id="theform";
