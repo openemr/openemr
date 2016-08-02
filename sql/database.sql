@@ -7857,6 +7857,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'date_val', 'Date', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'post_to_date', 'Post To Date', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('lists', 'page_validation', 'Page Validation', 298, 1, 0, '', '', '', 0, 0, 1, '');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('page_validation', 'add_edit_issue', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
+
 -- --------------------------------------------------------
 
 -- 
@@ -8295,12 +8301,3 @@ CREATE TABLE `immunization_observation` (
 ) ENGINE=InnoDB;
 -- --------------------------------------------------------
 
-
------------------------------------------------------------
---add edit patient issue for_title new validation record build
---
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('lists', 'PageValidation', 'PageValidation', 298, 1, 0, '', '', '', 0, 0, 1, ''),
-('PageValidation', 'add_edit_issue', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
-
--- --------------------------------------------------------

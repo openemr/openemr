@@ -955,9 +955,13 @@ while ($row = sqlFetchArray($res)) {
                   }else if ( $list_id == 'immunization_observation' ) {
                         xl('LOINC Code','e'); 
                   
-      } else {
+                  }else if ( $list_id == 'page_validation' ) {
+                              xl('Page Validation - ','e');
+          } else {
 		  	xl('Notes','e');
-		  } 
+		  }
+
+		  print $list_id;
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>

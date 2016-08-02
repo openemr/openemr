@@ -609,8 +609,8 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES 
 
 #EndIf
 
-#IfNotRow2D list_options list_id lists option_id PageValidation
+#IfNotRow2D list_options list_id lists option_id page_validation
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('lists', 'PageValidation', 'PageValidation', 298, 1, 0, '', '', '', 0, 0, 1, ''),
-('PageValidation', 'add_edit_issue', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
+('lists', 'page_validation', 'Page Validation', 298, 1, 0, '', '', '', 0, 0, 1, ''),
+('page_validation', 'add_edit_issue', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
 #EndIf

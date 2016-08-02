@@ -6,7 +6,7 @@ function collectValidationPageRules($option_id,$title){
 
 
     $pages = sqlStatement("SELECT * " .
-        "FROM `list_options` WHERE list_id='PageValidation' AND option_id=?  AND title=?",array($option_id,$title));
+        "FROM `list_options` WHERE list_id='page_validation' AND option_id=?  AND title=?",array($option_id,$title));
 
     $row = sqlFetchArray($pages);
     if($row) {
