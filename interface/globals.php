@@ -467,11 +467,11 @@ if ($fake_register_globals) {
 }
 //Create page validation array -- all the pages that have to fire validatejs and their rules
 function collectValidationPageRules($option_id,$title){
-    if (!empty($_SESSION['authUserID'])) {
+
 
 
         $pages = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id='PageValidation' AND option_id='$option_id' AND title='$title'");
+            "FROM `list_options` WHERE list_id='PageValidation' AND option_id=?  AND title=?",array($option_id,$title));
 
           $row = sqlFetchArray($pages);
           if($row) {
@@ -482,6 +482,6 @@ function collectValidationPageRules($option_id,$title){
           }
 
 
-    }
+
 }
 ?>
