@@ -2885,7 +2885,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`d
 DROP TABLE IF EXISTS `list_options`;
 CREATE TABLE `list_options` (
   `list_id` varchar(31) NOT NULL default '',
-  `option_id` varchar(255) NOT NULL default '',
+  `option_id` varchar(31) NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `is_default` tinyint(1) NOT NULL default '0',
