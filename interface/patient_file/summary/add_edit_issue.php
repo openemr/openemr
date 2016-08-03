@@ -845,7 +845,7 @@ function divclick(cb, divid) {
 
 <!--Page Form Validations-->
 <?php //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a?>
-<?php $collectThis=collectValidationActivePageRules($_SERVER['PHP_SELF'])?>
+<?php $collectThis=collectValidationPageRules($_SERVER['PHP_SELF'])?>
 <?php if ($collectThis):?>
     <!--//include new rules of submitme functionallity-->
     <?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
