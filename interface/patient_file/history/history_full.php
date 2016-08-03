@@ -234,7 +234,13 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS')">
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("HIS");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
+<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
     <input type='hidden' name='mode' value='save'>
 
     <div>
