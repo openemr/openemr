@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
- * @author  Dror Golan <sharonco@matrix.co.il>
+ * @author  Dror Golan <drorgo@matrix.co.il>
  * @link    http://www.open-emr.org
  */
 
