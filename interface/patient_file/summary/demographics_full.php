@@ -383,58 +383,16 @@ $(document).ready(function() {
 <?php //Check if new patient is added to hooks
 //this will hold the javascript submit me param new_validate;
 $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+/*
+ * 	you can use the hook to check the validation of the patient from here
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
-    $hook = checkIfPatientValidationHookIsActive();
-
-    if($hook){
-
-        print "<script>";
-        //ajax call to the zend PatientValidation controller.
-        print "window.onload = function () {
-        
-                    
-            
-           document.getElementById('submit').addEventListener(\"click\", function(e) {
-            e.stopPropagation();
-                var submitmeValidation =  submitme(".$new_validate.",e,\"DEM\") ;
-                if(submitmeValidation === true)
-                 {
-                  $.ajax({
-                        url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
-                        data: {
-                               'fname':document.getElementById('form_fname').value, 
-                               'lname':document.getElementById('form_lname').value,
-                               'sex':document.getElementById('form_sex').options[document.getElementById('form_sex').selectedIndex].value,
-                               'DOB':document.getElementById('form_DOB').value
-                              },
-                                success:function(data){
-                                //Todo check data validation and continue
-                                //for example uncheck this alert(data);
-                          }
-                        });
-           
-                  }
-          
-        },false)};";
-
-		print "</script>";
-
-
-    }
+	//$hook = checkIfPatientValidationHookIsActive();
 
 }
-else {
-	print "<script>";
-    print "$(document).ready(function(){
-      $(\"#DEM\").submit(function(e){
-      submitme(" . $new_validate . ",e,\"DEM\"); 
-      })});";
-	print "</script>";
-}
+
+*/
 ?>
-
-
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' >
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />

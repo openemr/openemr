@@ -34,43 +34,6 @@ $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
     $hook = checkIfPatientValidationHookIsActive();
-
-   /* if($hook){
-
-        print "<script>";
-        //ajax call to the zend PatientValidation controller.
-        print "window.onload = function () {
-        
-                       
-            
-           document.getElementById('create').addEventListener(\"click\", function(e) {
-            e.stopPropagation();
-           var submitmeValidation =  submitme(".$new_validate.",e,\"DEM\") ;
-                 if(submitmeValidation === true)
-                 {
-                $.ajax({
-                        url: '".$GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation',
-                        data: {
-                               'fname':document.getElementById('form_fname').value, 
-                               'lname':document.getElementById('form_lname').value,
-                               'sex':document.getElementById('form_sex').options[document.getElementById('form_sex').selectedIndex].value,
-                               'DOB':document.getElementById('form_DOB').value
-                              },
-                                success:function(data){
-                                //Todo check data validation and continue
-                                //for example uncheck this alert(data);
-                                }
-                        });
-           
-                 }
-                },false)
-        };";
-        print "</script>";
-
-
-
-    }*/
-
 }
 else {
     print "<script>";
