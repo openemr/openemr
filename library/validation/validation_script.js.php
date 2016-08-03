@@ -40,7 +40,9 @@ if($GLOBALS['new_validate']) {
     /*e: event*/
     /*form id: used to get the validation rules*/?>
 
-    function submitme(new_validate,e,form_id) {
+
+
+function submitme(new_validate,e,form_id, constraints) {
 
     //Use the old validation script if no parameter sent (backward compatibility)
     //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
@@ -55,13 +57,9 @@ if($GLOBALS['new_validate']) {
                 e.preventDefault();
             }
         } else { //If the new validation library is used :
-            <?php
-            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
-            $constraints = LBF_Validation::generate_validate_constraints($form_id);
-            ?>
+
             //Variables used for the validation library and validation mechanism
             var valid = true ;
-            var constraints = <?php echo $constraints;?>;
             //We use a common error for all the errors because of the multilanguage capability of openemr
             //TODO: implement a traslation mechanism of the errors that the library returns
             var error_msg ='<?php echo xl('is not valid');?>';
