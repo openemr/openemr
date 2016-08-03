@@ -953,10 +953,9 @@ while ($row = sqlFetchArray($res)) {
                   }else if ( $list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
                         xl('HL7 Code','e');
                   }else if ( $list_id == 'immunization_observation' ) {
-                        xl('LOINC Code','e'); 
-                  
+                        xl('LOINC Code','e');
                   }else if ( $list_id == 'page_validation' ) {
-                              xl('Page Validation - ','e');
+                              xl('Page Validation','e');
           } else {
 		  	xl('Notes','e');
 		  }
