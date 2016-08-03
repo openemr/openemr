@@ -1,1 +1,94 @@
-<h1>Administator</h1>
+
+<table id="example" class="display">
+    <thead>
+    <th><?php echo $translate->z_xlt("ID");?></th>
+    <th><?php echo $translate->z_xlt("First name");?></th>
+    <th><?php echo $translate->z_xlt("Last name");?></th>
+    <th><?php echo $translate->z_xlt("DOB");?></th>
+    <th><?php echo $translate->z_xlt("Sex");?></th>
+    </thead>
+    <tbody>
+    <?php //die(var_dump($related_patients));?>
+    <?php if ($related_patients) : ?>
+        <?php foreach ($related_patients as $key=>$related_patient):?>
+            <tr>
+                <td><?php echo( $this->escapeHtml($related_patient['id']));?></td>
+
+                <td><?php echo $this->escapeHtml($related_patient['fname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['lname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['DOB']);?></td>
+                <td><?php echo $translate->z_xlt($this->escapeHtml($related_patient->sex));?></td>
+
+            </tr>
+        <?php endforeach;?>
+
+    <?php endif;?>
+    </tbody>
+    </tfoot>
+    <th><?php echo $translate->z_xlt("ID");?></th>
+    <th><?php echo $translate->z_xlt("First name");?></th>
+    <th><?php echo $translate->z_xlt("Last name");?></th>
+    <th><?php echo $translate->z_xlt("DOB");?></th>
+    <th><?php echo $translate->z_xlt("Sex");?></th>
+    </tfoot>
+
+
+</table>
+
+
+<center>
+    <?php if ($related_patients) { ?>
+        <input type='button' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>'
+               onclick='window.close();' />
+    <?php } else { ?>
+        <input type='button' value='<?php echo htmlspecialchars( xl('Confirm Create New Patient'), ENT_QUOTES); ?>'
+               onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
+    <?php } ?>
+</center>
+
+
+
+<script>
+    $(document).ready(function() {
+        var table = $('#example').DataTable({"searching": false});
+        window.resizeTo(950, 600)
+
+        /*
+        ToDo : make it work like the new_patient popup now doesn't open the patient
+         */
+
+        /*
+        $('#example tbody').on('click', 'tr', function () {
+            <?php
+            // For the old layout we load a frameset that also sets up the new pid.
+            // The new layout loads just the demographics frame here, which in turn
+            // will set the pid and load all the other frames.
+            if ($GLOBALS['concurrent_layout']) {
+                $newPage = "../../../patient_file/summary/demographics.php?set_pid=";
+                $target = "document";
+            } else {
+                $newPage = "../../../patient_file/patient_file.php?set_pid=";
+                $target = "top";
+            }
+            ?>
+            var open_page = '<?php echo $newPage; ?>' + this.firstElementChild.innerHTML;
+            opener.<?php echo $target; ?>.location.href = open_page;
+            window.close();
+            return true;
+
+
+        });
+        */
+        var f = opener.document.forms[0];
+        <?php if ($related_patients) { ?>
+        alert('<?php echo htmlspecialchars(xl('A patient with this ID already exists.'), ENT_QUOTES); ?>')
+        <?php } else { ?>
+        opener.force_submit = true;
+        f.create.value = '<?php echo htmlspecialchars(xl('Confirm Create New Patient'), ENT_QUOTES); ?>';
+        <?php } ?>
+
+        <?php if (!count($related_patients)) { ?>
+        $("<td><?php echo htmlspecialchars(xl('No matches were found.'), ENT_QUOTES); ?></td>").appendTo("#example_info");
+        <?php } ?>
+    });
+</script>

@@ -35,7 +35,7 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
     $hook = checkIfPatientValidationHookIsActive();
 
-    if($hook){
+   /* if($hook){
 
         print "<script>";
         //ajax call to the zend PatientValidation controller.
@@ -69,7 +69,7 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 
 
 
-    }
+    }*/
 
 }
 else {
@@ -890,8 +890,14 @@ enable_modals();
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
+        <?php if($hook):?>
+        // Use hook to open the controller and get the new patient validation
+        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+        <?php else:?>
         // Build and invoke the URL to create the dup-checker dialog.
         var url = 'new_search_popup.php';
+        <?php endif;?>
+
         var flds = new Array(<?php echo $mflist; ?>);
         var separator = '?';
         for (var i = 0; i < flds.length; ++i) {
@@ -902,6 +908,7 @@ enable_modals();
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
+
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function

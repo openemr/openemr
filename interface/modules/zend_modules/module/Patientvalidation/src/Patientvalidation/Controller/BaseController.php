@@ -10,15 +10,73 @@ use Zend\View\Model\ViewModel;
 
 class BaseController extends AbstractActionController
 {
-    private $configParams = null;
 
+    /**
+     * path to file after base pass from ModuleconfigController
+     * @var array
+     */
+    protected $jsFiles = array(
+        //jquery
+        '/lib/jquery/jquery.min.js',
+        //bootstrap
+        '/lib/bootstrap/bootstrap.min.js',
 
+    );
+
+    /**
+     * path to file after base pass from ModuleconfigController
+     * @var array
+     */
+    protected $cssFiles = array(
+        //bootstrap
+        '/lib/bootstrap/bootstrap.min.css',
+        //style.css - custom css
+        '/style.css'
+    );
 
     public function __construct()
     {
         //load translation class
         $this->translate = new Listener();
     }
+
+    /**
+     * Add js files per method.
+     * @param $method __METHOD__ magic constant
+     * @return array
+     */
+    protected function getJsFiles()
+    {
+
+                $this->jsFiles[] = '/lib/datatables/datatables.min.js';
+                $this->jsFiles[] = '/lib/datatables/dataTables.bootstrap.min.js';
+                $this->jsFiles[] = '/lib/datatables/dataTables.buttons.min.js';
+
+        return $this->jsFiles;
+    }
+
+    /**
+     * Add css files per method.
+     * @param $method __METHOD__ magic constant
+     * @return array
+     */
+    protected function getCssFiles()
+    {
+
+        //adding bootstrap rtl for rtl languages
+        if ($_SESSION['language_direction'] == 'rtl') {
+            $this->cssFiles[] = '/lib/bootstrap/bootstrap-rtl.min.css';
+        }
+
+
+                $this->cssFiles[] = '/lib/datatables/datatables.css';
+                $this->cssFiles[] = '/lib/datatables/buttons.dataTables.min.css';
+
+        return $this->cssFiles;
+    }
+
+
+ 
 
 
     protected function getLanguage(){
@@ -32,6 +90,18 @@ class BaseController extends AbstractActionController
         return $lang;
     }
 
+    /**
+     * @return mixed params object
+     */
+    protected function getRequestedParams(){
+
+        return $this->getRequest()->getQuery() ;
+    }
+
+    protected function getRequestedParamsArray(){
+
+        return (array)$this->getRequest()->getQuery() ;
+    }
     /**
      * @return post params as array
      */

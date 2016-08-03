@@ -418,7 +418,7 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
           
         },false)};";
 
-
+		print "</script>";
 
 
     }
