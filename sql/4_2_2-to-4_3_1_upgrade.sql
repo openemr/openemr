@@ -613,11 +613,11 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('lists', 'page_validation', 'Page Validation', 298, 1, 0, '', '', '', 0, 0, 1, '');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('page_validation', 'add_edit_issue#theform', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
+('page_validation', 'add_edit_issue#theform', '/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('page_validation', 'add_edit_issue#theform1', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
+('page_validation', 'add_edit_issue#theform1', '/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 1, '');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('page_validation', 'add_edit_issue#theform2', '/openemrValidation/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 0, '');
+('page_validation', 'add_edit_issue#theform2', '/openemr/interface/patient_file/summary/add_edit_issue.php', 0, 0, 0, '', '{form_title:{presence: true}}', '', 0, 0, 0, '');
 
 
 #EndIf

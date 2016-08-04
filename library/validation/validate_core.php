@@ -50,10 +50,25 @@ function collectValidationPageRules($title,$active=true){
  */
 function validateUsingPageRules($fileNamePath)
 {
+$pathArray=explode("/",$fileNamePath);
+$path='';
+$startCollecting=false;
+foreach($pathArray as $value)
+{
+
+    if($value=='openemr')
+    {
+        $startCollecting=true;
+    }
+    if($startCollecting)
+        $path.="/".$value;
+
+
+}
 
 print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
-$collectThis=collectValidationPageRules($fileNamePath);
+$collectThis=collectValidationPageRules($path);
 if ($collectThis) {
 
 
