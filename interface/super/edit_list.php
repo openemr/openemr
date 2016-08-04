@@ -959,8 +959,6 @@ while ($row = sqlFetchArray($res)) {
           } else {
 		  	xl('Notes','e');
 		  }
-
-		  print $list_id;
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>
