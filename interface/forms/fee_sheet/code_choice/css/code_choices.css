@@ -1,0 +1,55 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 13, 2014, 9:32:30 PM
+    Author     : yehster
+*/
+
+div.code-choices
+{
+    font-size: 10pt;
+    position:relative;
+    z-index: 0;
+}
+div.category-display
+{
+    float:left;
+    width: 33%;
+    cursor: pointer;
+}
+
+
+
+div.category-display > button
+{
+    width: 25em;
+    font-weight: bold;
+    text-align: left;
+}
+
+div.category-display > button:hover
+{
+    color: blue;
+}
+.active-category
+{
+    position: absolute;
+    z-index: 10;
+    background-color: white;
+    width: 100%;
+}
+
+div.code-choice
+{
+    float:left;
+    width: 33%;
+    cursor: pointer;
+    text-align: left;
+}
+
+div.code-choice:hover{
+    background-color: yellow;
+}

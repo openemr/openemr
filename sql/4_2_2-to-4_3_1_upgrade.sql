@@ -612,8 +612,6 @@ DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_
 ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
 #EndIf
 
-
-
 #IfMissingColumn layout_options validation
 ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
 #EndIf
@@ -627,7 +625,67 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES 
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
-
 #EndIf
 
+#IfMissingColumn facility extra_validation
+ALTER TABLE facility ADD extra_validation tinyint(1) NOT NULL DEFAULT '1';
+#EndIf
 
+#IfMissingColumn drugs consumable
+ALTER TABLE drugs
+  ADD consumable tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet';
+#EndIf
+
+#IfMissingColumn billing pricelevel
+ALTER TABLE `billing` ADD COLUMN `pricelevel` varchar(31) default '';
+# Fill in missing price levels where possible. Specific to IPPF but will not hurt anyone else.
+UPDATE billing AS b, codes AS c, prices AS p
+  SET b.pricelevel = p.pr_level WHERE
+  b.code_type = 'MA' AND b.activity = 1 AND b.pricelevel = '' AND b.units = 1 AND b.fee > 0.00 AND
+  c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier AND
+  p.pr_id = c.id AND p.pr_selector = '' AND p.pr_price = b.fee;
+#EndIf
+
+#IfMissingColumn drug_sales pricelevel
+ALTER TABLE `drug_sales` ADD COLUMN `pricelevel` varchar(31) default '';
+#EndIf
+
+#IfMissingColumn drug_sales selector
+ALTER TABLE `drug_sales` ADD COLUMN `selector` varchar(255) default '' comment 'references drug_templates.selector';
+# Fill in missing selector values where not ambiguous.
+UPDATE drug_sales AS s, drug_templates AS t
+  SET s.selector = t.selector WHERE
+  s.pid != 0 AND s.selector = '' AND t.drug_id = s.drug_id AND
+  (SELECT COUNT(*) FROM drug_templates AS t2 WHERE t2.drug_id = s.drug_id) = 1;
+# Fill in missing price levels where not ambiguous.
+UPDATE drug_sales AS s, drug_templates AS t, prices AS p
+  SET s.pricelevel = p.pr_level WHERE
+  s.pid != 0 AND s.selector != '' AND s.pricelevel = '' AND
+  t.drug_id = s.drug_id AND t.selector = s.selector AND t.quantity = s.quantity AND
+  p.pr_id = s.drug_id AND p.pr_selector = s.selector AND p.pr_price = s.fee;
+#EndIf
+
+#IfMissingColumn drug_sales bill_date
+ALTER TABLE `drug_sales` ADD COLUMN `bill_date` datetime default NULL;
+UPDATE drug_sales AS s, billing     AS b SET s.bill_date = b.bill_date WHERE s.billed = 1 AND s.bill_date IS NULL AND b.pid = s.pid AND b.encounter = s.encounter AND b.bill_date IS NOT NULL AND b.activity = 1;
+UPDATE drug_sales AS s, ar_activity AS a SET s.bill_date = a.post_time WHERE s.billed = 1 AND s.bill_date IS NULL AND a.pid = s.pid AND a.encounter = s.encounter;
+UPDATE drug_sales AS s SET s.bill_date = s.sale_date WHERE s.billed = 1 AND s.bill_date IS NULL;
+#EndIf
+
+#IfNotTable voids
+CREATE TABLE `voids` (
+  `void_id`                bigint(20)    NOT NULL AUTO_INCREMENT,
+  `patient_id`             bigint(20)    NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)    NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `what_voided`            varchar(31)   NOT NULL            COMMENT 'checkout,receipt and maybe other options later',
+  `date_original`          datetime      DEFAULT NULL        COMMENT 'time of original action that is now voided',
+  `date_voided`            datetime      NOT NULL            COMMENT 'time of void action',
+  `user_id`                bigint(20)    NOT NULL            COMMENT 'references users.id',
+  `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
+  `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
+  `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  PRIMARY KEY (`void_id`),
+  KEY datevoided (date_voided),
+  KEY pidenc (patient_id, encounter_id)
+) ENGINE=InnoDB;
+#EndIf

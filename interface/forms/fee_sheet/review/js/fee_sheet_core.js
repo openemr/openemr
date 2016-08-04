@@ -142,6 +142,7 @@ function justify_start(evt)
     var justify_model=new fee_sheet_justify_view_model(parent.attr("billing_id"),enc,pid,current_justify_choices);
     ko.applyBindings(justify_model,template_div.get(0));
 }
+
 function tag_justify_rows(display)
 {
     var justify_selectors=display.find("select[onchange^='setJustify']").parent();
@@ -168,11 +169,14 @@ function tag_justify_rows(display)
     
 }
 
-
 function setup_core()
 {
+  // KY on 2014-01-29 commented out this setup for the IPPF version. Not sure why.
+  // I (Rod) made them conditional so we can share the same code.
+  if (!ippf_specific) {
     codeselect=codeselect_and_save;
     tag_justify_rows($(display_table_selector));
+  }
 }
 
 setup_core();
