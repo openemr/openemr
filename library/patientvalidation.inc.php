@@ -1,7 +1,5 @@
 <?php
 /**
- * library/sql_upgrade_fx.php Upgrading and patching functions of database.
- *
  * Function to check if Patientvalidation hook is active
  *
  * LICENSE: This program is free software; you can redistribute it and/or
