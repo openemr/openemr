@@ -22,7 +22,7 @@
 
 /**get all the validation on the page
  * @param $title
- * @return array
+ * @return array of validation rules and forms names
  */
 function collectValidationPageRules($title,$active=true){
 
@@ -38,9 +38,63 @@ function collectValidationPageRules($title,$active=true){
     $dataArray=array();
     while($row = sqlFetchArray($sql) ) {
         $formPageNameArray = explode('#', $row['option_id']);
-        $dataArray[$formPageNameArray[1]]=array('page_name' => $formPageNameArray[0] . ".php",'rules' => $row['notes']);
+        $dataArray[$formPageNameArray[1]]=array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
     }
     return $dataArray;
 
+}
+
+/**this function creates client side validation rules for each <form> declared in list : Patient Validation - patient_validation
+ * @param $fileNamePath
+ * @output a generated javascript tag with the validation
+ */
+function validateUsingPageRules($fileNamePath)
+{
+
+print '<!--Page Form Validations-->';
+//if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
+$collectThis=collectValidationPageRules($fileNamePath);
+if ($collectThis) {
+
+
+
+        print '<!---Start of page  form validation-->';
+        print '<!--//include new rules of submitme functionallity-->';
+        echo("\r\n");
+        require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+        $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+        echo("\r\n");
+        print '<script type="text/javascript">';
+
+        foreach ($collectThis as $key => $value) {
+            echo("try{");
+            echo("\r\n");
+            echo('if(document.getElementsByName("' . $key . '").length>0)');
+            echo("\r\n");
+            echo('{');
+            echo("\r\n");
+            echo('var form = document.getElementsByName("<?php echo $key;?>");');
+            echo("\r\n");
+            echo('form.id = "<?php echo $key;?>";');
+            echo("\r\n");
+            echo('<!--Use validation script js Validations-->');
+            echo("\r\n");
+            echo('$("form").attr("onclick", \'return submitme(' . $new_validate . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ')\');');
+            echo("\r\n");
+            echo('}');
+            echo("\r\n");
+            echo('}');
+            echo("\r\n");
+            echo('catch(err)');
+            echo("\r\n");
+            echo('{');
+            echo("\r\n");
+            echo('//log err - console.log(err)');
+            echo("\r\n");
+            echo('}');
+        }
+        echo('</script>');
+    print '<!---End of page  form validation-->';
+    }
 }
 

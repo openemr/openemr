@@ -843,32 +843,7 @@ function divclick(cb, divid) {
  Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
 
-<!--Page Form Validations-->
-<?php //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a?>
-<?php $collectThis=collectValidationPageRules($_SERVER['PHP_SELF'])?>
-<?php if ($collectThis):?>
-    <!--//include new rules of submitme functionallity-->
-    <?php require_once($GLOBALS['srcdir']."/validation/validation_script.js.php");?>
-    <script type="text/javascript">
-    <?php foreach($collectThis as $key=>$value) :?>
-    try {
-        if(document.getElementsByName("<?php echo $key;?>").length>0)
-        {
-            var form = document.getElementsByName("<?php echo $key;?>");
-            form.id = "<?php echo $key;?>";
-            <!--Use validation script js Validations-->
-            $("form").attr("onclick", 'return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"<?php echo $key;?>",<?php echo $collectThis[$key]['rules'];?>)');
-        }
-    }
-    catch(err)
-    {
-        //log err - console.log(err)
-    }
-    <?php endforeach;?>
-    </script>
-
-<?php endif;?>
-<!---End of page  form validation-->
+<?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
 
 
 </body>

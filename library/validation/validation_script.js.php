@@ -1,4 +1,4 @@
-<?php require_once("$srcdir/validation/LBF_Validation.php");?>
+<?php require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");?>
 <?php
 /**
  * library/validation/validation_script.js
