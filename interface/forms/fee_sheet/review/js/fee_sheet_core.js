@@ -23,7 +23,7 @@
 function refresh_codes()
 {
     top.restoreSession();
-    $.post(fee_sheet_new,{},function(data){
+    $.post(fee_sheet_new,{"running_as_ajax": "1"},function(data) {
         update_display_table(data);
     });
 }
@@ -34,7 +34,9 @@ function update_display_table(data)
 
     // This creates a jquery object representing new DOM elements built from
     // HTML returned by the AJAX call to new.php.
-    var new_info=$(data);
+    // Note trim() is necessary to avoid crashing when there are leading spaces...
+    // that took me (Rod) a long time to figure out!
+    var new_info=$(data.trim());
 
     // This finds the element "table[cellspacing='5']".
     // That is, the table element whose cellspacing attribute has a value of 5.
@@ -78,10 +80,10 @@ function update_display_table(data)
 // This function is used to force an immediate save when choosing codes.
 function codeselect_and_save(selobj)
 {
-  var i = selobj.selectedIndex;
-  if (i > 0) {
+  var i = selobj ? selobj.selectedIndex : -1;
+  if (i) {
     var f = document.forms[0];
-    f.newcodes.value = selobj.options[i].value;
+    if (selobj) f.newcodes.value = selobj.options[i].value;
     // Submit the newly selected code.
     top.restoreSession();
     var form_data=$("form").serialize() + "&running_as_ajax=1";
@@ -90,7 +92,7 @@ function codeselect_and_save(selobj)
         // "data" here is the complete newly generated fee sheet HTML.
         f.newcodes.value = "";
         // Clear the selection
-        $(selobj).find("option:selected").prop("selected",false);
+        if (selobj) $(selobj).find("option:selected").prop("selected",false);
         // We do a refresh and then save because refresh does not save the new line item.
         // Note the save is skipped if refresh returned an error.
         if (update_display_table(data)) {
@@ -142,6 +144,7 @@ function justify_start(evt)
     var justify_model=new fee_sheet_justify_view_model(parent.attr("billing_id"),enc,pid,current_justify_choices);
     ko.applyBindings(justify_model,template_div.get(0));
 }
+
 function tag_justify_rows(display)
 {
     var justify_selectors=display.find("select[onchange^='setJustify']").parent();
@@ -168,11 +171,14 @@ function tag_justify_rows(display)
     
 }
 
-
 function setup_core()
 {
+  // KY on 2014-01-29 commented out this setup for the IPPF version. Not sure why.
+  // I (Rod) made them conditional so we can share the same code.
+  if (!ippf_specific) {
     codeselect=codeselect_and_save;
     tag_justify_rows($(display_table_selector));
+  }
 }
 
 setup_core();
