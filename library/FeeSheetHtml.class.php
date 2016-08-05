@@ -46,19 +46,20 @@ class FeeSheetHtml extends FeeSheet {
     $drow = sqlQuery("SELECT facility_id FROM users where username = '" . $_SESSION['authUser'] . "'");
     $def_facility = 0 + $drow['facility_id'];
     //
+    $sqlarr = array($def_facility);
     $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
       "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
       "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' )";
     // If restricting to providers matching user facility...
     if ($GLOBALS['gbl_restrict_provider_facility']) {
-      $query .= " AND ( facility_id = 0 OR facility_id = $def_facility )";
+      $query .= " AND ( facility_id = 0 OR facility_id = ? )";
       $query .= " ORDER BY lname, fname";
     }
     // If not restricting then sort the matching providers first.
     else {
-      $query .= " ORDER BY (facility_id = $def_facility) DESC, lname, fname";
+      $query .= " ORDER BY (facility_id = ?) DESC, lname, fname";
     }
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlarr);
     $s .= "<option value=''>" . text($toptext) . "</option>";
     while ($row = sqlFetchArray($res)) {
       $provid = $row['id'];
@@ -91,15 +92,15 @@ class FeeSheetHtml extends FeeSheet {
     $s = '';
     if ($this->got_warehouses) {
       // Normally would use generate_select_list() but it's not flexible enough here.
-      $s .= "<select name='$tagname'";
+      $s .= "<select name='" . attr($tagname) . "'";
       if (!$disabled) $s .= " onchange='warehouse_changed(this);'";
       if ($disabled ) $s .= " disabled";
       $s .= ">";
-      $s .= "<option value=''>$toptext</option>";
+      $s .= "<option value=''>" . text($toptext) . "</option>";
       $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = 'warehouse' ORDER BY seq, title");
       while ($lrow = sqlFetchArray($lres)) {
-        $s .= "<option value='" . $lrow['option_id'] . "'";
+        $s .= "<option value='" . attr($lrow['option_id']) . "'";
         if ($disabled) {
           if ($lrow['option_id'] == $default) $s .= " selected";
         }
@@ -128,11 +129,11 @@ class FeeSheetHtml extends FeeSheet {
   //
   public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector='', $default='', $disabled=false) {
     // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
-    $s = "<select name='$tagname'";
+    $s = "<select name='" . attr($tagname) . "'";
     if (!$disabled) $s .= " onchange='pricelevel_changed(this);'";
     if ($disabled ) $s .= " disabled";
     $s .= ">";
-    $s .= "<option value=''>$toptext</option>";
+    $s .= "<option value=''>" . text($toptext) . "</option>";
     $lres = sqlStatement("SELECT lo.*, p.pr_price " .
       "FROM list_options AS lo " .
       "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
@@ -188,7 +189,7 @@ class FeeSheetHtml extends FeeSheet {
   // Generate a price level drop-down defaulting to the patient's current price level.
   //
   public function generatePriceLevelSelector($tagname='pricelevel', $disabled=false) {
-    $s = "<select name='$tagname'";
+    $s = "<select name='" . attr($tagname) . "'";
     if ($disabled) $s .= " disabled";
     $s .= ">";
     $pricelevel = $this->getPriceLevel();
@@ -343,8 +344,7 @@ function jsLineItemValidation(f) {
     if (isset($GLOBALS['code_types']['MA'])) {
       $s .= "
  if (required_code_count == 0) {
-  if (!confirm('" . xls('You have not entered any clinical services or products.' .
-   ' Click Cancel to add them. Or click OK if you want to save as-is.') . "')) {
+  if (!confirm('" . xls('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . "')) {
    return false;
   }
  }

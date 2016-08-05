@@ -91,8 +91,6 @@ class FeeSheet {
   public $contraception_code = '';
   public $contraception_cyp  = 0;
 
-  // IPPF doesn't want any payments to be made or displayed in the Fee Sheet,
-  // but we'll use this switch and keep the code in case someone wants it.
   public $ALLOW_COPAYS = false;
 
   function __construct($pid=0, $encounter=0) {
@@ -100,6 +98,9 @@ class FeeSheet {
     if (empty($encounter)) $encounter = $GLOBALS['encounter'];
     $this->pid = $pid;
     $this->encounter = $encounter;
+
+    // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
+    $this->ALLOW_COPAYS = !$GLOBALS['ippf_specific'];
 
     // Get the user's default warehouse and an indicator if there's a choice of warehouses.
     $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");

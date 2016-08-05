@@ -640,18 +640,18 @@ function setSaveAndClose() {
  if (!f.bn_save_close) return;
  if (hasCharges()) {
   f.form_has_charges.value = '1';
-  f.bn_save_close.value = '<?php echo xl('Save and Checkout'); ?>';
+  f.bn_save_close.value = '<?php echo xla('Save and Checkout'); ?>';
  }
  else {
   f.form_has_charges.value = '0';
-  f.bn_save_close.value = '<?php echo xl('Save and Close'); ?>';
+  f.bn_save_close.value = '<?php echo xla('Save and Close'); ?>';
  }
 }
 
 // Open the add-event dialog.
 function newEvt() {
  var f = document.forms[0];
- var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo $fs->pid; ?>';
+ var url = '../../main/calendar/add_edit_event.php?patientid=<?php echo urlencode($fs->pid); ?>';
  if (f.ProviderID && f.ProviderID.value) {
   url += '&userid=' + parseInt(f.ProviderID.value);
  }
@@ -660,7 +660,7 @@ function newEvt() {
 }
 
 function warehouse_changed(sel) {
- if (!confirm('<?php echo xl('Do you really want to change Warehouse?'); ?>')) {
+ if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
   // They clicked Cancel so reset selection to its default state.
   for (var i = 0; i < sel.options.length; ++i) {
    sel.options[i].selected = sel.options[i].defaultSelected;
@@ -689,7 +689,8 @@ function pricelevel_changed(sel) {
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php echo "rde=$rapid_data_entry&addmore=$add_more_items"; ?>"
+<form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
+ echo "rde=" . urlencode($rapid_data_entry) . "&addmore=" . urlencode($add_more_items); ?>"
  onsubmit="return validate(this)">
 <span class="title"><?php echo xlt('Fee Sheet'); ?></span><br>
 <input type='hidden' name='newcodes' value=''>
@@ -893,7 +894,7 @@ echo " </tr>\n";
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
 <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
-  <td class='billcell' align='center'><b><?php xl('Rx','e');?></b></td>
+  <td class='billcell' align='center'><b><?php echo xlt('Rx'); ?></b></td>
 <?php } ?>  
   <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
  </tr>
@@ -1182,7 +1183,7 @@ if (!$GLOBALS['ippf_specific']) {
   echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled);
 }
 
-echo "<input type='button' value='" . xl('New Appointment') . "' onclick='newEvt()' />\n";
+echo "<input type='button' value='" . xla('New Appointment') . "' onclick='newEvt()' />\n";
 
 echo "</b></span>\n";
 ?>
@@ -1229,9 +1230,9 @@ if ($fs->contraception_code && !$isBilled) {
       }
       if ($ask_new_user) {
         echo "<select name='newmauser'>\n";
-        echo " <option value='2'>" . xl('First Modern Contraceptive Use (Lifetime)') . "</option>\n";
-        echo " <option value='1'>" . xl('First Modern Contraception at this Clinic (with Prior Contraceptive Use)') . "</option>\n";
-        echo " <option value='0'>" . xl('Method Change at this Clinic') . "</option>\n";
+        echo " <option value='2'>" . xlt('First Modern Contraceptive Use (Lifetime)') . "</option>\n";
+        echo " <option value='1'>" . xlt('First Modern Contraception at this Clinic (with Prior Contraceptive Use)') . "</option>\n";
+        echo " <option value='0'>" . xlt('Method Change at this Clinic') . "</option>\n";
         echo "</select>\n";
         echo "<p>&nbsp;\n";
       }
@@ -1280,7 +1281,7 @@ value='<?php echo xla('Refresh');?>'>
 <?php if ($fs->hasCharges) { // billed with charges ?>
 <input type='button' value='<?php echo xla('Show Receipt'); ?>'
  onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
- echo "&ptid={$fs->pid}&enc={$fs->encounter}"; ?>'" />
+ echo "&ptid=" . urlencode($fs->pid) . "&enc=" . urlencode($fs->encounter); ?>'" />
 &nbsp;
 <input type='submit' name='bn_reopen' onclick='return this.clicked = 2;'
  value='<?php echo xla('Void Checkout and Re-Open'); ?>' />

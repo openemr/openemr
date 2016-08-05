@@ -67,8 +67,8 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
       "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
       "sale_date, quantity, fee ) VALUES ( " .
-      "'$drug_id', 0, '$prescription_id', '$patient_id', " .
-      "'$encounter_id', '$user', '$sale_date', '$quantity', '$fee' )");
+      "?, 0, ?, ?, ?, ?, ?, ?, ?)",
+      array($drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee));
     return $sale_id;
   }
   
@@ -94,11 +94,14 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id " .
     "WHERE " .
-    "di.drug_id = '$drug_id' AND di.destroy_date IS NULL ";
-  if ($GLOBALS['SELL_FROM_ONE_WAREHOUSE'] && $default_warehouse) $query .=
-    "AND di.warehouse_id = '$default_warehouse' ";
+    "di.drug_id = ? AND di.destroy_date IS NULL ";
+  $sqlarr = array($drug_id);
+  if ($GLOBALS['SELL_FROM_ONE_WAREHOUSE'] && $default_warehouse) {
+    $query .= "AND di.warehouse_id = ? ";
+    $sqlarr[] = $default_warehouse;
+  }
   $query .= "ORDER BY $orderby";
-  $res = sqlStatement($query);
+  $res = sqlStatement($query, $sqlarr);
 
   // First pass.  Pick out lots to be used in filling this order, figure out
   // if there is enough quantity on hand and check for lots to be destroyed.
