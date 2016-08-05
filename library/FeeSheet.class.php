@@ -117,6 +117,7 @@ class FeeSheet {
       "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($this->pid, $this->encounter) );
     $this->visit_date    = substr($visit_row['date'], 0, 10);
     $this->provider_id   = $visit_row['provider_id'];
+    if (empty($this->provider_id)) $this->provider_id = findProvider();
     $this->supervisor_id = $visit_row['supervisor_id'];
     // This flag is specific to IPPF validation at form submit time.  It indicates
     // that most contraceptive services and products should match up on the fee sheet.
@@ -149,6 +150,28 @@ class FeeSheet {
     $age = $a2[0] - $a1[0];
     if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) --$age;
     return $age;
+  }
+
+  // Gets the provider from the encounter, logged-in user or patient demographics.
+  // Adapted from work by Terry Hill.
+  //
+  public function findProvider() {
+    $find_provider = sqlQuery("SELECT provider_id FROM form_encounter " .
+      "WHERE pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
+      array($this->pid, $this->encounter));
+    $providerid = $find_provider['provider_id'];
+    if (!$providerid) {
+      $get_authorized = $_SESSION['userauthorized'];
+      if ($get_authorized == 1) {
+        $providerid = $_SESSION['authUserID'];
+      }
+    }
+    if (!$providerid) {
+      $find_provider = sqlQuery("SELECT providerID FROM patient_data " .
+        "WHERE pid = ?", array($this->pid) );
+      $providerid = $find_provider['providerID'];
+    }
+    return intval($providerid);
   }
 
   // Log a message that is easy for the Re-Opened Visits Report to interpret.
@@ -265,6 +288,13 @@ class FeeSheet {
     // Price level should be unset only if adding a new line item.
     $pricelevel  = isset($args['pricelevel']) ? $args['pricelevel'] : $this->patient_pricelevel;
     $del         = !empty($args['del']);
+
+    // If using line item billing and user wishes to default to a selected provider, then do so.
+    if(!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
+      if ($provider_id == 0) {
+        $provider_id = 0 + $this->findProvider();
+      }
+    }
 
     if ($codetype == 'COPAY') {
       if (!$code_text) $code_text = 'Cash';

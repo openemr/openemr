@@ -1050,6 +1050,7 @@ CREATE TABLE `drugs` (
   `allow_multiple`  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse',
   `drug_code` varchar(25) NULL,
   `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
+  `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 

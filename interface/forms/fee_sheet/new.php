@@ -32,6 +32,9 @@ require_once("codes.php");
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";
 
+$liprovstyle = (isset($GLOBALS['support_fee_sheet_line_item_provider']) &&
+  $GLOBALS['support_fee_sheet_line_item_provider'] != 1) ? " style='display:none'" : "";
+
 // This flag comes from the LBFmsivd form and perhaps later others.
 $rapid_data_entry = empty($_GET['rde']) ? 0 : 1;
 
@@ -142,7 +145,7 @@ function echoServiceLines() {
       }
 
       // Show provider for this line.
-      echo "  <td class='billcell' align='center'>";
+      echo "  <td class='billcell' align='center' $liprovstyle>";
       echo $fs->genProviderSelect('', '-- ' .xl("Default"). ' --', $li['provid'], true);
       echo "</td>\n";
 
@@ -219,7 +222,7 @@ function echoServiceLines() {
       }
 
       // Provider drop-list for this line.
-      echo "  <td class='billcell' align='center'>";
+      echo "  <td class='billcell' align='center' $liprovstyle>";
       echo $fs->genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $li['provid']);
       echo "</td>\n";
 
@@ -329,7 +332,7 @@ function echoProductLines() {
         echo "  <td class='billcell' align='center'$justifystyle>&nbsp;</td>\n"; // justify
       }
       // Show warehouse for this line.
-      echo "  <td class='billcell' align='center'>";
+      echo "  <td class='billcell' align='center' $liprovstyle>";
       echo $fs->genWarehouseSelect('', ' ', $warehouse_id, true, $drug_id, $sale_id > 0);
       echo "</td>\n";
       //
@@ -367,7 +370,7 @@ function echoProductLines() {
         echo "  <td class='billcell'$justifystyle>&nbsp;</td>\n"; // justify
       }
       // Generate warehouse selector if there is a choice of warehouses.
-      echo "  <td class='billcell' align='center'>";
+      echo "  <td class='billcell' align='center' $liprovstyle>";
       echo $fs->genWarehouseSelect("prod[$lino][warehouse]", ' ', $warehouse_id, false, $drug_id, $sale_id > 0);
       echo "</td>\n";
       //
@@ -489,6 +492,9 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+
+<?php if (empty($_POST['running_as_ajax'])) { ?>
+
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
@@ -677,6 +683,9 @@ function pricelevel_changed(sel) {
 }
 
 </script>
+
+<?php } // end not ajax ?>
+
 </head>
 
 <body class="body_top">
@@ -880,7 +889,7 @@ echo " </tr>\n";
 <?php if (justifiers_are_used()) { ?>
   <td class='billcell' align='center'<?php echo $justifystyle; ?>><b><?php echo xlt('Justify');?></b></td>
 <?php } ?>
-  <td class='billcell' align='center'><b><?php echo xlt('Provider/Warehouse');?></b></td>
+  <td class='billcell' align='center' <?php echo $liprovstyle; ?>><b><?php echo xlt('Provider/Warehouse');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
 <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
@@ -1296,6 +1305,8 @@ value='<?php echo xla('Refresh');?>'>
 
 </form>
 
+<?php if (empty($_POST['running_as_ajax'])) { ?>
+
 <script language='JavaScript'>
 setSaveAndClose();
 
@@ -1306,11 +1317,15 @@ if ($alertmsg) {
 }
 ?>
 </script>
+
+<?php } // end not ajax ?>
+
 </body>
 </html>
+<?php if (!empty($_POST['running_as_ajax'])) exit; ?>
 <?php require_once("review/initialize_review.php"); ?>
 <?php require_once("code_choice/initialize_code_choice.php"); ?>
-<?php require_once("contraception_products/initialize_contraception_products.php"); ?>
+<?php if ($GLOBALS['ippf_specific']) require_once("contraception_products/initialize_contraception_products.php"); ?>
 <script>
 var translated_price_header="<?php echo xlt("Price");?>";
 </script>

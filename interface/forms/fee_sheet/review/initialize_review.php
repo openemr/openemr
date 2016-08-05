@@ -34,7 +34,7 @@ require_once("code_check.php");
     var ippf_specific = "<?php echo $GLOBALS['ippf_specific']; ?>";
 </script>
 <script type="text/javascript" src="<?php echo $web_root;?>/library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="<?php echo $web_root;?>/public/assets/knockout-2-2-1/build/output/knockout-latest.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-2-2-1/build/output/knockout-latest.js"></script>
 <script>
     function fee_sheet_option(code,code_type,description,fee)
     {

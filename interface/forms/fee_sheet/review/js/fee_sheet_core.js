@@ -23,7 +23,7 @@
 function refresh_codes()
 {
     top.restoreSession();
-    $.post(fee_sheet_new,{},function(data){
+    $.post(fee_sheet_new,{"running_as_ajax": "1"},function(data) {
         update_display_table(data);
     });
 }
@@ -34,7 +34,9 @@ function update_display_table(data)
 
     // This creates a jquery object representing new DOM elements built from
     // HTML returned by the AJAX call to new.php.
-    var new_info=$(data);
+    // Note trim() is necessary to avoid crashing when there are leading spaces...
+    // that took me (Rod) a long time to figure out!
+    var new_info=$(data.trim());
 
     // This finds the element "table[cellspacing='5']".
     // That is, the table element whose cellspacing attribute has a value of 5.
