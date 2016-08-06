@@ -30,8 +30,6 @@ div.category-display
     cursor: pointer;
 }
 
-
-
 div.category-display > button
 {
     width: 25em;
@@ -48,7 +46,9 @@ div.category-display > button:hover
     position: absolute;
     z-index: 10;
     background-color: white;
-    width: 100%;
+    width: 99%;
+    border: 1px black solid;
+    padding: 4pt;
 }
 
 div.code-choice
