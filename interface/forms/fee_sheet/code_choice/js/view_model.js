@@ -35,8 +35,10 @@ function codes_ok(data,event)
           }
         }
         if (f.newcodes.value) {
-          top.restoreSession();
-          f.submit();
+          // top.restoreSession();
+          // f.submit();
+          // This supports the option to immediately save:
+          codeselect(null);
         }
     return false;
 }

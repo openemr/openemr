@@ -80,10 +80,10 @@ function update_display_table(data)
 // This function is used to force an immediate save when choosing codes.
 function codeselect_and_save(selobj)
 {
-  var i = selobj.selectedIndex;
-  if (i > 0) {
+  var i = selobj ? selobj.selectedIndex : -1;
+  if (i) {
     var f = document.forms[0];
-    f.newcodes.value = selobj.options[i].value;
+    if (selobj) f.newcodes.value = selobj.options[i].value;
     // Submit the newly selected code.
     top.restoreSession();
     var form_data=$("form").serialize() + "&running_as_ajax=1";
@@ -92,7 +92,7 @@ function codeselect_and_save(selobj)
         // "data" here is the complete newly generated fee sheet HTML.
         f.newcodes.value = "";
         // Clear the selection
-        $(selobj).find("option:selected").prop("selected",false);
+        if (selobj) $(selobj).find("option:selected").prop("selected",false);
         // We do a refresh and then save because refresh does not save the new line item.
         // Note the save is skipped if refresh returned an error.
         if (update_display_table(data)) {

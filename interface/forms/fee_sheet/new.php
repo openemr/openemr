@@ -76,7 +76,7 @@ function genDiagJS($code_type, $code) {
 // Write all service lines to the web form.
 //
 function echoServiceLines() {
-  global $code_types, $justinit, $usbillstyle, $justifystyle, $fs, $price_levels_are_used;
+  global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
 
   foreach ($fs->serviceitems as $lino => $li) {
     $id       = $li['hidden']['id'];
@@ -280,7 +280,7 @@ function echoServiceLines() {
 // Write all product lines to the web form.
 //
 function echoProductLines() {
-  global $code_types, $usbillstyle, $justifystyle, $fs, $price_levels_are_used;
+  global $code_types, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
 
   foreach ($fs->productitems as $lino => $li) {
     $drug_id      = $li['hidden']['drug_id'];
@@ -534,11 +534,11 @@ if ($_POST['newcodes']) {
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
 function codeselect(selobj) {
- var i = selobj.selectedIndex;
- if (i > 0) {
+ var i = selobj ? selobj.selectedIndex : -1;
+ if (i) {
   top.restoreSession();
   var f = document.forms[0];
-  f.newcodes.value = selobj.options[i].value;
+  if (selobj) f.newcodes.value = selobj.options[i].value;
   f.submit();
  }
 }
