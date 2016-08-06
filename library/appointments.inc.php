@@ -85,7 +85,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     if ($tracker_board) {     
     $tracker_fields = "e.pc_room, e.pc_pid, t.id, t.date, t.apptdate, t.appttime, t.eid, t.pid, t.original_user, t.encounter, t.lastseq, t.random_drug_test, t.drug_screen_completed, " .
     "q.pt_tracker_id, q.start_datetime, q.room, q.status, q.seq, q.user, " .
-    "s.toggle_setting_1, s.toggle_setting_2, s.option_id, " ;
+    "s.toggle_setting_1, s.toggle_setting_2, s.option_id, ";
     $tracker_joins = "LEFT OUTER JOIN patient_tracker AS t ON t.pid = e.pc_pid AND t.apptdate = e.pc_eventDate AND t.appttime = e.pc_starttime AND t.eid = e.pc_eid " .
     "LEFT OUTER JOIN patient_tracker_element AS q ON q.pt_tracker_id = t.id AND q.seq = t.lastseq " .
     "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status " ;
@@ -96,10 +96,12 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     "e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
     "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
     "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
+    "f.name, " .
     "$tracker_fields" .
     "c.pc_catname, c.pc_catid " .
     "FROM openemr_postcalendar_events AS e " .
     "$tracker_joins" .
+    "LEFT OUTER JOIN facility AS f ON e.pc_facility = f.id " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
     "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
     "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
@@ -305,8 +307,8 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 
 	if ( $facility_id ) {
-		$where .= " AND e.pc_facility = ? AND u.facility_id = ?";
-		array_push($sqlBindArray, $facility_id, $facility_id);
+		$where .= " AND e.pc_facility = ?";
+		array_push($sqlBindArray, $facility_id);
 	}
 
 	//Appointment Status Checking

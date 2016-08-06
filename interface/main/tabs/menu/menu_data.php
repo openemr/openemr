@@ -101,6 +101,7 @@ $menu_json='[
       {"label":"AMC Tracking","menu_id":"rep0","target":"rep","url":"/interface/reports/amc_tracking.php","children":[],"requirement":0},
       {"label":"Alerts Log","menu_id":"rep0","target":"rep","url":"/interface/reports/cdr_log.php","children":[],"requirement":0}],"requirement":0},
     {"label":"Visits","children":[
+      {"label":"Daily Summary","menu_id":"rep0","target":"rep","url":"/interface/reports/daily_summary_report.php","children":[],"requirement":0},
       {"label":"Appointments","menu_id":"rep0","target":"rep","url":"/interface/reports/appointments_report.php","children":[],"requirement":0},
       {"label":"Patient Flow Board","menu_id":"rep0","target":"rep","url":"/interface/reports/patient_flow_board_report.php","children":[],"requirement":0},
       {"label":"Encounters","menu_id":"rep0","target":"rep","url":"/interface/reports/encounters_report.php","children":[],"requirement":0},
