@@ -37,6 +37,7 @@
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$webserver_root/custom/code_types.inc.php");
+require_once("../globals.php");
 
 function hl7Text($s) {
   // See http://www.interfaceware.com/hl7_escape_protocol.html:
@@ -432,9 +433,6 @@ function send_hl7_order($ppid, $out) {
   }
 
   else if ($protocol == 'SFTP') {
-    ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$srcdir/phpseclib");
-    require_once("$srcdir/phpseclib/Net/SFTP.php");
-
     // Compute the target path/file name.
     $filename = $msgid . '.txt';
     if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;

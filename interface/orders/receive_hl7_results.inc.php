@@ -23,6 +23,7 @@
 
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/classes/Document.class.php");
+require_once("../globals.php");
 
 $rhl7_return = array();
 
@@ -1053,8 +1054,6 @@ function poll_hl7_results(&$info) {
         $remote_port = 0 + substr($remote_host, $i + 1);
         $remote_host = substr($remote_host, 0, $i);
       }
-      ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$srcdir/phpseclib");
-      require_once("$srcdir/phpseclib/Net/SFTP.php");
       // Compute the target path name.
       $pathname = '.';
       if ($pprow['results_path']) $pathname = $pprow['results_path'] . '/' . $pathname;
