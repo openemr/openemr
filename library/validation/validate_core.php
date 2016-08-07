@@ -50,20 +50,15 @@ function collectValidationPageRules($title,$active=true){
  */
 function validateUsingPageRules($fileNamePath)
 {
-$pathArray=explode("/",$fileNamePath);
+
 $path='';
-$startCollecting=false;
-foreach($pathArray as $value)
+
+if($GLOBALS['webroot']!='')
 {
-
-    if($value=='openemr')
-    {
-        $startCollecting=true;
-    }
-    if($startCollecting)
-        $path.="/".$value;
-
-
+    $path= str_replace($GLOBALS['webroot'], '',$fileNamePath);
+}
+else{
+    $path=$fileNamePath;
 }
 
 print '<!--Page Form Validations-->';
