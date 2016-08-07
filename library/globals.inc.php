@@ -1232,6 +1232,41 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Onsite Patient Portal')
     ),
 
+    'appt_display_sets_option' => array(
+      xl('Appointment Display Sets - Ignore Display Limit (Last Set)'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Appointment Display Sets - Allow Last Set to Expand Past Appointment Display Limit')
+    ),
+
+    'appt_display_sets_color_1' => array(
+      xl('Appointment Display Sets - Color - Set One'),
+      'color_code',
+      '#FFFFFF',
+      xl('Appointment Display Sets - Color - Set One')
+    ),
+
+    'appt_display_sets_color_2' => array(
+      xl('Appointment Display Sets - Color - Set Two'),
+      'color_code',
+      '#E6E6FF',
+      xl('Appointment Display Sets - Color - Set Two')
+    ),
+
+    'appt_display_sets_color_3' => array(
+      xl('Appointment Display Sets - Color - Set Three'),
+      'color_code',
+      '#E6FFE6',
+      xl('Appointment Display Sets - Color - Set Three')
+    ),
+
+    'appt_display_sets_color_4' => array(
+      xl('Appointment Display Sets - Color - Set Four'),
+      'color_code',
+      '#FFE6FF',
+      xl('Appointment Display Sets - Color - Set Four')
+    ),
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
