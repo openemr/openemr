@@ -532,6 +532,20 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       echo "  </select>\n";
     }
 
+    else if ($fldtype == 'color_code') {
+      if ($_GET['mode'] == "user") {
+        $globalTitle = $globalValue;
+      }
+      echo "  <input type='text' class='color {hash:true}' name='form_$i' id='form_$i' " .
+        "size='6' maxlength='15' value='$fldvalue' />" .
+        "<input type='button' value='Default' onclick='resetDefault_$i()'>";
+      echo "\n<script>\n" .
+        "function resetDefault_$i() {\n" .
+        "document.forms[0].form_$i.color.fromString('$flddef');\n" .
+        "}\n" .
+        "</script>\n";
+    }
+
     else if ($fldtype == 'css') {
       if ($_GET['mode'] == "user") {
         $globalTitle = $globalValue;
