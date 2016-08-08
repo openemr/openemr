@@ -23,7 +23,6 @@
 
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/classes/Document.class.php");
-require_once("../globals.php");
 
 $rhl7_return = array();
 
