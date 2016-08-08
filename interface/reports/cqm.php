@@ -22,11 +22,6 @@ require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
 
-// This is only pertinent for users of php versions less than 5.2
-//  (ie. this wrapper is only loaded when php version is less than
-//   5.2; otherwise the native php json functions are used)
-require_once "$srcdir/jsonwrapper/jsonwrapper.php";
-
 // See if showing an old report or creating a new report
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 

@@ -24,7 +24,6 @@ $sanitize_all_escapes=true;
 require_once("../../../globals.php");
 require_once("fee_sheet_classes.php");
 require_once("fee_sheet_search_queries.php");
-include_once("$srcdir/jsonwrapper/jsonwrapper.php");
 
 if(!acl_check('acct', 'bill'))
 {
