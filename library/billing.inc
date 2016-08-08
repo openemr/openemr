@@ -352,7 +352,8 @@ function doVoid($patient_id, $encounter_id, $purge=false, $time='') {
 
   // Get old invoice reference number.
   $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
-    "pid = '$patient_id' AND encounter = '$encounter_id' LIMIT 1");
+    "pid = ? AND encounter = ? LIMIT 1",
+    array($patient_id, $encounter_id));
   $old_invoice_refno = $encrow['invoice_refno'];
   //
   $usingirnpools = getInvoiceRefNumber();

@@ -86,6 +86,7 @@ function echoServiceLines() {
     $billed   = $li['hidden']['billed'];
     $ndc_info = isset($li['ndc_info']) ? $li['ndc_info'] : '';
     $pricelevel = $li['pricelevel'];
+    $justify  = $li['justify'];
 
     $strike1 = $li['del'] ? "<strike>" : "";
     $strike2 = $li['del'] ? "</strike>" : "";
@@ -493,8 +494,6 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 </style>
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
-<?php if (empty($_POST['running_as_ajax'])) { ?>
-
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
@@ -678,13 +677,11 @@ function pricelevel_changed(sel) {
   f[prname].value = price;
  }
  else {
-  alert('Form element not found: ' + prname);
+  alert('<?php echo xls('Form element not found'); ?>: ' + prname);
  }
 }
 
 </script>
-
-<?php } // end not ajax ?>
 
 </head>
 
@@ -1195,49 +1192,8 @@ echo "</b></span>\n";
 if ($fs->contraception_code && !$isBilled) {
   // This will give the form save logic the associated contraceptive method.
   echo "<input type='hidden' name='ippfconmeth' value='" . attr($fs->contraception_code) . "'>\n";
-
-  // If Contraception forms can be auto-created by the Fee Sheet we might need
-  // to ask if this is the client's first contraception at this clinic.
-  //
-  if ($GLOBALS['gbl_new_acceptor_policy'] == '1') {
-    $csrow = sqlQuery("SELECT COUNT(*) AS count FROM forms AS f WHERE " .
-      "f.pid = ? AND f.encounter = ? AND f.formdir = 'LBFccicon' AND " .
-      "f.deleted = 0", array($fs->pid, $fs->encounter));
-    // Do it only if a contraception form does not already exist for this visit.
-    // Otherwise assume that whoever created it knows what they were doing.
-    if ($csrow['count'] == 0) {
-      $date1 = substr($visit_row['date'], 0, 10);
-      $ask_new_user = false;
-      // Determine if this client ever started contraception with the MA.
-      // Even if only a method change, we assume they have.
-      // *************************************************************
-      //// But this version would be used if method changes don't count:
-      // $query = "SELECT f.form_id FROM forms AS f " .
-      //   "JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
-      //   "JOIN lbf_data AS d1 ON d1.form_id = f.form_id AND d1.field_id = 'newmethod' " .
-      //   "LEFT JOIN lbf_data AS d2 ON d2.form_id = f.form_id AND d2.field_id = 'newmauser' " .
-      //   "WHERE f.formdir = 'LBFccicon' AND f.deleted = 0 AND f.pid = '$pid' AND " .
-      //   "(d1.field_value LIKE '12%' OR (d2.field_value IS NOT NULL AND d2.field_value = '1')) " .
-      //   "ORDER BY fe.date DESC LIMIT 1";
-      // *************************************************************
-      $query = "SELECT f.form_id FROM forms AS f " .
-        "JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
-        "WHERE f.formdir = 'LBFccicon' AND f.deleted = 0 AND f.pid = ? " .
-        "ORDER BY fe.date DESC LIMIT 1";
-      $csrow = sqlQuery($query, array($fs->pid));
-      if (empty($csrow)) {
-        $ask_new_user = true;
-      }
-      if ($ask_new_user) {
-        echo "<select name='newmauser'>\n";
-        echo " <option value='2'>" . xlt('First Modern Contraceptive Use (Lifetime)') . "</option>\n";
-        echo " <option value='1'>" . xlt('First Modern Contraception at this Clinic (with Prior Contraceptive Use)') . "</option>\n";
-        echo " <option value='0'>" . xlt('Method Change at this Clinic') . "</option>\n";
-        echo "</select>\n";
-        echo "<p>&nbsp;\n";
-      }
-    }
-  }
+  // If needed, this generates a dropdown to ask about prior contraception.
+  echo $fs->generateContraceptionSelector();
 }
 
 // Allow the patient price level to be fixed here.
@@ -1306,8 +1262,6 @@ value='<?php echo xla('Refresh');?>'>
 
 </form>
 
-<?php if (empty($_POST['running_as_ajax'])) { ?>
-
 <script language='JavaScript'>
 setSaveAndClose();
 
@@ -1319,8 +1273,6 @@ if ($alertmsg) {
 ?>
 </script>
 
-<?php } // end not ajax ?>
-
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) exit; ?>
@@ -1330,5 +1282,3 @@ if ($alertmsg) {
 <script>
 var translated_price_header="<?php echo xlt("Price");?>";
 </script>
-<!-- Sorry I just can't handle this. -Rod -->
-<!-- script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/js/layout_changes.js"> /script -->
