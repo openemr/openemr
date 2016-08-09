@@ -22,7 +22,7 @@ class Installer
     $this->rootpass                 = isset($cgi_variables['rootpass']) ? ($cgi_variables['rootpass']) : '';
     $this->login                    = isset($cgi_variables['login']) ? ($cgi_variables['login']) : '';
     $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
-    $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname ']) : '';
+    $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
     $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
     $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
     $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';

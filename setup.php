@@ -17,6 +17,7 @@
  *
  * @package OpenEMR
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author Scott Wakefield <scott@npclinics.com.au>
  * @link http://www.open-emr.org
  * 
 **/
