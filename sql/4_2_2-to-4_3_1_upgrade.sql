@@ -710,3 +710,24 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lis
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
 #EndIf
 
+#IfMissingColumn procedure_order history_order
+ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
+#EndIf
+
+#IfMissingColumn amc_misc_data soc_provided
+       ALTER TABLE `amc_misc_data` add column `soc_provided` DATETIME default NULL;
+#EndIf
+
+#IfNotRow clinical_rules id cpoe_med_stage1_amc_alternative
+	INSERT INTO `clinical_rules`(`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES ('cpoe_med_stage1_amc_alternative', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 1, 0);
+	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);	
+#EndIf
+
+#IfNotRow2D clinical_rules id cpoe_med_stage2_amc amc_2014_stage1_flag 0
+	UPDATE `clinical_rules` set amc_2014_stage1_flag = 0 where id='cpoe_med_stage2_amc';
+#EndIf
+
+#IfNotRow3D list_options list_id clinical_rules option_id cpoe_med_stage2_amc title Use CPOE for medication orders.
+	UPDATE list_options set title = 'Use CPOE for medication orders.' where list_id = 'clinical_rules' and option_id = 'cpoe_med_stage2_amc';
+#EndIf
+

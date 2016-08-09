@@ -129,7 +129,6 @@ abstract class AbstractAmcReport implements RsReportIF
                 // Counting objects other than patients
                 //   First, collect the pertinent objects
                 $objects = $this->collectObjects($patient,$object_to_count,$tempBeginMeasurement,$this->_endMeasurement);
-
                 //   Second, test each object
                 $objects_pass=array();
                 foreach ($objects as $object) {
@@ -208,21 +207,25 @@ abstract class AbstractAmcReport implements RsReportIF
 
         switch ($object_label) {
             case "transitions-in":
-                $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
+		         $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
                         "FROM `amc_misc_data`, `form_encounter` " .
+                        "INNER JOIN openemr_postcalendar_categories opc on opc.pc_catid = form_encounter.pc_catid ".
                         "WHERE amc_misc_data.map_id = form_encounter.encounter " .
                         "AND amc_misc_data.map_category = 'form_encounter' " .
                         "AND amc_misc_data.pid = ? AND form_encounter.pid = ? " .
                         "AND amc_misc_data.amc_id = 'med_reconc_amc' " .
-                        "AND form_encounter.date >= ? AND form_encounter.date <= ?";
-                array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
+                        "AND form_encounter.date >= ? AND form_encounter.date <= ? ".
+                        "AND ((opc.pc_catname = 'New Patient') OR (opc.pc_catname = 'Established Patient' AND amc_misc_data.soc_provided is not null)) ";
+		array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
-                $sql = "SELECT * " .
-                       "FROM `transactions` " .
-                       "WHERE `title` = 'LBTref' " .
-                       "AND `pid` = ? " .
-                       "AND `date` >= ? AND `date` <= ?";
+	 	$sql = "SELECT transactions.id as id " .
+                       "FROM transactions " .
+                       "INNER JOIN lbt_data on lbt_data.form_id = transactions.id ".
+                       "WHERE transactions.title = 'LBTref' " .
+                       "AND transactions.pid = ? " .
+                       "AND lbt_data.field_id = 'refer_date' ".
+                       "AND lbt_data.field_value >= ? AND lbt_data.field_value <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
             case "encounters":
@@ -238,6 +241,13 @@ abstract class AbstractAmcReport implements RsReportIF
                        "WHERE enc_category_map.rule_enc_id = 'enc_off_vis' " .
                        "AND `pid` = ? " .
                        "AND `date` >= ? AND `date` <= ?";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+	    case "cpoe_medications":
+                $sql = "SELECT  `drug` " .
+                       "FROM `prescriptions` " .
+                       "WHERE `patient_id` = ? " .
+                       "AND `date_added` >= ? AND `date_added` <= ?  ";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
             case "prescriptions":
@@ -259,25 +269,34 @@ abstract class AbstractAmcReport implements RsReportIF
                        "procedure_report.date_collected >= ? AND procedure_report.date_collected <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
+		         	case "image_orders":
+            	$sql = "SELECT pr.* FROM procedure_order pr ".
+                		"INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+                		"WHERE pr.patient_id = ? ".
+                		"AND prc.procedure_order_title LIKE '%imaging%' ".
+                		"AND (pr.date_ordered BETWEEN ? AND ?)";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+               	break;
+			
 			
 			case "lab_radiology":
-				$sql = "SELECT prc.* FROM procedure_order pr ".
+				$sql = "SELECT pr.* FROM procedure_order pr ".
 					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
 					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
 					  "WHERE pr.patient_id = ? ".
-					  "AND prc.procedure_order_title LIKE '%Radiology%' ".
+					  "AND prc.procedure_order_title LIKE '%imaging%' ".
 					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
 				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
 			
 			case "cpoe_lab_orders":
-				$sql = "SELECT prc.* FROM procedure_order pr ".
+				$sql = "SELECT pr.* FROM procedure_order pr ".
 					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
 					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
 					  "WHERE pr.patient_id = ? ".
-					  "AND prc.procedure_order_title LIKE '%Laboratory Test%' ".
+					  "AND prc.procedure_order_title LIKE '%laboratory_test%' ".
 					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
 				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
@@ -287,10 +306,10 @@ abstract class AbstractAmcReport implements RsReportIF
                         // AMC MU2 TODO :
                         //  Note the cpoe_flag and functionality does not exist in OpenEMR official codebase.
                         //
-				 $sql = "SELECT cpoe_flag as cpoe_stat " .
+			$sql = "SELECT drug,erx_source as cpoe_stat " .
                        "FROM `prescriptions` " .
                        "WHERE `patient_id` = ? " .
-                       "AND `date_added` BETWEEN ? AND ?";
+                       "AND `date_added` BETWEEN ? AND ? ";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
 				

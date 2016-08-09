@@ -55,6 +55,12 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
   else if ($mode == "uncomplete_safe") {
     amcUnCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
   }
+  else if ($mode == "soc_provided"){
+        amcSoCProvided($amc_id, $patient_id, $object_category, $object_id);
+  }
+  else if ($mode == "no_soc_provided"){
+        amcNoSoCProvided($amc_id, $patient_id, $object_category, $object_id);
+  }
   else {
     // do nothing
     return;
@@ -329,6 +335,23 @@ function businessDaysDifference($startDate,$endDate,$holidays=array()) {
   }
 
   return $workingDays;
+}
+
+// Function to set summary of care provided for a encounter/patient from the amc_misc_data sql table
+//   $amc_id     - amc rule id
+//   $patient_id - pid
+//   $object_category - specific item category (such as prescriptions, transactions etc.)
+//   $object_id  - specific item id (such as encounter id, prescription id, etc.)
+function amcSoCProvided($amc_id, $patient_id, $object_category='', $object_id='0') {
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id) );
+}
+// Function to set summary of care provided for a encounter/patient from the amc_misc_data sql table
+//   $amc_id     - amc rule id
+//   $patient_id - pid
+//   $object_category - specific item category (such as prescriptions, transactions etc.)
+//   $object_id  - specific item id (such as encounter id, prescription id, etc.)
+function amcNoSoCProvided($amc_id, $patient_id, $object_category='', $object_id='0') {
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id) );
 }
 
 ?>

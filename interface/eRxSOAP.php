@@ -598,9 +598,7 @@ class eRxSOAP {
 				->GetPatientFullMedicationHistory6Result
 				->XmlResponse
 		);
-
 		$store->updatePrescriptionsActiveByPatientId($this->getPatientId());
-
 		if(is_array($medArray)) {
 			foreach($medArray as $med) {
 				if($med['DosageForm']) {
@@ -679,6 +677,8 @@ class eRxSOAP {
 				if($result['id'])
 					$prescriptionId = $result['id'];
 
+				// Making sure only transmitted prescriptions entry added into amc_misc_data for eRx Numerator
+				if(!empty($med['PharmacyNCPDP'])){ 
 				processAmcCall(
 					'e_prescribe_amc',
 					true,
@@ -687,6 +687,10 @@ class eRxSOAP {
 					'prescriptions',
 					$prescriptionId
 				);
+				}
+				if($med['FormularyChecked'] === 'true'){	
+					processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $med['ExternalPatientID'], 'prescriptions', $prescriptionId);
+				}
 			}
 		}
 

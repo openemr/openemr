@@ -30,11 +30,10 @@ class AMC_302m_STG2_Denominator implements AmcFilterIF
 
     public function test( AmcPatient $patient, $beginDate, $endDate )
     {
-        //Number of unique patients with office visits seen by the EP during the EHR reporting period
-		$oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-		if (  Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate, $oneEncounter ) ){
+		$off_visits = sqlQuery("select count(encounter) as cnt from form_encounter e inner join openemr_postcalendar_categories opc on opc.pc_catid = e.pc_catid where e.pid = ? and e.date >= ? and e.date <= ? and opc.pc_catname = 'office visit'",array($patient->id,$beginDate,$endDate));
+		if($off_visits['cnt'] >= 1 )
 			return true;
-		}
+
 		return false;
     }
 }
