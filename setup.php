@@ -17,6 +17,7 @@
  *
  * @package OpenEMR
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author Scott Wakefield <scott@npclinics.com.au>
  * @link http://www.open-emr.org
  * 
 **/
@@ -28,7 +29,7 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$state = $_POST["state"];
+$state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
 // Make this true for IPPF.
 $ippf_specific = false;
@@ -200,7 +201,8 @@ We recommend you print these instructions for future reference.
 
 <?php
 
-$inst = $_POST["inst"];
+$inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
+
 
 if (($config == 1) && ($state < 4)) {
   echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $installer->conffile (change the 'config' variable to 0), and re-run this script.<br>\n";

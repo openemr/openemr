@@ -203,6 +203,7 @@ CREATE TABLE `billing` (
   `ndc_info` varchar(255) default NULL,
   `notecodes` varchar(25) NOT NULL default '',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `pricelevel` varchar(31) default '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -997,6 +998,9 @@ CREATE TABLE `drug_sales` (
   `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
   `distributor_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'references users.id',
   `notes` varchar(255) NOT NULL DEFAULT '',
+  `bill_date` datetime default NULL,
+  `pricelevel` varchar(31) default '',
+  `selector` varchar(255) default '' comment 'references drug_templates.selector',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -1045,6 +1049,8 @@ CREATE TABLE `drugs` (
   `allow_combining` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
   `allow_multiple`  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse',
   `drug_code` varchar(25) NULL,
+  `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
+  `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -1225,6 +1231,7 @@ CREATE TABLE `facility` (
   `color` VARCHAR(7) NOT NULL DEFAULT '',
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
+  `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
@@ -1232,7 +1239,7 @@ CREATE TABLE `facility` (
 -- Dumping data for table `facility`
 -- 
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '', '1');
 
 
 -- --------------------------------------------------------
@@ -6535,6 +6542,29 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 -- --------------------------------------------------------
 
 -- 
+-- Table structure for table `voids`
+-- 
+
+DROP TABLE IF EXISTS `voids`;
+CREATE TABLE `voids` (
+  `void_id`                bigint(20)    NOT NULL AUTO_INCREMENT,
+  `patient_id`             bigint(20)    NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)    NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `what_voided`            varchar(31)   NOT NULL            COMMENT 'checkout,receipt and maybe other options later',
+  `date_original`          datetime      DEFAULT NULL        COMMENT 'time of original action that is now voided',
+  `date_voided`            datetime      NOT NULL            COMMENT 'time of void action',
+  `user_id`                bigint(20)    NOT NULL            COMMENT 'references users.id',
+  `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
+  `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
+  `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  PRIMARY KEY (`void_id`),
+  KEY datevoided (date_voided),
+  KEY pidenc (patient_id, encounter_id)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `x12_partners`
 -- 
 
@@ -7859,6 +7889,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'date_val', 'Date', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'post_to_date', 'Post To Date', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
+
 -- --------------------------------------------------------
 
 -- 
@@ -8306,6 +8340,5 @@ CREATE TABLE calendar_external (
   `description` VARCHAR(45) NOT NULL,
   `source` VARCHAR(45) NULL,
   PRIMARY KEY (`id`)) ENGINE=InnoDB;
-
 
 -- --------------------------------------------------------

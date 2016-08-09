@@ -177,6 +177,9 @@ require_once (dirname(__FILE__) . "/../library/date_functions.php");
 // Includes compoaser autoload
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+// Includes functions for page validation
+require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -468,4 +471,5 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
+
 ?>

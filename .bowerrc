@@ -1,6 +1,7 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "bootstrap",
     "datatables",
     "datatables.net-jqui",
     "datatables.net-scroller",

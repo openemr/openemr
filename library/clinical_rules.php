@@ -34,11 +34,6 @@ require_once(dirname(__FILE__) . "/formdata.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
-// This is only pertinent for users of php versions less than 5.2
-//  (ie. this wrapper is only loaded when php version is less than
-//   5.2; otherwise the native php json functions are used)
-require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
-
 /**
  * Return listing of CDR reminders in log.
  *

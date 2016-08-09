@@ -23,8 +23,8 @@
     options = v.extend({}, v.options, options);
 
     var results = v.runValidations(attributes, constraints, options)
-      , attr
-      , validator;
+        , attr
+        , validator;
 
     for (attr in results) {
       for (validator in results[attr]) {
@@ -83,13 +83,13 @@
     //     [{attribute: "<attribute name>", error: "<validation result>"}, ...]
     runValidations: function(attributes, constraints, options) {
       var results = []
-        , attr
-        , validatorName
-        , value
-        , validators
-        , validator
-        , validatorOptions
-        , error;
+          , attr
+          , validatorName
+          , value
+          , validators
+          , validator
+          , validatorOptions
+          , error;
 
       if (v.isDomElement(attributes) || v.isJqueryElement(attributes)) {
         attributes = v.collectFormValues(attributes);
@@ -170,8 +170,8 @@
       options = v.extend({}, v.async.options, options);
 
       var WrapErrors = options.wrapErrors || function(errors) {
-        return errors;
-      };
+            return errors;
+          };
 
       // Removes unknown attributes
       if (options.cleanAttributes !== false) {
@@ -305,10 +305,10 @@
         return o instanceof HTMLElement;
       } else {
         return o &&
-          typeof o === "object" &&
-          o !== null &&
-          o.nodeType === 1 &&
-          typeof o.nodeName === "string";
+            typeof o === "object" &&
+            o !== null &&
+            o.nodeType === 1 &&
+            typeof o.nodeName === "string";
       }
     },
 
@@ -399,17 +399,17 @@
       str = "" + str;
 
       return str
-        // Splits keys separated by periods
-        .replace(/([^\s])\.([^\s])/g, '$1 $2')
-        // Removes backslashes
-        .replace(/\\+/g, '')
-        // Replaces - and - with space
-        .replace(/[_-]/g, ' ')
-        // Splits camel cased words
-        .replace(/([a-z])([A-Z])/g, function(m0, m1, m2) {
-          return "" + m1 + " " + m2.toLowerCase();
-        })
-        .toLowerCase();
+      // Splits keys separated by periods
+          .replace(/([^\s])\.([^\s])/g, '$1 $2')
+          // Removes backslashes
+          .replace(/\\+/g, '')
+          // Replaces - and - with space
+          .replace(/[_-]/g, ' ')
+          // Splits camel cased words
+          .replace(/([a-z])([A-Z])/g, function(m0, m1, m2) {
+            return "" + m1 + " " + m2.toLowerCase();
+          })
+          .toLowerCase();
     },
 
     stringifyValue: function(value) {
@@ -455,8 +455,8 @@
       }
 
       var key = ""
-        , i
-        , escape = false;
+          , i
+          , escape = false;
 
       for (i = 0; i < keypath.length; ++i) {
         switch (keypath[i]) {
@@ -509,12 +509,12 @@
     // {email: "foo@bar.com"}
     collectFormValues: function(form, options) {
       var values = {}
-        , i
-        , j
-        , input
-        , inputs
-        , option
-        , value;
+          , i
+          , j
+          , input
+          , inputs
+          , option
+          , value;
 
       if (v.isJqueryElement(form)) {
         form = form[0];
@@ -566,7 +566,8 @@
             }
           }
         } else {
-          value = v.sanitizeFormValue(input.options[input.selectedIndex].value, options);
+          if(input.selectedIndex>=0)
+            value = v.sanitizeFormValue(input.options[input.selectedIndex].value, options);
         }
         values[input.name] = value;
       }
@@ -687,8 +688,8 @@
 
       function buildObjectWhitelist(whitelist) {
         var ow = {}
-          , lastObject
-          , attr;
+            , lastObject
+            , attr;
         for (attr in whitelist) {
           if (!whitelist[attr]) {
             continue;
@@ -704,8 +705,8 @@
         }
 
         var ret = v.extend({}, attributes)
-          , w
-          , attribute;
+            , w
+            , attribute;
 
         for (attribute in attributes) {
           w = whitelist[attribute];
@@ -771,11 +772,11 @@
       options = v.extend({}, this.options, options);
 
       var is = options.is
-        , maximum = options.maximum
-        , minimum = options.minimum
-        , tokenizer = options.tokenizer || function(val) { return val; }
-        , err
-        , errors = [];
+          , maximum = options.maximum
+          , minimum = options.minimum
+          , tokenizer = options.tokenizer || function(val) { return val; }
+          , err
+          , errors = [];
 
       value = tokenizer(value);
       var length = value.length;
@@ -787,22 +788,22 @@
       // Is checks
       if (v.isNumber(is) && length !== is) {
         err = options.wrongLength ||
-          this.wrongLength ||
-          "is the wrong length (should be %{count} characters)";
+            this.wrongLength ||
+            "is the wrong length (should be %{count} characters)";
         errors.push(v.format(err, {count: is}));
       }
 
       if (v.isNumber(minimum) && length < minimum) {
         err = options.tooShort ||
-          this.tooShort ||
-          "is too short (minimum is %{count} characters)";
+            this.tooShort ||
+            "is too short (minimum is %{count} characters)";
         errors.push(v.format(err, {count: minimum}));
       }
 
       if (v.isNumber(maximum) && length > maximum) {
         err = options.tooLong ||
-          this.tooLong ||
-          "is too long (maximum is %{count} characters)";
+            this.tooLong ||
+            "is too long (maximum is %{count} characters)";
         errors.push(v.format(err, {count: maximum}));
       }
 
@@ -819,16 +820,16 @@
       options = v.extend({}, this.options, options);
 
       var errors = []
-        , name
-        , count
-        , checks = {
-            greaterThan:          function(v, c) { return v > c; },
-            greaterThanOrEqualTo: function(v, c) { return v >= c; },
-            equalTo:              function(v, c) { return v === c; },
-            lessThan:             function(v, c) { return v < c; },
-            lessThanOrEqualTo:    function(v, c) { return v <= c; },
-            divisibleBy:          function(v, c) { return v % c === 0; }
-          };
+          , name
+          , count
+          , checks = {
+        greaterThan:          function(v, c) { return v > c; },
+        greaterThanOrEqualTo: function(v, c) { return v >= c; },
+        equalTo:              function(v, c) { return v === c; },
+        lessThan:             function(v, c) { return v < c; },
+        lessThanOrEqualTo:    function(v, c) { return v <= c; },
+        divisibleBy:          function(v, c) { return v % c === 0; }
+      };
 
       // Strict will check that it is a valid looking number
       if (v.isString(value) && options.strict) {
@@ -899,9 +900,9 @@
       options = v.extend({}, this.options, options);
 
       var err
-        , errors = []
-        , earliest = options.earliest ? this.parse(options.earliest, options) : NaN
-        , latest = options.latest ? this.parse(options.latest, options) : NaN;
+          , errors = []
+          , earliest = options.earliest ? this.parse(options.earliest, options) : NaN
+          , latest = options.latest ? this.parse(options.latest, options) : NaN;
 
       value = this.parse(value, options);
 
@@ -909,17 +910,17 @@
       // the time from the date
       if (isNaN(value) || options.dateOnly && value % 86400000 !== 0) {
         err = options.notValid ||
-          options.message ||
-          this.notValid ||
-          "must be a valid date";
+            options.message ||
+            this.notValid ||
+            "must be a valid date";
         return v.format(err, {value: arguments[0]});
       }
 
       if (!isNaN(earliest) && value < earliest) {
         err = options.tooEarly ||
-          options.message ||
-          this.tooEarly ||
-          "must be no earlier than %{date}";
+            options.message ||
+            this.tooEarly ||
+            "must be no earlier than %{date}";
         err = v.format(err, {
           value: this.format(value, options),
           date: this.format(earliest, options)
@@ -929,9 +930,9 @@
 
       if (!isNaN(latest) && value > latest) {
         err = options.tooLate ||
-          options.message ||
-          this.tooLate ||
-          "must be no later than %{date}";
+            options.message ||
+            this.tooLate ||
+            "must be no later than %{date}";
         err = v.format(err, {
           date: this.format(latest, options),
           value: this.format(value, options)
@@ -958,8 +959,8 @@
       options = v.extend({}, this.options, options);
 
       var message = options.message || this.message || "is invalid"
-        , pattern = options.pattern
-        , match;
+          , pattern = options.pattern
+          , match;
 
       // Empty values are allowed
       if (v.isEmpty(value)) {
@@ -990,8 +991,8 @@
         return;
       }
       var message = options.message ||
-        this.message ||
-        "^%{value} is not included in the list";
+          this.message ||
+          "^%{value} is not included in the list";
       return v.format(message, {value: value});
     },
     exclusion: function(value, options) {
@@ -1035,17 +1036,17 @@
       }
       options = v.extend({}, this.options, options);
       var message = options.message ||
-        this.message ||
-        "is not equal to %{attribute}";
+          this.message ||
+          "is not equal to %{attribute}";
 
       if (v.isEmpty(options.attribute) || !v.isString(options.attribute)) {
         throw new Error("The attribute must be a non empty string");
       }
 
       var otherValue = v.getDeepObjectValue(attributes, options.attribute)
-        , comparator = options.comparator || function(v1, v2) {
-          return v1 === v2;
-        };
+          , comparator = options.comparator || function(v1, v2) {
+            return v1 === v2;
+          };
 
       if (!comparator(value, otherValue, options, attribute, attributes)) {
         return v.format(message, {attribute: v.prettify(options.attribute)});
@@ -1062,8 +1063,8 @@
       options = v.extend({}, this.options, options);
 
       var message = options.message || this.message || "is not a valid url"
-        , schemes = options.schemes || this.schemes || ['http', 'https']
-        , allowLocal = options.allowLocal || this.allowLocal || false;
+          , schemes = options.schemes || this.schemes || ['http', 'https']
+          , allowLocal = options.allowLocal || this.allowLocal || false;
 
       if (!v.isString(value)) {
         return message;
@@ -1071,7 +1072,7 @@
 
       // https://gist.github.com/dperini/729294
       var regex =
-        "^" +
+          "^" +
           // schemes
           "(?:(?:" + schemes.join("|") + "):\\/\\/)" +
           // credentials
@@ -1087,14 +1088,14 @@
       } else {
         // private & local addresses
         regex +=
-          "(?!10(?:\\.\\d{1,3}){3})" +
-          "(?!127(?:\\.\\d{1,3}){3})" +
-          "(?!169\\.254(?:\\.\\d{1,3}){2})" +
-          "(?!192\\.168(?:\\.\\d{1,3}){2})" +
-          "(?!172" +
-          "\\.(?:1[6-9]|2\\d|3[0-1])" +
-          "(?:\\.\\d{1,3})" +
-          "{2})";
+            "(?!10(?:\\.\\d{1,3}){3})" +
+            "(?!127(?:\\.\\d{1,3}){3})" +
+            "(?!169\\.254(?:\\.\\d{1,3}){2})" +
+            "(?!192\\.168(?:\\.\\d{1,3}){2})" +
+            "(?!172" +
+            "\\.(?:1[6-9]|2\\d|3[0-1])" +
+            "(?:\\.\\d{1,3})" +
+            "{2})";
       }
 
       var hostname =
@@ -1107,13 +1108,13 @@
           "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
           "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
           "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
-        "|" +
+          "|" +
           hostname +
           // port number
           "(?::\\d{2,5})?" +
           // path
           "(?:\\/[^\\s]*)?" +
-        "$";
+          "$";
 
       var PATTERN = new RegExp(regex, 'i');
       if (!PATTERN.exec(value)) {
@@ -1138,6 +1139,6 @@
 
   validate.exposeModule(validate, this, exports, module, define);
 }).call(this,
-        typeof exports !== 'undefined' ? /* istanbul ignore next */ exports : null,
-        typeof module !== 'undefined' ? /* istanbul ignore next */ module : null,
-        typeof define !== 'undefined' ? /* istanbul ignore next */ define : null);
+    typeof exports !== 'undefined' ? /* istanbul ignore next */ exports : null,
+    typeof module !== 'undefined' ? /* istanbul ignore next */ module : null,
+    typeof define !== 'undefined' ? /* istanbul ignore next */ define : null);

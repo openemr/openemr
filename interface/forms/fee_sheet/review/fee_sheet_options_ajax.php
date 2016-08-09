@@ -24,7 +24,7 @@ $sanitize_all_escapes=true;
 
 require_once("../../../globals.php");
 require_once("fee_sheet_options_queries.php");
-include_once("$srcdir/jsonwrapper/jsonwrapper.php");
+
 if(!acl_check('acct', 'bill'))
 {
     header("HTTP/1.0 403 Forbidden");    
