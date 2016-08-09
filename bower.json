@@ -17,6 +17,7 @@
   "dependencies": {
     "AnythingSlider-1-9-4": "AnythingSlider#1.9.4",
     "bootstrap-3-3-4": "bootstrap#3.3.4",
+    "bootstrap-rtl-3-3-4": "bootstrap-rtl#3.3.4",
     "Chart.js-2-1-3": "Chart.js#2.1.3",
     "datatables.net-1-10-11": "datatables.net#1.10.11",
     "datatables.net-jqui-1-10-11": "datatables.net-jqui#1.10.11",
@@ -47,6 +48,7 @@
     "qtip2-2-2-1": "qtip2#v2.2.1",
     "react-15-1-0": "react#15.1.0",
     "typicons-2-0-7": "typicons#2.0.7",
-    "undone.js-0-0-1": "https://github.com/yckart/undone.js.git#0.0.1"
+    "undone.js-0-0-1": "https://github.com/yckart/undone.js.git#0.0.1",
+    "validate.js-0-10-0": "validate.js#0.10.0"
   }
 }
