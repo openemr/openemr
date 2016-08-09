@@ -1,6 +1,6 @@
 <?php
 
-include_once(dirname(__FILE__) . "/../../includes/config.php");
+require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
 /**
  * class OFX
