@@ -2,7 +2,7 @@
 set_time_limit(0);
 require_once("xmlrpc.inc");
 require_once(dirname(__FILE__) . "/../sql.inc");
-require_once(dirname(__FILE__) . "/../../includes/config.php");
+require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 require_once(dirname(__FILE__) . "/../billing.inc");
 
 if ($argv[1] != "bill") {
