@@ -10,26 +10,25 @@ class Installer
     // Installation variables
     // For a good explanation of these variables, see documentation in
     //   the contrib/util/installScripts/InstallerAuto.php file.
-    $this->iuser                    = $cgi_variables['iuser'];
-    $this->iuserpass                = $cgi_variables['iuserpass'];
-    $this->iuname                   = $cgi_variables['iuname'];
-    $this->iufname                  = $cgi_variables['iufname'];
-    $this->igroup                   = $cgi_variables['igroup'];
-    $this->server                   = $cgi_variables['server']; // mysql server (usually localhost)
-    $this->loginhost                = $cgi_variables['loginhost']; // php/apache server (usually localhost)
-    $this->port                     = $cgi_variables['port'];
-    $this->root                     = $cgi_variables['root'];
-    $this->rootpass                 = $cgi_variables['rootpass'];
-    $this->login                    = $cgi_variables['login'];
-    $this->pass                     = $cgi_variables['pass'];
-    $this->dbname                   = $cgi_variables['dbname'];
-    $this->collate                  = $cgi_variables['collate'];
-    $this->site                     = $cgi_variables['site'];
-    $this->source_site_id           = $cgi_variables['source_site_id'];
-    $this->clone_database           = $cgi_variables['clone_database'];
-    $this->no_root_db_access        = $cgi_variables['no_root_db_access']; // no root access to database. user/privileges pre-configured
-    $this->development_translations = $cgi_variables['development_translations'];
-
+    $this->iuser                    = isset($cgi_variables['iuser']) ? ($cgi_variables['iuser']) : '';
+    $this->iuserpass                = isset($cgi_variables['iuserpass']) ? ($cgi_variables['iuserpass']) : '';
+    $this->iuname                   = isset($cgi_variables['iuname']) ? ($cgi_variables['iuname']) : '';
+    $this->iufname                  = isset($cgi_variables['iufname']) ? ($cgi_variables['iufname']) : '';
+    $this->igroup                   = isset($cgi_variables['igroup']) ? ($cgi_variables['igroup']) : '';
+    $this->server                   = isset($cgi_variables['server']) ? ($cgi_variables['server']) : ''; // mysql server (usually localhost)
+    $this->loginhost                = isset($cgi_variables['loginhost']) ? ($cgi_variables['loginhost']) : ''; // php/apache server (usually localhost)
+    $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']): '';
+    $this->root                     = isset($cgi_variables['root']) ? ($cgi_variables['root']) : '';
+    $this->rootpass                 = isset($cgi_variables['rootpass']) ? ($cgi_variables['rootpass']) : '';
+    $this->login                    = isset($cgi_variables['login']) ? ($cgi_variables['login']) : '';
+    $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
+    $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname ']) : '';
+    $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
+    $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
+    $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
+    $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
+    $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
+    $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
     // Make this true for IPPF.
     $this->ippf_specific = false;
 
