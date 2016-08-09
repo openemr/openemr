@@ -368,7 +368,7 @@ $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
     echo " <li" . ($i ? "" : " class='current'") .
-      "><a href='/play/javascript-tabbed-navigation/'>" .
+      "><a href='#'>" .
       xlt($grpname) . "</a></li>\n";
     ++$i;
   }

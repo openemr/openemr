@@ -827,7 +827,7 @@ if ( $insurance_count > 0 ) {
 	                                                        $ins_description = xl($ins_description);
 								$ins_description  .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
 								?>
-								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/">
+								<li <?php echo $first ? 'class="current"' : '' ?>><a href="#">
 								<?php echo htmlspecialchars($ins_description,ENT_NOQUOTES); ?></a></li>
 								<?php
 								$first = false;
@@ -836,7 +836,7 @@ if ( $insurance_count > 0 ) {
 						}
 					}
 					// Display the eligibility tab
-					echo "<li><a href='/play/javascript-tabbed-navigation/'>" .
+					echo "<li><a href='#'>" .
 						htmlspecialchars( xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
 
 					?></ul><?php
