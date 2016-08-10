@@ -88,9 +88,16 @@ class PatientDataTable
     public function getPatients(array $parameters)
     {
         //You can use this function to write whatever rules that you need from the DB
-        $sql="SELECT * FROM patient_data WHERE fname like ".$parameters['fname']." OR lname like ".$parameters['lname'] ." OR DOB like ".$parameters['DOB'];
+        //$sql="SELECT * FROM patient_data WHERE fname like ".$parameters['fname']." OR lname like ".$parameters['lname'] ." OR DOB like ".$parameters['DOB'];
 
-        $rowset = $this->queryThis($sql);
+        $obj    = new ApplicationTable;
+        $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ? ";
+        $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB']);
+        $rowset = $obj->zQuery($sql, $params);
+
+
+
+       // $rowset = $this->queryThis($sql);
         $results = array();
         foreach ($rowset as $row) {
             $results[] = $row;

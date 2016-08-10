@@ -45,7 +45,7 @@ class PatientvalidationController extends BaseController{
         //clean the mf_
         foreach ($patientParams as $key=>$item) {
                 $keyArr=explode("mf_",$key);
-                $patientParams[$keyArr[1]]="'".$item."'";
+                $patientParams[$keyArr[1]]=$item;
                 unset($patientParams[$key]);
 
 
@@ -73,6 +73,7 @@ class PatientvalidationController extends BaseController{
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
         $this->layout()->setVariable("title","Patient validation");
         $this->layout()->setVariable("translate",$this->translate);
+
          $relatedPatients =  $this->getAllRealatedPatients();
 
 
