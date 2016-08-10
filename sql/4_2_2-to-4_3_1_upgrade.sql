@@ -723,11 +723,11 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);	
 #EndIf
 
-#IfNotRow2D clinical_rules id cpoe_med_stage2_amc amc_2014_stage1_flag 1
+#IfNotRow2D clinical_rules id cpoe_med_stage2_amc amc_2014_stage1_flag 0
 	UPDATE `clinical_rules` set amc_2014_stage1_flag = 0 where id='cpoe_med_stage2_amc';
 #EndIf
 
-#IfNotRow3D list_options list_id clinical_rules option_id cpoe_med_stage2_amc title Use CPOE for medication orders.(Alternative)
+#IfNotRow3D list_options list_id clinical_rules option_id cpoe_med_stage2_amc title Use CPOE for medication orders.
 	UPDATE list_options set title = 'Use CPOE for medication orders.' where list_id = 'clinical_rules' and option_id = 'cpoe_med_stage2_amc';
 #EndIf
 
