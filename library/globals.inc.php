@@ -1236,7 +1236,7 @@ $GLOBALS_METADATA = array(
       xl('Appointment Display Sets - Ignore Display Limit (Last Set)'),
       'bool',                           // data type
       '1',                              // default
-      xl('Overide (if nescessary) the appointment display limit to allow all appointments to be displayed for the last set')
+      xl('Overide (if necessary) the appointment display limit to allow all appointments to be displayed for the last set')
     ),
 
     'appt_display_sets_color_1' => array(
