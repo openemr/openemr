@@ -1475,7 +1475,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             if ( $count < 1 ) {
                 echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
             } else { //////
-              if($extraApptDate) echo "<div style='color:#0000cc;'><b>$extraApptDate ( + ) </b></div>";
+              if($extraApptDate) echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
               else echo "<div><hr></div>";
             }
             echo "</div>";
