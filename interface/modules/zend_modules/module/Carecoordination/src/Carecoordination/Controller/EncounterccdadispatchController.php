@@ -161,7 +161,7 @@ class EncounterccdadispatchController extends AbstractActionController
 			}
 			else{
 				$practice_filename  = "CCDA_{$this->patient_id}.xml";
-				$this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
+				$this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send,$this->components);
 				$content            = $this->socket_get("$mirth_ip", "6661", $this->data);
 				$to_replace = '<?xml version="1.0" encoding="UTF-8"?>
 				<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>

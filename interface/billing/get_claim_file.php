@@ -5,7 +5,7 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../globals.php");
-require_once(dirname(__FILE__) . "/../../includes/config.php");
+require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
 $fconfig = $GLOBALS['oer_config']['freeb'];
 $content_type = "text/plain";

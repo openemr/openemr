@@ -226,6 +226,7 @@ class EncountermanagerTable extends AbstractTableGateway
               $d_Address.= $recipient;
               continue;
             }
+	    $elec_sent = array();
             $arr = explode('|',$ccda_combination);
             foreach($arr as $value) {
               $query  = "SELECT id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
@@ -233,6 +234,20 @@ class EncountermanagerTable extends AbstractTableGateway
               foreach($result as $val) {
                 $ccda_id = $val['id'];
               }
+
+	      $refs = $appTable->zQuery("select t.id as trans_id from ccda c inner join transactions t on (t.pid = c.pid and t.date = c.updated_date) where c.pid = ? and c.emr_transfer = 1 and t.title = 'LBTref'",array($value));
+              if($refs->count() == 0){
+              		$trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1",array($value));
+              		$trans_cur = $trans->current();
+              		$trans_id  = $trans_cur['id'] ? $trans_cur['id'] : 0; 
+              }
+              else{ 
+              	foreach($refs as $r){
+              		$trans_id = $r['trans_id'];
+              	}
+              }
+              $elec_sent[] = array('pid' => $value,'map_id' => $trans_id);
+
               $ccda = $this->getFile($ccda_id);
 
               $xml = simplexml_load_string($ccda);
@@ -304,6 +319,12 @@ class EncountermanagerTable extends AbstractTableGateway
             \Application\Plugin\Phimail::phimail_close($fp);
            }
            if($d_Address == '') {
+
+	    foreach ($elec_sent as $elec){
+           		$appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_amc',?,'transactions',?,NOW(),NOW())",array($elec['pid'],$elec['map_id']));
+           		$appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc',?,'transactions',?,NOW(),NOW())",array($elec['pid'],$elec['map_id']));
+            }
+
             return("Successfully Sent");
            }
            else {

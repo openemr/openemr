@@ -31,8 +31,7 @@ class AMC_304a_3 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-       //return "med_orders";
-	   return "prescriptions";
+       	   return "med_orders";
     }
  
     public function createDenominator() 

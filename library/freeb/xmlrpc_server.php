@@ -3,7 +3,7 @@ require_once("xmlrpc.inc");
 require_once("xmlrpcs.inc");
 require_once("OpenemrBillingServer.class.php");
 
-require_once(dirname(__FILE__) . "/../../includes/config.php");
+require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
 $auth=false; 
 
