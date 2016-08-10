@@ -1411,8 +1411,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
           }
           //
           if($extraApptDate) {
-            if($extraApptDate != $limitApptDate) $apptStyle2 = " style='background-color:$colorSet3;'";
-            else $apptStyle2 = " style='background-color:$colorSet4;'";
+            if($extraApptDate != $limitApptDate) $apptStyle2 = " style='background-color:" . attr($colorSet3) . ";'";
+            else $apptStyle2 = " style='background-color:" . attr($colorSet4) . ";'";
           }
         }
         //////
@@ -1455,8 +1455,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $priorDate = $row['pc_eventDate'];
                 $toggleSet = !$toggleSet;
               }
-              if($toggleSet) $apptStyle = " style='background-color:$colorSet2;'";
-              else $apptStyle = " style='background-color:$colorSet1;'";
+              if($toggleSet) $apptStyle = " style='background-color:" . attr($colorSet2) . ";'";
+              else $apptStyle = " style='background-color:" . attr($colorSet1) . ";'";
             }
             //////
             echo "<div " . $apptStyle . ">";
