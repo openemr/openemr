@@ -11,7 +11,7 @@
     <!-- css files -->
     <?php foreach($this->cssFiles as $file){
 
-        $this->headLink()->appendStylesheet($this->basePath() . $this->cssBasePath . $file);
+        $this->headLink()->appendStylesheet( $GLOBALS['assets_static_relative']  . $file);
     }
     echo $this->headLink();
     ?>
@@ -20,7 +20,7 @@
     <?php
     foreach($this->jsFiles as $file){
 
-        $this->headScript()->appendFile($this->basePath() . $this->jsBasePath . $file);
+        $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
     }
     echo  $this->headScript() ;
     ?>

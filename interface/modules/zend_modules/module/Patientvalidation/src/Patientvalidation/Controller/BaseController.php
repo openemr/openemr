@@ -37,9 +37,9 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/lib/jquery/jquery.min.js',
+        '/jquery-min-1-9-1/index.js',
         //bootstrap
-        '/lib/bootstrap/bootstrap.min.js',
+        '/bootstrap-3-3-4/dist/js/bootstrap.min.js',
 
     );
 
@@ -49,9 +49,7 @@ class BaseController extends AbstractActionController
      */
     protected $cssFiles = array(
         //bootstrap
-        '/lib/bootstrap/bootstrap.min.css',
-        //style.css - custom css
-        '/style.css'
+        '/bootstrap-3-3-4/dist/css/bootstrap.min.css',
     );
 
     public function __construct()
@@ -68,9 +66,9 @@ class BaseController extends AbstractActionController
     protected function getJsFiles()
     {
 
-                $this->jsFiles[] = '/lib/datatables/datatables.min.js';
-                $this->jsFiles[] = '/lib/datatables/dataTables.bootstrap.min.js';
-                $this->jsFiles[] = '/lib/datatables/dataTables.buttons.min.js';
+                $this->jsFiles[] = '/datatables-1-10-11/media/js/jquery.dataTables.js';
+                $this->jsFiles[] = '/datatables-1-10-11/media/js/dataTables.bootstrap.min.js';
+                //$this->jsFiles[] = '/lib/datatables/dataTables.buttons.min.js';
 
         return $this->jsFiles;
     }
@@ -89,8 +87,8 @@ class BaseController extends AbstractActionController
         }
 
 
-                $this->cssFiles[] = '/lib/datatables/datatables.css';
-                $this->cssFiles[] = '/lib/datatables/buttons.dataTables.min.css';
+                $this->cssFiles[] = '/datatables-1-10-11/media/css/dataTables.bootstrap.css';
+               // $this->cssFiles[] = '/lib/datatables/buttons.dataTables.min.css';
 
         return $this->cssFiles;
     }

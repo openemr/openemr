@@ -31,9 +31,6 @@ use Zend\ModuleManager\ModuleManager;
 
 class Module {
 
-    /* base path for js file in public folder */
-    const JS_BASE_PATH = '/js/Patientvalidation';
-    const CSS_BASE_PATH = '/css/Patientvalidation';
 
     public function getAutoloaderConfig()
     {
@@ -93,8 +90,7 @@ class Module {
             //$controller->layout()->setVariable('status', null);
             $controller->layout('layout/layout.phtml');
 
-            $controller->layout()->setVariable('jsBasePath',  self::JS_BASE_PATH);
-            $controller->layout()->setVariable('cssBasePath',  self::CSS_BASE_PATH);
+
             //global variable of language direction
             $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
             $controller->layout()->setVariable('status', null);
