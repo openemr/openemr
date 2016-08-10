@@ -12,12 +12,12 @@
     <?php if ($related_patients) : ?>
         <?php foreach ($related_patients as $key=>$related_patient):?>
             <tr>
-                <td><?php echo( $this->escapeHtml($related_patient['id']));?></td>
+                <td><?php echo( $translate->z_xlt($related_patient['id']));?></td>
 
-                <td><?php echo $this->escapeHtml($related_patient['fname']);?></td>
-                <td><?php echo $this->escapeHtml($related_patient['lname']);?></td>
-                <td><?php echo $this->escapeHtml($related_patient['DOB']);?></td>
-                <td><?php echo $translate->z_xlt($this->escapeHtml($related_patient->sex));?></td>
+                <td><?php echo $translate->z_xlt($related_patient['fname']);?></td>
+                <td><?php echo $translate->z_xlt($related_patient['lname']);?></td>
+                <td><?php echo $translate->z_xlt($related_patient['DOB']);?></td>
+                <td><?php echo $translate->z_xlt($related_patient->sex);?></td>
 
             </tr>
         <?php endforeach;?>
@@ -38,10 +38,10 @@
 
 <center>
     <?php if ($related_patients) { ?>
-        <input type='button' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>'
+        <input type='button' value='<?php echo $translate->z_xlt('Cancel'); ?>'
                onclick='window.close();' />
     <?php } else { ?>
-        <input type='button' value='<?php echo htmlspecialchars( xl('Confirm Create New Patient'), ENT_QUOTES); ?>'
+        <input type='button' value='<?php echo $translate->z_xlt('Confirm Create New Patient'); ?>'
                onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
     <?php } ?>
 </center>
@@ -71,8 +71,8 @@
                 $target = "top";
             }
             ?>
-            var open_page = '<?php echo $newPage; ?>' + this.firstElementChild.innerHTML;
-            opener.<?php echo $target; ?>.location.href = open_page;
+            var open_page = '<?php echo $translate->z_xlt($newPage); ?>' + this.firstElementChild.innerHTML;
+            opener.<?php echo $translate->z_xlt($target); ?>.location.href = open_page;
             window.close();
             return true;
 
@@ -81,14 +81,14 @@
         */
         var f = opener.document.forms[0];
         <?php if ($related_patients) { ?>
-        alert('<?php echo htmlspecialchars(xl('A patient with this ID already exists.'), ENT_QUOTES); ?>')
+        alert('<?php echo $translate->z_xlt('A patient with this ID already exists.'); ?>')
         <?php } else { ?>
         opener.force_submit = true;
-        f.create.value = '<?php echo htmlspecialchars(xl('Confirm Create New Patient'), ENT_QUOTES); ?>';
+        f.create.value = '<?php echo $translate->z_xlt('Confirm Create New Patient'); ?>';
         <?php } ?>
 
         <?php if (!count($related_patients)) { ?>
-        $("<td><?php echo htmlspecialchars(xl('No matches were found.'), ENT_QUOTES); ?></td>").appendTo("#example_info");
+        $("<td><?php echo$translate->z_xlt('No matches were found.'); ?></td>").appendTo("#example_info");
         <?php } ?>
     });
 </script>
