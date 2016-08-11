@@ -51,20 +51,20 @@ function collectValidationPageRules($title,$active=true){
 function validateUsingPageRules($fileNamePath)
 {
 
-$path='';
+    $path='';
 
-if($GLOBALS['webroot']!='')
-{
-    $path= str_replace($GLOBALS['webroot'], '',$fileNamePath);
-}
-else{
-    $path=$fileNamePath;
-}
+    if($GLOBALS['webroot']!='')
+    {
+        $path= str_replace($GLOBALS['webroot'], '',$fileNamePath);
+    }
+    else{
+        $path=$fileNamePath;
+    }
 
-print '<!--Page Form Validations-->';
+    print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
-$collectThis=collectValidationPageRules($path);
-if ($collectThis) {
+    $collectThis=collectValidationPageRules($path);
+    if ($collectThis) {
 
 
 
@@ -126,7 +126,7 @@ if ($collectThis) {
         echo ("});");
         echo("\r\n");
         echo('</script>');
-    print '<!---End of page  form validation-->';
+        print '<!---End of page  form validation-->';
     }
 }
 
