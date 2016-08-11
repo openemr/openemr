@@ -400,7 +400,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input class="css_btn" type="submit" value="<?php xl('Save','e'); ?>">
+            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -746,7 +746,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <br>
 
 <script language="JavaScript">
-
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
