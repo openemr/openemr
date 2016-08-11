@@ -75,7 +75,8 @@ if ($collectThis) {
         $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
         echo("\r\n");
         print '<script type="text/javascript">';
-
+        echo ("$(document).ready(function(){");
+        echo("\r\n");
         foreach ($collectThis as $key => $value) {
             echo("try{");
             echo("\r\n");
@@ -83,17 +84,35 @@ if ($collectThis) {
             echo("\r\n");
             echo('{');
             echo("\r\n");
-            echo('var form = document.getElementsByName("<?php echo $key;?>");');
+            echo('var form = document.getElementsByName("'.$key.'");');
             echo("\r\n");
-            echo('form.id = "<?php echo $key;?>";');
+            echo('form[0].setAttribute("id","'. $key.'");');
             echo("\r\n");
-            echo('<!--Use validation script js Validations-->');
+
+            echo('//Use validation script js Validations-');
             echo("\r\n");
-            echo('$("form").attr("onclick", \'return submitme(' . $new_validate . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ')\');');
+
+            echo('$("#'.$key.'").submit(function(event){');
+            echo("\r\n");
+
+            echo("\r\n");
+            echo ('var submitvalue = submitme(' . $new_validate . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ');');
+            echo("\r\n");
+            echo(' if(submitvalue){');
+            echo("\r\n");
+            echo(" ");
             echo("\r\n");
             echo('}');
             echo("\r\n");
+            echo('else{');
+            echo("\r\n");
+            echo (" event.preventDefault();");
+            echo("\r\n");
             echo('}');
+            echo("\r\n");
+            echo('});}}');
+            //echo('$("#'.$key.'").prop("onclick", \'return ');
+
             echo("\r\n");
             echo('catch(err)');
             echo("\r\n");
@@ -103,6 +122,9 @@ if ($collectThis) {
             echo("\r\n");
             echo('}');
         }
+
+        echo ("});");
+        echo("\r\n");
         echo('</script>');
     print '<!---End of page  form validation-->';
     }
