@@ -30,6 +30,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Modified to function in Open-emr 8-19-2014 Terry Hill terry@lillysystems.com
+// Modified to use TCPDF in OpenEmr 04/08/2016 Scott Wakefield scott@npclinics.com.au
 
 /**
  * PDF_Label - PDF label editing
@@ -38,30 +39,8 @@
  * @copyright 2003 Laurent PASSEBECQ
 **/
 
-require_once("$srcdir/fpdf/fpdf.php");
 
-
- class eFPDF extends FPDF{
-    function TextWithRotation($x, $y, $txt, $txt_angle, $font_angle=0)
-    {
-        $font_angle+=90+$txt_angle;
-        $txt_angle*=M_PI/180;
-        $font_angle*=M_PI/180;
-    
-        $txt_dx=cos($txt_angle);
-        $txt_dy=sin($txt_angle);
-        $font_dx=cos($font_angle);
-        $font_dy=sin($font_angle);
-    
-        $s=sprintf('BT %.2F %.2F %.2F %.2F %.2F %.2F Tm (%s) Tj ET',$txt_dx,$txt_dy,$font_dx,$font_dy,$x*$this->k,($this->h-$y)*$this->k,$this->_escape($txt));
-        if ($this->ColorFlag)
-            $s='q '.$this->TextColor.' '.$s.' Q';
-        $this->_out($s);
-    }
-  }
-
-
-class PDF_Label extends FPDF {
+class PDF_Label extends TCPDF {
 
 	// Private properties
 	var $_Margin_Left;			// Left margin of labels
@@ -102,10 +81,10 @@ class PDF_Label extends FPDF {
 			$Tformat = $this->_Avery_Labels[$format];
 		}
 
-		parent::__construct('P', $unit, $Tformat['paper-size']);
+		parent::__construct('P', $unit, $format, true, 'UTF-8', false);
 		$this->_Metric_Doc = $unit;
 		$this->_Set_Format($Tformat);
-		$this->SetFont('Arial');
+		$this->SetFont('freesans');
 		$this->SetMargins(0,0); 
 		$this->SetAutoPageBreak(false); 
 		$this->_COUNTX = $posX-2;
@@ -173,12 +152,4 @@ class PDF_Label extends FPDF {
 		$this->MultiCell($this->_Width - $this->_Padding, $this->_Line_Height, $text, 0, 'L');
 	}
 
-	function _putcatalog()
-	{
-		parent::_putcatalog();
-		// Disable the page scaling option in the printing dialog
-		$this->_out('/ViewerPreferences <</PrintScaling /None>>');
-	}
-
 }
-?>
