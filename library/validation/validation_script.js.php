@@ -75,15 +75,7 @@ function submitme(new_validate,e,form_id, constraints) {
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
             var elements = validate.collectFormValues(form);
-            //before catch all values - clear filed that in display none, this will enable to fail on this fields.
-                $.each(elements, function(key, element){
 
-                   if( $('#'+key).css('display') == 'none' || ($('#'+key).parent().prop('style') != undefined && $('#'+key).parent().prop('style').visibility == 'hidden')){
-                       $('#'+key).val("");
-                   }
-                });
-               //get the input value after romoving hide fields
-            elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
             var element, new_key;
