@@ -260,7 +260,7 @@ function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2) {
 function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdelimiter, $commentdelim) {
   $s = null;
 
-  if ( !empty($obx24) || !empty($obx24) || !empty($obx25) )
+  if ( !empty($obx23) || !empty($obx24) || !empty($obx25) )
   {
     // Organization Name
     // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
