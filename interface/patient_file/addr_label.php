@@ -20,6 +20,7 @@
 * 
 * @package OpenEMR 
 * @author Terry Hill <terry@lillysystems.com>
+* @author Scott Wakefield <scott@npclinics.com.au>
 * @link http://www.open-emr.org 
 *
 * this is from the barcode-coder and FPDF website I used the examples and code snippets listed on the sites
@@ -30,56 +31,25 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 require_once("../globals.php");
-require_once("$srcdir/classes/PDF_Label.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/classes/php-barcode.php");
 
 //Get the data to place on labels
-//
+$patdata = getPatientData($pid, "fname,lname,street,city,state,postal_code");
 
-$patdata = sqlQuery("SELECT " .
-  "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-  "p.street, p.city, p.state, p.postal_code, p.pid " .
-  "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
-
-// re-order the dates
-//
-$today = oeFormatShortDate($date='today');
-$dob = oeFormatShortDate($patdata['DOB']);
-
-$pdf = new PDF_Label('5160'); // used this to get the basic info to the class
-$pdf = new eFPDF('P', 'mm',array(102,252)); // set the orentation, unit of measure and size of the page
+$pdf = new TCPDF('L', 'mm',array(102,252), true, 'UTF-8'); // set the orentation, unit of measure and size of the page
+$pdf->SetPrintHeader(false);
+$pdf->SetPrintFooter(false);
 $pdf->AddPage();
-$pdf->SetFont('Arial','',50);
+$pdf->SetFont($pdf->font, '', 50);
 
-
-$fontSize = 40;
-$marge    = 5;   // between barcode and hri in pixel
-$x        = 20;  // barcode center
-$y        = 200;  // barcode center
-$height   = 40;   // barcode height in 1D ; module size in 2D
-$width    = 1;    // barcode height in 1D ; not use in 2D
-$angle    = 90;   // rotation in degrees
-$black    = '000000'; // color in hexa
-
-
-
-$text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
+$text1 = sprintf("%s %s\n",  $patdata['fname'], $patdata['lname']);
 $text2 = sprintf("%s \n", $patdata['street']);
-$text3 = sprintf("%s , %s\n", $patdata['city'], $patdata['state']);
-$text4 = sprintf("%s \n", $patdata['postal_code']);
+$text3 = sprintf("%s, %s, %s \n", $patdata['city'], $patdata['state'], $patdata['postal_code']);
 
-
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text1, $angle);
-$xt=$xt + 15;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text2, $angle);
-$xt=$xt + 15;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text3, $angle);
-$xt=$xt + 15;
-$y=$y - 100;
-$pdf->TextWithRotation($x + $xt, $y + $yt, $text4, $angle);
-
-
+$pdf->setXY(52,5);
+$pdf->writeHTML($text1);
+$pdf->setX(52);
+$pdf->writeHTML($text2);
+$pdf->setX(52);
+$pdf->writeHTML($text3);
 $pdf->Output();
-?>

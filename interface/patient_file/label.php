@@ -19,7 +19,8 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
  * 
  * @package OpenEMR 
- * @author Terry Hill <terry@lillysystems.com>
+ * @author Terry Hill <terry@lillysystems.com>.
+ * @author Scott Wakefield <scott@npclinics.com.au> 
  * @link http://www.open-emr.org 
  */
 // I used the program example supplied with the Avery Label Print Class to produce this program
@@ -32,48 +33,38 @@ require_once("$srcdir/classes/PDF_Label.php");
 require_once("$srcdir/formatting.inc.php");
 
 //Get the data to place on labels
-//
-$patdata = sqlQuery("SELECT " .
-  "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
-  "p.street, p.city, p.state, p.postal_code, p.pid " .
-  "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+$patdata = getPatientData($pid, "fname,lname,street,city,state,postal_code,pubpid,DOB,pid");
 
 // re-order the dates
-//
-  
 $today = oeFormatShortDate($date='today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
-//get label type and number of labels on sheet
-//
+$labeltype = $GLOBALS['chart_label_type'];
 
-if ($GLOBALS['chart_label_type'] == '1') { 
-$pdf = new PDF_Label('5160');
-$last = 30;
-}
+switch($labeltype){
+            case '1':
+                $label     		= '5160';
+                $labelsPerPage	= '30';
+                break;
+            case '2':
+                $label     		= '5161';
+                $labelsPerPage	= '20'; 
+                break;
+            case '3':
+                $label     		= '5162';
+                $labelsPerPage	= '14'; 
+                break;
+            }
 
-if ($GLOBALS['chart_label_type'] == '2') { 
-$pdf = new PDF_Label('5161');
-$last = 20;
-}
-
-if ($GLOBALS['chart_label_type'] == '3') { 
-$pdf = new PDF_Label('5162');
-$last = 14;
-}
-
+$pdf = new PDF_Label($label);
 $pdf->AddPage();
 
 // Added spaces to the sprintf for Fire Fox it was having a problem with alignment 
 $text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'], $dob, $today, $patdata['pid']);
 
 // For loop for printing the labels 
-// 
-
-for($i=1;$i<=$last;$i++) {
+for($i=1; $i<=$labelsPerPage; $i++) {
 	$pdf->Add_Label($text);
 }
 
 $pdf->Output();
-?>
