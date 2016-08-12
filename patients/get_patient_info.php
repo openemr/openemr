@@ -36,8 +36,21 @@
         }
     //
 
-    require_once("../library/translation.inc.php");
+    //SANITIZE ALL ESCAPES
+    $fake_register_globals=false;
 
+    //STOP FAKE REGISTER GLOBALS
+    $sanitize_all_escapes=true;
+
+    //Settings that will override globals.php
+    $ignoreAuth = 1;
+    //
+
+    //Authentication (and language setting)
+	require_once('../interface/globals.php');
+    require_once("$srcdir/authentication/common_operations.php");
+    require_once("../library/translation.inc.php");
+    
     // set the language
     if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
@@ -52,20 +65,6 @@
     $_SESSION['language_direction'] = getLanguageDir( $_SESSION['language_choice'] );
 
 
-
-    //SANITIZE ALL ESCAPES
-    $fake_register_globals=false;
-
-    //STOP FAKE REGISTER GLOBALS
-    $sanitize_all_escapes=true;
-
-    //Settings that will override globals.php
-    $ignoreAuth = 1;
-    //
-
-    //Authentication (and language setting)
-	require_once('../interface/globals.php');
-    require_once("$srcdir/authentication/common_operations.php");        
     $password_update=isset($_SESSION['password_update']);
     unset($_SESSION['password_update']);
     $plain_code= $_POST['pass'];
