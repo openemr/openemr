@@ -219,7 +219,11 @@ class edih_x12_file {
 	 */
 	public function edih_x12_scan($filetext) {
 		$hasval = '';
-		$flen = ( $filetext && is_string($filetext) ) ? strlen($filetext) : 0;
+		$ftxt = ( $filetext && is_string($filetext) ) ? trim($filetext) : $filetext;
+		// possibly $ftxt = trim($filetext, "\x00..\x1F") to remove ASCII control characters
+		// remove newlines
+		if (strpos($ftxt, PHP_EOL)) { $ftxt = str_replace(PHP_EOL, '', $ftxt); }
+		$flen = ( $ftxt && is_string($ftxt) ) ? strlen($ftxt) : 0;
 		if ( !$flen ) {
 			$this->message[] = 'edih_x12_scan: zero length or invalid file text';
 			return $hasval;
@@ -229,7 +233,7 @@ class edih_x12_file {
 		// use finfo php class
 		if ( class_exists('finfo') ) {
 			$finfo = new finfo(FILEINFO_MIME);
-		    $mimeinfo = $finfo->buffer($filetext);
+		    $mimeinfo = $finfo->buffer($ftxt);
 		    if ( strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0 ) {
 				$this->message[] = 'edih_x12_scan: '.$this->filename.' : invalid mime info: <br />'.$mimeinfo;
 				//
@@ -237,7 +241,7 @@ class edih_x12_file {
 			}
 		}
 	    //
-	    if (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(#!)|(\$\{)|(<scr)|(script:)/is', $filetext, $matches, PREG_OFFSET_CAPTURE)) {
+	    if (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(#!)|(\$\{)|(<scr)|(script:)/is', $ftxt, $matches, PREG_OFFSET_CAPTURE)) {
 	        //
 	        $this->message[] = 'edih_x12_scan: suspect characters in file '.$this->filename.'<br />'.
 	        ' character: '.$matches[0][0].'  position: '. $matches[0][1];
@@ -246,12 +250,12 @@ class edih_x12_file {
 		}
 		$hasval = 'ov'; // valid
 		// check for required segments ISA GS ST; assume segment terminator is last character
-		if (substr($filetext, 0, 3) === 'ISA') {
+		if (substr($ftxt, 0, 3) === 'ISA') {
 			$hasval = 'ovi';
-			$de = substr($filetext, 3, 1);
-			$dt = substr($filetext, -1);
-			if ( strpos($filetext, $dt.'GS'.$de, 0) ) { $hasval = 'ovig'; }
-			if ( strpos($filetext, $dt.'ST'.$de, 0) ) { $hasval = 'ovigs'; }
+			$de = substr($ftxt, 3, 1);
+			$dt = substr($ftxt, -1);
+			if ( strpos($ftxt, $dt.'GS'.$de, 0) ) { $hasval = 'ovig'; }
+			if ( strpos($ftxt, $dt.'ST'.$de, 0) ) { $hasval = 'ovigs'; }
 		}
 		return $hasval;
 	}

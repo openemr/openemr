@@ -736,7 +736,7 @@ function csv_parameters($type='ALL') {
 	$p_ar['f271'] = array('type'=>'f271', 'directory'=>$edihist_dir.DS.'f271', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f271.csv',
 						'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f271.csv', 'filedate'=>'Date', 'claimdate'=>'RspDate', 'regex'=>'/\.271([ei]br)?$/i');
 	$p_ar['f278'] = array('type'=>'f278', 'directory'=>$edihist_dir.DS.'f278', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f278.csv',
-						'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f271.csv', 'filedate'=>'Date', 'claimdate'=>'FileDate', 'regex'=>'/\.278/');
+						'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f278.csv', 'filedate'=>'Date', 'claimdate'=>'FileDate', 'regex'=>'/\.278/');
 	// OpenEMR stores era files, but the naming scheme is confusing, so we will just use our own directory for them
 	$p_ar['f835'] = array('type'=>'f835', 'directory'=>$edihist_dir.DS.'f835', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f835.csv',
 						'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f835.csv', 'filedate'=>'Date', 'claimdate'=>'SvcDate', 'regex'=>'/835[0-9]{5}\.835*|\.(era|ERA|835)$/i');

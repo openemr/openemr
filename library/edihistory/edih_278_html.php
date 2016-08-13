@@ -795,7 +795,7 @@ function edih_278_html($filename, $bht03='' ) {
 		if ($obj278 && 'edih_x12_file' == get_class($obj278) ) {
 			if ($bht03) {
 				// particular transaction
-				$html_str .= edih_277_transaction_html($obj271, $bht03);
+				$html_str .= edih_278_transaction_html($obj278, $bht03);
 			} else {
 				// file contents
 				$env_ar = $obj278->edih_envelopes();

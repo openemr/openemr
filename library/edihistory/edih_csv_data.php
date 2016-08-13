@@ -45,14 +45,6 @@ function edih_csv_process_html($data_ar, $err_only=false) {
 	//
 	$str_html = '';
 	$clm_html = '';
-	//$dtl = ($err_only) ? "Errors only" : "All claims";
-	//
-	// debug
-	$dbg_str = 'edih_csv_process_html: data_ar with err '.strval($err_only).PHP_EOL;
-	foreach($data_ar as $icn=>$csvdata) {
-		$dbg_str .= $icn.' csvdata '.$csvdata['type'].' files '.count($csvdata['file']).' claims '.count($csvdata['claim']).PHP_EOL;
-	}
-	csv_edihist_log($dbg_str);
 	//
 	foreach ($data_ar as $icn=>$csvdata) {
 		if ( array_key_exists('type', $csvdata) ) {
@@ -823,8 +815,8 @@ function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dat
 						$csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=htm'>H</a>&nbsp;".PHP_EOL;
 						$csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>T</a></td>".PHP_EOL;
 					} elseif ($k == 'FileName') {
-						$csv_html .= "<td title='$v'> File <a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>H</a>&nbsp;";
-						$csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>H</a></td>".PHP_EOL;
+						$csv_html .= "<td title='$v'> File <a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>H</a>&nbsp;";
+						$csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
 					}  else {
 						$csv_html .= "<td>$v</td>".PHP_EOL;
 					}

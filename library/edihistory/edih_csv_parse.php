@@ -652,14 +652,14 @@ function edih_278_csv_data($obj278) {
 	$env_ar = $obj278->edih_envelopes();
 	$ft = csv_file_type( $obj278->edih_type() );
 	//
-	// $rsptype = array('HS'=>'270', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
+	// $ft: 'HI'=>'278'
 	if ( !isset($env_ar['ST']) ) {
 		csv_edihist_log('edih_278_csv_data: envelope error '.$fn);
 		return false;
 	}
 	//
 	if ( !isset($env_ar['GS']) ) {
-		csv_edihist_log('edih_278_csv_data: envelope error');
+		csv_edihist_log('edih_278_csv_data: envelope error '.$fn);
 		return $ret_ar;
 	}
 	//	
@@ -1377,6 +1377,7 @@ function edih_271_csv_data($obj270) {
  * @uses edih_837_csv_data()
  * @uses edih_277_csv_data()
  * @uses edih_271_csv_data()
+ * @uses edih_278_csv_data()
  * @uses edih_997_csv_data()
  * 
  * @param string     path to file

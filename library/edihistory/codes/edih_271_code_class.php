@@ -646,7 +646,9 @@ $this->code271['EB03'] = array(
 "45" => "Hospice",
 "46" => "Respite Care",
 "47" => "Hospitalization",
+"48" => "Hospital - Inpatient",
 "49" => "Hospital - Room and Board",
+"50" => "Hospital - Outpatient",
 "54" => "Long Term Care",
 "55" => "Major Medical",
 "56" => "Medically Related Transportation",
@@ -684,6 +686,7 @@ $this->code271['EB03'] = array(
 "91" => "Brand Name Prescription Drug",
 "92" => "Generic Prescription Drug",
 "93" => "Podiatry",
+"98" => "Professional (Physician) Visit - Office",
 "A4" => "Psychiatric",
 "A6" => "Psychotherapy",
 "A7" => "Psychiatric - Inpatient",
@@ -2412,19 +2415,19 @@ $this->code271['HCCSC'] = array(
 							}
 						}
 					} else {
-						$val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd].' ' : "code $cd unknown";
+						$val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd].' ' : "code $cd unknown ";
 					}
 				}
 			} elseif ($this->dr && strpos($code, $this->dr) !== false) {
 				$cdar = explode($this->dr, $code);
 				foreach($cdar as $cd) {
-					$val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd].'; ' : "code $cd unknown";
+					$val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd].'; ' : "code $cd unknown ";
 				}
 			}
 		} elseif ( array_key_exists($e, $this->code271) ) {
-			$val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown";
+			$val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown ";
 		} else {
-			$val = "$e codes not available ($code)";
+			$val = "$e codes not available ($code) ";
 		}
 		//
 		return $val;
