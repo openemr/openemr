@@ -1,7 +1,7 @@
 <?php
 /* Copyright © 2010 by Andrew Moore <amoore@cpan.org> */
 /* Licensing information appears at the end of this file. */
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/../library/classes');
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/../../library/classes');
 require_once 'PHPUnit/Framework.php';
 require_once 'Installer.class.php';
 

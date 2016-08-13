@@ -4,7 +4,7 @@
 
 error_reporting(E_ALL);
 require_once 'PHPUnit/Framework.php';
-require_once dirname(__FILE__) . '/../library/classes/NumberToText.class.php';
+require_once dirname(__FILE__) . '/../../library/classes/NumberToText.class.php';
 
 class NumberToTextTest extends PHPUnit_Framework_TestCase
 {

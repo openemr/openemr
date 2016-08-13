@@ -1,11 +1,11 @@
 <?php
   /**
    * Pre-requisites: phpunit, phpunit-selenium, selenium-standalone-server, chrome driver, php-curl extension
-   * 
-   * 
+   *
+   *
    * @Matrix Israel Ltd.
    */
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
@@ -16,7 +16,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
     const VAR_PASS = "pass";
 
     private  $dbconn;
-   
+
     protected function setUp(){
         $this->setBrowser(self::BROWSER);
         $this->setBrowserUrl(self::BROWSER_URL);
@@ -25,7 +25,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
       parent::tearDown();
     }
 
-    
+
     /**
      * Generate random names and numbers
      */
@@ -34,17 +34,17 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
       $lname = $this->generateRandomString();
       $dob = $this->generateRandomDate();
       $randint = rand(100000,200000);
-      
+
       return array( 'name'=>$name, 'lname'=>$lname, 'dob'=>$dob, 'randint'=> $randint );
     }
 
-    
+
    /**
     * Tests Add Patient to openEMR
     */
     public function testAddPatient(  ){
         $testset = $this->generateTestData();
-      
+
         /*connect to openemr*/
         $this->url(self::URL);
         /*Move to frame Login and add login values*/
@@ -53,8 +53,8 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         $this->byName('clearPass')->value(self::VAR_PASS);
         $sumbmitClick=$this->byClassName("button");
         $sumbmitClick->click();
-        
-        /*Check that the login was succesfull coparing the title from the page*/    
+
+        /*Check that the login was succesfull coparing the title from the page*/
         $this->assertEquals('OpenEMR',$this->title(),"Login Failed");
 
         /*Move to frame left nav and click on new patient*/
@@ -64,25 +64,25 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         $this->frame(NULL);
         $this->frame("RTop");
 
-        
+
        /*Fill the form  and submit it*/
         $this->byName('form_fname')->value( $testset['name'] );
         $this->byName('form_lname')->value( $testset['lname'] );
         $this->byName('form_DOB')->value( $testset['dob'] );
         $this->byName('form_ss')->value( $testset['randint'] );
-        
+
         $this->select($this->byId('form_title'))->selectOptionByValue("Mr.");
         $this->select($this->byId('form_sex'))->selectOptionByValue("Male");
         $createLink= $this->byName('create');
         $createLink->click();
-        
+
        /*Move to the popup and click on create patient*/
         $handles=$this->windowHandles();
         $this->window($handles[1]);
         $createButton=$this->byXPath("//input[@type='button']");
         $createButton->click();
         sleep(2);
-        
+
        /*Accept the alert when creating a new patient*/
         $this->window($handles[0]);
         $this->acceptAlert();
@@ -90,11 +90,11 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         return $testset;
     }
 
-    
+
 
     /**
      * Check that the new patient exist in the database
-     * 
+     *
      * @depends testAddPatient
      */
     public function testFindPatient( $testset ) {
@@ -120,7 +120,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         return $randomString;
     }
 
-    
+
     /**
      * Generate random date in the past
      * @return bool|string
