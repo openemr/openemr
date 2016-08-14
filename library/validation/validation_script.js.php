@@ -217,5 +217,7 @@ function submitme(new_validate,e,form_id, constraints) {
         }
     }
     //enable submit button until load submitme function
-    document.getElementById('submit_btn').disabled = false;
+    if(document.getElementById('submit_btn') != null){
+        document.getElementById('submit_btn').disabled = false;
+    }
 </script>
