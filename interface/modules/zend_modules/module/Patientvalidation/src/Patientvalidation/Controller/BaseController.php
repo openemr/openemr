@@ -80,12 +80,12 @@ class BaseController extends AbstractActionController
 
         //adding bootstrap rtl for rtl languages
         if ($_SESSION['language_direction'] == 'rtl') {
-            $this->cssFiles[] = '/lib/bootstrap/bootstrap-rtl.min.css';
+            $this->cssFiles[] = '/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
         }
 
 
                 $this->cssFiles[] = '/datatables-1-10-11/media/css/dataTables.bootstrap.css';
-               // $this->cssFiles[] = '/lib/datatables/buttons.dataTables.min.css';
+
 
         return $this->cssFiles;
     }
