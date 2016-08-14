@@ -47,7 +47,7 @@ function submitme(new_validate,e,form_id, constraints) {
 
         //Use the old validation script if no parameter sent (backward compatibility)
         //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
-        // was on code up to today (the validat library was not loaded ( look at the top of this file)
+        // was on code up to today (the validate library was not loaded ( look at the top of this file)
         if (new_validate !== 1) {
             var f = document.forms[0];
             if (validate(f)) {
@@ -71,23 +71,29 @@ function submitme(new_validate,e,form_id, constraints) {
             //TODO: implement a traslation mechanism of the errors that the library returns
             var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
-
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
             var elements = validate.collectFormValues(form);
-            //before catch all values - clear filed that in display none, this will enable to fail on this fields.
-                $.each(elements, function(key, element){
+            var element, new_key;
 
-                   if( $('#'+key).css('display') == 'none' || ($('#'+key).parent().prop('style') != undefined && $('#'+key).parent().prop('style').visibility == 'hidden')){
-                       $('#'+key).val("");
-                   }
-                });
-               //get the input value after romoving hide fields
+            //before catch all values - clear filed that in display none, this will enable to fail on this fields.
+            for(var key in elements){
+                    //catch th element with the name because the id of select-multiple contain '[]'
+                   // and jquery throws error in those situation
+                    element = $('[name="'+ key + '"]');
+                    if(!$(element).is('select[multiple]')) {
+
+                        if($(element).parent().prop('style') != undefined && $(element).parent().prop('style').visibility == 'hidden'){
+                            console.log(element);
+                            $(element).val("");
+                        }
+                    }
+                }
+
+            //get the input value after romoving hide fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
-            var element, new_key;
-
             for(var key in elements){
 
                 element = $('[name="'+ key + '"]');
@@ -207,8 +213,9 @@ function submitme(new_validate,e,form_id, constraints) {
                     $('a#header_tab_'+type_tab).css('color', 'black');
                 }
             }
-
             return valid;
         }
     }
+    //enable submit button until load submitme function
+    document.getElementById('submit_btn').disabled = false;
 </script>
