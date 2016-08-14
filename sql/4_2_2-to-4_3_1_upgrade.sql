@@ -731,3 +731,7 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 	UPDATE list_options set title = 'Use CPOE for medication orders.' where list_id = 'clinical_rules' and option_id = 'cpoe_med_stage2_amc';
 #EndIf
 
+#IfRow2D globals gl_name css_header gl_value style_tan_no_icons.css
+UPDATE `globals` SET `gl_value` = 'style_tan.css' WHERE `gl_name` = 'css_header';
+#EndIf
+
