@@ -1,6 +1,7 @@
 <?php
 
 /* +-----------------------------------------------------------------------------+
+* Copyright 2016 matrix israel
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 3
@@ -74,7 +75,7 @@ class PatientDataTable
         $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB']);
         $rowset = $obj->zQuery($sql, $params);
 
- 
+
         $results = array();
         foreach ($rowset as $row) {
             $results[] = $row;
