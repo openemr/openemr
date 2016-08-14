@@ -1288,7 +1288,7 @@ $classpati='';
 if  ($GLOBALS['select_multi_providers']) {
 
     //  there are two posible situations: edit and new record
-
+	$providers_array = array();
     // this is executed only on edit ($eid)
     if ($eid) {
         if ( $multiple_value ) {

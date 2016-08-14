@@ -1242,6 +1242,41 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Onsite Patient Portal')
     ),
 
+    'appt_display_sets_option' => array(
+      xl('Appointment Display Sets - Ignore Display Limit (Last Set)'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Override (if necessary) the appointment display limit to allow all appointments to be displayed for the last set')
+    ),
+
+    'appt_display_sets_color_1' => array(
+      xl('Appointment Display Sets - Color 1'),
+      'color_code',
+      '#FFFFFF',
+      xl('Color for odd sets (except when last set is odd and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).')
+    ),
+
+    'appt_display_sets_color_2' => array(
+      xl('Appointment Display Sets - Color 2'),
+      'color_code',
+      '#E6E6FF',
+      xl('Color for even sets (except when last set is even and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).')
+    ),
+
+    'appt_display_sets_color_3' => array(
+      xl('Appointment Display Sets - Color 3'),
+      'color_code',
+      '#E6FFE6',
+      xl('Color for the last set when all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed).')
+    ),
+
+    'appt_display_sets_color_4' => array(
+      xl('Appointment Display Sets - Color 4'),
+      'color_code',
+      '#FFE6FF',
+      xl('Color for the last set when not all member appointments are displayed.')
+    ),
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type

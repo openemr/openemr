@@ -2428,7 +2428,7 @@ function display_layout_tabs($formtype, $result1, $result2='') {
 	  if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
       ?>
 		<li <?php echo $first ? 'class="current"' : '' ?>>
-			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo ".htmlspecialchars($group_name,ENT_QUOTES)."?>">
+			<a href="#" id="header_tab_<?php echo ".htmlspecialchars($group_name,ENT_QUOTES)."?>">
                         <?php echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES); ?></a>
 		</li>
 	  <?php
