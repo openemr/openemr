@@ -178,7 +178,7 @@ $GLOBALS_METADATA = array(
 
     'full_new_patient_form' => array(
       xl('New Patient Form'),
-        //assiagned here is a new global to validate if to use patient validation or not
+
       array(
         '0' => xl('Old-style static form without search or duplication check'),
         '1' => xl('All demographics fields, with search and duplication check'),
