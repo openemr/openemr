@@ -266,9 +266,6 @@ function genPopupsList($style='') {
 <?php } 
  if (!$GLOBALS['disable_calendar']) { ?>
  <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;} ?>'><?php xl('Appts','e'); ?></option>
-<?php } ;
- if (file_exists("$webserver_root/custom/refer.php")) { ?>
- <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
  <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
  <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
@@ -984,10 +981,6 @@ function removeOptionSelected(EncounterId)
     width  = 500;
     height = 400;
    }
-   else if (opt.text == 'Refer') {
-    width  = 700;
-    height = 500;
-   }
    dlgopen(opt.value, '_blank', width, height);
   }
   selobj.selectedIndex = 0;
@@ -1518,14 +1511,6 @@ if (!empty($reg)) {
 <?php } ?>
 
 <br /><hr />
-
-<?php
- // To use RelayHealth, see comments and parameters in includes/config.php.
- if (!empty($GLOBALS['ssi']['rh'])) {
-  include_once("../../library/ssi.inc");
-  echo getRelayHealthLink() ."<br /><hr />\n";
- }
-?>
 
 <div id='current_patient' style = 'display:none'>
 <b><?php xl('None','e'); ?></b>
