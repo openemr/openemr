@@ -49,17 +49,6 @@ class PatientDataTable
 
 
 
-    /**
-     * update table
-     * @param $set
-     * @param $where
-     * @return int (num of affected rows)
-     */
-    public function updatePatient($set, $where)
-    {
-        $rowupdute = $this->tableGateway->update($set, $where);
-        return $rowupdute;
-    }
 
     /**
      * @param array $parameters
