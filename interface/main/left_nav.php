@@ -266,9 +266,6 @@ function genPopupsList($style='') {
 <?php } 
  if (!$GLOBALS['disable_calendar']) { ?>
  <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;} ?>'><?php xl('Appts','e'); ?></option>
-<?php } ;
- if (file_exists("$webserver_root/custom/refer.php")) { ?>
- <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
  <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
  <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
@@ -983,10 +980,6 @@ function removeOptionSelected(EncounterId)
    if (opt.text == 'Export' || opt.text == 'Import') {
     width  = 500;
     height = 400;
-   }
-   else if (opt.text == 'Refer') {
-    width  = 700;
-    height = 500;
    }
    dlgopen(opt.value, '_blank', width, height);
   }

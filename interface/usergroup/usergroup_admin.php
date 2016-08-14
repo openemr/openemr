@@ -165,12 +165,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         }
      }
 
-      // for relay health single sign-on
-      if (isset($_POST["ssi_relayhealth"]) && $_POST["ssi_relayhealth"]) {
-        $tqvar = formData('ssi_relayhealth','P');
-        sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = ? ", array($_POST["id"]));
-      }
-
       $tqvar  = $_POST["authorized"] ? 1 : 0;
       $actvar = $_POST["active"]     ? 1 : 0;
       $calvar = $_POST["calendar"]   ? 1 : 0;

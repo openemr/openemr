@@ -109,12 +109,6 @@ if ($_GET["mode"] == "update") {
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
   }
 
-  // for relay health single sign-on
-  if ($_GET["ssi_relayhealth"]) {
-    $tqvar = formData('ssi_relayhealth','G');
-    sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_GET["id"]}");
-  }
-
   $tqvar  = $_GET["authorized"] ? 1 : 0;
   $actvar = $_GET["active"]     ? 1 : 0;
   $calvar = $_GET["calendar"]   ? 1 : 0;
@@ -461,13 +455,6 @@ foreach($result as $iter2) {
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;"  value="<?php echo $iter["npi"]?>"></td>
 <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo $iter["specialty"]?>"></td>
 </tr>
-
-<?php if (!empty($GLOBALS['ssi']['rh'])) { ?>
-<tr>
-<td><span class="text"><?php xl('Relay Health ID', 'e'); ?>: </span></td>
-<td><input type="password" name="ssi_relayhealth" style="width:150px;"  value="<?php echo $iter["ssi_relayhealth"]; ?>"></td>
-</tr>
-<?php } ?>
 
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
