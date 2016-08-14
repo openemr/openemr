@@ -383,15 +383,14 @@ $(document).ready(function() {
 <?php //Check if new patient is added to hooks
 //this will hold the javascript submit me param new_validate;
 $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
-/*
- * 	you can use the hook to check the validation of the patient from here
+
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
-	//$hook = checkIfPatientValidationHookIsActive();
+	$hook = checkIfPatientValidationHookIsActive();
 
 }
 
-*/
+
 ?>
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' >
 <input type='hidden' name='mode' value='save' />
@@ -807,7 +806,56 @@ $form_id="DEM";
     $("select").change(function() {
         checkSkipConditions();
     });
+
+//This code deals with demographics before save action -
+<?php if($hook):?>
+
+	var f = $("form");
+
+	// Use hook to open the controller and get the new patient validation .
+	// when no params are sent this window will be closed from the zend controller.
+	var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?closeBeforeOpening=1";?>';
+	$("#submit").attr("type","button");
+	$("#submit").attr("name","btnSubmit");
+	$("#submit").attr("id","btnSubmit");
+	$("#btnSubmit").click(function( event ) {
+
+
+		<?php
+		// D in edit_options indicates the field is used in duplication checking.
+		// This constructs a list of the names of those fields.
+		$mflist = "";
+		$mfres = sqlStatement("SELECT field_id FROM layout_options " .
+			"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+			"edit_options LIKE '%D%' " .
+			"ORDER BY group_name, seq");
+		while ($mfrow = sqlFetchArray($mfres)) {
+			$field_id  = $mfrow['field_id'];
+			if (strpos($field_id, 'em_') === 0) continue;
+			if (!empty($mflist)) $mflist .= ",";
+			$mflist .= "'" . htmlentities($field_id) . "'";
+		}?>
+
+
+
+
+		var flds = new Array(<?php echo $mflist; ?>);
+		var separator = '?';
+		for (var i = 0; i < flds.length; ++i) {
+			var fval = $('#form_' + flds[i]).val();
+			if (fval && fval != '') {
+				url += separator;
+				separator = '&';
+				url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+			}
+		}
+
+		dlgopen(url, '_blank', 700, 500);
+	});
+
+<?php endif;?>
 </script>
+
 
 
 </html>

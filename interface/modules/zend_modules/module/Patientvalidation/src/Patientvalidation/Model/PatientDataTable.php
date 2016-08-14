@@ -41,31 +41,10 @@ class PatientDataTable
         $this->adapter = $adapter;
     }
 
-    /**
-     * @return array
-     */
-    public function fetchAll()
-    {
-        $rsArray=array();
-        $rs= $this->tableGateway->select();
-        foreach($rs as $r) {
-            $rsArray[]=$r;
-        }
-        return $rsArray;
-    }
 
 
-    /**
-     * @param $sql
-     * @return query for the sql statement
-     */
-    public function queryThis($sql){
 
-        $rowset = $this->adapter->query($sql, Adapter::QUERY_MODE_EXECUTE);
-        $returnedArray=$rowset->toArray();
-        return $returnedArray;
 
-    }
 
 
 
@@ -95,9 +74,7 @@ class PatientDataTable
         $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB']);
         $rowset = $obj->zQuery($sql, $params);
 
-
-
-       // $rowset = $this->queryThis($sql);
+ 
         $results = array();
         foreach ($rowset as $row) {
             $results[] = $row;

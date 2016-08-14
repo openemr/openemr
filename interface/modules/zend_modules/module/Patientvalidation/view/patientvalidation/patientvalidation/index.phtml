@@ -1,4 +1,11 @@
+<script>
 
+    <?php if ($closeBeforeOpening):?>
+    opener.document.forms[0].submit();
+    window.close();
+
+    <?php endif;?>
+</script>
 <table id="example" class="display">
     <thead>
     <th><?php echo $translate->z_xlt("ID");?></th>
@@ -38,10 +45,10 @@
 
 <center>
     <?php if ($related_patients) { ?>
-        <input type='button' value='<?php echo $translate->z_xlt('Cancel'); ?>'
+        <input type='button' value='<?php echo $translate->z_xla('Cancel'); ?>'
                onclick='window.close();' />
     <?php } else { ?>
-        <input type='button' value='<?php echo $translate->z_xlt('Confirm Create New Patient'); ?>'
+        <input type='button' value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
                onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
     <?php } ?>
 </center>
@@ -71,8 +78,8 @@
                 $target = "top";
             }
             ?>
-            var open_page = '<?php echo $translate->z_xlt($newPage); ?>' + this.firstElementChild.innerHTML;
-            opener.<?php echo $translate->z_xlt($target); ?>.location.href = open_page;
+            var open_page = '<?php echo $newPage; ?>' + this.firstElementChild.innerHTML;
+            opener.<?php echo $target; ?>.location.href = open_page;
             window.close();
             return true;
 
@@ -81,14 +88,14 @@
         */
         var f = opener.document.forms[0];
         <?php if ($related_patients) { ?>
-        alert('<?php echo $translate->z_xlt('A patient with this ID already exists.'); ?>')
+        alert('<?php echo $translate->z_xla('A patient with this ID already exists.'); ?>')
         <?php } else { ?>
         opener.force_submit = true;
-        f.create.value = '<?php echo $translate->z_xlt('Confirm Create New Patient'); ?>';
+        f.create.value = '<?php echo $translate->z_xla('Confirm Create New Patient'); ?>';
         <?php } ?>
 
         <?php if (!count($related_patients)) { ?>
-        $("<td><?php echo$translate->z_xlt('No matches were found.'); ?></td>").appendTo("#example_info");
+        $("<td><?php echo $translate->z_xla('No matches were found.'); ?></td>").appendTo("#example_info");
         <?php } ?>
     });
 </script>

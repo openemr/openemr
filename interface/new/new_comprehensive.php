@@ -855,7 +855,7 @@ enable_modals();
 ?>
         <?php if($hook):?>
         // Use hook to open the controller and get the new patient validation
-        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
         <?php else:?>
         // Build and invoke the URL to create the dup-checker dialog.
         var url = 'new_search_popup.php';
