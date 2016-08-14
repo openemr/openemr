@@ -55,7 +55,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
@@ -63,6 +62,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+    <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <!-- pop up calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
@@ -86,16 +86,35 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   s.options[s.options.length] = new Option(title, issue, true, true);
  }
 
+ <?php
+ //Get new_validate option to check if global new validation is on.
+ $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+ //Gets validation rules from Page Validation list.
+ $collectthis = collectValidationPageRules("/interface/forms/newpatient/new.php");
+ ?>
+ <?php if($new_validate && $collectthis): ?>
+ //If new validation is on, and there is a custom page validation, then on click will go into 'submitme' function.
+ $(document).ready(function(){
+     window.saveClicked = function() {
+         var submit = submitme(1, event, 'new-encounter-form', <?php echo($collectthis["new_encounter"]["rules"]);?>);
+         if (submit) {
+             $('#new-encounter-form').submit();
+         }
+     }
+ });
+ <?php else: ?>
+ //Old validation.
  function saveClicked() {
-  var f = document.forms[0];
-  var category = document.forms[0].pc_catid.value;
-  if ( category == '_blank' ) {
-   alert("<?php echo xls('You must select a visit category'); ?>");
-   return;
-  }
-  top.restoreSession();
-  f.submit();
+     var f = document.forms[0];
+     var category = document.forms[0].pc_catid.value;
+     if ( category == '_blank' ) {
+         alert("<?php echo xls('You must select a visit category'); ?>");
+         return;
+     }
+     top.restoreSession();
+     f.submit();
  }
+ <?php endif; ?>
 
 $(document).ready(function(){
   enable_big_modals();
@@ -401,5 +420,7 @@ if (!$viewmode) { ?>
 }
 ?>
 </script>
+
+
 
 </html>
