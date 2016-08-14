@@ -28,34 +28,40 @@ elseif($action == 'AddItem'){
   addItem();
 }
 
-function updateItem(){
-  $code_id = intval(trim(preg_replace('~[^0-9,.]~','',$_GET['code_id'])));  
-  $code = trim($_GET['code']);                
-  $code_text = trim($_GET['code_text']);
-//   echo $code_text;
-  $units = intval(trim(preg_replace('~[^0-9,.]~','',$_GET['units'])));
-  $modifier = trim($_GET['modifier']);           
-  $code_type = trim($_GET['code_type']);      
-  $fee = intval(trim(preg_replace('~[^0-9,.]~','',$_GET['fee'])));
-  $active = isset($_GET['active']) ? 1 : 0;
-  $reportable = isset($_GET['reportable']) ? 1 : 0;
-  $financial_reportinge = isset($_GET['financial_reporting']) ? 1 : 0;
-      
-  // validate required data
-  if($code_id == 0 || $code == '') die("please check the data");
+function updateItem(){ 
+  $code_id = intval(trim(preg_replace('~[^0-9,.]~','',$_GET['code_id'])));
   
-  $res = sqlStatement("UPDATE codes SET
-                                        code_type=?,
-                                        code=?,
-                                        code_text=?,
-                                        units=?,
-                                        modifier=?,
-                                        fee=?,
-                                        active=?,
-                                        reportable=?,
-                                        financial_reporting=?
-                            WHERE id=?;",array($code_type,$code,$code_text,$units,$modifier,$fee,$active,$reportable,$financial_reporting,$code_id));
-  echo '1';
+  if($code_id == 0){
+    addItem();
+  }else{
+    $code = trim($_GET['code']);                
+    $code_text = trim($_GET['code_text']);
+  //   echo $code_text;
+    $units = 0;// no longer used trim($_GET['units']);
+    $modifier = trim($_GET['modifier']);           
+    $code_type = trim($_GET['code_type']);      
+    $fee = intval(trim(preg_replace('~[^0-9,.]~','',$_GET['fee'])));
+    $active = isset($_GET['active']) ? 1 : 0;
+    $reportable = isset($_GET['reportable']) ? 1 : 0;
+    $financial_reporting = isset($_GET['financial_reporting']) ? 1 : 0;
+        
+    // validate required data
+    if($code_id == 0 || $code == '') die("please check the data");
+    ini_set("display_errors","1");
+    $res = sqlStatement("UPDATE codes SET
+                                          code_type=?,
+                                          code=?,
+                                          code_text=?,
+                                          code_text_short=?,
+                                          units=?,
+                                          modifier=?,
+                                          fee=?,
+                                          active=?,
+                                          reportable=?,
+                                          financial_reporting=?
+                              WHERE id=?;",array($code_type,$code,$code_text,$code_text,$units,$modifier,$fee,$active,$reportable,$financial_reporting,$code_id));
+    echo '1';
+  }
 }
 
 function updatePrices(){ 
@@ -73,7 +79,7 @@ function updatePrices(){
     
 }
 
-function addItem(){ 
+function addItem(){
   $code = trim($_GET['code']);         
   $code_type = trim($_GET['code_type']);                 
   $code_text = trim($_GET['code_text']);
@@ -95,9 +101,9 @@ function addItem(){
   // validate required data
   if($code == '') die("please check the data");
   
-  $res = sqlInsert("INSERT INTO codes (code_type,code,code_text,units,modifier,fee,active,reportable,financial_reporting)
-                            VALUES(?,?,?,?,?,?,?);",
-                    array($code_type,$code,$code_text,$units,$modifier,$fee,$active,$reportable,$financial_reportinge));
+  $res = sqlInsert("INSERT INTO codes (code_type,code,code_text,code_text_short,units,modifier,fee,active,reportable,financial_reporting)
+                            VALUES(?,?,?,?,?,?,?,?,?,?);",
+                    array($code_type,$code,$code_text,$code_text,$units,$modifier,$fee,$active,$reportable,$financial_reporting));
   echo '1';
 }
 

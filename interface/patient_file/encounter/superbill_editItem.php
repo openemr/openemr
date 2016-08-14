@@ -12,24 +12,33 @@ require_once("$srcdir/formdata.inc.php");
 
 ini_set("display_errors","1");
 
-// print_r($_GET);
-$codeID = intval(trim($_GET['id']));     
-$ct_id = (isset($_GET['ct_id']) ? trim($_GET['ct_id']) : '');
+$cD = array("id"=>'','code_text'=>'','code'=>'','units'=>'','fee'=>'','modifier'=>'','active'=>'1', 'financial_reporting'=>0, 'reportable'=>0);
+        
+if($_GET['code_external']){
+//print_r($_GET); 
+        $ct_id = $_GET['code_type_name_external'];
+        $code_type_name_external = $_GET['code_type_name_external'];
+        $code_external = $_GET['code'];
+        $codeID = $_GET['code'];
+        $cDRes = return_code_information($code_type_name_external,$code_external,false); // only will return one item
+        $cD = sqlFetchArray($cDRes);
+        //print_r($cD);
+        echo '<h1>WORKING ON EXTERNAL DATA EDIT, it is saving to codes table, but not reflecting in the results or edit screen</h1>';
+}else{
+        $codeID = intval(trim($_GET['id']));     
+        $ct_id = (isset($_GET['ct_id']) ? trim($_GET['ct_id']) : '');
+        
+        if($codeID != ''){
+          $cD = sqlQuery("SELECT * FROM codes WHERE id = ?",array($codeID));
+        }
+}
 
 $code_types = array();
-$res = sqlStatement("SELECT ct_id,ct_key,ct_label FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
-while($row = sqlFetchArray($res)){
-        if(trim($row['ct_label']) == '') $row['ct_label'] = $row['ct_key'];
-        $code_types[] = $row;
-      }
-       
-
-$cD = array("id"=>'','code_text'=>'','code'=>'','units'=>'','fee'=>'','modifier'=>'','active'=>'1', 'financial_reporting'=>0, 'reportable'=>0);
-
-if($codeID != ''){
-  $codeDetailsRes = sqlStatement("SELECT * FROM codes WHERE id = ?",array($codeID));
-  $cD = sqlFetchArray($codeDetailsRes);
-} 
+        $res = sqlStatement("SELECT ct_id,ct_key,ct_label FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
+        while($row = sqlFetchArray($res)){
+                if(trim($row['ct_label']) == '') $row['ct_label'] = $row['ct_key'];
+                $code_types[] = $row;
+              }
 
 
 
@@ -100,15 +109,18 @@ if($codeID != ''){
             <td><?php echo xlt('Code'); ?></td>
             <td><input style="width:100%" type="text" value="<?php echo attr(trim($cD['code'])); ?>" name="code" /></td>
           </tr>
+          <!--
           <tr>
             <td><?php echo xlt('Units'); ?></td>
             <td><input style="width:100%" type="text" value="<?php echo attr(trim($cD['units'])); ?>" name="units" /></td>
           </tr>
+          -->
           <tr>
             <td><?php echo xlt('Modifier'); ?></td>
             <td><input style="width:100%" type="text" value="<?php echo attr(trim($cD['modifier'])); ?>" name="modifier" /></td>
           </tr>
-          <tr>
+          <!-- PRICES HANDELED BY PRICE LISTS NOW -->
+          <tr style="display:none">
             <td><?php echo xlt('Standard Price'); ?></td>
             <td><input style="width:100%" type="text" value="<?php echo attr(trim($cD['fee'])); ?>" name="fee" /></td>
           </tr>  

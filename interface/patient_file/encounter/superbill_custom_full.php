@@ -28,28 +28,11 @@ while($row = sqlFetchArray($itemsTypeRes)){
 <html>
   <head>
     <?php html_header_show(); ?>
-    <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">     
-    <script type="text/javascript" src="../../../library/dialog.js"></script>
-    <script type="text/javascript" src="../../../library/textformat.js"></script>
-    <script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>     
-    <!--                         
-    <link rel="stylesheet" href="../../../library/css/tableSorter/style.css" type="text/css">       
-    <link rel="stylesheet" href="../../../library/css/tableSorter/theme.blue.css" type="text/css"> 
-	<link class="ui-theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.jui.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.default.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.blue.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.green.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.grey.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.ice.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.black-ice.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.dark.css">
-  	<link class="theme" rel="stylesheet" href="../../../library/css/tableSorter/theme.dropbox.css">   
-    <script type="text/javascript" src="../../../library/js/tableSorter_2.14.0/jquery.tablesorter.js"></script>   
-    <script type="text/javascript" src="../../../library/js/tableSorter_2.14.0/jquery.tablesorter.widgets.js"></script>
-    -->
-    <script type="text/javascript" src="../../../library/js/common.js"></script>   
-    <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+    <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">   
+    <link rel="stylesheet" href="../../../public/assets/font-awesome-4-6-3/css/font-awesome.css" type="text/css">      
+    <script type="text/javascript" src="../../../public/assets/jquery-min-1-7-2/index.js"></script> 
+    <script type="text/javascript" src="../../../public/assets/jquery-fancybox-1-2-6/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../public/assets/jquery-fancybox-1-2-6/index.css" media="screen" />
     
       
     <style type="text/css">
@@ -60,53 +43,34 @@ while($row = sqlFetchArray($itemsTypeRes)){
     </style>
     
     <script type="text/javascript">
+	 
+      var $start = 0;         
+      var $limit = 20;
+	  var $currentPage = 1;
+	  var $pages = 0;
+	  var $lastSearchData;
+	 
       $(document).ready(function(){
        
-               
-      
-      $("#searchForm").submit(function(){
-        $("#resultsContainer").html('<tr><td colspan="7"><p style="margin:50px;" align="center"><img src="../../../interface/pic/ajax-loader.gif" /></p></td></tr>'); 
-        $.post("superbill_custom_fetch_codes.php", $("#searchForm").serialize() ).done(function(data) {  
-           
-			data = $.parseJSON(data);
-			//console.log(data);
-			$("#resultsContainer").html("");
-			if (data.length == 0) {
-                $("#resultsContainer").html("<tr><td colspan='9' class='warning' style='padding-top:50px; text-align:center'><b>NO RESULTS FOUND</td></tr>");
-            }
-			$.each(data,function(i,e){
-			 //console.log(e)
-			   $("#resultsContainer").append(''+
-				 '<tr>'+
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+e.code+'</td>'+
-					 '<td class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+e.code_text+'</td>'+
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+(e.modifier == '' ? '&nbsp;' : e.modifier)+'</td>'+
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+(e.active == 1 ? '&#10004;' : '&#10008;')+'</td>'+
-					 
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+(e.reportable == 1 ? '&#10004;' : '&#10008;')+'</td>'+
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+(e.financial_reporting == 1 ? '&#10004;' : '&#10008;')+'</td>'+
-					 
-					 
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'">'+(e.ct_label.trim() == '' ? e.ct_key : e.ct_label )+'</td>'+
-					 '<td style="text-align:center" class="itemEdit" itemID="'+e.id+'" ct_id="'+e.ct_id+'" style="text-align:center"><img title="edit this item" style="width:16px" src="../../../images/b_edit.png" /></td>'+
-					 '<td style="text-align:center" class="itemPrice" itemID="'+e.id+'" ct_id="'+e.ct_id+'" style="text-align:center"><img title="edit prices" style="width:16px" src="../../../images/fee.png" /></td>'+
-				   '</tr>'
-			   )
-			});
-			  
-		    //$(".tableSorter").tablesorter({sortList:[[0,1]], widgets: ['zebra']});
-		    
-		    
-        }).error(function(){
-		 $("#resultsContainer").html('<tr><td colspan="7"><p style="margin:50px;" align="center">ERROR, PLEASE TRY AGAIN</p></td></tr>'); 
-        
-		});
-        return false;
+	   $("body").on("click",".nextPage",function(){
+		  $currentPage += 1;
+		  return search();
+		  
+	   });
+	   
+	   $("body").on("click",".prevPage",function(){
+		  $currentPage -= 1;
+		  return search();
+		  
+	   });
+	   
+	  
+      $("#searchForm").submit(function(e){
+	    e.preventDefault();
+	    $lastSearchData = $("#searchForm").serialize();
+	    return search();
       }) ;
-        
-        $("#itemTypes").change(function(){         
-          $("#searchForm").submit();
-        })  
+         
         
         $("#addNew").click(function(){
             $("#triggerLink").attr("href","superbill_editItem.php?id=") 
@@ -121,10 +85,16 @@ while($row = sqlFetchArray($itemsTypeRes)){
                                     'hideOnContentClick':false
                                 }).trigger('click');
             return false;                  
-        })
+        });
         
-        $(".itemEdit").live("click",function(){
-            $("#triggerLink").attr("href","superbill_editItem.php?ct_id="+$(this).attr("ct_id")+"&id="+$(this).attr("itemID")) 
+        $("body").on("click",".itemEdit",function(){
+		    $parent = $(this).parent();
+		    $ct_id = $parent.attr("ct_id");
+		    $itemID = $parent.attr("itemID");
+		    $code_external = $parent.attr("code_external");
+			$code_type_name_external = $parent.attr("code_type_name_external");
+		    $code = $parent.attr("code");
+            $("#triggerLink").attr("href","superbill_editItem.php?ct_id="+$ct_id+"&id="+$itemID+"&code_external="+$code_external+"&code="+$code+"&code_type_name_external="+$code_type_name_external); 
             $("#triggerLink").fancybox( {
                                     'overlayOpacity' : 0.4,
                                     'showCloseButton' : true,
@@ -135,10 +105,15 @@ while($row = sqlFetchArray($itemsTypeRes)){
                                     'autoDimensions' : false,
                                     'hideOnContentClick':false
                                 }).trigger('click');
-        })
+        });
         
-        $(".itemPrice").live("click",function(){ 
-            $("#triggerLink").attr("href","superbill_editPrice.php?id="+$(this).attr("itemID")) 
+        $("body").on("click",".itemPrice",function(){ 
+		    $parent = $(this).parent();
+		    $ct_id = $parent.attr("ct_id");
+		    $itemID = $parent.attr("itemID");
+		    $code_external = $parent.attr("code_external");
+		    $code = $parent.attr("code");
+            $("#triggerLink").attr("href","superbill_editPrice.php?ct_id="+$ct_id+"&id="+$itemID+"&code_external="+$code_external+"&code="+$code);
             $("#triggerLink").fancybox( {
                                     'overlayOpacity' : 0.4,
                                     'showCloseButton' : true,
@@ -149,45 +124,124 @@ while($row = sqlFetchArray($itemsTypeRes)){
                                     'autoDimensions' : false,
                                     'hideOnContentClick':false 
                                 }).trigger('click');
-        })
+        });
         
         
-        
+        $("#checkbox_all_codes").click(function(){
+		  if ($(this).is(":checked")) {
+            $(".ct_checkbox").attr('checked',true);
+          }else{
+		   $(".ct_checkbox").removeAttr('checked');
+		  }
+		});
+		$(".ct_checkbox").click(function(){
+		 var allChecked = true;
+		 $.each($(".ct_checkbox"),function(){
+		   if (!$(this).is(":checked")) {
+			 allChecked = false;
+		   }
+		 });
+		 if (allChecked) {
+            $("#checkbox_all_codes").attr('checked',true);
+         }else{
+			$("#checkbox_all_codes").removeAttr('checked');
+		 }
+		});
         
       
      // $("#searchForm").submit(); 
         $("#sTerm").focus();        
-      })
+      });
+	  
+	  function search(){
+	    $start = (($currentPage-1) * $limit) ;
+		console.log("searching...");
+		console.log("current Page : "+$currentPage);
+		console.log("start :"+$start);
+		console.log($lastSearchData);
+        $("#resultsContainer").html('<tr><td colspan="7"><p style="margin:50px;" align="center"><img src="../../../interface/pic/ajax-loader.gif" /></p></td></tr>'); 
+        $.post("superbill_custom_fetch_codes.php?start="+$start+"&limit="+$limit, $lastSearchData ).done(function(data) {  
+			if (data.trim() == '999') {
+			  $(".paging").html('');
+              $("#resultsContainer").html("<tr><td colspan='9' class='warning' style='padding-top:50px; text-align:center'><b>PLEASE SELECT A CODE TYPE TO SEARCH</td></tr>");
+            }else{
+				data = $.parseJSON(data);
+				console.log(data);
+				$("#resultsContainer").html("");
+				if (data.items.length == 0) {
+				    $(".paging").html('');
+					$("#resultsContainer").html("<tr><td colspan='9' class='warning' style='padding-top:50px; text-align:center'><b>NO RESULTS FOUND</td></tr>");
+				}else{
+				 $pages = Math.ceil(data.count / $limit);
+				 var $pagingHtml = "";
+				 $pagingHtml += ($currentPage > 1 ? "<a href='#' class='prevPage'><span class='fa fa-arrow-left'></span></a> " : "");
+				 $pagingHtml += "Page "+$currentPage+" of "+$pages;
+				 $pagingHtml += ($currentPage < $pages ? " <a href='#' class='nextPage'><span class='fa fa-arrow-right'></span></a> " : "");
+				  $(".paging").html($pagingHtml);
+				  $.each(data.items,function(i,e){
+				     //console.log(e)
+					 $("#resultsContainer").append(''+
+					   '<tr code="'+e.code+'" code_type_name_external="'+e.code_type_name+'" code_external="'+e.code_external+'" itemID="'+e.id+'" ct_id="'+e.code_type+'">'+
+						   '<td style="text-align:center" class="itemEdit">'+e.code+'</td>'+
+						   '<td class="itemEdit">'+e.code_text+'</td>'+
+						   '<td style="text-align:center" class="itemEdit">'+(e.modifier == '' ? '&nbsp;' : e.modifier)+'</td>'+
+						   '<td style="text-align:center" class="itemEdit">'+(e.active == 1 ? '&#10004;' : '&#10008;')+'</td>'+
+						   
+						   '<td style="text-align:center" class="itemEdit">'+(e.reportable == 1 ? '&#10004;' : '&#10008;')+'</td>'+
+						   '<td style="text-align:center" class="itemEdit">'+(e.financial_reporting == 1 ? '&#10004;' : '&#10008;')+'</td>'+
+						   
+						   
+						   '<td style="text-align:center" class="itemEdit">'+e.code_type_name+'</td>'+
+						   '<td style="text-align:center" class="itemEdit" style="text-align:center"><img title="edit this item" style="width:16px" src="../../../images/b_edit.png" /></td>'+
+						   '<td style="text-align:center" class="itemPrice" style="text-align:center"><img title="edit prices" style="width:16px" src="../../../images/fee.png" /></td>'+
+						 '</tr>'
+					 )
+				  });
+				} 
+				//$(".tableSorter").tablesorter({sortList:[[0,1]], widgets: ['zebra']});
+			}
+		    
+		    
+        }).error(function(){
+		 $("#resultsContainer").html('<tr><td colspan="7"><p style="margin:50px;" align="center">ERROR, PLEASE TRY AGAIN</p></td></tr>'); 
+        
+		});
+        return false;
+	  }
     </script>
     
     
   </head>
   <body style="padding:20px;"> 
-    <button id="addNew" style="display: inline; float: none"><?php echo xlt('Add New') ?></button>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <?php echo xlt('OR') ?>    
-  <form id="searchForm" style="display: inline; float: none">
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <b><?= xlt('SEARCH') ?> : </b>
-    <select id="itemTypes" name="itemTypes">
-      <option value="0"><?= xla('ALL') ?></option>
+  <form id="searchForm""> 
+   <h4><?= xlt('SEARCH') ?> : </h4>
+    <!--<select multiple id="itemTypes" name="itemTypes">-->
+      <input placeholder="<?= xla('Type your search here, leave blank to show all') ?>" size="60" name="sTerm" id="sTerm" type="text" /> ( <?php echo xlt('By code or description') ?> )
+	  <input type="checkbox" name="serRepOnly" id="serRepOnly" />
+	 <label for="serRepOnly"><?= xlt('Service Reporting') ?></label>
+	 <input type="checkbox" name="diagRepOnly" id="diagRepOnly" />
+	 <label for="diagRepOnly"><?= xlt('Diagnosis Reporting') ?></label>
+	 <br /><br />
+	  <input checked id="checkbox_all_codes" type="checkbox" name="itemTypes[]" value="0" /><label style="margin-right:25px" for="checkbox_all_codes"><?= xla('ALL') ?></label>
 	  <?php
 		foreach($itemTypesArray as $itemType){
-		  echo '<option value="'.attr($itemType['ct_id']).'">'.attr($itemType['ct_key']).'</option>';
+		  //echo '<option value="'.attr($itemType['ct_id']).'">'.attr($itemType['ct_key']).'</option>';
+		  echo '<input checked class="ct_checkbox" type="checkbox" name="itemTypes[]" value="'.attr($itemType['ct_id']).'" id="checkbox_'.attr($itemType['ct_id']).'" /><label style="margin-right:25px" for="checkbox_'.attr($itemType['ct_id']).'" >'.attr($itemType['ct_label']).'</label>';
 		}
 	  ?>
-    </select>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <?php echo xlt('Search') ?> : <input placeholder="<?= xla('Type your search here, leave blank to show all') ?>" size="60" name="sTerm" id="sTerm" type="text" /> <input type="submit" id="searchNow" name="searchNow" value="<?= xla('Search') ?>" style="display: inline; float: none" />
-    ( <?php echo xlt('By code or description') ?> )
-	<input type="checkbox" name="serRepOnly" id="serRepOnly" />
-	<label for="serRepOnly"><?= xlt('Service Reporting') ?></label>
-	<input type="checkbox" name="diagRepOnly" id="diagRepOnly" />
-	<label for="diagRepOnly"><?= xlt('Diagnosis Reporting') ?></label>
+    <!--</select>-->
+    
+    <br />
+	
+	<br />
+	<input type="submit" id="searchNow" name="searchNow" value="<?= xla('Search') ?>" style="width:100%;" />
+	<br />
   </form> 
   <hr />
+  <button id="addNew" style="width:100%"><?php echo xlt('Add New') ?></button>
   <a id="triggerLink" style="display:none;">.</a>
   <div id="codeDiv">
+    <div style="clear:both; font-size: 1.5em; font-weight: bold; padding:10px; text-align: right;" class="paging"></div>
 	<table class="tableSorter" width="100%">
 	  <thead>
 		<tr>     
@@ -204,4 +258,5 @@ while($row = sqlFetchArray($itemsTypeRes)){
 	  </thead>									  
 	  <tbody id="resultsContainer"></tbody>
 	</table>
+    <div style="clear:both; font-size: 1.5em; font-weight: bold; padding:10px; text-align: right;" class="paging"></div>
   </div>

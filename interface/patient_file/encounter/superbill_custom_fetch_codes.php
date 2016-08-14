@@ -6,70 +6,33 @@
 
       $fake_register_globals=false;
       $sanitize_all_escapes=true;
-      
       require_once("../../globals.php");
       require_once("../../../custom/code_types.inc.php");
-      require_once("$srcdir/sql.inc");
-      require_once("$srcdir/options.inc.php");
-      require_once("$srcdir/formatting.inc.php");
-      require_once("$srcdir/formdata.inc.php");
-      
-       
-      $selectedItemType = intval($_POST['itemTypes']);   
-      $searchTerm = trim($_POST['sTerm']);
-      if(isset($_POST['diagRepOnly']) &&isset($_POST['serRepOnly'])){
-        $reportingOnly = '(c.reportable = 1 OR c.financial_reporting = 1) AND ';
-        $financial_reportingOnly = '';
+      $start = intval($_GET['start']);
+      $limit = intval($_GET['limit']);
+      if(!isset($_POST['itemTypes'])){
+        die('999');
       }else{
-        $reportingOnly = isset($_POST['diagRepOnly']) ? 'c.reportable = 1 AND ' : '';
-        $financial_reportingOnly = isset($_POST['serRepOnly']) ? 'c.financial_reporting = 1 AND ' : '';
-      }
-      
-      $stWhere = "";
-      $args = array();
-      if($searchTerm != ''){
-        $stWhere .= 'AND (';
-        $stWhere .= 'c.code = ? ';  
-        $args[] = $searchTerm;    
-        $stWhere .= 'OR c.code like ? '; 
-        $args[] = $searchTerm.'%';  
-        $stWhere .= 'OR c.code like ? ';  
-        $args[] = '%'.$searchTerm.'%';   
-        $stWhere .= 'OR c.code_text = ? ';
-        $args[] = $searchTerm;      
-        $stWhere .= 'OR c.code_text like ?';  
-        $args[] = $searchTerm.'%'; 
-        $stWhere .= 'OR c.code_text like ?';  
-        $args[] = '%'.$searchTerm.'%';    
-        $stWhere .= 'OR c.modifier = ? ';   
-        $args[] = $searchTerm;   
-        $stWhere .= 'OR c.modifier like ? '; 
-        $args[] = $searchTerm.'%';  
-        $stWhere .= 'OR c.modifier like ? ';   
-        $args[] = '%'.$searchTerm.'%';   
-        
-        $stWhere .= ')';
-      }
-      $itemsToDisplay = array();
-    
-      if($selectedItemType == 0){ // 
-          $itemSQL = "SELECT c.*, ct.ct_label, ct.ct_id FROM codes c JOIN code_types ct ON c.code_type = ct.ct_id WHERE $reportingOnly $financial_reportingOnly ct.ct_fee != 0 $stWhere ORDER BY ct.ct_seq asc, ";
-      }else{
-          $itemSQL = "SELECT c.*, ct.ct_label, ct.ct_id FROM codes c JOIN code_types ct ON c.code_type = ct.ct_id WHERE $reportingOnly $financial_reportingOnly ct.ct_fee != 0 AND c.code_type = $selectedItemType $stWhere ORDER BY ";
-          //echo $itemSQL;
-      }
-      if($searchTerm != ''){
-          $itemSQL .= " (c.code_text = ?)  desc, (c.modifier = ?)  desc, (c.code = ?)  desc, ";
-          $args[] = $searchTerm;
-          $args[] = $searchTerm;
-          $args[] = $searchTerm;      
-      }
-          
-      $itemSQL .= "code_text limit 0,500";
-      
-      $itemRes = sqlStatement($itemSQL,$args);
-      while($row = sqlFetchArray($itemRes)){
-        $itemsToDisplay[] = $row;
+          $itemsToDisplay['count'] = 0;
+          $itemsToDisplay['items'] = array();
+          $filter_elements = array();
+          if (isset($_POST['diagRepOnly'])) $filter_elements['reportable'] = 1;
+          if (isset($_POST['serRepOnly'])) $filter_elements['financial_reporting'] = 1;
+          $filter = array();
+          $filter_key = array();
+          foreach ($_POST['itemTypes'] as $var) {
+            $var = $var+0;
+            if($var == 0) continue;
+            array_push($filter,$var);
+            $var_key = convert_type_id_to_key($var);
+            array_push($filter_key,$var_key);
+          }
+          $count = main_code_set_search($filter_key,trim($_POST['sTerm']),NULL,NULL,false,NULL,true,$start,$limit,$filter_elements);
+          $itemsToDisplay['count'] = $count;
+          $itemsToDisplayRes = main_code_set_search($filter_key,trim($_POST['sTerm']),NULL,NULL,false,NULL,false,$start,$limit,$filter_elements);
+          while($row = sqlFetchArray($itemsToDisplayRes)){
+            $itemsToDisplay['items'][] = $row;
+          }
       }
       
       echo json_encode($itemsToDisplay);
