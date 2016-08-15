@@ -87,6 +87,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  }
 
  <?php
+ //Get new_validate option to check if global new validation is on.
+ $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
  //Gets validation rules from Page Validation list.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/new.php");
  ?>
