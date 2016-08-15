@@ -87,12 +87,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  }
 
  <?php
- //Get new_validate option to check if global new validation is on.
- $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
  //Gets validation rules from Page Validation list.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/new.php");
  ?>
- <?php if($new_validate && $collectthis): ?>
+ <?php if($collectthis): ?>
  //If new validation is on, and there is a custom page validation, then on click will go into 'submitme' function.
  $(document).ready(function(){
      window.saveClicked = function(event) {
