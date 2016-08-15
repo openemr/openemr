@@ -733,5 +733,5 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 #EndIf
 
 #IfNotRow2D list_options list_id page_validation option_id encounters#new_encounter
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'encounters#new_encounter', '/interface/forms/newpatient/new.php', 20, '{pc_catid:{exclusion: ["_blank"]}}', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'new#new_encounter', '/interface/forms/newpatient/new.php', 20, '{pc_catid:{exclusion: ["_blank"]}}', 0);
 #EndIf
