@@ -92,7 +92,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  //Gets validation rules from Page Validation list.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/new.php");
  ?>
- <?php if($collectthis): ?>
+ <?php if($new_validate && $collectthis): ?>
  //If new validation is on, and there is a custom page validation, then on click will go into 'submitme' function.
  $(document).ready(function(){
      window.saveClicked = function(event) {
