@@ -735,7 +735,7 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 UPDATE `globals` SET `gl_value` = 'style_tan.css' WHERE `gl_name` = 'css_header';
 #EndIf
 
-#IfColumn transactions                                
+#IfColumn users ssi_relayhealth 
 ALTER TABLE `users` DROP COLUMN `ssi_relayhealth`;
 #EndIf
 
