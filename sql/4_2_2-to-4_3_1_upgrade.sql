@@ -708,7 +708,6 @@ ALTER TABLE drugs
 #IfNotRow2D list_options list_id lists option_id page_validation
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'encounters#new_encounter', '/interface/forms/newpatient/new.php', 20, '{pc_catid:{exclusion: ["_blank"]}}', 0);
 
 #EndIf
 
@@ -733,3 +732,6 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 	UPDATE list_options set title = 'Use CPOE for medication orders.' where list_id = 'clinical_rules' and option_id = 'cpoe_med_stage2_amc';
 #EndIf
 
+#IfNotRow2D list_options list_id page_validation option_id encounters#new_encounter
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'encounters#new_encounter', '/interface/forms/newpatient/new.php', 20, '{pc_catid:{exclusion: ["_blank"]}}', 0);
+#EndIf
