@@ -95,7 +95,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  <?php if($new_validate && $collectthis): ?>
  //If new validation is on, and there is a custom page validation, then on click will go into 'submitme' function.
  $(document).ready(function(){
-     window.saveClicked = function() {
+     window.saveClicked = function(event) {
          var submit = submitme(1, event, 'new-encounter-form', <?php echo($collectthis["new_encounter"]["rules"]);?>);
          if (submit) {
              $('#new-encounter-form').submit();
@@ -168,7 +168,7 @@ function cancelClicked() {
 
 <div>
     <div style = 'float:left; margin-left:8px;margin-top:-3px'>
-      <a href="javascript:saveClicked();" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
+      <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
       <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
     </div>
 
