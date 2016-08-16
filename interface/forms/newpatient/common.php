@@ -62,7 +62,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-    <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <!-- pop up calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
@@ -87,38 +89,23 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  }
 
  <?php
- //Get new_validate option to check if global new validation is on.
- $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
  //Gets validation rules from Page Validation list.
- $collectthis = collectValidationPageRules("/interface/forms/newpatient/new.php");
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
  ?>
- <?php if($new_validate && $collectthis): ?>
- //If new validation is on, and there is a custom page validation, then on click will go into 'submitme' function.
- $(document).ready(function(){
-     window.saveClicked = function(event) {
-         var submit = submitme(1, event, 'new-encounter-form', <?php echo($collectthis["new_encounter"]["rules"]);?>);
-         if (submit) {
-             $('#new-encounter-form').submit();
-         }
-     }
- });
- <?php else: ?>
- //Old validation.
- function saveClicked() {
-     var f = document.forms[0];
-     var category = document.forms[0].pc_catid.value;
-     if ( category == '_blank' ) {
-         alert("<?php echo xls('You must select a visit category'); ?>");
-         return;
-     }
-     top.restoreSession();
-     f.submit();
- }
- <?php endif; ?>
 
-$(document).ready(function(){
-  enable_big_modals();
-});
+ $(document).ready(function(){
+   window.saveClicked = function(event) {
+     var submit = submitme(1, event, 'new-encounter-form', <?php echo($collectthis["new_encounter"]["rules"]);?>);
+     if (submit) {
+       top.restoreSession();
+       $('#new-encounter-form').submit();
+     }
+   }
+
+   enable_big_modals();
+ });
+
 function bill_loc(){
 var pid=<?php echo attr($pid);?>;
 var dte=document.getElementById('form_date').value;
