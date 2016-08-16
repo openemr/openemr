@@ -92,11 +92,17 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  //Gets validation rules from Page Validation list.
  //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
+ if (empty($collectthis)) {
+   $collectthis = "undefined";
+ }
+ else {
+   $collectthis = $collectthis["new_encounter"]["rules"];
+ }
  ?>
-
+ var collectvalidation = <?php echo($collectthis); ?>;
  $(document).ready(function(){
    window.saveClicked = function(event) {
-     var submit = submitme(1, event, 'new-encounter-form', <?php echo($collectthis["new_encounter"]["rules"]);?>);
+     var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
      if (submit) {
        top.restoreSession();
        $('#new-encounter-form').submit();
