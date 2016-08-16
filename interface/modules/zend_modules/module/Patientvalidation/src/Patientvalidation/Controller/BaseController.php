@@ -91,19 +91,6 @@ class BaseController extends AbstractActionController
     }
 
 
- 
-
-
-    protected function getLanguage(){
-
-        $sm = $this->getServiceLocator();
-        $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-        $sql = new CustomSql($dbAdapter);
-
-        $lang = $sql->getCurrentLang();
-
-        return $lang;
-    }
 
     /**
      * @return mixed params object
