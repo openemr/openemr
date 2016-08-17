@@ -801,9 +801,7 @@ class C_Prescription extends Controller {
 			$this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
 			return;
 		}
-		require($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
 		$mail = new PHPMailer();
-		$mail->SetLanguage("en",$GLOBALS['fileroot'] . "/library/" );
 		//this is a temporary config item until the rest of the per practice billing settings make their way in
 		$mail->From = $GLOBALS['practice_return_email_path'];
 		$mail->FromName = $p->provider->get_name_display();

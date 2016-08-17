@@ -20,11 +20,9 @@ $GLOBALS['SELL_FROM_ONE_WAREHOUSE'] = true;
 $substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
 
 function send_drug_email($subject, $body) {
-  require_once ($GLOBALS['srcdir'] . "/classes/class.phpmailer.php");
   $recipient = $GLOBALS['practice_return_email_path'];
   if (empty($recipient)) return;
   $mail = new PHPMailer();
-  $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
   $mail->FromName = 'In-House Pharmacy';
   $mail->isMail();
