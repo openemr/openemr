@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aea3606154c5e3eee5e2264b1079dca3",
-    "content-hash": "4bcb02bd8e9dd1f1d9efda9df9fc6780",
+    "hash": "32238f517105e024d96de838fdd975d8",
+    "content-hash": "491de01f303dc88b8361d8784383d68e",
     "packages": [
         {
             "name": "adodb/adodb-php",
@@ -60,6 +60,64 @@
                 "php"
             ],
             "time": "2015-12-27 15:22:27"
+        },
+        {
+            "name": "rospdf/pdf-php",
+            "version": "0.12.22",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rospdf/pdf-php.git",
+                "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rospdf/pdf-php/zipball/140b9987fd8dcf3087b98827e615f07b6257b6ea",
+                "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-experimental": "0.13.x-dev",
+                    "dev-master": "0.12.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Cpdf.php",
+                    "src/Cezpdf.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ole Koeckemann",
+                    "email": "ole1986@users.sourceforge.net",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Lars Olesen",
+                    "email": "lars@intraface.dk",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Wayne Munro",
+                    "email": "pdf@ros.co.nz",
+                    "role": "Inactive"
+                }
+            ],
+            "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
+            "homepage": "https://github.com/rospdf/pdf-php",
+            "time": "2016-06-01 21:36:09"
         },
         {
             "name": "smarty/smarty",

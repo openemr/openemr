@@ -12,7 +12,8 @@
     "require": {
 
         "smarty/smarty": "2.6.29",
-        "adodb/adodb-php": "5.20.2"
+        "adodb/adodb-php": "5.20.2",
+        "rospdf/pdf-php": "^0.12.22"
         
     },
     "require-dev": {
