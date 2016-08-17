@@ -182,6 +182,27 @@ CREATE TABLE `valueset` (
 UPDATE `clinical_rules` set `cqm_nqf_code` = '0018' where `id` = 'rule_htn_bp_measure_cqm';
 
 --
+#IfNotTable calendar_external
+CREATE TABLE calendar_external (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
+  `description` VARCHAR(45) NOT NULL,
+  `source` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_catid 6
+INSERT INTO `openemr_postcalendar_categories` (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`)
+VALUES (6,'Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6);
+#EndIf
+
+#IfNotRow openemr_postcalendar_categories pc_catid 7
+INSERT INTO `openemr_postcalendar_categories` (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`)
+VALUES (7,'Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7);
+#EndIf
+
+
 
 #IfMissingColumn immunizations information_source
 ALTER TABLE `immunizations` ADD COLUMN `information_source` VARCHAR(31) DEFAULT NULL;
@@ -591,8 +612,6 @@ DELETE FROM `enc_category_map` where rule_enc_id = 'enc_pregnancy' and main_cat_
 ALTER TABLE  `documents` ADD  `thumb_url` VARCHAR( 255 ) DEFAULT NULL;
 #EndIf
 
-
-
 #IfMissingColumn layout_options validation
 ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
 #EndIf
@@ -601,12 +620,114 @@ ALTER TABLE layout_options ADD COLUMN validation varchar(100) default NULL;
 INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Validations','LBF_Validations');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"pastDate\":{\"message\":\"must be past date\"}}','30');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
-
 #EndIf
 
+#IfMissingColumn facility extra_validation
+ALTER TABLE facility ADD extra_validation tinyint(1) NOT NULL DEFAULT '1';
+#EndIf
+
+#IfMissingColumn drugs consumable
+ALTER TABLE drugs
+  ADD consumable tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet';
+#EndIf
+
+#IfMissingColumn billing pricelevel
+ALTER TABLE `billing` ADD COLUMN `pricelevel` varchar(31) default '';
+# Fill in missing price levels where possible. Specific to IPPF but will not hurt anyone else.
+UPDATE billing AS b, codes AS c, prices AS p
+  SET b.pricelevel = p.pr_level WHERE
+  b.code_type = 'MA' AND b.activity = 1 AND b.pricelevel = '' AND b.units = 1 AND b.fee > 0.00 AND
+  c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier AND
+  p.pr_id = c.id AND p.pr_selector = '' AND p.pr_price = b.fee;
+#EndIf
+
+#IfMissingColumn drug_sales pricelevel
+ALTER TABLE `drug_sales` ADD COLUMN `pricelevel` varchar(31) default '';
+#EndIf
+
+#IfMissingColumn drug_sales selector
+ALTER TABLE `drug_sales` ADD COLUMN `selector` varchar(255) default '' comment 'references drug_templates.selector';
+# Fill in missing selector values where not ambiguous.
+UPDATE drug_sales AS s, drug_templates AS t
+  SET s.selector = t.selector WHERE
+  s.pid != 0 AND s.selector = '' AND t.drug_id = s.drug_id AND
+  (SELECT COUNT(*) FROM drug_templates AS t2 WHERE t2.drug_id = s.drug_id) = 1;
+# Fill in missing price levels where not ambiguous.
+UPDATE drug_sales AS s, drug_templates AS t, prices AS p
+  SET s.pricelevel = p.pr_level WHERE
+  s.pid != 0 AND s.selector != '' AND s.pricelevel = '' AND
+  t.drug_id = s.drug_id AND t.selector = s.selector AND t.quantity = s.quantity AND
+  p.pr_id = s.drug_id AND p.pr_selector = s.selector AND p.pr_price = s.fee;
+#EndIf
+
+#IfMissingColumn drug_sales bill_date
+ALTER TABLE `drug_sales` ADD COLUMN `bill_date` datetime default NULL;
+UPDATE drug_sales AS s, billing     AS b SET s.bill_date = b.bill_date WHERE s.billed = 1 AND s.bill_date IS NULL AND b.pid = s.pid AND b.encounter = s.encounter AND b.bill_date IS NOT NULL AND b.activity = 1;
+UPDATE drug_sales AS s, ar_activity AS a SET s.bill_date = a.post_time WHERE s.billed = 1 AND s.bill_date IS NULL AND a.pid = s.pid AND a.encounter = s.encounter;
+UPDATE drug_sales AS s SET s.bill_date = s.sale_date WHERE s.billed = 1 AND s.bill_date IS NULL;
+#EndIf
+
+#IfNotTable voids
+CREATE TABLE `voids` (
+  `void_id`                bigint(20)    NOT NULL AUTO_INCREMENT,
+  `patient_id`             bigint(20)    NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)    NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `what_voided`            varchar(31)   NOT NULL            COMMENT 'checkout,receipt and maybe other options later',
+  `date_original`          datetime      DEFAULT NULL        COMMENT 'time of original action that is now voided',
+  `date_voided`            datetime      NOT NULL            COMMENT 'time of void action',
+  `user_id`                bigint(20)    NOT NULL            COMMENT 'references users.id',
+  `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
+  `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
+  `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  PRIMARY KEY (`void_id`),
+  KEY datevoided (date_voided),
+  KEY pidenc (patient_id, encounter_id)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn drugs dispensable
+UPDATE drug_sales AS s, prescriptions AS p, form_encounter AS fe
+  SET s.prescription_id = p.id WHERE
+  s.pid > 0 AND
+  s.encounter > 0 AND
+  s.prescription_id = 0 AND
+  fe.pid = s.pid AND
+  fe.encounter = s.encounter AND
+  p.patient_id = s.pid AND
+  p.drug_id = s.drug_id AND
+  p.start_date = fe.date;
+ALTER TABLE drugs
+  ADD dispensable tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id page_validation
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
+#EndIf
+
+#IfMissingColumn procedure_order history_order
+ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
+#EndIf
+
+#IfMissingColumn amc_misc_data soc_provided
+       ALTER TABLE `amc_misc_data` add column `soc_provided` DATETIME default NULL;
+#EndIf
+
+#IfNotRow clinical_rules id cpoe_med_stage1_amc_alternative
+	INSERT INTO `clinical_rules`(`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES ('cpoe_med_stage1_amc_alternative', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 1, 0);
+	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);	
+#EndIf
+
+#IfNotRow2D clinical_rules id cpoe_med_stage2_amc amc_2014_stage1_flag 0
+	UPDATE `clinical_rules` set amc_2014_stage1_flag = 0 where id='cpoe_med_stage2_amc';
+#EndIf
+
+#IfNotRow3D list_options list_id clinical_rules option_id cpoe_med_stage2_amc title Use CPOE for medication orders.
+	UPDATE list_options set title = 'Use CPOE for medication orders.' where list_id = 'clinical_rules' and option_id = 'cpoe_med_stage2_amc';
+#EndIf
 

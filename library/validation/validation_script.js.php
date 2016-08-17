@@ -1,3 +1,4 @@
+<?php require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");?>
 <?php
 /**
  * library/validation/validation_script.js
@@ -40,11 +41,13 @@ if($GLOBALS['new_validate']) {
     /*e: event*/
     /*form id: used to get the validation rules*/?>
 
-    function submitme(new_validate,e,form_id) {
 
-    //Use the old validation script if no parameter sent (backward compatibility)
-    //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
-    // was on code up to today (the validat library was not loaded ( look at the top of this file)
+
+function submitme(new_validate,e,form_id, constraints) {
+
+        //Use the old validation script if no parameter sent (backward compatibility)
+        //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
+        // was on code up to today (the validat library was not loaded ( look at the top of this file)
         if (new_validate !== 1) {
             var f = document.forms[0];
             if (validate(f)) {
@@ -55,13 +58,15 @@ if($GLOBALS['new_validate']) {
                 e.preventDefault();
             }
         } else { //If the new validation library is used :
-            <?php
-            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
-            $constraints = LBF_Validation::generate_validate_constraints($form_id);
-            ?>
+
             //Variables used for the validation library and validation mechanism
+            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+            if(constraints==undefined || constraints=='') {
+                <?php  $constraints = LBF_Validation::generate_validate_constraints($form_id);?>
+                 constraints = <?php echo $constraints;?>;
+            }
             var valid = true ;
-            var constraints = <?php echo $constraints;?>;
+
             //We use a common error for all the errors because of the multilanguage capability of openemr
             //TODO: implement a traslation mechanism of the errors that the library returns
             var error_msg ='<?php echo xl('is not valid');?>';

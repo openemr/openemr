@@ -1,0 +1,102 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @link    http://www.open-emr.org
+ */
+
+.appMenu div
+{
+    margin: 3px;
+}
+.appMenu > span
+{
+    float: left;
+}
+.appMenu ul
+{
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+.appMenu li
+{
+    width: 100%;
+}
+.menuHeader{
+    font-weight: bold;
+}
+.menuSection{
+    position: relative;
+}
+.menuLabel
+{
+    width: 100%;
+}
+.menuSection >.menuLabel
+{
+    font-weight: bold;
+}
+.menuSection > .menuEntries{
+    background-color:lightskyblue;
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index:1000;
+}
+
+.menuSection > .menuEntries .menuEntries {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    z-index:10000;
+}
+.menuSection:hover > .menuEntries{
+    display: block;
+}
+
+.menuLabel
+{
+    cursor: pointer;
+}
+.menuLabel:hover
+{
+    color: red;
+}
+.menuDisabled
+{
+    color:lightgray;
+}
+
+#username
+{
+    cursor: pointer;
+}
+#username > .userfunctions
+{
+    background-color:lightskyblue;
+    display: none;
+}
+#username:hover > .userfunctions
+{
+    display: block;
+}
+
+#username > .userfunctions > div:hover
+{
+    color: red;
+}

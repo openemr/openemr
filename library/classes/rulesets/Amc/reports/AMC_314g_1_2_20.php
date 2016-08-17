@@ -30,7 +30,7 @@ class AMC_314g_1_2_20 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "labs";
+        return "image_orders";
     }
  
     public function createDenominator() 

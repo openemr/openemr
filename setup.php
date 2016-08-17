@@ -1,8 +1,26 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Installation script.
+ *
+ * Copyright (C) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be usefull,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY OF FITNESS FOR A PARTICULAR PURPOSE, See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the CNU General Public License
+ * along with this program. If not, see <http://opensource.org/Licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author Scott Wakefield <scott@npclinics.com.au>
+ * @link http://www.open-emr.org
+ * 
+**/
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
 require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php');
@@ -11,7 +29,7 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$state = $_POST["state"];
+$state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
 // Make this true for IPPF.
 $ippf_specific = false;
@@ -183,7 +201,8 @@ We recommend you print these instructions for future reference.
 
 <?php
 
-$inst = $_POST["inst"];
+$inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
+
 
 if (($config == 1) && ($state < 4)) {
   echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $installer->conffile (change the 'config' variable to 0), and re-run this script.<br>\n";
@@ -308,6 +327,36 @@ else {
 
     // Form Validation
     //   (applicable if not cloning from another database)
+    
+    $pass_step2_validation = TRUE;
+    $error_step2_message   = "ERROR at ";
+
+    if ( ! $installer->char_is_valid($_REQUEST['server'])) {
+       $pass_step2_validation = FALSE;
+       $error_step2_message .=  "Database Server Host, ";
+    }
+
+    if ( ! $installer->char_is_valid($_REQUEST['port']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .=  "Database Server Port, ";
+    }
+    if ( ! $installer->char_is_valid($_REQUEST['dbname']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Name, ";
+    }  
+    if ( ! $installer->char_is_valid($_REQUEST['login']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Login Name, ";
+    }
+    if ( ! $installer->char_is_valid($_REQUEST['pass']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Login Password, ";
+    }
+    if (!$pass_step2_validation) {
+       die($error_step2_message);  
+     }
+
+
     if (empty($installer->clone_database)) { 
       if ( ! $installer->login_is_valid() ) {
         echo "ERROR. Please pick a proper 'Login Name'.<br>\n";

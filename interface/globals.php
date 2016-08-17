@@ -177,6 +177,9 @@ require_once (dirname(__FILE__) . "/../library/date_functions.php");
 // Includes compoaser autoload
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+// Includes functions for page validation
+require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -397,6 +400,9 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
+if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
+  $ignoreAuth = true;
+}
 if (!isset($ignoreAuth) || !$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
@@ -465,4 +471,5 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
+
 ?>

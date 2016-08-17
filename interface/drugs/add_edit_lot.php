@@ -105,6 +105,7 @@ if (!$drug_id) die(xlt('Drug ID missing!'));
 td { font-size:10pt; }
 </style>
 
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>

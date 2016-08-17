@@ -39,12 +39,12 @@ require_once("$srcdir/patient_tracker.inc.php");
 ?>
 <html>
 <head>
-
+<title><?php echo xlt("Flow Board") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../library/js/blink/jquery.modern-blink.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
 
 <script language="JavaScript">
 $(document).ready(function(){
@@ -91,13 +91,13 @@ function topatient(newpid, enc) {
    top.restoreSession();
    <?php if ($GLOBALS['concurrent_layout']) { ?>
      if (enc > 0) {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+       top.RTop.location= "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
      }
      else {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
+       top.RTop.location = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
      }
    <?php } else { ?>
-     top.location.href = "../patient_file/patient_file.php?set_pid=" + newpid;
+     top.RTop.location = "../patient_file/patient_file.php?set_pid=" + newpid;
    <?php } ?>
  }
 }

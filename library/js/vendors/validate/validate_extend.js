@@ -51,7 +51,10 @@ validate.validators.pastDate = function(value, options) {
     if(validate.isEmpty(value)) { return;}
     // exit if options = false
     if(!options) return;
-
+    //Without this fix an empty date doesn't pass validation because value in DB is "0000-00-00".
+    if(value == "0000-00-00"){
+        return;
+    }
     var now = new Date().getTime();
     //if set onlyYear option
     if (options.onlyYear != undefined && options.onlyYear) {

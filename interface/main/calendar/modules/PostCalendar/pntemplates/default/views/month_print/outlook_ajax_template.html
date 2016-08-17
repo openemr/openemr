@@ -364,7 +364,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                    break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;

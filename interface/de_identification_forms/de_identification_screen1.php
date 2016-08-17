@@ -77,11 +77,11 @@ function set_related(s,type) {
 function get_values(type)
 {
  if(type == "diagnosis")
-	dlgopen('find_code_popup.php', '_blank', 500, 400);
+	dlgopen('find_code_popup.php', '_blank', 500, 400,true);
  else if(type == "drugs")
-   dlgopen('find_drug_popup.php', '_blank', 500, 400);
+   dlgopen('find_drug_popup.php', '_blank', 500, 400,true);
  else if(type == "immunizations")
-   dlgopen('find_immunization_popup.php', '_blank', 500, 400);
+   dlgopen('find_immunization_popup.php', '_blank', 500, 400,true);
 }
 
 //remove item selected from list 

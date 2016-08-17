@@ -378,6 +378,12 @@ $(document).ready(function() {
 </script>
 </head>
 
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("DEM");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
 <body class="body_top">
 
 <?php //Check if new patient is added to hooks
@@ -392,7 +398,7 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 
 
 ?>
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' >
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -856,7 +862,6 @@ $form_id="DEM";
 
 <?php endif;?>
 </script>
-
 
 
 </html>

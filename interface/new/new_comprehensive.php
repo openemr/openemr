@@ -6,9 +6,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-
-
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -29,11 +26,13 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
 
-
-
-
-
-
+function getLayoutRes() {
+  global $SHORT_FORM;
+  return sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
+    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
+    "ORDER BY group_name, seq");
+}
 
 // Determine layout field search treatment from its data type:
 // 1 = text field
@@ -116,13 +115,6 @@ div.section {
         print "</script>";
     }
 
-    function getLayoutRes() {
-    global $SHORT_FORM;
-    return sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_name, seq");
-    }
 ?>
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
@@ -417,7 +409,13 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' >
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("DEM");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
+<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
@@ -827,7 +825,7 @@ enable_modals();
 
     var check = function(e) {
       <?php if($GLOBALS['new_validate']){?>
-            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM");
+            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
       <?php }else{?>
             top.restoreSession();
             var f = document.forms[0];

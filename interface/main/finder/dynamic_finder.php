@@ -41,7 +41,7 @@ while ($row = sqlFetchArray($res)) {
 <html>
 <head>
 <?php html_header_show(); ?>
-
+    <title><?php echo xlt("Patient Finder"); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
 <style type="text/css">
@@ -121,9 +121,9 @@ $(document).ready(function() {
   else {
    top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-   document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+   top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
 <?php } else { ?>
-   top.location.href = "../../patient_file/patient_file.php?set_pid=" + newpid;
+   top.location = "../../patient_file/patient_file.php?set_pid=" + newpid;
 <?php } ?>
   }
  } );

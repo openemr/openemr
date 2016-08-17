@@ -7,6 +7,7 @@ include_once("$srcdir/formdata.inc.php");
 <html>
 <head>
 <?php html_header_show();?>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
