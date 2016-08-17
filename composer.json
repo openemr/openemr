@@ -13,7 +13,7 @@
 
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.2",
-        "phpmailer/phpmailer": "~5.2"
+        "phpmailer/phpmailer": "5.2"
         
     },
     "require-dev": {
