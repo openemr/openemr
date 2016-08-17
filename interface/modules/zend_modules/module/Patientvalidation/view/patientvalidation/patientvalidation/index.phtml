@@ -33,7 +33,9 @@
     </thead>
     <tbody>
 
-    <?php if ($related_patients) : ?>
+    <?php
+
+        if ($related_patients) : ?>
         <?php foreach ($related_patients as $key=>$related_patient):?>
             <tr>
                 <td><?php echo $this->escapeHtml($related_patient['id']);?></td>
@@ -61,13 +63,14 @@
 
 
 <center>
-    <?php if ($related_patients) { ?>
+
         <input type='button' value='<?php echo $translate->z_xla('Cancel'); ?>'
                onclick='window.close();' />
-    <?php } else { ?>
+        <?php
+        if ($status == 'ok') { ?>
         <input type='button' value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
                onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
-    <?php } ?>
+        <?php } ?>
 </center>
 
 

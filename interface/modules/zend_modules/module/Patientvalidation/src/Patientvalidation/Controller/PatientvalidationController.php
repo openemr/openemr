@@ -60,10 +60,14 @@ class PatientvalidationController extends BaseController{
 
 
         $patientData=$this->getPatientDataTable()->getPatients($patientParams);
-        if(count($patientData)>0){
-            return array("status"=>"failed","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
-        }
-        else{
+
+
+        if(isset($patientData)){
+            foreach($patientData as $data){
+                if($data['pubpid']==$patientParams['pubpid']){
+                    return array("status"=>"failed","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
+                }
+            }
             return array("status"=>"ok","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
         }
     }
@@ -85,7 +89,7 @@ class PatientvalidationController extends BaseController{
 
 
 
-        return array("related_patients"=>$relatedPatients['list'],"translate"=>$this->translate,"closeBeforeOpening"=>$relatedPatients['closeBeforeOpening']);
+        return array("related_patients"=>$relatedPatients['list'],"translate"=>$this->translate,"closeBeforeOpening"=>$relatedPatients['closeBeforeOpening'],"status"=>$relatedPatients['status']);
     }
     /**
      * get instance of Patientvalidation

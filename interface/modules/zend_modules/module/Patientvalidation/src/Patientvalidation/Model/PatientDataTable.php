@@ -59,9 +59,10 @@ class PatientDataTable
         //You can use this function to write whatever rules that you need from the DB
         //$sql="SELECT * FROM patient_data WHERE fname like ".$parameters['fname']." OR lname like ".$parameters['lname'] ." OR DOB like ".$parameters['DOB'];
 
+
         $obj    = new ApplicationTable;
-        $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ? ";
-        $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB']);
+        $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ?  OR pubpid = ?";
+        $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB'],isset($parameters['pubpid'])?$parameters['pubpid']:'');
         $rowset = $obj->zQuery($sql, $params);
 
 

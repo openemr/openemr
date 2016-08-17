@@ -820,13 +820,13 @@ $form_id="DEM";
 
 	// Use hook to open the controller and get the new patient validation .
 	// when no params are sent this window will be closed from the zend controller.
-	var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?closeBeforeOpening=1";?>';
+	var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
 	$("#submit").attr("type","button");
 	$("#submit").attr("name","btnSubmit");
 	$("#submit").attr("id","btnSubmit");
 	$("#btnSubmit").click(function( event ) {
 
-
+		somethingChanged = false;
 		<?php
 		// D in edit_options indicates the field is used in duplication checking.
 		// This constructs a list of the names of those fields.
@@ -841,10 +841,8 @@ $form_id="DEM";
 			if (!empty($mflist)) $mflist .= ",";
 			$mflist .= "'" . text($field_id) . "'";
 
-		}?>
-
-
-
+		}
+		?>
 
 		var flds = new Array(<?php echo $mflist; ?>);
 		var separator = '?';
@@ -856,7 +854,7 @@ $form_id="DEM";
 				url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
 			}
 		}
-
+		url += '&closeBeforeOpening=1';
 		dlgopen(url, '_blank', 700, 500);
 	});
 
