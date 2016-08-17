@@ -29,28 +29,6 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
 
-//this will hold the javascript submit me param new_validate;
-$new_validate = $GLOBALS['new_validate'] ? 1 : 0;
-if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
-{
-    $hook = checkIfPatientValidationHookIsActive();
-}
-else {
-    print "<script>";
-    print "$(document).ready(function(){
-      $(\"#DEM\").submit(function(e){
-      submitme(" . $new_validate . ",e,\"DEM\"); 
-      })});";
-    print "</script>";
-}
-
-function getLayoutRes() {
-  global $SHORT_FORM;
-  return sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
-    "ORDER BY group_name, seq");
-}
 
 
 
@@ -122,6 +100,30 @@ div.section {
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
+<?php
+    //this will hold the javascript submit me param new_validate;
+    $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+    if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
+    {
+    $hook = checkIfPatientValidationHookIsActive();
+    }
+    else {
+    print "<script>";
+        print "$(document).ready(function(){
+        $(\"#DEM\").submit(function(e){
+        submitme(" . $new_validate . ",e,\"DEM\"); 
+        })});";
+        print "</script>";
+    }
+
+    function getLayoutRes() {
+    global $SHORT_FORM;
+    return sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
+    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
+    "ORDER BY group_name, seq");
+    }
+?>
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){

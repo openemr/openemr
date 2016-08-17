@@ -36,12 +36,12 @@
     <?php if ($related_patients) : ?>
         <?php foreach ($related_patients as $key=>$related_patient):?>
             <tr>
-                <td><?php echo( $translate->z_xlt($related_patient['id']));?></td>
+                <td><?php echo $this->escapeHtml($related_patient['id']);?></td>
 
-                <td><?php echo $translate->z_xlt($related_patient['fname']);?></td>
-                <td><?php echo $translate->z_xlt($related_patient['lname']);?></td>
-                <td><?php echo $translate->z_xlt($related_patient['DOB']);?></td>
-                <td><?php echo $translate->z_xlt($related_patient->sex);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['fname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['lname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['DOB']);?></td>
+                <td><?php echo $translate->z_xlt($related_patient['sex']);?></td>
 
             </tr>
         <?php endforeach;?>

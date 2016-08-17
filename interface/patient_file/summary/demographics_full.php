@@ -833,7 +833,8 @@ $form_id="DEM";
 			$field_id  = $mfrow['field_id'];
 			if (strpos($field_id, 'em_') === 0) continue;
 			if (!empty($mflist)) $mflist .= ",";
-			$mflist .= "'" . htmlentities($field_id) . "'";
+			$mflist .= "'" . text($field_id) . "'";
+
 		}?>
 
 
