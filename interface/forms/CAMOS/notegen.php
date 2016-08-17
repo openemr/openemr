@@ -2,7 +2,6 @@
 $depth = '../../../';
 include_once ($depth.'interface/globals.php');
 include_once($depth.'library/formdata.inc.php');
-include_once ($depth.'library/classes/class.ezpdf.php');
 include_once("content_parser.php");
 ?>
 <?php
@@ -238,8 +237,8 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     exit;
     }
     else { // print as pdf
-  	$pdf =& new Cezpdf();
-	$pdf->selectFont($depth.'library/fonts/Helvetica');
+  	$pdf = new Cezpdf();
+	$pdf->selectFont('Helvetica');
 	$pdf->ezSetCmMargins(3,1,1,1);
 	$first = 1;
 	foreach ($output as $datekey => $dailynote) {
