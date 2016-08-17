@@ -773,12 +773,12 @@ class Claim {
   //
   function claimType($ins=0) {
     if (empty($this->payers[$ins]['object'])) return '';
-    return $this->payers[$ins]['object']->get_freeb_claim_type();
+    return $this->payers[$ins]['object']->get_ins_claim_type();
   }
 
   function claimTypeRaw($ins=0) {
     if (empty($this->payers[$ins]['object'])) return 0;
-    return $this->payers[$ins]['object']->get_freeb_type();
+    return $this->payers[$ins]['object']->get_ins_type_code();
   }
 
   function insuredLastName($ins=0) {

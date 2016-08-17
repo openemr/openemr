@@ -10,7 +10,6 @@ include_once("$srcdir/billrep.inc");
 include_once("$srcdir/billing.inc");
 include_once("$srcdir/gen_x12_837.inc.php");
 include_once("$srcdir/gen_hcfa_1500.inc.php");
-include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 if (file_exists($EXPORT_INC)) {
@@ -18,7 +17,6 @@ if (file_exists($EXPORT_INC)) {
   $BILLING_EXPORT = true;
 }
 
-$fconfig = $GLOBALS['oer_config']['freeb'];
 $bill_info = array();
 
 $bat_type     = ''; // will be edi or hcfa

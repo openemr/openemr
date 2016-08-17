@@ -107,7 +107,6 @@
 	GRANT ALL ON openemr.insurance_companies to 'openemr'@'localhost';
 	GRANT ALL ON openemr.insurance_data to 'openemr'@'localhost';
 	GRANT ALL ON openemr.insurance_numbers to 'openemr'@'localhost';
-	GRANT ALL ON openemr.integration_mapping to 'openemr'@'localhost';
 	GRANT ALL ON openemr.issue_encounter to 'openemr'@'localhost';
 	GRANT ALL ON openemr.issue_types to 'openemr'@'localhost';
 	GRANT ALL ON openemr.lang_constants to 'openemr'@'localhost';

@@ -2485,7 +2485,7 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `freeb_type` tinyint(2) default NULL,
+  `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
@@ -2551,23 +2551,6 @@ CREATE TABLE `insurance_numbers` (
   `provider_number_type` varchar(4) default NULL,
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
--- 
--- Table structure for table `integration_mapping`
--- 
-
-DROP TABLE IF EXISTS `integration_mapping`;
-CREATE TABLE `integration_mapping` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) default NULL,
-  `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

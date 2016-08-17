@@ -66,17 +66,6 @@ if (isset($_POST['mode'])) {
       exit;
     }
   }
-
-  // This is obsolete.
-  if ($_POST['mode'] == 'process') {
-    if (exec("ps x | grep 'process_bills[.]php'")) {
-      $alertmsg = xl('Request ignored - claims processing is already running!');
-    } else {
-      exec("cd $webserver_root/library/freeb;" .
-        "php -q process_bills.php bill > process_bills.log 2>&1 &");
-      $alertmsg = xl('Batch processing initiated; this may take a while.');
-    }
-  }
 }
 
 //global variables:
