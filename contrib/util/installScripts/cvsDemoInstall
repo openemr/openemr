@@ -98,7 +98,6 @@ chmod 666 $OPENEMR/sites/default/sqlconf.php
 chown -R apache:apache $OPENEMR/sites/default/documents
 chown -R apache:apache $OPENEMR/sites/default/edi
 chown -R apache:apache $OPENEMR/sites/default/era
-chown -R apache:apache $OPENEMR/library/freeb
 chown -R apache:apache $OPENEMR/sites/default/letter_templates
 chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
 chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
@@ -149,7 +148,6 @@ chmod    a+w $TMPDIR/openemr/sites/default/sqlconf.php
 chmod -R a+w $TMPDIR/openemr/sites/default/documents
 chmod -R a+w $TMPDIR/openemr/sites/default/edi
 chmod -R a+w $TMPDIR/openemr/sites/default/era
-chmod -R a+w $TMPDIR/openemr/library/freeb
 chmod -R a+w $TMPDIR/openemr/sites/default/letter_templates
 chmod -R a+w $TMPDIR/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache
 chmod -R a+w $TMPDIR/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled

@@ -42,7 +42,6 @@ chmod 666 /var/www/html/openemr/sites/default/sqlconf.php
 chown -R apache:apache /var/www/html/openemr/sites/default/documents
 chown -R apache:apache /var/www/html/openemr/sites/default/edi
 chown -R apache:apache /var/www/html/openemr/sites/default/era
-chown -R apache:apache /var/www/html/openemr/library/freeb
 chown -R apache:apache /var/www/html/openemr/sites/default/letter_templates
 chown -R apache:apache /var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
 chown -R apache:apache /var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache

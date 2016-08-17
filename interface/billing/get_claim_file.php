@@ -7,7 +7,6 @@
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
-$fconfig = $GLOBALS['oer_config']['freeb'];
 $content_type = "text/plain";
 $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
@@ -18,7 +17,6 @@ $fname = preg_replace("[\\\\]","",$fname);
 
 if (strtolower(substr($fname,(strlen($fname)-4))) == ".pdf") {
   $content_type = "application/pdf";
-  if (!strpos($fname,'-batch')) $claim_file_dir = $fconfig['claim_file_dir'];
 }
 
 $fname = $claim_file_dir . $fname;
@@ -35,11 +33,6 @@ elseif ($_GET['action'] == "print") {
 </head>
 <body class="body_top">
 <br><p><h3><?php xl('Printing results:','e')?></h3><a href="billing_report.php"><?php xl('back','e')?></a><ul>
-<?php 
-	$estring = $fconfig['print_command'] . " -P " . $fconfig['printer_name'] . " " . $fconfig['printer_extras'] . " " . $fname;
-	$rstring = exec(escapeshellcmd($estring));
-	echo xl("Document") . $fname . xl("sent to printer.");
-?>
 </ul>
 </body>
 </html>

@@ -9,7 +9,6 @@
  */
 
 require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once(dirname(__FILE__) . "/classes/WSWrapper.class.php");
 require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 // These are for sports team use:

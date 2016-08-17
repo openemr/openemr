@@ -1,18 +1,4 @@
 <?php
-
-$GLOBALS['oer_config']['freeb']['claim_file_dir'] 	= "/usr/share/freeb/public/";
-//currently can be pdf or txt
-$GLOBALS['oer_config']['freeb']['default_format'] 	= "pdf";
-$GLOBALS['oer_config']['freeb']['username'] 		= "freeb";
-$GLOBALS['oer_config']['freeb']['password'] 		= "12345";
-$GLOBALS['oer_config']['freeb']['print_command'] 	= "/usr/bin/lpr";
-$GLOBALS['oer_config']['freeb']['printer_name'] 	= "HP_LaserJet4L";
-// This does not seem useful for PDF HCFAs, see freeb/targetbin/ascii2pdf instead:
-$GLOBALS['oer_config']['freeb']['printer_extras'] 	= "-o PageSize=Letter -o portrait";
-// Set this to make an additional copy of HCFA PDFs in the specified directory,
-// e.g. for an external billing service. You must end this path with a slash:
-$GLOBALS['oer_config']['freeb']['copy_pdfs_to'] = '';
-
 //used differently by different applications, intuit programs only like numbers
 $GLOBALS['oer_config']['ofx']['bankid'] 	= "123456789";
 
@@ -66,21 +52,9 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
 
 // Accounts Receivable support. Use one of the following numeric values:
 //   0 = None
-//   1 = Using SQL-Ledger
 //   2 = A/R internal to OpenEMR (recommended)
 //
 $GLOBALS['oer_config']['ws_accounting']['enabled'] = 2;
-
-// If 1 is chosen above, then the following must be set correctly:
-//
-$GLOBALS['oer_config']['ws_accounting']['server'] = "localhost";
-$GLOBALS['oer_config']['ws_accounting']['port'] = "80";
-$GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";
-$GLOBALS['oer_config']['ws_accounting']['username'] = "unused";
-$GLOBALS['oer_config']['ws_accounting']['password'] = "unused";
-$GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
-  $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
-$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4320";
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 

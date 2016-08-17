@@ -119,7 +119,7 @@
   "i1.subscriber_employer_city AS semployer_city1, i1.subscriber_employer_state AS semployer_state1, " .
   "i1.subscriber_employer_postal_code AS semployer_zip1, " .
   "i1.subscriber_employer_country AS semployer_country1, i1.copay AS copay1, " .
-  "c1.name AS name1, c1.freeb_type AS instype1, " .
+  "c1.name AS name1, c1.ins_co_type AS instype1, " .
   "a1.line1 AS street11, a1.line2 AS street21, a1.city AS city1, a1.state AS state1, " .
   "a1.zip AS zip1, a1.plus_four AS zip41, a1.country AS country1, " .
   "i2.policy_number AS policy2, i2.group_number AS group2, i2.provider as provider2, " .
@@ -131,7 +131,7 @@
   "i2.subscriber_employer_city AS semployer_city2, i2.subscriber_employer_state AS semployer_state2, " .
   "i2.subscriber_employer_postal_code AS semployer_zip2, " .
   "i2.subscriber_employer_country AS semployer_country2, i2.copay AS copay2, " .
-  "c2.name AS name2, c2.freeb_type AS instype2, " .
+  "c2.name AS name2, c2.ins_co_type AS instype2, " .
   "a2.line1 AS street12, a2.line2 AS street22, a2.city AS city2, a2.state AS state2, " .
   "a2.zip AS zip2, a2.plus_four AS zip42, a2.country AS country2, " .
   "i3.policy_number AS policy3, i3.group_number AS group3, i3.provider as provider3, " .
@@ -143,7 +143,7 @@
   "i3.subscriber_employer_city AS semployer_city3, i3.subscriber_employer_state AS semployer_state3, " .
   "i3.subscriber_employer_postal_code AS semployer_zip3, " .
   "i3.subscriber_employer_country AS semployer_country3, i3.copay AS copay3, " .
-  "c3.name AS name3, c3.freeb_type AS instype3, " .
+  "c3.name AS name3, c3.ins_co_type AS instype3, " .
   "a3.line1 AS street13, a3.line2 AS street23, a3.city AS city3, a3.state AS state3, " .
   "a3.zip AS zip3, a3.plus_four AS zip43, a3.country AS country3 " .
   "FROM patient_data AS p " .

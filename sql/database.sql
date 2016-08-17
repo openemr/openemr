@@ -2485,7 +2485,7 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `freeb_type` tinyint(2) default NULL,
+  `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
