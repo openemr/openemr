@@ -11,7 +11,6 @@ include_once("$srcdir/billing.inc");
 include_once("$srcdir/gen_x12_837.inc.php");
 include_once("$srcdir/gen_hcfa_1500.inc.php");
 include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
-require_once("$srcdir/classes/class.ezpdf.php");
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 if (file_exists($EXPORT_INC)) {
@@ -40,7 +39,7 @@ $bat_filename .= isset($_POST['bn_process_hcfa']) ? 'pdf' : 'txt';
 if (isset($_POST['bn_process_hcfa'])) {
   $pdf = new Cezpdf('LETTER');
   $pdf->ezSetMargins(trim($_POST['top_margin'])+0,0,trim($_POST['left_margin'])+0,0);
-  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
+  $pdf->selectFont('Courier');
 }
 
 function append_claim(&$segs) {

@@ -593,14 +593,13 @@ class C_Prescription extends Controller {
 		if(empty($id)) {
 			$this->function_argument_error();
 		}
-		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
 			,$GLOBALS['rx_left_margin']
 			,$GLOBALS['rx_right_margin']
 		);
-		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+		$pdf->selectFont('Helvetica');
 
 		// $print_header = true;
 		$on_this_page = 0;
@@ -728,7 +727,6 @@ class C_Prescription extends Controller {
 	}
 
 	function _print_prescription($p, & $toFile) {
-		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
@@ -736,7 +734,7 @@ class C_Prescription extends Controller {
 			,$GLOBALS['rx_right_margin']
 		);
 
-		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+		$pdf->selectFont('Helvetica');
 
 		// Signature images are to be used only when faxing.
 		if(!empty($toFile)) $this->is_faxing = true;
@@ -766,14 +764,13 @@ class C_Prescription extends Controller {
         }
 
 	function _print_prescription_old($p, & $toFile) {
-		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
 		                  ,$GLOBALS['rx_left_margin']
                       ,$GLOBALS['rx_right_margin']
                       );
-		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+		$pdf->selectFont('Helvetica');
 		if(!empty($this->pconfig['logo'])) {
 			$pdf->ezImage($this->pconfig['logo'],"","","none","left");
 		}

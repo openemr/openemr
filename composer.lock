@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0a562eb3e585f7da4487454425ff661f",
-    "content-hash": "41947b0dddf3503e1489a16f64b2749b",
+    "hash": "984fe70ea84bc8d1699e3fac82f4b0ca",
+    "content-hash": "98d6e10c3627ff559115bd6fa551e8da",
     "packages": [
         {
             "name": "adodb/adodb-php",
@@ -120,6 +120,64 @@
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "time": "2016-06-06 09:09:37"
+        },
+        {
+            "name": "rospdf/pdf-php",
+            "version": "0.12.22",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rospdf/pdf-php.git",
+                "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rospdf/pdf-php/zipball/140b9987fd8dcf3087b98827e615f07b6257b6ea",
+                "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-experimental": "0.13.x-dev",
+                    "dev-master": "0.12.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Cpdf.php",
+                    "src/Cezpdf.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ole Koeckemann",
+                    "email": "ole1986@users.sourceforge.net",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Lars Olesen",
+                    "email": "lars@intraface.dk",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Wayne Munro",
+                    "email": "pdf@ros.co.nz",
+                    "role": "Inactive"
+                }
+            ],
+            "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
+            "homepage": "https://github.com/rospdf/pdf-php",
+            "time": "2016-06-01 21:36:09"
         },
         {
             "name": "smarty/smarty",

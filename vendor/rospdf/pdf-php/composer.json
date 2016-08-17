@@ -1,0 +1,42 @@
+{
+    "name": "rospdf/pdf-php",
+    "type": "library",
+    "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
+    "homepage": "https://github.com/rospdf/pdf-php",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+          "name": "Ole Koeckemann",
+          "email": "ole1986@users.sourceforge.net",
+          "role": "Developer"
+        },
+        {
+            "name": "Lars Olesen",
+            "email": "lars@intraface.dk",
+            "role": "Developer"
+        },
+        {
+          "name": "Wayne Munro",
+          "email": "pdf@ros.co.nz",
+          "role": "Inactive"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/Cpdf.php",
+            "src/Cezpdf.php"
+        ]
+    },
+    "require": {
+        "php": ">=5.3.2"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "2.*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-experimental": "0.13.x-dev",
+            "dev-master": "0.12.x-dev"
+        }
+    }
+}
