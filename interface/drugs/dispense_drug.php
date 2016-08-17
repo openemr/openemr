@@ -14,7 +14,6 @@
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
  require_once($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
- require_once($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
  require_once("$srcdir/htmlspecialchars.inc.php");
 
  function send_email($subject, $body) {
@@ -181,9 +180,9 @@
  // configured properly.
  //
  if (false) { // if PDF output is desired
-  $pdf =& new Cezpdf($dconfig['paper_size']);
+  $pdf = new Cezpdf($dconfig['paper_size']);
   $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
-  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+  $pdf->selectFont('Helvetica');
   $pdf->ezSetDy(20); // dunno why we have to do this...
   $pdf->ezText($header_text, 7, array('justification'=>'center'));
   if(!empty($dconfig['logo'])) {

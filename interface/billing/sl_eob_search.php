@@ -31,7 +31,6 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/classes/class.ezpdf.php");//for the purpose of pdf creation
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -86,7 +85,7 @@ function upload_file_to_client_pdf($file_to_send) {
   global $STMT_TEMP_FILE_PDF;
   $pdf = new Cezpdf('LETTER');//pdf creation starts
   $pdf->ezSetMargins(36,0,36,0);
-  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
+  $pdf->selectFont('Courier');
   $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
   $countline=1;
   $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.

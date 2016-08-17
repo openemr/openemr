@@ -363,9 +363,8 @@ else {
         exit;
     }
     else { //print letterhead to pdf
-	include_once('../../../library/classes/class.ezpdf.php');
-  	$pdf =& new Cezpdf();
-	$pdf->selectFont('../../../library/fonts/Times-Bold');
+  $pdf = new Cezpdf();
+	$pdf->selectFont('Times-Bold');
 	$pdf->ezSetCmMargins(3,1,1,1);
 	$pdf->ezText($physician_name,12);
 	$pdf->ezText($practice_address,12);
@@ -375,9 +374,9 @@ else {
 	$pdf->ezText('',12);
 	$pdf->ezText(date("l, F jS, Y"),12);
 	$pdf->ezText('',12);
-	$pdf->selectFont('../../../library/fonts/Helvetica');
+	$pdf->selectFont('Helvetica');
 	$pdf->ezText($content,10);
-	$pdf->selectFont('../../../library/fonts/Times-Bold');
+	$pdf->selectFont('Times-Bold');
 	$pdf->ezText('',12);
 	$pdf->ezText('',12);
 	if ($_GET['signer'] == 'patient') {
