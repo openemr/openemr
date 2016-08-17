@@ -21,8 +21,8 @@
 
 	<delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
 	<delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
-
 	<delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
+	<delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
 
 </target>
 </project>
