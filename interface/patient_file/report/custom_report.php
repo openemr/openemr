@@ -49,20 +49,25 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-  require_once("$srcdir/html2pdf/vendor/autoload.php");
-  $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                       $GLOBALS['pdf_size'],
-                       $GLOBALS['pdf_language'],
-                       true, // default unicode setting is true
-                       'UTF-8', // default encoding setting is UTF-8
-                       array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                       $_SESSION['language_direction'] == 'rtl' ? true : false
-                      );
-  //set 'dejavusans' for now. which is supported by a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
-  //TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization.
-  $pdf->setDefaultFont('dejavusans');
-
-  ob_start();
+  $pdf = new FPDI($GLOBALS['pdf_layout'], 'mm', $GLOBALS['pdf_size'], true, 'UTF-8', false);
+  // set margins
+  $pdf->SetMargins($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin']);
+  $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+  $pdf->SetPrintHeader(false);
+  $pdf->SetPrintFooter(false);
+  // set auto page breaks
+  $pdf->SetAutoPageBreak(TRUE, $GLOBALS['pdf_left_bottom']);
+  // set image scale factor
+  $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+  // set some language dependent data:
+    $lg = Array();
+    $lg['a_meta_language'] = $GLOBALS['pdf_language'];
+    $lg['a_meta_dir'] = $_SESSION['language_direction'] == 'rtl' ? true : false;
+  // set some language-dependent strings (optional)
+  $pdf->setLanguageArray($lg);
+  $pdf->SetFont('dejavusans', '', 10);
+  $pdf->AddPage();
+  //ob_start();
 }
 
 // get various authorization levels
@@ -88,7 +93,7 @@ $first_issue = 1;
 function getContent() {
   global $web_root, $webserver_root;
   $content = ob_get_clean();
-  // Fix a nasty html2pdf bug - it ignores document root!
+  // Fix a nasty pdf bug - it ignores document root!
   $i = 0;
   $wrlen = strlen($web_root);
   $wsrlen = strlen($webserver_root);
@@ -485,7 +490,7 @@ if ($printable) {
   if (!$results->EOF) {
     $facility = $results->fields;
   }
-  // Setup Headers and Footers for html2PDF only Download
+  // Setup Headers and Footers for PDF only Download
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
   echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
@@ -787,7 +792,7 @@ foreach ($ar as $key => $val) {
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
                 $couch_revid = $d->get_couch_revid();
-                echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
+                $html ="<h3>" . xl('Document') . " '" . $fname ."'</h3>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
                 if (!empty($notes)) echo "<table>";
@@ -840,13 +845,11 @@ foreach ($ar as $key => $val) {
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                   if ($PDF_OUTPUT) {
                     // OK to link to the image file because it will be accessed by the
-                    // HTML2PDF parser and not the browser.
+                    // PDF parser and not the browser.
                     $from_rel = $web_root . substr($from_file, strlen($webserver_root));
-                    echo "<img src='$from_rel'";
-                    // Flag images with excessive width for possible stylesheet action.
-                    $asize = getimagesize($from_file);
-                    if ($asize[0] > 750) echo " class='bigimage'";
-                    echo " /><br><br>";
+                    $pdf->writeHTML($html);
+                    $pdf->Image($from_rel, $x = '',  $y = '',  $w = 0,  $h = 0,  $type = '',  $link = '',  $align = '',  $resize = true,  $dpi = 300,  $palign = C,  $ismask = false,  $imgmask = false,  $border = 0,  $fitbox = false,  $hidden = false,  $fitonpage = true,  $alt = false,  $altimgs = array());
+                    $pdf->AddPage();
                   }
                   else {
                     echo "<img src='" . $GLOBALS['webroot'] .
@@ -854,24 +857,28 @@ foreach ($ar as $key => $val) {
                       $document_id . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
                   }
                 }
-                else {
+            else {
 
           // Most clinic documents are expected to be PDFs, and in that happy case
           // we can avoid the lengthy image conversion process.
           if ($PDF_OUTPUT && $extension == ".pdf") {
             // HTML to PDF conversion will fail if there are open tags.
+        
             echo "</div></div>\n";
             $content = getContent();
             // $pdf->setDefaultFont('Arial');
             $pdf->writeHTML($content, false);
-            $pagecount = $pdf->pdf->setSourceFile($from_file);
+            $pdf->writeHTML($html);
+            $pagecount = $pdf->setSourceFile($from_file);
             for($i = 0; $i < $pagecount; ++$i){
-              $pdf->pdf->AddPage();  
-              $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
-              $pdf->pdf->useTemplate($itpl);
+              $pdf->AddPage();
+              $pdf->writeHTML($html);  
+              $itpl = $pdf->importPage($i +1, '/MediaBox');
+              $size = $pdf->getPageDimensions();
+              $pdf->useTemplate($itpl, null, null, $size['wk'], 0, TRUE);
             }
             // Make sure whatever follows is on a new page.
-            $pdf->pdf->AddPage();
+            $pdf->AddPage();
             // Resume output buffering and the above-closed tags.
             ob_start();
             echo "<div><div class='text documents'>\n";
@@ -881,8 +888,8 @@ foreach ($ar as $key => $val) {
             if (is_file($to_file)) {
               if ($PDF_OUTPUT) {
                 // OK to link to the image file because it will be accessed by the
-                // HTML2PDF parser and not the browser.
-                echo "<img src='$to_file'><br><br>";
+                // PDF parser and not the browser.
+                echo '<img src="'.$to_file.'""><br><br>';
               }
               else {
                 echo "<img src='" . $GLOBALS['webroot'] .
@@ -899,6 +906,7 @@ foreach ($ar as $key => $val) {
           }
                 } // end if-else
             } // end Documents loop
+
             echo "</div>";
         }
 
@@ -1040,11 +1048,8 @@ foreach ($ar as $key => $val) {
                 print "</div>";
             
             } // end auth-check for encounter forms
-
         } // end if('issue_')... else...
-
     } // end if('include_')... else...
-
 } // end $ar loop
 
 if ($printable)

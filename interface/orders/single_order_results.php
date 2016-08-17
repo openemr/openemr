@@ -51,11 +51,25 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
-  // Borrowing the general strategy here from custom_report.php.
-  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-  require_once("$srcdir/html2pdf/html2pdf.class.php");
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-  $pdf = new HTML2PDF('P', 'Letter', 'en');
+  $pdf = new TCPDF($GLOBALS['pdf_layout'], 'mm', $GLOBALS['pdf_size'], true, 'UTF-8', false);
+  // set margins
+  $pdf->SetMargins($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin']);
+  $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+  $pdf->SetPrintHeader(false);
+  $pdf->SetPrintFooter(false);
+  // set auto page breaks
+  $pdf->SetAutoPageBreak(TRUE, $GLOBALS['pdf_left_bottom']);
+  // set image scale factor
+  $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+  // set some language dependent data:
+    $lg = Array();
+    $lg['a_meta_language'] = $GLOBALS['pdf_language'];
+    $lg['a_meta_dir'] = $_SESSION['language_direction'] == 'rtl' ? true : false;
+  // set some language-dependent strings (optional)
+  $pdf->setLanguageArray($lg);
+  $pdf->SetFont('dejavusans', '', 10);
+  $pdf->AddPage();
   ob_start();
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";

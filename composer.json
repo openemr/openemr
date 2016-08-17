@@ -12,7 +12,9 @@
     "require": {
 
         "smarty/smarty": "2.6.29",
-        "adodb/adodb-php": "5.20.2"
+        "adodb/adodb-php": "5.20.2",
+        "tecnickcom/tcpdf": "6.2.12",
+        "setasign/fpdi-tcpdf": "1.6.1"
         
     },
     "require-dev": {

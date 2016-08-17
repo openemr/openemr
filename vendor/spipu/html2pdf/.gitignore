@@ -1,0 +1,15 @@
+#Eclipse
+/.settings/
+/.buildpath
+/.project
+nbproject
+
+#PHPStorm
+/.idea
+
+#examples
+/test/*.pdf
+
+vendor/
+composer.lock
+composer.phar
