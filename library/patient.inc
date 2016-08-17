@@ -919,9 +919,6 @@ function newPatientData(    $db_id="",
 
     $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
 
-    sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-                $phone_biz,$phone_cell,$email,$pid);
-
     return $foo['pid'];
 }
 
@@ -1014,11 +1011,6 @@ function updatePatientData($pid, $new, $create=false)
     $sql .= " WHERE id = '$db_id'";
     sqlStatement($sql);
   }
-
-  $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
-  sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
-    $rez['postal_code'],$rez['state'],$rez['phone_home'],$rez['phone_biz'],
-    $rez['phone_cell'],$rez['email'],$rez['pid']);
 
   return $db_id;
 }
@@ -1275,68 +1267,6 @@ function updateHistoryData($pid,$new)
         $sql = substr($sql, 0, -2);
 
         return sqlInsert($sql, $arraySqlBind );
-}
-
-function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-                $phone_biz,$phone_cell,$email,$pid="")
-{
-    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) return;
-    if (!$GLOBALS['oer_config']['ws_accounting']['enabled']) return;
-
-    $db = $GLOBALS['adodb']['db'];
-    $customer_info = array();
-
-    $sql = "SELECT foreign_id,foreign_table FROM integration_mapping where local_table = 'patient_data' and local_id = '" . $id . "'";
-    $result = $db->Execute($sql);
-    if ($result && !$result->EOF) {
-        $customer_info['foreign_update'] = true;
-        $customer_info['foreign_id'] = $result->fields['foreign_id'];
-        $customer_info['foreign_table'] = $result->fields['foreign_table'];
-    }
-
-    ///xml rpc code to connect to accounting package and add user to it
-    $customer_info['firstname'] = $fname;
-    $customer_info['lastname'] = $lname;
-    $customer_info['address'] = $street;
-    $customer_info['suburb'] = $city;
-    $customer_info['state'] = $state;
-    $customer_info['postcode'] = $postal_code;
-
-    //ezybiz wants state as a code rather than abbreviation
-    $customer_info['geo_zone_id'] = "";
-    $sql = "SELECT zone_id from geo_zone_reference where zone_code = '" . strtoupper($state) . "'";
-    $db = $GLOBALS['adodb']['db'];
-    $result = $db->Execute($sql);
-    if ($result && !$result->EOF) {
-        $customer_info['geo_zone_id'] = $result->fields['zone_id'];
-    }
-
-    //ezybiz wants country as a code rather than abbreviation
-    $customer_info['geo_country_id'] = "";
-    $sql = "SELECT countries_id from geo_country_reference where countries_iso_code_2 = '" . strtoupper($country_code) . "'";
-    $db = $GLOBALS['adodb']['db'];
-    $result = $db->Execute($sql);
-    if ($result && !$result->EOF) {
-        $customer_info['geo_country_id'] = $result->fields['countries_id'];
-    }
-
-    $customer_info['phone1'] = $phone_home;
-    $customer_info['phone1comment'] = "Home Phone";
-    $customer_info['phone2'] = $phone_biz;
-    $customer_info['phone2comment'] = "Business Phone";
-    $customer_info['phone3'] = $phone_cell;
-    $customer_info['phone3comment'] = "Cell Phone";
-    $customer_info['email'] = $email;
-    $customer_info['customernumber'] = $pid;
-
-    $function['ezybiz.add_customer'] = array(new xmlrpcval($customer_info,"struct"));
-    $ws = new WSWrapper($function);
-
-    // if the remote patient was added make an entry in the local mapping table to that updates can be made correctly
-    if (is_numeric($ws->value)) {
-        $sql = "REPLACE INTO integration_mapping set id = '" . $db->GenID("sequences") . "', foreign_id ='" . $ws->value . "', foreign_table ='customer', local_id = '" . $id . "', local_table = 'patient_data' ";
-        $db->Execute($sql) or die ("error: " . $db->ErrorMsg());
-    }
 }
 
 // Returns Age 

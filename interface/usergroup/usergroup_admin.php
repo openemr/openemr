@@ -25,7 +25,6 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
-require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 
 $alertmsg = '';
@@ -203,9 +202,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         set_user_aro($_POST['access_group'], $user_data["username"],
           formData('fname','P'), formData('mname','P'), formData('lname','P'));
       }
-
-      $ws = new WSProvider($_POST['id']);
-
     }
 }
 
@@ -284,9 +280,6 @@ if (isset($_POST["mode"])) {
         set_user_aro($_POST['access_group'], trim(formData('rumple')),
           trim(formData('fname')), trim(formData('mname')), trim(formData('lname')));
       }
-
-      $ws = new WSProvider($prov_id);
-        
     }
 
         
