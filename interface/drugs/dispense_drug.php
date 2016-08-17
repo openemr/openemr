@@ -13,7 +13,6 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
  require_once($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
  require_once("$srcdir/htmlspecialchars.inc.php");
 
@@ -21,7 +20,6 @@
   $recipient = $GLOBALS['practice_return_email_path'];
   if (empty($recipient)) return;
   $mail = new PHPMailer();
-  $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
   $mail->FromName = 'In-House Pharmacy';
   $mail->isMail();

@@ -48,7 +48,6 @@ if (isset($_GET['portal_auth'])) {
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/../library/sql-ccr.inc");
-require_once(dirname(__FILE__) . "/../library/classes/class.phpmailer.php");
 require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");

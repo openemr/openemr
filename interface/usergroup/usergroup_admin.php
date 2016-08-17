@@ -44,7 +44,6 @@ if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on')
 	$row = sqlFetchArray($res);
 	$uname=$row['username'];
 	$mail = new MyMailer();
-        $mail->SetLanguage("en",$GLOBALS['fileroot'] . "/library/" );
         $mail->From = "admin@".$mail_id[1].".".$mail_id[2];     
         $mail->FromName = "Administrator OpenEMR";
         $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
