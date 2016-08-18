@@ -739,7 +739,7 @@ UPDATE `globals` SET `gl_value` = 'style_tan.css' WHERE `gl_name` = 'css_header'
 ALTER TABLE `users` DROP COLUMN `ssi_relayhealth`;
 #EndIf
 
-#IfNotRow2D list_options list_id page_validation option_id encounters#new_encounter
+#IfNotRow2D list_options list_id page_validation option_id common#new_encounter
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 #EndIf
 
