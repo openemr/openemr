@@ -50,12 +50,6 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
   'Caution: Federal law prohibits dispensing without a prescription. ' .
   'Use only as directed.';
 
-// Accounts Receivable support. Use one of the following numeric values:
-//   0 = None
-//   2 = A/R internal to OpenEMR (recommended)
-//
-$GLOBALS['oer_config']['ws_accounting']['enabled'] = 2;
-
 //don't alter below this line unless you are an advanced user and know what you are doing
 
 $GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .

@@ -1697,7 +1697,6 @@ function getEffectiveInsurances($patient_id, $encdate) {
  * @return number The balance.
  */
 function get_patient_balance($pid, $with_insurance=false) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
     $balance = 0;
     $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
       "last_level_closed, stmt_count " .
@@ -1735,8 +1734,6 @@ function get_patient_balance($pid, $with_insurance=false) {
       }
     }
     return sprintf('%01.2f', $balance);
-  }
-  return '';
 }
 
 // Function to check if patient is deceased.

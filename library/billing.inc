@@ -207,13 +207,11 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
   // Whenever a claim is marked billed, update A/R accordingly.
   //
   if ($status == 2) {
-    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
       if ($payer_type > 0) {
         sqlStatement("UPDATE form_encounter SET " .
           "last_level_billed = '$payer_type' WHERE " .
           "pid = '$patient_id' AND encounter = '$encounter_id'");
       }
-    }
   }
 
   return 1;

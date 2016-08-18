@@ -706,7 +706,6 @@ if ($GLOBALS['patient_id_category_name']) {
 		//Debit the patient balance from insurance balance
 		$insurancebalance = get_patient_balance($pid, true) - $patientbalance;
 	   $totalbalance=$patientbalance + $insurancebalance;
- if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
  // Show current balance and billing note, if any.
   echo "<table border='0'><tr><td>" .
   "<table ><tr><td><span class='bold'><font color='red'>" .
@@ -741,7 +740,6 @@ if ($GLOBALS['patient_id_category_name']) {
     "</span></td></tr>";
   }
   echo "</table></td></tr></td></tr></table><br>";
- }
 ?>
         </div> <!-- required for expand_collapse_widget -->
        </td>
