@@ -746,3 +746,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 #IfMissingColumn insurance_companies ins_type_code
 ALTER TABLE `insurance_companies` CHANGE `freeb_type` `ins_type_code` tinyint(2) Default NULL;
 #EndIf
+
+#IfTable integration_mapping
+DROP TABLE IF EXISTS `integration_mapping`;
+#EndIf

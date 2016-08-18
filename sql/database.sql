@@ -2556,23 +2556,6 @@ CREATE TABLE `insurance_numbers` (
 -- --------------------------------------------------------
 
 -- 
--- Table structure for table `integration_mapping`
--- 
-
-DROP TABLE IF EXISTS `integration_mapping`;
-CREATE TABLE `integration_mapping` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) default NULL,
-  `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
--- 
 -- Table structure for table `issue_encounter`
 -- 
 
