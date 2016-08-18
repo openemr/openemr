@@ -708,7 +708,6 @@ ALTER TABLE drugs
 #IfNotRow2D list_options list_id lists option_id page_validation
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
-
 #EndIf
 
 #IfMissingColumn procedure_order history_order
