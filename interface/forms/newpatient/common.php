@@ -55,14 +55,16 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <!-- pop up calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
@@ -86,20 +88,30 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   s.options[s.options.length] = new Option(title, issue, true, true);
  }
 
- function saveClicked() {
-  var f = document.forms[0];
-  var category = document.forms[0].pc_catid.value;
-  if ( category == '_blank' ) {
-   alert("<?php echo xls('You must select a visit category'); ?>");
-   return;
-  }
-  top.restoreSession();
-  f.submit();
+ <?php
+ //Gets validation rules from Page Validation list.
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
+ if (empty($collectthis)) {
+   $collectthis = "undefined";
  }
+ else {
+   $collectthis = $collectthis["new_encounter"]["rules"];
+ }
+ ?>
+ var collectvalidation = <?php echo($collectthis); ?>;
+ $(document).ready(function(){
+   window.saveClicked = function(event) {
+     var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
+     if (submit) {
+       top.restoreSession();
+       $('#new-encounter-form').submit();
+     }
+   }
 
-$(document).ready(function(){
-  enable_big_modals();
-});
+   enable_big_modals();
+ });
+
 function bill_loc(){
 var pid=<?php echo attr($pid);?>;
 var dte=document.getElementById('form_date').value;
@@ -149,7 +161,7 @@ function cancelClicked() {
 
 <div>
     <div style = 'float:left; margin-left:8px;margin-top:-3px'>
-      <a href="javascript:saveClicked();" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
+      <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
       <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
     </div>
 
@@ -401,5 +413,7 @@ if (!$viewmode) { ?>
 }
 ?>
 </script>
+
+
 
 </html>
