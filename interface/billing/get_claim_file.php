@@ -24,20 +24,7 @@ $fname = $claim_file_dir . $fname;
 if (!file_exists($fname)) {
    echo xl("The claim file: ") . $_GET['key'] . xl(" could not be accessed.");
 }
-elseif ($_GET['action'] == "print") {
-?>
-<html>
-<head>
-<?php if (function_exists(html_header_show)) html_header_show(); ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-</head>
-<body class="body_top">
-<br><p><h3><?php xl('Printing results:','e')?></h3><a href="billing_report.php"><?php xl('back','e')?></a><ul>
-</ul>
-</body>
-</html>
-<?php
-}
+
 else {
 	$fp = fopen($fname, 'r');
 
