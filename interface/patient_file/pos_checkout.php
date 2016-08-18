@@ -74,34 +74,6 @@ $patient_id = empty($_GET['ptid']) ? $pid : 0 + $_GET['ptid'];
 // Get the patient's name and chart number.
 $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
-// Get the "next invoice reference number" from this user's pool.
-//
-function getInvoiceRefNumber() {
-  $trow = sqlQuery("SELECT lo.notes " .
-    "FROM users AS u, list_options AS lo " .
-    "WHERE u.username = ? AND " .
-    "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool LIMIT 1", array($_SESSION['authUser']) );
-  return empty($trow['notes']) ? '' : $trow['notes'];
-}
-
-// Increment the "next invoice reference number" of this user's pool.
-// This identifies the "digits" portion of that number and adds 1 to it.
-// If it contains more than one string of digits, the last is used.
-//
-function updateInvoiceRefNumber() {
-  $irnumber = getInvoiceRefNumber();
-  // Here "?" specifies a minimal match, to get the most digits possible:
-  if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
-    $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
-    $newnumber = $matches[1] . $newdigs . $matches[3];
-    sqlStatement("UPDATE users AS u, list_options AS lo " .
-      "SET lo.notes = ? WHERE " .
-      "u.username = ? AND " .
-      "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool", array($newnumber,$_SESSION['authUser']) );
-  }
-  return $irnumber;
-}
-
 //////////////////////////////////////////////////////////////////////
 // The following functions are inline here temporarily, and should be
 // moved to an includable module for common use.  In particular
