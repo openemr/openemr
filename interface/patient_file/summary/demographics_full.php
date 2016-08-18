@@ -825,7 +825,10 @@ $form_id="DEM";
 	$("#submit").attr("name","btnSubmit");
 	$("#submit").attr("id","btnSubmit");
 	$("#btnSubmit").click(function( event ) {
-
+		if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
+			event.preventDefault();
+			return;
+		}
 		somethingChanged = false;
 		<?php
 		// D in edit_options indicates the field is used in duplication checking.
