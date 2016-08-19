@@ -25,7 +25,7 @@
 
  // This is copied from InsuranceCompany.class.php.  It should
  // really be in a SQL table.
- $ins_co_type_array = array(''
+ $ins_type_code_array = array(''
   , xl('Other HCFA')
   , xl('Medicare Part B')
   , xl('Medicaid')
@@ -168,13 +168,13 @@ td { font-size:10pt; }
    $ins_id = generate_id();
 
    sqlInsert("INSERT INTO insurance_companies ( " .
-    "id, name, attn, cms_id, ins_co_type, x12_receiver_id, x12_default_partner_id " .
+    "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
     ") VALUES ( " .
     $ins_id                         . ", "  .
     "'" . add_escape_custom($ins_name)                 . "', " .
     "'" . add_escape_custom($_POST['form_attn'])       . "', " .
     "'" . add_escape_custom($_POST['form_cms_id'])     . "', " .
-    "'" . add_escape_custom($_POST['form_ins_co_type']) . "', " .
+    "'" . add_escape_custom($_POST['form_ins_type_code']) . "', " .
     "'" . add_escape_custom($_POST['form_partner'])    . "', " .
     "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
    ")");
@@ -325,12 +325,12 @@ td { font-size:10pt; }
  <tr>
   <td valign='top' nowrap><b><?php xl('Payer Type','e');?>:</b></td>
   <td>
-   <select name='form_ins_co_type'>
+   <select name='form_ins_type_code'>
 <?php
- for ($i = 1; $i < count($ins_co_type_array); ++$i) {
+ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
   echo "   <option value='$i'";
-  // if ($i == $row['ins_co_type']) echo " selected";
-  echo ">" . $ins_co_type_array[$i] . "\n";
+  // if ($i == $row['ins_type_code']) echo " selected";
+  echo ">" . $ins_type_code_array[$i] . "\n";
  }
 ?>
    </select>
