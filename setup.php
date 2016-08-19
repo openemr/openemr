@@ -84,8 +84,6 @@ global $OE_SITE_DIR; // The Installer sets this
 $docsDirectory = "$OE_SITE_DIR/documents";
 $billingDirectory = "$OE_SITE_DIR/edi";
 $billingDirectory2 = "$OE_SITE_DIR/era";
-
-$billingLogDirectory = dirname(__FILE__)."/library/freeb";
 $lettersDirectory = "$OE_SITE_DIR/letter_templates";
 $gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
 $requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";

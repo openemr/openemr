@@ -9,7 +9,6 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
-require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
 if (!$_GET["id"] || !acl_check('admin', 'users'))
@@ -128,8 +127,6 @@ if ($_GET["mode"] == "update") {
     set_user_aro($_GET['access_group'], $user_data["username"],
       formData('fname','G'), formData('mname','G'), formData('lname','G'));
   }
-
-  $ws = new WSProvider($_GET['id']);
 
   /*Dont move usergroup_admin (1).php just close window
   // On a successful update, return to the users list.
