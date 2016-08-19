@@ -743,7 +743,7 @@ ALTER TABLE `users` DROP COLUMN `ssi_relayhealth`;
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 #EndIf
 
-#IfMissingColumn insurance_companies ins_type_code
+#IfColumn insurance_companies freeb_type
 ALTER TABLE `insurance_companies` CHANGE `freeb_type` `ins_type_code` tinyint(2) Default NULL;
 #EndIf
 
