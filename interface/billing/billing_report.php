@@ -66,6 +66,7 @@ if (isset($_POST['mode'])) {
       exit;
     }
   }
+}
 
 //global variables:
 $from_date     = isset($_POST['from_date'])  ? $_POST['from_date']  : date('Y-m-d');
