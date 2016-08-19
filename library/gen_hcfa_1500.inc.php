@@ -584,7 +584,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // 26. Patient's Account No.
-  // Instructions say hyphens are not allowed, but freeb used them.
+  // Instructions say hyphens are not allowed.
   put_hcfa(56, 23, 15, "$pid-$encounter");
 
   // 27. Accept Assignment
@@ -662,9 +662,6 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(59, 50, 25, $claim->billingFacilityStreet());
 
   // 31. Signature of Physician or Supplier
-  // FreeB printed the rendering provider's name and the current date here,
-  // but according to my instructions it must be a real signature and date,
-  // or else "Signature on File" or "SOF".
 
    if($GLOBALS['cms_1500_box_31_format']==0)
    {

@@ -57,7 +57,7 @@ class InsuranceCompany extends ORDataObject{
 	var $x12_default_partner_id;
 
 	/*
-	*	Freeb used this value to determine special formatting for the specified type of payer.
+	*	OpenEMR used this value to determine special formatting for the specified type of payer.
 	*	This value is a mutually exclusive choice answering the FB.Payer.isX API calls
 	*	It references a set of constant defined in this file INS_TYPE_XXX
 	*	Defaults to type INS_TYPE_OTHER_HCFA
