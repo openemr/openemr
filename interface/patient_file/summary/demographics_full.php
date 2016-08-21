@@ -814,7 +814,7 @@ $form_id="DEM";
     });
 
 //This code deals with demographics before save action -
-<?php if($hook):?>
+<?php if ($hook):?>
 
 	var f = $("form");
 
