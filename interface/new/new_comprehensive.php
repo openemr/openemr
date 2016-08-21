@@ -100,8 +100,7 @@ div.section {
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <?php
-    //this will hold the javascript submit me param new_validate;
-    $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+
     if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
     {
         $hook = checkIfPatientValidationHookIsActive();
