@@ -21,8 +21,8 @@
 */
 
 require_once(dirname(__FILE__) . "/sqlconf.php");
-require_once("{$GLOBALS['vendor_dir']}/adodb/adodb-php/adodb.inc.php");
-require_once("{$GLOBALS['vendor_dir']}/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(dirname(__FILE__) . "/log.inc");
 
 /**

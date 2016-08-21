@@ -141,8 +141,6 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
     
     if ($form_format == "pdf") {
-      // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
-      require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
       $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
       $pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
@@ -153,7 +151,7 @@ if ($_POST['formaction']=="generate") {
         include("$template_dir/custom_pdf.php");
       }
       else {
-        $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+        $pdf->selectFont('Helvetica');
         $pdf->ezText($cpstring, 12); 
       }
       $pdf->ezStream();

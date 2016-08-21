@@ -2485,7 +2485,7 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `freeb_type` tinyint(2) default NULL,
+  `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
@@ -2551,23 +2551,6 @@ CREATE TABLE `insurance_numbers` (
   `provider_number_type` varchar(4) default NULL,
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
--- 
--- Table structure for table `integration_mapping`
--- 
-
-DROP TABLE IF EXISTS `integration_mapping`;
-CREATE TABLE `integration_mapping` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) default NULL,
-  `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -6467,7 +6450,6 @@ CREATE TABLE `users` (
   `notes` text,
   `cal_ui` tinyint(4) NOT NULL default '1',
   `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
-  `ssi_relayhealth` varchar(64) NULL,
   `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   `abook_type` varchar(31) NOT NULL DEFAULT '',
   `pwd_expiration_date` date default NULL,
@@ -7899,6 +7881,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 
 -- --------------------------------------------------------
 

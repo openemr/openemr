@@ -675,7 +675,9 @@ if ($GLOBALS['patient_id_category_name']) {
             <td class="demographics-box" align="left" valign="top">
                 <!-- start left column div -->
                 <div style='float:left; margin-right:20px'>
+
                     <table cellspacing=0 cellpadding=0>
+                    <?php if (!$GLOBALS['hide_billing_widget'])  { ?>
                         <tr>
                             <td>
                                 <?php
@@ -706,7 +708,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		//Debit the patient balance from insurance balance
 		$insurancebalance = get_patient_balance($pid, true) - $patientbalance;
 	   $totalbalance=$patientbalance + $insurancebalance;
- if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+
  // Show current balance and billing note, if any.
   echo "<table border='0'><tr><td>" .
   "<table ><tr><td><span class='bold'><font color='red'>" .
@@ -741,11 +743,12 @@ if ($GLOBALS['patient_id_category_name']) {
     "</span></td></tr>";
   }
   echo "</table></td></tr></td></tr></table><br>";
- }
+
 ?>
         </div> <!-- required for expand_collapse_widget -->
        </td>
       </tr>
+      <?php } ?>
       <tr>
        <td>
 <?php
@@ -827,7 +830,7 @@ if ( $insurance_count > 0 ) {
 	                                                        $ins_description = xl($ins_description);
 								$ins_description  .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
 								?>
-								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/">
+								<li <?php echo $first ? 'class="current"' : '' ?>><a href="#">
 								<?php echo htmlspecialchars($ins_description,ENT_NOQUOTES); ?></a></li>
 								<?php
 								$first = false;
@@ -836,7 +839,7 @@ if ( $insurance_count > 0 ) {
 						}
 					}
 					// Display the eligibility tab
-					echo "<li><a href='/play/javascript-tabbed-navigation/'>" .
+					echo "<li><a href='#'>" .
 						htmlspecialchars( xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
 
 					?></ul><?php
@@ -1337,8 +1340,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
       // Show current and upcoming appointments.
       //
-      // Appointments code modified to add recurring appts
-      // and appt display sets by Ian Jardine.
+      // Recurring appointment support and Appointment Display Sets
+      // added to Appointments by Ian Jardine ( epsdky ).
       //
       if (isset($pid) && !$GLOBALS['disable_calendar']) {
       //
@@ -1347,28 +1350,77 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
         if($apptNum != 0) $apptNum2 = abs($apptNum);
         else $apptNum2 = 10;
-        $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + 1);
+        //
+        $mode1 = !$GLOBALS['appt_display_sets_option'];
+        $colorSet1 = $GLOBALS['appt_display_sets_color_1'];
+        $colorSet2 = $GLOBALS['appt_display_sets_color_2'];
+        $colorSet3 = $GLOBALS['appt_display_sets_color_3'];
+        $colorSet4 = $GLOBALS['appt_display_sets_color_4'];
+        //
+        if($mode1) $extraAppts = 1;
+        else $extraAppts = 6;
+        $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + $extraAppts);
         //////
-        if(count($events) > $apptNum2) {
-          $extraApptDate = $events[$apptNum2]['pc_eventDate'];
-          array_pop($events);
-        }
-        else $extraApptDate = '';
-        //////
-        if($extraApptDate) {
-          $firstApptIndx = 0;
-          $lastApptIndx = $apptNum2 - 1;
-          $lastApptDate = $events[$lastApptIndx]['pc_eventDate'];
-          for($i = 0; $i <= $lastApptIndx; ++$i) {
-            if($events[$lastApptIndx - $i]['pc_eventDate'] != $lastApptDate) {
-              $firstApptIndx = $apptNum2 - $i;
-              break;
-            }
+        if($events) {
+          $selectNum = 0;
+          $apptNumber = count($events);
+          //
+          if($apptNumber <= $apptNum2) {
+            $extraApptDate = '';
+            //
+          } else if($mode1 && $apptNumber == $apptNum2 + 1) {
+            $extraApptDate = $events[$apptNumber - 1]['pc_eventDate'];
+            array_pop($events);
+            --$apptNumber;
+            $selectNum = 1;
+            //
+          } else if($apptNumber == $apptNum2 + 6) {
+            $extraApptDate = $events[$apptNumber - 1]['pc_eventDate'];
+            array_pop($events);
+            --$apptNumber;
+            $selectNum = 2;
+            //
+          } else { // mode 2 - $apptNum2 < $apptNumber < $apptNum2 + 6
+            $extraApptDate = '';
+            $selectNum = 2;
+            //
+          }
+          //
+          $limitApptIndx = $apptNum2 - 1;
+          $limitApptDate = $events[$limitApptIndx]['pc_eventDate'];
+          //
+          switch ($selectNum) {
+            //
+            case 2:
+              $lastApptIndx = $apptNumber - 1;
+              $thisNumber = $lastApptIndx - $limitApptIndx;
+              for($i = 1; $i <= $thisNumber; ++$i) {
+                if($events[$limitApptIndx + $i]['pc_eventDate'] != $limitApptDate) {
+                  $extraApptDate = $events[$limitApptIndx + $i]['pc_eventDate'];
+                  $events = array_slice($events, 0, $limitApptIndx + $i);
+                  break;
+                }
+              }
+              //
+              case 1:
+                $firstApptIndx = 0;
+                for($i = 1; $i <= $limitApptIndx; ++$i) {
+                  if($events[$limitApptIndx - $i]['pc_eventDate'] != $limitApptDate) {
+                    $firstApptIndx = $apptNum2 - $i;
+                    break;
+                  }
+                }
+                //
+          }
+          //
+          if($extraApptDate) {
+            if($extraApptDate != $limitApptDate) $apptStyle2 = " style='background-color:" . attr($colorSet3) . ";'";
+            else $apptStyle2 = " style='background-color:" . attr($colorSet4) . ";'";
           }
         }
         //////
 
-	// appointments expand collapse widget
+        // appointments expand collapse widget
         $widgetTitle = xl("Appointments");
         $widgetLabel = "appointments";
         $widgetButtonLabel = xl("Add");
@@ -1400,15 +1452,14 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             }
             //////
             if($extraApptDate && $count > $firstApptIndx) {
-              if($row['pc_eventDate'] == $extraApptDate) $apptStyle = " style='background-color:#ffe6ff;'";
-              else $apptStyle = " style='background-color:#e6ffe6;'";
+              $apptStyle = $apptStyle2;
             } else {
               if($row['pc_eventDate'] != $priorDate) {
                 $priorDate = $row['pc_eventDate'];
                 $toggleSet = !$toggleSet;
               }
-              if($toggleSet) $apptStyle = " style='background-color:#e6e6ff;'";
-              else $apptStyle = '';
+              if($toggleSet) $apptStyle = " style='background-color:" . attr($colorSet2) . ";'";
+              else $apptStyle = " style='background-color:" . attr($colorSet1) . ";'";
             }
             //////
             echo "<div " . $apptStyle . ">";
@@ -1427,7 +1478,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             if ( $count < 1 ) {
                 echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
             } else { //////
-              if($extraApptDate) echo "<div>&nbsp;</div>";
+              if($extraApptDate) echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
               else echo "<div><hr></div>";
             }
             echo "</div>";

@@ -414,7 +414,7 @@ if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input class="css_btn" id="submit" type="submit" value="<?php xl('Save','e'); ?>">
+            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -501,7 +501,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<ul class="tabNav">
 		<?php
 		foreach (array('primary','secondary','tertiary') as $instype) {
-			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
+			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
 		}
 		?>
 		</ul>
@@ -760,7 +760,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <br>
 
 <script language="JavaScript">
-
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database

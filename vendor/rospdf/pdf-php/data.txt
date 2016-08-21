@@ -1,0 +1,1416 @@
+# this is the text which will end up within readme.pdf, when processed
+# by readme.php.
+#
+# the syntax being used is fairly obvious:
+#
+# a line starting with '#' is a comment or a directive
+# 1<title>  is a first level heading (text is 'title')
+# 2<heading> is a second level heading (text is 'heading')
+#
+# the table of contents is automatically generated from the titles and headings.
+#
+# "#NP" starts a new page
+# "#C" starts a code section (put this on a line by itself
+# "#c" end the code section
+# "#X" and "#x" surround a block which will be executed as php code.
+#
+# <b></b> <i></i> can be used within the text with gleeful abandon
+#
+# a link can be added within the text using <c:alink:url_here>label</c:alink>
+
+
+1<Introduction>
+
+This class is designed to provide a <b>non-module</b>, non-commercial alternative to dynamically creating pdf documents from within PHP. Obviously this will not be quite as quick as the module alternatives, but it is surprisingly fast, this demonstration page is almost a worst case due to the large number of fonts which are displayed. There are a number of features which can be within a Pdf document that it is not at the moment possible to use with this class, but I feel that it is useful enough to be released. 
+
+This document describes the possible useful calls to the class, the readme.php file (which will create this pdf) should be sufficient as an introduction.
+
+Note that this document was generated using the demo script 'readme.php' which came with this package.
+
+1<Changes>
+
+2<0.12.22>
+
+- recovered the addTextWrap method
+- corrected temp path for windows systems using php-cgi 
+
+2<0.12.21>
+
+- added image rotation support
+
+2<0.12.20>
+
+- fixed reported issue with Typo "decender" in Cpdf.php and Cezpdf.php. 
+  <b>Please use "getFontDescender"</b>
+
+2<0.12.19>
+
+- applied patch "updated extension CezTableImage" from Code Snippets forum - thanks Sigurd Nes
+
+2<0.12.18>
+
+- fixed reported bug #77 ezText html bold tag problem
+
+2<0.12.17>
+
+- fixed reported bug #76 Invalid creation date
+
+2<0.12.16>
+
+- fixed property $stack to be protected as a private property cause strange behaviours in PHP 5.1 and 5.2
+
+2<0.12.15>
+
+- fixed PHP Notice "Undefined offset: -1" for unknown glyphs in TTFsubset.php
+
+2<0.12.14>
+
+- fixed ezTableDrawLines in CezTableImage.php extension
+- improved performance in openFont
+- use max 255 chars for font type TrueType if unicode is disabled
+
+2<0.12.13>
+
+- fixed encoding conversation when using core fonts.
+
+2<0.12.12>
+
+NOTE: Some private properties have been changed in Cpdf.php
+NOTE: selectFont does not return $this->currentFontNum anymore
+
+- some slightly changes to Cpdf
+- added $pdf->getCurrentFont([$withStyle = false]) to get the font name currently in use
+- updated SVN version to 1.8
+
+2<0.12.11>
+
+NOTE: A new option 'gridlines' in ezTable is available to allow additional line modes
+NOTE: A new option 'alignHeadings' in ezTable is available to align the complete header row
+NOTE: The option 'showLines' is DEPRECATED in ezTable option
+
+- applied path #20 ezTable advanced grid lines (see examples/tables.php)
+- fixed bug #75 Alignment fixes for tables and images
+- applied patch #19 Table heading alignment
+- fixed an old bug related to vertical lines in ezTable when page break occurs
+
+2<0.12.10>
+
+- fixed bug #74 font subsetting ignored when no character is set | thank you Johannes
+- applied ezTable changes to extension class CezTableImage.php
+- added new example tables.php
+
+2<0.12.9>
+
+NOTE: callback function and ezText option 'justification'=>'full' can cause bad results
+NOTE: More info, see bug report #67 on https://sourceforge.net/p/pdf-php/bugs/67/
+
+- applied patch #9 ezTable: permit coloured background for headings - See example on page 14
+- applied patch #11 coloured text as callback by using &lt;c:color:r,g,b&gt;color text&lt;/c:color&gt;
+- optimized widths entry (/W [...]) for unicode font output
+- fixed openFont function which caused an abnormal exit or blank browser page
+- corrected ezTable 'showLine' option to display head line properly
+- some other slightly changes
+
+2<0.12.8>
+
+NOTE: Due to the fontPath change it is <b>recommend to only use the font name</b> in $pdf->selectFont().
+NOTE: Define the font location by using $pdf->fontPath = '/dir/to/your/fonts'
+
+- added "fontPath" property to define font folders outside the project root
+- fixed AAR search by setting unique fileIdentifiers
+
+2<0.12.7>
+
+- fixed bug #72 - directives cause wrong line alignment
+
+2<0.12.6>
+
+- fixed bug #71 - wrong fileIdentfier cause Adobe Reader to invalidate search
+- corrected table border on page break
+
+2<0.12.5>
+
+- fixed bug when table page breaks (changed some private declarations into protected)
+- font cache fixed by disabling subsets for non-unicode fonts (need improvement)
+- NEW PROPERTY cacheTimeout to allow setting the cache lifetime (default: 1 day)
+
+2<0.12.4>
+
+- indexed PNG fixed (but without alpha channel)
+- background color check simplified in Cezpdf.php which causes sporadic errors on line 219
+- custom callback for underlined (c:uline) is set to allowedTags by default
+- some fixes with text directives (E.g. &lt;b&gt;[new line]text[new line]text&lt;/b&gt;)
+- corrected getTextWidth by removing all directives set in $pdf->allowedTags
+
+2<0.12.3>
+
+- removed unused Begin Text - objects (BT ... ET) by checking empty text in addText method
+- fixed bug #66 Bug in specifying font size
+- bug fixed: font style now ends up properly after line break has forced
+- optimized pdf output for link annotation (actions are now set inline)
+- fixed sprintf locale output for rectangle in o_annotation
+- NEW FEATURE: new annotation called comments - demo in examples/annotations.php
+- applied patch no# 13 - 16
+
+2<0.12.2>
+
+- bug fixed for missing ET tags (caused pdf viewer to resave the file when closing)
+- fixed bug with wrong calculation of the char "0" (zero) in $pdf->uniord($c)
+- code optimization
+
+2<0.12.1>
+
+- additional bug fixes for directive (especially for UTF-8 text)
+- slightly performance improvements
+- addTextWrap function is no more, use addText instead
+- added FreeSerif font from http://ftp.gnu.org/gnu/freefont/ 
+
+- use UTF-8 text input in addText and addTextWrap by default
+- fixed issue with directives when using unicode (underline, bold, ...)
+
+- fixed bug: wrong width is used when document is set to unicodee
+- optimized and simplified the methods for custom callbacks (checkTextDirective is no more)
+- improved performance (readme.php is 30% faster)
+- new property allowedTags, which is important when using custom callbacks (see barcode.php, CezTableImage.php or CezDummy.php)
+- font subsetting completed
+- No ttf2afm or ttf2ufm is required - Thank goes to Thanos Efraimidis (4real.gr) for TTF.php and TTFsubset.php
+
+2<older versions>
+
+<c:alink:http://sourceforge.net/p/pdf-php/code/HEAD/tree/tags/0.11.8/readme.pdf?format=raw>click here</c:alink> for version 0.11.8
+<c:alink:http://sourceforge.net/projects/pdf-php/files/v%20011%20with%20Fonts/0.11.7c-php4.zip/download>click here</c:alink> for PHP4 compatibility version 0.11-7c
+#NP
+
+1<Use>
+
+It is free for use for any purpose (public domain), though we would prefer it if you retain the notes at the top of the class containing the authorship, and feedback details.
+
+Note that there is no guarantee or warranty, implied or otherwise with this class, or the extension.
+
+1<Extensions>
+
+In order to create simple documents with ease a class extension called 'ezPdf' has been developed, at the moment this includes auto page numbering, tabular data presentation, text wrapping to new pages, etc. This document has been created using mostly ezPdf functions.
+
+The functions of ezpdf are described in the next section, though as it is a class extension, all of the basic functions from the original class are still available.
+
+Please excuse this blatant 'plug', but if your company wishes some customization of these routines for your purposes, R&OS can do this at very reasonable rates, just drop us a line at info@ros.co.nz.
+
+#NP
+1<EZPDF Class Extension>
+
+
+(note that the creation of this document in readme.php was converted to ezpdf with the saving of many lines of code).
+
+It is anticipated that in practise only the simplest of documents will be able to be created using just ezpdf functions, they should be used in conjunction with the base class functions to achieve the desired result.
+
+
+2<Cezpdf>
+
+<b>Cezpdf([paper='a4'],[orientation='portrait'],[type='none'],[options=array()])</b>
+
+This is the constructor function, and allows the user to set up a basic page without having to know exactly how many units across and up the page is going to be.
+Valid values for paper are listed below, a two or four member array can also be passed, a two member array will be interpreted as the size of the page in centimeters, and a four member array will be the size of the page in points, similar to the call to the base calss constructor function.
+Starting ezpdf with the code below will create an a4 portrait document.
+
+<b>$paper</b> The valid values for the paper (thanks to the work of Nicola Asuni) are:
+'4A0', '2A0', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6' , 'A7', 'A8', 'A9', 'A10', 'B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'C0', 'C1', 'C2' , 'C3', 'C4' , 'C5', 'C6', 'C7', 'C8', 'C9', 'C10' , 'RA0', 'RA1', 'RA2', 'RA3', 'RA4', 'SRA0', 'SRA1', 'SRA2', 'SRA3', 'SRA4', 'LETTER', 'LEGAL', 'EXECUTIVE', 'FOLIO'
+
+<b>$orientation</b> 'portrait' and 'landscape' can be used
+
+<b>$type</b> following types are possible: 'none' | 'color' | 'image'
+
+<b>$options</b> if type is diffent then 'none' $options can be set as follows
+     if $type is set to 'color'
+       $options['r'] = red-component   of backgroundcolour ( 0 <= r <= 1)
+       $options['g'] = green-component of backgroundcolour ( 0 <= g <= 1)
+       $options['b'] = blue-component  of backgroundcolour ( 0 <= b <= 1)
+     if $type is set to 'image' then the $options array has other attributes
+       $options['img']    = location of image file; URI's are allowed if allow_url_open is enabled
+       $options['width']  = width of background image; default is width of page
+       $options['height'] = height of background image; default is height of page
+       $options['xpos']   = horizontal position of background image; default is 0
+       $options['ypos']   = vertical position of background image; default is 0
+       $options['repeat'] = repeat image horizontally (1), repeat image vertically (2) or full in both directions (3); default is 0
+                            highly recommend to set this->hashed to true when using repeat function
+
+This document shows you the 'color' type with following:
+
+#C
+$pdf = new Cezpdf('a4','portrait','color',array(0.8,0.8,0.8));
+#c
+
+If you want to get started in an easy manner, then here is the 'hello world' program:
+
+#C
+<?php
+include ('class.ezpdf.php');
+$pdf = new Cezpdf();
+$pdf->selectFont('Helvetica');
+$pdf->ezText('Hello World!',50);
+$pdf->ezStream();
+?>
+#c
+
+2<ezSetMargins>
+
+<b>ezSetMargins(top,bottom,left,right)</b>
+
+Sets the margins for the document, this command is optional and they will all be set to 30 by default. Setting these margins does not stop you writing outside them using the base class functions, but the ezpdf functions will wrap onto a new page when they hit the bottom margin, and will not write over the side margins when using the <b>ezText</b> command below.
+
+2<ezSetCmMargins>
+
+<b>ezSetCmMargins(top,bottom,left,right)</b>
+
+Sets the margins for the document using centimeters
+
+2<ezNewPage>
+
+<b>ezNewPage()</b>
+
+Starts a new page. This is subtly different to the newPage command in the base class as it also places the ezpdf writing pointer back to the top of the page. So if you are using the ezpdf text functions, then this is the one to use when manually requesting a new page.
+
+2<ezColumnsStart>
+
+<b>ezColumnsStart([options])</b>
+
+This will start the text flowing into columns, <i>options</i> is an array which contains the control options.
+
+The options are:
+'gap' => the gap between the columns
+'num' => the number of columns.
+
+Both options (and the array itself) are optional, if missed out then the defaults are gap=10, num=2;
+
+Example calls could be (you would use only one of these):
+
+#C
+$pdf->ezColumnsStart();
+$pdf->ezColumnsStart(array('num'=>3));
+$pdf->ezColumnsStart(array('num'=>3,'gap'=>2));
+$pdf->ezColumnsStart(array('gap'=>20));
+#c 
+
+<i>ezColumnStop</i> is used to stop multi-column mode.
+
+2<ezColumnsStop>
+
+<b>ezColumnsStop()</b>
+
+This stops multi-column mode, it will leave the writing point at whatever level it was at, it is recommended that an ezNewPage() command is executed straight after this command, but for flexibility this is left up to the individual consumer.
+
+2<ezInsertMode>
+
+<b>ezInsertMode([status=1,$pageNum=1,$pos='before'])</b>
+
+This command can be used to stop and start page insert mode, while this mode is on then any new page will be inserted into the midst of the document. If it is called with status=1, then insert mode is started and subsequent pages are added before or after page number 'pageNum'. 'pos' can be set to 'before' or 'after' to define where the pages are put. The 'pageNum' is set to which page number this position is relative to.
+
+All subsequent pages added with ezNewPage are then inserted within the document following the last inserted page.
+
+Insertion page is ended by calling this command with 'status'=0, and further pages are added to the end of the document.
+
+2<ezSetY>
+
+<b>ezSetY(y)</b>
+
+Positions the ezpdf writing pointer to a particular height on the page, don't forget that pdf documents have <b>y-coordinates which are zero at the bottom of the page and increase as they go up</b> the page.
+
+2<ezSetDy>
+
+<b>ezSetDy(dy [,mod])</b>
+
+Changes the vertical position of the writing point by a set amount, so to move the pointer 10 units down the page (making a gap in the writing), use:
+
+#C
+ezSetDy(-10)
+#c
+
+If this movement makes the writing location below the bottom margin, then a new page will automatically be made, and the pointer moved to the top of it.
+
+The optional parameter 'mod' can be set to the value 'makeSpace', which means that if a new page is forced, then the pointer will be moved the distance 'dy' on the new page as well. The intention of this is if you needed 100 units of space to draw a picture, then doing:
+
+#C
+ezSetDy(-100,'makeSpace')
+#c
+
+guarantees that there will be 100 units of space above the final writing point.
+
+2<ezStartPageNumbers>
+
+<b>setNum = ezStartPageNumbers(x,y,size,[pos],[pattern],[num])</b>
+
+ Add page numbers on the pages from here, place then on the 'pos' side of the coordinates (x,y) (pos can be 'left' or 'right').
+ Use the given 'pattern' for display, where {PAGENUM} and {TOTALPAGENUM} are replaced as required, by default the pattern is set to '{PAGENUM} of {TOTALPAGENUM}'
+ If $num is set, then make the first page this number, the number of total pages will be adjusted to account for this.
+
+ the following code produces a seven page document, numbered from the second page (which will be labelled '1 of 6'), and numbered until the 6th page (labelled '5 of 6')
+
+#C
+$pdf = new Cezpdf();
+$pdf->selectFont('Helvetica');
+$pdf->ezNewPage();
+$pdf->ezStartPageNumbers(300,500,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->line(300,400,300,600); // line drawn to check 'pos' is working
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(); 
+$pdf->ezStream();
+#c
+
+This function was modified in version 009 to return a page numbering set number (setNum in the call above), this allows independent numbering schemes to be started and stopped within a single document. This number is passed back into <i>ezStopPageNumbers</i> when it is called.
+
+Here is a more complex example:
+
+#C
+
+$pdf->selectFont('Helvetica');
+$pdf->ezNewPage();
+$i=$pdf->ezStartPageNumbers(300,500,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(1,1,$i);
+$pdf->ezNewPage();
+$i=$pdf->ezStartPageNumbers(300,500,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(1,1,$i);
+$pdf->ezNewPage();
+$i=$pdf->ezStartPageNumbers(300,500,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->setColor(1,0,0);
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(1,1,$i);
+$pdf->ezNewPage();
+$i=$pdf->ezStartPageNumbers(300,500,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$j=$pdf->ezStartPageNumbers(300,400,20,'','',1);
+$k=$pdf->ezStartPageNumbers(300,300,20,'','',1);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(1,1,$i);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+$pdf->ezStopPageNumbers(1,1,$j);
+$pdf->ezStopPageNumbers(0,1,$k);
+$pdf->ezNewPage();
+$pdf->ezNewPage();
+#c
+
+This will create a document with 23 pages, the numbering shown on each of the pages is:
+
+#X
+$array = array(
+array('p'=>1,'c'=>'blank')
+,array('p'=>2,'c'=>'1 of 3')
+,array('p'=>3,'c'=>'2 of 3')
+,array('p'=>4,'c'=>'3 of 3')
+,array('p'=>5,'c'=>'1 of 3')
+,array('p'=>6,'c'=>'2 of 3')
+,array('p'=>7,'c'=>'3 of 3')
+,array('p'=>8,'c'=>'1 of 3')
+,array('p'=>9,'c'=>'2 of 3')
+,array('p'=>10,'c'=>'3 of 3')
+,array('p'=>11,'c'=>'4 of 4')
+,array('p'=>12,'c'=>'1 of 8')
+,array('p'=>13,'c'=>'2 of 8')
+,array('p'=>14,'c'=>'3 of 8')
+,array('p'=>15,'c'=>'4 of 8')
+,array('p'=>16,'c'=>'5 of 8, 1 of 6, 1 of 8')
+,array('p'=>17,'c'=>'6 of 8, 2 of 6, 2 of 8')
+,array('p'=>18,'c'=>'7 of 8, 3 of 6, 3 of 8')
+,array('p'=>19,'c'=>'8 of 8, 4 of 6, 4 of 8')
+,array('p'=>20,'c'=>'5 of 6, 5 of 8')
+,array('p'=>21,'c'=>'6 of 6, 6 of 8')
+,array('p'=>22,'c'=>'blank')
+,array('p'=>23,'c'=>'blank')
+);
+$pdf->ezTable($array,array('p'=>'page','c'=>'contents'));
+#x
+
+
+2<ezWhatPageNumber>
+
+<b>num = ezWhatPageNumber(pageNum,[setNum])</b>
+
+Returns the number of a page within the specified page numbering system.
+
+'pageNum' => the absolute number of the page within the document (this is based on the order that they are created).
+'setNum' => the page numbering set, returned from the <i>ezStartPageNumbers</i> command.
+
+2<ezGetCurrentPageNumber>
+
+return the page number of the current page
+
+2<ezStopPageNumbers>
+
+<b>ezStopPageNumbers([stopTotal],[next],[setNum])</b>
+
+In version 009 this function was enhanced to include a number of extra parameters:
+
+'stopTotal' => 0 or 1 (default 0), stops the totaling for the page numbering set. So for example if you start numbering a 10 page document on the second page, and stop it on the 4th page, with stopTotal set to 1, then the numbers will be reported as "x of 3".
+'next' => 0 or 1, stops on the next page, not this one.
+'setNum' => (defaults to 0) define which set number is to be stopped, this is the number returned from the <i>ezStartPageNumbers</i> command.
+
+2<ezTable>
+
+<b>y=ezTable(array data,[array cols],[title],[array options]</b>
+
+<b>$data</b> The easy way to throw a table of information onto the page, can be used with just the data variable, which must contain a two dimensional array of data. This function was made with data extracted from database queries in mind, so is expecting it in that format, a two dimensional array with the first array having one entry for each row (and each of those is another array).
+
+The table will start writing from the current writing point, and will proceed until the all the data has been presented, by default, borders will be drawn, alternate limes will be shaded gray, and the table will wrap over pages, re-printing the headers at the top of each page.
+
+The return value from the function is the y-position of the writing pointer after the table has been added to the document.
+
+The other options are described here:
+
+<b>$cols</b> (optional) is an associative array, the keys are the names of the columns from $data to be presented (and in that order), the values are the titles to be given to the columns, if this is not wanted, but you do want later options then '' (the empty string) is a suitable placeholder.
+
+<b>$title</b> (optional) is the title to be put on the top of the table
+
+<b>$options</b> is an associative array which can contain:
+'showHeadings' => 0 or 1 (enable or disable head line)
+'shaded'=> 0,1,2, default is 1 (alternate lines are shaded)
+    0->no shading, 2->both sets are shaded
+'showBgCol'=> 0,1 default is 0 (no column background, no bgcolor setting is used in 'cols')
+    1->active bg color column setting and allow bgcolor attribute in 'cols'
+'shadeCol' => (r,g,b) array, defining the colour of the shading, default is (0.8,0.8,0.8)
+'shadeCol2' => (r,g,b) array, defining the colour of the shading of the second set, default is (0.7,0.7,0.7), used when 'shaded' is set to 2.
+'fontSize' => 10
+'textCol' => (r,g,b) array, text colour
+'titleFontSize' => 12
+'rowGap' => 2 , the space between the text and the row lines on each row
+'colGap' => 5 , the space between the text and the column lines in each column
+'lineCol' => (r,g,b) array, defining the colour of the lines, default, black.
+'xPos' => 'left','right','center','centre',or coordinate, reference coordinate in the x-direction
+'xOrientation' => 'left','right','center','centre', position of the table w.r.t 'xPos'. This entry is to be used in conjunction with 'xPos' to give control over the lateral position of the table.
+'width' => <number>, the exact width of the table, the cell widths will be adjusted to give the table this width.
+'maxWidth' => <number>, the maximum width of the table, the cell widths will only be adjusted if the table width is going to be greater than this.
+'cols' => array(<colname>=> array('justification'=>'left', 'width'=>100, 'link'=><linkColName>, 'bgcolor'=> (r,g,b)), <colname>=>....) allow the setting of other paramaters for the individual columns, each column can have its width and/or its justification set.
+'innerLineThickness' => <number>, the thickness of the inner lines, defaults to 1
+'outerLineThickness' => <number>, the thickness of the outer lines, defaults to 1
+'protectRows' => <number>, the number of rows to keep with the heading, if there are less than this on a page, then all is moved to the next page.
+'nextPageY'=> true or false (eg. 0 or 1) Sets the same Y position of the table for all future pages
+
+<b>0.12.9:</b>
+ 'shadeHeadingCol'=>(r,g,b) array, defining the backgound color of headings, default is empty
+
+<b>0.12.11:</b>
+ 'gridlines'=> EZ_GRIDLINE_* default is EZ_GRIDLINE_DEFAULT, overrides 'showLines' to provide finer control
+ 'alignHeadings' => 'left','right','center'
+ 
+Below is an example output of ezTable containing the following $data
+
+#C
+$data = array(
+ array('num'=>1,'name'=>'gandalf','type'=>'wizard')
+,array('num'=>2,'name'=>'bilbo','type'=>'hobbit','url'=>'http://www.ros.co.nz/pdf/')
+,array('num'=>3,'name'=>'frodo','type'=>'hobbit')
+,array('num'=>4,'name'=>'saruman','type'=>'bad dude','url'=>'http://sourceforge.net/projects/pdf-php')
+,array('num'=>5,'name'=>'sauron','type'=>'really bad dude')
+);
+#c
+
+#C
+$pdf->ezTable($data,$cols,'',array(
+    'gridlines'=> EZ_GRIDLINE_DEFAULT,
+    'shadeHeadingCol'=>array(0.6,0.6,0.5),
+    'showBgCol'=>1,
+    'width'=>400,
+    'cols'=> array(
+        'name'=>array('bgcolor'=>array(0.9,0.9,0.7)),
+        'type'=>array('bgcolor'=>array(0.6,0.4,0.2))
+    )
+));
+#c
+
+#X
+$data = array(
+ array('num'=>1,'name'=>'gandalf','type'=>'wizard')
+,array('num'=>2,'name'=>'bilbo','type'=>'hobbit','url'=>'http://www.ros.co.nz/pdf/')
+,array('num'=>3,'name'=>'frodo','type'=>'hobbit')
+,array('num'=>4,'name'=>'saruman','type'=>'bad dude','url'=>'http://sourceforge.net/projects/pdf-php')
+,array('num'=>5,'name'=>'sauron','type'=>'really bad dude')
+);
+$cols = array('num'=>"<b>Number</b>",'name'=>'<b>Name</b>','type'=>'<b>Type</b>');
+$pdf->ezTable($data,$cols,'',array(
+    'gridlines'=> EZ_GRIDLINE_DEFAULT,
+    'shadeHeadingCol'=>array(0.6,0.6,0.5),
+    'alignHeadings'=>'center',
+    'showBgCol'=>1,
+    'width'=>400,
+    'cols'=> array(
+        'name'=>array('bgcolor'=>array(0.9,0.9,0.7)),
+        'type'=>array('bgcolor'=>array(0.6,0.4,0.2))
+    )
+));
+#x
+
+<b>Please refer to examples/tables.php for more demos</b>
+
+2<ezText>
+
+<b>y=ezText(text,[size],[array options])</b>
+
+This is designed for putting blocks of text onto the page. It will add a string of text to the document (note that the string can be very large, spanning multiple pages), starting at the current drawing position. It will wrap to keep within the margins, including optional offsets from the left and the right, if $size is not specified, then it will be the last one used, or the default value (12 I think). The text will go to the start of the next line when a return code "\n" is found.
+
+The return value from the function (y) is the vertical position on the page of the writing pointer, after the text has been added.
+
+possible options are:
+ 'left'=> number, gap to leave from the left margin
+ 'right'=> number, gap to leave from the right margin
+ 'aleft'=> number, absolute left position (overrides 'left')
+ 'aright'=> number, absolute right position (overrides 'right')
+ 'justification' => 'left','right','center','centre','full'
+
+ only set one of the next two items (leading overrides spacing)
+ 'leading' => number, defines the total height taken by the line, independent of the font height.
+ 'spacing' => a real number, though usually set to one of 1, 1.5, 2 (line spacing as used in word processing)
+
+This function now supports the use of underlining markers (&lt;u> &lt;/u>), these are implemented via a callback function, which is information that you need only of you want to use them in functions in the base class, as these markers will not work there and the full callback function markers wil have to be used (though note that ezPdf stillhas to be part of the class object as the callback function are included with that code base. The callback function markers would look like &lt;c:uline>this&lt;/c:uline>.
+
+
+2<ezImage>
+
+<b>ezImage(image,[padding],[width],[resize],[justification], [angle],[array border])</b>
+
+This function makes it much easier to simply place an image (either jpeg or png) within the flow of text within a document.  Although this function can certainly be used with full page documents, its functionality is most suited to documents that are formatted in multiple columns.
+
+This function can be used by simply supplying the name of an image file as the first argument.  The image will be resized to fit centered within the current column with the default padding of 5 on each side.
+
+The arguments are:
+
+<b>$image</b> is a string containing the filename and path of the jpeg or png image you want to insert into the page.  If allow_url_fopen is enabled in the PHP ini settings this can be an HTTP or FTP URL.
+
+<b>$padding</b> (optional) is the number of page units that will pad the image on all sides.  The default is five (5).  If you do not want any padding, you may enter 0.
+
+<b>$width</b> (optional) is the width of the image on the page.  The default is to use the actual width of the image in pixels.  Whether or not you specify a width, the actual width of the image on the page will depend on what you enter for the $resize argument as well as the placement of the image on the page.
+
+<b>$resize</b> (optional) can be one of 'full', 'width', or 'none'.  The default value is 'full'.  
+
+The value 'none' means that an image will not be sized up to fit the width of a column and will not be sized down vertically to fit within the current page. If the image is too long to fit on the page it will be placed on the next page or column.  If the image is too wide to fit within the current column, it will still be sized down.  This is because there is no alternative, other than to actually let the image run off the page.
+
+The value 'width' behaves the same as 'none' with the exception that images will be resized to fit the width of the current column if the given width is smaller that the current column (minus the padding).
+
+The value 'full' behaves the same as 'width' with the exception that images will be resized down vertically to fit within the current page and column if their height is too long to fit.
+
+<b>$justification</b> (optional) determines the horizontal position of the image within the current column.  The default is 'center', and can be specified as either 'center', 'left', or 'right'.  This setting has little meaning if the image has been resized to fit the column and only makes a practical difference if the width of the image is smaller than the width of the column.
+
+<b>$angle</b> (optional) allows you the rotate the image
+
+<b>$border</b> (optional) is an array which specifies the details of the border around the image.  The default is no border if this argument is not given.  You may specify any of the following border elements:
+
+$border['width'] is the width of the border.  The default is 1.
+$border['cap'] is the cap type as specified in setLineStyle.  The default is 'round'.
+$border['join'] is the join type as specified in setLineStyle.  The default is 'round'.
+$border['color'] is an associative array for specifying the line color of the border.
+The values are as specified in setStrokeColor and should be assigned to:
+$border['color']['red'], $border['color']['green'] and $border['color']['blue'] respectively.
+
+
+
+2<ezOutput>
+
+<b>ezOutput([debug])</b>
+
+Very similar to the output function from the base class, but performs any closing tasks that ezpdf requires, such as adding the page numbers.
+
+If you are using ezpdf, then you should use this function, rather than the one from the base class.
+
+2<ezStream>
+
+<b>ezStream([options])</b>
+
+Very similar to the stream function from the base class (all the same options, see later in this document), but performs any closing tasks that ezpdf requires, such as adding the page numbers.
+
+If you are using ezpdf, then you should use this function, rather than the one from the base class.
+
+2<Inline codes>
+
+There are a few callback functions (see callback functions) which are contained within the ezPdf class, these are intended to make life easier. They enable complex operations to be done by including codes within the text stream.
+
+<b>Underline</b>
+Though underlining is supported in the ezPdf class by using the &lt;u&gt; directive, 
+if you use the base class functions to add text (such as addtext) then this wont work, instead you can use the <i>uline</i> callback function.
+
+(Note that what the ezPdf class does internally is convert the &lt;u&gt; and &lt;/u&gt; directives into callback function calls)
+
+So as an example, this code adds some text with two pieces of underlining, one done each way
+
+#C
+$pdf->ezText('The &lt;u&gt;quick brown&lt;/u&gt; fox, &lt;c:uline&gt;is sick of jumping&lt;/uline&gt; the lazy dog')
+#c
+
+The <u>quick brown</u> fox, is <c:uline>sick of jumping</c:uline> the lazy dog
+
+
+<b>Links to URLs</b>
+
+If you are adding links to a document, it is quite tricky to figure out where to put the rectange which will be clckable, especially if the text in teh link starts wrapping across pages, etc. 
+
+The <i>alink</i> callback allows for simple insertion of links, the format is:
+
+&lt;c:alink:<i>your_url_here</i>&gt;text to be clickable&lt;/c:alink&gt;
+
+So as an example:
+
+#C
+$pdf->ezText('&lt;c:alink:http://ros.co.nz/pdf/&gt;R&OS pdf class&lt;/c:alink&gt;');
+#c
+
+<c:alink:http://ros.co.nz/pdf/>R&OS pdf class</c:alink>
+
+<b>Links within the document</b>
+
+There is a directive similar to <i>alink</i>, but designed for linking within the document, this is the <i>ilink</i> callback function.
+
+It is similar to <i>alink</i> except that instead of providing a URL the label of a pre-created destination should be used. 
+
+&lt;c:ilink:<i>destination_label</i>>text to be clickable&lt;/c:ilink>
+
+#C
+// place required to be marked
+$pdf->addDestination('xxxyyyzzz','Fit');
+// add lots of stuff, new pages etc, then...
+$pdf->ezText('&lt;c:ilink:xxxyyyzzz>R&OS pdf class&lt;/c:ilink>');
+#c
+
+Click here to go to the <c:ilink:toc5>5th item</c:ilink> on the table of contents.
+
+Note that the code for the example and the actual one shown are not identical for technical reasons.
+
+#NP
+1<Base Class Functions>
+
+
+2<addText>
+
+addText(x,y,size,text[,width=0][,justification='left'][,angle=0][,wordSpaceAdjust=0][,test=0])
+
+Add the text at a particular location on the page, noting that the origin on the axes in a pdf document is in the lower left corner by default.
+An angle can be supplied as this will do the obvious (in degrees).
+
+'adjust', gives the value of units to be added to the width of each space within the text. This is used mainly to support the justification options within the ezpdf ezText function.
+
+The text stream can now (version 006) contain directives to make the text bold and/or italic. The directives are similar the basic html: 
+
+&lt;b&gt;<b>bold text</b>&lt;/b&gt; 
+&lt;i&gt;<i>italic text</i>&lt;/i&gt; 
+&lt;b&gt;&lt;i&gt;<b><i>bold italic text</i></b>&lt;i&gt;&lt;/b&gt; 
+
+<b>Note</b> that there can be no spaces within the directives, and that they must be in lower case.
+
+Especially <b>bold</b> and <i>italic</i> requires the style of the font being used
+
+If you wish to print an actual '<', most of the time it would cause no problem, except in the instance where it would form a directive. Use HTML special char &amp;lt; and &amp;gt;
+
+#C
+$pdf->addText(150,$y,10,"the quick brown fox &lt;b>jumps&lt;/b> &lt;i>over&lt;/i> the lazy dog!",0, 'left',-10);
+#c
+#X
+$pdf->ezSetDy(-40,'makeSpace');
+$pdf->addText(150,$pdf->y,10,"the quick brown fox <b>jumps</b> <i>over</i> the lazy dog!",0, 'left',-10);
+$pdf->ezSetDy(-5);
+#x
+
+2<setColor>
+
+<b>setColor(r,g,b,[force=0])</b>
+
+Set the fill colour to the r,g,b triplet, each in the range 0->1.
+If force is set, then the entry will be forced into the pdf file, otherwise it will only be put in if it is different from the current state.
+
+2<setStrokeColor>
+
+<b>setStrokeColor(r,g,b,[force=0])</b>
+
+Set the stroke color, see the notes for the fill color.
+
+2<setLineStyle>
+
+<b>setLineStyle([width],[cap],[join],[dash],[phase])</b>
+
+This sets the line drawing style.
+ width, is the thickness of the line in user units
+ cap is the type of cap to put on the line, values can be 'butt','round','square' where the difference between 'square' and 'butt' is that 'square' projects a flat end past the end of the line.
+ join can be 'miter', 'round', 'bevel'
+ dash is an array which sets the dash pattern, is a series of length values, which are the lengths of the on and off dashes.
+   for example: (2) represents 2 on, 2 off, 2 on , 2 off ...
+      (2,1) is 2 on, 1 off, 2 on, 1 off.. etc
+ phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts. 
+
+#C
+$pdf->setLineStyle(1);
+#c
+#X
+$pdf->setLineStyle(1);
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5);
+#c
+#X
+$pdf->setLineStyle(5);
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5,'round');
+#c
+#X
+$pdf->setLineStyle(5,'round');
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5,'','',array(5));
+#c
+#X
+$pdf->setLineStyle(5,'','',array(5));
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5,'','',array(10,5));
+#c
+#X
+$pdf->setLineStyle(5,'','',array(10,5));
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5,'','',array(20,5,10,5));
+#c
+#X
+$pdf->setLineStyle(5,'','',array(20,5,10,5));
+$pdf->ezSetDy(-8,'makeSpace',4);
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+#C
+$pdf->setLineStyle(5,'round','',array(0,15));
+#c
+#X
+$pdf->setLineStyle(5,'round','',array(0,15));
+$pdf->ezSetDy(-8,'makeSpace');
+$pdf->line(100,$pdf->y,400,$pdf->y);
+$pdf->ezSetDy(-5);
+#x
+
+Note that the code shown with each of these lines is just the line style command, the drawing of each line also requires a <b>line</b> command, which is not shown.
+
+2<line>
+
+<b>line(x1,y1,x2,y2)</b>
+
+Draw a line from (x1,y1) to (x2,y2), set the line width using setLineStyle.
+
+2<curve>
+
+<b>curve(x0,y0,x1,y1,x2,y2,x3,y3)</b>
+
+Draw a Bezier curve. The end points are (x0,y0)->(x3,y3), and the control points are the other two.
+
+Bezier curves are neat, but probably not for the novice. The <b>ellipse</b> command uses a series of Bezier curves to make the ellipse.
+
+The distinctive feature of these curves is that the curve is guaranteed to lie within the 4 sided polygon formed from the 4 control points (they are also computationally easy to draw). An example is shown below with the control points marked.
+
+#C
+$pdf->curve(200,$y+40,250,$y+5,350,$y,400,$y+45);
+#c
+#X
+$pdf->ezSetDy(-50,'makeSpace');
+$y = $pdf->y;
+$pdf->setLineStyle(2);
+$pdf->curve(200,$y+40,250,$y+5,350,$y,400,$y+45);
+$pdf->setLineStyle(0.5);
+$pdf->ellipse(200,$y+40,5);
+$pdf->ellipse(250,$y+5,5);
+$pdf->ellipse(350,$y,5);
+$pdf->ellipse(400,$y+45,5);
+$pdf->setLineStyle(0.5,'','',array(10,5));
+$pdf->line(200,$y+40,250,$y+5);
+$pdf->line(250,$y+5,350,$y);
+$pdf->line(350,$y,400,$y+45);
+#x
+
+Note that the Bezier curve is a tangent to the line between the control points at either end of the curve.
+
+2<ellipse>
+
+ellipse(x0,y0,r1,[r2=0],[angle=0],[nSeg=8])
+
+Draw an ellipse, centred ay (x0,y0), with radii (r1,r2), oriented at 'angle' (anti-clockwise), and formed from nSeg bezier curves (the default 8 gives a reasonable approximation to the required shape).
+
+If r2 is left out, or set to zero, then it is assumed that a circle is being drawn.
+
+#C
+$pdf->ellipse(300,$y+25,20);
+#c
+#X
+$pdf->ezSetDy(-50,'makeSpace');
+$pdf->setLineStyle(2);
+$pdf->ellipse(300,$pdf->y+25,20);
+#x
+
+#C
+$pdf->ellipse(300,$y+25,40,20);
+#c
+#X
+$pdf->ezSetDy(-50,'makeSpace');
+$pdf->setLineStyle(2);
+$pdf->ellipse(300,$pdf->y+25,40,20);
+#x
+
+#C
+$pdf->ellipse(300,$y+25,40,20,45);
+#c
+#X
+$pdf->ezSetDy(-50,'makeSpace');
+$pdf->setLineStyle(2);
+$pdf->ellipse(300,$pdf->y+25,40,20,45);
+#x
+
+Of course the previous line style features also apply to these lines
+
+#C
+$pdf->setLineStyle(4,'round','',array(0,6,4,6));
+$pdf->ellipse(300,$y+25,40,20,45);
+#c
+#X
+$pdf->ezSetDy(-50,'makeSpace');
+$pdf->setLineStyle(4,'round','',array(0,6,4,6));
+$pdf->ellipse(300,$pdf->y+25,40,20,45);
+#x
+
+2<partEllipse>
+
+<b>partEllipse(x,y,a1,a2,r1 [,r2] [,angle] [,nSeg])</b>
+
+Draw a part ellipse (or circle), draw an ellipse centered on (x,y) from angle 'a1' to angle 'a2' (in degrees), with radius 'r1' in the x-direction and 'r2' in the y-direction and oriented at angle 'angle'. If 'r2' is not supplied the it defaults to 'r1' and a circle is formed.
+
+#C
+$pdf->ellipse(300,$y+25,38);
+$pdf->partEllipse(300,$y+25,119,421,80,12,10);
+$pdf->partEllipse(300,$y+25,117,423,84,14,10);
+$pdf->partEllipse(300,$y+25,115,425,85,15,10);
+#c
+
+#X
+$pdf->ezSetDy(-60,'makeSpace');
+$pdf->ellipse(300,$pdf->y+25,38);
+$pdf->partEllipse(300,$pdf->y+25,119,421,80,12,10);
+$pdf->partEllipse(300,$pdf->y+25,117,423,84,14,10);
+$pdf->partEllipse(300,$pdf->y+25,115,425,85,15,10);
+#x
+
+2<polygon>
+
+<b>polygon(p,np,[f=0])</b>
+
+Draw a polygon, where there are np points, and p is an array containing (x0,y0,x1,y1,x2,y2,...,x(np-1),y(np-1)).
+If f=1 then fill the area.
+
+#C
+$pdata = array(200,10,400,20,300,50,150,40);
+$pdf->polygon($pdata,4);
+#c
+#X
+$pdata = array(200,10,400,20,300,50,150,40);
+$pdf->ezSetDy(-60,'makeSpace');
+for ($i=1;$i<count($pdata);$i+=2){
+  $pdata[$i]+=$pdf->y;
+}
+$pdf->polygon($pdata,4);
+#x
+
+#C
+$pdf->polygon($pdata,4,1);
+#c
+#X
+$pdf->ezSetDy(-60,'makeSpace');
+$pdata = array(200,10,400,20,300,50,150,40);
+$pdf->ezSetDy(-60,'makeSpace');
+for ($i=1;$i<count($pdata);$i+=2){
+  $pdata[$i]+=$pdf->y;
+}
+$pdf->polygon($pdata,4,1);
+#x
+
+#C
+$pdf->setColor(0.9,0.9,0.9);
+$pdf->polygon($pdata,4,1);
+#c
+#X
+$pdf->ezSetDy(-60,'makeSpace');
+$pdata = array(200,10,400,20,300,50,150,40);
+$pdf->ezSetDy(-60,'makeSpace');
+for ($i=1;$i<count($pdata);$i+=2){
+  $pdata[$i]+=$pdf->y;
+}
+$pdf->setColor(0.9,0.9,0.9);
+$pdf->polygon($pdata,4,1);
+#x
+
+
+2<filledRectangle>
+
+<b>filledRectangle(x1,y1,width,height)</b>
+
+Build a rectangle with filled color.
+
+#C
+$pdf->filledRectangle(400, $pdf->y, 120, 50);
+#c
+
+#X
+$pdf->filledRectangle(400, $pdf->y, 120,50);
+#x
+
+
+2<rectangle>
+
+<b>rectangle(x1,y1,width,height)</b>
+
+Build a rectangle with no background, only borders
+
+#C
+$pdf->rectangle(400, $pdf->y, 120,50);
+#c
+
+#X
+$pdf->rectangle(400, $pdf->y, 120,50);
+#x
+
+2<newPage>
+
+<b>id=newPage([insert,id,pos])</b>
+
+Starts a new page and returns the id of the page contents, this can be safely ignored, but storing it will allow the insertion of more information back into the page later, through the use of the 'reopenObject' function.
+
+The command is usually used without any of the options to simply add a new page to the end of the current bunch, but with the options can be used to insert a page within the existing pages. The 'insert' value can be set to 0 or 1 (use 1 to insert). 'id' should be set to a value which was returned by a previous newPage command (this is actually the object id of the contents of a page). 'pos' will determine whether the page is inserted before or after the specified page, it should be set to 'before' or 'after'.
+
+2<getFirstPageId>
+
+<b>id=getFirstPageId()</b>
+
+A related command is this which returns the id of the first page, this page is created during the class instantiation and so does not have its id returned to the user, this is the only way to fetch it, but it can be done at any point.
+
+2<stream>
+
+<b>stream([array options])</b>
+
+Used for output, this will set the required headers and output the pdf code.
+
+The options array can be used to set a number of things about the output:
+
+ 'Content-Disposition'=>'filename' sets the filename, though not too sure how well this will work as in my trial the browser seems to use the filename of the php file with .pdf on the end.
+ 'Accept-Ranges'=>1 or 0 - if this is not set to 1, then this header is not included, off by default this header seems to have caused some problems despite the fact that it is supposed to solve them, so I am leaving it off by default.
+ 'compress'=> 1 or 0 - apply content stream compression, this is on (1) by default.
+
+2<getFontHeight>
+
+<b>x=getFontHeight(size)</b>
+
+Returns the height of the current font, in the given size. This is the distance from the bottom of the descender to the top of the Capitals.
+
+2<getFontDescender>
+
+<b>x=getFontDescender(size)</b>
+
+Returns a number which is the distance that the descender goes beneath the Baseline, for a normal character set this is a negative number. 
+
+2<getTextWidth>
+
+<b>x=getTextWidth(size,text)</b>
+
+Returns the width of the given text string at the given size.
+
+2<saveState>
+
+<b>saveState()</b>
+
+Save the graphic state.
+
+2<restoreState>
+
+<b>restoreState()</b>
+
+Restore a saved graphics state.
+
+2<openObject>
+
+<b>id=openObject()</b>
+
+Start an independent object. This will return an object handle, and all further writes to a page will actually go into this object, until a closeObject call is made.
+
+2<reopenObject>
+
+<b>reopenObject(id)</b>
+
+Makes the point of current content insertion the numbered object, this 'id' must have been returned from a call to 'openObject' or 'newPage' for it to be a valid object to insert content into. Do not forget to call 'closeObject' to close off input to this object and return it to where it was beforehand (most likely the current page).
+This will allow the user to add information to previous pages, as long as they have stored the id of the pages.
+
+2<closeObject>
+
+<b>closeObject()</b>
+
+Close the currently open object. Further writes will now go to the current page.
+
+2<addObject>
+
+<b>addObject(id,[options='add'])</b>
+
+Add the object specified by id to the current page (default). If a string is supplied in options, then the following may be specified:
+'add' - add to the current page only.
+'all' - add to every page from the current one on.
+'odd' - add to all odd numbered pages from now on.
+'even' - add to all even numbered pages from now on.
+'next' - add to just the next page.
+'nextodd' - add to all odd numbered pages from the next one.
+'nexteven' - add to all even numbered pages from the next one.
+
+2<stopObject>
+
+<b>stopObject(id)</b>
+
+If the object (id) has been appearing on pages up to now, then stop it, this page will be the last one that could contain it.
+
+2<addInfo>
+
+<b>addInfo(label,value)</b>
+
+Add document information, the valid values for label are:
+Title, Author, Subject, Keywords, Creator, Producer, CreationDate, ModDate, Trapped
+
+modified in version 003 so that 'label' can also be an array of key->value pairs, in which case 'value' should not be set.
+
+2<setPreferences>
+
+<b>setPreferences(label,value)</b>
+
+Set some document preferences, the valid values for label are:
+HideToolbar, HideMenuBar, HideWindoUI, FitWindow, CenterWindow, NonFullScreenPageMode, Direction
+
+modified in version 003 so that 'label' can also be an array of key->value pairs, in which case 'value' should not be set.
+
+2<addImage>
+
+<b>addImage(img,x,y,w,[h],[quality=75],[angle=0])</b>
+
+Add an image to the document, this feature needs some development. But as it stands, img must be a handle to a GD graphics object, and one or both of w or h must be specified, if only one of them is specified, then the other is calculated by keeping the ratio of the height and width of the image constant.
+The image will be placed with its lower left corner at (x,y), and w and h refer to page units, not pixels.
+
+2<addJpegFromFile>
+
+<b>addJpegFromFile(imgFileName,x,y,w,[h],[angle=0])</b>
+
+Add a JPEG image to the document, this function does not require the GD functionality, so should be usable to more people, interestingly it also seems to 
+be more reliable and better quality. The syntax of the command is similar to the above 'addImage' function, though 'img' is a string containing the file name of the jpeg image.
+
+x,y are the position of the lower left corner of the image, and w,h are the width and height. Note that the resolution of the image in the document is defined only by the resolution of the image that you insert, and the size that you make it on the page. If you have an image which is 500 pixels across and then you place it on the page so that it is 72 units across then this image will be about 500 dpi (as 72 units is about 72 points which is 1 inch).
+
+2<addPngFromFile>
+
+<b>addPngFromFile(imgFileName,x,y,w,[h],[angle=0])</b>
+
+Similar to <i>addJepgFromFile</i>, but for PNG images.
+
+2<output>
+
+<b>a=output([debug=0])</b>
+
+As an alternative to streaming the output directly to the browser, this function simply returns the pdf code. No headers are set, so if you wish to stream at a later time, then you will have to manually set them. This is ideal for saving the code to make a pdf file, or showing the code on the screen for debug purposes.
+
+If the 'debug' parameter is set to 1, then the only effect at the moment is that the compression option is not used for the content streams, so that they can be viewed clearly.
+
+2<openHere>
+
+<b>openHere(style[,a][,b][,c])</b>
+
+Make the document open at a specific page when it starts. The page will be the one which is the current page when the function is called.
+
+The style option will define how it will look when open, valid values are:
+(where the extra parameters will be used to supply any values specified for the style chosen)
+
+'XYZ'  left, top, zoom <i>open at a particular coordinate on the page, with a given zoom factor</i>
+'Fit'  <i>fit the page to the view</i>
+'FitH' top <i>fit horizontally, and at the vertical position given</i>
+'FitV' left <i>fit vertically, and at the horizontal position given</i>
+'FitB' <i>fit the bounding box of the page into the viewer</i>
+'FitBH' top <i>fit the width of the bounding box to the viewer and set at the vertical position given</i>
+'FitBV' left <i>fit bounding box vertically and set given horizontal position</i>
+
+2<selectFont>
+
+<b>selectFont(fontName [,encoding = ''] [, set = 1] [,subsetFont = false])</b>
+
+This selects a font to be used from this point in the document. Errors can occur if some of the other functions are used if a font has not been selected, so it is wise to do this early on.
+
+In all versions prior to 0.12 it was required to "convert" ttf fonts into either *.AFM or *.UFM for unicode font files.
+Since version >= 0.12.0 R&OS pdf class natively reads the information from the TTF font by using TTF.php
+It also supports font supbsetting  (>= 0.11.8) by using TTFsubset.php. Thanks to Thanos Efraimidis (4real.gr).
+
+<b>The experimental version 0.12 currently does not support Type 1 fonts</b>
+
+The encoding directive is still experimental and no guarantee its working at all in version >= 0.12. But theoretical  it allows the user to re-map character numbers from the 0->255 range to any named character in the set (as most of the sets have more than 256 characters). It should be an array of <number> => <name> pairs in an associative array. This is important to ensure that the right width for the character is used within the presentation characters, it has been noticed that sometimes, although the right character appears on the page, the incorrect width has been caluclated, using this function to explicitly set that number to the named character should fix the problem.
+Note that the encoding directive will be effective <b>only the first time</b> that a font is selected, and it should not be used on symbolic fonts (such as Symbol or ZapfDingbats).
+
+#C
+// use a Times-Roman font with MacExpertEncoding
+$pdf->selectFont('Times-Roman','MacExpertEncoding');
+// this next line should be equivalent
+$pdf->selectFont('Times-Roman',array('encoding'=>'MacExpertEncoding'));
+
+// setup the helvetica font for use with german characters
+$diff=array(196=>'Adieresis',228=>'adieresis',
+             214=>'Odieresis',246=>'odieresis',
+             220=>'Udieresis',252=>'udieresis',
+             223=>'germandbls');
+$pdf->selectFont('Helvetica'
+       ,array('encoding'=>'WinAnsiEncoding'
+             ,'differences'=>$diff));
+#c
+
+
+2<setFontFamily>
+
+<b>setFontFamily(family,options)</b>
+
+This function defines the relationship between the various fonts that are in the system, so that when a base font is selected the program then knows which to use when it is asked for the <b>bold</b> version or the <i>italic</i> version (not forgetting of course <b><i>bold-italic</i></b>).
+
+It maintains a set of arrays which give the alternatives for the base fonts. The defaults that are in the system to start with are:
+
+'Helvetica'
+        'b'=>'Helvetica-Bold'
+        'i'=>'Helvetica-Oblique'
+        'bi'=>'Helvetica-BoldOblique'
+        'ib'=>'Helvetica-BoldOblique'
+
+'Courier'
+        'b'=>'Courier-Bold'
+        'i'=>'Courier-Oblique'
+        'bi'=>'Courier-BoldOblique'
+        'ib'=>'Courier-BoldOblique'
+
+'Times-Roman'
+        'b'=>'Times-Bold'
+        'i'=>'Times-Italic'
+        'bi'=>'Times-BoldItalic'
+        'ib'=>'Times-BoldItalic'
+
+(where 'b' indicate bold, and 'i' indicates italic)
+        
+Which means that (for example) if you have selected the 'Courier' font, and then you use the italic markers then the system will change to the 'Courier-Oblique' font.
+
+Note that at the moment it is not possible to have any more fonts, so there is little use in calling this function (except to change these settings, discussed below), but this is paving the way for when soon we will be able to add other fonts (both .afm, and .ttf), which is also why the suffix must be specified in the font name.
+
+Note also that it is possible to have a different font when some text is bolded, then italicized, as compared to when it is italicized, then bolded ('bi' vs 'ib'), though they have all been set to be the same by default.
+
+If you bold a font twice, then under the current system it would look for a 'bb' entry in the font family, and since there are none in the default families the font will revert to the base font. As an example here is the code that you would use to define a new font family for the Courier font which (for some reason) changed to Times-Roman when a double bold is used:
+
+#C
+$tmp = array(
+         'b'=>'Courier-Bold'
+        ,'i'=>'Courier-Oblique'
+        ,'bi'=>'Courier-BoldOblique'
+        ,'ib'=>'Courier-BoldOblique'
+        ,'bb'=>'Times-Roman'
+      );
+$pdf->setFontFamily('Courier',$tmp);
+#c
+
+2<setEncryption>
+
+<b>setEncryption([userPass=''],[ownerPass=''],[pc=array], [mode=1])</b>
+
+Calling this function sets up the document to be encrypted, this is the only way to mark the document so that they user cannot use cut and paste, or printing.
+
+Since version 0.11.2 a new parameter "$mode" has been added to this function to allow RC4 128bit encryption (PDF 1.4 required)
+
+Using the call without options, defaults to preventing the user from cut & paste or printing. There are no passwords require to open the document.
+
+#C
+$pdf->setEncryption();
+#c
+
+Setting either off the passwords will mean that the user will have to enter a password to open the document. If the owner password is entered when the document is opened then the user will be able to print etc. If the two passwords are set to be the same (or the owner password is left blank) then there is noo owner password, and the document cannot be opened in the accesible mode.
+
+The pc array can be used to <b>allow</b> specific actions. The following example, sets an owner password, a user password, and allows printing and cut & paste.
+
+#C
+$pdf->setEncryption('trees','frogs',array('copy','print'));
+#c
+
+
+2<addLink>
+
+<b>addLink(url,x0,y0,x1,y1)</b>
+
+Creates a clickable rectangular area within the document, which takes the user to the URL when clicked. The coordinates specify the area.
+
+See the information in the <i>inline codes</i> chapter of the ezPdf section to see and easy way of adding links to your code.
+
+#C
+$pdf->addLink("http://www.ros.co.nz/pdf/",50,100,500,120);
+$pdf->rectangle(50,100,450,20);
+#c
+#X
+$pdf->ezSetDy(-40,'makeSpace');
+$pdf->addLink("http://www.ros.co.nz/pdf/",50,$pdf->y,500,$pdf->y+20);
+$pdf->rectangle(50,$pdf->y,450,20);
+#x
+
+2<addInternalLink>
+
+<b>addInternalLink(label,x0,y0,x1,y1)</b>
+
+Creates an internal link in the document, 'label' is the name of an target point, and the other settings are the coordinates of the enclosing rectangle of the clickable area.
+
+Note that the destination markers are created using the <i>addDestination</i> function described below.
+
+See the information in the <i>inline codes</i> chapter of the ezPdf section to see and easy way of adding links to your code.
+
+2<addDestination>
+
+<b>addDestination(label,style[,a][,b][,c])</b>
+
+This marks a point in the document as a potential destination for an internal link, the 'label' can be any string, though should be unique for the document, else confusion may ensue. The remainer of the options are identical to the <i>openHere</i> function.
+
+
+2<transaction>
+
+<b>transaction(action)</b>
+
+One of the major problems with this class has been the inability to format things so that they fit nicely, as you cannot know how large something is until you have it on the page, this function attempts to produce a solution this.
+
+Transaction support (terminology borrowed from databases) allows you to mark a point in the development of your document, and if you do not like how things are going from there you can abort and return to that place. This will allow tentatively trying a few different options for things, then settling with the one that looks like what you like. The most obvious application immediatly is support for stopping table cells being split over pages. If you start a row and on completion discover that you are on a new page, then just abort the transaction, going back to the position before you started making that row, and then make a new page there.
+
+'action' can be set to one of 'start','commit','rewind','abort', which are fairly obvious in their usage.
+
+'start' - mark a checkpoint, a position to return to upon 'abort'
+'commit' - you are happy with this one, it releases the most recent 'start' though does not affect the document.
+'rewind' - you are not happy, but are planning to start again from the last checkpoint, this is the same as an 'abort' and a 'start', but is much more efficient.
+'abort' - you are not happy with you the document is looking, this will return you to the state at last 'start' point.
+
+Notes:
+- 'start' commands can be nested, and 'abort' or 'commit' will always affect the most recent start.
+- though often it seems that you do not need to 'commit' if you are happy with your changes, it is good practice, the 'start' command is effectively making an internal copy of the document, if you are working on a large document you may run out of space. The 'commit' command frees up that space once more.
+- these commands, though they are part of the base class, save all the setting of the object in which they are contained, this means most often that they will work fine with an ezPdf object, and will also work with user class extensions.
+
+1<Misc>
+
+2<Callback functions>
+
+Code has been included within class.pdf.php which allows the user to place a marker within the text, when the interpreter places that piece of text on the page, then the named function will be called, passing an array which has the details about the position.
+
+The marker is either of the forms:
+#C
+&lt;c:<i>func</i>:<i>paramater</i>>aaa bbb ccc&lt;/c:<i>func</i>>
+&lt;C:<i>func</i>:<i>paramater</i>>
+#c
+
+The first form (with the small 'c') is for when the situation requires both an opening and a closing tag, and the second form for when only one specific point needs to be marked.
+
+When this piece of text is placed, the class function 'func' will be called, and it must have been defined with a single paramater. This paramater will be an array, which will have members:
+
+#C
+x => x-position
+y => y-position
+status => <see below>
+f => function name
+height => font height
+decender => font decender
+#c
+
+Where the status can have one of the values 'start','end','sol','eol'. The start and end values are obvious and indicate that this is either the start or the end of the marked range. The other two indicate start-of-line and end-of-line, which are called if the start or end of a line is reached between matching start and end markers.
+
+Note that the function needs to be a function of the pdf class, so if you wish to use a custom function then you need to extend the class and add your own functions. This is done within the script that makes this document, to collect the information which makes the table of contents, and to add the dots on each line within the table of contents display.
+
+<b>NOTE</b> For various technical reasons if there are any spaces within the marker, then these will affect the justification calculation, it is best to avoid having them. This is why the title names in the example below were urlencoded when placed in the paramater section.
+
+<b>NOTE</b> These functions should be used with care, it is possible to set up an infinite loop. If the function called by the two-part form has an addText command within it, then if it is not set up very carefully then an infinite loop is formed as the function is re-called at the start and end of the addText command... and so on... and so on... and so on...
+
+As an example, here is the code which extends the class for this document
+
+#C
+include 'class.ezpdf.php';
+
+class Creport extends Cezpdf {
+
+// <i>make a location to store the information that will be collected during document formation</i>
+var $reportContents = array();
+
+// <i>it is neccesary to manually call the constructor of the extended class</i>
+function Creport($p,$o){
+  $this->Cezpdf($p,$o);
+}
+
+/*
+<i>The function 'rf' records in an array the page number level number and heading for each title as the document is constructed. This information is used at the end to construct the table of contents. Each heading has had a marker put next to it of the form:
+&lt;C:rf:1top%20heading>, which would be for a level 1 heading called 'top heading'.
+After the bulk of the document has been constructed, the array $pdf->reportContents is selected, and the table of contents made.
+</i> */
+function rf($info){
+  $tmp = $info['p'];
+  $lvl = $tmp[0];
+  $lbl = rawurldecode(substr($tmp,1));
+  $num=$this->ezWhatPageNumber($this->ezGetCurrentPageNumber());
+  $this->reportContents[] = array($lbl,$num,$lvl );
+}
+
+/*<i>
+The dots function is called by a marker of the form:
+&lt;C:dots:213>
+Which would represent a heading being show for which the original document was on page 13, and the heading was level 2. The marker is placed at the end of the text being displayed within the table of contents, upon activation it draws a dotted line across from that point to the right hand side of the page, and puts the given label there (to be more accurate it draws the line from the right, back to the left, so that all the dots line up down the page).
+</i>*/
+function dots($info){
+  // draw a dotted line over to the right and put on a page number
+  $tmp = $info['p'];
+  $lvl = $tmp[0];
+  $lbl = substr($tmp,1);
+  $xpos = 520;
+
+  switch($lvl){
+    case '1':
+      $size=16;
+      $thick=1;
+      break;
+    case '2':
+      $size=12;
+      $thick=0.5;
+      break;
+  }
+  $this->saveState();
+  $this->setLineStyle($thick,'round','',array(0,10));
+  $this->line($xpos,$info['y'],$info['x']+5,$info['y']);
+  $this->restoreState();
+  $this->addText($xpos+5,$info['y'],$size,$lbl);
+}
+}
+#c
+
+Both of these functions use only the single point call to a callback function, for an example of the more complicated two-part from, refer to the function 'alink' within class.ezpdf.php which uses callback functions to implement the url links on marked document text.
+
+2<Units>
+
+The units used for positioning within this class are the default pdf user units, in which each unit is roughly equivalent to 1/72 of an inch.
+
+and some additional user contributed notes are (thanks Andrew):
+
+1/72" is 0.3528mm or 1 point
+1 point was historically 0.0138 inches, a little under 1/72"
+10mm is 28.35 points
+A4 is 210 x 297 mm or 595.28 x 841.89 points
