@@ -386,9 +386,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-<?php //Check if new patient is added to hooks
-//this will hold the javascript submit me param new_validate;
-$new_validate = $GLOBALS['new_validate'] ? 1 : 0;
+<?php
+//Check if use zend patien validation module
 
 if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
 {
@@ -813,54 +812,52 @@ $form_id="DEM";
     });
 
 //This code deals with demographics before save action -
-<?php if ($hook):?>
+	<?php if ($hook):?>
 
-	var f = $("form");
+		var f = $("form");
 
-	// Use hook to open the controller and get the new patient validation .
-	// when no params are sent this window will be closed from the zend controller.
-	var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
-	$("#submit").attr("type","button");
-	$("#submit").attr("name","btnSubmit");
-	$("#submit").attr("id","btnSubmit");
-	$("#btnSubmit").click(function( event ) {
-		if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
-			event.preventDefault();
-			return;
-		}
-		somethingChanged = false;
-		<?php
-		// D in edit_options indicates the field is used in duplication checking.
-		// This constructs a list of the names of those fields.
-		$mflist = "";
-		$mfres = sqlStatement("SELECT field_id FROM layout_options " .
-			"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-			"edit_options LIKE '%D%' " .
-			"ORDER BY group_name, seq");
-		while ($mfrow = sqlFetchArray($mfres)) {
-			$field_id  = $mfrow['field_id'];
-			if (strpos($field_id, 'em_') === 0) continue;
-			if (!empty($mflist)) $mflist .= ",";
-			$mflist .= "'" . text($field_id) . "'";
-
-		}
-		?>
-
-		var flds = new Array(<?php echo $mflist; ?>);
-		var separator = '?';
-		for (var i = 0; i < flds.length; ++i) {
-			var fval = $('#form_' + flds[i]).val();
-			if (fval && fval != '') {
-				url += separator;
-				separator = '&';
-				url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+		// Use hook to open the controller and get the new patient validation .
+		// when no params are sent this window will be closed from the zend controller.
+		var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+		$("#submit_btn").attr("type","button");
+		$("#submit_btn").attr("name","btnSubmit");
+		$("#submit_btn").attr("id","btnSubmit");
+		$("#btnSubmit").click(function( event ) {
+			if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
+				event.preventDefault();
+				return;
 			}
-		}
-		url += '&closeBeforeOpening=1';
-		dlgopen(url, '_blank', 700, 500);
-	});
+			somethingChanged = false;
+			<?php
+			// D in edit_options indicates the field is used in duplication checking.
+			// This constructs a list of the names of those fields.
+			$mflist = "";
+			$mfres = sqlStatement("SELECT field_id FROM layout_options " .
+				"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+				"edit_options LIKE '%D%' " .
+				"ORDER BY group_name, seq");
+			while ($mfrow = sqlFetchArray($mfres)) {
+				$field_id  = $mfrow['field_id'];
+				if (strpos($field_id, 'em_') === 0) continue;
+				if (!empty($mflist)) $mflist .= ",";
+					$mflist .= "'" . text($field_id) . "'";
+			} ?>
 
-<?php endif;?>
+			var flds = new Array(<?php echo $mflist; ?>);
+			var separator = '?';
+			for (var i = 0; i < flds.length; ++i) {
+				var fval = $('#form_' + flds[i]).val();
+				if (fval && fval != '') {
+					url += separator;
+					separator = '&';
+					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+				}
+			}
+			url += '&closeBeforeOpening=1';
+			dlgopen(url, '_blank', 700, 500);
+		});
+
+	<?php endif;?>
 </script>
 
 
