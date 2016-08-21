@@ -739,3 +739,18 @@ UPDATE `globals` SET `gl_value` = 'style_tan.css' WHERE `gl_name` = 'css_header'
 ALTER TABLE `users` DROP COLUMN `ssi_relayhealth`;
 #EndIf
 
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-PCS-Long-Abbrev-Titles.zip
+INSERT INTO upported_external_dataloads (oad_type, oad_source, oad_release_date, oad_filename, oad_checksum) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-PCS-Long-Abbrev-Titles.zip', '4669c47f6a9ca34bf4c14d7f93b37993');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-GEM-DC.zip
+INSERT INTO upported_external_dataloads (oad_type, oad_source, oad_release_date, oad_filename, oad_checksum) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-GEM-DC.zip', '5a0affdc77a152e6971781233ee969c1');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-ICD10-Code-Descriptions.zip
+INSERT INTO upported_external_dataloads (oad_type, oad_source, oad_release_date, oad_filename, oad_checksum) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-ICD10-Code-Descriptions.zip', 'ed9c159cb4ac4ae4f145062e15f83291');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-GEM-PCS.zip
+INSERT INTO upported_external_dataloads (oad_type, oad_source, oad_release_date, oad_filename, oad_checksum) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-GEM-PCS.zip', 'a4e08b08fb9a53c81385867c82aa8a9e');
+#EndIf
