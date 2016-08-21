@@ -846,7 +846,7 @@ enable_modals();
         }
 ?>
         <?php if($hook):?>
-        // Use hook to open the controller and get the new patient validation
+        // Use zend patient validation to open the controller and get the new patient validation(duplicate)
         var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
         <?php else:?>
         // Build and invoke the URL to create the dup-checker dialog.
