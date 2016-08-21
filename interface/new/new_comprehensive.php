@@ -104,16 +104,9 @@ div.section {
     $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
     if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
     {
-    $hook = checkIfPatientValidationHookIsActive();
+        $hook = checkIfPatientValidationHookIsActive();
     }
-    else {
-    print "<script>";
-        echo  "$(document).ready(function(){
-        $(\"#DEM\").submit(function(e){
-        submitme(" . $new_validate . ",e,\"DEM\"); 
-        })});";
-        echo  "</script>";
-    }
+
 
 ?>
 <SCRIPT LANGUAGE="JavaScript"><!--
