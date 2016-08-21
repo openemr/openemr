@@ -140,15 +140,15 @@ function DOBandEncounter()
 			 sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
 									 "pid = ?", array($patient_dob,$_POST['form_pid']) );
 	 }
-	 
+
     // Manage tracker status.
     // And auto-create a new encounter if appropriate.	 
     if (!empty($_POST['form_pid'])) {
-     if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))		 
+     if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))
      {
 		 $encounter = todaysEncounterCheck($_POST['form_pid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
 		 if($encounter){
-				 $info_msg .= xl("New encounter created with id"); 
+				 $info_msg .= xl("New encounter created with id");
 				 $info_msg .= " $encounter";
 		 }
                  # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
@@ -161,9 +161,9 @@ function DOBandEncounter()
 	 	    manage_tracker_status($event_date,$appttime,$temp_eid,$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room'],$encounter);
                  }
      }
-     else 
+     else
      {
-             # Capture the appt status and room number for patient tracker. 
+             # Capture the appt status and room number for patient tracker.
              if (!empty($_GET['eid'])) {
                 manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
              }
@@ -213,7 +213,7 @@ if ( $eid ) {
 // EOS E2F
 // ===========================
 //=============================================================================================================================
-if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") 
+if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
  {
     // the starting date of the event, pay attention with this value
     // when editing recurring events -- JRM Oct-08
@@ -246,25 +246,39 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
     $my_repeat_on_num  = 1;
     $my_repeat_on_day  = 0;
     $my_repeat_on_freq = 0;
-    if (!empty($_POST['form_repeat'])) {
-      $my_recurrtype = 1;
-      if ($my_repeat_type > 4) {
-        $my_recurrtype = 2;
-        $time = strtotime($event_date);
-        $my_repeat_on_day = 0 + date('w', $time);
-        $my_repeat_on_freq = $my_repeat_freq;
-        if ($my_repeat_type == 5) {
-          $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
-        }
-        else {
-          // Last occurence of this weekday on the month
-          $my_repeat_on_num = 5;
-        }
-        // Maybe not needed, but for consistency with postcalendar:
-        $my_repeat_freq = 0;
-        $my_repeat_type = 0;
-      }
-    }
+
+         //If used new recurrence mechanism of set days every week
+         if(!empty($_POST['days_every_week'])){
+             $my_recurrtype = 3;
+             //loop through checkboxes and insert encounter days into array
+             $days_every_week_arr = array();
+             for($i=1; $i<=7; $i++){
+                 if(!empty($_POST['day_' . $i])){
+                     array_push($days_every_week_arr, $i);
+                 }
+             }
+             $my_repeat_freq = implode(",",$days_every_week_arr);
+             $my_repeat_type = 6;
+         }
+         elseif (!empty($_POST['form_repeat'])){
+             $my_recurrtype = 1;
+             if ($my_repeat_type > 4) {
+                 $my_recurrtype = 2;
+                 $time = strtotime($event_date);
+                 $my_repeat_on_day = 0 + date('w', $time);
+                 $my_repeat_on_freq = $my_repeat_freq;
+                 if ($my_repeat_type == 5) {
+                     $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
+                 } else {
+                     // Last occurence of this weekday on the month
+                     $my_repeat_on_num = 5;
+                 }
+                 // Maybe not needed, but for consistency with postcalendar:
+                 $my_repeat_freq = 0;
+                 $my_repeat_type = 0;
+             }
+         }
+
 
     // Useless garbage that we must save.
     $locationspecs = array("event_location" => "",
@@ -294,10 +308,10 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
                         "exdate" => ""
                     );
 
- }//if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save") 
+ }//if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 //=============================================================================================================================
 if ($_POST['form_action'] == "duplicate") {
-	
+
 	InsertEventFull();
 	DOBandEncounter();
 
@@ -418,7 +432,7 @@ if ($_POST['form_action'] == "save") {
                         sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']) );
                     }
                 }
-    
+
                 // perform a check to see if user changed event date
                 // this is important when editing an existing recurring event
                 // oct-08 JRM
@@ -443,8 +457,8 @@ if ($_POST['form_action'] == "save") {
                         $args['endtime'] = $endtime;
                         $args['locationspec'] = $locationspec;
                         InsertEvent($args);
-                    } 
-                } 
+                    }
+                }
 
                 // after the two diffs above, we must update for remaining providers
                 // those who are intersected in $providers_current and $providers_new
@@ -468,7 +482,7 @@ if ($_POST['form_action'] == "save") {
                         "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', "  .
                         "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                         "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
-                        "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
+                        "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  .
                         "WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple = '" . add_escape_custom($row['pc_multiple'])  . "'");
                 } // foreach
             }
@@ -560,7 +574,7 @@ if ($_POST['form_action'] == "save") {
                     "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', "  .
                     "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                     "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
-                    "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
+                    "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  .
                     "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
             }
         }
@@ -579,13 +593,13 @@ if ($_POST['form_action'] == "save") {
          * ======================================================*/
 
 		InsertEventFull();
-		
+
     }
 
     // done with EVENT insert/update statements
 
 		DOBandEncounter();
-		
+
  }
 
 // =======================================
@@ -770,7 +784,7 @@ if ($_POST['form_action'] == "save") {
  else {
     // a NEW event
     $eventstartdate = $date; // for repeating event stuff - JRM Oct-08
- 
+
     //-------------------------------------
     //(CHEMED)
     //Set default facility for a new event based on the given 'userid'
@@ -786,7 +800,7 @@ if ($_POST['form_action'] == "save") {
 		        WHERE f.id = ?
 	          ",
 		        array($_SESSION['pc_facility'])
-	          ));	
+	          ));
         } else {
           $pref_facility = sqlFetchArray(sqlStatement("
             SELECT u.facility_id, 
@@ -988,10 +1002,16 @@ td { font-size:0.8em; }
   }
   f.form_repeat_type.disabled = isdisabled;
   f.form_repeat_freq.disabled = isdisabled;
-  f.form_enddate.disabled = isdisabled;
   document.getElementById('tdrepeat1').style.color = mycolor;
   document.getElementById('tdrepeat2').style.color = mycolor;
-  document.getElementById('img_enddate').style.visibility = myvisibility;
+     if(f.days_every_week.checked){
+         f.form_enddate.disabled = false;
+         document.getElementById('img_enddate').style.visibility = 'visible';
+     }
+     else {
+         f.form_enddate.disabled = isdisabled;
+         document.getElementById('img_enddate').style.visibility = myvisibility;
+     }
  }
 
  // Constants used by dateChanged() function.
@@ -1078,7 +1098,7 @@ td { font-size:0.8em; }
 <form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>' />
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type='hidden' size='2' name='resname' value='empty' />
-<?php 
+<?php
 if ($_POST["resname"]=="noresult"){
 echo '
 <script language="Javascript">
@@ -1101,7 +1121,7 @@ $classpati='';
 <input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>">
 <center>
 <table border='0' >
-<?php 
+<?php
 	$provider_class='';
 	$normal='';
 	if($_GET['prov']==true){
@@ -1194,7 +1214,7 @@ $classpati='';
     title='<?php echo xla('Event title'); ?>' />
   </td>
   <td nowrap>&nbsp;
-   
+
   </td>
   <td nowrap id='tdallday4'><?php echo xlt('duration'); ?>
   </td>
@@ -1283,7 +1303,7 @@ $classpati='';
 <?php
 
 // =======================================
-// multi providers 
+// multi providers
 // =======================================
 if  ($GLOBALS['select_multi_providers']) {
 
@@ -1302,22 +1322,22 @@ if  ($GLOBALS['select_multi_providers']) {
             $providers_array = sqlFetchArray($qall);
         }
     }
-    
+
     // build the selection tool
     echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
-    
+
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['id']) . "'";
-    
+
         if ($userid) {
             if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
         }
-    
+
         echo ">" . text($urow['lname']);
         if ($urow['fname']) echo ", " . text($urow['fname']);
         echo "</option>\n";
     }
-    
+
     echo '</select>';
 
 // =======================================
@@ -1332,7 +1352,7 @@ if  ($GLOBALS['select_multi_providers']) {
         $defaultProvider = $provider['pc_aid'];
     }
     else {
-      // this is a new event so smartly choose a default provider 
+      // this is a new event so smartly choose a default provider
     /*****************************************************************
       if ($userid) {
         // Provider already given to us as a GET parameter.
@@ -1427,6 +1447,19 @@ if  ($GLOBALS['select_multi_providers']) {
 
   </td>
  </tr>
+    <tr>
+        <td><input type='checkbox' name='days_every_week' onclick='set_repeat()'/></td>
+        <td>
+            <input type='checkbox' name='day_1' />
+            <input type='checkbox' name='day_2' />
+            <input type='checkbox' name='day_3' />
+            <input type='checkbox' name='day_4' />
+            <input type='checkbox' name='day_5' />
+            <input type='checkbox' name='day_6' />
+            <input type='checkbox' name='day_7' />
+        </td>
+
+    </tr>
 
  <tr>
   <td nowrap>
@@ -1448,7 +1481,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'ap
 
   </td>
   <td nowrap>&nbsp;
-   
+
   </td>
   <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
   </td>
@@ -1494,7 +1527,7 @@ if ($repeatexdate != "") {
   </td>
  </tr>
 
- 
+
 <?php
  // DOB is important for the clinic, so if it's missing give them a chance
  // to enter it right here.  We must display or hide this row dynamically
@@ -1668,5 +1701,5 @@ function SubmitForm() {
 }
 
 </script>
-   
+
 </html>

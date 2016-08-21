@@ -1470,7 +1470,7 @@ function calculateEvents($days,$events,$viewtype) {
                     }
                 }
             }
-            
+
             // push event into the days array
             if ($excluded == false) array_push($days[$occurance],$event);
 
@@ -1487,6 +1487,55 @@ function calculateEvents($days,$events,$viewtype) {
 
         break;
 
+		case REPEAT_DAYS:
+			$rfreq = $event_recurrspec['event_repeat_freq'];
+			$rtype = $event_recurrspec['event_repeat_freq_type'];
+			$exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
+
+			// we should bring the event up to date to make this a tad bit faster
+			// any ideas on how to do that, exactly??? dateToDays probably.
+			$nm = $esM; $ny = $esY; $nd = $esD;
+			$occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
+			while($occurance < $start_date) {
+//				$nextDay = getNextDay($occurance, $rfreq);
+				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
+				list($ny,$nm,$nd) = explode('-',$occurance);
+			}
+
+			while($occurance <= $stop) {
+				if(isset($days[$occurance])) {
+					// check for date exceptions before pushing the event into the days array -- JRM
+					$excluded = false;
+					if (isset($exdate)) {
+						foreach (explode(",", $exdate) as $exception) {
+							// occurrance format == yyyy-mm-dd
+							// exception format == yyyymmdd
+							if (preg_replace("/-/", "", $occurance) == $exception) {
+								$excluded = true;
+							}
+						}
+					}
+
+					// push event into the days array
+					if ($excluded == false) array_push($days[$occurance],$event);
+
+					if ($viewtype == "week") {
+						fillBlocks($occurance, $days);
+						//echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
+						$gbt = getBlockTime($eventS);
+						$days[$occurance]['blocks'][$gbt][$occurance][] = $event;
+						//echo "begin printing blocks for $eventD<br />";
+						//print_r($days[$occurance]['blocks']);
+						//echo "end printing blocks<br />";
+					}
+				}
+
+//				$nextDay = getNextDay($occurance, $rfreq);
+				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
+				list($ny,$nm,$nd) = explode('-',$occurance);
+			}
+			break;
+
     } // <- end of switch($event['recurrtype'])
   } // <- end of foreach($events as $event)
   return $days;
@@ -1502,5 +1551,6 @@ function fillBlocks($td,$ar) {
 
 
 }
+
 
 ?>
