@@ -853,7 +853,7 @@ $form_id="DEM";
 					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
 				}
 			}
-			url += '&closeBeforeOpening=1';
+			url += '&page=edit&closeBeforeOpening=1';
 			dlgopen(url, '_blank', 700, 500);
 		});
 
