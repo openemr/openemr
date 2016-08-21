@@ -108,11 +108,11 @@ div.section {
     }
     else {
     print "<script>";
-        print "$(document).ready(function(){
+        echo  "$(document).ready(function(){
         $(\"#DEM\").submit(function(e){
         submitme(" . $new_validate . ",e,\"DEM\"); 
         })});";
-        print "</script>";
+        echo  "</script>";
     }
 
 ?>
