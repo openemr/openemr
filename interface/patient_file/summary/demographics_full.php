@@ -386,17 +386,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-<?php
-//Check if use zend patien validation module
-
-if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
-{
-	$hook = checkIfPatientValidationHookIsActive();
-
-}
-
-
-?>
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
@@ -812,7 +801,11 @@ $form_id="DEM";
     });
 
 //This code deals with demographics before save action -
-	<?php if ($hook):?>
+	<?php if ( ($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive()) ):?>
+
+                //Use the Zend patient validation hook.
+                //TODO - get the edit part of patient validation hook to work smoothly and then
+                //       remove the closeBeforeOpening=1 in the url below.
 
 		var f = $("form");
 

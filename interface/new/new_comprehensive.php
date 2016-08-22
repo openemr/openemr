@@ -99,15 +99,6 @@ div.section {
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
-<?php
-
-    if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
-    {
-        $hook = checkIfPatientValidationHookIsActive();
-    }
-
-
-?>
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
@@ -845,12 +836,12 @@ enable_modals();
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
-        <?php if($hook):?>
-        // Use zend patient validation to open the controller and get the new patient validation(duplicate)
-        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
+        <?php if ( ($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive()) ):?>
+            // Use zend module patient validation hook to open the controller and send the dup-checker fields.
+            var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
         <?php else:?>
-        // Build and invoke the URL to create the dup-checker dialog.
-        var url = 'new_search_popup.php';
+            // Build and invoke the URL to create the dup-checker dialog.
+            var url = 'new_search_popup.php';
         <?php endif;?>
 
         var flds = new Array(<?php echo $mflist; ?>);

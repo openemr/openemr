@@ -23,6 +23,7 @@ use Patientvalidation\Model\PatientData;
 use Zend\Json\Server\Exception\ErrorException;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Application\Listener\Listener;
 use Error;
 
 class PatientvalidationController extends BaseController{
@@ -34,6 +35,7 @@ class PatientvalidationController extends BaseController{
     public function __construct()
     {
         parent::__construct();
+        $this->listenerObject = new Listener;
         //todo add permission of admin
 
     }
@@ -82,7 +84,7 @@ class PatientvalidationController extends BaseController{
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title","Patient validation");
+        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Patient validation"));
         $this->layout()->setVariable("translate",$this->translate);
 
          $relatedPatients =  $this->getAllRealatedPatients();
