@@ -188,14 +188,27 @@ $GLOBALS_METADATA = array(
 
     'full_new_patient_form' => array(
       xl('New Patient Form'),
+
       array(
         '0' => xl('Old-style static form without search or duplication check'),
         '1' => xl('All demographics fields, with search and duplication check'),
         '2' => xl('Mandatory or specified fields only, search and dup check'),
         '3' => xl('Mandatory or specified fields only, dup check, no search'),
+        '4' => xl('Mandatory or specified fields only, use patient validation Zend module'),
       ),
       '1',                              // default
       xl('Style of form used for adding new patients')
+    ),
+
+    'gbl_edit_patient_form' => array(
+      xl('Modify Patient Form'),
+
+      array(
+        '0' => xl('Standard check'),
+        '1' => xl('Zend Module check in addition to standard check')
+      ),
+      '0',                              // default
+      xl('Validation mechanism for when modifying patient demographics.')
     ),
 
     'patient_search_results_style' => array(
