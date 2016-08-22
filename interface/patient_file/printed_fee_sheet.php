@@ -280,7 +280,7 @@ height: ${page_height}pt;
 
 $html .= "<title>" . htmlspecialchars($frow['name']) . "</title>
 <script type='text/javascript' src='../../library/js/jquery-1.2.2.min.js'></script>
-<script type=\"text/javascript\" src=\"../../library/dialog.js\"></script>
+<script type=\"text/javascript\" src=\"../../library/js/dialog.js\"></script>
 <script language=\"JavaScript\">";
 
 $html .= "

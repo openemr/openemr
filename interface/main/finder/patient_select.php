@@ -112,7 +112,7 @@ form {
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../../library/js/topdialog.js"></script>
 <?php } ?>
 
 <script language="JavaScript">

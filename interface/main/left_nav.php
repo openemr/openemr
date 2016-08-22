@@ -385,7 +385,7 @@ function genFindBlock() {
 <script src="../../library/js/jquery-1.6.4.min.js" type="text/javascript"></script>
 <script src="../../library/js/jquery.treeview-1.4.1/jquery.treeview.js" type="text/javascript"></script>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 
 <script language='JavaScript'>
  

@@ -111,9 +111,9 @@ tr.oddrow {
 
 <script src="../../library/js/jquery-1.2.2.min.js" type="text/javascript"></script>
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 
 <script language="JavaScript">
 

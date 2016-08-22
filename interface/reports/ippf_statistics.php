@@ -977,10 +977,10 @@ function uses_description($form_by) {
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/textformat.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 

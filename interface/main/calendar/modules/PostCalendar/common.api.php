@@ -353,7 +353,7 @@ ol_hauto = 1;
 ol_vauto = 1;
 </script>
 <div id="overDiv" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index:1000;"></div>
-<script language="JavaScript" src="modules/$pcDir/pnincludes/overlib_mini.js">
+<script language="JavaScript" src="modules/$pcDir/pnincludes/js/overlib_mini.js">
 <!-- overLIB (c) Erik Bosrup -->
 </script>
 

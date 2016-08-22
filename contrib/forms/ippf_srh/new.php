@@ -114,7 +114,7 @@ div.section {
 
 </style>
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/dialog.js"></script>
 
 <script language="JavaScript">
 

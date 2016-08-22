@@ -87,9 +87,9 @@ if ($form_patient == '' ) $form_pid = '';
 
 <title><?php echo xlt('Patient Flow Board Report'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/overlib_mini.js"></script>
+<script type="text/javascript" src="../../library/js/textformat.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script type="text/javascript">
@@ -655,10 +655,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <style type="text/css">
     @import url(../../library/dynarch_calendar.css);
 </style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript"
-    src="../../library/dynarch_calendar_setup.js"></script>
+    src="../../library/js/dynarch_calendar_setup.js"></script>
 <script type="text/javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});

@@ -66,9 +66,9 @@ table.mymaintable td, table.mymaintable th {
 </style>
 <title><?php xl('Services by Category','e'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/overlib_mini.js"></script>
+<script type="text/javascript" src="../../library/js/textformat.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 

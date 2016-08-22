@@ -9,7 +9,7 @@ setpid($_GET["set_pid"]);
 <TITLE>
 <?php echo $openemr_name ?>
 </TITLE>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js"></script>
 
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

@@ -107,8 +107,8 @@ tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
 
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 
 <script language="JavaScript">
 

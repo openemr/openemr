@@ -81,8 +81,8 @@ td { font-size:10pt; }
 
 </style>
 
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js"></script>
 
 <script language="JavaScript">

@@ -48,9 +48,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo $web_root?>/library/dynarch_calendar.css" type="text/css" />
     <!-- OpenEMR Calendar -->
-    <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar.js"></script>
-    <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar_setup.js"></script>
-    <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar.js"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar_setup.js"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/textformat.js"></script>
     
     <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 </head>

@@ -278,10 +278,10 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
  padding: 0 0 0 0;
 }
 </style>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/js/textformat.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';

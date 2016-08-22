@@ -9,7 +9,7 @@
 
 <head>
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
-    <script language="javascript" src="../../../library/dialog.js"></script>
+    <script language="javascript" src="../../../library/js/dialog.js"></script>
     <script type="text/javascript">
         // This invokes the find-code popup.
         function sel_diagnosis() {

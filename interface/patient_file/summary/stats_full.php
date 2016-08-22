@@ -48,7 +48,7 @@ $language = $tmp['language'];
 
 <title><?php echo xlt('Patient Issues'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
 
 <script language="JavaScript">

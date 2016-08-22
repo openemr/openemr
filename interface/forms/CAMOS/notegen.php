@@ -33,10 +33,10 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 </title>
 <style type="text/css">@import url('<?php echo $depth ?>library/dynarch_calendar.css');</style>
 <script type="text/javascript" src="<?php echo $depth ?>library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $depth ?>library/js/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $depth ?>library/js/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $depth ?>library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $depth ?>library/js/dynarch_calendar_setup.js"></script>
 </head>
 
 <body>

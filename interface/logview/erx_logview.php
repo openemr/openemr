@@ -76,10 +76,10 @@ if($filename) {
 		<?php html_header_show(); ?>
 		<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css" type="text/css">
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar.js"></script>
 		<?php include_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar_setup.js"></script>
 		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery-1.2.2.min.js"></script>
 	</head>
 	<body class="body_top">

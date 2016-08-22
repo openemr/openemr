@@ -34,7 +34,7 @@ if (!($auth_notes_a || $auth_notes || $auth_relaxed)) {
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/tooltip.js"></script>
+<script type="text/javascript" src="../../../library/js/tooltip.js"></script>
 
 <script language="JavaScript">
 

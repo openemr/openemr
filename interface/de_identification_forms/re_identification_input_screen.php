@@ -31,7 +31,7 @@ require_once("$srcdir/translation.inc.php");
 	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
 	type='text/css'>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
 
 <style type="text/css">
 .style1 {

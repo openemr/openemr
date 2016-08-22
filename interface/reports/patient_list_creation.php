@@ -74,8 +74,8 @@
 		<title>
 			<?php echo xlt('Patient List Creation'); ?>
 		</title>
-		<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-		<script type="text/javascript" src="../../library/dialog.js"></script>
+		<script type="text/javascript" src="../../library/js/overlib_mini.js"></script>
+		<script type="text/javascript" src="../../library/js/dialog.js"></script>
 		<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 		<script language="JavaScript">
 		var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -95,7 +95,7 @@
 		}
 		
 		</script>
-		<script type="text/javascript" src="../../library/dialog.js"></script>
+		<script type="text/javascript" src="../../library/js/dialog.js"></script>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
@@ -661,9 +661,9 @@
 		<style type="text/css">
 			@import url(../../library/dynarch_calendar.css);
 		</style>
-		<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+		<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
 		<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-		<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+		<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js"></script>
 		<script language="Javascript">
 			Calendar.setup({inputField:"date_from", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_from_date", showsTime:true});
 			Calendar.setup({inputField:"date_to", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_to_date", showsTime:true});
