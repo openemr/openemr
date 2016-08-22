@@ -2807,18 +2807,17 @@ $GLOBALS_METADATA = array(
         xl('Barcode Label Type'),
        array(
             '0'  => xl('None'),
-            '1'  => 'std25',
-            '2'  => 'int25',
-            '3'  => 'ean8',
-            '4'  => 'ean13',
-            '5'  => 'upc',
-            '6'  => 'code11',
-            '7'  => 'code39',
-            '8'  => 'code93',
-            '9'  => 'code128',
-            '10' => 'codabar',
-            '11' => 'msi',
-            '12' => 'datamatrix'
+            '1'  => 'S25',
+            '2'  => 'I25',
+            '3'  => 'EAN8',
+            '4'  => 'EAN13',
+            '5'  => 'UPCA',
+            '6'  => 'CODE11',
+            '7'  => 'C39',
+            '8'  => 'C93',
+            '9'  => 'C128',
+            '10' => 'CODABAR',
+            '11' => 'MSI'
 	    ),
         '9',                              // default = None
         xl('Barcode type for printing barcode labels from popups in left nav screen.')
