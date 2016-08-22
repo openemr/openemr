@@ -1340,6 +1340,7 @@ CREATE TABLE `form_encounter` (
   `referral_source` varchar(31) NOT NULL DEFAULT '',
   `billing_facility` INT(11) NOT NULL DEFAULT 0,
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `pos_code` int(2) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `encounter_date` (`date`)
