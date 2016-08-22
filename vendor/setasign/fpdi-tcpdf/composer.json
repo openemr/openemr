@@ -1,0 +1,28 @@
+{
+    "name": "setasign/fpdi-tcpdf",
+    "version": "1.6.1",
+    "homepage": "https://www.setasign.com/fpdi",
+    "description": "Kind of metadata package for dependencies of the latest versions of FPDI and TCPDF.",
+    "type": "library",
+    "keywords": ["pdf", "fpdi", "tcpdf"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jan Slabon",
+            "email": "jan.slabon@setasign.com",
+            "homepage": "https://www.setasign.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "fpdi_bridge.php"
+        ]
+    },
+    "require": {
+        "tecnickcom/tcpdf": "6.2.*",
+        "setasign/fpdi": "1.6.*"
+    },
+    "conflict": {
+        "setasign/fpdf": "1.*"
+    }
+}

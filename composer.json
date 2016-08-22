@@ -15,7 +15,9 @@
         "adodb/adodb-php": "5.20.2",
         "phpmailer/phpmailer": "5.2.16",
         "rospdf/pdf-php": "0.12.22",
-        "phpseclib/phpseclib": "2.0.2"
+        "phpseclib/phpseclib": "2.0.2",
+        "tecnickcom/tcpdf": "6.2.12",
+        "setasign/fpdi-tcpdf": "1.6.1"
         
     },
     "require-dev": {
