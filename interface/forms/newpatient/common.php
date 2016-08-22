@@ -15,10 +15,12 @@
  *
  * @package OpenEMR
  * @author  Brady Miller <brady@sparmy.com>
+ * @co-author Sherwin Gaddis <sherwingaddis@gmail.com>  
  * @link    http://www.open-emr.org
  */
 
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/classes/POSRef.class.php");
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
@@ -248,6 +250,28 @@ if ($fres) {
 			</div>
 		</td>
      </tr>
+	<?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <tr>
+            <td><span class='bold' nowrap><?php xl('POS Code','e'); ?>: </span></td>
+            <td colspan="6">
+                <select name="pos_code">
+                <?php
+				
+                $pc = new POSRef();
+
+                foreach ($pc->get_pos_ref() as $pos) {
+                    echo "<option value=\"" . $pos["code"] . "\" ";
+					if($pos["code"] == $result['pos_code']) echo "selected";
+                    echo ">" . $pos['code']  . ": ". $pos['title'];
+                    echo "</option>\n";
+					
+                }
+
+                ?>
+                </select>
+            </td>
+        </tr>
+    <?php } ?>		
     <tr>
 <?php
  $sensitivities = acl_get_sensitivities();

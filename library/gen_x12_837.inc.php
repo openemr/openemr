@@ -524,13 +524,23 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $log .= "*** This claim has no charges!\n";
   }
 
+    //Do a quick check to see if the pos was set in the encounter
+    // Added by Sherwin 08/22/2016
+	
+		if($claim->en_pos_code()){
+			$which_pos = $claim->en_pos_code();
+		}else{
+			$which_pos = $claim->facilityPOS();
+		}
+	/************************************/	
+	
   ++$edicount;
   $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
     "*"  . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
     "*"  .
     "*"  .
-    "*"  . sprintf('%02d', $claim->facilityPOS()) . ":" .
+    "*"  . sprintf('%02d', $which_pos ) . ":" .
            ($CMS_5010 ? "B" : "") . ":" .
            $claim->frequencyTypeCode() . // Changed to correct single digit output
     "*Y" .

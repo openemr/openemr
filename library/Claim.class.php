@@ -52,6 +52,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the ar_activity table
+  var $pos_code;          // place of service selection Added by Sherwin 08-22-2016
   
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -1078,6 +1079,12 @@ class Claim {
       // If no box qualifier specified use "431" indicating Onset
       return empty($this->billing_options['box_14_date_qual']) ? '431' :
               $this->billing_options['box_14_date_qual'];
+  }
+
+  function en_pos_code()
+  {
+	  //this pos is set in the encounter 
+	  return $this->encounter['pos_code'];
   }
   
   function box15qualifier()
