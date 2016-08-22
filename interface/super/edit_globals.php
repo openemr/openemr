@@ -306,6 +306,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
@@ -368,7 +369,7 @@ $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
     echo " <li" . ($i ? "" : " class='current'") .
-      "><a href='/play/javascript-tabbed-navigation/'>" .
+      "><a href='#'>" .
       xlt($grpname) . "</a></li>\n";
     ++$i;
   }
@@ -530,6 +531,15 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         echo "</option>\n";
       }
       echo "  </select>\n";
+    }
+
+    else if ($fldtype == 'color_code') {
+      if ($_GET['mode'] == "user") {
+        $globalTitle = $globalValue;
+      }
+      echo "  <input type='text' class='color {hash:true}' name='form_$i' id='form_$i' " .
+        "size='6' maxlength='15' value='" . attr($fldvalue) . "' />" .
+        "<input type='button' value='Default' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
     }
 
     else if ($fldtype == 'css') {

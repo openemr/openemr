@@ -69,6 +69,16 @@ function set_checkbox() {literal}{{/literal}
 	{literal}}{/literal}
 {literal}}{/literal}
 
+// For tagging it with image procedure
+function ImgProcedure() {literal}{{/literal}
+	var f = document.forms['img_procedure_tag'];
+	if(f.image_procedure_id.value == 0 ) {literal}{{/literal}
+		alert("{xl t='Please select image procedure'}");
+		return false;
+	{literal}}{/literal}
+	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
+	document.forms['img_procedure_tag'].submit();	
+{literal}}{/literal}
  // Process click on Import link.
  function import_ccr(docid) {literal}{
   top.restoreSession();
@@ -100,7 +110,7 @@ function set_checkbox() {literal}{{/literal}
 <table valign="top" width="100%">
     <tr>
         <td>
-            <a class="css_button" href="{$web_path}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
+            <a class="css_button" href="{$web_path}" title="{xl t='Original file'}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
             {$delete_string}
             {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
@@ -219,6 +229,24 @@ function set_checkbox() {literal}{{/literal}
 			   </div>
 			   </form>
 		   </div>
+		   <br/>
+		   <div class="text">
+			<form method="post" name="img_procedure_tag" id="img_procedure_tag" action="{$IMG_PROCEDURE_TAG_ACTION}" onsubmit="return top.restoreSession()">
+			<input type='hidden' name='procedure_code' value=''>
+			<div>
+				<div style="float:left">
+					<b>{xl t='Tag to Image Procedure'}</b>&nbsp;
+				</div>
+				<div style="float:none">
+					<a href="javascript:;" onclick="ImgProcedure();">(<span>{xl t='submit'})</span></a>
+				</div>
+			</div>
+			<div>
+				<select id="image_procedure_id"  name="image_procedure_id">{$IMAGE_PROCEDURE_LIST}</select>&nbsp;
+				<a href="{$clear_procedure_tag}">(<span>{xl t='clear'})</span></a>
+			</div>
+			</form>
+		   </div>	
 
             <br/>
 
@@ -270,7 +298,7 @@ function set_checkbox() {literal}{{/literal}
 	</tr>
 	<tr>
 		<td>
-            <div class="text"><b>{xl t='Content'}</b></div>
+            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b></div>
             {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or

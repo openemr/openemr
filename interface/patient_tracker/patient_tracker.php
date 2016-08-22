@@ -39,12 +39,12 @@ require_once("$srcdir/patient_tracker.inc.php");
 ?>
 <html>
 <head>
-
+<title><?php echo xlt("Flow Board") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../library/js/blink/jquery.modern-blink.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
 
 <script language="JavaScript">
 $(document).ready(function(){
@@ -91,13 +91,13 @@ function topatient(newpid, enc) {
    top.restoreSession();
    <?php if ($GLOBALS['concurrent_layout']) { ?>
      if (enc > 0) {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+       top.RTop.location= "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
      }
      else {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
+       top.RTop.location = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
      }
    <?php } else { ?>
-     top.location.href = "../patient_file/patient_file.php?set_pid=" + newpid;
+     top.RTop.location = "../patient_file/patient_file.php?set_pid=" + newpid;
    <?php } ?>
  }
 }
@@ -156,15 +156,24 @@ function openNewTopWindow(newpid,newencounterid) {
 <table border='0' cellpadding='1' cellspacing='2' width='100%'>
 
  <tr bgcolor="#cccff">
+  <?php if ($GLOBALS['ptkr_show_pid']) { ?>
    <td class="dehead" align="center">
    <?php  echo xlt('PID'); ?>
   </td>
+  <?php } ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Patient'); ?>
   </td>
+  <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+  <td class="dehead" align="center">
+   <?php  echo xlt('Reason'); ?>
+  </td>
+  <?php } ?>
+  <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Encounter'); ?>
   </td>
+  <?php } ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Exam Room #'); ?>
   </td>
@@ -236,6 +245,10 @@ $appointments = sortAppointments( $appointments, 'time' );
                 $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
                 $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
                 $tracker_id = $appointment['id'];
+                # reason for visit
+                if ($GLOBALS['ptkr_visit_reason']) {
+                  $reason_visit = $appointment['pc_hometext'];
+                }
                 $newarrive = collect_checkin($tracker_id);
                 $newend = collect_checkout($tracker_id);
                 $colorevents = (collectApptStatusSettings($status));
@@ -250,16 +263,26 @@ $appointments = sortAppointments( $appointments, 'time' );
                 }
 ?>
         <tr bgcolor='<?php echo $bgcolor ?>'>
+        <?php if ($GLOBALS['ptkr_show_pid']) { ?>
         <td class="detail" align="center">
         <?php echo text($appt_pid) ?>
          </td>
+        <?php } ?>
         <td class="detail" align="center">
         <a href="#" onclick="return topatient('<?php echo attr($appt_pid);?>','<?php echo attr($appt_enc);?>')" >
         <?php echo text($ptname); ?></a>
          </td>
+         <!-- reason -->
+         <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+         <td class="detail" align="center">
+         <?php echo text($reason_visit) ?>
+         </td>
+         <?php } ?>
+		 <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
 		 <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
          </td>
+		 <?php } ?>
          <td class="detail" align="center">
          <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
          </td>

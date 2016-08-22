@@ -1030,7 +1030,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
       $sql .= "AND (a.pc_sharing = '" . SHARING_BUSY . "' ";
       $sql .= "OR a.pc_sharing = '" . SHARING_PUBLIC . "') ";
     } else {
-      $sql .= "AND a.pc_aid = " . $ruserid . " ";
+      $sql .= "AND a.pc_aid IN (0, " . $ruserid . ") ";
     }
   } elseif(!pnUserLoggedIn()) {
     // get all events for anonymous users
@@ -1038,11 +1038,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
   } elseif(!empty($provider_id)) {
     // get all events for a variety of provider IDs -- JRM
     if ($provider_id[0] != "_ALL_") {
-        $sql .= "AND a.pc_aid in (" . implode(",", $provider_id). ") ";
+		/**add all the events from the clinic provider id = 0*/
+        $sql .= "AND a.pc_aid in (0," . implode(",", $provider_id). ") ";
     }
   } else {
     // get all events for logged in user plus global events
-    $sql .= "AND (a.pc_aid = " . $_SESSION['authUserID'] . " OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
+    $sql .= "AND (a.pc_aid IN (0," . $_SESSION['authUserID'] . ") OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
   }
 
   //======================================================================

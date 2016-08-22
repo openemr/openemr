@@ -208,7 +208,7 @@ $(document).ready(function() {
 </table>
 
 <center><p>
- <input type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' style='background-color:transparent' />
+ <input type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
 </p></center>
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />

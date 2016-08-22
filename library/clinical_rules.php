@@ -34,11 +34,6 @@ require_once(dirname(__FILE__) . "/formdata.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
-// This is only pertinent for users of php versions less than 5.2
-//  (ie. this wrapper is only loaded when php version is less than
-//   5.2; otherwise the native php json functions are used)
-require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
-
 /**
  * Return listing of CDR reminders in log.
  *
@@ -1687,8 +1682,9 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
     $intervalType = $interval[0]['value'];
     $intervalValue = $interval[0]['interval'];
   }
-
+  $cond_loop = 0;
   foreach( $filter as $row ) {
+  	
     // Row description
     //   [0]=>special modes
     $temp_df = explode("::",$row['value']);
@@ -1723,13 +1719,17 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
       //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
       if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
         // Record the match
-        $isMatch = true;
+        if($cond_loop > 0) // For multiple condition check
+        	$isMatch = $isMatch && true;
+        else
+        	$isMatch = true;
       }
       else {
        // If this is a required entry then return false
        if ($row['required_flag']) return false;
       }
     }
+    $cond_loop++;
   }
 
   // return results of check
@@ -2136,6 +2136,11 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
       "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
       "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget) );
     if (!empty($response)) return true;
+
+    if($type == 'medication'){ // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
+        $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` = ? and `date_added` <= ?", array($patient_id,$value,$dateTarget));
+        if(!empty($response)) return true;
+    }
   }
 
   return false;

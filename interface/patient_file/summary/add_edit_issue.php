@@ -31,6 +31,9 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
 require_once($GLOBALS['srcdir'].'/formdata.inc.php');
+?>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php
 
 if (isset($ISSUE_TYPES['football_injury'])) {
   if ($ISSUE_TYPES['football_injury']) {
@@ -375,6 +378,7 @@ if (!empty($irow['type'])) {
 <html>
 <head>
 <?php html_header_show();?>
+
 <title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -395,6 +399,7 @@ div.section {
 
 </style>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
 <?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
@@ -523,7 +528,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
  }
 
  function closeme() {
-    if (parent.$) parent.$.fancybox.close();
+    if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();
     window.close();
  }
 
@@ -720,6 +725,17 @@ function divclick(cb, divid) {
   </td>
  </tr>
 
+ <tr id='row_returndate'>
+   <td>
+   <input type='hidden'  name='form_return' id='form_return' />
+   <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
+  <img  
+    id='img_return'/>
+  </td>
+ </tr>
+
+
+
  <tr id='row_occurrence'>
   <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
   <td>
@@ -731,6 +747,7 @@ function divclick(cb, divid) {
  </tr>
 
  <tr id='row_classification'>
+
   <td valign='top' nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
   <td>
    <select name='form_classification'>
@@ -840,5 +857,9 @@ function divclick(cb, divid) {
  Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
  Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
+
+<?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
+
+
 </body>
 </html>

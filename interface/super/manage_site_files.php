@@ -16,6 +16,7 @@ $fake_register_globals = false;
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
+require_once($GLOBALS['srcdir'].'/classes/thumbnail/ThumbnailGenerator.php');
 /* for formData() */
 require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
@@ -99,6 +100,33 @@ if (!empty($_POST['bn_save'])) {
   }
 
 }
+
+/**
+ * Thumbnails generator
+ * generating  thumbnail image to all images files from documents table
+ */
+
+if(isset($_POST['generate_thumbnails'])) {
+
+    $thumb_generator = new ThumbnailGenerator();
+    $results = $thumb_generator->generate_all();
+
+    $thumbnail_msg = "<p style='color: green'>" . xlt('Generated thumbnail(s)') . " : " . text($results['sum_success']) . "</p>";
+    $thumbnail_msg .= "<p style='color: red'>" . xlt('Failed to generate') . " : " .  text($results['sum_failed']) . "</p>";
+    foreach($results['failed'] as $key => $file){
+        $num = $key +1;
+        $thumbnail_msg .= "<p style='color: red; font-size: 11px'> " .text($num) . ". " . text($file) . "</p>";
+    }
+} else {
+
+    $count_not_generated = ThumbnailGenerator::count_not_generated();
+
+    $thumbnail_msg = "<p>" .  xlt('Files with empty thumbnail') . ": " . text($count_not_generated) . " </p>";
+}
+
+
+
+
 ?>
 <html>
 
@@ -109,6 +137,19 @@ if (!empty($_POST['bn_save'])) {
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ #generate_thumb{
+     width: 95%;
+     margin: 50px auto;
+     border: 2px solid dimgrey;
+ }
+ #generate_thumb table{
+     font-size: 14px;
+     text-align: center;
+ }
+ #generate_thumb table td{
+     border-right: 1px solid dimgrey;
+     padding: 0 15px;
+ }
 </style>
 
 <script language="JavaScript">
@@ -209,6 +250,25 @@ function msfFileChanged() {
 </center>
 
 </form>
+
+<div id="generate_thumb">
+    <table style="width: 100%">
+        <tr>
+            <td class="thumb_title" style="width: 33%">
+                <b><?php echo xlt('Generate Thumbnails')?></b>
+            </td>
+            <td class="thumb_msg" style="width: 50%">
+                <span><?php echo $thumbnail_msg ?></span>
+            </td>
+            <td  class="thumb_form" style="width:17%;border-right:none">
+                <form method='post' action='manage_site_files.php#generate_thumb'>
+                    <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+
 </body>
 </html>
 

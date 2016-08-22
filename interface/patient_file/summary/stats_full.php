@@ -78,7 +78,7 @@ function educlick(codetype, codevalue) {
   dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
     '&code=' + encodeURIComponent(codevalue) +
     '&language=<?php echo urlencode($language); ?>',
-    '_blank', 1024, 750);
+    '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
 // Add Encounter button is clicked.

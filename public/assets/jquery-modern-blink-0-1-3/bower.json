@@ -1,0 +1,11 @@
+{
+	"name": "modern-blink",
+	"version": "0.1.3",
+	"main": "jquery.modern-blink.js",
+	"ignore": [
+		"**/.*"
+	],
+	"dependencies": {
+		"jquery": ">=1.6"
+	}
+}

@@ -1,0 +1,420 @@
+[
+    {
+        "name": "smarty/smarty",
+        "version": "v2.6.29",
+        "version_normalized": "2.6.29.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/smarty-php/smarty.git",
+            "reference": "47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83",
+            "reference": "47fa66cdcf0bde5c44923fb0e15dd0921f8d3a83",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2"
+        },
+        "time": "2015-06-21 13:10:14",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.6.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "libs/Smarty.class.php",
+                "libs/Smarty_Compiler.class.php",
+                "libs/Config_File.class.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Monte Ohrt",
+                "email": "monte@ohrt.com"
+            },
+            {
+                "name": "Uwe Tews",
+                "email": "uwe.tews@googlemail.com"
+            }
+        ],
+        "description": "Smarty - the compiling PHP template engine",
+        "homepage": "http://www.smarty.net",
+        "keywords": [
+            "templating"
+        ]
+    },
+    {
+        "name": "adodb/adodb-php",
+        "version": "v5.20.2",
+        "version_normalized": "5.20.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ADOdb/ADOdb.git",
+            "reference": "17979685639d642791c546202ebe3f03d6b0a7d7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/17979685639d642791c546202ebe3f03d6b0a7d7",
+            "reference": "17979685639d642791c546202ebe3f03d6b0a7d7",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2"
+        },
+        "time": "2015-12-27 15:22:27",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "adodb.inc.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "John Lim",
+                "email": "jlim@natsoft.com",
+                "role": "Author"
+            },
+            {
+                "name": "Damien Regad",
+                "role": "Current maintainer"
+            },
+            {
+                "name": "Mark Newnham",
+                "role": "Developer"
+            }
+        ],
+        "description": "ADOdb is a PHP database abstraction layer library",
+        "homepage": "http://adodb.sourceforge.net/",
+        "keywords": [
+            "abstraction",
+            "database",
+            "layer",
+            "library",
+            "php"
+        ]
+    },
+    {
+        "name": "phpmailer/phpmailer",
+        "version": "v5.2.16",
+        "version_normalized": "5.2.16.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPMailer/PHPMailer.git",
+            "reference": "1d85f9ef3ecfc42bbc4f3c70d5e37ca9a65f629a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/1d85f9ef3ecfc42bbc4f3c70d5e37ca9a65f629a",
+            "reference": "1d85f9ef3ecfc42bbc4f3c70d5e37ca9a65f629a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.0.0"
+        },
+        "require-dev": {
+            "phpdocumentor/phpdocumentor": "*",
+            "phpunit/phpunit": "4.7.*"
+        },
+        "suggest": {
+            "league/oauth2-google": "Needed for Google XOAUTH2 authentication"
+        },
+        "time": "2016-06-06 09:09:37",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "class.phpmailer.php",
+                "class.phpmaileroauth.php",
+                "class.phpmaileroauthgoogle.php",
+                "class.smtp.php",
+                "class.pop3.php",
+                "extras/EasyPeasyICS.php",
+                "extras/ntlm_sasl_client.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "Jim Jagielski",
+                "email": "jimjag@gmail.com"
+            },
+            {
+                "name": "Marcus Bointon",
+                "email": "phpmailer@synchromedia.co.uk"
+            },
+            {
+                "name": "Andy Prevost",
+                "email": "codeworxtech@users.sourceforge.net"
+            },
+            {
+                "name": "Brent R. Matzelle"
+            }
+        ],
+        "description": "PHPMailer is a full-featured email creation and transfer class for PHP"
+    },
+    {
+        "name": "rospdf/pdf-php",
+        "version": "0.12.22",
+        "version_normalized": "0.12.22.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rospdf/pdf-php.git",
+            "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rospdf/pdf-php/zipball/140b9987fd8dcf3087b98827e615f07b6257b6ea",
+            "reference": "140b9987fd8dcf3087b98827e615f07b6257b6ea",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2"
+        },
+        "require-dev": {
+            "squizlabs/php_codesniffer": "2.*"
+        },
+        "time": "2016-06-01 21:36:09",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-experimental": "0.13.x-dev",
+                "dev-master": "0.12.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "src/Cpdf.php",
+                "src/Cezpdf.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Ole Koeckemann",
+                "email": "ole1986@users.sourceforge.net",
+                "role": "Developer"
+            },
+            {
+                "name": "Lars Olesen",
+                "email": "lars@intraface.dk",
+                "role": "Developer"
+            },
+            {
+                "name": "Wayne Munro",
+                "email": "pdf@ros.co.nz",
+                "role": "Inactive"
+            }
+        ],
+        "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
+        "homepage": "https://github.com/rospdf/pdf-php"
+    },
+    {
+        "name": "phpseclib/phpseclib",
+        "version": "2.0.2",
+        "version_normalized": "2.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phpseclib/phpseclib.git",
+            "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
+            "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "phing/phing": "~2.7",
+            "phpunit/phpunit": "~4.0",
+            "sami/sami": "~2.0",
+            "squizlabs/php_codesniffer": "~2.0"
+        },
+        "suggest": {
+            "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
+            "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
+            "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
+            "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
+        },
+        "time": "2016-05-13 01:15:21",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "phpseclib/bootstrap.php"
+            ],
+            "psr-4": {
+                "phpseclib\\": "phpseclib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jim Wigginton",
+                "email": "terrafrost@php.net",
+                "role": "Lead Developer"
+            },
+            {
+                "name": "Patrick Monnerat",
+                "email": "pm@datasphere.ch",
+                "role": "Developer"
+            },
+            {
+                "name": "Andreas Fischer",
+                "email": "bantu@phpbb.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Hans-Jürgen Petrich",
+                "email": "petrich@tronic-media.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Graham Campbell",
+                "email": "graham@alt-three.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
+        "homepage": "http://phpseclib.sourceforge.net",
+        "keywords": [
+            "BigInteger",
+            "aes",
+            "asn.1",
+            "asn1",
+            "blowfish",
+            "crypto",
+            "cryptography",
+            "encryption",
+            "rsa",
+            "security",
+            "sftp",
+            "signature",
+            "signing",
+            "ssh",
+            "twofish",
+            "x.509",
+            "x509"
+        ]
+    },
+    {
+        "name": "phing/phing",
+        "version": "2.14.0",
+        "version_normalized": "2.14.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phingofficial/phing.git",
+            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/phingofficial/phing/zipball/7dd73c83c377623def54b58121f46b4dcb35dd61",
+            "reference": "7dd73c83c377623def54b58121f46b4dcb35dd61",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2.0"
+        },
+        "require-dev": {
+            "ext-pdo_sqlite": "*",
+            "lastcraft/simpletest": "@dev",
+            "mikey179/vfsstream": "^1.6",
+            "pdepend/pdepend": "2.x",
+            "pear/archive_tar": "1.4.x",
+            "pear/http_request2": "dev-trunk",
+            "pear/net_growl": "dev-trunk",
+            "pear/pear-core-minimal": "1.10.1",
+            "pear/versioncontrol_git": "@dev",
+            "pear/versioncontrol_svn": "~0.5",
+            "phpdocumentor/phpdocumentor": "2.x",
+            "phploc/phploc": "~2.0.6",
+            "phpmd/phpmd": "~2.2",
+            "phpunit/phpunit": ">=3.7",
+            "sebastian/git": "~1.0",
+            "sebastian/phpcpd": "2.x",
+            "squizlabs/php_codesniffer": "~2.2",
+            "symfony/yaml": "~2.7"
+        },
+        "suggest": {
+            "pdepend/pdepend": "PHP version of JDepend",
+            "pear/archive_tar": "Tar file management class",
+            "pear/versioncontrol_git": "A library that provides OO interface to handle Git repository",
+            "pear/versioncontrol_svn": "A simple OO-style interface for Subversion, the free/open-source version control system",
+            "phpdocumentor/phpdocumentor": "Documentation Generator for PHP",
+            "phploc/phploc": "A tool for quickly measuring the size of a PHP project",
+            "phpmd/phpmd": "PHP version of PMD tool",
+            "phpunit/php-code-coverage": "Library that provides collection, processing, and rendering functionality for PHP code coverage information",
+            "phpunit/phpunit": "The PHP Unit Testing Framework",
+            "sebastian/phpcpd": "Copy/Paste Detector (CPD) for PHP code",
+            "tedivm/jshrink": "Javascript Minifier built in PHP"
+        },
+        "time": "2016-03-10 21:39:23",
+        "bin": [
+            "bin/phing"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.14.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "classes/phing/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "include-path": [
+            "classes"
+        ],
+        "license": [
+            "LGPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "Michiel Rook",
+                "email": "mrook@php.net"
+            },
+            {
+                "name": "Phing Community",
+                "homepage": "https://www.phing.info/trac/wiki/Development/Contributors"
+            }
+        ],
+        "description": "PHing Is Not GNU make; it's a PHP project build system or build tool based on Apache Ant.",
+        "homepage": "https://www.phing.info/",
+        "keywords": [
+            "build",
+            "phing",
+            "task",
+            "tool"
+        ]
+    }
+]

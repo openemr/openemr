@@ -37,6 +37,7 @@ CREATE TABLE `amc_misc_data` (
   `map_id` bigint(20) NOT NULL default '0' COMMENT 'Maps to an object id (such as prescription id etc.)',
   `date_created` datetime default NULL,
   `date_completed` datetime default NULL,
+  `soc_provided` datetime default NULL,
   KEY  (`amc_id`,`pid`,`map_id`)
 ) ENGINE=InnoDB;
 
@@ -203,6 +204,7 @@ CREATE TABLE `billing` (
   `ndc_info` varchar(255) default NULL,
   `notecodes` varchar(25) NOT NULL default '',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `pricelevel` varchar(31) default '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -607,9 +609,12 @@ INSERT INTO `clinical_rules`
 INSERT INTO `clinical_rules` 
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('send_reminder_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(d)', 0, 0, 1, '170.314(g)(1)/(2)–13', 0, 0, 0, 1);
+INSERT INTO `clinical_rules`
+(`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
+('cpoe_med_stage1_amc_alternative', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 1, 0);
 INSERT INTO `clinical_rules` 
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
-('cpoe_med_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 1, 1);
+('cpoe_med_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 0, 1);
 INSERT INTO `clinical_rules` 
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('patient_edu_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.302(m)', 0, 0, 1, '170.314(g)(1)/(2)–16', 0, 0, 0, 1);
@@ -848,6 +853,7 @@ CREATE TABLE `documents` (
   `size` int(11) default NULL,
   `date` datetime default NULL,
   `url` varchar(255) default NULL,
+  `thumb_url` varchar(255) default NULL,
   `mimetype` varchar(255) default NULL,
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
@@ -996,6 +1002,9 @@ CREATE TABLE `drug_sales` (
   `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
   `distributor_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'references users.id',
   `notes` varchar(255) NOT NULL DEFAULT '',
+  `bill_date` datetime default NULL,
+  `pricelevel` varchar(31) default '',
+  `selector` varchar(255) default '' comment 'references drug_templates.selector',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -1044,6 +1053,8 @@ CREATE TABLE `drugs` (
   `allow_combining` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
   `allow_multiple`  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse',
   `drug_code` varchar(25) NULL,
+  `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
+  `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
@@ -1129,9 +1140,6 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_nur
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_off_vis', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_off_vis', 9);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_off_vis', 10);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_hea_and_beh', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_hea_and_beh', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_hea_and_beh', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_hea_and_beh', 12);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_occ_ther', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_occ_ther', 9);
@@ -1139,32 +1147,14 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_occ
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_psych_and_psych', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_psych_and_psych', 9);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_psych_and_psych', 10);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_18_older', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_18_older', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_18_older', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_18_older', 13);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_40_older', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_40_older', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_40_older', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_ser_40_older', 13);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_ind_counsel', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_ind_counsel', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_ind_counsel', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_ind_counsel', 13);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_group_counsel', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_group_counsel', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_group_counsel', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_group_counsel', 13);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_other_serv', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_other_serv', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_other_serv', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pre_med_other_serv', 13);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_out_pcp_obgyn', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_out_pcp_obgyn', 9);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_out_pcp_obgyn', 10);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pregnancy', 5);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pregnancy', 9);
-INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_pregnancy', 10);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_nurs_discharge', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_nurs_discharge', 9);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_nurs_discharge', 10);
@@ -1177,6 +1167,7 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_non
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_influenza', 5);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_influenza', 9);
 INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_influenza', 10);
+INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_ophthal_serv', 14);
 
 
 -- --------------------------------------------------------
@@ -1244,6 +1235,7 @@ CREATE TABLE `facility` (
   `color` VARCHAR(7) NOT NULL DEFAULT '',
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
+  `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
@@ -1251,7 +1243,7 @@ CREATE TABLE `facility` (
 -- Dumping data for table `facility`
 -- 
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0', '', '1');
 
 
 -- --------------------------------------------------------
@@ -2493,7 +2485,7 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `freeb_type` tinyint(2) default NULL,
+  `ins_type_code` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
@@ -2559,23 +2551,6 @@ CREATE TABLE `insurance_numbers` (
   `provider_number_type` varchar(4) default NULL,
   `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
-
--- 
--- Table structure for table `integration_mapping`
--- 
-
-DROP TABLE IF EXISTS `integration_mapping`;
-CREATE TABLE `integration_mapping` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) default NULL,
-  `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -2717,6 +2692,7 @@ CREATE TABLE `layout_options` (
   `list_backup_id` varchar(31) NOT NULL default '',
   `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
   `conditions` text COMMENT 'serialized array of skip conditions',
+  `validation` varchar(100) default NULL,
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=InnoDB;
 
@@ -3746,7 +3722,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'send_reminder_stage2_amc', 'Send reminders to patients per patient preference for preventive/follow up care.', 60, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-('clinical_rules', 'cpoe_med_stage2_amc', 'Use CPOE for medication orders.(Alternative)', 47, 0, 0, '', '', '', 0, 0);
+('clinical_rules', 'cpoe_med_stage2_amc', 'Use CPOE for medication orders.', 47, 0, 0, '', '', '', 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
+('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'patient_edu_stage2_amc', 'Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate(New).', 40, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
@@ -4597,6 +4575,17 @@ INSERT INTO `list_options`(list_id, option_id, title, seq, notes) VALUES ('imm_v
 INSERT INTO `list_options`(list_id, option_id, title, seq, notes) VALUES ('imm_vac_eligibility_results','american_indian_alaskan_native','VFC eligible- American Indian/Alaskan Native','40','V04');
 INSERT INTO `list_options`(list_id, option_id, title, seq, notes) VALUES ('imm_vac_eligibility_results','health_center_patient','VFC eligible-Federally Qualified Health Center Patient (under-insured)','50','V05');
 
+--  LBF Validation
+
+INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Validations','LBF_Validations');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
+
 -- --------------------------------------------------------
 
 -- 
@@ -4930,6 +4919,8 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (4, 'Vacation', '#EFEFEF', 
 INSERT INTO `openemr_postcalendar_categories` VALUES (1, 'No Show', '#DDDDDD', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0,1,1);
 INSERT INTO `openemr_postcalendar_categories` VALUES (2, 'In Office', '#99CCFF', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,2);
 INSERT INTO `openemr_postcalendar_categories` VALUES (3, 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0, 1,1,3);
+INSERT INTO `openemr_postcalendar_categories` VALUES (6,'Holidays','#9676DB','Clinic holiday',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,6);
+INSERT INTO `openemr_postcalendar_categories` VALUES (7,'Closed','#2374AB','Clinic closed',0,NULL,'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}',0,86400,1,3,2,0,0,2,1,7);
 INSERT INTO `openemr_postcalendar_categories` VALUES (8, 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0, 1,1,8);
 INSERT INTO `openemr_postcalendar_categories` VALUES (9, 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0, 0,1,9);
 INSERT INTO `openemr_postcalendar_categories` VALUES (10,'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0, 0,1,10);
@@ -4937,6 +4928,7 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (11,'Reserved','#FF7777','R
 INSERT INTO `openemr_postcalendar_categories` VALUES (12, 'Health and Behavioral Assessment', '#C7C7C7', 'Health and Behavioral Assessment', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,12);
 INSERT INTO `openemr_postcalendar_categories` VALUES (13, 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13);
 
+INSERT INTO `openemr_postcalendar_categories` VALUES (14, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14);
 -- --------------------------------------------------------
 
 -- 
@@ -6458,7 +6450,6 @@ CREATE TABLE `users` (
   `notes` text,
   `cal_ui` tinyint(4) NOT NULL default '1',
   `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
-  `ssi_relayhealth` varchar(64) NULL,
   `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   `abook_type` varchar(31) NOT NULL DEFAULT '',
   `pwd_expiration_date` date default NULL,
@@ -6535,6 +6526,29 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'vitals_ps_expand', '1');
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'gacl_protect', '0');
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (1, 'gacl_protect', '1');
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `voids`
+-- 
+
+DROP TABLE IF EXISTS `voids`;
+CREATE TABLE `voids` (
+  `void_id`                bigint(20)    NOT NULL AUTO_INCREMENT,
+  `patient_id`             bigint(20)    NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)    NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `what_voided`            varchar(31)   NOT NULL            COMMENT 'checkout,receipt and maybe other options later',
+  `date_original`          datetime      DEFAULT NULL        COMMENT 'time of original action that is now voided',
+  `date_voided`            datetime      NOT NULL            COMMENT 'time of void action',
+  `user_id`                bigint(20)    NOT NULL            COMMENT 'references users.id',
+  `amount1`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided adjustments',
+  `amount2`                decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'for checkout,receipt total voided payments',
+  `other_info`             text                              COMMENT 'for checkout,receipt the old invoice refno',
+  PRIMARY KEY (`void_id`),
+  KEY datevoided (date_voided),
+  KEY pidenc (patient_id, encounter_id)
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -6805,6 +6819,7 @@ CREATE TABLE `procedure_order` (
   `date_transmitted`       datetime     DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
   `clinical_hx`            varchar(255) NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `history_order` enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
   PRIMARY KEY (`procedure_order_id`),
   KEY datepid (date_ordered, patient_id),
   KEY `patient_id` (`patient_id`)
@@ -7863,6 +7878,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'date_val', 'Date', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'post_to_date', 'Post To Date', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
+
 -- --------------------------------------------------------
 
 -- 
@@ -8300,4 +8320,15 @@ CREATE TABLE `immunization_observation` (
   PRIMARY KEY (`imo_id`)
 ) ENGINE=InnoDB;
 -- --------------------------------------------------------
+-- --------------------------------------------------------
+--
+-- Table structure for table 'calendar external'
+--
+CREATE TABLE calendar_external (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL,
+  `description` VARCHAR(45) NOT NULL,
+  `source` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`)) ENGINE=InnoDB;
 
+-- --------------------------------------------------------

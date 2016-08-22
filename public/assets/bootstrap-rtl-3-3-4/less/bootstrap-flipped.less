@@ -1,0 +1,70 @@
+// --------------------------------------------------
+// Deprecated flips for Bootstrap RTL v3.x
+// Morteza Ansarinia
+// http://github.com/morteza/bootstrap-rtl
+// --------------------------------------------------
+
+// Regular, semantically correct Bootstrap RTL
+// Core variables and mixins imported from the latest original bootstrap
+@import "../bootstrap/less/variables.less";
+@import "variables-rtl.less";
+@import "mixins-flipped.less";
+
+// ---- Single side border-radius ----
+
+.border-right-radius(@radius) {
+  border-bottom-left-radius: @radius;
+     border-top-left-radius: @radius;
+}
+.border-left-radius(@radius) {
+  border-bottom-right-radius: @radius;
+     border-top-right-radius: @radius;
+}
+
+// Reset and dependencies
+@import "normalize-rtl.less";
+//@import "print.less";
+//@import "glyphicons.less";
+
+// Core CSS
+//@import "scaffolding.less";
+@import "type-rtl.less";
+//@import "code.less";
+@import "grid-rtl.less";
+@import "tables-rtl.less";
+@import "forms-rtl.less";
+//@import "buttons.less";
+
+// Components
+//@import "component-animations.less";
+@import "dropdowns-rtl.less";
+@import "button-groups-rtl.less";
+@import "input-groups-rtl.less";
+@import "navs-rtl.less";
+@import "navbar-rtl.less";
+//@import "breadcrumbs.less";
+@import "pagination-rtl.less";
+@import "pager-rtl.less";
+//@import "labels.less";
+@import "badges-rtl.less";
+//@import "jumbotron.less";
+//@import "thumbnails.less";
+@import "alerts-rtl.less";
+@import "progress-bars-rtl.less";
+@import "media-rtl.less";
+@import "list-group-rtl.less";
+@import "panels-rtl.less";
+@import "responsive-embed-rtl.less";
+//@import "wells.less";
+@import "close-rtl.less";
+
+// Components w/ JavaScript
+@import "modals-rtl.less";
+//@import "tooltip.less";
+@import "popovers-rtl.less";
+@import "carousel-rtl.less";
+
+// Utility classes
+@import "utilities-rtl.less";
+//@import "responsive-utilities.less";
+@import "flipped.less";

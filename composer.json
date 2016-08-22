@@ -1,0 +1,26 @@
+{
+    "name": "openemr/openemr",
+    "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
+    "license": "GPL",
+    "support": {
+        "website": "http://www.open-emr.org/",
+        "issues": "https://sourceforge.net/p/openemr/bugs/",
+        "forum": "https://sourceforge.net/p/openemr/discussion/",
+        "wiki": "http://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
+        "source": "http://github.com/openemr/openemr"
+    },
+    "require": {
+
+        "smarty/smarty": "2.6.29",
+        "adodb/adodb-php": "5.20.2",
+        "phpmailer/phpmailer": "5.2.16",
+        "rospdf/pdf-php": "0.12.22",
+        "phpseclib/phpseclib": "2.0.2"
+        
+    },
+    "require-dev": {
+
+        "phing/phing": "2.14.0"
+        
+    }
+}

@@ -23,9 +23,9 @@
  * @subpackage ediHistory
  */
 
-$sanitize_all_escapes=true; 
-$fake_register_globals=false; 
-require_once(dirname(__FILE__) . "/../globals.php");
+$sanitize_all_escapes = true;
+$fake_register_globals = false;
+require_once(dirname(__FILE__) . '/../globals.php');
 //
 if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 //
@@ -39,135 +39,124 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <head>
 	<title><?php echo xlt("edi history"); ?></title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    
-    <link rel="stylesheet" href="<?php echo $css_header?>" type="text/css" />
+    <!-- jQuery-ui and datatables -->
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/css/dataTables.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-1/css/scroller.jqueryui.min.css" />
+
+    <!-- edi_history css -->
+    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo $web_root?>/library/dynarch_calendar.css" type="text/css" />
-
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/jquery-ui-1.8.21.custom.css" type="text/css" />
-    <!-- <link rel="stylesheet" href="<?php echo $web_root?>/library/css/jquery.dataTables.css" type="text/css" /> -->
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history.css" type="text/css" />
-
+    <!-- OpenEMR Calendar -->
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar_setup.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
     
     <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 </head>
-<body>
+<!-- style for OpenEMR color -->
+<body style='background-color:#fefdcf'>
 
-<!-- Begin tabs section -->
+<!-- Begin tabs section  class="Clear"-->
 <div id="tabs" style="visibility:hidden">
-  <ul class="Clear">
+  <ul>
    <li><a href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
    <li><a href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
-   <li><a href="#erafiles" id="btn-erafiles"><?php echo xlt("ERA Files"); ?></a></li>
-   <li><a href="#x12text" id="btn-x12text"><?php echo xlt("x12 Text"); ?></a></li>
+   <li><a href="#x12text" id="btn-x12text"><?php echo xlt("EDI File"); ?></a></li>
    <li><a href="#edinotes" id="btn-edinotes"><?php echo xlt("Notes"); ?></a></li>
+   <li><a href="#archive" id="btn-archive"><?php echo xlt("Archive"); ?></a></li>
   </ul> 	
 
-
     <div id="newfiles">
-        <table cols=2> 
+        <table> 
         <tr vertical-align="middle">
          <td align="center">       
-            <form id='upload_new' action="edi_history_main.php" method="POST" enctype="multipart/form-data">
+            <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
                 <fieldset>
                 <legend><?php echo xlt("Select one or more files to upload"); ?></legend> 
-                <input id="upload_file" type="file" name="fileUplMulti[]" multiple /> 
-                <input type="submit" name="uplsubmt" value="<?php echo xla("Submit"); ?>" />
+                <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
+                <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
+                <input type="submit" id="uplsubmit" name="upl_submit" form="formupl" value=<?php echo xla("Submit"); ?> />
+                <input type="reset" id="uplreset" name="upl_reset" form="formupl" value=<?php echo xla("Reset"); ?> />
                 </fieldset>
             </form>
          </td>
          <td align="center">
-            <form id="process_new" action="edi_history_main.php" method="post">
+            <form id="processnew" name="process_new" action="edih_main.php" method="GET">
                 <fieldset>
                 <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
-                <input type="checkbox" name="htmlout" checked /> <?php echo xlt("HTML Output?"); ?> 
-                <input type="checkbox" name="erronly" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br />
-                <input type="hidden" name="NewFiles" value="ProcessNew">
-                <label for="New-Files">Process New Files:</label>
-                <input id="processfiles"  name="Process" type="button" value="<?php echo xla("Process"); ?>" />
+                <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?> 
+                <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br>
+                <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
+                <label for="process"><?php echo xlt("Process New Files"); ?></label>
+                <input type="submit" id="fuplprocess" name="process" form="processnew" value=<?php echo xla("Process"); ?> />
                 </fieldset>
             </form>
          </td>
         </tr>
         </table>
-    
-        <div id='srvvals'></div>
-        <div id='pfresult'></div>
-        <div id='clmstat' title="<?php echo xla("Status of Claim"); ?>"></div>
-        <div id='batchclm' title="<?php echo xla("Segments Batch Claim"); ?>"></div>
-
+        
+		<div id="fileupl1"></div>
+		<div id="fileupl2"></div>
+		<div id="processed"></div>
+        <div id="rsp" title="<?php echo xla("Response"); ?>"></div>
+        <div id="sub" title="<?php echo xla("Submitted"); ?>"></div>
+        <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
     </div> 
     
     <div id="csvdatatables">
-		<table cols='2'>
+		<table>
 		<tr>
-		<td colspan='4'>
+		<td colspan=4>
 		
-		<form id="formcsvtables" name="view_csv" action="edi_history_main.php" target="_blank" method="post">
-			<fieldset style='float:left'>
+		<form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
+			<fieldset>
 				<legend><?php echo xlt("View CSV tables"); ?>:</legend>
-				<table cols='4'>
+				<table>
 					<tr>
-						<td colspan='4'>
-							<?php echo xlt("Select a percentage of the rows or or select dates"); ?>
-						</td>
+						<td colspan=4><?php echo xlt("Choose a period or dates (YYYY-MM-DD)"); ?></td>
 					</tr>
 					<tr>
-						<td align='center'>
-							<?php echo xlt("Select CSV table"); ?>:
-						</td>
-						<td align='center'>
-							<?php echo xlt("Pct (%) of rows"); ?>
-						</td>
-						<td align='left'>
-							<?php echo xlt("Start Date"); ?>: &nbsp;&nbsp;&nbsp;&nbsp; <?php echo xlt("End Date"); ?>:
-						</td>
-						<td align='center'>
-							<?php echo xlt("Submit"); ?>
-						</td>
+						<td align='center'><?php echo xlt("Choose CSV table"); ?>:</td>
+						<td align='center'><?php echo xlt("From Period"); ?></td>
+						<td align='center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp <?php echo xlt("End Date"); ?>:</td>
+						<td align='center'><?php echo xlt("Submit"); ?></td>
 					</tr>
 					<tr height='1.5em'>
-						<td align='center'>					
-							<select id='csvselect' name="csvtables"> 
-							</select>				
-						</td>						
-							
 						<td align='center'>
-							<select id="csvpct" name="csvpctrows">
-								<option value="5" selected="selected">5%</option>
-								<option value="10">10%</option>
-								<option value="25">25%</option>
-								<option value="50">50%</option>
-								<option value="75">75%</option>
-								<option value="100">100%</option>	
+							<select id="csvselect" name="csvtables"></select>
+						</td>						
+						<td align='center'>
+							<select id="csvperiod" name="csv_period">
+								<option value='2w' selected='selected'>2 <?php echo xlt('weeks'); ?></option>
+								<option value='1m'>1 <?php echo xlt('month'); ?></option>
+								<option value='2m'>2 <?php echo xlt('months'); ?></option>
+								<option value='3m'>3 <?php echo xlt('months'); ?></option>
+								<option value='6m'>6 <?php echo xlt('months'); ?></option>
+								<option value='9m'>9 <?php echo xlt('months'); ?></option>
+								<option value='1y'>1 <?php echo xlt('year'); ?></option>
+								<option value='ALL'><?php echo xlt('All Dates'); ?></option>
 							</select>
 						</td>
                         <!-- datekeyup(e, defcc, withtime)  dateblur(e, defcc, withtime) -->
                         <td align='left'>
-						   <input type='text' size='8' name='csv_date_start' id='caldte1' value='' title='yyyy-mm-dd Start Date' />
+						   <input type='text' size='10' name="csv_date_start" id="caldte1" value="" title="<?php echo xla('yyyy-mm-dd Start Date'); ?>" />
                            <img src="<?php echo $web_root?>/interface/pic/show_calendar.gif" align='absbottom' width='24' height='22'
-                              id='csvdate1_cal' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='Start date'>
+                              id="csvdate1_cal" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="<?php echo xla('Start date'); ?>">
                         
-                           <input type='text' size='8' name='csv_date_end' id='caldte2' value='' title='yyyy-mm-dd End Date' />
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                              id='csvdate2_cal' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='End date'>
+                           <input type="text" size="10" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
+                           <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22"
+                              id="csvdate2_cal" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="<?php echo xla('End date'); ?>">
                         </td>
-                        
+                        <!-- OEMR calendar srcipt -->
                         <script type="text/javascript"> 
                             Calendar.setup({inputField:"caldte1", ifFormat:"%Y-%m-%d", button:"csvdate1_cal"});
                             Calendar.setup({inputField:"caldte2", ifFormat:"%Y-%m-%d", button:"csvdate2_cal"});
                         </script>
-                        <!--
-						<td align='left'>
-							<input id="dte1" type="text" size=10 name="csv_date_start" value="" />
-							<input id="dte2" type="text" size=10 name="csv_date_end" value="" /> 
-						</td>
-                        -->
+
 						<td align='center'>
-							<input type="hidden" name="csvshowtable" value="gettable">
-							<input id="showtable" type="button" value="<?php echo xla("Submit"); ?>" />
+							<input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable">
+							<input id="csvshow" type="submit" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>" />
 						</td>
                         
 					</tr>
@@ -176,407 +165,841 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
         </form> 
         
         </td>
-        <td colspan='2'>
-			
-        <form id="formcsvhist" name="csv_ch" action="edi_history_main.php" target="_blank" method="get">
-           <fieldset style='float:left'>
-			  <legend><?php echo xlt("Per Encounter"); ?></legend>
-			  <table cols='2'> 
-			        <tr>
-						<td colspan='2'>
-							<?php echo xlt("Enter Encounter Number"); ?>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<?php echo xlt("Encounter"); ?>
-						</td>
-						<td>
-							<?php echo xlt("Submit"); ?>
-						</td>	
-					</tr>
-					<tr>
-						<td>
-							<input id="csvenctr" type="text" size=7 name="chenctr" value="" />
-						</td>
-						<td>
-							<input id="showhistory" type="button" value="<?php echo xla("Submit"); ?>" />
-						</td>
-					</tr>
-			  </table>
-			</fieldset>
-		</form>
-		        
-		</td></tr> 
+        <td colspan=2>
+	        <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
+	           <fieldset>
+				  <legend><?php echo xlt("Per Encounter"); ?></legend>
+				  <table cols='2'> 
+				        <tr><td colspan='2'><?php echo xlt("Enter Encounter Number"); ?></td></tr>
+						<tr>
+							<td><?php echo xlt("Encounter"); ?></td>
+							<td><?php echo xlt("Submit"); ?></td>	
+						</tr>
+						<tr>
+							<td><input id="histenctr" type="text" size=10 name="hist_enctr" value="" /></td>
+							<td><input id="histsbmt" type="submit" name="hist_sbmt" form="formcsvhist" value="<?php echo xla("Submit"); ?>" /></td>
+						</tr>
+				  </table>
+				</fieldset>
+			</form>   
+		</td>
+		</tr> 
 		</table>
 		
         <div id='tblshow'></div>
-        <div id='tbclmstat'></div>
-        <div id='tbbatchclm'></div> 
-        <div id='tbcodetxt'></div> 
-        <div id='tbcsvhist'></div> 
+        <div id='tbcsvhist'></div>
+        <div id='tbrpt'></div>
+		<div id='tbrsp'></div>
+        <div id='tbsub'></div> 
+        <div id='tbseg'></div>
      
     </div>
-    
+ <!--     erafiles to be replaced by functionality in x12text
     <div id='erafiles'>
-		<table cols=2>
-		<tr>
-		<td>
-	 		<form name="view_835" action="edi_history_main.php" target="_blank" enctype="multipart/form-data" method="post">
-			<fieldset style='float:left'>
-				<legend><?php echo xlt("View an x12-835 ERA file"); ?>:</legend>
-				<label for="era_file"><?php echo xlt("Filename"); ?>:</label>
-				<input id="era_file" type="file" size=20 name="fileUplEra"  />
-				<input type="submit" name="fileERA" value="<?php echo xla("Submit"); ?>" />	
-			</fieldset>
-			</form>	
-		</td>
-		<td>
-		<form name="view_ra" action="edi_history_main.php" target="_blank" method="post">
-		<fieldset style='float:left'>
-		  <legend><?php echo xlt("RA for Patient, Encounter, or Trace"); ?>:</legend>
-			<label for="pid835"><?php echo xlt("Patient ID"); ?>:</label>
-			<input type="text" size=10 name="pid835" value="" />	
-			<input type="submit" name="subpid835" value="<?php echo xla("Submit"); ?>" /> <br />
-			<label for="enctr835"><?php echo xlt("Encounter"); ?>:</label>
-			<input type="text" size=10 name="enctr835" value="" />
-			<input type="submit" name="subenctr835" value="<?php echo xla("Submit"); ?>" /> <br />
-			<label for="trace835"><?php echo xlt("Check No"); ?>:</label>
-			<input type="text" size=10 name="trace835" value="" />
-			<input type="submit" name="subtrace835" value="<?php echo xla("Submit"); ?>" />
-		</fieldset>
-		</form> 
-		</td>
-		</tr>
-		</table>  
+
     </div>
-    
-	<div id="x12text" >
-		<table cols='2'>
+ -->
+ 
+	<div id="x12text" > 
+		<form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
+		<fieldset>
+		<legend><?php echo xlt("View EDI x12 file"); ?>:</legend>
+		<table>
 			<tr>
+			  <td align='left'><label for="x12htm"><?php echo xlt("Report?"); ?></label></td>
+			  <td align='center'><label for="x12file"><?php echo xlt("Choose File"); ?>:</label></td>
+			  <td align='left'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
+			  <td align='center'><label for="x12_filereset"><?php echo xlt("Reset"); ?>:</label></td>
+			</tr>
+			<tr>  	
+			  <td align='left'>
+				<input type="hidden" name="viewx12Files" value="view_x12">
+			    <input type="checkbox" id="x12htm" name="x12_html" value="html"  />
+			  </td>
+			  <td align='left'><input id="x12file" type="file" size=30 name="fileUplx12" /></td>
 			  <td align='center'>
-				<form name="view_claim" action="edi_history_main.php" target="_blank" method="post">
-					<fieldset>
-						<legend><?php echo xlt("View Batch Claim x12 text"); ?>:</legend>
-						<label for="enctr"><?php echo xlt("Enter Encounter"); ?>:</label>
-						<input type="text" name="enctrbatch" size=10 value="" /> 
-						<input type="submit" name="Batch-enctr" value="<?php echo xla("Submit"); ?>" />
-					</fieldset>
-				</form>
+				  <input type="submit" id="x12filebtn" name="x12_filebtn" form="x12view" value="<?php echo xla("Submit"); ?>" />
 			  </td>
 			  <td align='center'>
-				<form name="view_ansi" action="edi_history_main.php" target="_blank" method="post">
-				<fieldset>
-					<legend><?php echo xlt("View ERA x12 text"); ?></legend>
-					<label for="enctrERA"><?php echo xlt("Enter Encounter"); ?>:</label>
-					<input type="text" name="enctrEra" size=10 value="" />
-					<input type="submit" name="eraText" value="<?php echo xla("Submit"); ?>" />
-				</fieldset>
-				</form>
+				  <input type="button" id="x12filerst" name="x12_filereset" form="x12view" value="<?php echo xla("Reset"); ?>" />
 			  </td>
-			</tr> 
-			<tr>
-			  <td align='center' colspan='2'>
-				<form name="view_x12" action="edi_history_main.php" target="_blank" enctype="multipart/form-data" method="post">
-				<fieldset>
-					<legend><?php echo xlt("View local x12 file"); ?>:</legend>
-					<label for="x12file"><?php echo xlt("Choose File"); ?>:</label>
-					<input id="x12file" type="file" name="fileUplx12" />
-					<input type="submit" name="fileX12" value="<?php echo xla("Submit"); ?>" />	
-				</fieldset>
-				</form>
-			</td> 
-		</table>
-		<div id='txtclmstat'></div>
-        <div id='txtbatchclm'></div> 
-        <div id='txtera'></div> 
+		    </tr>
+	    </table>
+		</fieldset>
+		</form>
+		
+		<div id="x12rsp"></div> 
     
 	</div> 
         
     <div id="edinotes">
-		<table cols='2'>
+		<table>
 			<tr>
-				<td colspan='2'><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
+				<td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
 			</tr>
 			<tr>
 				<td>
-					<form name="viewlog" action="edi_history_main.php" enctype="multipart/form-data" method="post">
+					<form id ="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
 					<fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
-					<label for="logfile"><?php echo xlt("View Log"); ?>:</label>
-			        <input id="logfile" type="button" value="<?php echo xla("Open"); ?>" />
-					<input id="logClear" type="button" value="<?php echo xla("Close"); ?>" />
-					<input id="logArchive" type="button" value="<?php echo xla("Archive"); ?>" />
+					<label for="logfile"><?php echo xlt("View Log"); ?></label>			
+					<select id="logselect" name="log_select"> </select>	
+					<input type="hidden" name="logshowfile" value="getlog">
+					<input id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />								
+					<input id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />
+					<input id="logarch" type="button" form="formlog" value="<?php echo xla("Archive"); ?>" />
 					</fieldset>
 					</form>
 				</td>
-				<td><form name="viewnotes" action="edi_history_main.php" enctype="multipart/form-data" method="post">
+				<td><form id ="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
 					<fieldset><legend><?php echo xlt("Notes"); ?></legend>
-					<label for="getnotes"><?php echo xlt("Notes"); ?></label>
-					<input id="getnotes" type="button" value="<?php echo xla("Open"); ?>" />
-					<label for="savenotes"><?php echo xlt("Save"); ?></label>
-					<input id="savenotes" type="button" value="<?php echo xla("Save"); ?>" />
-					<label for="closenotes"><?php echo xlt("Close"); ?></label>
-					<input id="closenotes" type="button" value="<?php echo xla("Close"); ?>" />
+					<label for="notesget"><?php echo xlt("Notes"); ?></label>
+					<input id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
+					<input id="noteshidden" type="hidden" name="notes_hidden" value="putnotes" />
+					<input id="notessave" type="submit" name="notes_save" form="formnotes" value="<?php echo xla("Save"); ?>" />
+					<input id="notesclose" type="button" name="notes_close" form="formnotes" value="<?php echo xla("Close"); ?>" />
 					</fieldset>
 					</form>
 				</td>
 			</tr>
 		</table>
         
-		<div id='logshow'></div> 
-		<div id='mynotes'></div>   
+		<div id='logrsp'></div> 
+		<div id='notesrsp'></div>
 
     </div>
-   
+    
+    <div id="archive">
+		<table>
+			<tr>
+				<td colspan=3><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></td>
+			</tr>
+			<tr>
+				<td colspan=2>
+					<form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
+					<fieldset><legend><?php echo xlt("Archive old files "); ?></legend>
+					<label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
+					<select id="archiveselect" name="archive_sel">
+						<option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
+						<option value="24m">24 <?php echo xlt('months'); ?></option>
+						<option value="18m">18 <?php echo xlt('months'); ?></option>
+						<option value="12m">12 <?php echo xlt('months'); ?></option>
+						<option value="9m">9 <?php echo xlt('months'); ?></option>
+						<option value="6m">6 <?php echo xlt('months'); ?></option>
+						<option value="3m">3 <?php echo xlt('months'); ?></option>
+					</select>
+					<label for="archivereport"><?php echo xlt("Report"); ?>:</label>					
+					<input type="button" id="archiverpt" name="archivereport" form="formarchive" value="<?php echo xla("Report"); ?>" />
+					<input type="hidden" name="ArchiveRequest" form="formarchive" value="requested" />
+					<label for="archivesbmt"><?php echo xlt("Archive"); ?>:</label>
+					<input type="submit" id="archivesbmt" name="archive_sbmt" form="formarchive" value="<?php echo xla("Archive"); ?>" />
+					</fieldset>
+					</form>
+				</td>
+				<td><form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
+					<fieldset><legend><?php echo xlt("Restore Archive"); ?></legend>
+					<label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
+					<select id="archrestoresel" name="archrestore_sel"> </select>
+					<input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
+					<label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>					
+					<input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value=<?php echo xla("Restore"); ?> />
+					</fieldset>
+					</form>
+				</td>
+			</tr>
+		</table>
+		
+		<div id="archiversp"></div>
+		
+	</div>  
 </div> 
 <!-- End tabs section -->
-<!-- the jquery.dataTables.min.js possibly should be moved to library/js ? -->
-<script src="<?php echo $web_root?>/library/js/jquery-1.7.2.min.js" type="text/javascript"></script> 
-<script src="<?php echo $web_root?>/library/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script> 
-<script src="<?php echo $web_root?>/library/js/datatables/media/js/jquery.dataTables.min.js" type="text/javascript"></script> 
-
+<!--  -->
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/js/dataTables.jqueryui.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-1/js/dataTables.scroller.min.js"></script>
+<!-- end DataTables js Begin local js -->
 <script type="text/javascript">
-    $(document).ready(function() {
+    jQuery(document).ready(function() {
         // activate tab interface
-        $("#tabs").tabs();
-        $("#tabs").tabs().css('visibility','visible');
-        $("#tabs").tabs({
-            select: function() {	
-                //Reset all these text fields to their default
-                $("input:text, input:file").val(function() { 
-                    return this.defaultValue;
-                    });
-                }
-        });
-
-        /*
-         * functions for ajax and popups
-         */
-        $('#srvvals').ajaxError(function() {
-            $(this).html( "<?php echo xla("Error retrieving values."); ?>" );
-        }); 
-               
-        $(function() {
-            $.ajax({
-                url: 'edi_history_main.php', 
-                data: { srvinfo: 'yes' }, 
-                dataType: 'json',
-                success: function(rsp){ 
-					$('#srvvals').data("mf", rsp.mfuploads); 
-					$('#srvvals').html('');
-				}
-            }); 
-        });
-        $(function() {
-            $.ajax({
-                url: 'edi_history_main.php',
-                data: { csvtbllist: 'yes' },
-                dataType: 'json',
-                success: function(data) {
-                  var options = $('#csvselect').attr('options');
-                  var optct = data.length;
-                  if (optct) {
-                    var options = [];
-                    options.push("<option value='' selected='selected'><?php echo xla("Choose from list"); ?></option>");
-                    for (var i=0; i<optct; i++) {
-                      options.push("<option value=" + data[i].fname + ">" + data[i].desc + "</option>");
-                    }
-                    $("#csvselect").html(options.join(''));
-                  }
-                }
-            });
-        });   
-     }); 
+        jQuery("#tabs").tabs();
+        jQuery("#tabs").tabs().css('visibility','visible');
+        // set some button disabled
+        jQuery('#processfiles').prop('disabled', true);
+        jQuery('#archivesubmit').prop('disabled', true);
+        // update list of available csv tables
+		jQuery(function() { csvlist() });
+		// update list of available log files
+		jQuery(function() { loglist() });
+		// update list of archive files
+		jQuery(function() { archlist() });
+        // hide these div elements until used
+        jQuery("#fileupl1").toggle(false);
+		jQuery("#fileupl2").toggle(false);
+	});
 /* ************ 
  *   end of document ready() jquery 
  * ************
- */        
-    // the process files script html output is requested and displayed, 
-    // replacing the tab panel contents 
-    // also, the 'success' event calls an array of functions
-    $('#processfiles').click(function() {
-        $.ajax({
-            type: "POST",
-            url: "edi_history_main.php", 
-            data:  $('#process_new').serialize(),
-            dataType: "html",
-            success: [ 
-                function(data){ $("#pfresult").html(data); },
-                bindlinks('#pfresult', 'click', '.clmstatus', 'click', '#clmstat', '<?php echo xla("Claim Status"); ?>'),
-                bindlinks('#pfresult', 'click', '.btclm', 'click', '#batchclm', '<?php echo xla("Batch Claim"); ?>')
-            ]
-        });
-    });         
+ */ 	
+/* ****  from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/ *** */
+	function bytesToSize(bytes) {
+	    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+	    if (bytes == 0) return 'n/a';
+	    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	    if (i == 0) return bytes + ' ' + sizes[i];
+	    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+	};
+/* *** variables for upload maximums *** */
+/* *** phpserver: 'maxfsize''maxfuploads''postmaxsize''tmpdir'	phpserver['postmaxsize'] *** */
+	var phpserver = [];
+	jQuery(function() {
+		jQuery.ajax({
+			url: 'edih_main.php', 
+			data: { srvinfo: 'yes' }, 
+			dataType: 'json',
+			success: function(rsp){ phpserver = rsp }
+		});
+	}); 
+/* *** update the list of available csv tables  *** */
+	function csvlist() {
+		jQuery.ajax({
+			type: 'GET',
+			url: 'edih_main.php',
+			data: { csvtbllist: 'yes' },
+			dataType: 'json',
+			success: function(data) {
+			  var options = jQuery('#csvselect').attr('options');
+			  var optct = jQuery.isPlainObject(data);  // data.length
+			  if (optct) {
+				var options = [];
+				options.push("<option value='' selected='selected'><?php echo xla("Choose from list"); ?></option>");
+				jQuery.each(data.claims, function(idx, value) {
+					options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
+				});
+				jQuery.each(data.files, function(idx, value) {
+					options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
+				});
+				jQuery("#csvselect").html(options.join(''));
+			  }
+			}
+		});
+	};	
+/* *** update the list of log files *** */
+	function loglist() {
+		jQuery.ajax({
+			type: 'GET',
+			url: 'edih_main.php',
+			data: { loglist: 'yes' },
+			dataType: 'json',
+			success: function(data) {	
+			  var options = jQuery('#logselect').attr('options');
+			  var optct = data.length;
+			  if (optct) {
+				var options = [];
+				options.push('<option selected="selected"><?php echo xla("Choose from list"); ?></option>');
+				for (var i=0; i<optct; i++) {
+				  options.push('<option value=' + data[i] + '>' + data[i] + '</option>');
+				}
+				jQuery("#logselect").html(options.join(''));
+			  }
+			}
+		});
+	};
+/* *** update the list of archive files *** id="archrestoresel name="archrestore_sel" */
+	function archlist() {
+		jQuery.ajax({
+			type: 'GET',
+			url: 'edih_main.php',
+			data: { archlist: 'yes' },
+			dataType: 'json',
+			success: function(data) {
+				//var options = jQuery('#archrestoresel').attr('options');
+				jQuery('#archrestoresel').empty();
+				var optct = data.length;
+				var options = [];
+				if (optct) {				
+					options.push("<option selected='selected'><?php echo xla("Choose from list"); ?></option>");
+					for (var i=0; i<optct; i++) {
+						options.push("<option value=" + data[i] + ">" + data[i] + "</option>");
+					}
+				} else {
+					options.push("<option selected='selected'><?php echo xla("No Archives"); ?></option>");
+				} 
+				jQuery('#archrestoresel').html(options.join(""));
+			}
+		});
+	};
 
-    // list files selected in the multifile upload input      
-    $('#upload_file').change(function(){
-        $('#srvvar').html('');
-        $('#pfresult').html('');
-        var fmax = $('#srvvals').data("mf");
-        var far = this.files;
-        var fct = far.length;
-        for(var i = 0; i < fct; i++) {
-            if (i == fmax) $('#pfresult').append("<p><?php echo xla("max file count reached - reload names below"); ?></p>");
-            $('#pfresult').append('file: ' + far[i].name +'<br />');
-        }            
-    });      
-    // submit files for sorting and storage -- accepted/rejected, already uploaded, etc
-    // shows a popup window (idea is to allow comparison with upload files display)
-    $('#upload_new').submit(function() {
-        if (! window.focus) return true;
-        window.open('', 'Uploads', 'height=400,width=600,left=300,top=100,menubar=yes,resizable=yes,scrollbars=yes');
-        this.target='Uploads';
-        return true;
-    });
+/*
+jQuery-UI dialog
+    control visibility by designating to which div the dialog is appended 
+*/
+    function dialogOptions(appendElem) {
+		var tblDialogOpts = {
+			appendTo: appendElem,
+			draggable: true,
+			resizable: true,
+			height: 328,
+			width: 512,
+			maxWidth: 768,
+			title: 'Transaction Detail',
+			close: function(event, ui)
+	        {
+	            jQuery(this).dialog("close");
+	            jQuery(this).remove();
+	        }
+	    };
+	    return tblDialogOpts;
+	}
+ 
+			
+	jQuery('#tbcsvhist').on('click', 'a', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var options = dialogOptions('#tbcsvhist');
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
+	});
+/* #csvTable  ****	*/
+	jQuery('#tblshow').on('click', 'a', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var ttl = jQuery(this).attr('title');
+		var options = dialogOptions('#tblshow');
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
+	});
+/* 		
+	jQuery('#tbrpt').on('click', 'a', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var options = dialogOptions('#tblshow');
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
+	});
+*/
+/* **** links in dialog in uploads - processed div  ****	*/
+	jQuery('#processed').on('click', 'a', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var options = dialogOptions('#processed');
+		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+	        .load(jQuery(this).attr('href')).appendTo('#processed').dialog(options);
+	});
 
-    $('#csvClear').click(function() {
-        $("#tblshow").html('');
-    });
-
-    $('#logClear').click(function() {
-        $("#logshow").html('');
-    });	
-
-    $('#logArchive').click(function() {
-        $.ajax({
-            type: "GET",
-            url: "edi_history_main.php", 
-            data: { archivelog: "yes" },
-            dataType: "html",
-            success: function(data){ 
-                $("#logshow").html(''), 
-                $("#logshow").html($.trim(data)); 
-            }
-        });
-    }); 
-
-    $('#logfile').click(function() { 
-        $.ajax({
-            type: "GET",
-            url: "edi_history_main.php", 
-            data: { showlog: "yes" },
-            dataType: "html",
-            success: function(data){ $("#logshow").html($.trim(data)); }
-        });
-    }); 
-
-    $('#getnotes').click(function() {
-        $('#logshow').html('');
-        $('#mynotes').html('');
-        $.ajax({
-            type:'GET',
-            url: "edi_history_main.php",
-            data: { getnotes: "yes"},
-            dataType: "text",
-            success: function(data){ 
-                $('#mynotes').html("<H4>Notes:</H4>"
-                        + "<textarea id='txtnotes',name='txtnotes',rows='10',cols='600',auotfocus='autofocus'></textarea>"
-                        + "<p></p>"
-                        ); 
-                // necessary to trim the data since php from script has leading newlines (UTF-8 issue)
-                $('#txtnotes').val($.trim(data));
-            }
-        });
-    });	
-
-    $('#savenotes').click(function() {
-        var notetxt = $("#txtnotes").val();
-        $.post("edi_history_main.php", { putnotes: "yes", tnotes: notetxt },
-            function(data){ $('#mynotes').append(data); });
-    });
-
-    $('#closenotes').click(function() { 
-        $('#mynotes').html('');
-    });
-
-/* ************ 
- * called to bind links in ajax retrieved content for dialog display
- * .on( events [, selector] [, data], handler(eventObject) )
+/*
+// **** script ****
+/* ****
+ * jQuery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
  */
-    function bindlinks(dElem, dEvt, cClass, cEvt, cElem, mytitle){ 
-         $(dElem).on(dEvt, cClass, cEvt, function(e) {
-            e.preventDefault();
-            $(cElem).css({'max-height': 372, 'overflow-y': 'auto'});
-            $(this).parentsUntil('tr').parent().siblings().removeClass('outlinetr'); 
-            $(this).parentsUntil('tr').parent().addClass('outlinetr'); 
-            $.get($(this).attr('href'), function(data){ $(cElem).html(data); })
-            var statDialog = $(cElem).dialog({
-                autoOpen: false,
-                position: "center",
-                resizable: true,
-                buttons: [{ text: "Close", click: function() { $(this).dialog("close"); } }], 
-                modal: false,
-                title: mytitle, //$(this).attr('title'),
-                height: 'auto',     //400, maxHeight does not work until resize; css fix is possible
-                width: 'auto'
-            });
-            statDialog.dialog('open'); 
-        });
-    } 
-    
-   // the csv tables are displayed using jquery dataTables plugin
-   // here, the 'success' action is to execute an array of functions 
-   // calls the helper function bindlinks() which applies jquery .on method
-	$('#showtable').click(function() {
+    function apply_accordion(selector) {
+		var sel = selector + ' > #accordion';
+	    jQuery( sel )
+	      .accordion({
+	        header: "h3",
+	        collapsible: true,
+	        heightStyle: "content"
+	      });
+	  };
+/* ****************************
+ *
+ * === upload multiple files
+ *     buttons are enabled/disabled
+ *     selected and uploaded files are listed    
+ *     the process files script html output displayed,
+ */
+/* **** if files have been uploaded **** */
+	var upld_ct = 0;
+/* ***** list files selected in the multifile upload input **** */
+	jQuery('#uplmulti').change( function(){
+		// clear uploaded files list, since new selected files list is coming
+		jQuery('#fileupl2').html('');
+		jQuery('#fileupl2').removeClass('flist');
+		jQuery('#processed').html('');
+		var uplfiles = this.files; //event.target.files;
+		var fct = uplfiles.length;
+		var fsize = 0;
+		var fl1 = jQuery('#fileupl1');
+		fl1.html('');
+		fl1.toggle(true);
+		fl1.addClass('flist1');
+		var fmaxupl = phpserver['maxfuploads'];   // jQuery("#srvvals").data('mf');
+		var pmaxsize = phpserver['postmaxsize']
+		var str = "<p><em><?php echo xla('Selected Files'); ?>:</em></p>";
+		str = str + "<ul id='uplsel' class='fupl'>";
+		for(var i = 0; i < fct; i++) {
+			if (i == fmaxupl) str = str + '</ul><p><?php echo xla('max file count reached'); ?><br> - <?php echo xla('reload names below'); ?> </p><ul class=fupl>';
+			str = str + "<li>" + uplfiles[i].name + "</li>";  //' ' +
+			fsize += uplfiles[i].size;
+		};
+		str = str + '</ul><p><?php echo xla('Total size'); ?>: ' + bytesToSize(fsize) + ' (<?php echo xla('max'); ?> ' + pmaxsize + ')</p>';
+		jQuery('#uplsubmit').prop('disabled', false);
+		if (upld_ct === 0 ) {
+			jQuery('#processupl').prop('disabled', true);
+		}
+		fl1.html(str);
+	});
+	// uplreset button click the file input is reset and associated values cleared
+	jQuery('#uplreset').on('click', function( event ) {
+		event.preventDefault();
+		event.stopPropagation();
+		jQuery('#fileupl1').html('');
+		jQuery('#fileupl2').html('');
+		jQuery('#fileupl1').hide();
+		jQuery('#fileupl2').hide();
+		jQuery('#processed').html('');
+		jQuery('#uplsubmit').prop('disabled', true);
+		if (upld_ct == 0 ) {
+			jQuery('#fuplprocess').prop('disabled', true);
+		} else {
+			jQuery('#fuplprocess').prop('disabled', false);
+		}
+		// jQuery('#fupl').reset();
+		document.getElementById('formupl').reset();
+		return false;
+	});
+
+/* ***** uplsubmit button click --upload files are scanned and copied into folders  *** */
+/* ***** files are listed next to file selected list by css  *** */
+	jQuery('#formupl').on('submit', function( event )  {
+		event.stopPropagation();
+		event.preventDefault();
+		var uplForm = document.getElementById("formupl"); 
+		var upldata = new FormData( document.getElementById('formupl') );  
+		var rspElem = jQuery('#fileupl2');
+		rspElem.html('');
+		jQuery.ajax({
+			    url: jQuery('#formupl').attr('action'),  
+			    type: 'POST',
+			    cache: false, 
+			    data: upldata,
+			    dataType: 'html',
+			    processData: false,
+			    contentType: false,
+			    success: function(data) {
+					rspElem.html(data);
+					rspElem.show();
+					jQuery('#fuplprocess').prop('disabled', false );
+					jQuery('#fuplupload').prop('disabled', true);
+					uplForm.reset();
+					upld_ct++;
+				},
+			    error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+			});
+		return false;
+	});
+/* **** process button, files parsed and csv rows displayed  *** */
+	jQuery('#processnew').on('submit', function(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		jQuery.ajax({
+			    url: jQuery('#processnew').attr('action'), 
+			    type: 'GET',
+			    data: jQuery('#processnew').serialize(),  //prcForm.serialize(),
+			    success: [
+				    function(data) {
+						jQuery('#fileupl1').html('');
+						jQuery('#fileupl1').hide();
+						jQuery('#fileupl2').html('');
+						jQuery('#fileupl2').hide();
+						//
+						jQuery('#processed').html(data);
+						jQuery('#processed').show();
+					}
+				],
+			    error: function( xhr, status ) {
+					alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ),
+					jQuery('#processed').html(status)
+				}				
+			});
+		upld_ct = 0;
+		/* ***  update list of csv tables *** */
+		csvlist();
+		jQuery('#fuplprocess').prop('disabled', true );
+		return false;
+	});
+
+/* *********************************************
+ *
+ *  ==== file upload lists  match uploaded to selected
+ *       when mouse is over element in one list, matching element
+ *       in other list is highlighted also
+ */
+	function outlineMatch(matchElem, matchText) {
+		if (matchText == 'none') {
+			matchElem.css('font-weight', 'normal');
+			return false;
+		} else {
+			matchElem.each(function( index ) {
+				if ( matchText == jQuery(this).text() ) {
+					jQuery(this).siblings().css('font-weight', 'normal');
+					jQuery(this).css('font-weight', 'bolder');
+					return false;
+				};
+			});
+		}
+	   return false;
+	}
+
+/* *** do not use .hover event   */
+	jQuery('#fileupl2').on('mouseenter', 'li', function(event){
+		var fl1 = jQuery('#fileupl1').find('li');
+		var fname = jQuery(this).text();
+		jQuery(this).css('font-weight', 'bolder');
+		jQuery(this).siblings().css('font-weight', 'normal');
+		outlineMatch(fl1, fname);
+	});
+	jQuery('#fileupl2').on('mouseleave', 'li', function(){
+		var fl1 = jQuery('#fileupl1').find('li');
+		jQuery(this).css('font-weight', 'normal');
+		outlineMatch(fl1, 'none');
+	});
+	jQuery('#fileupl1').on('mouseenter', 'li', function(event){	
+		jQuery(this).css('font-weight', 'bolder');
+		if ( jQuery('#fileupl2').length ) {
+			var fl2 = jQuery('#fileupl2').find('li');
+			var fname = jQuery(this).text();
+			outlineMatch(fl2, fname);
+		}
+	});
+	jQuery('#fileupl1').on('mouseleave', 'li', function(){
+		jQuery(this).css('font-weight', 'normal');
+		if ( jQuery('#fileupl2').length ) {
+			var fl2 = jQuery('#fileupl2').find('li');
+			var fname = jQuery(this).text();
+			outlineMatch(fl2, 'none');
+		}			
+	});
+
+/* *****  ==== end file upload lists  match uploaded to selected
+/* ****************************
+ * ===  end upload multiple files section
+ */
+
+/* ****************
+ * begin csv tables section
+ * the csv tables are displayed using jquery dataTables plugin
+ * here, the 'success' action is to execute an array of functions
+ * the helper function bindlinks() applies jquery .on method
+ * so most links will open a jquery-ui dialog
+ */
+	jQuery('#formcsvtables').on('submit', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		// verify a csv file is selected
-		if ($('#csvselect').val() == '') {
-			$("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
+		if (jQuery('#csvselect').val() == '') {
+			jQuery("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
 			return false;
 		}
-		$.ajax({
-			type:'POST',
-			url: "edi_history_main.php", 
-			data: $('#formcsvtables').serialize(), 
+		jQuery.ajax({
+			type:'get',
+			url: "edih_main.php", 
+			data: jQuery('#formcsvtables').serialize(), 
 			dataType: "html",
 			success: [ 
-				function(data){ 
-                    var tbltl = "<div class='csvcptn'>" + $(data).filter('#dttl').html() + "</div>";
-					var mytbl = "<table id='csvTable' class='csvDisplay'>" + $(data).not('#dttl').html() + "</table>";
-					$("#tblshow").html($.trim(mytbl)); 
-					$('#csvTable').dataTable({
-						DisplayLength: 10,    
-						bJQueryUI: true, 
-						bScrollInfinite: true,
-						bScrollCollapse: true,
-                        iScrollLoadGap: 20,
-						sScrollY: '240px',
-						sScrollX: '90%',
-						sScrollXInner: '100%'
+				function(data){
+					jQuery('#tblshow').html(data);
+					jQuery('#tblshow').css('maxWidth', 'fit-contents'); 
+					jQuery('#tblshow table#csvTable').DataTable({
+                        'processing': true,
+						'scrollY': '300px',
+						'scrollCollapse': true,
+						'scrollX': true,
+						'paging': true
 					});
-                    $("#csvTable_filter").before(tbltl);
-				},
-				bindlinks('#tblshow', 'click', '.clmstatus', 'click', '#tbclmstat', '<?php echo xla("Claim Status"); ?>'),
-				bindlinks('#tblshow', 'click', '.btclm', 'click', '#tbbatchclm', '<?php echo xla("Batch Claim"); ?>'),
-				bindlinks('#tblshow', 'click', '.codeval', 'click', '#tbcodetxt', '<?php echo xla("Code Text"); ?>')				
+				},	
 			]              
 		});
 	}); 
 	
 	// csv encounter history
-	$('#showhistory').click(function() {
-		$('#tbcsvhist').html('');
-		var chenctr = $('#chenctr').value;
-		var encrecord = $('#tbcsvhist').dialog({
-					buttons: [{ text: "Close", click: function() { $(this).dialog("close"); } }], 
-					modal: false,
+	jQuery('#formcsvhist').on('submit', function(e) {
+		e.preventDefault();
+		jQuery('#tbcsvhist').empty();
+		var chenctr = jQuery('#histenctr').value;
+		var histopts = { modal: false,
+					appendTo: '#tbcsvhist',
+					height: 'auto',
+					width: 568,
+					maxWidth: 616,
 					title: "<?php echo xla("Encounter EDI Record"); ?>",
-					height: 416,
-					width: 'auto'
-				});
-		$.ajax({
+					close: function(event, ui) {
+						jQuery(this).empty();
+			            jQuery(this).dialog('close');
+			        }
+				};
+		jQuery.ajax({
 			type: "GET",
-			url: "edi_history_main.php", 
-			data: $('#formcsvhist').serialize(), //{ csvenctr: chenctr },
+			url: jQuery('#formcsvhist').attr('action'), 
+			data: jQuery('#formcsvhist').serialize(), //{ csvenctr: chenctr },
 			dataType: "html",
-			success: [
-				function(data){ $('#tbcsvhist').html($.trim(data)); },
-				bindlinks('#tbcsvhist', 'click', '.clmstatus', 'click', '#tbclmstat', '<?php echo xla("Claim Status"); ?>'),
-				bindlinks('#tbcsvhist', 'click', '.btclm', 'click', '#tbbatchclm', '<?php echo xla("Batch Claim"); ?>'),
-				bindlinks('#tbcsvhist', 'click', '.codeval', 'click', '#tbcodetxt', '<?php echo xla("Code Text"); ?>'),
-				encrecord.dialog('open')
+			success: [ function(data){
+				jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
+					.appendTo('#tbcsvhist').html(jQuery.trim(data)).dialog(histopts).dialog('open');
+				}
 			]				
 		});
+    });
+    //		
+    jQuery('#csvClear').on('click', function(e) {
+		e.preventDefault();
+        jQuery("#tblshow").html('');
+    });
+/* **************
+ * === end of csv tables and claim history
+ */
+/* ****************8
+ * === view x12 file form  form"view_x12" file"x12file" submit"fx12" check"ifhtml" newWin"x12nwin"
+ */
+	jQuery('#x12view').on('submit', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		//
+		var rspElem = jQuery('#x12rsp');
+		var frmData = new FormData( document.getElementById('x12view') );
+		jQuery.ajax({
+		    url: jQuery('#x12view').attr('action'),
+		    type: 'POST',
+		    data: frmData,
+		    processData: false,
+		    contentType: false,
+		    //
+		    success: function(data) {
+				rspElem.html('');
+				rspElem.html(data);
+				jQuery('#x12filesbmt').prop('disabled', true);
+			},
+		    error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); }
+		});
+		// jQuery accordion requires html to be present at document ready
+		// accordion does not work for added content, so no effect here
+		jQuery('#x12rsp > #accordion')
+	      .accordion({
+	        header: "h3",
+	        collapsible: true,
+	        heightStyle: "content",
+	        active: false
+	      });
+		return false;
+	});
+	//
+	jQuery('#x12file').change( function(){
+		// clear file display
+		jQuery('#x12rsp').html('');
+		jQuery('#x12filesbmt').prop('disabled', false);
+	});
+	//
+	jQuery('#x12filerst').on('click', function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		// clear file display
+		jQuery('#x12rsp').html('');
+		jQuery('#x12filesbmt').prop('disabled', true);
+		jQuery('#x12view').trigger('reset');
+	});
+
+/*
+ * === functions for logs, notes, and archive "frm_archive" "archiveselect""archivesubmit"
+ */
+	jQuery('#logarch').on('click', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		//
+		jQuery.ajax({
+            type: 'get',
+            url: jQuery('#formlog').attr('action'), 
+            data: { archivelog: 'yes' },
+            dataType: "json",
+            success: function(data) {
+				var str = "<p><?php echo xla('Archive Log Files'); ?></p><ul id='logarchlist'>";
+				var fct = data.length;
+				if (fct == 0) {
+					str = str + "<li><?php echo xla('No logs older than 7 days'); ?></li>";
+				} else {
+					for(var i = 0; i < fct; i++) {
+						str = str + "<li>" + data[i] + "</li>";
+					}
+				};
+				str = str + "</ul>";
+				jQuery('#notesrsp').hide();
+		        jQuery('#logrsp').html('');
+		        jQuery('#logrsp').html(str);
+		        jQuery('#logrsp').show();				
+			},
+		    error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); }
+		});
+		loglist();
+
+    });
+    
+    jQuery('#logclose').on('click', function(e) {
+		e.preventDefault();
+        jQuery('#logrsp').html('');
+        jQuery('#logrsp').hide();
+        jQuery('#notesrsp').show();
+    });
+    	
+	jQuery('#logselect').on('change', function(e) {
+		jQuery('#logshow').prop('disabled', false );
+	});
+	     
+    jQuery('#logshow').on('click', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var fn = jQuery('#logselect').val();
+        jQuery.ajax({
+            type: 'get',
+            url: jQuery('#formlog').attr('action'), 
+            //data: { archivelog: 'yes', logfile: fn },
+            data: jQuery('#formlog').serialize(),
+            dataType: "html",
+            success: function(data){
+				jQuery('#notesrsp').hide();
+                jQuery('#logrsp').html(''), 
+                jQuery('#logrsp').html(jQuery.trim(data));
+                jQuery('#logrsp').show(); 
+            }
+        });
+    }); 
+
+    jQuery('#notesget').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jQuery.ajax({
+            type:'GET',
+            url: jQuery('#formnotes').attr('action'),
+            data: { getnotes: "yes"},
+            dataType: "text",
+            success: function(data){
+				jQuery('#notesrsp').html('');
+                jQuery('#notesrsp').html("<H4>Notes:</H4>");
+                jQuery('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>"); 
+                // necessary to trim the data since php from script has leading newlines (UTF-8 issue) '|:|'
+		        jQuery('#logrsp').hide();
+                jQuery('#notesrsp \\:textarea').val(jQuery.trim(data));
+                jQuery('#notesrsp').show();
+            }
+        });
     });	
+
+    jQuery('#notessave').on('click', function(e) {
+		e.preventDefault();
+        var notetxt = jQuery('#notesrsp :textarea').val();
+        var noteURL = jQuery('#formnotes').attr('action');
+        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt },
+            function(data){ jQuery('#notesrsp').append(data); });
+    });
+
+    jQuery('#notesclose').on('click', function(e) {
+		e.preventDefault();
+        jQuery('#notesrsp').html('');
+        jQuery('#notesrsp').toggle(false);
+    });
+
+/*
+ * ==== Archive form id="formarchive"
+ * 
+ */
+	jQuery('#formarchive').on('submit', function(e) {
+		//e.stopPropagation();
+		e.preventDefault();
+		var archForm = document.getElementById('formarchive'); 
+		var archdata = new FormData(archForm);  
+		var rspElem = jQuery('#archiversp');
+		rspElem.html('');
+		jQuery.ajax({
+			url: jQuery('#formarchive').attr('action'),
+			type: 'POST',
+			cache: false, 
+			data: archdata,
+			dataType: 'html',
+			processData: false,
+			contentType: false,
+			success: function(data) {
+				rspElem.html(data);
+				jQuery('#archivesubmit').prop('disabled', true );
+				archForm.reset();
+				
+			},
+			error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+			// code to run regardless of success or failure
+			// complete: function( xhr, status ) { alert( "The request is complete!" ); }
+		});
+	    archlist();
+	    csvlist();
+		return false;
+	});
+	//
+	jQuery('#archiverpt').on('click', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		// id="#archiversp"
+		var rspElem = jQuery('#archiversp');
+		rspElem.html('');
+		var sprd = jQuery('#archiveselect').val();
+		var surl = jQuery('#formarchive').attr('action');
+		//
+		//console.log(surl);
+		jQuery.ajax({
+			url: 'edih_main.php',
+			type: 'GET',
+			//cache: false,
+			dataType: 'html',
+			data: { archivereport: 'yes', period: sprd },
+			
+			success: function(data) {
+				//rspElem.html(data);
+				//rspElem.show();
+				jQuery('#archiversp').html(data);
+			},
+			error: function( xhr, status ) {
+				alert( "<?php echo xls('Sorry, there was a problem!'); ?>" );
+				rspElem.html(status);
+				rspElem.show();
+			}
+		});
+		return false;
+	});
+	//		
+	jQuery('#archiveselect').on('change', function(e) {
+		jQuery('#archivesubmit').prop('disabled', false );
+	});
+
+	// 
+	jQuery('#formarchrestore').on('submit', function(e) {
+		//e.stopPropagation();
+		e.preventDefault();
+		
+		var sel = jQuery( "#archrestoresel option:selected" ).text();
+		console.log( sel );
+		if (sel == "No Archives") {
+			alert("<?php echo xls('No archive files present'); ?>");
+			return false;
+		}
+		var archrstForm = document.getElementById('formarchrestore'); 
+		var archrstdata = new FormData(archrstForm);  
+		var rspElem = jQuery('#archiversp');
+		//var archf = jQuery('#archrestoresel').val();
+		//archrstdata = { archrestore: 'yes', archfile: archf };
+		jQuery.ajax({
+			url: jQuery('#formarchrestore').attr('action'),
+			type: 'POST', 
+			data: archrstdata,
+			dataType: 'html',
+			processData: false,
+			contentType: false,
+			success: function(data) {
+				rspElem.html('');
+				rspElem.html(data);
+			},
+			error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+		});
+	    archlist();
+	    csvlist();
+	    archrstForm.reset();
+		return false;
+	});
 
 /* ************ 
  * end of javascript block

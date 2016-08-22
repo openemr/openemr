@@ -15,6 +15,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
+require_once("forms_review_header.php");
 ?>
 <html>
 
@@ -163,12 +164,15 @@ jQuery(document).ready( function($) {
             var mode = "add";
             // Enable the reconciliation checkbox
             $("#med_reconc_perf").removeAttr("disabled");
+	    $("#soc_provided").removeAttr("disabled");
         }
         else {
             var mode = "remove";
             //Disable the reconciliation checkbox (also uncheck it if applicable)
             $("#med_reconc_perf").attr("disabled", true);
             $("#med_reconc_perf").removeAttr("checked");
+	    $("#soc_provided").attr("disabled",true);
+	    $("#soc_provided").removeAttr("checked");
         }
         top.restoreSession();
         $.post( "../../../library/ajax/amc_misc_data.php",
@@ -198,6 +202,24 @@ jQuery(document).ready( function($) {
               object_category: "form_encounter",
               object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
             }
+        );
+    });
+    $("#soc_provided").click(function(){
+        if($('#soc_provided').attr('checked')){
+                var mode = "soc_provided";
+        }
+        else{
+                var mode = "no_soc_provided";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+                { amc_id: "med_reconc_amc",
+                complete: true,
+                mode: mode,
+                patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+                object_category: "form_encounter",
+                object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+                }
         );
     });
 
@@ -446,6 +468,18 @@ if ( $esign->isButtonViewable() ) {
                 <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
                 </td>
                 </tr>
+		<tr>
+                <td>
+                <?php if (!(empty($itemAMC['soc_provided']))) { ?>
+                    <input type="checkbox" id="soc_provided" checked>
+                <?php } else { ?>
+                    <input type="checkbox" id="soc_provided">
+                <?php } ?>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Summary Of Care Provided ?') ?></span>
+                </td>
+                </tr>
                 </table>
             <?php } else { ?>
                 <tr>
@@ -464,6 +498,14 @@ if ( $esign->isButtonViewable() ) {
                 </td>
                 <td>
                 <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <input type="checkbox" id="soc_provided" DISABLED>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Summary of Care Provided?') ?></span>
                 </td>
                 </tr>
                 </table>
@@ -623,5 +665,5 @@ if ( $esign->isButtonViewable() ) {
 
 </div> <!-- end large encounter_forms DIV -->
 </body>
-
+<?php require_once("forms_review_footer.php"); ?>
 </html>

@@ -13,8 +13,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 
-$accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
-
 // Get relevant ACL info.
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');

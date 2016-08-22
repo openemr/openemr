@@ -53,16 +53,16 @@
 		$payerCheckArr['Private Health Insurance'] = 0;
 		$payerCheckArr['Other'] = 0;
 		if(count($patArr) > 0){
-			$insQry = "SELECT insd.*, ic.freeb_type FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
+			$insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
 					  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
 					  "WHERE insd.pid IN (".add_escape_custom(implode(",", $patArr)).")";
 			$insRes = sqlStatement($insQry);
 			while($insRow = sqlFetchArray($insRes)){
-				if($insRow['freeb_type'] == 8){//Self Pay (Private Insurance)
+				if($insRow['ins_type_code'] == 8){//Self Pay (Private Insurance)
 					$payerCheckArr['Private Health Insurance']++;
-				}else if($insRow['freeb_type'] == 2){//Medicare
+				}else if($insRow['ins_type_code'] == 2){//Medicare
 					$payerCheckArr['Medicare']++;
-				}else if($insRow['freeb_type'] == 3){//Self Pay (Private Insurance)
+				}else if($insRow['ins_type_code'] == 3){//Self Pay (Private Insurance)
 					$payerCheckArr['Medicaid']++;
 				}else{//Other
 					$payerCheckArr['Other']++;
@@ -146,16 +146,16 @@
 	
 	function payerPatient($patient_id){
 		$payer = 'Other';
-		$insQry = "SELECT insd.*, ic.freeb_type FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
+		$insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
 					  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
 					  "WHERE insd.pid = ?";
 		$insRes = sqlStatement($insQry, array($patient_id));
 		while($insRow = sqlFetchArray($insRes)){
-			if($insRow['freeb_type'] == 8){//Self Pay (Private Insurance)
+			if($insRow['ins_type_code'] == 8){//Self Pay (Private Insurance)
 				$payer = 'Private Health Insurance';
-			}else if($insRow['freeb_type'] == 2){//Medicare
+			}else if($insRow['ins_type_code'] == 2){//Medicare
 				$payer = 'Medicare';
-			}else if($insRow['freeb_type'] == 3){//Self Pay (Private Insurance)
+			}else if($insRow['ins_type_code'] == 3){//Self Pay (Private Insurance)
 				$payer = 'Medicaid';
 			}else{//Other
 				$payer = 'Other';
@@ -166,7 +166,7 @@
 	
 	function allEncPat($patient_id, $from_date, $to_date){
 		$encArr = array();
-		$patQry = "SELECT encounter, date,pc_catid FROM form_encounter WHERE pid = ? AND (DATE(date) BETWEEN ? AND ?)";
+		$patQry = "SELECT fe.encounter, fe.date,fe.pc_catid,opc.pc_catname FROM form_encounter fe inner join openemr_postcalendar_categories opc on opc.pc_catid = fe.pc_catid WHERE fe.pid = ? AND (DATE(fe.date) BETWEEN ? AND ?)";
 		$patRes = sqlStatement($patQry, array($patient_id, $from_date, $to_date));
 		while( $patRow = sqlFetchArray($patRes ) ){
 			$encArr[] = $patRow;

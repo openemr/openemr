@@ -28,9 +28,12 @@
 
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
- ///////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
+ ?>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php
  // check access controls
  if (!acl_check('patients','appt','',array('write','wsome') ))
   die(xlt('Access not allowed'));
@@ -75,6 +78,7 @@
 
  // seconds per time slot
  $slotsecs = $GLOBALS['calendar_interval'] * 60;
+ 
 
  $catslots = 1;
  if ($input_catid) {
@@ -115,6 +119,17 @@
  // none is given then assume the default category duration.
  $evslots = $catslots;
  if (isset($_REQUEST['evdur'])) {
+  
+  // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
+  // if the event duration is less than or equal to zero, use the global calander interval
+  // if the global calendar interval is less than or equal to zero, use 10 mins
+  if(intval($_REQUEST['evdur']) <= 0){
+   if(intval($GLOBALS['calendar_interval']) <= 0){
+     $_REQUEST['evdur'] = 10;
+   }else{
+     $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
+   }
+  }
   $evslots = 60 * $_REQUEST['evdur'];
   $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
  }
@@ -172,13 +187,26 @@
    if (! $inoffice) { $slots[$i] |= 4; $prov[$i] = $i; }
   }
  }
+$ckavail = true;
+// If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
+//////
+$is_holiday=false;
+$holidays_controller = new Holidays_Controller();
+$holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
+if(in_array($sdate,$holidays)){
+    $is_holiday=true;
+    $ckavail=true;
+}
+//////
+
+
 
  // The cktime parameter is a number of minutes into the starting day of a
  // tentative appointment that is to be checked.  If it is present then we are
  // being asked to check if this indicated slot is available, and to submit
  // the opener and go away quietly if it is.  If it's not then we have more
  // work to do.
- $ckavail = true;
+
  if (isset($_REQUEST['cktime'])) {
   $cktime = 0 + $_REQUEST['cktime'];
   $ckindex = (int) ($cktime * 60 / $slotsecs);
@@ -191,9 +219,11 @@
 		}
 	  }
   }
+
   if ($ckavail) {
     // The chosen appointment time is available.
-    echo "<html><script language='JavaScript'>\n";
+    echo "<html>"
+      . "<script language='JavaScript'>\n";
     echo "function mytimeout() {\n";
     echo " opener.top.restoreSession();\n";
     echo " opener.document.forms[0].submit();\n";
@@ -402,6 +432,13 @@ $(document).ready(function(){
 
 <?php if (!$ckavail) { ?>
 <?php if (acl_check('patients','appt','','write')) {
+if($is_holiday){?>
+    if (confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
+     opener.top.restoreSession();
+     opener.document.forms[0].submit();
+     window.close();
+    }
+<?php }else{
 if($isProv): ?>
 if (confirm('<?php echo xls('Provider not available, use it anyway?'); ?>')) {
 <?php else: ?>
@@ -411,14 +448,20 @@ opener.top.restoreSession();
 opener.document.forms[0].submit();
 window.close();
 }
+<?php } ?>
 <?php } else {
+if($is_holiday){?>
+    alert('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>');
+<?php }else{
 if($isProv): ?>
 alert('<?php echo xls('Provider not available, please choose another.'); ?>');
 <?php else: ?>
 alert('<?php echo xls('This appointment slot is already used, please choose another.'); ?>');
 <?php endif; ?>
+<?php } ?>//close if is holiday
 <?php } ?>
 <?php } ?>
+
 
 </script>
 

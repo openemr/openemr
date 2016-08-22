@@ -111,6 +111,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'calendar_view_type',
                                'event_color',
                                'pat_trkr_timer',
+                               'ptkr_visit_reason',
                                'checkout_roll_off',
                                'ptkr_pt_list_new_window',                               
                                'erx_import_status_message');
@@ -130,6 +131,16 @@ $GLOBALS_METADATA = array(
       ),
       'main_info.php',                  // default = calendar
       xl('Type of screen layout')
+    ),
+
+    'new_tabs_layout' => array(
+      xl('Tabs Layout Style (need to logout/login after change this setting)'),
+      array(
+        '0' => xl('Off'),
+        '1' => xl('On'),
+      ),
+      '0',                              // default = off
+      xl('Use the new tabs layout style (need to logout and then login to see this new setting).')
     ),
 
     'concurrent_layout' => array(
@@ -177,14 +188,27 @@ $GLOBALS_METADATA = array(
 
     'full_new_patient_form' => array(
       xl('New Patient Form'),
+
       array(
         '0' => xl('Old-style static form without search or duplication check'),
         '1' => xl('All demographics fields, with search and duplication check'),
         '2' => xl('Mandatory or specified fields only, search and dup check'),
         '3' => xl('Mandatory or specified fields only, dup check, no search'),
+        '4' => xl('Mandatory or specified fields only, use patient validation Zend module'),
       ),
       '1',                              // default
       xl('Style of form used for adding new patients')
+    ),
+
+    'gbl_edit_patient_form' => array(
+      xl('Modify Patient Form'),
+
+      array(
+        '0' => xl('Standard check'),
+        '1' => xl('Zend Module check in addition to standard check')
+      ),
+      '0',                              // default
+      xl('Validation mechanism for when modifying patient demographics.')
     ),
 
     'patient_search_results_style' => array(
@@ -696,6 +720,13 @@ $GLOBALS_METADATA = array(
       xl('Specifies formatting for product NDC fields.  # = digit, @ = alpha, * = any character.  Empty if not used.')
     ),
 
+    'hide_billing_widget' => array(
+      xl('Hide Billing Widget'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will hide the Billing Widget in the Patient Summary screen')
+    ),
+
     'force_billing_widget_open' => array(
       xl('Force Billing Widget Open'),
       'bool',                           // data type
@@ -1122,7 +1153,18 @@ $GLOBALS_METADATA = array(
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received MDM documents.')
     ),
-
+    'generate_doc_thumb' => array(
+        xl('Generate thumbnail'),
+        'bool',
+        '0',
+        xl('Generate thumbnail images'),
+    ),
+    'thumb_doc_max_size' => array(
+        xl('Thumbnail size'),
+        'text',          // data type
+        '100',           // default
+        xl('Maximum size of thumbnail file')
+    ),
   ),
 
   // Calendar Tab
@@ -1220,6 +1262,41 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Onsite Patient Portal')
     ),
 
+    'appt_display_sets_option' => array(
+      xl('Appointment Display Sets - Ignore Display Limit (Last Set)'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Override (if necessary) the appointment display limit to allow all appointments to be displayed for the last set')
+    ),
+
+    'appt_display_sets_color_1' => array(
+      xl('Appointment Display Sets - Color 1'),
+      'color_code',
+      '#FFFFFF',
+      xl('Color for odd sets (except when last set is odd and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).')
+    ),
+
+    'appt_display_sets_color_2' => array(
+      xl('Appointment Display Sets - Color 2'),
+      'color_code',
+      '#E6E6FF',
+      xl('Color for even sets (except when last set is even and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).')
+    ),
+
+    'appt_display_sets_color_3' => array(
+      xl('Appointment Display Sets - Color 3'),
+      'color_code',
+      '#E6FFE6',
+      xl('Color for the last set when all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed).')
+    ),
+
+    'appt_display_sets_color_4' => array(
+      xl('Appointment Display Sets - Color 4'),
+      'color_code',
+      '#FFE6FF',
+      xl('Color for the last set when not all member appointments are displayed.')
+    ),
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
@@ -1254,6 +1331,27 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('When Checked, Demographics Will Open in New Window from Patient Flow Board.')
     ),
+    
+    'ptkr_visit_reason' => array(
+      xl('Show Visit Reason in Patient Flow Board'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('When Checked, Visit Reason Will Show in Patient Flow Board.')
+    ),  
+
+    'ptkr_show_pid' => array(
+      xl('Show Patient ID in Patient Flow Board'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('When Checked, Patient ID Will Show in Patient Flow Board.')
+    ),  
+	
+    'ptkr_show_encounter' => array(
+      xl('Show Patient Encounter Number in Patient Flow Board'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
+    ),  
 	
     'pat_trkr_timer' => array(
       xl('Patient Flow Board Timer Interval'),
@@ -1379,6 +1477,12 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Email address, if any, to receive emergency login user activation messages.')
     ),
+     'new_validate' => array(
+      xl('New form validation'),
+      'bool',
+      '1',
+      xl('New form validation')
+     ),
 
   ),
 

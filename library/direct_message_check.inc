@@ -29,7 +29,6 @@ require_once(dirname(__FILE__) . "/pnotes.inc");
 require_once(dirname(__FILE__) . "/../controllers/C_Document.class.php");
 require_once(dirname(__FILE__) . "/documents.php");
 require_once(dirname(__FILE__) . "/gprelations.inc.php");
-require_once(dirname(__FILE__) . "/classes/class.phpmailer.php");
 
 /**
  * Connect to a phiMail Direct Messaging server 
@@ -469,7 +468,6 @@ function phimail_notify($subj,$body) {
   $recipient = $GLOBALS['practice_return_email_path'];
   if (empty($recipient)) return false;
   $mail = new PHPMailer();
-  $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
   $mail->FromName = 'phiMail Gateway';
   $mail->isMail();

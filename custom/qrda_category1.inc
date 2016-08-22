@@ -54,6 +54,8 @@
 	
 	$qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
 	
+	$EncounterCptCodes = array('ophthalmological_services' => '92002');
+	
 	function getCombinePatients($dataSheet, $reportID) {
 		foreach( $dataSheet as $singleDataSheet ) {
 			//var_dump($singleDataSheet['cqm_nqf_code'],$singleDataSheet['init_patients']);

@@ -102,6 +102,16 @@ else {
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+
+// This is where will decide whether to use tabs layout or non-tabs layout
+// Note that this screen does not appear to support user specific globals since
+// guessing the globals are collected before authentication and setting of the user.
+// If want to support per user selection of tabs layout, will need to look into this.
+if (!$GLOBALS['new_tabs_layout']) {
+  $_REQUEST['tabs'] = "false";
+}
+require_once("tabs/redirect.php");
+
 ?>
 <html>
 <head>
@@ -113,6 +123,11 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// This flag indicates if another window or frame is trying to reload the login
+// page to this top-level window.  It is set by javascript returned by auth.inc
+// and is checked by handlers of beforeunload events.
+var timed_out = false;
 
 // This counts the number of frames that have reported themselves as loaded.
 // Currently only left_nav and Title do this, so the maximum will be 2.

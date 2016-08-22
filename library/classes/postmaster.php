@@ -5,8 +5,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once ($GLOBALS['srcdir'] . "/classes/class.phpmailer.php");
-
 // Add these two lines to Authenticate in phpmailer.php, lines 633-634
 // Customized for Web hosts that don't require SMTP authentication
 // if ($SMTP_Auth=="No") { $connection = true; }

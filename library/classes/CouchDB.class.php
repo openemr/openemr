@@ -57,14 +57,34 @@ class CouchDB {
     }
     
     function check_saveDOC($data){
-        list($db,$docid,$patient_id,$encounter,$type,$json) = $data;
-        $resp = $this->send("PUT", "/".$db."/".$docid, '{"_id":"'.$docid.'","pid":"'.$patient_id.'","encounter":"'.$encounter.'","mimetype":"'.$type.'","data":'.$json.'}');
+        list($db,$docid,$patient_id,$encounter,$type,$json, $th_json) = $data;
+        $couch_json = array();
+        $couch_json['_id'] = $docid;
+        $couch_json['pid'] = $patient_id;
+        $couch_json['encounter'] = $encounter;
+        $couch_json['mimetype'] = $type;
+        $couch_json['data'] = $json;
+        if($th_json) {
+            $couch_json['th_data'] = $th_json;
+        }
+
+        $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
         return json_decode($resp);
     }
     
     function update_doc($data){
-	list($db,$docid,$revid,$patient_id,$encounter,$type,$json) = $data;
-        $resp = $this->send("PUT", "/".$db."/".$docid, '{"_id":"'.$docid.'","_rev":"'.$revid.'","pid":"'.$patient_id.'","encounter":"'.$encounter.'","mimetype":"'.$type.'","data":'.$json.'}');
+	list($db,$docid,$revid,$patient_id,$encounter,$type,$json, $th_json) = $data;
+        $couch_json = array();
+        $couch_json['_id'] = $docid;
+        $couch_json['_rev'] = $revid;
+        $couch_json['pid'] = $patient_id;
+        $couch_json['encounter'] = $encounter;
+        $couch_json['mimetype'] = $type;
+        $couch_json['data'] = $json;
+        if($th_json) {
+            $couch_json['th_data'] = $th_json;
+        }
+        $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
         return json_decode($resp);
     }
     
@@ -75,7 +95,7 @@ class CouchDB {
     
     function retrieve_doc($data){
         list($db,$docid) = $data;
-        $resp = $this->send("GET", "/".$db."/".$docid); 
+        $resp = $this->send("GET", "/".$db."/".$docid);
         return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}" 
     }
     

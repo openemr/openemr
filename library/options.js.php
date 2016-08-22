@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,6 +60,7 @@ function updateAgeString(fieldid, asof, format) {
 //
 var cskerror = false; // to avoid repeating error messages
 function checkSkipConditions() {
+    
   var myerror = cskerror;
   var prevandor = '';
   var prevcond = false;
@@ -83,7 +84,8 @@ function checkSkipConditions() {
         }
     }
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
-    if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
+    if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
+
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
 
     if (srcelem == null) {
@@ -93,27 +95,60 @@ function checkSkipConditions() {
     }
 
     var condition = false;
-
-
+    var is_multiple = false;
+    var elem_val;
     if ( is_radio){
         for (var k = 0; k < document.getElementsByName('form_' + tofind).length; k++){
             if (document.getElementsByName('form_' + tofind)[k].checked){
-                var elem_val= document.getElementsByName('form_' + tofind)[k].value;
+                elem_val= document.getElementsByName('form_' + tofind)[k].value;
             }
         }
-    }else if( typeof srcelem.options!=="undefined"){
-        var elem_val=srcelem.options[srcelem.selectedIndex].value;
-    }else{
-        var elem_val=srcelem.value;
-        if(elem_val == null) elem_val = srcelem.getAttribute("data-value");
+    }else if( typeof srcelem.options!=="undefined" && srcelem.type == 'select-one' ){
+        elem_val=srcelem.options[srcelem.selectedIndex].value;
+        
+    }else if( srcelem.type == 'select-multiple' ) {
+        elem_val = new Array();
+        is_multiple = true;
+        for (var k = 0; k < srcelem.length; k++) {
+            if (srcelem.options[k].selected) {
+                if( elem_val.indexOf(srcelem.options[k].value)<0) {
+                    elem_val.push(srcelem.options[k].value);
+                }
+            }
+        }
+    } else {
+        elem_val=srcelem.value;
+
+        if(elem_val == null) {
+            elem_val = srcelem.getAttribute("data-value");
+            if( elem_val !== null && elem_val.indexOf("|") !== -1 ) {
+                elem_val = elem_val.split("|");
+                is_multiple = true;
+            }
+        } 
         if(elem_val == null) elem_val = srcelem.innerText;
-
     }
-    if (operator == 'eq') condition = elem_val == value; else
-    if (operator == 'ne') condition = elem_val != value; else
-    if (operator == 'se') condition = srcelem.checked       ; else
-    if (operator == 'ns') condition = !srcelem.checked;
-
+    //this is a feature fix for the multiple select list option
+    //collect all the multiselect control values:
+    if( is_multiple ) {
+        switch(operator) {
+            case 'eq':
+                condition = (-1 !== elem_val.indexOf(value));break;
+            case 'ne':
+                condition = (-1 == elem_val.indexOf(value)); break;
+            case 'se':
+                condition = srcelem.checked  ; break; // doesn't make sense?
+            case 'ns': 
+                condition = !srcelem.checked;  break;
+        }
+                
+    } else {
+        if (operator == 'eq') condition = elem_val == value; else
+        if (operator == 'ne') condition = elem_val != value; else
+        if (operator == 'se') condition = srcelem.checked  ; else
+        if (operator == 'ns') condition = !srcelem.checked;
+    }
+    
     // Logic to accumulate multiple conditions for the same target.
     // alert('target = ' + target + ' prevandor = ' + prevandor + ' prevcond = ' + prevcond); // debugging
     if (prevandor == 'and') condition = condition && prevcond; else
@@ -142,8 +177,10 @@ function checkSkipConditions() {
     }
     // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
     var colspan = 0;
-    if (trgelem1) colspan += trgelem1.colSpan;
-    if (trgelem2) colspan += trgelem2.colSpan;
+    if (trgelem1 && trgelem1.colSpan !=undefined )
+        colspan += trgelem1.colSpan;
+    if (trgelem2 && trgelem2.colSpan !=undefined)
+        colspan += trgelem2.colSpan;
     if (colspan < 4) {
       if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
       if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
@@ -155,6 +192,63 @@ function checkSkipConditions() {
   }
   // If any errors, all show in the first pass and none in subsequent passes.
   cskerror = cskerror || myerror;
+}
+
+///////////////////////////////////////////////////////////////////////
+// Image canvas support starts here.
+///////////////////////////////////////////////////////////////////////
+
+var lbfCanvases = {}; // contains the LC instance for each canvas.
+
+// Initialize the drawing widget.
+// canid is the id of the div that will contain the canvas, and the image
+// element used for initialization should have an id of canid + '_img'.
+//
+function lbfCanvasSetup(canid, canWidth, canHeight) {
+  LC.localize({
+    "stroke"    : "<?php echo xls('stroke'    ); ?>",
+    "fill"      : "<?php echo xls('fill'      ); ?>",
+    "bg"        : "<?php echo xls('bg'        ); ?>",
+    "Clear"     : "<?php echo xls('Clear'     ); ?>",
+    // The following are tooltip translations, however they do not work due to
+    // a bug in LiterallyCanvas 0.4.13.  We'll leave them here pending a fix.
+    "Eraser"    : "<?php echo xls('Eraser'    ); ?>",
+    "Pencil"    : "<?php echo xls('Pencil'    ); ?>",
+    "Line"      : "<?php echo xls('Line'      ); ?>",
+    "Rectangle" : "<?php echo xls('Rectangle' ); ?>",
+    "Ellipse"   : "<?php echo xls('Ellipse'   ); ?>",
+    "Text"      : "<?php echo xls('Text'      ); ?>",
+    "Polygon"   : "<?php echo xls('Polygon'   ); ?>",
+    "Pan"       : "<?php echo xls('Pan'       ); ?>",
+    "Eyedropper": "<?php echo xls('Eyedropper'); ?>",
+    "Undo"      : "<?php echo xls('Undo'      ); ?>",
+    "Redo"      : "<?php echo xls('Redo'      ); ?>",
+    "Zoom out"  : "<?php echo xls('Zoom out'  ); ?>",
+    "Zoom in"   : "<?php echo xls('Zoom in'   ); ?>",
+  });
+  var tmpImage = document.getElementById(canid + '_img');
+  var shape = LC.createShape('Image', {x: 0, y: 0, image: tmpImage});
+  var lc = LC.init(document.getElementById(canid), {
+    imageSize: {width: canWidth, height: canHeight},
+    strokeWidths: [1, 2, 3, 5, 8, 12],
+    defaultStrokeWidth: 2,
+    backgroundShapes: [shape],
+    imageURLPrefix: '<?php echo $GLOBALS['assets_static_relative'] ?>/literallycanvas-0-4-13/img'
+  });
+  if (canHeight > 261) {
+    // TBD: Do something to make the widget bigger?
+    // Look for some help with this in the next LC release.
+  }
+  // lc.saveShape(shape);       // alternative to the above backgroundShapes
+  lbfCanvases[canid] = lc;
+}
+
+// This returns a standard "Data URL" string representing the image data.
+// It will typically be a few kilobytes. Here's a truncated example:
+// data:image/png;base64,iVBORw0K ...
+//
+function lbfCanvasGetData(canid) {
+  return lbfCanvases[canid].getImage().toDataURL();
 }
 
 </script>

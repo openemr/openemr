@@ -30,6 +30,20 @@ $sanitize_all_escapes=true;
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 //
+
+//fetching controller name and action name from the SOAP request
+$urlArray = explode('/', $_SERVER['REQUEST_URI']);
+$countUrlArray = count($urlArray);
+preg_match('/\/(\w*)\?/', $_SERVER['REQUEST_URI'], $matches);
+$actionName = isset($matches[1]) ? $matches[1] : '';
+$controllerName = isset($urlArray[$countUrlArray-2]) ? $urlArray[$countUrlArray-2] : '';
+
+//skipping OpenEMR authentication if the controller is SOAP and action is INDEX
+//SOAP authentication is done in the contoller EncounterccdadispatchController
+if(strtolower($controllerName) == 'soap' && strtolower($actionName) == 'index') {
+    $ignoreAuth_offsite_portal = true;
+}
+
 require_once(dirname(__FILE__)."/../../../globals.php");
 require_once(dirname(__FILE__)."/../../../../library/forms.inc");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");

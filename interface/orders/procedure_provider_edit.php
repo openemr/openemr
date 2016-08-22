@@ -41,6 +41,7 @@ function invalue($name) {
 ?>
 <html>
 <head>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Procedure Provider'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>

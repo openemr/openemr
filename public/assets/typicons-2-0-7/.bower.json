@@ -1,0 +1,46 @@
+{
+  "name": "typicons.font",
+  "version": "2.0.7",
+  "main": [
+    "src/font/demo.html",
+    "src/font/typicons.eot",
+    "src/font/typicons.ttf",
+    "src/font/typicons.woff",
+    "src/font/typicons.svg",
+    "src/font/typicons.css",
+    "src/font/typicons.min.css",
+    "src/font/LICENCE.md"
+  ],
+  "authors": [
+    "Stephen Hutchings <http://www.s-ings.com/>"
+  ],
+  "description": "Typicons are free-to-use vector icons embedded in a webfont for easy use in your user interfaces, whether it be on the web or in a native application.",
+  "keywords": [
+    "icon",
+    "fonts",
+    "icons",
+    "font-face",
+    "webfont"
+  ],
+  "ignore": [
+    "**/.*",
+    "src/demo",
+    "src/png-24px",
+    "src/png-48px",
+    "support",
+    "Makefile",
+    "config.yml",
+    "*.md"
+  ],
+  "homepage": "http://typicons.com/",
+  "license": "CC BY-SA / SIL",
+  "_release": "2.0.7",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.0.7",
+    "commit": "31ac8ddd77d0697ec0df15532acd34399a2874cc"
+  },
+  "_source": "https://github.com/stephenhutchings/typicons.font.git",
+  "_target": "2.0.7",
+  "_originalSource": "typicons"
+}

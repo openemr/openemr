@@ -48,7 +48,8 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">	
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>

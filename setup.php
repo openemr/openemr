@@ -1,8 +1,26 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Installation script.
+ *
+ * Copyright (C) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be usefull,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY OF FITNESS FOR A PARTICULAR PURPOSE, See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the CNU General Public License
+ * along with this program. If not, see <http://opensource.org/Licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author Scott Wakefield <scott@npclinics.com.au>
+ * @link http://www.open-emr.org
+ * 
+**/
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
 require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php');
@@ -11,7 +29,7 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$state = $_POST["state"];
+$state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
 // Make this true for IPPF.
 $ippf_specific = false;
@@ -66,8 +84,6 @@ global $OE_SITE_DIR; // The Installer sets this
 $docsDirectory = "$OE_SITE_DIR/documents";
 $billingDirectory = "$OE_SITE_DIR/edi";
 $billingDirectory2 = "$OE_SITE_DIR/era";
-
-$billingLogDirectory = dirname(__FILE__)."/library/freeb";
 $lettersDirectory = "$OE_SITE_DIR/letter_templates";
 $gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
 $requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
@@ -183,7 +199,8 @@ We recommend you print these instructions for future reference.
 
 <?php
 
-$inst = $_POST["inst"];
+$inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
+
 
 if (($config == 1) && ($state < 4)) {
   echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $installer->conffile (change the 'config' variable to 0), and re-run this script.<br>\n";
@@ -207,7 +224,7 @@ else {
     
   case 2:
     echo "<b>Step $state</b><br><br>\n";
-    echo "Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.
+    echo "Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.
 <br><br>\n
 <FORM METHOD='POST'>
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='3'>
@@ -308,6 +325,36 @@ else {
 
     // Form Validation
     //   (applicable if not cloning from another database)
+    
+    $pass_step2_validation = TRUE;
+    $error_step2_message   = "ERROR at ";
+
+    if ( ! $installer->char_is_valid($_REQUEST['server'])) {
+       $pass_step2_validation = FALSE;
+       $error_step2_message .=  "Database Server Host, ";
+    }
+
+    if ( ! $installer->char_is_valid($_REQUEST['port']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .=  "Database Server Port, ";
+    }
+    if ( ! $installer->char_is_valid($_REQUEST['dbname']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Name, ";
+    }  
+    if ( ! $installer->char_is_valid($_REQUEST['login']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Login Name, ";
+    }
+    if ( ! $installer->char_is_valid($_REQUEST['pass']))  {
+        $pass_step2_validation = FALSE;
+        $error_step2_message .= "Database Login Password, ";
+    }
+    if (!$pass_step2_validation) {
+       die($error_step2_message);  
+     }
+
+
     if (empty($installer->clone_database)) { 
       if ( ! $installer->login_is_valid() ) {
         echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
@@ -557,7 +604,7 @@ echo "</li>";
 
 echo "<li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.</li>\n";
 if (!$gotFileFlag) {
-    echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
+    echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
 }
 echo "</ul>";
 
@@ -598,7 +645,7 @@ it is important to secure these directories. Additionally, some settings are req
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
 
-echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
+echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
 echo "<br>We recommend you print these instructions for future reference.<br><br>";
 echo "Click 'continue' for further instructions.";
 
@@ -617,9 +664,9 @@ break;
 echo "<p>Welcome to OpenEMR.  This utility will step you through the installation and configuration of OpenEMR for your practice.</p>\n";
 echo "<ul><li>Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.</li>\n";
 
-echo "<li>Detailed installation instructions can be found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li>\n";
+echo "<li>Detailed installation instructions can be found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li>\n";
 
-Echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
+Echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
 
 if ($checkPermissions) {
 	echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";

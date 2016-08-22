@@ -621,7 +621,7 @@ a, a:visited, a:hover { color:#0000cc; }
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jscolor/jscolor.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
 
 <script language="JavaScript">
 
@@ -953,11 +953,12 @@ while ($row = sqlFetchArray($res)) {
                   }else if ( $list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
                         xl('HL7 Code','e');
                   }else if ( $list_id == 'immunization_observation' ) {
-                        xl('LOINC Code','e'); 
-                  
-      } else {
+                        xl('LOINC Code','e');
+                  }else if ( $list_id == 'page_validation' ) {
+                              xl('Page Validation','e');
+          } else {
 		  	xl('Notes','e');
-		  } 
+		  }
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>

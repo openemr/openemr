@@ -9,6 +9,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -63,14 +65,19 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
+
+// Support for beforeunload handler.
+var somethingChanged = false;
+
 $(document).ready(function(){
     tabbify();
     enable_modals();
@@ -83,6 +90,17 @@ $(document).ready(function(){
 		'frameWidth' : 650
 	});
 
+  // Support for beforeunload handler.
+  $('.tab input, .tab select, .tab textarea').change(function() {
+    somethingChanged = true;
+  });
+  window.addEventListener("beforeunload", function (e) {
+    if (somethingChanged && !top.timed_out) {
+      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      e.returnValue = msg;     // Gecko, Trident, Chrome 34+
+      return msg;              // Gecko, WebKit, Chrome <34
+    }
+  });
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -234,7 +252,23 @@ function validate(f) {
  if ( errMsgs.length > 0 ) {
 	alert(msg);
  }
- 
+
+ //Misc  Deceased Date Validation for Future Date 
+var dateVal = document.getElementById("form_deceased_date").value;
+var currentDate;
+var d = new Date();
+month = '' + (d.getMonth() + 1),
+day = '' + d.getDate(),
+year = d.getFullYear();
+if (month.length < 2) month = '0' + month;
+if (day.length < 2) day = '0' + day;
+currentDate = year+'-'+month+'-'+day;
+if(dateVal > currentDate)
+{
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	return false;
+} 
+
 //Patient Data validations
  <?php if($GLOBALS['erx_enable']){ ?>
  alertMsg='';
@@ -308,13 +342,7 @@ function validate(f) {
  return errMsgs.length < 1;
 }
 
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  top.restoreSession();
-  f.submit();
- }
-}
+
 
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.
 function policykeyup(e) {
@@ -350,8 +378,15 @@ $(document).ready(function() {
 </script>
 </head>
 
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("DEM");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
+
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -366,11 +401,9 @@ $(document).ready(function() {
 			</a>
 			&nbsp;&nbsp;
 		</td>
-		<td>
-			<a href="javascript:submitme();" class='css_button'>
-				<span><?php xl('Save','e'); ?></span>
-			</a>
-		</td>
+        <td>
+            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
+        </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
@@ -456,7 +489,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<ul class="tabNav">
 		<?php
 		foreach (array('primary','secondary','tertiary') as $instype) {
-			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
+			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
 		}
 		?>
 		</ul>
@@ -715,7 +748,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <br>
 
 <script language="JavaScript">
-
+// hard code validation for old validation, in the new validation possible to add match rules
+<?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -728,6 +762,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);
 <?php } ?>
+
+<?php }?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']) . "'"; ?>);
@@ -744,6 +780,12 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
 
+<?php /*Include the validation script and rules for this form*/
+$form_id="DEM";
+?>
+<?php  include_once("$srcdir/validation/validation_script.js.php");?>
+
+
 </body>
 <script language='JavaScript'>
     // Array of skip conditions for the checkSkipConditions() function.
@@ -757,6 +799,58 @@ $group_seq=0; // this gives the DIV blocks unique IDs
     $("select").change(function() {
         checkSkipConditions();
     });
+
+//This code deals with demographics before save action -
+	<?php if ( ($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive()) ):?>
+
+                //Use the Zend patient validation hook.
+                //TODO - get the edit part of patient validation hook to work smoothly and then
+                //       remove the closeBeforeOpening=1 in the url below.
+
+		var f = $("form");
+
+		// Use hook to open the controller and get the new patient validation .
+		// when no params are sent this window will be closed from the zend controller.
+		var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+		$("#submit_btn").attr("type","button");
+		$("#submit_btn").attr("name","btnSubmit");
+		$("#submit_btn").attr("id","btnSubmit");
+		$("#btnSubmit").click(function( event ) {
+			if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
+				event.preventDefault();
+				return;
+			}
+			somethingChanged = false;
+			<?php
+			// D in edit_options indicates the field is used in duplication checking.
+			// This constructs a list of the names of those fields.
+			$mflist = "";
+			$mfres = sqlStatement("SELECT field_id FROM layout_options " .
+				"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+				"edit_options LIKE '%D%' " .
+				"ORDER BY group_name, seq");
+			while ($mfrow = sqlFetchArray($mfres)) {
+				$field_id  = $mfrow['field_id'];
+				if (strpos($field_id, 'em_') === 0) continue;
+				if (!empty($mflist)) $mflist .= ",";
+					$mflist .= "'" . text($field_id) . "'";
+			} ?>
+
+			var flds = new Array(<?php echo $mflist; ?>);
+			var separator = '?';
+			for (var i = 0; i < flds.length; ++i) {
+				var fval = $('#form_' + flds[i]).val();
+				if (fval && fval != '') {
+					url += separator;
+					separator = '&';
+					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+				}
+			}
+			url += '&page=edit&closeBeforeOpening=1';
+			dlgopen(url, '_blank', 700, 500);
+		});
+
+	<?php endif;?>
 </script>
 
 

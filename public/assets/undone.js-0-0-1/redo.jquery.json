@@ -1,0 +1,34 @@
+{
+    "name": "redo",
+    "title": "jQuery Undone",
+    "description": "The undo/redo manager for well formed javascript applications..",
+    "keywords": [
+        "undo",
+        "redo",
+        "store",
+        "state",
+        "ui",
+        "app",
+        "keyevent",
+        "yckart",
+        "yannick",
+        "albert"
+    ],
+    "version": "0.0.3",
+    "author": {
+        "name": "Yannick Albert",
+        "email": "mail@yckart.com",
+        "url": "https://github.com/yckart"
+    },
+    "licenses": [{
+        "type": "MIT",
+        "url": "http://yckart.com/mit/"
+    }],
+    "homepage": "http://yckart.github.com/undone.js",
+    "demo": "http://yckart.github.com/undone.js",
+    "docs": "https://github.com/yckart/undone.js",
+    "bugs": "https://github.com/yckart/undone.js/issues",
+    "dependencies": {
+        "jquery": ">=1.4"
+    }
+}

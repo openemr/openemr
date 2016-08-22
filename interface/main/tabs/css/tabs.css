@@ -1,0 +1,261 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @link    http://www.open-emr.org
+ */
+
+html
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+body
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+#mainBox
+{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    align-content: space-between;
+    width: 100%;
+    flex: 1 0 auto;
+    margin: 0;
+    padding: 0;
+}
+
+#mainBox > div
+{
+    flex: 0 1 auto;
+    margin: 0 0 0 0;
+    padding: 0;
+}
+
+#mainBox > div.mainFrames
+{
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+}
+
+#framesDisplay
+{
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: row;
+}
+
+#framesDisplay > div
+{
+    flex: 1 0 auto;
+    align-items: stretch;
+    align-content:stretch;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+#framesDisplay > div > iframe
+{
+    flex: 1 0 auto;
+    border: 1px solid black;
+}
+
+.tabControls
+{
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.tabSpan
+{
+    margin: 0 0 0 0;
+    padding:  0 0 0 0;
+    border: 2px solid black;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 0 1 auto;
+}
+
+.tabSpan:hover
+{
+    color: red;
+}
+.tabHidden
+{
+    color: gray;
+}
+
+#dialogDiv
+{
+    margin: 0;
+    padding:0;
+    border:0;
+    position:absolute;
+
+    width: 99%;
+    height:99%;
+    
+    background-color: gray;
+    z-index:1000;
+    opacity: 0.5;
+}
+
+#dialogDiv > div.container
+{
+    display: table;
+    background-color: gray;
+    margin: auto auto;
+    opacity: 1;
+}
+
+.dialogIframe
+{
+    position: absolute;
+    top:0;
+    left:0;
+    margin: auto auto;
+    opacity: 1;
+    z-index:10000;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+div.closeDlgIframe {
+
+	position: absolute;
+	top: -12px;
+	right: -15px;
+	height: 30px;
+	width: 30px;
+	background: url('iframe_close.png') top left no-repeat;
+	cursor: pointer;
+	z-index: 10010;
+}
+
+.dialogIframe > iframe{
+    border: none;
+    border-radius: 10px;
+    height:100%;
+    width:100%;
+}
+#patientData
+{
+    min-height: 4em;
+}
+
+.patientDataColumn
+{
+    width: 33%;
+    float: left;
+    display: block;
+}
+
+.patientEncountersColumn
+{
+}
+
+.patientEncounterList
+{
+    position:fixed;
+    overflow: hidden;
+    border: 1px solid black;
+    background: white;
+    cursor: pointer;
+}
+
+.patientEncounterList  table.encounters
+{
+    display: none;
+}
+
+
+.patientEncounterList:hover table.encounters
+{
+    display: block;
+}
+
+.patientEncounterList > div
+{
+    padding: 2px;
+}
+.patientEncounterList:hover
+{
+    overflow: visible;
+    height: auto;
+}
+
+
+.patientEncounterList > div:hover
+{
+    color: red;
+}
+
+.patientEncounterList table.encounters td:hover
+{
+    color:red;
+}
+
+.patientEncounterList .review
+{
+    font-size: x-small;
+    padding: 2px;
+    border: 1px solid black;
+    background-color: lightgray;
+    border-radius: 5px;
+}
+
+#userData
+{
+    position: absolute;
+    right: 0;
+}
+.patientInfo
+{
+    padding: 1px;
+}
+
+.patientInfo .clear
+{
+    font-size: x-small;
+    margin: 1px;
+    padding: 3px;
+    border: 1px solid black;
+    background-color: lightgray;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.patientInfo .clear:hover
+{
+    color:red;
+}
+

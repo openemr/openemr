@@ -148,7 +148,7 @@ class C_Document extends Controller {
                       $_FILES['file']['type'][$key], $filetext,
                       empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
                       empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
-                      $non_HTTP_owner);
+                      $non_HTTP_owner, $_FILES['file']['tmp_name'][$key]);
                     if ($rc) {
                       $error .= $rc . "\n";
                     }
@@ -344,6 +344,24 @@ class C_Document extends Controller {
 		 
 		$this->assign("notes",$notes);
 		
+		$this->assign("IMG_PROCEDURE_TAG_ACTION",$this->_link("image_procedure") . "document_id=" . $d->get_id());
+	        // Populate the dropdown with image procedure order list
+		$imgOptions = "<option value='0'>-- " . xlt('Select Image Procedure') . " --</option>";
+		$imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?  and poc.procedure_order_title = 'imaging'",array($patient_id));
+		$mapping    = $this->get_mapped_procedure($d->get_id());
+		if(sqlNumRows($imgOrders) > 0){
+			 while($row = sqlFetchArray($imgOrders)) {
+			 	$sel_proc = '';
+			 	if((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id']))
+					$sel_proc = 'selected';
+				$imgOptions .= "<option value='". attr($row['procedure_order_id']). "' data-code='".attr($row['procedure_code'])."' $sel_proc>".text($row['procedure_name'].' - '.$row['procedure_code'])."</option>";
+			}
+		}
+
+		$this->assign('IMAGE_PROCEDURE_LIST',$imgOptions);
+
+		$this->assign('clear_procedure_tag',$this->_link('clear_procedure_tag')."document_id=" . $d->get_id());
+
 		$this->_last_node = null;
 		
 		$menu  = new HTML_TreeMenu();
@@ -386,9 +404,13 @@ class C_Document extends Controller {
         return $plaintext;
     }
 	
-	
-	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false) {
-	    
+	/**
+	 * Retrieve file from hard disk / CouchDB.
+	 * In case that file isn't download this function will return thumbnail image (if exist).
+	 * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
+	 * */
+	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false,$show_original=false) {
+
 	    $encrypted = $_POST['encrypted'];
 		$passphrase = $_POST['passphrase'];
 		$doEncryption = false;
@@ -399,27 +421,35 @@ class C_Document extends Controller {
 		}
 		
 	        //controller function ruins booleans, so need to manually re-convert to booleans
-	        if ($as_file == "true") {
+		if ($as_file == "true") {
 		        $as_file=true;
 		}
-	        else if ($as_file == "false") {
+		else if ($as_file == "false") {
 		        $as_file=false;    
 		}
-                if ($original_file == "true") {
+		if ($original_file == "true") {
 		        $original_file=true;
 		}
-	        else if ($original_file == "false") {
+		else if ($original_file == "false") {
 		        $original_file=false;   
 		}
-                if ($disable_exit == "true") {
-                        $disable_exit=true;
-                }
-                else if ($disable_exit == "false") {
-                        $disable_exit=false;
-                }
-	    
+		if ($disable_exit == "true") {
+				$disable_exit=true;
+		}
+		else if ($disable_exit == "false") {
+				$disable_exit=false;
+		}
+		if ($show_original == "true") {
+			$show_original=true;
+		}
+		else if ($show_original == "false") {
+			$show_original=false;
+		}
+
 		$d = new Document($document_id);
 		$url =  $d->get_url();
+		$th_url = $d->get_thumb_url();
+
 		$storagemethod = $d->get_storagemethod();
 		$couch_docid = $d->get_couch_docid();
 		$couch_revid = $d->get_couch_revid();
@@ -428,7 +458,12 @@ class C_Document extends Controller {
 			$couch = new CouchDB();
 			$data = array($GLOBALS['couchdb_dbase'],$couch_docid);
 			$resp = $couch->retrieve_doc($data);
-			$content = $resp->data;
+			//Take thumbnail file when is not null and file is presented online
+			if (!$as_file && !is_null($th_url) && !$show_original) {
+				$content = $resp->th_data;
+			} else {
+				$content = $resp->data;
+			}
 			if($content=='' && $GLOBALS['couchdb_log']==1){				
 				$log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
 				$log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
@@ -478,6 +513,12 @@ class C_Document extends Controller {
 			unlink($tmpcouchpath);
 			exit;//exits only if file download from CouchDB is successfull. 
 		}
+
+		//Take thumbnail file when is not null and file is presented online
+		if(!$as_file && !is_null($th_url) && !$show_original) {
+			$url = $th_url;
+		}
+
 		//strip url of protocol handler
 		$url = preg_replace("|^(.*)://|","",$url);
 		
@@ -1198,6 +1239,48 @@ function tag_action_process($patient_id="", $document_id) {
 	$this->assign("messages", $messages);
 	
 	return $this->view_action($patient_id, $document_id);
+}
+
+function image_procedure_action($patient_id="",$document_id){
+
+	$img_procedure_id = $_POST['image_procedure_id'];
+	$proc_code = $_POST['procedure_code'];
+	
+	if(is_numeric($document_id)){
+				
+		$img_order  = sqlQuery("select * from procedure_order_code where procedure_order_id = ? and procedure_code = ? ",array($img_procedure_id,$proc_code));
+		$img_report = sqlQuery("select * from procedure_report where procedure_order_id = ? and procedure_order_seq = ? ",array($img_procedure_id,$img_order['procedure_order_seq']));
+		$img_report_id = !empty($img_report['procedure_report_id']) ? $img_report['procedure_report_id'] : 0;  
+		if($img_report_id == 0){
+			$report_date = date('Y-m-d H:i:s');
+			$img_report_id = sqlInsert("INSERT INTO procedure_report(procedure_order_id,procedure_order_seq,date_collected,date_report,report_status) values(?,?,?,?,'final')",array($img_procedure_id,$img_order['procedure_order_seq'],$img_order['date_collected'],$report_date)); 
+		}
+		
+		$img_result = sqlQuery("select * from procedure_result where procedure_report_id = ? and document_id = ?",array($img_report_id,$document_id));
+		if(empty($img_result)){
+			sqlInsert("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')",array($img_report_id,date('Y-m-d H:i:s'),$document_id));
+		}
+	}
+	return $this->view_action($patient_id, $document_id);
+}
+
+function clear_procedure_tag_action($patient_id="",$document_id){
+	if(is_numeric($document_id)){
+		sqlStatement("delete from procedure_result where document_id = ?",$document_id);
+	}
+	return $this->view_action($patient_id, $document_id);
+}
+
+function get_mapped_procedure($document_id){
+	$map = array();
+	if(is_numeric($document_id)){
+		$map = sqlQuery("select poc.procedure_order_id,poc.procedure_code from procedure_result pres
+						   inner join procedure_report pr on pr.procedure_report_id = pres.procedure_report_id 
+						   inner join procedure_order_code poc on (poc.procedure_order_id = pr.procedure_order_id and poc.procedure_order_seq = pr.procedure_order_seq) 
+						   inner join procedure_order po on po.procedure_order_id = poc.procedure_order_id 
+						   where pres.document_id = ?",array($document_id));
+	}
+	return $map;
 }
 
 }
