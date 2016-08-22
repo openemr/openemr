@@ -247,7 +247,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style  type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<style  type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 <style>
 .sstable td {
  font-family: sans-serif;

@@ -32,7 +32,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 <head>
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 
 <script type="text/javascript" src="../../library/js/textformat.js"></script>
 <script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>

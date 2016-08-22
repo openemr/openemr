@@ -62,7 +62,7 @@ if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 
 
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -72,7 +72,7 @@ if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 
                                padding-left:3px; padding-right:3px; }
 </style>
                                
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../../library/js/textformat.js"></script>
 <script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>

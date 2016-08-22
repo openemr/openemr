@@ -364,7 +364,7 @@ document.onclick=TakeActionOnHide;
 
 <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/textformat.js"></script>
 <script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>

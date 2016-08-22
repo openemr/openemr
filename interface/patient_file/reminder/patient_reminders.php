@@ -27,7 +27,7 @@ require_once "$srcdir/report_database.inc";
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/js/dialog.js"></script>
 <script type="text/javascript" src="../../../library/js/textformat.js"></script>
 <script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>

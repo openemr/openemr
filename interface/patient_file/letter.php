@@ -310,7 +310,7 @@ while ($srow = sqlFetchArray($sres)) {
 <?php html_header_show();?>
 <title><?php xl('Letter Generator','e'); ?></title>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <!-- supporting javascript code -->

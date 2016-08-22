@@ -23,7 +23,7 @@
 <title><?php xl('Destroyed Drugs','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
-<style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style  type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 
 <style>
 table.mymaintable, table.mymaintable td, table.mymaintable th {

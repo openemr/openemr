@@ -677,7 +677,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 td { font-size:0.8em; }
 </style>
 
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../library/css/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../library/js/topdialog.js"></script>
 <script type="text/javascript" src="../library/js/dialog.js"></script>
 <script type="text/javascript" src="../library/js/textformat.js"></script>

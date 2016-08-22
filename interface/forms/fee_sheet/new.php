@@ -492,7 +492,7 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 
 <script type="text/javascript" src="../../../library/js/textformat.js"></script>
 <script type="text/javascript" src="../../../library/js/dialog.js"></script>

@@ -43,7 +43,7 @@ if($status == 0)
 <title><?php xl('Re Identification','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
-	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
+	href='<?php echo $GLOBALS['webroot'] ?>/library/css/dynarch_calendar.css'
 	type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>

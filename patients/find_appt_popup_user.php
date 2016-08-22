@@ -255,7 +255,7 @@ $ignoreAuth = 1;
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <!-- for the pop up calendar -->
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../library/css/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../library/js/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/js/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../library/js/dynarch_calendar_setup.js"></script>

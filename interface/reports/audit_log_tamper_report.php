@@ -36,7 +36,7 @@ require_once("$srcdir/formatting.inc.php");
 <html>
 <head>
 <?php html_header_show();?>
-<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
+<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/css/dynarch_calendar.css' type='text/css'>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>

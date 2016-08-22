@@ -42,7 +42,7 @@
 <?php html_header_show();?>
 <title><?php echo xlt('Referrals'); ?></title>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 
 <script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>

@@ -103,7 +103,7 @@ if ($_POST['bn_submit']) {
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
 <style>
 
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }

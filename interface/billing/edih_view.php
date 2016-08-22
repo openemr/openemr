@@ -46,7 +46,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/dynarch_calendar.css" type="text/css" />
+    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/dynarch_calendar.css" type="text/css" />
     <!-- OpenEMR Calendar -->
     <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar_setup.js"></script>
