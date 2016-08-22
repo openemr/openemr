@@ -12,6 +12,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
 if (!acl_check('patients','demo','',array('write','addonly') ))
@@ -22,8 +23,8 @@ $CPR = 4; // cells per row
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 
-$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2');
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3');
+$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
 
 function getLayoutRes() {
   global $SHORT_FORM;
@@ -98,6 +99,15 @@ div.section {
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
+<?php
+
+    if($GLOBALS['full_new_patient_form'] == '4')//use hook of patient validation = 4
+    {
+        $hook = checkIfPatientValidationHookIsActive();
+    }
+
+
+?>
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
@@ -835,8 +845,14 @@ enable_modals();
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
+        <?php if($hook):?>
+        // Use zend patient validation to open the controller and get the new patient validation(duplicate)
+        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
+        <?php else:?>
         // Build and invoke the URL to create the dup-checker dialog.
         var url = 'new_search_popup.php';
+        <?php endif;?>
+
         var flds = new Array(<?php echo $mflist; ?>);
         var separator = '?';
         for (var i = 0; i < flds.length; ++i) {
@@ -847,6 +863,7 @@ enable_modals();
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
+
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function
