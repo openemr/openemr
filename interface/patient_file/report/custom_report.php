@@ -68,7 +68,7 @@ if ($PDF_OUTPUT) {
   $pdf->setLanguageArray($lg);
   $pdf->SetFont('dejavusans', '', 10);
   $pdf->AddPage();
-  //ob_start();
+  ob_start();
 }
 
 // get various authorization levels
