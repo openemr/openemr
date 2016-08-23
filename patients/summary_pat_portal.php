@@ -57,14 +57,14 @@ global $ignoreAuth;
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/css/dynarch_calendar.css">
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.js?v=<?php echo $v_js_includes; ?>"></script>
 <link rel="stylesheet" href="css/base.css" type="text/css"/>
 <link rel="stylesheet" href="css/tables.css" type="text/css"/>
 <script type="text/javascript" language="JavaScript">

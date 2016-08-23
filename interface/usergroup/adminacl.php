@@ -28,8 +28,8 @@ if (!isset($phpgacl_location)) {
 		
 <html>
 <head>
- <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
- <script type="text/JavaScript" src="../../library/js/jquery.livequery101.js"></script>	
+ <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js?v=<?php echo $v_js_includes; ?>"></script>
+ <script type="text/JavaScript" src="../../library/js/jquery.livequery101.js?v=<?php echo $v_js_includes; ?>"></script>	
  <script type="text/JavaScript">
 	
  $(document).ready(function(){	

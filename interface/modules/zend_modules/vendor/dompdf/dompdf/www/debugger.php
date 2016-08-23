@@ -6,7 +6,7 @@ $files = glob("test/*.{html,htm,php}", GLOB_BRACE);
 <html lang="en">
 <head>
   <title>dompdf debugger</title>
-  <script type="text/javascript" src="jquery-1.4.2.js"></script>
+  <script type="text/javascript" src="jquery-1.4.2.js?v=<?php echo $v_js_includes; ?>"></script>
   
   <script type="text/javascript">
     function updateAddress(){

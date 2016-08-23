@@ -77,10 +77,10 @@ else
 
 <!-- supporting javascript code -->
 <!-- for dialog -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <!-- For jquery, required by the save, discard, and print buttons. -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- Global Stylesheet -->
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css"/>
@@ -91,14 +91,14 @@ else
 <xsl:if test="//field[@type='date']">
 <xsl:text disable-output-escaping="yes"><![CDATA[<!-- supporting code for the pop up calendar(date picker) -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 ]]></xsl:text>
 </xsl:if>
 <xsl:if test="//field[@type='time']">
 <xsl:text disable-output-escaping="yes"><![CDATA[<!-- supporting code for the time picker -->
-<script type="text/javascript" src="<?php echp $GLOBALS['webroot']; ?>/library/ui.timepicker.js"></script>
+<script type="text/javascript" src="<?php echp $GLOBALS['webroot']; ?>/library/ui.timepicker.js?v=<?php echo $v_js_includes; ?>"></script>
 ]]></xsl:text>
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[

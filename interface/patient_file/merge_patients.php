@@ -41,7 +41,7 @@ if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Merge Patients'); ?></title>
 
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

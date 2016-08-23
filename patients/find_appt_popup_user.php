@@ -256,12 +256,12 @@ $ignoreAuth = 1;
 
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../library/js/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/js/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../library/js/dynarch_calendar_en.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- for ajax-y stuff -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

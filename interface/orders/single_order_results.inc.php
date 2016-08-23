@@ -328,12 +328,12 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
 <?php } ?>
 
 <?php if ($input_form) { ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } // end if input form ?>
 
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';

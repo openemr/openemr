@@ -56,8 +56,8 @@ if($result)
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="batchcom.css" type="text/css">
-<script type="text/javascript" src="../../library/js/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/js/calendar.js"></script>
+<script type="text/javascript" src="../../library/js/overlib_mini.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 
 
 </head>

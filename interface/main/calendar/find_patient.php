@@ -179,8 +179,8 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 

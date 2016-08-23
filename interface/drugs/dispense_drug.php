@@ -194,7 +194,7 @@
  else { // HTML output
 ?>
 <html>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <head>
 <?php html_header_show();?>
 <style type="text/css">

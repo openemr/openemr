@@ -98,7 +98,7 @@
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 <title><?php echo xlt('Issues and Encounters'); ?></title>
 
@@ -107,8 +107,8 @@ tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
 
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

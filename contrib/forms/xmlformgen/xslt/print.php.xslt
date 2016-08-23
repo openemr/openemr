@@ -56,8 +56,8 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 <!-- supporting javascript code -->
 <!-- for dialog -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- Global Stylesheet -->
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css"/>

@@ -132,18 +132,18 @@ $DateFormat=DateFormatRead();
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
 <style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/textformat.js"></script>
-<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
 <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
- <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+ <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script LANGUAGE="javascript" TYPE="text/javascript">
 function CancelDistribute()
  {//Used in the cancel button.Helpful while cancelling the distribution.

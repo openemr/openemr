@@ -1474,7 +1474,7 @@ fclose($fileQRDAOPen);
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>        
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>        
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo xlt('Export QRDA Report'); ?></title>
 

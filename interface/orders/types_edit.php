@@ -58,7 +58,7 @@ function recursiveDelete($typeid) {
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>    
 <title><?php echo $typeid ? xlt('Edit') : xlt('Add New'); ?> <?php echo xlt('Order/Result Type'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -81,9 +81,9 @@ td { font-size:10pt; }
 
 </style>
 
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

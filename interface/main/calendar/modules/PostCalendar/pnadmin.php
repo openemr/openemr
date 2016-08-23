@@ -576,9 +576,9 @@ function postcalendar_admin_modifyconfig($msg='',$showMenu=true)
 	$defaultsText = _EDIT_PC_CONFIG_DEFAULT;
 
 $jsColorPicker = <<<EOF
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/AnchorPosition.js"></SCRIPT>
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/PopupWindow.js"></SCRIPT>
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/ColorPicker2.js"></SCRIPT>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/AnchorPosition.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/PopupWindow.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/ColorPicker2.js?v=<?php echo $v_js_includes; ?>"></script>
     <script LANGUAGE="JavaScript">
     var cp = new ColorPicker('window');
     // Runs when a color is clicked
@@ -873,9 +873,9 @@ function postcalendar_admin_categoriesOld($msg='',$e='')
 	$pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 $jsColorPicker = <<<EOF
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/AnchorPosition.js"></SCRIPT>
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/PopupWindow.js"></SCRIPT>
-    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/ColorPicker2.js"></SCRIPT>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/AnchorPosition.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/PopupWindow.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script LANGUAGE="Javascript" SRC="modules/$pcDir/pnincludes/ColorPicker2.js?v=<?php echo $v_js_includes; ?>"></script>
     <script LANGUAGE="JavaScript">
     var cp = new ColorPicker('window');
     // Runs when a color is clicked

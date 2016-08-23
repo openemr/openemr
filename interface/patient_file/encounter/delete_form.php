@@ -60,7 +60,7 @@ if ($_POST['confirm']) {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js?v=<?php echo $v_js_includes; ?>"></script>
 
 </head>
 

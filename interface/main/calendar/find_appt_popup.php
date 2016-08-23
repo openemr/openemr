@@ -32,7 +32,7 @@
  require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
  ?>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
  // check access controls
  if (!acl_check('patients','appt','',array('write','wsome') ))
@@ -245,12 +245,12 @@ if(in_array($sdate,$holidays)){
 
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- for ajax-y stuff -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

@@ -42,7 +42,7 @@ if(isset($_REQUEST['analysis']))
     if($_REQUEST['analysis']==='true')
     {
         ?>
-            <script type="text/javascript" src="tabs/js/menu_analysis.js"></script>
+            <script type="text/javascript" src="tabs/js/menu_analysis.js?v=<?php echo $v_js_includes; ?>"></script>
         <?php
     }
 }

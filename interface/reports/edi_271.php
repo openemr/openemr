@@ -210,9 +210,9 @@
 
 </style>
 
-<script type="text/javascript" src="../../library/js/textformat.js"></script>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
 		function edivalidation(){ 

@@ -98,10 +98,10 @@ else { // not export
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
-<script type="text/javascript" src="../../library/js/textformat.js"></script>
-<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>

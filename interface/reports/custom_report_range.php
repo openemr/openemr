@@ -151,8 +151,8 @@ if ($form_patient == '' ) $form_pid = '';
 #superbill_logo {
 }
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="Javascript">
  $(document).ready(function() {
@@ -392,9 +392,9 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
 <!-- stuff for the popup calendar -->
 <style type="text/css">@import url(../../library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});

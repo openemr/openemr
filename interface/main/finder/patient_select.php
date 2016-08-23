@@ -42,7 +42,7 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>    
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style>
@@ -109,10 +109,10 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
 
 <script language="JavaScript">

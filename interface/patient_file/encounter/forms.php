@@ -26,15 +26,15 @@ require_once("forms_review_header.php");
 <style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/textformat.js"></script>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.7.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js?v=<?php echo $v_js_includes; ?>"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
 
 <?php 
@@ -42,12 +42,12 @@ $esignApi = new Api();
 ?>
 
 <?php // include generic js support for graphing ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/swfobject.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/json/json2.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/swfobject.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php // if the track_anything form exists, then include the styling and js functions for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
- <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
+ <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js?v=<?php echo $v_js_includes; ?>"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
 <?php } ?>
 

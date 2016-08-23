@@ -175,14 +175,14 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <style type="text/css">@import url(../../../library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/js/textformat.js"></script>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="../../../library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';

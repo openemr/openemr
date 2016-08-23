@@ -91,7 +91,7 @@ body {
 }
 </style>
 
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>

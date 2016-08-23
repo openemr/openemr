@@ -22,8 +22,8 @@ require_once("$srcdir/formdata.inc.php");
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../library/js/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/js/calendar.js"></script>
+<script type="text/javascript" src="../../library/js/overlib_mini.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 </head>
 
 <body class="body_top">	

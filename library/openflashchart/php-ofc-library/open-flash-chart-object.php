@@ -61,12 +61,12 @@ function _ofc( $width, $height, $url, $use_swfobject, $base )
     $obj_id = 'chart';
     $div_name = 'flashcontent';
     
-    //$out[] = '<script type="text/javascript" src="'. $base .'js/ofc.js"></script>';
+    //$out[] = '<script type="text/javascript" src="'. $base .'js/ofc.js?v=<?php echo $v_js_includes; ?>"></script>';
     
     if( !isset( $open_flash_chart_seqno ) )
     {
         $open_flash_chart_seqno = 1;
-        $out[] = '<script type="text/javascript" src="'. $base .'js/swfobject.js"></script>';
+        $out[] = '<script type="text/javascript" src="'. $base .'js/swfobject.js?v=<?php echo $v_js_includes; ?>"></script>';
     }
     else
     {

@@ -603,7 +603,7 @@ function writeITLine($it_array) {
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('List Editor','e'); ?></title>
@@ -620,8 +620,8 @@ a, a:visited, a:hover { color:#0000cc; }
 .translation { color:green; }
 </style>
 
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

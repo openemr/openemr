@@ -89,10 +89,10 @@
 <html>
   <head>                                    
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css"> 
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>  
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-calendar.js"></script>   
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.grouprows.js"></script>     
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/grouprows.js"></script> 
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js?v=<?php echo $v_js_includes; ?>"></script>  
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-calendar.js?v=<?php echo $v_js_includes; ?>"></script>   
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.grouprows.js?v=<?php echo $v_js_includes; ?>"></script>     
+    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/grouprows.js?v=<?php echo $v_js_includes; ?>"></script> 
     <script language="JavaScript">   
       $(document).ready(function (){  
         $("#submitForm").click(function(){ 
@@ -173,9 +173,9 @@
   </body> 
 <!-- stuff for the popup calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/css/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="Javascript"> 
   Calendar.setup({inputField:"sd", ifFormat:"%Y-%m-%d", button:"img_begin_date", showsTime:'false'});  
   Calendar.setup({inputField:"ed", ifFormat:"%Y-%m-%d", button:"img_begin_date", showsTime:'false'}); 

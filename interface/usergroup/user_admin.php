@@ -166,9 +166,9 @@ parent.$.fn.fancybox.close();
 <head>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 

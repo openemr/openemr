@@ -11,7 +11,7 @@
 <?php html_header_show();?>
 <title><?php xl('Navigation','e'); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 // This is invoked to pop up some window when a popup item is selected.
 function selpopup(selobj) {

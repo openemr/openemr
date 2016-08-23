@@ -39,9 +39,9 @@ require_once("$srcdir/patient_tracker.inc.php");
   <head>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
   <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-  <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
-  <script type="text/javascript" src="../../library/js/common.js"></script>
-  <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+  <script type="text/javascript" src="../../library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
+  <script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+  <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php
     # Get the information for fields

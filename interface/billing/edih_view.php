@@ -48,9 +48,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/dynarch_calendar.css" type="text/css" />
     <!-- OpenEMR Calendar -->
-    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar.js"></script>
-    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar_setup.js"></script>
-    <script type="text/javascript" src="<?php echo $web_root?>/library/js/textformat.js"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/dynarch_calendar_setup.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $web_root?>/library/js/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     
     <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 </head>
@@ -316,9 +316,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <!--  -->
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/js/dataTables.jqueryui.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-1/js/dataTables.scroller.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-11/js/jquery.dataTables.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/js/dataTables.jqueryui.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-1/js/dataTables.scroller.min.js?v=<?php echo $v_js_includes; ?>"></script>
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
     jQuery(document).ready(function() {

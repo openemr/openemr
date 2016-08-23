@@ -24,9 +24,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
  *   Triggered when getData event is fired inside editor.
  *
  * @example
- * <script src="jquery.js"></script>
- * <script src="ckeditor.js"></script>
- * <script src="adapters/jquery/adapter.js"></script>
+ * <script src="jquery.js?v=<?php echo $v_js_includes; ?>"></script>
+ * <script src="ckeditor.js?v=<?php echo $v_js_includes; ?>"></script>
+ * <script src="adapters/jquery/adapter.js?v=<?php echo $v_js_includes; ?>"></script>
  */
 
 (function()

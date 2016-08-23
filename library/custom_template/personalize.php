@@ -86,17 +86,17 @@ if(isset($_REQUEST['submitform']) && $_REQUEST['submitform']=='save'){
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
         <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-        <script type="text/javascript" src="ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="ckeditor/ckeditor.js?v=<?php echo $v_js_includes; ?>"></script>
         <script src="ckeditor/_samples/sample.js" type="text/javascript"></script>
         <link href="ckeditor/_samples/sample.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.7.1.custom.min.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.7.1.custom.min.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript">
         $(document).ready(function(){
 

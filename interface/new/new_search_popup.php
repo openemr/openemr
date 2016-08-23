@@ -27,7 +27,7 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>    
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style>
@@ -95,7 +95,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

@@ -39,7 +39,7 @@ $list_id = $_REQUEST['list_id'];
 <html>
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript">
         function add_template(){
             top.restoreSession();

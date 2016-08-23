@@ -189,7 +189,7 @@ if ($formid) {
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
 
-<script type="text/javascript" src="../../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

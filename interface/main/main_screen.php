@@ -118,8 +118,8 @@ require_once("tabs/redirect.php");
 <title>
 <?php echo text($openemr_name) ?>
 </title>
-<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

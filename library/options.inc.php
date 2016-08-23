@@ -3168,9 +3168,9 @@ function lbf_current_value($frow, $formid, $encounter) {
 function lbf_canvas_head($small=FALSE) {
   $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-dom.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/js/literallycanvas.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-dom.min.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/js/literallycanvas.min.js?v=<?php echo $v_js_includes; ?>"></script>
 EOD;
   if ($small) $s .= <<<EOD
 <style>

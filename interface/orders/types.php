@@ -29,7 +29,7 @@ if ($popup && $_POST['form_save']) {
     "procedure_type_id = '$form_order'");
   $name = addslashes($ptrow['name']);
 ?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 if (opener.closed || ! opener.set_proc_type) {
  alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
@@ -111,9 +111,9 @@ tr.oddrow {
 
 <script src="../../library/js/jquery-1.2.2.min.js" type="text/javascript"></script>
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

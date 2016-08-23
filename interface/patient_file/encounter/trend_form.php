@@ -51,9 +51,9 @@ if ($is_lbf) {
   }
 </style>
 
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="../../../library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="../../../library/openflashchart/js/swfobject.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/openflashchart/js/json/json2.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/openflashchart/js/swfobject.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">
 
 // variable that holds graph information for the open_flash_chart_data() function

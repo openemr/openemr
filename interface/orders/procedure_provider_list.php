@@ -44,9 +44,9 @@ $res = sqlStatement($query);
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/js/topdialog.js"></script>
+<script type="text/javascript" src="../../library/js/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/js/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
