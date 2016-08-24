@@ -25,6 +25,29 @@ $sanitize_all_escapes=true;
 require_once('../globals.php');
 require_once("$srcdir/formdata.inc.php");
 
+
+// Collect user specific settings from user_settings table.
+// in order to load the correct frame that the user selected.
+// the same code lies in globals but somehow it doesn't get the default top frame correctly.
+// so I have added the same code here .
+$gl_user = array();
+if (!empty($_SESSION['authUserID'])) {
+    $glres_user = sqlStatement("SELECT `setting_label`, `setting_value` " .
+        "FROM `user_settings` " .
+        "WHERE `setting_user` = ? " .
+        "AND `setting_label` LIKE 'global:%'", array($_SESSION['authUserID']));
+    for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
+        //remove global_ prefix from label
+        $row['setting_label'] = substr($row['setting_label'], 7);
+        $gl_user[$iter] = $row;
+        if ($gl_user[0]['setting_label'] == 'default_top_pane') {
+            $GLOBALS['default_top_pane'] = $gl_user[0]['setting_value'];
+            // $frame1url=$GLOBALS['default_top_pane'];
+        }
+    }
+}
+
+
 // Creates a new session id when load this outer frame
 // (allows creations of separate OpenEMR frames to view patients concurrently
 //  on different browser frame/windows)
@@ -99,6 +122,10 @@ else {
   // old layout
   $frame1url = "main.php?mode=" . attr($_GET['mode']);
 }
+
+
+
+
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
