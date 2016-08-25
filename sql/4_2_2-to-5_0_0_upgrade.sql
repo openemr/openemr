@@ -713,6 +713,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 #IfMissingColumn procedure_order history_order
 ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 #EndIf
+ 
+#IfMissingColumn form_encounter pos_code
+       ALTER TABLE `form_encounter` ADD `pos_code` INT(2) NOT NULL ;
+#EndIf
 
 #IfMissingColumn amc_misc_data soc_provided
        ALTER TABLE `amc_misc_data` add column `soc_provided` DATETIME default NULL;
@@ -749,20 +753,4 @@ ALTER TABLE `insurance_companies` CHANGE `freeb_type` `ins_type_code` tinyint(2)
 
 #IfTable integration_mapping
 DROP TABLE IF EXISTS `integration_mapping`;
-#EndIf
-
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-PCS-Long-Abbrev-Titles.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-PCS-Long-Abbrev-Titles.zip', '4669c47f6a9ca34bf4c14d7f93b37993');
-#EndIf
-
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-GEM-DC.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-GEM-DC.zip', '5a0affdc77a152e6971781233ee969c1');
-#EndIf
-
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-ICD10-Code-Descriptions.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-ICD10-Code-Descriptions.zip', 'ed9c159cb4ac4ae4f145062e15f83291');
-#EndIf
-
-#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-GEM-PCS.zip
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-GEM-PCS.zip', 'a4e08b08fb9a53c81385867c82aa8a9e');
 #EndIf
