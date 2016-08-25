@@ -195,15 +195,15 @@ $today = date("Y-m-d");
 		$stmt['bill_level'] = $row['last_level_billed'];
 		$stmt['level_closed'] = $row['last_level_closed'];
         $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
-		#If you add a field to the demographics layout called 
-		#in_care_of this will allow you to send statements to the parent
+		#If you use the field in demographics layout called 
+		#guardiansname this will allow you to send statements to the parent
 		#of a child or a guardian etc
-        if(strlen($row['in_care_of']) == 0) {
+        if(strlen($row['guardiansname']) == 0) {
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
         }
         else
         {
-         $stmt['to'] = array($row['in_care_of']);
+         $stmt['to'] = array($row['guardiansname']);
         }
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];

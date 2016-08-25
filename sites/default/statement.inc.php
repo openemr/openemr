@@ -299,7 +299,7 @@ else {
  # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
  # ....+....1....+....2....+....3....+....4....+....5....+....6....+
  #
- $ageline = 'Current ' . sprintf("%.2f", $aging[0]);
+ $ageline = xl('Current') .' ' . sprintf("%.2f", $aging[0]);
  for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
   $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
    sprintf(" %.2f", $aging[$age_index]);
@@ -313,7 +313,7 @@ else {
  $label_call = xl('Please call if any of the above information is incorrect');
  $label_prompt = xl('We appreciate prompt payment of balances due');
  $label_dept = xl('Billing Department');
- $label_appointments = xl('Future Appointments:');
+ $label_appointments = xl('Future Appointments').':';
  
  // This is the bottom portion of the page.
  $out .= "\n";
@@ -340,7 +340,7 @@ if($GLOBALS['statement_message_to_patient']) {
 }
 if($GLOBALS['show_aging_on_custom_statement']) {
 # code for ageing
- $ageline .= ' / Over-' . ($age_index * 30) .
+ $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
   sprintf(" %.2f", $aging[$age_index]);
  $out .= "\n" . $ageline . "\n\n";
 

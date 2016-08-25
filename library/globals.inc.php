@@ -949,14 +949,14 @@ $GLOBALS_METADATA = array(
       xl('Exclude Statements from Printing'),
       'bool',                           // data type
       '0',                              // default = false
-      xl('This will use the Following settings to Exclude Patient Statements from Printing.')
+      xl('This will enable the Ability to Exclude Patient Statements from Printing.')
     ),
     
     'minimum_amount_to_print' => array(
       xl('Total Minimum Amount of Statement to Allow Printing'),
       'num',                           // data type
       '1.00',
-      xl('Total Minimum Dollar Amount of Statement to Allow Printing.')
+      xl('Total Minimum Dollar Amount of Statement to Allow Printing.(only applicable if Exclude Statements from Printing is enabled)')
     ),
 	 
   	'statement_bill_note_print' => array(
