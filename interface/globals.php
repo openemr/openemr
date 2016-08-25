@@ -42,7 +42,7 @@ if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
 $webserver_root = dirname(dirname(__FILE__));
 if (IS_WINDOWS) {
  //convert windows path separators
- $webserver_root = str_replace("\\","/",$webserver_root); 
+ $webserver_root = str_replace("\\","/",$webserver_root);
 }
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
@@ -121,7 +121,7 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
 // then set to iso-8859-1.
 require_once(dirname(__FILE__) . "/../library/sqlconf.php");
-if (!$disable_utf8_flag) {    
+if (!$disable_utf8_flag) {
  ini_set('default_charset', 'utf-8');
  $HTML_CHARSET = "UTF-8";
  mb_internal_encoding('UTF-8');
@@ -155,7 +155,7 @@ $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
-// Variable set for Eligibility Verification [EDI-271] path 
+// Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 // Include the translation engine. This will also call sql.inc to
@@ -194,24 +194,36 @@ if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
   $gl_user = array();
-  if (!empty($_SESSION['authUserID'])) {
+
+    $authUserID='';
+    if(empty($_SESSION['authUserID']))
+    {
+        $authUserID=$_POST['authUser'];
+    }
+    else{
+        $authUserID=$_SESSION['authUserID'];
+    }
+
+
+  if ($authUserID) {
     $glres_user = sqlStatement("SELECT `setting_label`, `setting_value` " .
       "FROM `user_settings` " .
       "WHERE `setting_user` = ? " .
-      "AND `setting_label` LIKE 'global:%'", array($_SESSION['authUserID']) );
+      "AND `setting_label` LIKE 'global:%'", $authUserID );
     for($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
       //remove global_ prefix from label
       $row['setting_label'] = substr($row['setting_label'],7);
       $gl_user[$iter]=$row;
     }
   }
+
   // Set global parameters from the database globals table.
   // Some parameters require custom handling.
   //
   $GLOBALS['language_menu_show'] = array();
   $glres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals " .
     "ORDER BY gl_name, gl_index");
-  while ($glrow = sqlFetchArray($glres)) {    
+  while ($glrow = sqlFetchArray($glres)) {
     $gl_name  = $glrow['gl_name'];
     $gl_value = $glrow['gl_value'];
     // Adjust for user specific settings
@@ -222,7 +234,7 @@ if (!empty($glrow)) {
         }
       }
     }
-    if ($gl_name == 'language_menu_other') {       
+    if ($gl_name == 'language_menu_other') {
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {
@@ -250,36 +262,36 @@ if (!empty($glrow)) {
   if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
     $GLOBALS['language_menu_login'] = true;
   }
-  
-  
+
+
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
     if( isset( $_SESSION['language_direction'] )) {
-        if( $_SESSION['language_direction'] == 'rtl' && 
+        if( $_SESSION['language_direction'] == 'rtl' &&
         !strpos($GLOBALS['css_header'], 'rtl')  ) {
 
             // the $css_header_value is set above
             $rtl_override = true;
         }
-    }     
-    
-    else { 
+    }
+
+    else {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
-        
+
         if ( getLanguageDir( $default_lang_id['lang_id'] ) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) { // @todo eliminate 1 SQL query
             $rtl_override = true;
         }
     }
-    
+
 
     // change theme name, if the override file exists.
     if( $rtl_override ) {
         // the $css_header_value is set above
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
-        // Check file existance 
+        // Check file existance
         if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
             $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme;
         } else {
@@ -289,7 +301,7 @@ if (!empty($glrow)) {
     }
     unset( $temp_css_theme_name, $new_theme,$rtl_override);
     // end of RTL section
-  
+
   //
   // End of globals table processing.
 }
