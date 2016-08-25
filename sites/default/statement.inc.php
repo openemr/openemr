@@ -104,6 +104,9 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
 function create_statement($stmt) {
  if (! $stmt['pid']) return ""; // get out if no data
 
+ #minimum_amount_to _print
+ if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+
  // These are your clinics return address, contact etc.  Edit them.
  // TBD: read this from the facility table
 
@@ -220,7 +223,13 @@ $out .= "\n";
  
  // This must be set to the number of lines generated above.
  //
- $count = 21;
+ $count = 23;
+ $num_ages = 4;
+ $aging = array();
+ for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
+  $aging[$age_index] = 0.00;
+ }
+ $todays_time = strtotime(date('Y-m-d'));
 
  // This generates the detail lines.  Again, note that the values must
  // be specified in the order used.
@@ -244,6 +253,12 @@ else {
 
   $dos = $line['dos'];
   ksort($line['detail']);
+  # Compute the aging bucket index and accumulate into that bucket.
+  #
+  $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
+  $age_index = (int) (($age_in_days - 1) / 30);
+  $age_index = max(0, min($num_ages - 1, $age_index));
+  $aging[$age_index] += $line['amount'] - $line['paid'];
 
   foreach ($line['detail'] as $dkey => $ddata) {
    $ddate = substr($dkey, 0, 10);
@@ -254,13 +269,13 @@ else {
 
    if ($ddata['pmt']) {
     $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-    $desc = xl('Paid') .' '. $ddate .': '. $ddata['src'].' '. $ddata['insurance_company'];
+    $desc = xl('Paid') .' '. oeFormatShortDate($ddate) .': '. $ddata['src'].' '. $ddata['pmt_method'].' '. $ddata['insurance_company'];
    } else if ($ddata['rsn']) {
     if ($ddata['chg']) {
      $amount = sprintf("%.2f", $ddata['chg']);
-     $desc = xl('Adj') .' '.  $ddate .': ' . $ddata['rsn'].' '. $ddata['insurance_company'];
+     $desc = xl('Adj') .' '.  oeFormatShortDate($ddate) .': ' . $ddata['rsn'].' '.$ddata['pmt_method'].' '. $ddata['insurance_company'];
     } else {
-     $desc = xl('Note') .' '. $ddate .': '. $ddata['rsn'].' '. $ddata['insurance_company'];
+     $desc = xl('Note') .' '. oeFormatShortDate($ddate) .': '. $ddata['rsn'].' '.$ddata['pmt_method'].' '. $ddata['insurance_company'];
     }
    } else if ($ddata['chg'] < 0) {
     $amount = sprintf("%.2f", $ddata['chg']);
@@ -271,7 +286,7 @@ else {
  
    }
 
-   $out .= sprintf("%-10s  %-45s%8s\n", $dos, $desc, $amount);
+   $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
    $dos = '';
    ++$count;
   }
@@ -280,6 +295,15 @@ else {
  // This generates blank lines until we are at line 42.
  //
  while ($count++ < 42) $out .= "\n";
+ # Generate the string of aging text.  This will look like:
+ # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
+ # ....+....1....+....2....+....3....+....4....+....5....+....6....+
+ #
+ $ageline = 'Current ' . sprintf("%.2f", $aging[0]);
+ for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
+  $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
+   sprintf(" %.2f", $aging[$age_index]);
+}
 
  // Fixed text labels
  $label_ptname = xl('Name');
@@ -289,6 +313,7 @@ else {
  $label_call = xl('Please call if any of the above information is incorrect');
  $label_prompt = xl('We appreciate prompt payment of balances due');
  $label_dept = xl('Billing Department');
+ $label_appointments = xl('Future Appointments:');
  
  // This is the bottom portion of the page.
  $out .= "\n";
@@ -300,15 +325,53 @@ else {
  }
  $out .= "\n";
  $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-                 $label_today,$stmt['today'],$label_due,$stmt['amount']);
+                 $label_today,oeFormatShortDate($stmt['today']),$label_due,$stmt['amount']);
  $out .= sprintf("__________________________________________________________________\n");
  $out .= "\n";
  $out .= sprintf("%-s\n",$label_call);
  $out .= sprintf("%-s\n",$label_prompt);
  $out .= "\n";
  $out .= sprintf("%-s\n",$billing_contact);
- $out .= sprintf("  %-s\n",$label_dept);
- $out .= sprintf("  %-s\n",$billing_phone);
+ $out .= sprintf("  %-s %-25s\n",$label_dept,$billing_phone);
+if($GLOBALS['statement_message_to_patient']) {
+ $out .= "\n"; 
+ $statement_message = $GLOBALS['statement_msg_text'];
+ $out .= sprintf("%-40s\n",$statement_message);
+}
+if($GLOBALS['show_aging_on_custom_statement']) {
+# code for ageing
+ $ageline .= ' / Over-' . ($age_index * 30) .
+  sprintf(" %.2f", $aging[$age_index]);
+ $out .= "\n" . $ageline . "\n\n";
+
+}
+ if($GLOBALS['number_appointments_on_statement']!=0) { 
+  $out .= "\n";
+  $num_appts = $GLOBALS['number_appointments_on_statement'];
+  $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+  # add one day to date so it will not get todays appointment
+  $current_date2 = date('Y-m-d', $next_day);
+  $events = fetchNextXAppts($current_date2,$stmt['pid'],$num_appts);
+  $j=0;
+  $out .= sprintf("%-s\n",$label_appointments);
+  #loop to add the appointments
+  for ($x = 1; $x <= $num_appts; $x++) {
+   $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
+   $next_appoint_time = substr($events[$j]['pc_startTime'],0,5);
+   if(strlen(umname) != 0 ) {
+      $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname']; 
+   }
+   else
+   {
+      $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
+   }
+   if(strlen($next_appoint_time) != 0) {
+      $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+      $out .= sprintf("%-s\n",$label_plsnote[$j]);
+   }
+   $j++;      
+  }
+ }
  $out .= "\014"; // this is a form feed
  
  return $out;
