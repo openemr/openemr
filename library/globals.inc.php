@@ -930,14 +930,21 @@ $GLOBALS_METADATA = array(
       '3',
      xl('Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.')
     ),
-  
-  	'use_custom_statement' => array(
+
+      'set_pos_code_encounter' => array(
+      xl('Set POS code in encounter'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This feature will allow the default POS facility code to be overriden from the encounter.')
+    ),
+
+      'use_custom_statement' => array(
       xl('Use Custom Statement'),
       'bool',                           // data type
       '0',                              // default = false
       xl('This will use the custom Statment showing the description instead of the codes.')
     ),
-	 
+
     'show_aging_on_custom_statement' => array(
       xl('Show Aging on Custom Statement'),
       'bool',                           // data type

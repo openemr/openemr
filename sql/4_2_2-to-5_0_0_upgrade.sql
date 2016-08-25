@@ -766,3 +766,8 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2016-10-01 load_filename 2017-GEM-PCS.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2016-10-01', '2017-GEM-PCS.zip', 'a4e08b08fb9a53c81385867c82aa8a9e');
 #EndIf
+
+#IfMissingColumn form_encounter pos_code
+ALTER TABLE `form_encounter` ADD `pos_code` tinyint(4) default NULL;
+#EndIf
+
