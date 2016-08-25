@@ -52,6 +52,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the ar_activity table
+ 
   
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -668,7 +669,11 @@ class Claim {
   }
 
   function facilityPOS() {
-    return sprintf('%02d', trim($this->facility['pos_code']));
+	  if($this->encounter['pos_code']){
+		  return sprintf('%02d', trim($this->encounter['pos_code']));
+	  }else{
+		return sprintf('%02d', trim($this->facility['pos_code']));  
+	  }   
   }
 
   function clearingHouseName() {
@@ -1079,7 +1084,7 @@ class Claim {
       return empty($this->billing_options['box_14_date_qual']) ? '431' :
               $this->billing_options['box_14_date_qual'];
   }
-  
+
   function box15qualifier()
   {
       // If no box qualifier specified use "454" indicating Initial Treatment
@@ -1271,7 +1276,7 @@ class Claim {
   function supervisorLastName() {
     return x12clean(trim($this->supervisor['lname']));
   }
-
+ 
   function supervisorFirstName() {
     return x12clean(trim($this->supervisor['fname']));
   }

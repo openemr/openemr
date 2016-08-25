@@ -726,7 +726,7 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Intramuscular','C2
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 
 -- --------------------------------------------------------
-
+ 
 -- 
 -- Table structure for table `syndromic_surveillance`
 -- 
@@ -1340,6 +1340,7 @@ CREATE TABLE `form_encounter` (
   `referral_source` varchar(31) NOT NULL DEFAULT '',
   `billing_facility` INT(11) NOT NULL DEFAULT 0,
   `external_id` VARCHAR(20) DEFAULT NULL,
+  `pos_code` int(2) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `encounter_date` (`date`)

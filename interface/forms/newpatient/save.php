@@ -18,6 +18,7 @@
  * @package OpenEMR
  * @author  Brady Miller <brady@sparmy.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -41,6 +42,7 @@ $billing_facility = (isset($_POST['billing_facility']))     ? $_POST['billing_fa
 $reason           = (isset($_POST['reason']))               ? $_POST['reason'] : '';
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
+$pos_code         = (isset($_POST['pos_code']))             ? $_POST['pos_code'] : '';
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
 $facility = $facilityresult['name'];
@@ -69,11 +71,12 @@ if ($mode == 'new')
       "referral_source = '" . add_escape_custom($referral_source) . "', " .
       "pid = '" . add_escape_custom($pid) . "', " .
       "encounter = '" . add_escape_custom($encounter) . "', " .
+	  "pos_code = '" . add_escape_custom($pos_code) . "', " .
       "provider_id = '" . add_escape_custom($provider_id) . "'"),
     "newpatient", $pid, $userauthorized, $date);
 }
 else if ($mode == 'update')
-{
+{ 
   $id = $_POST["id"];
   $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($id));
   if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
@@ -92,6 +95,7 @@ else if ($mode == 'update')
     "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
     "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
     "referral_source = '" . add_escape_custom($referral_source) . "' " .
+	"pos_code = '" . add_escape_custom($pos_code) . "', " .	
     "WHERE id = '" . add_escape_custom($id) . "'");
 }
 else {
