@@ -605,10 +605,12 @@ function upgradeFromSqlFile($filename) {
     }
     // convert all *text types to use default null setting
     else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
-      $items_to_convert = sqlStatement("SELECT `table_name`, `column_name`, `data_type`, `column_comment` " .
-                                       "FROM `information_schema`.`columns` " .
-                                       "WHERE (`data_type`='tinytext' OR `data_type`='text' OR `data_type`='mediumtext' OR `data_type`='longtext' ) " .
-                                       "AND is_nullable='NO' AND table_schema=database()");
+      $items_to_convert = sqlStatement(
+        "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
+          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab 
+          ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
+          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext') 
+          AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'");
       if(sqlNumRows($items_to_convert) == 0) {
         $skipping = true;
       } else {
