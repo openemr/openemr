@@ -260,7 +260,7 @@ if ($fres) {
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . $pos["code"] . "\" ";
 					if($pos["code"] == $result['pos_code']) echo "selected";
-                    echo ">" . $pos['code']  . ": ". $pos['title'];
+                    echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
 					
                 }
