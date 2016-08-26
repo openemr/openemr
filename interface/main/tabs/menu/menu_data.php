@@ -137,7 +137,7 @@ $menu_json='[
   {"label":"Miscellaneous","menu_id":"misimg","children":[
     {"label":"Patient Education","menu_id":"ped0","target":"msc","url":"/interface/reports/patient_edu_web_lookup.php","children":[],"requirement":0},
     {"label":"Authorizations","menu_id":"aun0","target":"msc","url":"/interface/main/authorizations/authorizations.php","children":[],"requirement":0},
-    {"label":"Fax/Scan","menu_id":"fax","target":"msc","url":"/interface/fax/faxq.php","children":[],"requirement":0},
+    {"label":"Fax/Scan","menu_id":"fax","target":"msc","url":"/interface/fax/faxq.php","children":[],"requirement":0,"global_req":["enable_hylafax","enable_scanner"]},
     {"label":"Addr Book","menu_id":"adb0","target":"msc","url":"/interface/usergroup/addrbook_list.php","children":[],"requirement":0,"acl_req":["admin","practice"]},
     {"label":"Order Catalog","menu_id":"ort0","target":"msc","url":"/interface/orders/types.php","children":[],"requirement":0},
     {"label":"Chart Tracker","menu_id":"cht0","target":"msc","url":"/custom/chart_tracker.php","children":[],"requirement":0},
