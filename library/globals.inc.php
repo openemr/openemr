@@ -942,21 +942,21 @@ $GLOBALS_METADATA = array(
       xl('Show Aging on Custom Statement'),
       'bool',                           // data type
       '0',                              // default = false
-      xl('This will Show Aging on the custom Statment.')
+      xl('This will Show Aging on the custom Statement.')
     ),
 
     'use_statement_print_exclusion' => array(
-      xl('Exclude Statements from Printing'),
+      xl('Allow Statement Exclusions from Printing'),
       'bool',                           // data type
       '0',                              // default = false
-      xl('This will enable the Ability to Exclude Patient Statements from Printing.')
+      xl('This will enable the Ability to Exclude Selected Patient Statements from Printing.')
     ),
     
     'minimum_amount_to_print' => array(
       xl('Total Minimum Amount of Statement to Allow Printing'),
       'num',                           // data type
       '1.00',
-      xl('Total Minimum Dollar Amount of Statement to Allow Printing.(only applicable if Exclude Statements from Printing is enabled)')
+      xl('Total Minimum Dollar Amount of Statement to Allow Printing.(only applicable if Allow Statement Exclusions from Printing is enabled)')
     ),
 	 
   	'statement_bill_note_print' => array(
@@ -969,7 +969,7 @@ $GLOBALS_METADATA = array(
     'number_appointments_on_statement' => array(
       xl('Number of Appointments on Statement'),
       'num',                           // data type
-      '2',                              // default = 2
+      '0',                              // default = 0
       xl('The Number of Future Appointments to Display on the Statement.')
     ),
 
