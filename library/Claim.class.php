@@ -668,7 +668,11 @@ class Claim {
   }
 
   function facilityPOS() {
-    return sprintf('%02d', trim($this->facility['pos_code']));
+	  if($this->encounter['pos_code']){
+		  return sprintf('%02d', trim($this->encounter['pos_code']));
+	  }else{
+		return sprintf('%02d', trim($this->facility['pos_code']));  
+	  }
   }
 
   function clearingHouseName() {
