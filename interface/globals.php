@@ -194,11 +194,26 @@ if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
   $gl_user = array();
+  // Collect the user id first
+  $temp_authuserid = '';
   if (!empty($_SESSION['authUserID'])) {
+    //Set the user id from the session variable
+    $temp_authuserid = $_SESSION['authUserID'];
+  }
+  else {
+    if (!empty($_POST['authUser'])) {
+      $temp_sql_ret = sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", array($_POST['authUser']) );
+      if (!empty($temp_sql_ret['id'])) {
+        //Set the user id from the login variable
+        $temp_authuserid = $temp_sql_ret['id'];
+      }
+    }
+  }
+  if (!empty($temp_authuserid)) {
     $glres_user = sqlStatement("SELECT `setting_label`, `setting_value` " .
       "FROM `user_settings` " .
       "WHERE `setting_user` = ? " .
-      "AND `setting_label` LIKE 'global:%'", array($_SESSION['authUserID']) );
+      "AND `setting_label` LIKE 'global:%'", array($temp_authuserid) );
     for($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
       //remove global_ prefix from label
       $row['setting_label'] = substr($row['setting_label'],7);
