@@ -13,7 +13,9 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
+ * @author Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
+ *
  */
  
 class POSRef {
