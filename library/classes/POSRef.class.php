@@ -1,5 +1,23 @@
 <?php
-
+/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @link    http://www.open-emr.org
+ *
+ */
+ 
 class POSRef {
 	
 	var $pos_ref;
@@ -12,7 +30,7 @@ class POSRef {
 	
 	function init_pos() {
 		$pos = array();
-		$pos[] = array ("code" => "01","title" => "Unassigned", "description" => "N/A");
+		$pos[] = array ("code" => "01","title" => "Pharmacy **", "description" => "A facility or location where drugs and other medically related items and services are sold, dispensed, or otherwise provided directly to patients.");
 		$pos[] = array ("code" => "02","title" => "Unassigned", "description" => "N/A");
 		$pos[] = array ("code" => "03","title" => "School", "description" => "A facility whose primary purpose is education.");
 		$pos[] = array ("code" => "04","title" => "Homeless Shelter", "description" => "A facility or location whose primary purpose is to provide temporary housing to homeless individuals (e.g., emergency shelters, individual or family shelters).");
@@ -20,17 +38,17 @@ class POSRef {
 		$pos[] = array ("code" => "06","title" => "Indian Health Service Provider-based Facility", "description" => "A facility or location, owned and operated by the Indian Health Service, which provides diagnostic, therapeutic (surgical and non-surgical), and rehabilitation services rendered by, or under the supervision of, physicians to American Indians and Alaska Natives admitted as inpatients or outpatients."); 
 		$pos[] = array ("code" => "07","title" => "Tribal 638 Free-standing Facility", "description" => "A facility or location owned and operated by a federally recognized American Indian or Alaska Native tribe or tribal organization under a 638 agreement, which provides diagnostic, therapeutic (surgical and non-surgical), and rehabilitation services to tribal members who do not require hospitalization.");
 		$pos[] = array ("code" => "08","title" => "Tribal 638 Provider-based Facility", "description" => "A facility or location owned and operated by a federally recognized American Indian or Alaska Native tribe or tribal organization under a 638 agreement, which provides diagnostic, therapeutic (surgical and non-surgical), and rehabilitation services to tribal members admitted as inpatients or outpatients.");
-		$pos[] = array ("code" => "09","title" => "Unassigned", "description" => "N/A");
+		$pos[] = array ("code" => "09","title" => "Prison Correctional Facility", "description" => "A prison, jail, reformatory, work farm, detention center, or any other similar facility maintained by either Federal, State or local authorities for the purpose of confinement or rehabilitation of adult or juvenile criminal offenders.");
 		$pos[] = array ("code" => "10","title" => "Unassigned", "description" => "N/A");
 		$pos[] = array ("code" => "11","title" => "Office ", "description" => "Location, other than a hospital, skilled nursing facility (SNF), military treatment facility, community health center, State or local public health clinic, or intermediate care facility (ICF), where the health professional routinely provides health examinations, diagnosis, and treatment of illness or injury on an ambulatory basis.");
 		$pos[] = array ("code" => "12","title" => "Home", "description" => "Location, other than a hospital or other facility, where the patient receives care in a private residence.");
 		$pos[] = array ("code" => "13","title" => "Assisted Living Facility", "description" => "Congregate residential facility with self-contained living units providing assessment of each resident’s needs and on-site support 24 hours a day, 7 days a week, with the capacity to deliver or arrange for services including some health care and other services.  (effective 10/1/03)");
 		$pos[] = array ("code" => "14","title" => "Group Home *", "description" => "A residence, with shared living areas, where clients receive supervision and other services such as social and/or behavioral services, custodial service, and minimal services (e.g., medication administration).");
 		$pos[] = array ("code" => "15","title" => "Mobile Unit", "description" => "A facility/unit that moves from place-to-place equipped to provide preventive, screening, diagnostic, and/or treatment services.");
-		$pos[] = array ("code" => "16","title" => "Unassigned", "description" => "N/A");
-		$pos[] = array ("code" => "17","title" => "Unassigned", "description" => "N/A");
-		$pos[] = array ("code" => "18","title" => "Unassigned", "description" => "N/A");
-		$pos[] = array ("code" => "19","title" => "Unassigned", "description" => "N/A");
+		$pos[] = array ("code" => "16","title" => "Temporary Lodging", "description" => "A short term accommodation such as a hotel, camp ground, hostel, cruise ship or resort where the patient receives care, and which is not identified by any other POS code.");
+		$pos[] = array ("code" => "17","title" => "Walk-in Retail Health Clinic", "description" => "A walk-in health clinic, other than an office, urgent care facility, pharmacy or independent clinic and not described by any other Place of Service code, that is located within a retail operation and provides, on an ambulatory basis, preventive and primary care services");
+		$pos[] = array ("code" => "18","title" => "Place of Employment-Worksite", "description" => "A location, not described by any other POS code, owned or operated by a public or private entity where the patient is employed, and where a health professional provides on-going or episodic occupational medical, therapeutic or rehabilitative services to the individual");
+		$pos[] = array ("code" => "19","title" => "Off Campus-Outpatient Hospital", "description" => "A portion of an off-campus hospital provider based department which provides diagnostic, therapeutic (both surgical and nonsurgical), and rehabilitation services to sick or injured persons who do not require hospitalization or institutionalization");
 		$pos[] = array ("code" => "20","title" => "Urgent Care Facility", "description" => "Location, distinct from a hospital emergency room, an office, or a clinic, whose purpose is to diagnose and treat illness or injury for unscheduled, ambulatory patients seeking immediate medical attention.");
 		$pos[] = array ("code" => "21","title" => "Inpatient Hospital", "description" => "A facility, other than psychiatric, which primarily provides diagnostic, therapeutic (both surgical and nonsurgical), and rehabilitation services by, or under, the supervision of physicians to patients admitted for a variety of medical conditions.");
 		$pos[] = array ("code" => "22","title" => "Outpatient Hospital", "description" => "A portion of a hospital which provides diagnostic, therapeutic (both surgical and nonsurgical), and rehabilitation services to sick or injured persons who do not require hospitalization or institutionalization.");

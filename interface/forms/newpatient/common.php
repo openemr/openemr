@@ -248,6 +248,29 @@ if ($fres) {
 			</div>
 		</td>
      </tr>
+	<?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <tr>
+            <td><span class='bold' nowrap><?php xl('POS Code','e'); ?>: </span></td>
+            <td colspan="6">
+                <select name="pos_code">
+                <?php
+				
+                $pc = new POSRef();
+
+                foreach ($pc->get_pos_ref() as $pos) {
+                    echo "<option value=\"" . $pos["code"] . "\" ";
+					if($pos["code"] == $result['pos_code']) echo "selected";
+                    echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
+                    echo "</option>\n";
+					
+                }
+
+                ?>
+                </select>
+            </td>
+        </tr>
+    <?php } ?>		
+    <tr>	 
     <tr>
 <?php
  $sensitivities = acl_get_sensitivities();
@@ -414,6 +437,6 @@ if (!$viewmode) { ?>
 ?>
 </script>
 
-
+ 
 
 </html>
