@@ -36,10 +36,10 @@ require_once "$srcdir/appointments.inc.php";
 $selectedFromDate = isset($_POST['form_from_date'])?$_POST['form_from_date']:date('Y-m-d'); // From date filter
 $selectedToDate = isset($_POST['form_to_date'])?$_POST['form_to_date']:date('Y-m-d');     // To date filter
 $selectedFacility = isset($_POST['form_facility'])?$_POST['form_facility']:"";  // facility filter
- 
+$selectedProvider = $_POST['form_provider'];  // provider filter
+
 $from_date = fixDate($selectedFromDate, date('Y-m-d'));
 $to_date = fixDate($selectedToDate, date('Y-m-d'));
-
 ?>
 
 <html>
@@ -56,19 +56,13 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             function submitForm() {
                 var fromDate = $("#form_from_date").val();
                 var toDate = $("#form_to_date").val();
-                
-                var dayDifference =  Math.floor(( Date.parse(toDate) - Date.parse(fromDate) ) / 86400000);
-                
+
                 if (fromDate === '') {
                     alert("Please select From date");
                     return false;
                 }
                 if (toDate === '') {
                     alert("Please select To date");
-                    return false;
-                }
-                if(dayDifference > 31){
-                    alert("Please select date range within month");
                     return false;
                 }
                 if (Date.parse(fromDate) > Date.parse(toDate)) {
@@ -86,18 +80,18 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
 
     <body class="body_top">
 
-        <span class='title'><?php echo xlt('Daily'); ?> - <?php echo xlt('Summary').' '.xlt('Reports'); ?></span>
+        <span class='title'><?php echo xlt('Daily'); ?> - <?php echo xlt('Summary') . ' ' . xlt('Report'); ?></span>
         <!-- start of search parameters --> 
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
             <div id="report_parameters">
                 <table class="tableonly">
                     <tr>
-                        <td width='750px'>
+                        <td width='745px'>
                             <div style='float: left'>
                                 <table class='text'>
                                     <tr>
                                         <td class='label'><?php echo xlt('Facility'); ?>:</td>
-                                        <td><?php dropdown_facility($selectedFacility, 'form_facility'); ?></td>				
+                                        <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>				
                                         <td class='label'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
@@ -120,6 +114,13 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                         </td>
                                 </table>
                             </div>
+                        </td>
+                        <td class='label'><?php echo xlt('Provider'); ?>:</td>
+                        <td>
+                            <?php
+                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
+                                'empty_title' => '-- All Providers --'), $selectedProvider);
+                            ?>
                         </td>
                         <td align='left' valign='middle' height="100%">
                             <table style='border-left: 1px solid; width: 100%; height: 100%'>
@@ -157,7 +158,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $facilities = $totalAppointment = $totalNewPatient = $totalVisit = $totalPayment = $dailySummaryReport = $totalPaid = array();
 
         // define all the where condition variable as initial value set 1=1
-        $whereAppointmentConditions = $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
+        $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
 
         // fetch all facility from the table
         $facilityReacords = sqlStatement("SELECT `id`,`name` from facility");
@@ -170,92 +171,144 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             }
         }
 
+        // define provider and facility as null
+        $providerID = $facilityID = NULL;
+        // define all the bindarray variables as initial blank array
+        $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
 
         // make all condition on by default today's date
         if ($dateSet != 1 && $facilitySet != 1) {
-            $whereAppointmentConditions .= ' AND `c`.`pc_eventDate` = CURDATE()';
-            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) = CURDATE()';
-            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`) = CURDATE()';
-            $wherePaidConditions .= ' AND DATE(`p`.`dtime`) = CURDATE()';
-            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) = CURDATE()';
+            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) = ? ';
+            array_push($sqlBindArrayNewPatient, date("Y-m-d"));
+            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) = ? ';
+            array_push($sqlBindArrayTotalVisit, date("Y-m-d"));
+            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`)  = ? ';
+            array_push($sqlBindArrayTotalPayment, date("Y-m-d"));
+            $wherePaidConditions .= ' AND DATE(`p`.`dtime`)  = ? ';
+            array_push($sqlBindArrayPaid, date("Y-m-d"));
         }
 
         // if search based on facility then append condition for facility search 
         if (1 === $facilitySet) {
-            $whereAppointmentConditions .= ' AND `f`.`id` =' . $selectedFacility;
-            $whereTotalVisitConditions .= ' AND `f`.`id` =' . $selectedFacility;
-            $whereTotalPaymentConditions .= ' AND `f`.`id` =' . $selectedFacility;
-            $wherePaidConditions .= ' AND `f`.`id` =' . $selectedFacility;
-            $whereNewPatientConditions .= ' AND `f`.`id` =' . $selectedFacility;
+            $facilityID = $selectedFacility;
+            $whereNewPatientConditions .= ' AND `f`.`id` = ?';
+            array_push($sqlBindArrayNewPatient, $selectedFacility);
+            $whereTotalVisitConditions .= ' AND `f`.`id` = ?';
+            array_push($sqlBindArrayTotalVisit, $selectedFacility);
+            $whereTotalPaymentConditions .= ' AND `f`.`id` = ?';
+            array_push($sqlBindArrayTotalPayment, $selectedFacility);
+            $wherePaidConditions .= ' AND `f`.`id` = ?';
+            array_push($sqlBindArrayPaid, $selectedFacility);
         }
 
         // if date range wise search then append condition for date search 
         if (1 === $dateSet) {
-            $whereAppointmentConditions .= ' AND (`c`.`pc_eventDate`) BETWEEN' . "'" . $selectedFromDate . "'" . ' AND ' . "'" . $selectedToDate . "'";
-            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) BETWEEN' . "'" . $selectedFromDate . "'" . ' AND ' . "'" . $selectedToDate . "'";
-            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`) BETWEEN' . "'" . $selectedFromDate . "'" . ' AND ' . "'" . $selectedToDate . "'";
-            $wherePaidConditions .= ' AND DATE(`p`.`dtime`) BETWEEN' . "'" . $selectedFromDate . "'" . ' AND ' . "'" . $selectedToDate . "'";
-            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) BETWEEN' . "'" . $selectedFromDate . "'" . ' AND ' . "'" . $selectedToDate . "'";
+            $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) BETWEEN ? AND ?';
+            array_push($sqlBindArrayNewPatient, $selectedFromDate, $selectedToDate);
+            $whereTotalVisitConditions .= ' AND DATE(`fc`.`date`) BETWEEN ? AND ?';
+            array_push($sqlBindArrayTotalVisit, $selectedFromDate, $selectedToDate);
+            $whereTotalPaymentConditions .= ' AND DATE(`b`.`date`) BETWEEN ? AND ?';
+            array_push($sqlBindArrayTotalPayment, $selectedFromDate, $selectedToDate);
+            $wherePaidConditions .= ' AND DATE(`p`.`dtime`) BETWEEN ? AND ?';
+            array_push($sqlBindArrayPaid, $selectedFromDate, $selectedToDate);
         }
 
-        //Count Total Appointments
-        $totalAppointmentSql = sqlStatement("SELECT `c`.`pc_eventDate` ,`f`.`name` AS facility_Name, count( * ) AS totalAppointment
-                                                FROM `openemr_postcalendar_events` AS c
-                                                LEFT JOIN `facility` AS f ON ( `c`.`pc_facility` = `f`.`id` )
-                                                WHERE  $whereAppointmentConditions GROUP BY facility_Name, `c`.`pc_eventDate` ORDER BY `c`.`pc_eventDate` ASC");
-
-        while ($totalAppointmentRecord = sqlFetchArray($totalAppointmentSql)) {
-            $totalAppointment[$totalAppointmentRecord['pc_eventDate']][$totalAppointmentRecord['facility_Name']]['appointments'] = $totalAppointmentRecord['totalAppointment'];
+        // if provider selected then append condition for provider
+        if (isset($selectedProvider) && !empty($selectedProvider)) {
+            $providerID = $selectedProvider;
+            $whereNewPatientConditions .= ' AND `OPE`.`pc_aid` = ?';
+            array_push($sqlBindArrayNewPatient, $selectedProvider);
+            $whereTotalVisitConditions .= ' AND `fc`.`provider_id` = ?';
+            array_push($sqlBindArrayTotalVisit, $selectedProvider);
+            $whereTotalPaymentConditions .= ' AND `fe`.`provider_id` = ?';
+            array_push($sqlBindArrayTotalPayment, $selectedProvider);
+            $wherePaidConditions .= ' AND `fe`.`provider_id` = ?';
+            array_push($sqlBindArrayPaid, $selectedProvider);
         }
 
+        // pass last parameter as Boolean,  which is getting the facility name in the resulted array 
+        $totalAppointmentSql = fetchAppointments($from_date, $to_date, null, $providerID, $facilityID, null, null, null, null, false, 0, 1);
+        if (count($totalAppointmentSql) > 0) { // check if $totalAppointmentSql array has value
+            foreach ($totalAppointmentSql as $appointment) {
+                
+                $eventDate = $appointment['pc_eventDate'];
+                $facility = $appointment['name'];
+                $providerName = $appointment['ufname'] . ' ' . $appointment['ulname'];
+
+                // initialize each level of the data structure if it doesn't already exist
+                if (!isset($totalAppointment[$eventDate])) {
+                    $totalAppointment[$eventDate] = [];
+                }
+                if (!isset($totalAppointment[$eventDate][$facility])) {
+                    $totalAppointment[$eventDate][$facility] = [];
+                }
+                if (!isset($totalAppointment[$eventDate][$facility][$providerName])) {
+                    $totalAppointment[$eventDate][$facility][$providerName] = [];
+                }
+                // initialize the number of appointment to 0
+                if (!isset($totalAppointment[$eventDate][$facility][$providerName]['appointments'])) {
+                    $totalAppointment[$eventDate][$facility][$providerName]['appointments'] = 0;
+                }
+                // increment the number of appointments
+                $totalAppointment[$eventDate][$facility][$providerName]['appointments']++;
+            }
+        }
+        
         //Count Total New Patient
-        $newPatientSql = sqlStatement("SELECT `OPE`.`pc_eventDate` , `f`.`name` AS facility_Name , count( * ) AS totalNewPatient
+        $newPatientSql = sqlStatement("SELECT `OPE`.`pc_eventDate` , `f`.`name` AS facility_Name , count( * ) AS totalNewPatient, `PD`.`providerID`, CONCAT( `u`.`fname`, ' ', `u`.`lname` ) AS provider_name
                                         FROM `patient_data` AS PD
                                         LEFT JOIN `openemr_postcalendar_events` AS OPE ON ( `OPE`.`pc_pid` = `PD`.`pid` )
                                         LEFT JOIN `facility` AS f ON ( `OPE`.`pc_facility` = `f`.`id` )
+                                        LEFT JOIN `users` AS u ON ( `OPE`.`pc_aid` = `u`.`id` )
                                         WHERE `OPE`.`pc_title` = 'New Patient'
                                         AND  $whereNewPatientConditions
-                                        GROUP BY `f`.`id` , `OPE`.`pc_eventDate`
-                                        ORDER BY `OPE`.`pc_eventDate` ASC");
+                                        GROUP BY `f`.`id` , `OPE`.`pc_eventDate`,provider_name
+                                        ORDER BY `OPE`.`pc_eventDate` ASC", $sqlBindArrayNewPatient);
+
+
 
         while ($totalNewPatientRecord = sqlFetchArray($newPatientSql)) {
-            $totalNewPatient[$totalNewPatientRecord['pc_eventDate']][$totalNewPatientRecord['facility_Name']]['newPatient'] = $totalNewPatientRecord['totalNewPatient'];
+            $totalNewPatient[$totalNewPatientRecord['pc_eventDate']][$totalNewPatientRecord['facility_Name']][$totalNewPatientRecord['provider_name']]['newPatient'] = $totalNewPatientRecord['totalNewPatient'];
         }
 
         //Count Total Visit
-        $totalVisitSql = sqlStatement("SELECT DATE( `fc`.`date` ) AS Date,`f`.`name` AS facility_Name, count( * ) AS totalVisit
+        $totalVisitSql = sqlStatement("SELECT DATE( `fc`.`date` ) AS Date,`f`.`name` AS facility_Name, count( * ) AS totalVisit, `fc`.`provider_id`, CONCAT( `u`.`fname`, ' ', `u`.`lname` ) AS provider_name
                                                                     FROM `form_encounter` AS fc
                                                                     LEFT JOIN `facility` AS f ON ( `fc`.`facility_id` = `f`.`id` )
+                                                                    LEFT JOIN `users` AS u ON ( `fc`.`provider_id` = `u`.`id` )
                                                                     WHERE $whereTotalVisitConditions
-                                                                    GROUP BY `fc`.`facility_id`, DATE( `fc`.`date` ) ORDER BY DATE( `fc`.`date` ) ASC");
+                                                                    GROUP BY `fc`.`facility_id`, DATE( `fc`.`date` ),provider_name ORDER BY DATE( `fc`.`date` ) ASC", $sqlBindArrayTotalVisit);
+
         while ($totalVisitRecord = sqlFetchArray($totalVisitSql)) {
-            $totalVisit[$totalVisitRecord['Date']][$totalVisitRecord['facility_Name']]['visits'] = $totalVisitRecord['totalVisit'];
+            $totalVisit[$totalVisitRecord['Date']][$totalVisitRecord['facility_Name']][$totalVisitRecord['provider_name']]['visits'] = $totalVisitRecord['totalVisit'];
         }
 
         //Count Total Payments for only active records i.e. activity = 1
-        $totalPaymetsSql = sqlStatement("SELECT DATE( `b`.`date` ) AS Date, `f`.`name` AS facilityName, SUM( `b`.`fee` ) AS totalpayment
+        $totalPaymetsSql = sqlStatement("SELECT DATE( `b`.`date` ) AS Date, `f`.`name` AS facilityName, SUM( `b`.`fee` ) AS totalpayment, `fe`.`provider_id`, CONCAT( `u`.`fname`, ' ', `u`.`lname` ) AS provider_name
                                                                     FROM `facility` AS f
                                                                     LEFT JOIN `form_encounter` AS fe ON ( `fe`.`facility_id` = `f`.`id` )
                                                                     LEFT JOIN `billing` AS b ON ( `fe`.`encounter` = `b`.`encounter` )
+                                                                    LEFT JOIN `users` AS u ON ( `fe`.`provider_id` = `u`.`id` )
                                                                     WHERE `b`.`activity` =1 AND 
                                                                     $whereTotalPaymentConditions
-                                                                    GROUP BY `b`.`encounter` , Date ORDER BY Date ASC");
-
+                                                                    GROUP BY `b`.`encounter`,Date,provider_name ORDER BY Date ASC", $sqlBindArrayTotalPayment);
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
-            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']]['payments'] += $totalPaymentRecord['totalpayment'];
+            $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
         // total paid amount
-        $totalPaidAmountSql = sqlStatement("SELECT DATE( `p`.`dtime` ) AS Date,`f`.`name` AS facilityName, SUM( `p`.`amount1` ) AS totalPaidAmount
+        $totalPaidAmountSql = sqlStatement("SELECT DATE( `p`.`dtime` ) AS Date,`f`.`name` AS facilityName, SUM( `p`.`amount1` ) AS totalPaidAmount, `fe`.`provider_id`, CONCAT( `u`.`fname`, ' ', `u`.`lname` ) AS provider_name
                                                                         FROM `facility` AS f
                                                                         LEFT JOIN `form_encounter` AS fe ON ( `fe`.`facility_id` = `f`.`id` )
                                                                         LEFT JOIN `payments` AS p ON ( `fe`.`encounter` = `p`.`encounter` )
+                                                                        LEFT JOIN `users` AS u ON ( `fe`.`provider_id` = `u`.`id` )
                                                                         WHERE $wherePaidConditions
-                                                                        GROUP BY `p`.`encounter`, Date ORDER BY Date ASC");
+                                                                        GROUP BY `p`.`encounter`, Date,provider_name ORDER BY Date ASC", $sqlBindArrayPaid);
+
 
         while ($totalPaidRecord = sqlFetchArray($totalPaidAmountSql)) {
-            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
+            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
         }
 
         // merge all array recursive in to one array
@@ -263,75 +316,81 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php  echo '<b>'.xlt('From', 'e').'</b> '. $from_date . ' <b>'.xlt('To', 'e').'</b> '. $to_date; ?>
+            <?php echo '<b>' . xlt('From', 'e') . '</b> ' . $from_date . ' <b>' . xlt('To', 'e') . '</b> ' . $to_date; ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">
 
                     <td><?php xl('Date', 'e'); ?></td>
                     <td><?php xl('Facility', 'e'); ?></td>
-                    <td><?php xl('Scheduled Appointments', 'e'); ?></td>
+                    <td><?php xl('Provider', 'e'); ?></td>
+                    <td><?php xl('Appointments', 'e'); ?></td>
                     <td><?php xl('New Patients', 'e'); ?></td>
                     <td><?php xl('Visited Patients', 'e'); ?></td>
                     <td><?php xl('Total Charges', 'e'); ?></td>
                     <td><?php xl('Total Co-Pay', 'e'); ?></td>
                     <td><?php xl('Balance Payment', 'e'); ?></td>
                 </tr>
- <?php       if (count($dailySummaryReport) > 0) { // check if daily summary array has value
+                <?php
+                if (count($dailySummaryReport) > 0) { // check if daily summary array has value
                     foreach ($dailySummaryReport as $date => $dataValue) { //   daily summary array which consists different/dynamic values
                         foreach ($facilities as $facility) { // facility array 
                             if (isset($dataValue[$facility])) {
-                                ?>
-                                <tr>
-                                    <td><?php echo $date ?></td>
-                                    <td><?php echo $facility; ?></td>
-                                    <td><?php echo isset($dataValue[$facility]['appointments']) ? $dataValue[$facility]['appointments'] : 0; ?></td>
-                                    <td><?php echo isset($dataValue[$facility]['newPatient']) ? $dataValue[$facility]['newPatient'] : 0; ?></td>
-                                    <td><?php echo isset($dataValue[$facility]['visits']) ? $dataValue[$facility]['visits'] : 0; ?></td>
-                                    <td align="right"><?php echo isset($dataValue[$facility]['payments']) ? number_format($dataValue[$facility]['payments'], 2) : 0; ?></td>
-                                    <td align="right"><?php echo isset($dataValue[$facility]['paidAmount']) ? number_format($dataValue[$facility]['paidAmount'], 2) : 0; ?></td>
-                                    <td align="right">
-                                        <?php
-                                        if (isset($dataValue[$facility]['payments']) || isset($dataValue[$facility]['paidAmount'])) {
-                                            $dueAmount = number_format(str_replace(",", "", $dataValue[$facility]['payments']) - str_replace(",", "", $dataValue[$facility]['paidAmount']), 2);
-                                        } else {
-                                             $dueAmount = number_format(0, 2);
-                                        }
-                                         echo $dueAmount;
-                                        ?>
-                                    </td>
-                                </tr>
-                                <?php
-                                if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
-                                    $totalAppointments += $dataValue[$facility]['appointments'];
-                                    $totalNewRegisterPatient += $dataValue[$facility]['newPatient'];
-                                    $totalVisits += $dataValue[$facility]['visits'];
-                                    $totalPayments += str_replace(",", "", $dataValue[$facility]['payments']);
-                                    $totalPaidAmount += str_replace(",", "", $dataValue[$facility]['paidAmount']);
-                                    $totalDueAmount += $dueAmount;
+                                foreach ($dataValue[$facility] as $provider => $information) { // array which consists different/dynamic values
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $date ?></td>
+                                        <td><?php echo $facility; ?></td>
+                                        <td><?php echo $provider; ?></td>
+                                        <td><?php echo isset($information['appointments']) ? $information['appointments'] : 0; ?></td>
+                                        <td><?php echo isset($information['newPatient']) ? $information['newPatient'] : 0; ?></td>
+                                        <td><?php echo isset($information['visits']) ? $information['visits'] : 0; ?></td>
+                                        <td align="right"><?php echo isset($information['payments']) ? number_format($information['payments'], 2) : number_format(0, 2); ?></td>
+                                        <td align="right"><?php echo isset($information['paidAmount']) ? number_format($information['paidAmount'], 2) : number_format(0, 2); ?></td>
+                                        <td align="right">
+                                            <?php
+                                            if (isset($information['payments']) || isset($information['paidAmount'])) {
+                                                $dueAmount = number_format(str_replace(",", "", $information['payments']) - str_replace(",", "", $information['paidAmount']), 2);
+                                            } else {
+                                                $dueAmount = number_format(0, 2);
+                                            }
+                                            echo $dueAmount;
+                                            ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                    if (count($dailySummaryReport) > 0) { // calculate the total count of the appointments, new patient,visits, payments, paid amount and due amount
+                                        $totalAppointments += $information['appointments'];
+                                        $totalNewRegisterPatient += $information['newPatient'];
+                                        $totalVisits += $information['visits'];
+                                        $totalPayments += str_replace(",", "", $information['payments']);
+                                        $totalPaidAmount += str_replace(",", "", $information['paidAmount']);
+                                        $totalDueAmount += $dueAmount;
+                                    }
                                 }
                             }
                         }
                     }
-                        ?>
-                <!--display total count-->
+                    ?>
+                    <!--display total count-->
                     <tr class="totalrow">
-                            <td>Total</td>
-                            <td>-</td>
-                            <td><?php echo $totalAppointments; ?></td>
-                            <td><?php echo $totalNewRegisterPatient; ?></td>
-                            <td><?php echo $totalVisits; ?></td>
-                            <td align="right"><?php echo number_format($totalPayments, 2); ?></td>
-                            <td align="right"><?php echo number_format($totalPaidAmount, 2); ?></td>
-                            <td align="right"><?php echo number_format($totalDueAmount, 2); ?></td>
-                        </tr>
-                        <?php
-                    }else { // if there are no records then display message
-                        ?>
-                        <tr>
-                            <td colspan="8" style="text-align:center;font-weight:bold;"> <?php echo xl("There are no record(s) found."); ?></td>
-                        </tr>
-                    <?php } ?>
+                        <td>Total</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><?php echo $totalAppointments; ?></td>
+                        <td><?php echo $totalNewRegisterPatient; ?></td>
+                        <td><?php echo $totalVisits; ?></td>
+                        <td align="right"><?php echo number_format($totalPayments, 2); ?></td>
+                        <td align="right"><?php echo number_format($totalPaidAmount, 2); ?></td>
+                        <td align="right"><?php echo number_format($totalDueAmount, 2); ?></td>
+                    </tr>
+                    <?php
+                } else { // if there are no records then display message
+                    ?>
+                    <tr>
+                        <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xl("There are no record(s) found."); ?></td>
+                    </tr>
+                <?php } ?>
 
             </table>
         </div>
