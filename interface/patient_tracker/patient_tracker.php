@@ -160,7 +160,7 @@ function openNewTopWindow(newpid,newencounterid) {
  ?>
 <div>
   <?php if (count($chk_prov) == 1) {?>
-  <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. reset($chk_prov) ?></span></h2>
+  <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
   <?php } ?>
  <span style='float: right'>
  <input type='hidden' name='setting_new_window' value='1' />
