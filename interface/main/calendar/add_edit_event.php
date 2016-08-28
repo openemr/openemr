@@ -996,22 +996,52 @@ td { font-size:0.8em; }
   var mycolor = '#777777';
   var myvisibility = 'hidden';
   if (f.form_repeat.checked) {
-   isdisabled = false;
-   mycolor = '#000000';
-   myvisibility = 'visible';
+      f.days_every_week.checked = false;
+      document.getElementById("days_label").style.color = mycolor;
+      var days = document.getElementById("days").getElementsByTagName('input');
+      var labels = document.getElementById("days").getElementsByTagName('label');
+      for(var i=0; i < days.length; i++){
+          days[i].disabled = isdisabled;
+          labels[i].style.color = mycolor;
+      }
+      isdisabled = false;
+      mycolor = '#000000';
+      myvisibility = 'visible';
   }
   f.form_repeat_type.disabled = isdisabled;
   f.form_repeat_freq.disabled = isdisabled;
+  f.form_enddate.disabled = isdisabled;
   document.getElementById('tdrepeat1').style.color = mycolor;
   document.getElementById('tdrepeat2').style.color = mycolor;
-     if(f.days_every_week.checked){
-         f.form_enddate.disabled = false;
-         document.getElementById('img_enddate').style.visibility = 'visible';
+  document.getElementById('img_enddate').style.visibility = myvisibility;
+ }
+
+ // Event when days_every_week is checked.
+ function set_days_every_week() {
+     var f = document.forms[0];
+     var isdisabled = true;
+     var mycolor = '#777777';
+     var myvisibility = 'hidden';
+
+     if (f.days_every_week.checked) {
+        f.form_repeat.checked = false;
+        f.form_repeat_type.disabled = isdisabled;
+        f.form_repeat_freq.disabled = isdisabled;
+        document.getElementById('tdrepeat1').style.color = mycolor;
+         isdisabled = false;
+         mycolor = '#000000';
+         myvisibility = 'visible';
      }
-     else {
-         f.form_enddate.disabled = isdisabled;
-         document.getElementById('img_enddate').style.visibility = myvisibility;
+     document.getElementById("days_label").style.color = mycolor;
+     var days = document.getElementById("days").getElementsByTagName('input');
+     var labels = document.getElementById("days").getElementsByTagName('label');
+     for(var i=0; i < days.length; i++){
+         days[i].disabled = isdisabled;
+         labels[i].style.color = mycolor;
      }
+     document.getElementById('tdrepeat2').style.color = mycolor;
+     f.form_enddate.disabled = isdisabled;
+     document.getElementById('img_enddate').style.visibility = myvisibility;
  }
 
  // Constants used by dateChanged() function.
@@ -1447,19 +1477,30 @@ if  ($GLOBALS['select_multi_providers']) {
 
   </td>
  </tr>
-    <tr>
-        <td><input type='checkbox' name='days_every_week' onclick='set_repeat()'/></td>
-        <td>
-            <input type='checkbox' name='day_1' />
-            <input type='checkbox' name='day_2' />
-            <input type='checkbox' name='day_3' />
-            <input type='checkbox' name='day_4' />
-            <input type='checkbox' name='day_5' />
-            <input type='checkbox' name='day_6' />
-            <input type='checkbox' name='day_7' />
-        </td>
 
-    </tr>
+    <style>
+        #days_every_week_row input[type="checkbox"]{float:right;}
+        #days_every_week_row div{display: inline-block; text-align: center; width: 12%;}
+        #days_every_week_row div input{width: 100%;}
+    </style>
+
+<tr id="days_every_week_row">
+    <td></td>
+    <td></td>
+    <td><input  type='checkbox' name='days_every_week' onclick='set_days_every_week()'/></td>
+    <td id="days_label"><?php echo xlt('Days Of Week:'); ?></td>
+    <td id="days">
+        <div><input type='checkbox' name='day_1' /><label><?php echo xlt('Su'); ?></label></div>
+        <div><input type='checkbox' name='day_2' /><label><?php echo xlt('M'); ?></label></div>
+        <div><input type='checkbox' name='day_3' /> <label><?php echo xlt('Tu'); ?></label></div>
+        <div><input type='checkbox' name='day_4' /><label><?php echo xlt('W'); ?></label></div>
+        <div><input type='checkbox' name='day_5' /><label><?php echo xlt('Th'); ?></label></div>
+        <div><input type='checkbox' name='day_6' /><label><?php echo xlt('F'); ?></label></div>
+        <div><input type='checkbox' name='day_7' /><label><?php echo xlt('Sa'); ?></label></div>
+    </td>
+
+</tr>
+
 
  <tr>
   <td nowrap>
@@ -1589,6 +1630,7 @@ if ($repeatexdate != "") {
 <?php } ?>
  set_allday();
  set_repeat();
+ set_days_every_week();
 
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
  Calendar.setup({inputField:"form_enddate", ifFormat:"%Y-%m-%d", button:"img_enddate"});
@@ -1615,14 +1657,32 @@ $(document).ready(function(){
     dateChanged();
 });
 
+function are_days_checked(){
+    var days = document.getElementById("days").getElementsByTagName('input');
+    var counter = 0;
+    for(var i=0; i < days.length; i++){
+       if(days[i].checked){
+           counter++;
+       }
+    }
+    return counter;
+}
+
 // Check for errors when the form is submitted.
 function validate(valu) {
      var f = document.getElementById('theform');
-    if (f.form_repeat.checked &&
+    if ((f.form_repeat.checked || f.days_every_week.checked) &&
         (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
         alert('<?php echo addslashes(xl("An end date later than the start date is required for repeated events!")); ?>');
         return false;
     }
+
+    //Make sure if days_every_week is checked that at least one weekday is checked.
+    if(f.days_every_week.checked && !are_days_checked()){
+        alert('<?php echo addslashes(xl("Must choose at least one day!")); ?>');
+        return false;
+    }
+
     <?php
     if($_GET['prov']!=true){
     ?>

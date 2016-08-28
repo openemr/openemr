@@ -1497,7 +1497,6 @@ function calculateEvents($days,$events,$viewtype) {
 			$nm = $esM; $ny = $esY; $nd = $esD;
 			$occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
 			while($occurance < $start_date) {
-//				$nextDay = getNextDay($occurance, $rfreq);
 				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
 				list($ny,$nm,$nd) = explode('-',$occurance);
 			}
@@ -1530,7 +1529,6 @@ function calculateEvents($days,$events,$viewtype) {
 					}
 				}
 
-//				$nextDay = getNextDay($occurance, $rfreq);
 				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
 				list($ny,$nm,$nd) = explode('-',$occurance);
 			}
