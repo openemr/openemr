@@ -28,11 +28,12 @@ html
 }
 body
 {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
     font-size: 10pt;
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
+    margin: 0px;
 }
 #mainBox
 {
@@ -50,7 +51,6 @@ body
 {
     flex: 0 1 auto;
     margin: 0 0 0 0;
-    padding: 0;
 }
 
 #mainBox > div.mainFrames
@@ -59,6 +59,7 @@ body
     flex: 1 0 auto;
     flex-direction: column;
     padding: 0 0 0 0;
+    z-index: 3;
     margin: 0 0 0 0;
 }
 
@@ -78,12 +79,14 @@ body
     flex-direction: column;
     margin: 0;
     padding: 0;
+    border-left: 1pt solid black;
+    border-right: 1pt solid black;
 }
 
 #framesDisplay > div > iframe
 {
     flex: 1 0 auto;
-    border: 1px solid black;
+    border: 0px solid black;
 }
 
 .tabControls
@@ -97,12 +100,15 @@ body
 .tabSpan
 {
     margin: 0 0 0 0;
-    padding:  0 0 0 0;
-    border: 2px solid black;
+    padding:  1px 7px;
+    border: 1pt solid black;
+    border-bottom:0pt;
     border-radius: 6px 6px 0 0;
     cursor: pointer;
-    font-weight: bold;
     flex: 0 1 auto;
+    white-space:nowrap;
+    box-shadow: 2px -2px 6px rgba(0, 0, 0, 0.6);
+    overflow: visible;
 }
 
 .tabSpan:hover
@@ -112,6 +118,12 @@ body
 .tabHidden
 {
     color: gray;
+}
+.tabNotchosen {
+    border-bottom:1pt solid black;
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+    display:block;
+    max-width:1000px;
 }
 
 #dialogDiv
@@ -190,6 +202,7 @@ div.closeDlgIframe {
     border: 1px solid black;
     background: white;
     cursor: pointer;
+    z-index:1;
 }
 
 .patientEncounterList  table.encounters
@@ -201,6 +214,7 @@ div.closeDlgIframe {
 .patientEncounterList:hover table.encounters
 {
     display: block;
+
 }
 
 .patientEncounterList > div
@@ -211,6 +225,7 @@ div.closeDlgIframe {
 {
     overflow: visible;
     height: auto;
+    z-index:4;
 }
 
 
@@ -240,7 +255,7 @@ div.closeDlgIframe {
 }
 .patientInfo
 {
-    padding: 1px;
+    padding: 1px 1px 1px 10px;
 }
 
 .patientInfo .clear
