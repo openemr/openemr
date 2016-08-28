@@ -34,7 +34,7 @@ http://www.open-emr.org .
 
 The OpenEMR release archive should be named as follows:
 
-openemr-<version>.tar.gz  -or-  openemr-<version>.zip
+openemr-<version>.tar.gz   -or-   openemr-<version>.zip
 
 To extract the archive, use either of the following commands from the command line:
 
