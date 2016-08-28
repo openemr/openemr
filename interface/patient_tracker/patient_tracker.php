@@ -162,11 +162,13 @@ function openNewTopWindow(newpid,newencounterid) {
   <?php if (count($chk_prov) == 1) {?>
   <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
   <?php } ?>
+ <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
  <input type='hidden' name='setting_new_window' value='1' />
  <input type='checkbox' name='form_new_window' value='1'<?php echo $new_window_checked; ?> /><?php
   echo xlt('Open Patient in New Window'); ?>
  </span>
+</div>
  </div>
 <?php if ($GLOBALS['pat_trkr_timer'] =='0') { ?>
 <table border='0' cellpadding='5' cellspacing='0'>
