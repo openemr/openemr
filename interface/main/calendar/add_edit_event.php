@@ -1117,6 +1117,8 @@ td { font-size:0.8em; }
                 '_blank', 500, 400);
     }
 
+
+
 </script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -1442,7 +1444,34 @@ if  ($GLOBALS['select_multi_providers']) {
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
+      <?php
+      //Check if repeat is using the new 'days every week' mechanism.
+      function isDaysEveryWeek($repeat){
+          if($repeat == 3){
+              return true;
+          }
+          else{
+              return false;
+          }
+      }
+
+      //Check if using the regular repeat mechanism.
+      function isRegularRepeat($repeat){
+          if($repeat == 1 || $repeat == 2){
+              return true;
+          }
+          else{
+              return false;
+          }
+      }
+      ?>
+      <!-----------
+      If the encounter was set with the regular (old) repeat mechanism (using 'every', 'every 2', etc.), then will be
+      checked when editing and will select the proper recurrence pattern. If using the new repeat mechanism, then only that box (and the proper set
+      days) will be checked. That's why I had to add the functions 'isRegularRepeat' and 'isDaysEveryWeek', to check which
+      repeating mechanism is being used, and load settings accordingly.
+      ------------>
+   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
    <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1455,7 +1484,7 @@ if  ($GLOBALS['select_multi_providers']) {
   as $key => $value)
  {
   echo "    <option value='" . attr($key) . "'";
-  if ($key == $repeatfreq) echo " selected";
+  if ($key == $repeatfreq && isRegularRepeat($repeats)) echo " selected";
   echo ">" . text($value) . "</option>\n";
  }
 ?>
@@ -1469,7 +1498,7 @@ if  ($GLOBALS['select_multi_providers']) {
    5 => '?', 6 => '?') as $key => $value)
  {
   echo "    <option value='" . attr($key) . "'";
-  if ($key == $repeattype) echo " selected";
+  if ($key == $repeattype && isRegularRepeat($repeats)) echo " selected";
   echo ">" . text($value) . "</option>\n";
  }
 ?>
@@ -1487,16 +1516,19 @@ if  ($GLOBALS['select_multi_providers']) {
 <tr id="days_every_week_row">
     <td></td>
     <td></td>
-    <td><input  type='checkbox' name='days_every_week' onclick='set_days_every_week()'/></td>
+    <td><input  type='checkbox' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week:'); ?></td>
     <td id="days">
-        <div><input type='checkbox' name='day_1' /><label><?php echo xlt('Su'); ?></label></div>
-        <div><input type='checkbox' name='day_2' /><label><?php echo xlt('M'); ?></label></div>
-        <div><input type='checkbox' name='day_3' /> <label><?php echo xlt('Tu'); ?></label></div>
-        <div><input type='checkbox' name='day_4' /><label><?php echo xlt('W'); ?></label></div>
-        <div><input type='checkbox' name='day_5' /><label><?php echo xlt('Th'); ?></label></div>
-        <div><input type='checkbox' name='day_6' /><label><?php echo xlt('F'); ?></label></div>
-        <div><input type='checkbox' name='day_7' /><label><?php echo xlt('Sa'); ?></label></div>
+        <?php
+        foreach (array(1 => xl('Su') , 2 => xl('M'), 3 => xl('Tu'), 4 => xl('W'),
+                     5 => xl('Th'), 6 => xl('F'), 7 => xl('Sa')) as $key => $value)
+        {
+            echo " <div><input type='checkbox' name='day_". attr($key) ."'";
+            //Checks appropriate days according to days in recurrence string.
+            if (in_array($key, explode(',',$repeatfreq)) && isDaysEveryWeek($repeats)) echo " checked";
+            echo " /><label>" . text($value) . "</label></div>\n";
+        }
+        ?>
     </td>
 
 </tr>
