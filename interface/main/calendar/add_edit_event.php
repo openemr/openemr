@@ -1019,18 +1019,26 @@ td { font-size:0.8em; }
  // Event when days_every_week is checked.
  function set_days_every_week() {
      var f = document.forms[0];
-     var isdisabled = true;
-     var mycolor = '#777777';
-     var myvisibility = 'hidden';
-
      if (f.days_every_week.checked) {
-        f.form_repeat.checked = false;
-        f.form_repeat_type.disabled = isdisabled;
-        f.form_repeat_freq.disabled = isdisabled;
-        document.getElementById('tdrepeat1').style.color = mycolor;
-         isdisabled = false;
-         mycolor = '#000000';
-         myvisibility = 'visible';
+         //disable regular repeat
+         f.form_repeat.checked = false;
+         f.form_repeat_type.disabled = true;
+         f.form_repeat_freq.disabled = true;
+         document.getElementById('tdrepeat1').style.color = '#777777';
+
+         //enable end_date setting
+         document.getElementById('tdrepeat2').style.color = '#000000';
+         f.form_enddate.disabled = false;
+         document.getElementById('img_enddate').style.visibility = 'visible';
+
+         var isdisabled = false;
+         var mycolor = '#000000';
+         var myvisibility = 'visible';
+     }
+     else{
+         var isdisabled = true;
+         var mycolor = '#777777';
+         var myvisibility = 'hidden';
      }
      document.getElementById("days_label").style.color = mycolor;
      var days = document.getElementById("days").getElementsByTagName('input');
@@ -1039,9 +1047,16 @@ td { font-size:0.8em; }
          days[i].disabled = isdisabled;
          labels[i].style.color = mycolor;
      }
-     document.getElementById('tdrepeat2').style.color = mycolor;
-     f.form_enddate.disabled = isdisabled;
-     document.getElementById('img_enddate').style.visibility = myvisibility;
+
+     //If no repetition is checked, disable end_date setting.
+     if(!f.days_every_week.checked  && !f.form_repeat.checked){
+         //disable end_date setting
+         document.getElementById('tdrepeat2').style.color = mycolor;
+         f.form_enddate.disabled = isdisabled;
+         document.getElementById('img_enddate').style.visibility = myvisibility;
+     }
+
+
  }
 
  // Constants used by dateChanged() function.
