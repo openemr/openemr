@@ -171,6 +171,24 @@ function DOBandEncounter()
     }
 
  }
+
+
+ /*This function is used for setting the date of the first event when using the "day_every_week" repetition mechanism.
+ When the 'start date' is not one of the days chosen for the repetition, the start date needs to be changed to the first
+ occurrence of one of these set days. */
+ function setEventDate($start_date, $recurrence){
+     $timestamp = strtotime($start_date);
+     $day = date('w', $timestamp);
+     //If the 'start date' is one of the set days
+     if(in_array(($day+1), explode(',',$recurrence))){
+         return $start_date;
+     }
+     //else: (we need to change start date to first occurrence of one of the set days)
+     $new_date = getNextEncounter($start_date, $recurrence);
+     return $new_date;
+
+
+ }
 //================================================================================================================
 
 // EVENTS TO FACILITIES (lemonsoftware)
@@ -215,9 +233,6 @@ if ( $eid ) {
 //=============================================================================================================================
 if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
  {
-    // the starting date of the event, pay attention with this value
-    // when editing recurring events -- JRM Oct-08
-    $event_date = fixDate($_POST['form_date']);
 
     // Compute start and end time strings to be saved.
     if ($_POST['form_allday']) {
@@ -259,8 +274,15 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
              }
              $my_repeat_freq = implode(",",$days_every_week_arr);
              $my_repeat_type = 6;
+             $event_date = fixDate(setEventDate($_POST['form_date'], $my_repeat_freq));
+
          }
          elseif (!empty($_POST['form_repeat'])){
+
+             // the starting date of the event, pay attention with this value
+             // when editing recurring events -- JRM Oct-08
+             $event_date = fixDate($_POST['form_date']);
+
              $my_recurrtype = 1;
              if ($my_repeat_type > 4) {
                  $my_recurrtype = 2;
