@@ -74,6 +74,7 @@ tr, td, th {
 .title_name {
 	padding-top: 10px;
 	padding-left: 5px;
+	display: inline-block;
 }
 
 .titlebar {
@@ -193,3 +194,16 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
         outline: 0;
         background: #fafafa;
 }    
+
+.tinylogocontainer
+{
+	display: inline-block;
+	border: none;
+}
+
+.tinylogopng
+{
+	display: inline-block;
+	width: 86px;
+	height: 43px;
+}
