@@ -1,0 +1,206 @@
+/* the styles of Dynamsoft Dialog/Mask */
+.ds-dialog-wrap{
+	position : fixed; 
+	left : 0;
+	top : 20%;
+	width : 90%;
+}
+
+.ds-dialog .ks-ext-close .ks-ext-close-x {
+    height: 8px
+}
+
+.ds-dialog .ks-ext-close,.ds-dialog .ks-ext-close:hover {
+    background: none;
+    border: 0
+}
+
+.ds-dialog {
+    font-family: "verdana","sans-serif";
+    font-size: 12px;
+    line-height: 20px;
+    margin: 0 auto;
+    padding: 5px;
+    width: 392px;
+    border: 1px solid #e7e7e7;
+    background-color: #f1f2f2
+}
+
+.ds-dialog a {
+    text-decoration: none
+}
+
+.ds-dialog ul {
+    margin: 10px 0 10px 20px;
+    padding-left: 10px;
+    list-style-type: disc
+}
+
+.ds-dialog .ds-dialog-body {
+    margin: 0;
+    padding: 15px;
+	background-color: #FFFFFF;
+	border: 1px solid #E7E7E7;
+}
+
+.ds-dialog .ds-dialog-body img{
+	position:absolute;
+	left:0;
+	top:0;
+}
+
+.ds-dialog .ds-dialog-body-Mac {
+    margin: 0;
+    padding: 15px;
+    width: 360px;
+	background-color: #FFFFFF;
+	border: 1px solid #E7E7E7;
+}
+
+.ds-dialog .ds-dialog-body-NotAllowed {
+    margin: 0;
+    padding: 15px;
+    width: 360px;
+    color: #444444;
+    background-color: #FFFFFF;
+    border: 1px solid #E7E7E7
+}
+
+.ds-dialog .ds-dialog-body-Upgrade {
+    margin: 0;
+    padding: 15px;
+    width: 360px;
+    height: 240px;
+    color: #444;
+    background-color: #FFFFFF;
+    border: 1px solid #E7E7E7
+}
+
+.ds-dialog .ds-dialog-body-Scan {
+    margin: 0;
+    padding: 15px;
+    width: 380px;
+    background-color: #FFFFFF;
+    border: 1px solid #E7E7E7
+}
+
+.ds-dialog .ds-dialog-body-Scan-sample {
+    margin: 0;
+    padding: 15px;
+    width: 380px;
+    background-color: #FFFFFF;
+    border: 1px solid #E7E7E7
+}
+
+.ks-dialog,.ks-popup {
+    background-color: #FBFBFB;
+    border: 1px solid #ACB4BE
+}
+
+.ks-overlay {
+    position: absolute;
+    left: -9999px;
+    top: -9999px
+}
+
+.ks-dialog,.ks-overlay {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    outline: 0;
+    z-index: 9998;
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
+}
+
+.ks-dialog-hidden {
+    visibility: hidden
+}
+
+.ks-dialog-focused,.ks-overlay-focused {
+    z-index: 9999
+}
+
+.ks-overlay-hidden {
+    visibility: hidden
+}
+
+.ks-overlay-mask-hidden {
+    display: none
+}
+
+.ks-overlay-shown {
+    visibility: visible
+}
+
+.ks-overlay-mask-shown {
+    display: block
+}
+
+.ks-overlay-mask,.ks-dialog-mask {
+    background-color: #000000;
+    opacity: 0.3;
+    z-index: 9998
+}
+
+.ks-ext-close {
+    padding: 0 20px;
+    position: absolute;
+    right: -5px;
+    top: 5px
+}
+
+.ks-ext-close,.ks-ext-close:link {
+    color: #2222AA;
+    text-decoration: none;
+    cursor: pointer
+}
+
+.ks-ext-mask {
+    background: #999999;
+    opacity: 0.7
+}
+
+/* the styles of box/button */
+
+.dwt-box-title {
+    color: #333333;
+    font-family: helvetica,arial,sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    clear: both
+}
+
+
+.dwt-red {
+    color: red;
+    margin-left: 5px
+}
+
+.dwt-button {
+    background-image: url('btn-download.png');
+    background-repeat: no-repeat;
+    width: 180px;
+    height: 34px;
+    position: relative;
+    margin: 20px auto 0;
+    cursor: pointer
+}
+
+.dwt-button:hover {
+    background-position: 0 -34px
+}
+
+.dwt-button:active {
+    background-position: 0 -68px
+}
+
+.ds-dwt-dialogProgress{
+	width:300px
+}
+
+.DYNLogo
+{
+    background:url(logo.gif) left top no-repeat; 
+    width:159px; 
+    height:39px;
+}

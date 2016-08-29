@@ -40,5 +40,9 @@
 		{/if}
 		{$activity}
 </div>
+<!--JS for taking image from webcam or scanner using dynamsoft-->
+{if $scanning_images}
+<script type="text/javascript" src="{$WEBROOT}/library/imaging/dynamsoft/imaging.js" data-basePath="{$WEBROOT}"></script>
+{/if}
 </body>
 </html>

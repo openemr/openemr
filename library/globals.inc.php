@@ -1214,6 +1214,12 @@ $GLOBALS_METADATA = array(
         '100',           // default
         xl('Maximum size of thumbnail file')
     ),
+        'scanning_images' => array(
+\        xl('Scanning images'),
+        'bool',
+        '0',
+        xl('Obtain images fron scanner or webcam through dynamsoft')
+    ),
   ),
 
   // Calendar Tab

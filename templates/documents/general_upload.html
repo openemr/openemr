@@ -46,7 +46,15 @@
 </p>
 </form>
 <!-- End document template download section -->
-
+<!-- Take image from webcam or scanner using dynamsoft-->
+{if $scanning_images}
+<div class="imaging">
+	<div>
+		<input id="show-scan" type="button" value="Scan">
+		<input id="show-webcam" type="button" value="Capture">
+	</div>
+</div>
+{/if}
 {if !empty($file)}
 	<div class="text bold">
 		<br/>
