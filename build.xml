@@ -4,12 +4,19 @@
 
 <property name="dir.src" value="${project.basedir}"/>
 <property name="dir.vendor" value="${project.basedir}/vendor"/>
+<property name="dir.assets" value="${project.basedir}/public/assets"/>
 
 <target name="vendor-clean">
 	<echo msg="Trying to clean up vendor dir" />
 	<phingcall target="clean-vendor-dir">
 	</phingcall>
-</target>	
+</target>
+
+<target name="assets-clean">
+	<echo msg="Trying to clean up assets dir" />
+	<phingcall target="clean-assets-dir">
+	</phingcall>
+</target>
 
 
 <target name="clean-vendor-dir">
@@ -25,6 +32,29 @@
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
+    <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
 </target>
+
+
+<target name="clean-assets-dir">
+	<!-- Delete git files from vendor  -->
+	<delete verbose="true">
+    <fileset dir="${dir.assets}" includes="**/*.git*" defaultexcludes="false"/>
+    <fileset dir="${dir.assets}" includes="**/*.cvs*" defaultexcludes="false"/>
+	</delete>
+
+	<delete dir="${dir.assets}/AnythingSlider-1-9-4/demos" verbose="true"/>
+	<delete dir="${dir.assets}/bootstrap-rtl-3-3-4/examples" verbose="true"/>
+	<delete dir="${dir.assets}/Chart.js-2-1-3/docs" verbose="true"/>
+	<delete dir="${dir.assets}/Chart.js-2-1-3/samples" verbose="true"/>
+	<delete dir="${dir.assets}/Chart.js-2-1-3/test" verbose="true"/>
+	<delete dir="${dir.assets}/numeral-1-5-3/tests" verbose="true"/>
+</target>
+
+
+
+
+
+
+
 </project>
