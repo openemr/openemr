@@ -35,6 +35,11 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
+require_once("$srcdir/user.inc");
+
+// mdsupport - user_settings prefix
+$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window', '1');
 
 #define variables, future enhancement allow changing the to_date and from_date 
 #to allow picking a date to review
@@ -59,17 +64,19 @@ foreach ( $appointments as $apt ) {
 <head>
 <title><?php echo xlt("Flow Board") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
+
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
 
 <script language="JavaScript">
-$(document).ready(function(){
-  refreshbegin('1');
-  $('.js-blink-infinite').modernBlink();
-});
- 
+// Refresh self
+function refreshme() {
+  top.restoreSession();
+  document.pattrk.submit();
+}
 // popup for patient tracker status 
 function bpopup(tkid) {
  top.restoreSession()	
@@ -91,8 +98,7 @@ function refreshbegin(first){
     var parsetime=reftime.split(":");
     parsetime=(parsetime[0]*60)+(parsetime[1]*1)*1000;
     if (first != '1') {
-      top.restoreSession();
-      document.pattrk.submit();
+      refreshme();
     }
     setTimeout("refreshbegin('0')",parsetime);
   <?php } else { ?>
@@ -140,33 +146,17 @@ function openNewTopWindow(newpid,newencounterid) {
 <form name='pattrk' id='pattrk' method='post' action='patient_tracker.php?skip_timeout_reset=1' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
 <?php } ?>
 
- <?php
- if (isset($_POST['setting_new_window'])) {
-   if (isset($_POST['form_new_window'])) {
-     $new_window_checked = " checked";
-   }
-   else {
-     $new_window_checked = '';
-   }
- }
- else {
-   if ($GLOBALS['ptkr_pt_list_new_window']) {
-     $new_window_checked = " checked";
-   }
-   else {
-     $new_window_checked = '';
-   }
- }
- ?>
 <div>
   <?php if (count($chk_prov) == 1) {?>
   <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
   <?php } ?>
  <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
- <input type='hidden' name='setting_new_window' value='1' />
- <input type='checkbox' name='form_new_window' value='1'<?php echo $new_window_checked; ?> /><?php
-  echo xlt('Open Patient in New Window'); ?>
+   <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
+   <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
+   <label id='settings'><input type='checkbox' name='form_new_window' id='form_new_window' value='1'<?php echo $setting_new_window ?> >
+     <?php echo xlt('Open Patient in New Window'); ?></input></label>
+   <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
  </span>
 </div>
  </div>
@@ -413,8 +403,12 @@ function openNewTopWindow(newpid,newencounterid) {
 
 <script type="text/javascript">
   $(document).ready(function() { 
+	  $('#settings').css("display","none");
+	  refreshbegin('1');
+	  $('.js-blink-infinite').modernBlink();
+
   // toggle of the check box status for drug screen completed and ajax call to update the database
- $(".drug_screen_completed").change(function() {
+  $(".drug_screen_completed").change(function() {
       top.restoreSession();
     if (this.checked) {
       testcomplete_toggle="true";
@@ -427,6 +421,24 @@ function openNewTopWindow(newpid,newencounterid) {
       });
     });
   });	
+
+  // mdsupport - Immediately post changes to form_new_window
+  $('#form_new_window').click(function () {
+    $('#setting_new_window').val(this.checked ? ' checked' : ' ');
+    $.post( "<?php echo basename(__FILE__) ?>", {
+      data: $('form#pattrk').serialize(),
+      success: function (data) {}
+    });
+  });
+
+  $('#setting_cog').click(function () {
+	  $(this).css("display","none");
+	  $('#settings').css("display","inline");
+  });
+
+  $('#refreshme').click(function () {
+	  refreshme();
+  });
 </script>
 <!-- form used to open a new top level window when a patient row is clicked -->
 <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>'>

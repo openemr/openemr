@@ -776,6 +776,10 @@ ALTER TABLE `drugs` CHANGE `size` `size` varchar(25) NOT NULL default '';
 #EndIf
 
 #IfNotColumnType prescriptions size varchar(25)
-ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(25) default NULL ;
+ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(25) default NULL;
+#EndIf
+
+#IfNotColumnType user_settings setting_label varchar(100)
+ALTER TABLE `user_settings` CHANGE `setting_label` `setting_label` varchar(100) NOT NULL;
 #EndIf
 

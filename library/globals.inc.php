@@ -113,7 +113,6 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'pat_trkr_timer',
                                'ptkr_visit_reason',
                                'checkout_roll_off',
-                               'ptkr_pt_list_new_window',                               
                                'erx_import_status_message');
 
 $GLOBALS_METADATA = array(
@@ -1387,13 +1386,6 @@ $GLOBALS_METADATA = array(
       xl('Do not display the patient flow board.')
     ),
 
-    'ptkr_pt_list_new_window' => array(
-      xl('Open Demographics in New Window from Patient Flow Board'),
-      'bool',                           // data type
-      '0',                              // default = false
-      xl('When Checked, Demographics Will Open in New Window from Patient Flow Board.')
-    ),
-    
     'ptkr_visit_reason' => array(
       xl('Show Visit Reason in Patient Flow Board'),
       'bool',                           // data type
