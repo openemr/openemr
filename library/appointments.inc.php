@@ -41,7 +41,7 @@ $ORDERHASH = array(
     'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
-function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null )
+function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null,$facility_name = 0 )
 {
 	
   $sqlBindArray = array();
@@ -91,15 +91,23 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status " ;
     }
 
+    $leftjoin_facility = $facility_fields = '';
+    if($facility_name){ // if facility name is required in selection of field list
+        $facility_fields = 'f.name,';
+        $leftjoin_facility = ' LEFT JOIN `facility` AS f ON ( `e`.`pc_facility` = `f`.`id` )';
+    }
+    
     $query = "SELECT " .
     "e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, " .
     "e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
     "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
     "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
     "$tracker_fields" .
+    "$facility_fields" .
     "c.pc_catname, c.pc_catid " .
     "FROM openemr_postcalendar_events AS e " .
     "$tracker_joins" .
+    "$leftjoin_facility" .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
     "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
     "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
@@ -286,7 +294,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0 )
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0,$facility_name = 0 )
 {
 	$sqlBindArray = array();
 
@@ -305,8 +313,15 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 
 	if ( $facility_id ) {
-		$where .= " AND e.pc_facility = ? AND u.facility_id = ?";
+           //To get all appointments for facility wise because the providers may have appointments from the multiple facilities.
+            if($facility_name != 1){
+                $where .= " AND e.pc_facility = ?";
+		array_push($sqlBindArray, $facility_id);
+            }else{
+                $where .= " AND e.pc_facility = ? AND u.facility_id = ?";
 		array_push($sqlBindArray, $facility_id, $facility_id);
+            }
+		
 	}
 
 	//Appointment Status Checking
@@ -330,7 +345,7 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 		$where .= " AND e.pc_facility = 0";
 	}
 
-	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray );
+	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray,null, $facility_name);
 	return $appointments;
 }
 

@@ -1,12 +1,12 @@
 <?php
 /*
- *  Daily Summary Report. (/interface/reports/daily_summary_report.php
+ *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
  *  
  *
  *  This report shows date wise numbers of the Appointments Scheduled,
- *  New Patients, Visited patients, Total Charges, Total Co-pay and Balance amount for the selected facility.
+ *  New Patients, Visited patients, Total Charges, Total Co-pay and Balance amount for the selected facility & providers wise.
  * 
- * Copyright (C) ....
+ * Copyright (C) 2016 Rishabh Software
  * 
  * LICENSE: This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License 
@@ -33,10 +33,10 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
 
-$selectedFromDate = isset($_POST['form_from_date'])?$_POST['form_from_date']:date('Y-m-d'); // From date filter
-$selectedToDate = isset($_POST['form_to_date'])?$_POST['form_to_date']:date('Y-m-d');     // To date filter
-$selectedFacility = isset($_POST['form_facility'])?$_POST['form_facility']:"";  // facility filter
-$selectedProvider = $_POST['form_provider'];  // provider filter
+$selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
+$selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter
+$selectedFacility = isset($_POST['form_facility']) ? $_POST['form_facility'] : "";  // facility filter
+$selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "";  // provider filter
 
 $from_date = fixDate($selectedFromDate, date('Y-m-d'));
 $to_date = fixDate($selectedToDate, date('Y-m-d'));
@@ -58,15 +58,15 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 var toDate = $("#form_to_date").val();
 
                 if (fromDate === '') {
-                    alert("Please select From date");
+                    alert("<?php echo xls('Please select From date'); ?>");
                     return false;
                 }
                 if (toDate === '') {
-                    alert("Please select To date");
+                    alert("<?php echo xls('Please select To date'); ?>");
                     return false;
                 }
                 if (Date.parse(fromDate) > Date.parse(toDate)) {
-                    alert("From date should be less than To date");
+                    alert("<?php echo xls('From date should be less than To date'); ?>");
                     return false;
                 }
                 else {
@@ -80,7 +80,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
 
     <body class="body_top">
 
-        <span class='title'><?php echo xlt('Daily'); ?> - <?php echo xlt('Summary') . ' ' . xlt('Report'); ?></span>
+        <span class='title'><?php echo xlt('Daily Summary Report'); ?></span>
         <!-- start of search parameters --> 
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
             <div id="report_parameters">
@@ -100,7 +100,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                    title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
                                                    align='absbottom' width='24' height='22' id='img_from_date'
                                                    border='0' alt='[?]' style='cursor: pointer'
-                                                   title='<?php echo xlt('Click here to choose a date'); ?>'>
+                                                   title='<?php echo xla('Click here to choose a date'); ?>'>
                                         </td>
                                         <td class='label'><?php echo xlt('To'); ?>:</td>
                                         <td>
@@ -110,7 +110,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                    title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
                                                    align='absbottom' width='24' height='22' id='img_to_date'
                                                    border='0' alt='[?]' style='cursor: pointer'
-                                                   title='<?php echo xlt('Click here to choose a date'); ?>'>
+                                                   title='<?php echo xla('Click here to choose a date'); ?>'>
                                         </td>
                                 </table>
                             </div>
@@ -131,7 +131,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                 <span> <?php echo xlt('Submit'); ?> </span>
                                             </a> 
                                             <a href='' class="css_button" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
-                                                <span><?php echo htmlspecialchars(xlt('Reset'), ENT_QUOTES); ?></span>
+                                               <span><?php echo xlt('Reset'); ?></span>
                                             </a>
                                         </div>
                                     </td>
@@ -316,20 +316,20 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         ?>
 
         <div id="report_results" style="font-size: 12px">
-            <?php echo '<b>' . xlt('From', 'e') . '</b> ' . $from_date . ' <b>' . xlt('To', 'e') . '</b> ' . $to_date; ?>
+            <?php echo '<b>' . xlt('From') . '</b> ' . $from_date . ' <b>' . xlt('To') . '</b> ' . $to_date; ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">
                 <tr class="head">
 
-                    <td><?php xl('Date', 'e'); ?></td>
-                    <td><?php xl('Facility', 'e'); ?></td>
-                    <td><?php xl('Provider', 'e'); ?></td>
-                    <td><?php xl('Appointments', 'e'); ?></td>
-                    <td><?php xl('New Patients', 'e'); ?></td>
-                    <td><?php xl('Visited Patients', 'e'); ?></td>
-                    <td><?php xl('Total Charges', 'e'); ?></td>
-                    <td><?php xl('Total Co-Pay', 'e'); ?></td>
-                    <td><?php xl('Balance Payment', 'e'); ?></td>
+                    <td><?php echo xlt('Date'); ?></td>
+                    <td><?php echo xlt('Facility'); ?></td>
+                    <td><?php echo xlt('Provider'); ?></td>
+                    <td><?php echo xlt('Appointments'); ?></td>
+                    <td><?php echo xlt('New Patients'); ?></td>
+                    <td><?php echo xlt('Visited Patients'); ?></td>
+                    <td><?php echo xlt('Total Charges'); ?></td>
+                    <td><?php echo xlt('Total Co-Pay'); ?></td>
+                    <td><?php echo xlt('Balance Payment'); ?></td>
                 </tr>
                 <?php
                 if (count($dailySummaryReport) > 0) { // check if daily summary array has value
@@ -339,14 +339,14 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                 foreach ($dataValue[$facility] as $provider => $information) { // array which consists different/dynamic values
                                     ?>
                                     <tr>
-                                        <td><?php echo $date ?></td>
-                                        <td><?php echo $facility; ?></td>
-                                        <td><?php echo $provider; ?></td>
-                                        <td><?php echo isset($information['appointments']) ? $information['appointments'] : 0; ?></td>
-                                        <td><?php echo isset($information['newPatient']) ? $information['newPatient'] : 0; ?></td>
-                                        <td><?php echo isset($information['visits']) ? $information['visits'] : 0; ?></td>
-                                        <td align="right"><?php echo isset($information['payments']) ? number_format($information['payments'], 2) : number_format(0, 2); ?></td>
-                                        <td align="right"><?php echo isset($information['paidAmount']) ? number_format($information['paidAmount'], 2) : number_format(0, 2); ?></td>
+                                        <td><?php echo text($date) ?></td>
+                                        <td><?php echo text($facility); ?></td>
+                                        <td><?php echo text($provider); ?></td>
+                                        <td><?php echo isset($information['appointments']) ? text($information['appointments']) : 0; ?></td>
+                                        <td><?php echo isset($information['newPatient']) ? text($information['newPatient']) : 0; ?></td>
+                                        <td><?php echo isset($information['visits']) ? text($information['visits']) : 0; ?></td>
+                                        <td align="right"><?php echo isset($information['payments']) ? text(number_format($information['payments'], 2)) : number_format(0, 2); ?></td>
+                                        <td align="right"><?php echo isset($information['paidAmount']) ? text(number_format($information['paidAmount'], 2)) : number_format(0, 2); ?></td>
                                         <td align="right">
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
@@ -354,7 +354,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }
-                                            echo $dueAmount;
+                                            echo text($dueAmount);
                                             ?>
                                         </td>
                                     </tr>
@@ -374,21 +374,21 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                     ?>
                     <!--display total count-->
                     <tr class="totalrow">
-                        <td>Total</td>
+                        <td><?php echo xlt("Total"); ?></td>
                         <td>-</td>
                         <td>-</td>
-                        <td><?php echo $totalAppointments; ?></td>
-                        <td><?php echo $totalNewRegisterPatient; ?></td>
-                        <td><?php echo $totalVisits; ?></td>
-                        <td align="right"><?php echo number_format($totalPayments, 2); ?></td>
-                        <td align="right"><?php echo number_format($totalPaidAmount, 2); ?></td>
-                        <td align="right"><?php echo number_format($totalDueAmount, 2); ?></td>
+                        <td><?php echo text($totalAppointments); ?></td>
+                        <td><?php echo text($totalNewRegisterPatient); ?></td>
+                        <td><?php echo text($totalVisits); ?></td>
+                        <td align="right"><?php echo text(number_format($totalPayments, 2)); ?></td>
+                        <td align="right"><?php echo text(number_format($totalPaidAmount, 2)); ?></td>
+                        <td align="right"><?php echo text(number_format($totalDueAmount, 2)); ?></td>
                     </tr>
                     <?php
                 } else { // if there are no records then display message
                     ?>
                     <tr>
-                        <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xl("There are no record(s) found."); ?></td>
+                        <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xlt("There are no record(s) found."); ?></td>
                     </tr>
                 <?php } ?>
 
