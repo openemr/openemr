@@ -1502,13 +1502,15 @@ if  ($GLOBALS['select_multi_providers']) {
               return false;
           }
       }
-      ?>
-      <!-----------
-      If the encounter was set with the regular (old) repeat mechanism (using 'every', 'every 2', etc.), then will be
+
+
+      /*
+      If the appointment was set with the regular (old) repeat mechanism (using 'every', 'every 2', etc.), then will be
       checked when editing and will select the proper recurrence pattern. If using the new repeat mechanism, then only that box (and the proper set
       days) will be checked. That's why I had to add the functions 'isRegularRepeat' and 'isDaysEveryWeek', to check which
       repeating mechanism is being used, and load settings accordingly.
-      ------------>
+      */
+      ?>
    <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
    <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
@@ -1558,8 +1560,8 @@ if  ($GLOBALS['select_multi_providers']) {
     <td id="days_label"><?php echo xlt('Days Of Week:'); ?></td>
     <td id="days">
         <?php
-        foreach (array(1 => xl('Su') , 2 => xl('M'), 3 => xl('Tu'), 4 => xl('W'),
-                     5 => xl('Th'), 6 => xl('F'), 7 => xl('Sa')) as $key => $value)
+        foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('M{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('W{{Wednesday}}'),
+                     5 => xl('Th{{Thursday}}'), 6 => xl('F{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
         {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
