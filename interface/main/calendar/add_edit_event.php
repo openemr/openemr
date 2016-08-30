@@ -262,6 +262,10 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
     $my_repeat_on_day  = 0;
     $my_repeat_on_freq = 0;
 
+     // the starting date of the event, pay attention with this value
+     // when editing recurring events -- JRM Oct-08
+     $event_date = fixDate($_POST['form_date']);
+
          //If used new recurrence mechanism of set days every week
          if(!empty($_POST['days_every_week'])){
              $my_recurrtype = 3;
@@ -278,10 +282,6 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 
          }
          elseif (!empty($_POST['form_repeat'])){
-
-             // the starting date of the event, pay attention with this value
-             // when editing recurring events -- JRM Oct-08
-             $event_date = fixDate($_POST['form_date']);
 
              $my_recurrtype = 1;
              if ($my_repeat_type > 4) {
