@@ -184,7 +184,7 @@ function DOBandEncounter()
          return $start_date;
      }
      //else: (we need to change start date to first occurrence of one of the set days)
-     $new_date = getNextAppointment($start_date, $recurrence);
+     $new_date = getTheNextAppointment($start_date, $recurrence);
      return $new_date;
 
 
