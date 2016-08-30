@@ -79,10 +79,12 @@ $timeslotHeightUnit="px";
 </script>
 
 [-php-]
-
  // this is my proposed setting in the globals config file so we don't
  // need to mess with altering the pn database AND the config file
  //pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', $GLOBALS['schedule_dow_start']);
+
+  $openhour= $GLOBALS['schedule_start'];
+  $closehour= $GLOBALS['schedule_end'];
 
  // build a day-of-week (DOW) list so we may properly build the calendars later in this code
  $DOWlist = array();
@@ -542,6 +544,11 @@ foreach ($providers as $provider) {
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - 12) : $starth; // used to display the hour
 
+
+             //fix bug 456 and 455
+             //check to see if the event is in the clinic hours range, if not it will not be displayed
+             if  ((int)$starth >= (int)$openhour && (int)$starth<(int)$closehour ){
+
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
             switch ($event['catid']) {
@@ -834,7 +841,8 @@ foreach ($providers as $provider) {
            if ($event['catid'] != 2) { echo "<span style='color:red;text-align:center;font-weight:bold'>".htmlspecialchars($row['name'],ENT_QUOTES)."</span>"; }
            echo "</div>\n";
        }
-   } // end EVENT loop
+    }
+  } // end EVENT loop
 
    echo "</div>";
    
