@@ -281,6 +281,12 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 .event_in {
     background-color: white;
     z-index:1;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #000000;
+    top: 0px  !important;
 }
 
 .event_appointment {
