@@ -359,10 +359,10 @@ if ($GLOBALS['concurrent_layout']) {
 }
 $login_filler_line = ' bgcolor="#f7f0d5" ';
 $logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
-$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_3.png'>";
+$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
 $tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
-$GLOBALS['tiny_logo_1']=false;
-$GLOBALS['tiny_logo_2']=false;
+$GLOBALS['tiny_logo_1']=true;
+$GLOBALS['tiny_logo_2']=true;
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
