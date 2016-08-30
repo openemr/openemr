@@ -1242,6 +1242,13 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
+    'recurrences_widget' => array(
+      xl('Recurrence Display Widget'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Display recurrences widget in patient file.')
+    ),
+
     'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',                           

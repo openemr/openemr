@@ -1486,6 +1486,39 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       } // End of Appointments.
 
 
+      /* Show appointment recurrence rules */
+     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['recurrences_widget']) {
+
+         $widgetTitle = xl("Appointment Recurrences");
+         $widgetLabel = "appointment_recurrences";
+         $widgetButtonLabel = xl("Add");
+         $widgetButtonLink = "return newEvt();";
+         $widgetButtonClass = "";
+         $linkMethod = "javascript";
+         $bodyClass = "summary_item small";
+         $widgetAuth = false;
+         $fixedWidth = false;
+         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+         $count = 0;
+         $toggleSet = true;
+         $priorDate = "";
+
+         //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
+         $recurrences = fetchRecurrences($pid);
+
+         foreach ($recurrences as $row) { //////
+
+             echo "<div " . $apptStyle . ">";
+             echo xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES);
+             echo "<br>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurr'], ENT_NOQUOTES);
+             echo "<br>" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</div>\n";
+             echo "<br>";
+
+         }
+     }
+     /* End of recurrence rules.*/
+
+
 	// Show PAST appointments.
 	// added by Terry Hill to allow reverse sorting of the appointments
  	$direction = "ASC";

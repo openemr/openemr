@@ -570,4 +570,19 @@ function fetchAppointmentCategories()
             . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";    
      return sqlStatement($catSQL);
 }
+
+function interpretFreq($recurr_freq, $recurr_type){
+  return $recurr_freq;
+}
+
+function fetchRecurrences($pid){
+  $query = "SELECT `pc_title`,`pc_endDate`, `pc_recurrtype`,`pc_recurrspec` FROM openemr_postcalendar_events
+WHERE `pc_pid` =" . $pid . " AND `pc_recurrtype` > 0;";
+  $res = sqlStatement($query);
+  $res_arr = sqlFetchArray($res);
+  $res_arr['pc_recurrspec'] = interpretFreq($res_arr['pc_recurrspec'], $res_arr['pc_recurrtype']);
+
+  return $res_arr;
+}
+
 ?>
