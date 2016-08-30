@@ -408,22 +408,22 @@ function &__increment($d,$m,$y,$f,$t)
     } elseif($t == REPEAT_EVERY_YEAR) {
         return date('Y-m-d',mktime(0,0,0,$m,$d,($y+$f)));
     }elseif($t == REPEAT_DAYS_EVERY_WEEK) {
-		$old_encounter_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
-		$next_encounter_date = getNextEncounter($old_encounter_date, $f);
-		return $next_encounter_date;
+		$old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+		$next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
+		return $next_appointment_date;
 	}
 }
 
-	function getNextEncounter($encounter_date, $freq){
+	function getTheNextAppointment($appointment_date, $freq){
 		$day_arr = explode(",", $freq);
 		$date_arr = array();
 		foreach ($day_arr as $day){
 			$day = getDayName($day);
-			$date = date('Y-m-d', strtotime("next " . $day, strtotime($encounter_date)));
+			$date = date('Y-m-d', strtotime("next " . $day, strtotime($appointment_date)));
 			array_push($date_arr, $date);
 		}
-		$next_encounter = getEarliestDate($date_arr);
-		return $next_encounter;
+		$next_appointment = getEarliestDate($date_arr);
+		return $next_appointment;
 
 
 	}
