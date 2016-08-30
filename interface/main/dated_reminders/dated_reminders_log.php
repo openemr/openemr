@@ -120,7 +120,7 @@
              
 <?php     
   $allUsers = array(); 
-  $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
+  $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND `username` != ? AND `cal_ui`>1 and `id`>1 ORDER BY lname',array(intval($_SESSION['authId'])));
   for($i=0; $uRow=sqlFetchArray($uSQL); $i++){ $allUsers[] = $uRow; } 
 ?>     
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">         
