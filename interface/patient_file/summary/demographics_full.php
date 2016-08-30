@@ -846,7 +846,7 @@ $form_id="DEM";
 					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
 				}
 			}
-			url += '&page=edit&closeBeforeOpening=1';
+			url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
 			dlgopen(url, '_blank', 700, 500);
 		});
 

@@ -838,7 +838,7 @@ enable_modals();
 ?>
         <?php if ( ($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive()) ):?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation?close";?>';
+            var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
         <?php else:?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
@@ -854,7 +854,7 @@ enable_modals();
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
-
+        url+="&close"
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function
