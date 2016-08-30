@@ -66,7 +66,7 @@ function imsubmitted() {
 <div class="body_title">
     <span class="title_bar">
         <div id='tinylogocontainer' class='tinylogocontainer'>
-        <?php if ($GLOBALS['tiny_logos_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logos_2']) {echo $tinylogocode1;} ?>
+        <?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode1;} ?>
         </div>
         <div class="title_name"><?php echo text($openemr_name); ?></div>
     </span>
