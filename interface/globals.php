@@ -363,8 +363,7 @@ $logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login
 // inside the open emr they will be auto reduced
 $tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
 $tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
-$GLOBALS['tiny_logo_1']=false;
-$GLOBALS['tiny_logo_2']=false;
+
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
