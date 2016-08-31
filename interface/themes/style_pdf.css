@@ -1051,3 +1051,15 @@ height: 300px !important;
 .custom-tag{
     font-family: "";
 }
+.tinylogocontainer
+{
+    display: inline-block;
+    border: none;
+}
+
+.tinylogopng
+{
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
