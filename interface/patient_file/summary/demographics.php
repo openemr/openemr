@@ -1486,7 +1486,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       } // End of Appointments.
 
 
-      /* Show appointment recurrence rules */
+      /* Widget that shows recurrences for appointments. */
      if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['recurrences_widget']) {
 
          $widgetTitle = xl("Appointment Recurrences");
@@ -1506,17 +1506,21 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
          $recurrences = fetchRecurrences($pid);
 
-         foreach ($recurrences as $row) { //////
-
-             echo "<div " . $apptStyle . ">";
-             echo xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES);
-             echo "<br>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurr'], ENT_NOQUOTES);
-             echo "<br>" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</div>\n";
+         foreach ($recurrences as $row) {
+             if($row == false)
+                 continue;
+             echo "<div>";
+             echo "<span>" . xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES) . "</span>";
              echo "<br>";
-
+             echo "<span>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurrspec'], ENT_NOQUOTES) . "</span>";
+             echo "<br>";
+             if(ends_in_a_week($row['pc_endDate'])){ $red_text = " style=\"color:red;\" ";}
+             echo "<span" . $red_text . ">" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</span>";
+             echo "</div>";
+             echo "<br>";
          }
      }
-     /* End of recurrence rules.*/
+     /* End of recurrence widget */
 
 
 	// Show PAST appointments.

@@ -41,6 +41,41 @@ $ORDERHASH = array(
     'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
+/*Arrays for the interpretation of recurrence patterns.*/
+$REPEAT_FREQ = array(
+	'1' => xl('Every'),
+	'2' => xl('Every') . " " . xl('2nd'),
+	'3' => xl('Every') . " " . xl('3rd'),
+	'4' => xl('Every') . " " . xl('4th'),
+	'5' => xl('Every') . " " . xl('5th'),
+	'6' => xl('Every') . " " . xl('6th')
+);
+
+$REPEAT_FREQ_TYPE = array(
+	'0' => xl('day'),
+	'1' => xl('week'),
+	'2' => xl('month'),
+	'3' => xl('year'),
+	'4' => xl('workday')
+);
+
+$REPEAT_ON_NUM = array(
+	'1' => xl('1st'),
+	'2' => xl('2nd'),
+	'3' => xl('3rd'),
+	'4' => xl('4th')
+);
+
+$REPEAT_ON_DAY = array(
+	'0' => xl('Sunday'),
+	'1' => xl('Monday'),
+	'2' => xl('Tuesday'),
+	'3' => xl('Wednesday'),
+	'4' => xl('Thursday'),
+	'5' => xl('Friday'),
+	'6' => xl('Saturday')
+);
+
 function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null )
 {
 	
@@ -571,18 +606,61 @@ function fetchAppointmentCategories()
      return sqlStatement($catSQL);
 }
 
-function interpretFreq($recurr_freq, $recurr_type){
-  return $recurr_freq;
+function interpretFreq($freq){
+	global $REPEAT_FREQ;
+	return $REPEAT_FREQ[$freq];
+}
+
+function interpretFreqType($type){
+	global $REPEAT_FREQ_TYPE;
+	return $REPEAT_FREQ_TYPE[$type];
+}
+
+function interpretOnNum($on_num){
+	global $REPEAT_ON_NUM;
+	return $REPEAT_ON_NUM[$on_num];
+}
+
+function interpretOnDay($on_day){
+	global $REPEAT_ON_DAY;
+	return $REPEAT_ON_DAY[$on_day];
+}
+
+function interpretRecurrence($recurr_freq, $recurr_type){
+	$interpreted = "";
+	$recurr_freq = unserialize($recurr_freq);
+	if($recurr_type == 1){
+		$interpreted = interpretFreq($recurr_freq['event_repeat_freq']);
+		$interpreted .= " " . interpretFreqType($recurr_freq['event_repeat_freq_type']);
+	}
+	elseif($recurr_type == 2){
+		$interpreted = interpretFreq($recurr_freq['event_repeat_on_freq']);
+		$interpreted .= " " . interpretOnNum($recurr_freq['event_repeat_on_num']);
+		$interpreted .= " " . interpretOnDay($recurr_freq['event_repeat_on_day']);
+	}
+
+	return $interpreted;
 }
 
 function fetchRecurrences($pid){
-  $query = "SELECT `pc_title`,`pc_endDate`, `pc_recurrtype`,`pc_recurrspec` FROM openemr_postcalendar_events
+	$query = "SELECT `pc_title`,`pc_endDate`, `pc_recurrtype`,`pc_recurrspec` FROM openemr_postcalendar_events
 WHERE `pc_pid` =" . $pid . " AND `pc_recurrtype` > 0;";
-  $res = sqlStatement($query);
-  $res_arr = sqlFetchArray($res);
-  $res_arr['pc_recurrspec'] = interpretFreq($res_arr['pc_recurrspec'], $res_arr['pc_recurrtype']);
+	$row = 0;
+	$res = sqlStatement($query);
+	while($res_arr[$row] = sqlFetchArray($res)) {
+		$res_arr[$row]['pc_recurrspec'] = interpretRecurrence($res_arr[$row]['pc_recurrspec'], $res_arr[$row]['pc_recurrtype']);
+		$row++;
+	}
+	return $res_arr;
+}
 
-  return $res_arr;
+function ends_in_a_week($end_date){
+	$timestamp_in_a_week = strtotime('+7 day');
+	$timestamp_end_date = strtotime($end_date);
+	if($timestamp_in_a_week > $timestamp_end_date){
+		return true; //ends in a week
+	}
+	return false; // ends in more than a week
 }
 
 ?>
