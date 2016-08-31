@@ -167,43 +167,46 @@ parent.$.fn.fancybox.close();
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
+<?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/usergroup/user_admin.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["user_form"]["rules"];
+}
+?>
+
 <script language="JavaScript">
-function checkChange()
+
+/*
+ * validation on the form with new client side validation (using validate.js).
+ * this enable to add new rules for this form in the pageValidation list.
+ * */
+var collectvalidation = <?php echo($collectthis); ?>;
+
+    function checkChange()
 {
   alert("<?php echo addslashes(xl('If you change e-RX Role for ePrescription, it may affect the ePrescription workflow. If you face any difficulty, contact your ePrescription vendor.'));?>");
 }
 function submitform() {
+
+    var valid = submitme(1, undefined, 'user_form', collectvalidation);
+    if (!valid) return;
+
 	top.restoreSession();
 	var flag=0;
-	function trimAll(sString)
-	{
-		while (sString.substring(0,1) == ' ')
-		{
-			sString = sString.substring(1, sString.length);
-		}
-		while (sString.substring(sString.length-1, sString.length) == ' ')
-		{
-			sString = sString.substring(0,sString.length-1);
-		}
-		return sString;
-	}
-	if(trimAll(document.getElementById('fname').value) == ""){
-		alert("<?php xl('Required field missing: Please enter the First name','e');?>");
-		document.getElementById('fname').style.backgroundColor="red";
-		document.getElementById('fname').focus();
-		return false;
-	}
-	if(trimAll(document.getElementById('lname').value) == ""){
-		alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
-		document.getElementById('lname').style.backgroundColor="red";
-		document.getElementById('lname').focus();
-		return false;
-	}
+
 	if(document.forms[0].clearPass.value!="")
 	{
 		//Checking for the strong password if the 'secure password' feature is enabled
@@ -318,7 +321,7 @@ function authorized_clicked() {
 </td></tr>
 </table>
 <br>
-<FORM NAME="user_form" METHOD="POST" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
+<FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
 
 <input type=hidden name="pwd_expires" value="<?php echo $GLOBALS['password_expiration_days']; ?>" >
 <input type=hidden name="pre_active" value="<?php echo $iter["active"]; ?>" >

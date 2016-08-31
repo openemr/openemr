@@ -14,14 +14,28 @@ $alertmsg = '';
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/usergroup/facilities_add.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["facility-add"]["rules"];
+}
+
 // Old Browser comp trigger on js
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
@@ -38,7 +52,13 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript">
 /// todo, move this to a common library
 
+var collectvalidation = <?php echo($collectthis); ?>;
+
 function submitform() {
+
+    var valid = submitme(1, undefined, 'facility-add', collectvalidation);
+    if (!valid) return;
+
 	<?php if($GLOBALS['erx_enable']){ ?>
 	alertMsg='';
 	f=document.forms[0];
@@ -72,19 +92,9 @@ function submitform() {
 		return false;
 	}
 	<?php } ?>
-    if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
-        top.restoreSession();
-        document.forms[0].submit();
-	} else {
-        if(document.forms[0].facility.value.length<=0){
-        document.forms[0].facility.style.backgroundColor="red";
-        document.forms[0].facility.focus();
-	}
-	else if(document.forms[0].ncolor.value == ''){
-	document.forms[0].ncolor.style.backgroundColor="red";
-        document.forms[0].ncolor.focus();	
-	}
-    }
+
+    document.forms[0].submit();
+    top.restoreSession();
 }
 
 function toggle( target, div ) {
@@ -172,7 +182,7 @@ function displayAlert()
 
 <br>
 
-<form name='facility' method='post' action="facilities.php" target='_parent'>
+<form name='facility-add' id='facility-add' method='post' action="facilities.php" target='_parent'>
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
@@ -215,7 +225,7 @@ function displayAlert()
         <tr>
           <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value="">[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
 	<?php
 	 $disabled='';

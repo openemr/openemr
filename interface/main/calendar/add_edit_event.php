@@ -79,7 +79,22 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
  ?>
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
- <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+ <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
+<?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["theform"]["rules"];
+}
+?>
 
  <?php
 
@@ -759,7 +774,7 @@ if ($_POST['form_action'] == "save") {
  $repeatfreq = '0';
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
- $patientname = xl('Click to select');
+ $patientname = null;
  $patienttitle = "";
  $pcroom = "";
  $hometext = "";
@@ -1354,7 +1369,7 @@ $classpati='';
    <b><?php echo xlt('Patient'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
+   <input type='text' size='10' name='form_patient' id="form_patient" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
@@ -1514,7 +1529,7 @@ if  ($GLOBALS['select_multi_providers']) {
       repeating mechanism is being used, and load settings accordingly.
       */
       ?>
-   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
+   <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
    <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1559,7 +1574,7 @@ if  ($GLOBALS['select_multi_providers']) {
 <tr id="days_every_week_row">
     <td></td>
     <td></td>
-    <td><input  type='checkbox' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
+    <td><input  type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
@@ -1716,8 +1731,8 @@ if ($repeatexdate != "") {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#form_save").click(function() { validate("save"); });
-    $("#form_duplicate").click(function() { validate("duplicate"); });
+    $("#form_save").click(function() { validateform("save"); });
+    $("#form_duplicate").click(function() { validateform("duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
     $("#cancel").click(function() { window.close(); });
@@ -1743,31 +1758,49 @@ function are_days_checked(){
     return counter;
 }
 
-// Check for errors when the form is submitted.
-function validate(valu) {
-     var f = document.getElementById('theform');
-    if ((f.form_repeat.checked || f.days_every_week.checked) &&
-        (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
-        alert('<?php echo addslashes(xl("An end date later than the start date is required for repeated events!")); ?>');
-        return false;
-    }
+/*
+* validation on the form with new client side validation (using validate.js).
+* this enable to add new rules for this form in the pageValidation list.
+* */
+var collectvalidation = <?php echo($collectthis); ?>;
+function validateform(valu){
 
     //Make sure if days_every_week is checked that at least one weekday is checked.
-    if(f.days_every_week.checked && !are_days_checked()){
+    if($('#days_every_week').is(':checked') && !are_days_checked()){
         alert('<?php echo xls("Must choose at least one day!"); ?>');
         return false;
     }
 
+    //add rule if choose repeating event
+    if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
+        collectvalidation.form_enddate = {
+            datetime: {
+                dateOnly: true,
+                earliest: $('#form_date').val(),
+                message: "An end date later than the start date is required for repeated events!"
+            },
+            presence: true
+        }
+    } else {
+        if(collectvalidation.form_enddate != undefined){
+            delete collectvalidation.form_enddate;
+        }
+    }
+
     <?php
-    if($_GET['prov']!=true){
+    if($_GET['prov']==true){
     ?>
-     if(f.form_pid.value == ''){
-      alert('<?php echo addslashes(xl('Patient Name Required'));?>');
-      return false;
-     }
+    //remove rule if it's provider event
+    if(collectvalidation.form_patient != undefined){
+        delete collectvalidation.form_patient;
+    }
     <?php
     }
     ?>
+
+    var submit = submitme(1, undefined, 'theform', collectvalidation);
+    if(!submit)return;
+
     $('#form_action').val(valu);
 
     <?php if ($repeats): ?>
@@ -1780,7 +1813,8 @@ function validate(valu) {
     }
     <?php endif; ?>
 
-    return SubmitForm();
+    SubmitForm();
+
 }
 
 // disable all the form elements outside the recurr_popup
