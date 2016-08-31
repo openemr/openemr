@@ -1,6 +1,8 @@
 <?php
 /**
- * Copyright (C) 2008-2016
+ * Copyright Medical Information Integration,LLC info@mi-squared.com
+ *
+ * 
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,8 +21,12 @@
  * @link    http://www.open-emr.org
  */
 
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once(__DIR__.'/../../globals.php');
+require_once($GLOBALS['srcdir'].'/api.inc');
+
+$sanitize_all_escapes=true;
+$fake_register_globals=false;
+
 function snellen_peripheral_report( $pid, $encounter, $cols, $id) {
   $count = 0;
   $cols = 2;

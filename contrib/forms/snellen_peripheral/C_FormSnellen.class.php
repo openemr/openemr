@@ -1,6 +1,8 @@
 <?php
 /**
- * Copyright (C) 2008-2016
+ * Copyright Medical Information Integration,LLC info@mi-squared.com
+ *
+ *
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
