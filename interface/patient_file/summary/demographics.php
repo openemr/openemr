@@ -1514,6 +1514,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
              echo "<br>";
              echo "<span>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurrspec'], ENT_NOQUOTES) . "</span>";
              echo "<br>";
+             $red_text = "";
              if(ends_in_a_week($row['pc_endDate'])){ $red_text = " style=\"color:red;\" ";}
              echo "<span" . $red_text . ">" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</span>";
              echo "</div>";
