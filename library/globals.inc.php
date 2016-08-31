@@ -358,17 +358,17 @@ $GLOBALS_METADATA = array(
     
   ),
       'tiny_logo_1' => array(
-          xl('Mini Logo 1'),
+          xl('Show Mini Logo 1'),
           'bool',                           // data type
           '0',                              // default = false
-          xl('Show or hide mini logo 1 .')
+          xl('Show Mini Logo 1')
       ),
 
       'tiny_logo_2' => array(
-          xl('Mini Logo 2'),
+          xl('Show Mini Logo 2'),
           'bool',                           // data type
           '0',                              // default = false
-          xl('Show or hide mini logo 2 .')
+          xl('Show Mini Logo 2')
       ),
 
   ),
