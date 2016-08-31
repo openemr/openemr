@@ -68,8 +68,6 @@ function submitme(new_validate,e,form_id, constraints) {
             var valid = true ;
 
             //We use a common error for all the errors because of the multilanguage capability of openemr
-            //TODO: implement a traslation mechanism of the errors that the library returns
-            var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
@@ -117,7 +115,9 @@ function submitme(new_validate,e,form_id, constraints) {
             }
 
             //error conatins an list of the elements and their errors
-            var errors = validate(elements, constraints);
+            //set false full message because the name of the input not can be translated
+            var errors = validate(elements, constraints, {fullMessages: false});
+            console.log(errors);
             if (typeof  errors !== 'undefined') {
                 //prevent default if trigger is submit button
                 if(typeof (e) !== 'undefined') {
@@ -135,15 +135,15 @@ function submitme(new_validate,e,form_id, constraints) {
                 for (var key in errors) {
                     element = $('[name="'+ key + '"]');
                     if (errors.hasOwnProperty(key)) {
-
-                        appendError(element, key)
+                    console.log(errors);
+                        appendError(element, key, errors[key][0])
                     }
                 }
             }
             /**
             * append 'span' with error message
             */
-            function appendError(input, id){
+            function appendError(input, id, message){
 
                 //append 'span' tag for error massages if not exist
                 if($("#error_" + id).length == 0) {
@@ -157,6 +157,20 @@ function submitme(new_validate,e,form_id, constraints) {
 
                     }
                 }
+                //enable to translate error message
+                //todo - adding all the translations string from validate.js
+                var error_msg;
+                switch (message){
+                    case 'Patient Name Required':
+                       error_msg =  '<?php echo xl('Patient Name Required');?>';
+                       break;
+                    case 'An end date later than the start date is required for repeated events!':
+                        error_msg =  '<?php echo xl('An end date later than the start date is required for repeated events!');?>';
+                        break;
+                    default:
+                       error_msg ='<?php echo xl('is not valid');?>';
+                }
+
                 //show error message
                 var title= $(input).attr('title');
                 if(title == undefined) { title = "" }
