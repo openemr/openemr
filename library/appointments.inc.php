@@ -63,7 +63,8 @@ $REPEAT_ON_NUM = array(
 	'1' => xl('1st'),
 	'2' => xl('2nd'),
 	'3' => xl('3rd'),
-	'4' => xl('4th')
+	'4' => xl('4th'),
+	'5' => xl('Last')
 );
 
 $REPEAT_ON_DAY = array(
