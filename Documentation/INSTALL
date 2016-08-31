@@ -32,7 +32,7 @@ II. Unpacking
 NOTE: Most recent documentation can be found on the online documention at
 http://www.open-emr.org .
 
-The OpenEMR release archive should be named as follows:
+The OpenEMR release archive should be named as follows :
 
 openemr-<version>.tar.gz   -or-   openemr-<version>.zip
 
