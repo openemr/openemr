@@ -1507,14 +1507,15 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          $recurrences = fetchRecurrences($pid);
 
          foreach ($recurrences as $row) {
-             if($row == false)
+             //checks if there are recurrences and if they are current (have started and didn't end yet)
+             if($row == false || !recurrence_is_current($row['pc_eventDate'], $row['pc_endDate']))
                  continue;
              echo "<div>";
              echo "<span>" . xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES) . "</span>";
              echo "<br>";
              echo "<span>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurrspec'], ENT_NOQUOTES) . "</span>";
              echo "<br>";
-             $red_text = "";
+             $red_text = ""; //if ends in a week, make font red
              if(ends_in_a_week($row['pc_endDate'])){ $red_text = " style=\"color:red;\" ";}
              echo "<span" . $red_text . ">" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</span>";
              echo "</div>";
