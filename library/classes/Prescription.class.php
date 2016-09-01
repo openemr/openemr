@@ -300,7 +300,7 @@ class Prescription extends ORDataObject {
     }
 
     function set_size($size) {
-        $this->size = $size
+       $this->size = preg_replace("/[^0-9\/\.\-]/", "",$size);
     }
     function get_size() {
         return $this->size;
