@@ -9747,3 +9747,15 @@ div.notab-right {
 .report_search_bar {
   background-color: #eaddb4;
 }
+.tinylogocontainer
+{
+    display: inline-block;
+    border: none;
+}
+
+.tinylogopng
+{
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}

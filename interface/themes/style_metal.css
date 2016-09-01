@@ -1114,3 +1114,15 @@ height: 300px !important;
 .error-border{
     border: 1px solid red;
 }
+.tinylogocontainer
+{
+    display: inline-block;
+    border: none;
+}
+
+.tinylogopng
+{
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}

@@ -359,6 +359,11 @@ if ($GLOBALS['concurrent_layout']) {
 }
 $login_filler_line = ' bgcolor="#f7f0d5" ';
 $logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+// optimal size for the tiny logo is height 43 width 86 px
+// inside the open emr they will be auto reduced
+$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
+
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
