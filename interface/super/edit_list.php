@@ -397,7 +397,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   } else {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-        htmlspecialchars($notes, ENT_QUOTES) . "' size='25' maxlength='255' class='optin' />";
+        htmlspecialchars($notes, ENT_QUOTES) . "' size='25' class='optin' />";
     echo "</td>\n";
   }
   if($list_id == 'apptstat') {

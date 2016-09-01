@@ -1597,50 +1597,21 @@ $(document).ready(function(){
     dateChanged();
 });
 
-/*// Check for errors when the form is submitted.
-function validate(valu) {
-     var f = document.getElementById('theform');
-    console.log(f);
-    if (f.form_repeat.checked &&
-        (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
-        alert('<?php echo addslashes(xl("An end date later than the start date is required for repeated events!")); ?>');
-        return false;
-    }
-    <?php
-    if($_GET['prov']!=true){
-    ?>
-     if(f.form_pid.value == ''){
-      alert('<?php echo addslashes(xl('Patient Name Required'));?>');
-      return false;
-     }
-    <?php
-    }
-    ?>
-    $('#form_action').val(valu);
-
-    <?php if ($repeats): ?>
-    // existing repeating events need additional prompt
-    if ($("#recurr_affect").val() == "") {
-        DisableForm();
-        // show the current/future/all DIV for the user to choose one
-        $("#recurr_popup").css("visibility", "visible");
-        return false;
-    }
-    <?php endif; ?>
-
-    return SubmitForm();
-}*/
+/*
+* validation on the form with new client side validation (using validate.js).
+* this enable to add new rules for this form in the pageValidation list.
+* */
 var collectvalidation = <?php echo($collectthis); ?>;
 function validateform(valu){
-
-
+    //add rule if choose repeating event
     if ($('#form_repeat').is(':checked')){
         collectvalidation.form_enddate = {
             datetime: {
                 dateOnly: true,
                 earliest: $('#form_date').val(),
                 message: "An end date later than the start date is required for repeated events!"
-            }
+            },
+            presence: true
         }
     } else {
         if(collectvalidation.form_enddate != undefined){
@@ -1651,6 +1622,7 @@ function validateform(valu){
     <?php
     if($_GET['prov']==true){
     ?>
+    //remove rule if it's provider event
     if(collectvalidation.form_patient != undefined){
         delete collectvalidation.form_patient;
     }
@@ -1666,7 +1638,6 @@ function validateform(valu){
         return false;
     }
     <?php endif; ?>
-
 
     var submit = submitme(1, undefined, 'theform', collectvalidation);
 
