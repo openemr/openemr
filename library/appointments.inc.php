@@ -644,7 +644,7 @@ function interpretRecurrence($recurr_freq, $recurr_type){
 }
 
 function fetchRecurrences($pid){
-	$query = "SELECT `pc_title`, `pc_eventDate`, `pc_endDate`, `pc_recurrtype`, `pc_recurrspec` FROM openemr_postcalendar_events
+	$query = "SELECT `pc_title`, `pc_endDate`, `pc_recurrtype`, `pc_recurrspec` FROM openemr_postcalendar_events
 WHERE `pc_pid` =" . $pid . " AND `pc_recurrtype` > 0;";
 	$row = 0;
 	$res = sqlStatement($query);
@@ -664,12 +664,11 @@ function ends_in_a_week($end_date){
 	return false; // ends in more than a week
 }
 
-//Checks if recurrence is current (has started already and didn't end yet).
-function recurrence_is_current($start_date, $end_date){
-	$start_date_timestamp = strtotime($start_date);
+//Checks if recurrence is current (didn't end yet).
+function recurrence_is_current($end_date){
 	$end_date_timestamp = strtotime($end_date);
 	$current_timestamp = time();
-	if($start_date_timestamp <= $current_timestamp && $current_timestamp <= $end_date_timestamp){
+	if($current_timestamp <= $end_date_timestamp){
 		return true; //recurrence is current
 	}
 	return false;

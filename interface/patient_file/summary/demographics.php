@@ -1507,8 +1507,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          $recurrences = fetchRecurrences($pid);
 
          foreach ($recurrences as $row) {
-             //checks if there are recurrences and if they are current (have started and didn't end yet)
-             if($row == false || !recurrence_is_current($row['pc_eventDate'], $row['pc_endDate']))
+             //checks if there are recurrences and if they are current (git didn't end yet)
+             if($row == false || !recurrence_is_current($row['pc_endDate']))
                  continue;
              echo "<div>";
              echo "<span>" . xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES) . "</span>";
