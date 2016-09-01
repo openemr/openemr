@@ -19,16 +19,17 @@ function effectiveUser($user) {
  * 
  * @param string $label - Setting key
  * @param int $user - user id number from users table
+ * @param int $defaultUser - user id to check as alternative/default
  * @return Effective user setting for $label (NULL if does not exist)
  */
-function getUserSetting($label, $user=NULL) {
+function getUserSetting($label, $user=NULL, $defaultUser=0) {
 
   $user = effectiveUser($user);
 
   // Collect entry for specified user or 0 (global default user)
   $res = sqlQuery("SELECT setting_value FROM user_settings 
       WHERE (setting_user=? OR setting_user=?) AND setting_label=?
-      ORDER BY setting_user DESC", array($user, 0, $label));
+      ORDER BY setting_user DESC", array($user, $defaultUser, $label));
 
   // If no entries exist, then return NULL.
   return (isset($res['setting_value']) ? $res['setting_value'] : NULL);
@@ -64,7 +65,7 @@ function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE) {
   
   $user = effectiveUser($user);
 
-  $cur_value = getUserSetting($label, $user);
+  $cur_value = getUserSetting($label, $user, $user);
 
   // Check for a custom settings
   if (is_null($cur_value)) {
@@ -93,11 +94,9 @@ function removeUserSetting($label,$user=NULL) {
       "WHERE setting_user=? AND setting_label=?", array($user, $label) );
 }
 
-// mdsupport - Seems superfluous - sqlQuery function will do the same thing.
 function getUserIDInfo($id)
 {
-    $res= sqlStatement("SELECT fname,lname,username FROM users where id=?",array($id));
-    return sqlFetchArray($res);
+    return sqlQuery("SELECT fname, lname, username FROM users where id=?", array($id));
 }
 
 /**
