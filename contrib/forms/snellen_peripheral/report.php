@@ -21,11 +21,11 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(__DIR__.'/../../globals.php');
-require_once($GLOBALS['srcdir'].'/api.inc');
-
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
+
+require_once(__DIR__.'/../../globals.php');
+require_once($GLOBALS['srcdir'].'/api.inc');
 
 function snellen_peripheral_report( $pid, $encounter, $cols, $id) {
   $count = 0;

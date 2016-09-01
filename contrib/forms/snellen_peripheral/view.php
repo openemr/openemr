@@ -21,6 +21,9 @@
  * @link    http://www.open-emr.org
  */
 
+$sanitize_all_escapes=true;
+$fake_register_globals=false;
+
 require_once(__DIR__.'/../../globals.php');
 require_once($GLOBALS['srcdir'].'/api.inc');
 
