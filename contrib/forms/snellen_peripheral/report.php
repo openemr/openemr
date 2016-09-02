@@ -69,12 +69,12 @@ function snellen_peripheral_report( $pid, $encounter, $cols, $id) {
 	</table>
 	<table border='0' cellpadding='0' cellspacing='0' class='text'>
 		<tr>
-			<br><td><b><?php echo xlt('Able to distinguish between: Red, Green, Amber colors') ?>:</b> <?php echo $data['colors']?></td>
+			<br><td><b><?php echo xlt('Able to distinguish between: Red, Green, Amber colors') ?>:</b> <?php echo text($data['colors'])?></td>
 		</tr>
 	</table>
 	<table border='0' cellpadding='0' cellspacing='0' class='text'>
 		<tr>
-			<td><b><?php echo xlt('Monocular Vision') ?>:</b> <?php echo $data['monocular']?></td>
+			<td><b><?php echo xlt('Monocular Vision') ?>:</b> <?php echo text($data['monocular'])?></td>
 		</tr>
 	</table>	
 	<?php if ($data['notes'] != '') {?>
@@ -85,7 +85,7 @@ function snellen_peripheral_report( $pid, $encounter, $cols, $id) {
 			<td><b><?php echo xlt('NOTES') ?></b></td>
 		</tr>
 		<tr class='text'>
-			<td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
+			<td><p align='left'><?php echo text($data['notes'])?>&nbsp;</p></td>
 		</tr>
 	</table>
 	<?php }

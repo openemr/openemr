@@ -65,13 +65,13 @@ a {
 	</tr>	
 	<tr>
 		<td><b>{xl t="Peripheral(L)"}</b></td>
-		<td><input type='text' size='2px' maxlength="2" name='Peripheral_l1' value='{$data->get_Peripheral_l1()}'>degrees</td>
-		<td><input type='text' size='2px' maxlength="2" name='Peripheral_l2' value='{$data->get_Peripheral_l2()}'>degrees</td>
+		<td><input type='text' size='2px' maxlength="2" name='Peripheral_l1' value='{$data->get_Peripheral_l1()}'>{xl t="degrees"}</td>
+		<td><input type='text' size='2px' maxlength="2" name='Peripheral_l2' value='{$data->get_Peripheral_l2()}'>{xl t="degrees"}</td>
 	</tr>	
 	<tr>
 		<td><b>{xl t="Peripheral(R)"}</b></td>
-		<td><input type='text' size='2px' maxlength="2" name='Peripheral_r1' value='{$data->get_Peripheral_r1()}'>degrees</td>
-		<td><input type='text' size='2px' maxlength="2" name='Peripheral_r2' value='{$data->get_Peripheral_r2()}'>degrees</td>
+		<td><input type='text' size='2px' maxlength="2" name='Peripheral_r1' value='{$data->get_Peripheral_r1()}'>{xl t="degrees"}</td>
+		<td><input type='text' size='2px' maxlength="2" name='Peripheral_r2' value='{$data->get_Peripheral_r2()}'>{xl t="degrees"}</td>
 	</tr>	
 
 </table>
@@ -100,10 +100,10 @@ a {
 <table>
 	<tr>
 		<td>
-			<input type="submit" name="Submit" value="Save Form">
+			<input type="submit" name="Submit" value="{xl t="Save Form"}">
 		</td>
 		<td>
-			<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a>
+			<a href="{$DONT_SAVE_LINK}" class="link">{xl t="[Don't Save]"}</a>
 		</td>
 	</tr>
 </table>
