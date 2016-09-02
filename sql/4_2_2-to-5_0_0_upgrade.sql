@@ -772,7 +772,7 @@ ALTER TABLE `form_encounter` ADD `pos_code` tinyint(4) default NULL;
 #EndIf
 
 #IfNotColumnType drugs size varchar(25)
-ALTER TABLE `drugs` CHANGE `size` `size` varchar(25) default NULL ;
+ALTER TABLE `drugs` CHANGE `size` `size` varchar(25) NOT NULL default '';
 #EndIf
 
 #IfNotColumnType prescriptions size varchar(25)
