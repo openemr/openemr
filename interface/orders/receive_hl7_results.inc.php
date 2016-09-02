@@ -260,7 +260,7 @@ function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2) {
 function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdelimiter, $commentdelim) {
   $s = null;
 
-  if ( !empty($obx24) || !empty($obx24) || !empty($obx25) )
+  if ( !empty($obx23) || !empty($obx24) || !empty($obx25) )
   {
     // Organization Name
     // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
@@ -1053,8 +1053,6 @@ function poll_hl7_results(&$info) {
         $remote_port = 0 + substr($remote_host, $i + 1);
         $remote_host = substr($remote_host, 0, $i);
       }
-      ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$srcdir/phpseclib");
-      require_once("$srcdir/phpseclib/Net/SFTP.php");
       // Compute the target path name.
       $pathname = '.';
       if ($pprow['results_path']) $pathname = $pprow['results_path'] . '/' . $pathname;

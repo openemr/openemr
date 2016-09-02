@@ -226,7 +226,6 @@ case "$1" in
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled

@@ -67,7 +67,7 @@
 
  function show_referral(transid) {
   dlgopen('../patient_file/transaction/print_referral.php?transid=' + transid,
-   '_blank', 550, 400);
+   '_blank', 550, 400,true); // Force new window rather than iframe because of the dynamic generation of the content in print_referral.php
   return false;
  }
 

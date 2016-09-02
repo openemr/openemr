@@ -36,15 +36,33 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 
+#define variables, future enhancement allow changing the to_date and from_date 
+#to allow picking a date to review
+ 
+$appointments = array();
+$from_date = date("Y-m-d");
+$to_date = date("Y-m-d");
+$datetime = date("Y-m-d H:i:s");
+
+# go get the information and process it
+$appointments = fetch_Patient_Tracker_Events($from_date, $to_date);
+$appointments = sortAppointments( $appointments, 'time' );
+
+$chk_prov = array();  // list of providers with appointments
+
+// Scan appointments for additional info
+foreach ( $appointments as $apt ) {
+  $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+}
 ?>
 <html>
 <head>
-
+<title><?php echo xlt("Flow Board") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../library/js/blink/jquery.modern-blink.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
 
 <script language="JavaScript">
 $(document).ready(function(){
@@ -91,13 +109,13 @@ function topatient(newpid, enc) {
    top.restoreSession();
    <?php if ($GLOBALS['concurrent_layout']) { ?>
      if (enc > 0) {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+       top.RTop.location= "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
      }
      else {
-       document.location.href = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
+       top.RTop.location = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
      }
    <?php } else { ?>
-     top.location.href = "../patient_file/patient_file.php?set_pid=" + newpid;
+     top.RTop.location = "../patient_file/patient_file.php?set_pid=" + newpid;
    <?php } ?>
  }
 }
@@ -140,9 +158,18 @@ function openNewTopWindow(newpid,newencounterid) {
    }
  }
  ?>
+<div>
+  <?php if (count($chk_prov) == 1) {?>
+  <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
+  <?php } ?>
+ <div id= 'inanewwindow' class='inanewwindow'>
+ <span style='float: right'>
  <input type='hidden' name='setting_new_window' value='1' />
  <input type='checkbox' name='form_new_window' value='1'<?php echo $new_window_checked; ?> /><?php
   echo xlt('Open Patient in New Window'); ?>
+ </span>
+</div>
+ </div>
 <?php if ($GLOBALS['pat_trkr_timer'] =='0') { ?>
 <table border='0' cellpadding='5' cellspacing='0'>
  <tr>
@@ -192,9 +219,11 @@ function openNewTopWindow(newpid,newencounterid) {
   <td class="dehead" align="center">
    <?php  echo xlt('Visit Type'); ?>
   </td>
+  <?php if (count($chk_prov) > 1) { ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Provider'); ?>
   </td>
+  <?php } ?>
  <td class="dehead" align="center">
    <?php  echo xlt('Total Time'); ?>
   </td>
@@ -215,18 +244,6 @@ function openNewTopWindow(newpid,newencounterid) {
  </tr>
 
 <?php
-#define variables, future enhancement allow changing the to_date and from_date 
-#to allow picking a date to review
- 
-$appointments = array();
-$from_date = date("Y-m-d");
-$to_date = date("Y-m-d");
-$datetime = date("Y-m-d H:i:s");
-
-# go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date);
-$appointments = sortAppointments( $appointments, 'time' );
-
 	foreach ( $appointments as $appointment ) {
 
                 # Collect appt date and set up squashed date for use below
@@ -234,7 +251,7 @@ $appointments = sortAppointments( $appointments, 'time' );
                 $date_squash = str_replace("-","",$date_appt);
 
                 # Collect variables and do some processing
-                $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
+                $docname  = $chk_prov[$appointment['uprovider_id']];
                 if (strlen($docname)<= 3 ) continue;
                 $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
                 $appt_enc = $appointment['encounter'];
@@ -287,10 +304,10 @@ $appointments = sortAppointments( $appointments, 'time' );
          <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
          </td>
          <td class="detail" align="center">
-         <?php echo text($appt_time) ?>
+         <?php echo oeFormatTime($appt_time) ?>
          </td>
          <td class="detail" align="center">
-        <?php echo text(substr($newarrive,11)); ?>
+        <?php echo ($newarrive ? oeFormatTime($newarrive) : '&nbsp;') ?>
          </td>
          <td class="detail" align="center"> 
          <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
@@ -334,9 +351,11 @@ $appointments = sortAppointments( $appointments, 'time' );
          <td class="detail" align="center">
          <?php echo text(xl_appt_category($appointment['pc_title'])) ?>
          </td>
+         <?php if (count($chk_prov) > 1) { ?>
          <td class="detail" align="center">
          <?php echo text($docname); ?>
          </td>
+         <?php } ?>
          <td class="detail" align="center"> 
          <?php		 
 		 
@@ -361,7 +380,7 @@ $appointments = sortAppointments( $appointments, 'time' );
         <td class="detail" align="center">
          <?php 
 		 if (strtotime($newend) != '') {
-		    echo text(substr($newend,11)) ;
+		    echo oeFormatTime($newend) ;
 		 }
 		 ?>
          </td>

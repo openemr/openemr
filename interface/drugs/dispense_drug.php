@@ -13,15 +13,12 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
- require_once($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
  require_once("$srcdir/htmlspecialchars.inc.php");
 
  function send_email($subject, $body) {
   $recipient = $GLOBALS['practice_return_email_path'];
   if (empty($recipient)) return;
   $mail = new PHPMailer();
-  $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
   $mail->FromName = 'In-House Pharmacy';
   $mail->isMail();
@@ -181,9 +178,9 @@
  // configured properly.
  //
  if (false) { // if PDF output is desired
-  $pdf =& new Cezpdf($dconfig['paper_size']);
+  $pdf = new Cezpdf($dconfig['paper_size']);
   $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
-  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+  $pdf->selectFont('Helvetica');
   $pdf->ezSetDy(20); // dunno why we have to do this...
   $pdf->ezText($header_text, 7, array('justification'=>'center'));
   if(!empty($dconfig['logo'])) {
@@ -197,6 +194,7 @@
  else { // HTML output
 ?>
 <html>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
 <?php html_header_show();?>
 <style type="text/css">

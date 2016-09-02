@@ -10,6 +10,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -377,8 +378,15 @@ $(document).ready(function() {
 </script>
 </head>
 
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("DEM");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
 <body class="body_top">
-<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM')">
+
+<form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 <table cellpadding='0' cellspacing='0' border='0'>
@@ -394,7 +402,7 @@ $(document).ready(function() {
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input class="css_btn" type="submit" value="<?php xl('Save','e'); ?>">
+            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -481,7 +489,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<ul class="tabNav">
 		<?php
 		foreach (array('primary','secondary','tertiary') as $instype) {
-			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
+			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
 		}
 		?>
 		</ul>
@@ -740,7 +748,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <br>
 
 <script language="JavaScript">
-
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
@@ -792,6 +799,58 @@ $form_id="DEM";
     $("select").change(function() {
         checkSkipConditions();
     });
+
+//This code deals with demographics before save action -
+	<?php if ( ($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive()) ):?>
+
+                //Use the Zend patient validation hook.
+                //TODO - get the edit part of patient validation hook to work smoothly and then
+                //       remove the closeBeforeOpening=1 in the url below.
+
+		var f = $("form");
+
+		// Use hook to open the controller and get the new patient validation .
+		// when no params are sent this window will be closed from the zend controller.
+		var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+		$("#submit_btn").attr("type","button");
+		$("#submit_btn").attr("name","btnSubmit");
+		$("#submit_btn").attr("id","btnSubmit");
+		$("#btnSubmit").click(function( event ) {
+			if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
+				event.preventDefault();
+				return;
+			}
+			somethingChanged = false;
+			<?php
+			// D in edit_options indicates the field is used in duplication checking.
+			// This constructs a list of the names of those fields.
+			$mflist = "";
+			$mfres = sqlStatement("SELECT field_id FROM layout_options " .
+				"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+				"edit_options LIKE '%D%' " .
+				"ORDER BY group_name, seq");
+			while ($mfrow = sqlFetchArray($mfres)) {
+				$field_id  = $mfrow['field_id'];
+				if (strpos($field_id, 'em_') === 0) continue;
+				if (!empty($mflist)) $mflist .= ",";
+					$mflist .= "'" . text($field_id) . "'";
+			} ?>
+
+			var flds = new Array(<?php echo $mflist; ?>);
+			var separator = '?';
+			for (var i = 0; i < flds.length; ++i) {
+				var fval = $('#form_' + flds[i]).val();
+				if (fval && fval != '') {
+					url += separator;
+					separator = '&';
+					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
+				}
+			}
+			url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
+			dlgopen(url, '_blank', 700, 500);
+		});
+
+	<?php endif;?>
 </script>
 
 

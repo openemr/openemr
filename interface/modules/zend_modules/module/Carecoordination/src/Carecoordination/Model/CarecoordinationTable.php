@@ -1823,7 +1823,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents 
                        SET audit_master_approval_status=2 
                        WHERE audit_master_id=?", array($data['amid']));
-
+	$this->InsertReconcilation($data['pid'],$data['document_id']);
         $this->InsertImmunization($arr_immunization['immunization'], $data['pid'], 1);
         $this->InsertPrescriptions($arr_prescriptions['lists3'], $data['pid'], 1);
         $this->InsertAllergies($arr_allergies['lists2'], $data['pid'], 1);
@@ -1838,6 +1838,32 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
 
+  public function InsertReconcilation($pid,$doc_id){
+  		$appTable = new ApplicationTable();
+  		$query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
+  		$docEnc   = $appTable->zQuery($query,array($doc_id,$pid));
+  		
+  		if($docEnc->count() == 0){
+  			$enc = $appTable->zQuery("SELECT encounter
+                                      FROM form_encounter
+                                      WHERE pid=?
+                                      ORDER BY id DESC LIMIT 1", array($pid));
+  		 $enc_cur = $enc->current();
+  		 $enc_id = $enc_cur['encounter'] ? $enc_cur['encounter'] : 0;
+  		}
+  		else{
+  			foreach ($docEnc as $d_enc){
+  				$enc_id = $d_enc['encounter'];
+  			}
+  		}
+  		$med_rec = $appTable->zQuery("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?",array($pid,$enc_id));
+		if($med_rec->count() == 0){
+	  		$appTable->zQuery("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())",array($pid,$enc_id));
+		}
+		else{
+			$appTable->zQuery("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?",array($pid,$enc_id));
+		}
+  }
   public function discardCCDAData($data)
   {
         $appTable = new ApplicationTable();

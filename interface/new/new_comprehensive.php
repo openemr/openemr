@@ -12,6 +12,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
+require_once ("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
 if (!acl_check('patients','demo','',array('write','addonly') ))
@@ -22,8 +23,8 @@ $CPR = 4; // cells per row
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 
-$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2');
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3');
+$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' );
 
 function getLayoutRes() {
   global $SHORT_FORM;
@@ -391,7 +392,13 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM")'>
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("DEM");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
+
+<form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
@@ -801,7 +808,7 @@ enable_modals();
 
     var check = function(e) {
       <?php if($GLOBALS['new_validate']){?>
-            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM");
+            var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
       <?php }else{?>
             top.restoreSession();
             var f = document.forms[0];
@@ -829,8 +836,14 @@ enable_modals();
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
-        // Build and invoke the URL to create the dup-checker dialog.
-        var url = 'new_search_popup.php';
+        <?php if ( ($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive()) ):?>
+            // Use zend module patient validation hook to open the controller and send the dup-checker fields.
+            var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+        <?php else:?>
+            // Build and invoke the URL to create the dup-checker dialog.
+            var url = 'new_search_popup.php';
+        <?php endif;?>
+
         var flds = new Array(<?php echo $mflist; ?>);
         var separator = '?';
         for (var i = 0; i < flds.length; ++i) {
@@ -841,6 +854,7 @@ enable_modals();
                 url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
             }
         }
+        url+="&close"
         dlgopen(url, '_blank', 700, 500);
         } // end function
     } // end function

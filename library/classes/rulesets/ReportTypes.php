@@ -67,6 +67,7 @@ class ReportTypes
         "cpoe_radiology_amc" => array( ReportTypes::AMC, "AMC_304a_1" ),   //Stage 2 CPOE Radiology Orders
         "cpoe_proc_orders_amc" => array( ReportTypes::AMC, "AMC_304a_2" ), //Stage 2 CPOE Procedure Orders
         "cpoe_med_stage2_amc" => array( ReportTypes::AMC, "AMC_304a_3" ), //Stage 2 CPOE Medication Orders
+        "cpoe_med_stage1_amc_alternative" => array( ReportTypes::AMC, "AMC_304a_3" ), //Stage 1 CPOE Medication Orders. Alternative
         "send_reminder_stage2_amc" => array( ReportTypes::AMC, "AMC_304d_STG2" ), //Stage 2 Patient Reminders
         "patient_edu_stage2_amc" => array( ReportTypes::AMC, "AMC_302m_STG2" ), //Stage 2 patient education
         "record_vitals_1_stage1_amc" => array( ReportTypes::AMC, "AMC_302f_1_STG1" ),//Stage 1 vitals set1

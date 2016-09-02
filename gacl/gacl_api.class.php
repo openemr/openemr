@@ -1074,7 +1074,7 @@ class gacl_api extends gacl {
 			}
 
 			foreach ($map_array as $section_value => $value_array) {
-				$this->debug_text ('Insert: '. strtoupper($map) .' Section Value: '. $section_value .' '. strtoupper($map) .' VALUE: '. $value_array);
+				$this->debug_text ('Insert: '. strtoupper($map) . ' Section Value: $section_value' . strtoupper($map) . ' VALUE: $value_array');
 				// $this->showarray ($aco_value_array);
 
 				if (!is_array($value_array)) {

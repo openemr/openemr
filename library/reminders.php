@@ -34,11 +34,6 @@ require_once(dirname(__FILE__) . "/clinical_rules.php");
 require_once(dirname(__FILE__) . "/classes/postmaster.php");
 require_once(dirname(__FILE__) . "/maviq_phone_api.php");
 
-// This is only pertinent for users of php versions less than 5.2
-//  (ie. this wrapper is only loaded when php version is less than
-//   5.2; otherwise the native php json functions are used)
-require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
-
 /**
  * Display the patient reminder widget.
  *

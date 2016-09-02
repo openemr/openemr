@@ -102,6 +102,13 @@ else {
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+
+// This is where will decide whether to use tabs layout or non-tabs layout
+if (!$GLOBALS['new_tabs_layout']) {
+  $_REQUEST['tabs'] = "false";
+}
+require_once("tabs/redirect.php");
+
 ?>
 <html>
 <head>

@@ -666,7 +666,7 @@ class InstModuleTable
       return "Missing";
     }
   }
-  
+
   public function getHangers()
   {
     return array(

@@ -327,7 +327,7 @@ function icd_import($type) {
     if( is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
 	    // bypass unwanted entries
-	    if (!stripos($filename, ".txt") || stripos($filename,"diff")) {
+	    if (!stripos($filename, ".txt") || stripos($filename,"diff") || stripos($filename, "addenda")) {
 		continue;
 	    }
 

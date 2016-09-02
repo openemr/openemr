@@ -890,7 +890,7 @@ div.notab-right {
   text-align: right;
 }
 
-#report_results table {
+#report_results table, table.report_results {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
   border-left: 1px solid black;
@@ -900,24 +900,33 @@ div.notab-right {
   margin-top: 1px;
 }
 
-#report_results table thead {
+#report_results table thead, table.report_results thead {
   padding: 5px;
   display: table-header-group;
-  background-color: #ddd;
+  background-color: LightSteelBlue;
   text-align: left;
   font-weight: bold;
   font-size: 0.7em;
 }
 
-#report_results table th {
+#report_results table th, table.report_results th {
+  background-color: LightSteelBlue;
   border-bottom: 1px solid black;
   padding: 5px;
 }
 
-#report_results table td {
+#report_results table td, table.report_results td {
   padding: 5px;
-  border-bottom: 1px dashed;
+  border-bottom: 0px;
   font-size: 0.8em;
+}
+
+#report_results table tr:nth-child(odd), table.report_results tr:nth-child(odd) {
+  background-color: Azure;
+}
+
+#report_results table tr:nth-child(even), table.report_results tr:nth-child(even) {
+  background-color: LightSkyBlue;
 }
 
 .report_totals td {
@@ -1249,4 +1258,17 @@ body.admin-layout input[type="button"] {
 }
 .error-border{
   border: 1px solid red !important;
+}
+
+.tinylogocontainer
+{
+  display: inline-block;
+  border: none;
+}
+
+.tinylogopng
+{
+  display: inline-block;
+  width: 44px;
+  height: 22px;
 }

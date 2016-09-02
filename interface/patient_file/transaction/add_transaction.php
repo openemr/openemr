@@ -371,7 +371,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
     $group_seq_esc = htmlspecialchars($group_seq, ENT_QUOTES);
     $group_name_show = htmlspecialchars(xl_layout_label($group_name), ENT_NOQUOTES);
-    echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq_esc'>" .
+    echo "<a href='#' id='div_$group_seq_esc'>" .
       "$group_name_show</a></li>";
   }
 }

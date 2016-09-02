@@ -67,16 +67,12 @@ require_once("../interface/globals.php");
      break;
    }
  }
+ $pass = sha1($GLOBALS['portal_offsite_password'].gmdate('Y-m-d H').$randkey);
 ?>
 <html>
 <head>
-    <?php require_once($GLOBALS['fileroot'].'/library/sha1.js');?>
 <script type="text/javascript">
  function getshansubmit(){
-   	randkey = "<?php echo $randkey;?>";
-	pass = SHA1(document.portal.pass.value+"<?php echo gmdate('Y-m-d H');?>"+randkey);
-	document.portal.pwd.value=pass;
-	document.portal.randkey.value=randkey;
 	document.forms[0].submit();
  }
  
@@ -90,8 +86,8 @@ require_once("../interface/globals.php");
     <input type="hidden" name="emr_site" value="<?php echo htmlspecialchars($_SESSION['site_id'],ENT_QUOTES);?>">
     <input type="hidden" name="uname" value="<?php echo htmlspecialchars($row['fname']." ".$row['lname'],ENT_QUOTES);?>">
     <input type="hidden" name="pass" value="<?php echo htmlspecialchars($GLOBALS['portal_offsite_password'],ENT_QUOTES);?>">
-	<input type="hidden" name="randkey" value="">
-	<input type="hidden" name="pwd" value="">
+    <input type="hidden" name="randkey" value="<?php echo htmlspecialchars($randkey,ENT_QUOTES);?>">
+	  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pass,ENT_QUOTES);?>">
     </form>
 </body>
 </html>

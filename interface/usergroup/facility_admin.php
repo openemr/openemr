@@ -1,6 +1,5 @@
 <?php
 include_once("../globals.php");
-include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 require_once("$srcdir/options.inc.php");

@@ -827,9 +827,16 @@ foreach ($ar as $key => $val) {
                     '/documents/' . $from_pathname . '/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
+
                 //Extract the extension by the mime/type and not the file name extension
-                $image_data = getimagesize($from_file);
-                $extension = image_type_to_extension($image_data[2]);
+                // -There is an exception. Need to manually see if it a pdf since
+                //  the image_type_to_extension() is not working to identify pdf.
+                $extension = substr($fname, strrpos($fname,"."));
+                if ($extension != ".pdf") {
+                  $image_data = getimagesize($from_file);
+                  $extension = image_type_to_extension($image_data[2]);
+                }
+
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                   if ($PDF_OUTPUT) {
                     // OK to link to the image file because it will be accessed by the

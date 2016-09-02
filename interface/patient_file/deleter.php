@@ -172,6 +172,7 @@ function delete_document($document) {
 <?php html_header_show();?>
 <title><?php echo xlt('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <style>
 td { font-size:10pt; }
@@ -224,11 +225,6 @@ function popup_close() {
     form_delete($row['formdir'], $row['form_id']);
    }
    row_delete("forms", "pid = '" . add_escape_custom($patient) . "'");
-   
-   // integration_mapping was used for sql-ledger (which is no longer supported) and is virtually obsolete now.
-   $row = sqlQuery("SELECT id FROM patient_data WHERE pid = ?", array($patient));
-   row_delete("integration_mapping", "local_table = 'patient_data' AND " .
-    "local_id = '" . add_escape_custom($row['id']) . "'");
 
    // Delete all documents for the patient.
    $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ?", array($patient));

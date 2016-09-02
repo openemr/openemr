@@ -79,10 +79,12 @@ $timeslotHeightUnit="px";
 </script>
 
 [-php-]
-
  // this is my proposed setting in the globals config file so we don't
  // need to mess with altering the pn database AND the config file
  //pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', $GLOBALS['schedule_dow_start']);
+
+  $openhour= $GLOBALS['schedule_start'];
+  $closehour= $GLOBALS['schedule_end'];
 
  // build a day-of-week (DOW) list so we may properly build the calendars later in this code
  $DOWlist = array();
@@ -259,6 +261,9 @@ while ($currdate <= $enddate) {
     if (is_weekend_day(date('w', $currdate))) {
         $tdClass = "tdWeekend-small";
     }
+    if (is_holiday(date('Y-m-d', $currdate))) {
+        $tdClass = "tdHoliday-small";
+    }
 
     if (date('Ymd',$currdate) == $Date) {
         // $Date is defined near the top of this file
@@ -366,6 +371,16 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 </div> <!-- end bottomLeft -->
 <div id="bigCal">
 [-php-]
+/* used in debugging
+    foreach ($A_EVENTS as $date => $events) {
+        echo $date." = ";
+        foreach ($events as $oneE) {
+            print_r($oneE);
+            echo "<br><br>";
+        }
+        echo "<hr width=100%>";
+    }
+*/
 
 echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 
@@ -441,7 +456,9 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
 
                 // skip events for other providers
-                if ($providerid != $e1['aid']) { continue; }
+                // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
+                // we dont want to exclude those events from being displayed
+                if ($providerid != $e1['aid']  && $event['aid']!=0) { continue; }
             
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
@@ -507,7 +524,7 @@ foreach ($providers as $provider) {
         foreach ($events as $event) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
-            if ($providerid != $event['aid']) { continue; }
+            if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
             
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
@@ -527,6 +544,11 @@ foreach ($providers as $provider) {
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - 12) : $starth; // used to display the hour
 
+
+             //fix bug 456 and 455
+             //check to see if the event is in the clinic hours range, if not it will not be displayed
+             if  ( (int)$starth < (int)$openhour || (int)$starth >= (int)$closehour ){ continue; }
+
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
             switch ($event['catid']) {
@@ -540,7 +562,14 @@ foreach ($providers as $provider) {
                     $evtClass = "event_out";
                     break;
                 case 4:  // VACATION
+                    $evtClass = "event_reserved";
+                    break;
+                case 6:  // HOLIDAY
+                    $evtClass = "event_holiday";
+                    break;
                 case 8:  // LUNCH
+                    $evtClass = "event_reserved";
+                     break;
                 case 11: // RESERVED
                     $evtClass = "event_reserved";
                     break;
@@ -690,8 +719,13 @@ foreach ($providers as $provider) {
                     $content .= "</a>";
                 }
                 else {
-                    // no patient id, just output the category name
-                    $content .= $catname;
+                      //Category Clinic closaed or holiday take the event title
+                    if ( $catid ==6  || $catid == 7){
+                         $content = $event['title'];
+                    }else{
+                        // no patient id, just output the category name
+                        $content .= $catname;
+                    }
                 }
                 $content .= "</span>";
             }
@@ -718,14 +752,31 @@ foreach ($providers as $provider) {
 
           // output the DIV and content
           // For "OUT" events, applying the background color in CSS.
-          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$color;
-          echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+
+            if ($event['catid']!="6" && $event['catid']!="4" ){
+              $background_string= ($event['catid'] == 3) ? "" : ";background-color:".$color;
+              echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
               "; $divLeft".
               "' title='".$divTitle."'".
               " id='".$eventdate."-".$eventid."-".$pccattype."'".
               ">";
+            }
+            else{
+             $background_string= ";background-color:".$color;
+            echo "<div class='".$evtClass." hiddenevent' style='top:".$evtTop."; height:".$evtHeight.
+              $background_string.
+              "; $divWidth".
+              "; $divLeft".
+              "' title='".$divTitle."'".
+            " id='".$eventdate."-".$eventid."-".$pccattype."'".
+            ">";
+            }
+
+
+           //
+
           // second part for the special IN event
           if ($event['catid'] != 2) { echo $content; }
           echo "</div>\n";
@@ -790,7 +841,7 @@ foreach ($providers as $provider) {
            if ($event['catid'] != 2) { echo "<span style='color:red;text-align:center;font-weight:bold'>".htmlspecialchars($row['name'],ENT_QUOTES)."</span>"; }
            echo "</div>\n";
        }
-   } // end EVENT loop
+  } // end EVENT loop
 
    echo "</div>";
    

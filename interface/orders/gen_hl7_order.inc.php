@@ -432,9 +432,6 @@ function send_hl7_order($ppid, $out) {
   }
 
   else if ($protocol == 'SFTP') {
-    ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$srcdir/phpseclib");
-    require_once("$srcdir/phpseclib/Net/SFTP.php");
-
     // Compute the target path/file name.
     $filename = $msgid . '.txt';
     if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;

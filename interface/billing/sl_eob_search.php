@@ -27,11 +27,11 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/classes/class.ezpdf.php");//for the purpose of pdf creation
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -86,7 +86,7 @@ function upload_file_to_client_pdf($file_to_send) {
   global $STMT_TEMP_FILE_PDF;
   $pdf = new Cezpdf('LETTER');//pdf creation starts
   $pdf->ezSetMargins(36,0,36,0);
-  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
+  $pdf->selectFont('Courier');
   $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
   $countline=1;
   $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
@@ -100,7 +100,7 @@ function upload_file_to_client_pdf($file_to_send) {
 		str_replace("\014", "", $OneLine);
 	  }
 	
-	if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+	if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
 	 $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6)); 
 	else
 	 $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6)); 
@@ -147,8 +147,8 @@ $today = date("Y-m-d");
     $where = substr($where, 4);
 
     $res = sqlStatement("SELECT " .
-      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note, " .
-      "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
+      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
+      "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note " .
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
       "p.pid = f.pid " .
@@ -163,6 +163,7 @@ $today = date("Y-m-d");
       $svcdate = substr($row['date'], 0, 10);
       $duedate = $svcdate; // TBD?
       $duncount = $row['stmt_count'];
+      $enc_note = $row['enc_billing_note'];
 
       // If this is a new patient then print the pending statement
       // and start a new one.  This is an associative array:
@@ -189,11 +190,21 @@ $today = date("Y-m-d");
         $stmt['cid'] = $row['pid'];
         $stmt['pid'] = $row['pid'];
 		$stmt['dun_count'] = $row['stmt_count'];
-		$stmt['bill_note'] = $row['billing_note'];
+		$stmt['bill_note'] = $row['pat_billing_note'];
+        $stmt['enc_bill_note'] = $row['enc_billing_note'];
 		$stmt['bill_level'] = $row['last_level_billed'];
 		$stmt['level_closed'] = $row['last_level_closed'];
         $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
+		#If you use the field in demographics layout called 
+		#guardiansname this will allow you to send statements to the parent
+		#of a child or a guardian etc
+        if(strlen($row['guardiansname']) == 0) {
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+        }
+        else
+        {
+         $stmt['to'] = array($row['guardiansname']);
+        }
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
         $stmt['lines'] = array();

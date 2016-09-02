@@ -32,6 +32,7 @@ $imagedir   = "$patientdir/demographics";
 <html>
 <head>
 <title>Upload Image</title>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
 </head>
 <body>

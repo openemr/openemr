@@ -88,7 +88,8 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     "clinical_hx = '" . formData('form_clinical_hx')                    . "', " .
     "patient_instructions = '" . formData('form_patient_instructions')  . "', " .
     "patient_id = '" . $pid                                             . "', " .
-    "encounter_id = '" . $encounter                                     . "'";
+    "encounter_id = '" . $encounter                                     . "', " .
+    "history_order= '". formData('form_history_order'). "'";
 
   // If updating an existing form...
   //
@@ -470,7 +471,12 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
 ?>
   </td>
  </tr>
-
+ <tr>
+ <td width='1%' valign='top' nowrap><b><?php xl('History order','e'); ?>:</b>
+ <td valign='top'>
+ <?php generate_form_field(array('data_type'=>1,'field_id'=>'history_order','list_id'=>'boolean'),$row['history_order']); ?>
+ </td>
+ </tr>
  <tr>
   <td width='1%' valign='top' nowrap><b><?php xl('Clinical History','e'); ?>:</b></td>
   <td valign='top'>

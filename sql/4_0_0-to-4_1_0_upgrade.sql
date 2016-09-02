@@ -972,8 +972,8 @@ INSERT INTO `layout_options` ( `form_id`, `field_id`, `group_name` , `title`, `s
 
 #IfNotTable lists_touch
 CREATE TABLE `lists_touch` (
-  `pid` bigint(20) default NULL,
-  `type` varchar(255) default NULL,
+  `pid` bigint(20) NOT NULL default '0',
+  `type` varchar(255) NOT NULL default '',
   `date` datetime default NULL,
   PRIMARY KEY  (`pid`,`type`)
 ) ENGINE=MyISAM ;

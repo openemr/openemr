@@ -8,7 +8,7 @@ require_once("./Utils.php");
 $parameters = GetParameters();
 
 // establish some defaults
-if (! isset($parameters['sortby'])) { $parameters['sortby'] == "name"; }
+if (! isset($parameters['sortby'])) { $parameters['sortby'] = "name"; }
 if (! isset($parameters['limit'])) { $parameters['limit'] = 100; }
 
 if (! isset($parameters['match_name']) &&

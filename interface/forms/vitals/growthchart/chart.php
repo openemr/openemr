@@ -651,8 +651,7 @@ foreach ($datapoints as $data) {
 }
 
 if ($_GET['pdf'] == 1) {
-    require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-    $pdf =& new Cezpdf("LETTER");
+    $pdf = new Cezpdf("LETTER");
     $pdf->ezSetMargins(0,0,0,0);
 
     // we start with one large image, break it into two pages

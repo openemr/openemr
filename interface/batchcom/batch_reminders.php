@@ -17,11 +17,6 @@ require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 require_once($GLOBALS['srcdir'] . "/report_database.inc");
 
-// This is only pertinent for users of php versions less than 5.2
-//  (ie. this wrapper is only loaded when php version is less than
-//   5.2; otherwise the native php json functions are used)
-require_once "$srcdir/jsonwrapper/jsonwrapper.php";
-
 //To improve performance and not freeze the session when running this
 // report, turn off session writing. Note that php session variables
 // can not be modified after the line below. So, if need to do any php

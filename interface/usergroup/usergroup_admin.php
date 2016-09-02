@@ -25,7 +25,6 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
-require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 
 $alertmsg = '';
@@ -44,7 +43,6 @@ if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on')
 	$row = sqlFetchArray($res);
 	$uname=$row['username'];
 	$mail = new MyMailer();
-        $mail->SetLanguage("en",$GLOBALS['fileroot'] . "/library/" );
         $mail->From = "admin@".$mail_id[1].".".$mail_id[2];     
         $mail->FromName = "Administrator OpenEMR";
         $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
@@ -165,12 +163,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         }
      }
 
-      // for relay health single sign-on
-      if (isset($_POST["ssi_relayhealth"]) && $_POST["ssi_relayhealth"]) {
-        $tqvar = formData('ssi_relayhealth','P');
-        sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = ? ", array($_POST["id"]));
-      }
-
       $tqvar  = $_POST["authorized"] ? 1 : 0;
       $actvar = $_POST["active"]     ? 1 : 0;
       $calvar = $_POST["calendar"]   ? 1 : 0;
@@ -210,9 +202,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         set_user_aro($_POST['access_group'], $user_data["username"],
           formData('fname','P'), formData('mname','P'), formData('lname','P'));
       }
-
-      $ws = new WSProvider($_POST['id']);
-
     }
 }
 
@@ -291,9 +280,6 @@ if (isset($_POST["mode"])) {
         set_user_aro($_POST['access_group'], trim(formData('rumple')),
           trim(formData('fname')), trim(formData('mname')), trim(formData('lname')));
       }
-
-      $ws = new WSProvider($prov_id);
-        
     }
 
         

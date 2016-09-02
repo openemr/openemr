@@ -177,6 +177,9 @@ require_once (dirname(__FILE__) . "/../library/date_functions.php");
 // Includes compoaser autoload
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+// Includes functions for page validation
+require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -191,11 +194,26 @@ if (!empty($glrow)) {
   // Collect user specific settings from user_settings table.
   //
   $gl_user = array();
+  // Collect the user id first
+  $temp_authuserid = '';
   if (!empty($_SESSION['authUserID'])) {
+    //Set the user id from the session variable
+    $temp_authuserid = $_SESSION['authUserID'];
+  }
+  else {
+    if (!empty($_POST['authUser'])) {
+      $temp_sql_ret = sqlQuery("SELECT `id` FROM `users` WHERE `username` = ?", array($_POST['authUser']) );
+      if (!empty($temp_sql_ret['id'])) {
+        //Set the user id from the login variable
+        $temp_authuserid = $temp_sql_ret['id'];
+      }
+    }
+  }
+  if (!empty($temp_authuserid)) {
     $glres_user = sqlStatement("SELECT `setting_label`, `setting_value` " .
       "FROM `user_settings` " .
       "WHERE `setting_user` = ? " .
-      "AND `setting_label` LIKE 'global:%'", array($_SESSION['authUserID']) );
+      "AND `setting_label` LIKE 'global:%'", array($temp_authuserid) );
     for($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
       //remove global_ prefix from label
       $row['setting_label'] = substr($row['setting_label'],7);
@@ -341,6 +359,11 @@ if ($GLOBALS['concurrent_layout']) {
 }
 $login_filler_line = ' bgcolor="#f7f0d5" ';
 $logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+// optimal size for the tiny logo is height 43 width 86 px
+// inside the open emr they will be auto reduced
+$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
+
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
@@ -397,6 +420,9 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
+if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
+  $ignoreAuth = true;
+}
 if (!isset($ignoreAuth) || !$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
@@ -465,4 +491,5 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
+
 ?>
