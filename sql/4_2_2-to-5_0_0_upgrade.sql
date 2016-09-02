@@ -771,11 +771,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ALTER TABLE `form_encounter` ADD `pos_code` tinyint(4) default NULL;
 #EndIf
 
-#IfNotColumnType drugs size varchar
+#IfNotColumnType drugs size varchar(25)
 ALTER TABLE `drugs` CHANGE `size` `size` varchar(25) default NULL ;
 #EndIf
 
-#IfNotColumnType prescriptions size varchar
+#IfNotColumnType prescriptions size varchar(25)
 ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(25) default NULL ;
 #EndIf
 
