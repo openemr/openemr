@@ -50,7 +50,7 @@ function checkCreateCDB(){
       $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
     $directory_created = false;
-  if(array_key_exists('document_storage_method', $GLOBALS) && $GLOBALS['document_storage_method'] != 0){
+  if( !empty($GLOBALS['document_storage_method']) ) {
     // /documents/temp/ folder is required for CouchDB
     if(!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')){
       $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/',0777,true);
@@ -103,15 +103,10 @@ function checkBackgroundServices(){
       $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
 
-   //Set up phimail service
-  $phimail_active = (
-    array_key_exists('phimail_enable', $GLOBALS)
-    && $GLOBALS['phimail_enable']
-  )
-    ? '1'
-    : '0';
-   $phimail_interval = max(0,(int)$GLOBALS['phimail_interval']);
-   updateBackgroundService('phimail',$phimail_active,$phimail_interval);
+  //Set up phimail service
+  $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
+  $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
+  updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 }
 ?>
 
@@ -374,7 +369,7 @@ input     { font-size:10pt; }
 <?php
 $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-  if ( !$userMode || ($userMode && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
+  if ( !$userMode || in_array($grpname, $USER_SPECIFIC_TABS) ) {
     echo " <li" . ($i ? "" : " class='current'") .
       "><a href='#'>" .
       xlt($grpname) . "</a></li>\n";
@@ -388,7 +383,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 <?php
 $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
- if ( !$userMode || ($userMode && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
+ if ( !$userMode || in_array($grpname, $USER_SPECIFIC_TABS) ) {
   echo " <div class='tab" . ($i ? "" : " current") .
     "' style='height:auto;width:97%;'>\n";
 
@@ -405,7 +400,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   }
 
   foreach ($grparr as $fldid => $fldarr) {
-   if ( !$userMode || ($userMode && in_array($fldid, $USER_SPECIFIC_GLOBALS)) ) {
+   if ( !$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS) ) {
     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
 
     // Most parameters will have a single value, but some will be arrays.
@@ -610,7 +605,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
     ++$i;
    }
-    if(trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && array_key_exists('portal_offsite_enable', $GLOBALS) && $GLOBALS['portal_offsite_enable'] && array_key_exists('portal_offsite_providerid', $GLOBALS) && $GLOBALS['portal_offsite_providerid']){
+    if( trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid']) ){
       echo "<input type='hidden' name='form_download' id='form_download'>";
       echo "<tr><td><input onclick=\"return validate_file()\" type='button' value='".xla('Download Offsite Portal Connection Files')."' /></td><td id='file_error_message' style='color:red'></td></tr>";
     }

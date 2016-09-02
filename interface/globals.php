@@ -226,7 +226,7 @@ if (!empty($glrow)) {
   $GLOBALS['language_menu_show'] = array();
   $glres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals " .
     "ORDER BY gl_name, gl_index");
-  while ($glrow = sqlFetchArray($glres)) {    
+  while ($glrow = sqlFetchArray($glres)) {
     $gl_name  = $glrow['gl_name'];
     $gl_value = $glrow['gl_value'];
     // Adjust for user specific settings
@@ -237,7 +237,7 @@ if (!empty($glrow)) {
         }
       }
     }
-    if ($gl_name == 'language_menu_other') {       
+    if ($gl_name == 'language_menu_other') {
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {
@@ -265,36 +265,36 @@ if (!empty($glrow)) {
   if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
     $GLOBALS['language_menu_login'] = true;
   }
-  
-  
+
+
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
     if( isset( $_SESSION['language_direction'] )) {
-        if( $_SESSION['language_direction'] == 'rtl' && 
+        if( $_SESSION['language_direction'] == 'rtl' &&
         !strpos($GLOBALS['css_header'], 'rtl')  ) {
 
             // the $css_header_value is set above
             $rtl_override = true;
         }
-    }     
-    
-    else { 
+    }
+
+    else {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
-        
+
         if ( getLanguageDir( $default_lang_id['lang_id'] ) === 'rtl' && !strpos($GLOBALS['css_header'], 'rtl')) { // @todo eliminate 1 SQL query
             $rtl_override = true;
         }
     }
-    
+
 
     // change theme name, if the override file exists.
     if( $rtl_override ) {
         // the $css_header_value is set above
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
-        // Check file existance 
+        // Check file existance
         if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
             $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme;
         } else {
@@ -304,7 +304,7 @@ if (!empty($glrow)) {
     }
     unset( $temp_css_theme_name, $new_theme,$rtl_override);
     // end of RTL section
-  
+
   //
   // End of globals table processing.
 }
@@ -403,12 +403,7 @@ $GLOBALS['backpic'] = $backpic;
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$GLOBALS['Emergency_Login_email'] = (
-  array_key_exists('Emergency_Login_email_id', $GLOBALS)
-  && $GLOBALS['Emergency_Login_email_id']
-)
-  ? 1
-  : 0;
+$GLOBALS['Emergency_Login_email'] = empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1;
 
 //set include_de_identification to enable De-identification (currently de-identification works fine only with linux machines)
 //Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,

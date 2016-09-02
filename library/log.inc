@@ -15,7 +15,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
             $encrypt_comment = 'Yes';
         }
     }
-    
+
     if ($log_from == 'patient-portal') {
         $sqlMenuItems = "SELECT * FROM patient_portal_menu";
 
@@ -25,10 +25,10 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
         }
 
         $menuItemId = array_search($menu_item, $menuItems);
-        $sql = "insert into log ( date, event, user, patient_id, groupname, success, comments, 
+        $sql = "insert into log ( date, event, user, patient_id, groupname, success, comments,
                 log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
         $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
-    } else {    
+    } else {
     /* More details added to the log */
     $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user, patient_id) " .
             "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($user) .
@@ -46,7 +46,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
                      $adodb->qstr($last_log_id) . "," .
                      $adodb->qstr($encrypt_comment) . "," .
                      "'')";
-    sqlInsertClean_audit($encryptLogQry); 
+    sqlInsertClean_audit($encryptLogQry);
 
     if(($patient_id=="NULL") || ($patient_id==null))$patient_id=0;
 
@@ -499,16 +499,10 @@ function create_tls_conn($host, $port, $localcert, $cafile) {
 function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comments)
 {
     /* If no ATNA repository server is configured, return */
-    if (!array_key_exists('atna_audit_host', $GLOBALS)
-        || $GLOBALS['atna_audit_host'] === null
-        || $GLOBALS['atna_audit_host'] == ""
-        || !(
-            array_key_exists('enable_atna_audit', $GLOBALS)
-            && $GLOBALS['enable_atna_audit']
-        )
-    ) {
+    if (empty($GLOBALS['atna_audit_host']) || empty($GLOBALS['enable_atna_audit']) ) {
         return;
     }
+
     $host = $GLOBALS['atna_audit_host'];
     $port = $GLOBALS['atna_audit_port'];
     $localcert = $GLOBALS['atna_audit_localcert'];
