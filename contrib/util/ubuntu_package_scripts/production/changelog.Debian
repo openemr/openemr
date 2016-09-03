@@ -1,3 +1,9 @@
+openemr (5.0.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 03 Sep 2016 15:14:30 -0700
+
 openemr (4.2.2-1) stable; urgency=low
 
   * New upstream version
