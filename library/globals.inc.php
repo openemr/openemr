@@ -355,8 +355,22 @@ $GLOBALS_METADATA = array(
       ),
       '4',                              // default
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
-    
-  ),
+    ),
+
+    'show_label_login' => array(
+      xl('Show Title on Login'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Title on Login')
+    ),
+
+    'extra_logo_login' => array(
+      xl('Show Extra Logo on Login'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Extra Logo on Login')
+    ),
+
       'tiny_logo_1' => array(
           xl('Show Mini Logo 1'),
           'bool',                           // data type
