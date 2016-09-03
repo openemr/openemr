@@ -56,22 +56,25 @@
 .gritter-item p {
 	padding:0;
 	margin:0;
+	word-wrap:break-word;
 }
 .gritter-close {
+	display:none;
 	position:absolute;
 	top:5px;
-	right:3px;
+	left:3px;
 	background:url(../images/gritter.png) no-repeat left top;
 	cursor:pointer;
 	width:30px;
 	height:30px;
+	text-indent:-9999em;
 }
 .gritter-title {
 	font-size:14px;
 	font-weight:bold;
 	padding:0 0 7px 0;
 	display:block;
-	text-shadow:1px 1px #000; /* Not supported by IE :( */
+	text-shadow:1px 1px 0 #000; /* Not supported by IE :( */
 }
 .gritter-image {
 	width:48px;
@@ -80,24 +83,20 @@
 }
 .gritter-with-image,
 .gritter-without-image {
-	padding:0 0 5px 0;
+	padding:0;
 }
 .gritter-with-image {
 	width:220px;
 	float:right;
 }
-
-.red {
-    background-color: red;
-    padding: 2px;
+/* for the light (white) version of the gritter notice */
+.gritter-light .gritter-item,
+.gritter-light .gritter-bottom,
+.gritter-light .gritter-top,
+.gritter-light .gritter-close {
+    background-image: url(../images/gritter-light.png);
+    color: #222;
 }
-
-.green {
-    background-color: #008000;
-    padding: 2px;
-}
-
-.blue {
-    background-color: blue;
-    padding: 2px;
+.gritter-light .gritter-title {
+    text-shadow: none;
 }
