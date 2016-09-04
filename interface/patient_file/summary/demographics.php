@@ -1487,10 +1487,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 
       /* Widget that shows recurrences for appointments. */
-     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['recurrences_widget']) {
+     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget']) {
 
-         $widgetTitle = xl("Appointment Recurrences");
-         $widgetLabel = "appointment_recurrences";
+         $widgetTitle = xl("Recurrent Appointments");
+         $widgetLabel = "recurrent_appointments";
          $widgetButtonLabel = xl("Add");
          $widgetButtonLink = "return newEvt();";
          $widgetButtonClass = "";
@@ -1505,21 +1505,30 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
          //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
          $recurrences = fetchRecurrences($pid);
-
-         foreach ($recurrences as $row) {
-             //checks if there are recurrences and if they are current (git didn't end yet)
-             if($row == false || !recurrence_is_current($row['pc_endDate']))
-                 continue;
+         if($recurrences[0] == false){ //if there are no recurrent appointments:
              echo "<div>";
-             echo "<span>" . xlt('Appointment Category: ') . htmlspecialchars($row['pc_title'], ENT_NOQUOTES) . "</span>";
-             echo "<br>";
-             echo "<span>" . xlt('Recurrence: ') . htmlspecialchars($row['pc_recurrspec'], ENT_NOQUOTES) . "</span>";
-             echo "<br>";
-             $red_text = ""; //if ends in a week, make font red
-             if(ends_in_a_week($row['pc_endDate'])){ $red_text = " style=\"color:red;\" ";}
-             echo "<span" . $red_text . ">" . xlt('End Date: ') . htmlspecialchars($row['pc_endDate'], ENT_NOQUOTES) . "</span>";
+             echo "<span>" . xlt('None') . "</span>";
              echo "</div>";
              echo "<br>";
+         }
+         else {
+             foreach ($recurrences as $row) {
+                 //checks if there are recurrences and if they are current (git didn't end yet)
+                 if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                     continue;
+                 echo "<div>";
+                 echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
+                 echo "<br>";
+                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
+                 echo "<br>";
+                 $red_text = ""; //if ends in a week, make font red
+                 if (ends_in_a_week($row['pc_endDate'])) {
+                     $red_text = " style=\"color:red;\" ";
+                 }
+                 echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                 echo "</div>";
+                 echo "<br>";
+             }
          }
      }
      /* End of recurrence widget */

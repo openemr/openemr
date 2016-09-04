@@ -1242,12 +1242,6 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
-    'recurrences_widget' => array(
-      xl('Recurrence Display Widget'),
-      'bool',                           // data type
-      '1',                              // default
-      xl('Display recurrences widget in patient file.')
-    ),
 
     'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
@@ -1289,6 +1283,13 @@ $GLOBALS_METADATA = array(
       'color_code',
       '#FFE6FF',
       xl('Color for the last set when not all member appointments are displayed.')
+    ),
+
+    'appt_recurrences_widget' => array(
+      xl('Recurrent Appointment Display Widget'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Display the recurrent appointment widget in the patient summary.')
     ),
 
     'num_past_appointments_to_show' => array(

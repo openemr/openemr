@@ -44,11 +44,11 @@ $ORDERHASH = array(
 /*Arrays for the interpretation of recurrence patterns.*/
 $REPEAT_FREQ = array(
 	'1' => xl('Every'),
-	'2' => xl('Every') . " " . xl('2nd'),
-	'3' => xl('Every') . " " . xl('3rd'),
-	'4' => xl('Every') . " " . xl('4th'),
-	'5' => xl('Every') . " " . xl('5th'),
-	'6' => xl('Every') . " " . xl('6th')
+	'2' => xl('Every 2nd'),
+	'3' => xl('Every 3rd'),
+	'4' => xl('Every 4th'),
+	'5' => xl('Every 5th'),
+	'6' => xl('Every 6th')
 );
 
 $REPEAT_FREQ_TYPE = array(
@@ -607,37 +607,18 @@ function fetchAppointmentCategories()
      return sqlStatement($catSQL);
 }
 
-function interpretFreq($freq){
-	global $REPEAT_FREQ;
-	return $REPEAT_FREQ[$freq];
-}
-
-function interpretFreqType($type){
-	global $REPEAT_FREQ_TYPE;
-	return $REPEAT_FREQ_TYPE[$type];
-}
-
-function interpretOnNum($on_num){
-	global $REPEAT_ON_NUM;
-	return $REPEAT_ON_NUM[$on_num];
-}
-
-function interpretOnDay($on_day){
-	global $REPEAT_ON_DAY;
-	return $REPEAT_ON_DAY[$on_day];
-}
-
 function interpretRecurrence($recurr_freq, $recurr_type){
+	global $REPEAT_FREQ, $REPEAT_FREQ_TYPE, $REPEAT_ON_NUM, $REPEAT_ON_DAY;
 	$interpreted = "";
 	$recurr_freq = unserialize($recurr_freq);
 	if($recurr_type == 1){
-		$interpreted = interpretFreq($recurr_freq['event_repeat_freq']);
-		$interpreted .= " " . interpretFreqType($recurr_freq['event_repeat_freq_type']);
+		$interpreted = $REPEAT_FREQ[$recurr_freq['event_repeat_freq']];
+		$interpreted .= " " . $REPEAT_FREQ_TYPE[$recurr_freq['event_repeat_freq_type']];
 	}
 	elseif($recurr_type == 2){
-		$interpreted = interpretFreq($recurr_freq['event_repeat_on_freq']);
-		$interpreted .= " " . interpretOnNum($recurr_freq['event_repeat_on_num']);
-		$interpreted .= " " . interpretOnDay($recurr_freq['event_repeat_on_day']);
+		$interpreted = $REPEAT_FREQ[$recurr_freq['event_repeat_on_freq']];
+		$interpreted .= " " . $REPEAT_ON_NUM[$recurr_freq['event_repeat_on_num']];
+		$interpreted .= " " . $REPEAT_ON_DAY[$recurr_freq['event_repeat_on_day']];
 	}
 
 	return $interpreted;
@@ -645,9 +626,11 @@ function interpretRecurrence($recurr_freq, $recurr_type){
 
 function fetchRecurrences($pid){
 	$query = "SELECT `pc_title`, `pc_endDate`, `pc_recurrtype`, `pc_recurrspec` FROM openemr_postcalendar_events
-WHERE `pc_pid` =" . $pid . " AND `pc_recurrtype` > 0;";
+WHERE `pc_pid` = ?  AND `pc_recurrtype` > 0;";
+	$sqlBindArray = array();
+	array_push($sqlBindArray, $pid);
+	$res = sqlStatement($query, $sqlBindArray);
 	$row = 0;
-	$res = sqlStatement($query);
 	while($res_arr[$row] = sqlFetchArray($res)) {
 		$res_arr[$row]['pc_recurrspec'] = interpretRecurrence($res_arr[$row]['pc_recurrspec'], $res_arr[$row]['pc_recurrtype']);
 		$row++;
