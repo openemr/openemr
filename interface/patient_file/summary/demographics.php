@@ -1486,6 +1486,54 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       } // End of Appointments.
 
 
+      /* Widget that shows recurrences for appointments. */
+     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget']) {
+
+         $widgetTitle = xl("Recurrent Appointments");
+         $widgetLabel = "recurrent_appointments";
+         $widgetButtonLabel = xl("Add");
+         $widgetButtonLink = "return newEvt();";
+         $widgetButtonClass = "";
+         $linkMethod = "javascript";
+         $bodyClass = "summary_item small";
+         $widgetAuth = false;
+         $fixedWidth = false;
+         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+         $count = 0;
+         $toggleSet = true;
+         $priorDate = "";
+
+         //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
+         $recurrences = fetchRecurrences($pid);
+         if($recurrences[0] == false){ //if there are no recurrent appointments:
+             echo "<div>";
+             echo "<span>" . xlt('None') . "</span>";
+             echo "</div>";
+             echo "<br>";
+         }
+         else {
+             foreach ($recurrences as $row) {
+                 //checks if there are recurrences and if they are current (git didn't end yet)
+                 if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                     continue;
+                 echo "<div>";
+                 echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
+                 echo "<br>";
+                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
+                 echo "<br>";
+                 $red_text = ""; //if ends in a week, make font red
+                 if (ends_in_a_week($row['pc_endDate'])) {
+                     $red_text = " style=\"color:red;\" ";
+                 }
+                 echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                 echo "</div>";
+                 echo "<br>";
+             }
+         }
+     }
+     /* End of recurrence widget */
+
+
 	// Show PAST appointments.
 	// added by Terry Hill to allow reverse sorting of the appointments
  	$direction = "ASC";
