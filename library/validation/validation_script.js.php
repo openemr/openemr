@@ -68,8 +68,6 @@ function submitme(new_validate,e,form_id, constraints) {
             var valid = true ;
 
             //We use a common error for all the errors because of the multilanguage capability of openemr
-            //TODO: implement a traslation mechanism of the errors that the library returns
-            var error_msg ='<?php echo xl('is not valid');?>';
             var form = document.querySelector("form#"+form_id);
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
@@ -84,7 +82,6 @@ function submitme(new_validate,e,form_id, constraints) {
                     if(!$(element).is('select[multiple]')) {
 
                         if($(element).parent().prop('style') != undefined && $(element).parent().prop('style').visibility == 'hidden'){
-                            console.log(element);
                             $(element).val("");
                         }
                     }
@@ -117,7 +114,8 @@ function submitme(new_validate,e,form_id, constraints) {
             }
 
             //error conatins an list of the elements and their errors
-            var errors = validate(elements, constraints);
+            //set false full message because the name of the input not can be translated
+            var errors = validate(elements, constraints, {fullMessages: false});
             if (typeof  errors !== 'undefined') {
                 //prevent default if trigger is submit button
                 if(typeof (e) !== 'undefined') {
@@ -135,15 +133,14 @@ function submitme(new_validate,e,form_id, constraints) {
                 for (var key in errors) {
                     element = $('[name="'+ key + '"]');
                     if (errors.hasOwnProperty(key)) {
-
-                        appendError(element, key)
+                        appendError(element, key, errors[key][0])
                     }
                 }
             }
             /**
             * append 'span' with error message
             */
-            function appendError(input, id){
+            function appendError(input, id, message){
 
                 //append 'span' tag for error massages if not exist
                 if($("#error_" + id).length == 0) {
@@ -158,8 +155,11 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
                 //show error message
+                var error_msg = getErrorMessage(message);
+
                 var title= $(input).attr('title');
-                if(title == undefined) { title = "" }
+                //if it's long title remove it from error message (this could destroy the UI)
+                if(title == undefined || title.length > 20) { title = "" }
                 $("#error_" + id).text(title +' '+error_msg);
 
                 $(input).addClass('error-border');
@@ -201,7 +201,7 @@ function submitme(new_validate,e,form_id, constraints) {
             /*
             * hide error message
             * @param element
-            * */
+            **/
             function hideErrors(input, id){
                 $(input).removeClass('error-border');
                 $("#error_" + id).text('');
@@ -213,6 +213,34 @@ function submitme(new_validate,e,form_id, constraints) {
                     $('a#header_tab_'+type_tab).css('color', 'black');
                 }
             }
+            /*
+            * Check if exist translation for current error message else return default message.
+            * In addition you can adding custom error message to the constraints json according validate.js instructions and add the translation here
+            * @param message
+            **/
+            function getErrorMessage(message){
+                //enable to translate error message
+                //todo - adding all the translations string from validate.js
+                // console.log(message);
+                switch (message){
+                    case 'Patient Name Required':
+                        return '<?php echo xl('Patient Name Required');?>';
+                    case 'An end date later than the start date is required for repeated events!':
+                       return '<?php echo xl('An end date later than the start date is required for repeated events!');?>';
+                    case 'Required field missing: Please enter the User Name':
+                        return '<?php xl('Required field missing: Please enter the User Name','e');?>';
+                    case 'Please enter the password':
+                        return '<?php echo xl('Please enter the password'); ?>';
+                    case 'Required field missing: Please enter the First name':
+                        return '<?php xl('Required field missing: Please enter the First name','e');?>';
+                    case 'Required field missing: Please enter the Last name':
+                        return '<?php xl('Required field missing: Please enter the Last name','e');?>';
+                    default:
+                       return '<?php echo xl('is not valid');?>';
+                }
+            }
+
+
             return valid;
         }
     }

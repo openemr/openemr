@@ -16,13 +16,34 @@ $alertmsg = '';
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
+<?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["new_user"]["rules"];
+}
+?>
 <script language="JavaScript">
+
+/*
+* validation on the form with new client side validation (using validate.js).
+* this enable to add new rules for this form in the pageValidation list.
+* */
+var collectvalidation = <?php echo($collectthis); ?>;
+
 function trimAll(sString)
 {
 	while (sString.substring(0,1) == ' ')
@@ -37,98 +58,73 @@ function trimAll(sString)
 } 
 
 function submitform() {
-    if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0 && document.getElementById('fname').value.length >0 && document.getElementById('lname').value.length >0) {
-       top.restoreSession();
 
-       //Checking if secure password is enabled or disabled.
-       //If it is enabled and entered password is a weak password, alert the user to enter strong password.
-       if(document.new_user.secure_pwd.value == 1){
-          var password = trim(document.new_user.stiltskin.value);
-          if(password != "") {
-             var pwdresult = passwordvalidate(password);
-             if(pwdresult == 0){
-                alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
-                return false;
-             }
-          }
-       } //secure_pwd if ends here
+    var valid = submitme(1, undefined, 'new_user', collectvalidation);
+    if (!valid) return;
 
-       <?php if($GLOBALS['erx_enable']){ ?>
-       alertMsg='';
-       f=document.forms[0];
-       for(i=0;i<f.length;i++){
-          if(f[i].type=='text' && f[i].value)
-          {
-             if(f[i].name == 'rumple')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,35);
-                alertMsg += checkUsername(f[i].name,f[i].value);
-             }
-             else if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,35);
-                alertMsg += checkUsername(f[i].name,f[i].value);
-             }
-             else if(f[i].name == 'federaltaxid')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,10);
-                alertMsg += checkFederalEin(f[i].name,f[i].value);
-             }
-             else if(f[i].name == 'state_license_number')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,10);
-                alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
-             }
-             else if(f[i].name == 'npi')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,35);
-                alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
-             }
-             else if(f[i].name == 'federaldrugid')
-             {
-                alertMsg += checkLength(f[i].name,f[i].value,30);
-                alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
-             }
-          }
-       }
-       if(alertMsg)
-       {
-          alert(alertMsg);
-          return false;
-       }
-       <?php } // End erx_enable only include block?>
+   top.restoreSession();
 
-        document.forms[0].submit();
-        parent.$.fn.fancybox.close(); 
+   //Checking if secure password is enabled or disabled.
+   //If it is enabled and entered password is a weak password, alert the user to enter strong password.
+   if(document.new_user.secure_pwd.value == 1){
+      var password = trim(document.new_user.stiltskin.value);
+      if(password != "") {
+         var pwdresult = passwordvalidate(password);
+         if(pwdresult == 0){
+            alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+            return false;
+         }
+      }
+   } //secure_pwd if ends here
 
-    } else {
-       if (document.forms[0].rumple.value.length<=0)
-       {
-          document.forms[0].rumple.style.backgroundColor="red";
-          alert("<?php xl('Required field missing: Please enter the User Name','e');?>");
-          document.forms[0].rumple.focus();
-          return false;
-       }
-       if (document.forms[0].stiltskin.value.length<=0)
-       {
-          document.forms[0].stiltskin.style.backgroundColor="red";
-          alert("<?php echo xl('Please enter the password'); ?>");
-          document.forms[0].stiltskin.focus();
-          return false;
-       }
-       if(trimAll(document.getElementById('fname').value) == ""){
-          document.getElementById('fname').style.backgroundColor="red";
-          alert("<?php xl('Required field missing: Please enter the First name','e');?>");
-          document.getElementById('fname').focus();
-          return false;
-       }
-       if(trimAll(document.getElementById('lname').value) == ""){
-          document.getElementById('lname').style.backgroundColor="red";
-          alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
-          document.getElementById('lname').focus();
-          return false;
-       }
-    }
+   <?php if($GLOBALS['erx_enable']){ ?>
+   alertMsg='';
+   f=document.forms[0];
+   for(i=0;i<f.length;i++){
+      if(f[i].type=='text' && f[i].value)
+      {
+         if(f[i].name == 'rumple')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,35);
+            alertMsg += checkUsername(f[i].name,f[i].value);
+         }
+         else if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,35);
+            alertMsg += checkUsername(f[i].name,f[i].value);
+         }
+         else if(f[i].name == 'federaltaxid')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,10);
+            alertMsg += checkFederalEin(f[i].name,f[i].value);
+         }
+         else if(f[i].name == 'state_license_number')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,10);
+            alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
+         }
+         else if(f[i].name == 'npi')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,35);
+            alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+         }
+         else if(f[i].name == 'federaldrugid')
+         {
+            alertMsg += checkLength(f[i].name,f[i].value,30);
+            alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+         }
+      }
+   }
+   if(alertMsg)
+   {
+      alert(alertMsg);
+      return false;
+   }
+   <?php } // End erx_enable only include block?>
+
+    document.forms[0].submit();
+    parent.$.fn.fancybox.close();
+
 }
 function authorized_clicked() {
      var f = document.forms[0];
@@ -158,17 +154,16 @@ function authorized_clicked() {
 <table border=0>
 
 <tr><td valign=top>
-<form name='new_user' method='post'  target="_parent" action="usergroup_admin.php"
+<form name='new_user' id="new_user" method='post'  target="_parent" action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo $GLOBALS['secure_password']; ?>">
 
 <span class="bold">&nbsp;</span>
-</td><td>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
-<td style="width:150px;"><span class="text"><?php xl('Username','e'); ?>: </span></td><td  style="width:220px;"><input type=entry name=rumple style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
-<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type="entry" style="width:120px;" name=stiltskin><span class="mandatory">&nbsp;*</span></td>
+<td style="width:150px;"><span class="text"><?php xl('Username','e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
+<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type=entry style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
 </tr>
 <tr>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>

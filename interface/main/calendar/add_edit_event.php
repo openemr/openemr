@@ -79,7 +79,22 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
  ?>
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
- <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+ <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
+<?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["theform"]["rules"];
+}
+?>
 
  <?php
 
@@ -719,7 +734,7 @@ if ($_POST['form_action'] == "save") {
  $repeatfreq = '0';
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
- $patientname = xl('Click to select');
+ $patientname = null;
  $patienttitle = "";
  $pcroom = "";
  $hometext = "";
@@ -1261,7 +1276,7 @@ $classpati='';
    <b><?php echo xlt('Patient'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
+   <input type='text' size='10' name='form_patient' id="form_patient" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xl('Click to select');?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
@@ -1392,7 +1407,7 @@ if  ($GLOBALS['select_multi_providers']) {
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
+   <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
    <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1566,7 +1581,7 @@ if ($repeatexdate != "") {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#form_save").click(function() { validate("save"); });
+    $("#form_save").click(function() { validateform("save"); });
     $("#form_duplicate").click(function() { validate("duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
@@ -1582,26 +1597,38 @@ $(document).ready(function(){
     dateChanged();
 });
 
-// Check for errors when the form is submitted.
-function validate(valu) {
-     var f = document.getElementById('theform');
-    if (f.form_repeat.checked &&
-        (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
-        alert('<?php echo addslashes(xl("An end date later than the start date is required for repeated events!")); ?>');
-        return false;
+/*
+* validation on the form with new client side validation (using validate.js).
+* this enable to add new rules for this form in the pageValidation list.
+* */
+var collectvalidation = <?php echo($collectthis); ?>;
+function validateform(valu){
+    //add rule if choose repeating event
+    if ($('#form_repeat').is(':checked')){
+        collectvalidation.form_enddate = {
+            datetime: {
+                dateOnly: true,
+                earliest: $('#form_date').val(),
+                message: "An end date later than the start date is required for repeated events!"
+            },
+            presence: true
+        }
+    } else {
+        if(collectvalidation.form_enddate != undefined){
+            delete collectvalidation.form_enddate;
+        }
     }
-    <?php
-    if($_GET['prov']!=true){
-    ?>
-     if(f.form_pid.value == ''){
-      alert('<?php echo addslashes(xl('Patient Name Required'));?>');
-      return false;
-     }
-    <?php
-    }
-    ?>
-    $('#form_action').val(valu);
 
+    <?php
+    if($_GET['prov']==true){
+    ?>
+    //remove rule if it's provider event
+    if(collectvalidation.form_patient != undefined){
+        delete collectvalidation.form_patient;
+    }
+    <?php
+    }
+    ?>
     <?php if ($repeats): ?>
     // existing repeating events need additional prompt
     if ($("#recurr_affect").val() == "") {
@@ -1612,7 +1639,13 @@ function validate(valu) {
     }
     <?php endif; ?>
 
-    return SubmitForm();
+    var submit = submitme(1, undefined, 'theform', collectvalidation);
+
+    if (submit) {
+        $('#form_action').val(valu);
+        SubmitForm();
+    }
+
 }
 
 // disable all the form elements outside the recurr_popup
