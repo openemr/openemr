@@ -204,12 +204,11 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
 
 .tinylogocontainer
 {
-       border: none;
+       display: block;
 }
 
 .tinylogopng
 {
-       display: inline-block;
        width: 86px;
        height: 43px;
 }
