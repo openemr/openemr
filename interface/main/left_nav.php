@@ -1053,7 +1053,22 @@ $(document).ready(function(){
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
 
-<?php if ( ( $GLOBALS['concurrent_layout'] == 2) || ($GLOBALS['concurrent_layout'] == 3) ) { ?>
+<?php if ( ( $GLOBALS['concurrent_layout'] == 2) || ($GLOBALS['concurrent_layout'] == 3) ) {
+  // mdsupport - menu showhide arrows
+  if ($_SESSION['language_direction'] == 'ltr') {
+    $ahide = 'fa-angle-double-left';
+    $ashow = 'fa-angle-double-right';
+  } else {
+    $ahide = 'fa-angle-double-right';
+    $ashow = 'fa-angle-double-left';
+  }        
+?>
+<div>
+  <span style='margin-left:-3px;float:left;background:black;height:14px;width:8px;'>
+    <a id='showhide'><i id='fa-arrows' class="fa <?php echo $ahide ?>" aria-hidden="true" style='color:white;font-size: 16px;'></i></a>
+  </span>
+</div>
+
 <center>
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100;'>
  <option value='0'><?php xl('Default','e'); ?></option>
@@ -1535,6 +1550,35 @@ if (!empty($reg)) {
 
 <script language='JavaScript'>
 syncRadios();
+
+$('#showhide').click( function() {
+	var fa=$('#fa-arrows');
+	var exp = fa.hasClass('fa-angle-double-right');
+	var m = parent.document.getElementById("fsbody");
+	var r = parent.document.getElementById("fsright");
+	var nav = parent.document.getElementsByName("left_nav")[0];
+	var srv = <?php echo json_encode(array(
+	    'ahide' => $ahide,
+	    'whide' => ($_SESSION['language_direction'] == 'ltr' ? '8,*' : '*,8'),
+	    'ashow' => $ashow,
+	    'wshow' => ($_SESSION['language_direction'] == 'ltr' ? $GLOBALS['gbl_nav_area_width'].',*' : '*,'.$GLOBALS['gbl_nav_area_width']),
+	)); ?>;
+	if (m.cols == srv.whide) {
+ 	  m.frameborder = '1';
+ 	  r.frameborder = '1';
+		m.cols = srv.wshow;
+  	$('#fa-arrows').removeClass(srv.ashow);
+  	$('#fa-arrows').addClass(srv.ahide);
+  	nav.scrolling = 'yes';
+	} else {
+	  m.frameborder = '0';
+	  r.frameborder = '0';
+		m.cols = srv.whide;
+  	$('#fa-arrows').removeClass(srv.ahide);
+  	$('#fa-arrows').addClass(srv.ashow);
+  	nav.scrolling = 'no';
+	}
+});
 </script>
 
 </body>
