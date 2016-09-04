@@ -39,7 +39,6 @@ include_once("$srcdir/sql.inc");
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
 <script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
 <script language='JavaScript'>
@@ -60,7 +59,19 @@ function imsubmitted() {
 </script>
 
 </head>
-<body onload="javascript:document.login_form.authUser.focus();" class="body_image">
+<body onload="javascript:document.login_form.authUser.focus();">
+<div class="logobar">
+    <img style="position:absolute;top:0;left:0;"src=" <?php echo $GLOBALS['webroot']?>/interface/pic/logo.gif" />
+</div>
+<div class="body_title">
+    <span class="title_bar">
+        <div id='tinylogocontainer' class='tinylogocontainer'>
+        <?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?>
+        </div>
+        <div class="title_name"><?php echo text($openemr_name); ?></div>
+    </span>
+    <br>
+</div>
 <span class="text"></span>
 <center>
 
@@ -129,28 +140,12 @@ else {
 }
 ?>
 
-<table width="100%" height="99%">
+<table width="100%" height="90%">
 <td align='center' valign='middle' width='34%'>
-<div class="login-box" <?php if ($GLOBALS['extra_logo_login']) echo "style='width: 600px;'"; //enlarge width larger to fix the extra logo ?> >
-<img class="logo-image" src="<?php echo $GLOBALS['webroot']?>/interface/pic/logo.png" />
+<div class="login-box">
+<div class="logo-left"><?php echo $logocode;?></div>
 
-<?php if ($GLOBALS['tiny_logo_1'] || $GLOBALS['tiny_logo_2']) { ?>
-        <div id='tinylogocontainer' class='tinylogocontainer'>
-                <?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?>
-        </div>
-<?php } ?>
-
-<div class="title_name">
-<?php if ($GLOBALS['show_label_login']) { ?>
-        <?php echo text($openemr_name); ?>
-<?php } ?>
-</div>
-
-<?php if ($GLOBALS['extra_logo_login']) { ?>  
-        <div class="logo-left"><?php echo $logocode;?></div> 
-<?php } ?>
-
-<div class="table-right" <?php if ($GLOBALS['extra_logo_login']) echo "style='padding: 20px 20px;'"; //make room for the extra logo ?> >
+<div class="table-right">
 <table width="100%">
 <?php if (count($result) != 1) { ?>
 <tr>

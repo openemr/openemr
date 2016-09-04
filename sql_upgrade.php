@@ -40,7 +40,6 @@ ksort($versions);
 <head>
 <title>OpenEMR Database Upgrade</title>
 <link rel='STYLESHEET' href='interface/themes/style_blue.css'>
-<link rel="shortcut icon" href="interface/pic/favicon.ico" />
 </head>
 <body>
 <center>

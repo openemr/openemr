@@ -31,7 +31,6 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
 <head>
 <title>OpenEMR <?php echo attr($EMRversion) ?> <?php echo xlt('Database Patch'); ?></title>
 <link rel='STYLESHEET' href='interface/themes/style_blue.css'>
-<link rel="shortcut icon" href="interface/pic/favicon.ico" />
 </head>
 <body style="color:green;">
 <div style="box-shadow: 3px 3px 5px 6px #ccc; border-radius: 20px; padding: 10px 40px;background-color:#EFEFEF; width:500px; margin:40px auto"> 
