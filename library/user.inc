@@ -45,6 +45,8 @@ function getUserSetting($label, $user=NULL, $defaultUser=0) {
  */
 function checkUserSetting($label, $value, $user=NULL) {
 
+  $user = effectiveUser($user);
+
   $curval = getUserSetting ($label, $user);
   if (is_null($curval)) {
     return false;
@@ -59,9 +61,10 @@ function checkUserSetting($label, $value, $user=NULL) {
  * @param string $label - Setting key
  * @param string $value - Setting value
  * @param int $user - user id number from users table
- * @param boolean $createDefault - If no current global default value, create one. 
+ * @param boolean $createDefault - If no current global default value, create one.
+ * @param boolean $overwrite - If this is set to true, then overwrite the current setting
  */
-function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE) {
+function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE, $overwrite=TRUE) {
   
   $user = effectiveUser($user);
 
@@ -71,14 +74,15 @@ function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE) {
   if (is_null($cur_value)) {
     sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
       "VALUES (?,?,?)", array($user, $label, $value) );
-  } elseif ($cur_value !== $value) {
+  } elseif ( ($cur_value !== $value) && $overwrite ) {
     sqlStatement("UPDATE user_settings SET setting_value=? " .
       "WHERE setting_user=? AND setting_label=?", array($value, $user, $label) );
   }
   
-  // Call self to create default value
+  // Call self to create default token
+  // (Note this is only done if a default token does not yet exist, thus set overwrite to FALSE))
   if ($createDefault) {
-    setUserSetting($label, $value, 0, false);
+    setUserSetting($label, $value, 0, false, false);
   }
 }
 

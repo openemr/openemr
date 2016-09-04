@@ -39,7 +39,7 @@ require_once("$srcdir/user.inc");
 
 // mdsupport - user_settings prefix
 $uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
-$setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window', '1');
+$setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window', ' ');
 
 #define variables, future enhancement allow changing the to_date and from_date 
 #to allow picking a date to review
@@ -153,6 +153,7 @@ function openNewTopWindow(newpid,newencounterid) {
  <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
    <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
+   <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
    <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
    <label id='settings'><input type='checkbox' name='form_new_window' id='form_new_window' value='1'<?php echo $setting_new_window ?> >
      <?php echo xlt('Open Patient in New Window'); ?></input></label>
