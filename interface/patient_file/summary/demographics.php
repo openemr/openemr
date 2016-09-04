@@ -1512,7 +1512,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      $pres = sqlStatement($query, array($pid) );
 
 	// appointments expand collapse widget
-        $widgetTitle = xl("Past Appoinments");
+        $widgetTitle = xl("Past Appointments");
         $widgetLabel = "past_appointments";
         $widgetButtonLabel = '';
         $widgetButtonLink = '';
