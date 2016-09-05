@@ -218,4 +218,6 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
        position: relative;
        top:0;
        left:0;
+       width:296;
+       height:72;
 }
