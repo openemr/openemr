@@ -7,7 +7,7 @@ include_once("$srcdir/auth.inc");
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script src="checkpwd_validation.js" type="text/javascript"></script>
-<script src="<?php echo $webroot;?>/library/js/jquery-1.9.1.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
