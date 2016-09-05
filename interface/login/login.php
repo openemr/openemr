@@ -41,7 +41,7 @@ include_once("$srcdir/sql.inc");
 <link rel=stylesheet href="../themes/login.css" type="text/css">
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
-<script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
+<script language='JavaScript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-4-3/index.js"></script>
 <script language='JavaScript'>
 function transmit_form()
 {
