@@ -55,7 +55,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 </style><link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <title><?php xl('Indigent Patients Report','e')?></title>
 
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 
 <script language="JavaScript">
 
@@ -295,7 +295,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 
 <script language="Javascript">
  Calendar.setup({inputField:"form_start_date", ifFormat:"%Y-%m-%d", button:"img_start_date"});

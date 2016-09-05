@@ -47,7 +47,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         <?php html_header_show(); ?>
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
         <script type="text/javascript" src="../../library/textformat.js"></script>
-        <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
         <script type="text/javascript">
 
 
