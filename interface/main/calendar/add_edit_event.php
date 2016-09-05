@@ -1559,7 +1559,7 @@ if  ($GLOBALS['select_multi_providers']) {
     <td></td>
     <td></td>
     <td><input  type='checkbox' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
-    <td id="days_label"><?php echo xlt('Days Of Week:'); ?></td>
+    <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
         foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('M{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('W{{Wednesday}}'),
@@ -1753,7 +1753,7 @@ function validate(valu) {
 
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if(f.days_every_week.checked && !are_days_checked()){
-        alert('<?php echo addslashes(xl("Must choose at least one day!")); ?>');
+        alert('<?php echo xls("Must choose at least one day!"); ?>');
         return false;
     }
 
