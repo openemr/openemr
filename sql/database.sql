@@ -2886,7 +2886,7 @@ CREATE TABLE `list_options` (
   `is_default` tinyint(1) NOT NULL default '0',
   `option_value` float NOT NULL default '0',
   `mapping` varchar(31) NOT NULL DEFAULT '',
-  `notes` TEXT NOT NULL DEFAULT '',
+  `notes` TEXT,
   `codes` varchar(255) NOT NULL DEFAULT '',
   `toggle_setting_1` tinyint(1) NOT NULL default '0',
   `toggle_setting_2` tinyint(1) NOT NULL default '0',

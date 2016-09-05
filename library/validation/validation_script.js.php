@@ -224,17 +224,17 @@ function submitme(new_validate,e,form_id, constraints) {
                 // console.log(message);
                 switch (message){
                     case 'Patient Name Required':
-                        return '<?php echo xl('Patient Name Required');?>';
+                        return '<?php echo xlt('Patient Name Required');?>';
                     case 'An end date later than the start date is required for repeated events!':
-                       return '<?php echo xl('An end date later than the start date is required for repeated events!');?>';
+                       return '<?php echo xlt('An end date later than the start date is required for repeated events!');?>';
                     case 'Required field missing: Please enter the User Name':
-                        return '<?php xl('Required field missing: Please enter the User Name','e');?>';
+                        return '<?php xlt('Required field missing: Please enter the User Name','e');?>';
                     case 'Please enter the password':
-                        return '<?php echo xl('Please enter the password'); ?>';
+                        return '<?php echo xlt('Please enter the password'); ?>';
                     case 'Required field missing: Please enter the First name':
-                        return '<?php xl('Required field missing: Please enter the First name','e');?>';
+                        return '<?php xlt('Required field missing: Please enter the First name');?>';
                     case 'Required field missing: Please enter the Last name':
-                        return '<?php xl('Required field missing: Please enter the Last name','e');?>';
+                        return '<?php xlt('Required field missing: Please enter the Last name');?>';
                     default:
                        return '<?php echo xl('is not valid');?>';
                 }
