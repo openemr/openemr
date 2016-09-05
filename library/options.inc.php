@@ -122,7 +122,23 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	$selectEmptyName = xlt($empty_name);
 	if ($empty_name)
 		$s .= "<option value=''>" . $selectEmptyName . "</option>";
-	$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array($list_id));
+
+    // List order depends on language translation options.
+    $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+
+    if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+        !$GLOBALS['translate_lists']) {
+        $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array($list_id));
+    } else {
+        $lres = sqlStatement("SELECT lo.option_id, " .
+            "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+            "FROM list_options AS lo " .
+            "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+            "ld.lang_id = '$lang_id' " .
+            "WHERE lo.list_id = ? " .
+            "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.seq), lo.title", array($list_id));
+    }
 	$got_selected = FALSE;
 	
 	while ( $lrow = sqlFetchArray ( $lres ) ) {
@@ -145,8 +161,22 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	  */
 	  if (!$got_selected && strlen($currvalue) > 0)
 	  {
-	    $lres_inactive = sqlStatement("SELECT * FROM list_options " .
-	    "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
+
+          if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+              !$GLOBALS['translate_lists']) {
+              $lres_inactive = sqlStatement("SELECT * FROM list_options " .
+                  "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
+          } else {
+              $lres_inactive = sqlStatement("SELECT lo.option_id, " .
+                  "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                  "FROM list_options AS lo " .
+                  "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+                  "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                  "ld.lang_id = '$lang_id' " .
+                  "WHERE lo.list_id = ? lo.activity = 0 AND lo.option_id = ? " .
+                  "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.seq),lo.title", array($list_id, $currvalue));
+          }
+
 	    $lrow_inactive = sqlFetchArray($lres_inactive);
 	    if($lrow_inactive['option_id']) {
 	      $optionValue = htmlspecialchars( $lrow_inactive['option_id'], ENT_QUOTES);
@@ -174,9 +204,20 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	} else if (!$got_selected && strlen ( $currvalue ) > 0 && $multiple) {
 		//if not found in main list, display all selected values that exist in backup list
 		$list_id = $backup_list;
-		
-		$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
-		
+        if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+            !$GLOBALS['translate_lists']) {
+            $lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
+        } else {
+            $lres_backup = sqlStatement("SELECT lo.option_id, " .
+                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                "FROM list_options AS lo " .
+                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                "ld.lang_id = '$lang_id' " .
+                "WHERE lo.list_id = ? " .
+                "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.seq), lo.title", array($list_id));
+        }
+
 		$got_selected_backup = FALSE;
 		if (!empty($backup_list)) {
 			while ( $lrow_backup = sqlFetchArray ( $lres_backup ) ) {
