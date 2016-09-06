@@ -1582,7 +1582,7 @@ if ($repeatexdate != "") {
 
 $(document).ready(function(){
     $("#form_save").click(function() { validateform("save"); });
-    $("#form_duplicate").click(function() { validate("duplicate"); });
+    $("#form_duplicate").click(function() { validateform("duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
     $("#cancel").click(function() { window.close(); });
