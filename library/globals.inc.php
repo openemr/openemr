@@ -98,6 +98,7 @@ $USER_SPECIFIC_TABS = array('Appearance',
                             'Calendar',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
+                               'new_tabs_layout',
                                'concurrent_layout',
                                'css_header',
                                'gbl_pt_list_page_size',
