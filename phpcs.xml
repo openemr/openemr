@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<ruleset name="OpenEMR Standard">
+  <description>PSR2 without namespace enforcement.</description>
+  <arg name="tab-width" value="4" />
+  <!-- PHP code MUST use only UTF-8 without BOM. -->
+  <rule ref="Generic.Files.ByteOrderMark" />
+  <!-- Checks that the opening PHP tag is the first content in a file. -->
+  <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag" />
+  <!-- Makes sure that shorthand PHP open tags are not used. -->
+  <rule ref="Generic.PHP.DisallowShortOpenTag" />
+  <!-- PHP Files should end with exactly one newline. -->
+  <rule ref="PSR2.Files.EndFileNewline" />
+  <!-- There MUST NOT be more than one statement per line. -->
+  <rule ref="Generic.Formatting.DisallowMultipleStatements" />
+  <!-- Argument lists MAY be split across multiple lines, where each subsequent line is indented once. When doing so, the first item in the list MUST be on the next line, and there MUST be only one argument per line. When the argument list is split across multiple lines, the closing parenthesis and opening brace MUST be placed together on their own line with one space between them. -->
+  <rule ref="Squiz.Functions.MultiLineFunctionDeclaration" />
+  <!-- Lines can be 120 chars long, but never show errors -->
+  <rule ref="Generic.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120" />
+      <property name="absoluteLineLimit" value="0" />
+    </properties>
+  </rule>
+  <!-- Use Unix newlines -->
+  <rule ref="Generic.Files.LineEndings">
+    <properties>
+      <property name="eolChar" value="\n" />
+    </properties>
+  </rule>
+  <!-- There MUST NOT be trailing whitespace at the end of non-blank lines. -->
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+    <properties>
+      <property name="ignoreBlankLines" value="true" />
+    </properties>
+  </rule>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile">
+    <severity>0</severity>
+  </rule>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile">
+    <severity>0</severity>
+  </rule>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+    <severity>0</severity>
+  </rule>
+  <!-- Indenting -->
+  <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG" />
+    </properties>
+  </rule>
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+  <rule ref="Generic.WhiteSpace.ScopeIndent" />
+  <!-- Keywords and True/False/Null -->
+  <!-- PHP keywords MUST be in lower case. -->
+  <rule ref="Generic.PHP.LowerCaseKeyword" />
+  <!-- The PHP constants true, false, and null MUST be in lower case. -->
+  <rule ref="Generic.PHP.LowerCaseConstant" />
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/Documentation/*</exclude-pattern>
+  <exclude-pattern>*/tests/*</exclude-pattern>
+  <exclude-pattern>*/phpmyadmin/*</exclude-pattern>
+  <exclude-pattern>*/gacl/*</exclude-pattern>
+  <exclude-pattern>*/images/*</exclude-pattern>
+</ruleset>
