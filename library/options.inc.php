@@ -135,7 +135,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			$s .= " selected";
 			$got_selected = TRUE;
 		}
-		
+
 		$optionLabel = text(xl_list_label($lrow ['title']));
 		$s .= ">$optionLabel</option>\n";
 	}
@@ -175,17 +175,15 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		//if not found in main list, display all selected values that exist in backup list
 		$list_id = $backup_list;
 		
-		$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
-		
 		$got_selected_backup = FALSE;
 		if (!empty($backup_list)) {
+			$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
 			while ( $lrow_backup = sqlFetchArray ( $lres_backup ) ) {
 				$selectedValues = explode ( "|", $currvalue );
 			
-				$optionValue = attr($lrow ['option_id']);
+				$optionValue = attr($lrow_backup['option_id']);
 			
-				if ($multiple && (strlen ( $currvalue ) == 0 && $lrow_backup ['is_default']) || 
-						(strlen ( $currvalue ) > 0 && in_array ( $lrow_backup ['option_id'], $selectedValues ))) {
+				if ( in_array($lrow_backup ['option_id'],$selectedValues)) {
 					$s .= "<option value='$optionValue'";
 					$s .= " selected";
 					$optionLabel = text(xl_list_label($lrow_backup ['title']));
@@ -195,7 +193,12 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			}
 		}
 		if (!$got_selected_backup) {
-			$s .= "<option value='$currescaped' selected>* $currescaped *</option>";
+			$selectedValues = explode ( "|", $currvalue );
+			foreach ( $selectedValues as $selectedValue ) {
+				$s .= "<option value='" . attr($selectedValue) . "'";
+				$s .= " selected";
+				$s .= ">* " . text($selectedValue) . " *</option>\n";
+			}
 			$s .= "</select>";
 			$fontTitle = xlt('Please choose a valid selection from the list.');
 			$fontText = xlt( 'Fix this' );
