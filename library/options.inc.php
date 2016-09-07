@@ -131,11 +131,11 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		$optionValue = attr($lrow ['option_id']);
 		$s .= "<option value='$optionValue'";
 
-		if ($multiple && (strlen ( $currvalue ) == 0 && $lrow ['is_default']) || (strlen ( $currvalue ) > 0 && in_array ( $lrow ['option_id'], $selectedValues ))) {
+		if ((strlen ( $currvalue ) == 0 && $lrow ['is_default']) || (strlen ( $currvalue ) > 0 && in_array ( $lrow ['option_id'], $selectedValues ))) {
 			$s .= " selected";
 			$got_selected = TRUE;
 		}
-		
+
 		$optionLabel = text(xl_list_label($lrow ['title']));
 		$s .= ">$optionLabel</option>\n";
 	}
@@ -184,7 +184,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			
 				$optionValue = attr($lrow ['option_id']);
 			
-				if ($multiple && (strlen ( $currvalue ) == 0 && $lrow_backup ['is_default']) || 
+				if ((strlen ( $currvalue ) == 0 && $lrow_backup ['is_default']) ||
 						(strlen ( $currvalue ) > 0 && in_array ( $lrow_backup ['option_id'], $selectedValues ))) {
 					$s .= "<option value='$optionValue'";
 					$s .= " selected";
