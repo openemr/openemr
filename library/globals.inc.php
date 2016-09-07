@@ -358,6 +358,16 @@ $GLOBALS_METADATA = array(
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
     ),
 
+    'gb_how_sort_list' => array(
+      xl('How to sort a drop-lists'),
+      array(
+        '0' => 'Sort by seq',
+        '1' => 'Sort alphabetically'
+      ),
+      '0',
+      xl('What kind of sorting will be in the drop lists.')
+    ),
+
     'show_label_login' => array(
       xl('Show Title on Login'),
       'bool',                           // data type
