@@ -154,8 +154,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
                 $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
             }
             $lres = sqlStatement("SELECT lo.option_id, lo.is_default, " .
-                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title, " .
-                "IF(LENGTH(ld.definition),1,0) AS already_translated " .
+                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
                 "FROM list_options AS lo " .
                 "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
@@ -175,13 +174,10 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			$s .= " selected";
 			$got_selected = TRUE;
 		}
-		
-                if ( !empty($lrow['already_translated']) && ($lrow['already_translated'] == 1) ) {
-		        $optionLabel = text($lrow ['title']);
-                }
-                else {
-                        $optionLabel = text(xl_list_label($lrow ['title']));
-                }
+
+		// Already has been translated above (if applicable), so do not need to use
+		// the xl_list_label() function here 
+		$optionLabel = text($lrow ['title']);
 		$s .= ">$optionLabel</option>\n";
 	}
 
