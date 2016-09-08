@@ -25,11 +25,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 
 #topToolbarRight {
-    background-color:#BBCCFF;
     float: right;
     width: 100%;
     border-bottom:1px solid black;
-    border-TOP:1px solid black;
 }
 #dateNAV {
     float: left;
