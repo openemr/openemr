@@ -400,6 +400,7 @@ if ($_POST['form_action'] == "save") {
                     $args['duration'] = $duration * 60;
                     // this event is forced to NOT REPEAT
                     $args['form_repeat'] = "0";
+                    $args['days_every_week'] = "0";
                     $args['recurrspec'] = $noRecurrspec;
                     $args['form_enddate'] = "0000-00-00";
                     $args['starttime'] = $starttime;
