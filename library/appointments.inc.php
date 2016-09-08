@@ -137,11 +137,11 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
       case '0' :
 
         $events2[] = $event;
-        
+
         break;
 //////
       case '1' :
-
+      case '3' :
         $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
         $rfreq = $event_recurrspec['event_repeat_freq'];
@@ -259,53 +259,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
         break;
 
-      case '3':
-        $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
-        $rfreq = $event_recurrspec['event_repeat_freq'];
-        $rtype = $event_recurrspec['event_repeat_freq_type'];
-        $exdate = $event_recurrspec['exdate'];
-
-        list($ny,$nm,$nd) = explode('-',$event['pc_eventDate']);
-//        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-        $occurance = $event['pc_eventDate'];
-
-        while($occurance < $from_date) { 
-          $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-          list($ny,$nm,$nd) = explode('-',$occurance);
-        }
-
-        while($occurance <= $stopDate) {
-
-            $excluded = false;
-            if (isset($exdate)) {
-                foreach (explode(",", $exdate) as $exception) {
-                    // occurrance format == yyyy-mm-dd
-                    // exception format == yyyymmdd
-                    if (preg_replace("/-/", "", $occurance) == $exception) {
-                        $excluded = true;
-                    }
-                }
-            }
-
-            if ($excluded == false) {
-              $event['pc_eventDate'] = $occurance;
-              $event['pc_endDate'] = '0000-00-00';
-              $events2[] = $event;
-              //////
-              if ($nextX) {
-                ++$incX;
-                if($incX == $nextX) break;
-              }
-              //////
-            }
-            
-            $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-            list($ny,$nm,$nd) = explode('-',$occurance);
-
-        }
-
-        break;
 	    
     }
 
