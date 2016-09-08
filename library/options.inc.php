@@ -130,24 +130,34 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
         //   list; note these will always be shown at the bottom of the list no matter the
         //   chosen order.)
         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-        if ($GLOBALS['gb_how_sort_list'] == '0') {
-          //sort by seq
-          $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array($list_id));
-        } else if ($GLOBALS['gb_how_sort_list'] == '1') {
-          // sort by title
-          if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) || !$GLOBALS['translate_lists']) {
-            $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY title, seq", array($list_id));
-          } else {
-            $lres = sqlStatement("SELECT lo.option_id, " .
-              "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title, " .
-              "IF(LENGTH(ld.definition),1,0) AS already_translated " .
-              "FROM list_options AS lo " .
-              "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
-              "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-              "ld.lang_id = ? " .
-              "WHERE lo.list_id = ?  AND lo.activity=1 " .
-              "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq", array($lang_id, $list_id));
-          }
+        // sort by title
+        if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) || !$GLOBALS['translate_lists']) {
+            // do not translate
+            if ($GLOBALS['gb_how_sort_list'] == '0') {
+                $order_by_sql = "seq, title";
+            }
+            else { //$GLOBALS['gb_how_sort_list'] == '1'
+                $order_by_sql = "title, seq";
+            }
+            $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY " . $order_by_sql, array($list_id));
+        }
+        else {
+            // do translate
+            if ($GLOBALS['gb_how_sort_list'] == '0') {
+                $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
+            }
+            else { //$GLOBALS['gb_how_sort_list'] == '1'
+                $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
+            }
+            $lres = sqlStatement("SELECT lo.option_id, lo.is_default, " .
+                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title, " .
+                "IF(LENGTH(ld.definition),1,0) AS already_translated " .
+                "FROM list_options AS lo " .
+                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                "ld.lang_id = ? " .
+                "WHERE lo.list_id = ?  AND lo.activity=1 " .
+                "ORDER BY " . $order_by_sql, array($lang_id, $list_id));
         }
 	$got_selected = FALSE;
 	
