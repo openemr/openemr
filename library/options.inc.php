@@ -134,9 +134,11 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
         if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) || !$GLOBALS['translate_lists']) {
             // do not translate
             if ($GLOBALS['gb_how_sort_list'] == '0') {
+                // order by seq
                 $order_by_sql = "seq, title";
             }
             else { //$GLOBALS['gb_how_sort_list'] == '1'
+                // order by title
                 $order_by_sql = "title, seq";
             }
             $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY " . $order_by_sql, array($list_id));
@@ -144,9 +146,11 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
         else {
             // do translate
             if ($GLOBALS['gb_how_sort_list'] == '0') {
+                // order by seq
                 $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
             }
             else { //$GLOBALS['gb_how_sort_list'] == '1'
+                // order by title
                 $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
             }
             $lres = sqlStatement("SELECT lo.option_id, lo.is_default, " .
