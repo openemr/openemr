@@ -140,7 +140,7 @@ $GLOBALS_METADATA = array(
         '0' => xl('Off'),
         '1' => xl('On'),
       ),
-      '0',                              // default = off
+      '1',                              // default = off
       xl('Use the new tabs layout style (need to logout and then login to see this new setting).')
     ),
 
