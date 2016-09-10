@@ -128,6 +128,7 @@ $GLOBALS_METADATA = array(
       array(
         'main_info.php' => xl('Calendar Screen'),
         '../new/new.php' => xl('Patient Search/Add Screen'),
+        '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
         '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),		
       ),
       'main_info.php',                  // default = calendar
