@@ -175,11 +175,11 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
       case '0' :
 
         $events2[] = $event;
-        
+
         break;
 //////
       case '1' :
-
+      case '3' :
         $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
         $rfreq = $event_recurrspec['event_repeat_freq'];
@@ -297,6 +297,8 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
         break;
 
+
+	    
     }
 
   }    

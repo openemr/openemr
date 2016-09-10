@@ -37,6 +37,7 @@ define('REPEAT_EVERY_WEEK',    1);
 define('REPEAT_EVERY_MONTH',   2);
 define('REPEAT_EVERY_YEAR',    3);
 define('REPEAT_EVERY_WORK_DAY',4);
+	define('REPEAT_DAYS_EVERY_WEEK', 6);
 //===============================================================================
 //Create event in calender as arrived
 function calendar_arrived($form_pid) {
@@ -312,8 +313,13 @@ function check_event_exist($eid)
 // $args is mainly filled with content from the POST http var
 function InsertEvent($args,$from = 'general') {
   $pc_recurrtype = '0';
-  if ($args['form_repeat']) {
-    $pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
+  if ($args['form_repeat'] || $args['days_every_week']) {
+  	if($args['recurrspec']['event_repeat_freq_type'] == "6"){
+  		$pc_recurrtype = 3;
+	}
+	else {
+		$pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
+	}
   }
   $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
   $form_room = empty($args['form_room']) ? '' : $args['form_room'];
@@ -363,7 +369,8 @@ function InsertEvent($args,$from = 'general') {
  */
 function &__increment($d,$m,$y,$f,$t)
 {
-    if($t == REPEAT_EVERY_DAY) {
+
+	if($t == REPEAT_EVERY_DAY) {
         return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
     } elseif($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
@@ -400,7 +407,46 @@ function &__increment($d,$m,$y,$f,$t)
         return date('Y-m-d',mktime(0,0,0,($m+$f),$d,$y));
     } elseif($t == REPEAT_EVERY_YEAR) {
         return date('Y-m-d',mktime(0,0,0,$m,$d,($y+$f)));
-    }
+    }elseif($t == REPEAT_DAYS_EVERY_WEEK) {
+		$old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+		$next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
+		return $next_appointment_date;
+	}
 }
+
+	function getTheNextAppointment($appointment_date, $freq){
+		$day_arr = explode(",", $freq);
+		$date_arr = array();
+		foreach ($day_arr as $day){
+			$day = getDayName($day);
+			$date = date('Y-m-d', strtotime("next " . $day, strtotime($appointment_date)));
+			array_push($date_arr, $date);
+		}
+		$next_appointment = getEarliestDate($date_arr);
+		return $next_appointment;
+
+
+	}
+
+	function getDayName($day_num){
+		if($day_num == "1"){return "sunday";}
+		if($day_num == "2"){return "monday";}
+		if($day_num == "3"){return "tuesday";}
+		if($day_num == "4"){return "wednesday";}
+		if($day_num == "5"){return "thursday";}
+		if($day_num == "6"){return "friday";}
+		if($day_num == "7"){return "saturday";}
+	}
+
+
+	function getEarliestDate($date_arr){
+		$earliest = ($date_arr[0]);
+		foreach ($date_arr as $date){
+			if(strtotime($date) < strtotime($earliest)){
+				$earliest = $date;
+			}
+		}
+		return $earliest;
+	}
 //================================================================================================================
 ?>
