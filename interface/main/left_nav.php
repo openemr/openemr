@@ -1084,7 +1084,6 @@ $(document).ready(function(){
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','pfb',xl('Flow Board')); ?>
   <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
-  <?php if ($GLOBALS['lab_exchange_enable']) genTreeLink('RTop', 'lab', xl('Check Lab Results'));?>
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
   <?php
     if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
