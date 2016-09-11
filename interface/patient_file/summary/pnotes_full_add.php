@@ -326,7 +326,7 @@ if ($result_count == $N) {
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars( $ndata['fname']." ".$ndata['lname'], ENT_QUOTES) . "',$patient_id,'" . htmlspecialchars( $ndata['pubpid'], ENT_QUOTES) . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," . addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }

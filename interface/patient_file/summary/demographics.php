@@ -423,9 +423,9 @@ function setMyPatient() {
   return;
  }
 <?php if (isset($_GET['set_pid'])) { ?>
- parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars(($result['fname']) . " " . ($result['lname']),ENT_QUOTES) .
-   "'," . htmlspecialchars($pid,ENT_QUOTES) . ",'" . htmlspecialchars(($result['pubpid']),ENT_QUOTES) .
-   "','', ' " . htmlspecialchars(xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']), ENT_QUOTES) . "'"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) .
+   "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
+   "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
  var EncounterDateArray = new Array;
  var CalendarCategoryArray = new Array;
  var EncounterIdArray = new Array;
@@ -437,9 +437,9 @@ function setMyPatient() {
   if(sqlNumRows($result4)>0) {
     while($rowresult4 = sqlFetchArray($result4)) {
 ?>
- EncounterIdArray[Count] = '<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
- EncounterDateArray[Count] = '<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
- CalendarCategoryArray[Count] = '<?php echo htmlspecialchars(xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
+ EncounterIdArray[Count] = '<?php echo addslashes($rowresult4['encounter']); ?>';
+ EncounterDateArray[Count] = '<?php echo addslashes(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
+ CalendarCategoryArray[Count] = '<?php echo addslashes(xl_appt_category($rowresult4['pc_catname'])); ?>';
  Count++;
 <?php
     }
