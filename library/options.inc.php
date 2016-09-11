@@ -2557,14 +2557,14 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label'";
+					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
 					++$item_count;
 
 					$field_id_label = 'label_'.$group_fields['field_id'];
-					echo "<span id='".$field_id_label."'>";
+					echo "<span id='".attr($field_id_label)."'>";
 					// Added 5-09 by BM - Translate label if applicable
 					if ($group_fields['title']) echo htmlspecialchars(xl_layout_label($group_fields['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
 					echo "</span>";
@@ -2574,12 +2574,12 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'  data-value='$currvalue'";
+					  echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
 					  echo ">";
 					  $cell_count += $datacols;
 					} else {
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<span id='".$field_id."' style='display:none'>$currvalue</span>";
+					  echo "<span id='".attr($field_id)."' style='display:none'>" . text($currvalue) . "</span>";
 					}
 
 					++$item_count;
