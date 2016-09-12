@@ -290,7 +290,10 @@ if ($fend > $count) $fend = $count;
    </a>
    &nbsp;&nbsp;
 <?php } ?>
-   <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES); ?>
+  <?php
+   $countStatement =  " - " . $fend . xl('of') .  $count;
+   echo ($fstart + 1) . htmlspecialchars( $countStatement, ENT_NOQUOTES);
+  ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
    <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">

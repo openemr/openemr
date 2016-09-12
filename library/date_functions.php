@@ -83,7 +83,7 @@ switch ($languageTitle) {
             break;
 	// hebrew (israel) , display english NOT jewish calendar
 	case "Hebrew":
-            $dt = date ("F jS Y", $strtime);
+            $dt = date ("d", $strtime) . " $nom " . date("Y", $strtime);
             if ($with_dow) $dt = "$dow, $dt";
             break;
         // default case
