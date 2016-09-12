@@ -8,7 +8,8 @@ require_once("FormVitals.class.php");
 class C_FormVitals extends Controller {
 
 	var $template_dir;
-
+    public $form_id;
+	
     function __construct($template_mod = "general") {
     	parent::__construct();
     	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
@@ -23,6 +24,11 @@ class C_FormVitals extends Controller {
       $this->assign("gbl_vitals_options",$GLOBALS['gbl_vitals_options']);
     }
 
+		function setFormId($form_id){
+		$form_id = 0;			
+		$this->form_id = $form_id;
+	}
+	
     function default_action_old() {
     	//$vitals = array();
     	//array_push($vitals, new FormVitals());
@@ -32,15 +38,16 @@ class C_FormVitals extends Controller {
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
 
-    function default_action($form_id) {
-
-        if (is_numeric($form_id)) {
-    		$vitals = new FormVitals($form_id);
+    function default_action() {
+ 
+        if (is_numeric($this->form_id)) {
+    		$vitals = new FormVitals($this->form_id);
     	}
     	else {
     		$vitals = new FormVitals();
     	}
-
+         $form_id = $this->form_id;
+		 
     	$dbconn = $GLOBALS['adodb']['db'];
     	//Combined query for retrieval of vital information which is not deleted
       $sql = "SELECT fv.*, fe.date AS encdate " .
