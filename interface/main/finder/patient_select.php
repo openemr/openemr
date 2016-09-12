@@ -444,7 +444,7 @@ if ($result) {
           if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
-              $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
+              $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }
           // calculate date differences based on date of last encounter regardless of billing
           $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
@@ -459,7 +459,7 @@ if ($result) {
           if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
-              $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
+              $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }
 
           //calculate count of encounters by distinct billing dates with cpt4
