@@ -224,23 +224,22 @@ function submitme(new_validate,e,form_id, constraints) {
                 // console.log(message);
                 switch (message){
                     case 'Patient Name Required':
-                        return '<?php echo xlt('Patient Name Required');?>';
+                        return '<?php echo xla('Patient Name Required');?>';
                     case 'An end date later than the start date is required for repeated events!':
-                       return '<?php echo xlt('An end date later than the start date is required for repeated events!');?>';
+                       return '<?php echo xla('An end date later than the start date is required for repeated events!');?>';
                     case 'Required field missing: Please enter the User Name':
-                        return '<?php xlt('Required field missing: Please enter the User Name','e');?>';
+                        return '<?php echo xla('Required field missing: Please enter the User Name','e');?>';
                     case 'Please enter the password':
-                        return '<?php echo xlt('Please enter the password'); ?>';
+                        return '<?php echo xla('Please enter the password'); ?>';
                     case 'Required field missing: Please enter the First name':
-                        return '<?php xlt('Required field missing: Please enter the First name');?>';
+                        return '<?php echo xla('Required field missing: Please enter the First name');?>';
                     case 'Required field missing: Please enter the Last name':
-                        return '<?php xlt('Required field missing: Please enter the Last name');?>';
+                        return '<?php echo xla('Required field missing: Please enter the Last name');?>';
                     default:
-                       return '<?php echo xl('is not valid');?>';
+                       return '<?php echo xla('is not valid');?>';
                 }
             }
-
-
+            //the result of validation
             return valid;
         }
     }
