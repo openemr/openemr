@@ -43,14 +43,26 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 
 #define variables, future enhancement allow changing the to_date and from_date 
 #to allow picking a date to review
- 
+
+$provider = !is_null($_POST['form_provider']) ? $_POST['form_provider'] : null;
+$facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
+$form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
+$form_apptcat=null;
+if(isset($_POST['form_apptcat']))
+{
+    if($form_apptcat!="ALL")
+    {
+        $form_apptcat=intval($_POST['form_apptcat']);
+    }
+}
+
 $appointments = array();
 $from_date = date("Y-m-d");
 $to_date = date("Y-m-d");
 $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date);
+$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
 $appointments = sortAppointments( $appointments, 'time' );
 
 $chk_prov = array();  // list of providers with appointments
@@ -139,6 +151,78 @@ function openNewTopWindow(newpid,newencounterid) {
 </head>
 
 <body class="body_top" >
+
+<form method='post' name='theform' id='theform' action='patient_tracker.php' onsubmit='return top.restoreSession()'>
+
+    <div id="flow_board_parameters">
+
+        <table>
+
+            <tr class="text">
+                <td class='label'><?php echo xlt('Provider'); ?>:</td>
+                <td><?php
+
+                    # Build a drop-down list of providers.
+
+                    $query = "SELECT id, lname, fname FROM users WHERE ".
+                        "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
+
+                    $ures = sqlStatement($query);
+
+                    echo "   <select name='form_provider'>\n";
+                    echo "    <option value='ALL'>-- " . xlt('All') . " --\n";
+
+                    while ($urow = sqlFetchArray($ures)) {
+                        $provid = $urow['id'];
+                        echo "    <option value='" . attr($provid) . "'";
+                        if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                            echo " selected";
+                        } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                            echo " selected";
+                        }
+                        echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                    }
+
+                    echo "   </select>\n";
+
+                    ?>
+                </td>
+                <td class='label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+                <td><?php echo xlt('Category') #category drop down creation ?>:</td>
+                <td>
+                    <select id="form_apptcat" name="form_apptcat">
+                        <?php
+                        $categories=fetchAppointmentCategories();
+                        echo "<option value='ALL'>".xlt("All")."</option>";
+                        while($cat=sqlFetchArray($categories))
+                        {
+                            echo "<option value='".attr($cat['id'])."'";
+                            if($cat['id']==$_POST['form_apptcat'])
+                            {
+                                echo " selected='true' ";
+                            }
+                            echo    ">".text(xl_appt_category($cat['category']))."</option>";
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td style="border-left: 1px solid;">
+                    <div style='margin-left: 15px'>
+                        <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <span> <?php echo xlt('Submit'); ?> </span> </a>
+                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                            <a href='#' class='css_button' id='printbutton'>
+                                <span> <?php echo xlt('Print'); ?> </span> </a>
+                        <?php } ?>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</form>
 
 <?php if ($GLOBALS['pat_trkr_timer'] == '0') { # if the screen is not set up for auto refresh it can be closed by auto log off ?>
 <form name='pattrk' id='pattrk' method='post' action='patient_tracker.php' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
