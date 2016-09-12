@@ -143,14 +143,17 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
     return $tracker_time ;
 } 
 
-function fetch_Patient_Tracker_Events($from_date, $to_date) 
+function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null)
 {
     # used to determine which providers to display in the Patient Tracker
-    $provider_id = null;
-    if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar'] !='1') {
+    if ($provider_id == null && $_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar'] !='1') {
       $provider_id = $_SESSION[authUserID];
     }
-    $events = fetchAppointments( $from_date, $to_date, null, $provider_id, null, null, null, null, null, true );
+    //set null to $provider id if it's 'all'
+    if($provider_id == 'ALL'){
+        $provider_id = null;
+    }
+    $events = fetchAppointments( $from_date, $to_date, null, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true );
     return $events;
 }
 
@@ -352,5 +355,17 @@ function random_drug_test($tracker_id,$percentage,$yearly_limit) {
                  "random_drug_test = ? " .
                  "WHERE id =? ", array($drugtest,$tracker_id)); 
   }
+}
+
+/* get information the statuses of the appointments*/
+function getApptStatus($appointments){
+
+    $astat = array();
+    $astat['count_all'] = count($appointments);
+    //group the appointment by status
+    foreach($appointments as $appointment){
+        $astat[$appointment['pc_apptstatus']] += 1;
+    }
+    return $astat;
 }
 ?>
