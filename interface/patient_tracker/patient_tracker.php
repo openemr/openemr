@@ -65,6 +65,9 @@ $datetime = date("Y-m-d H:i:s");
 $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
 $appointments = sortAppointments( $appointments, 'time' );
 
+//Count of arrived patient
+$arrived_status = getArrivedStatus($appointments);
+
 $chk_prov = array();  // list of providers with appointments
 
 // Scan appointments for additional info
@@ -155,9 +158,7 @@ function openNewTopWindow(newpid,newencounterid) {
 <form method='post' name='theform' id='theform' action='patient_tracker.php' onsubmit='return top.restoreSession()'>
 
     <div id="flow_board_parameters">
-
         <table>
-
             <tr class="text">
                 <td class='label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
@@ -218,9 +219,7 @@ function openNewTopWindow(newpid,newencounterid) {
                     </div>
                 </td>
             </tr>
-
         </table>
-
     </div>
 </form>
 
@@ -236,6 +235,7 @@ function openNewTopWindow(newpid,newencounterid) {
   <?php } ?>
  <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
+   <b><?php echo xlt('Total patients')  . ':' . $arrived_status['count_all'] .  ' ' . xlt('Arrived') . ':' .  $arrived_status['arrived_count']  ?>&ensp;</b>
    <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
    <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
    <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />

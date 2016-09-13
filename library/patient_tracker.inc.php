@@ -146,10 +146,10 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
 function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null)
 {
     # used to determine which providers to display in the Patient Tracker
-
     if ($provider_id == null && $_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar'] !='1') {
       $provider_id = $_SESSION[authUserID];
     }
+    //set null to $provider id if it's 'all'
     if($provider_id == 'ALL'){
         $provider_id = null;
     }
@@ -355,5 +355,24 @@ function random_drug_test($tracker_id,$percentage,$yearly_limit) {
                  "random_drug_test = ? " .
                  "WHERE id =? ", array($drugtest,$tracker_id)); 
   }
+}
+
+/* get information about how mach patients already arrived*/
+function getArrivedStatus($appointments){
+
+    $status = array();
+    $status['count_all'] = count($appointments);
+    //not arrive statuses - none, canceled, canceled < 24,left w/o visit
+    $not_arrived_statuses = array('-', 'x', '%','!');
+    //calculate arrived count
+    $status['not_arrived_count'] = 0;
+    foreach($appointments as $appointment){
+        if(in_array($appointment['status'], $not_arrived_statuses)){
+            $status['not_arrived_count']++;
+        }
+    }
+    //calculate the count of patients have arrived
+    $status['arrived_count'] = $status['count_all'] - $status['not_arrived_count'];
+    return $status;
 }
 ?>
