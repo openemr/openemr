@@ -707,61 +707,6 @@
         ]
     },
     {
-        "name": "doctrine/couchdb",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/doctrine/couchdb-client.git",
-            "reference": "911c01716730af0fc0b5074a0740fddce3156ac0"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/doctrine/couchdb-client/zipball/911c01716730af0fc0b5074a0740fddce3156ac0",
-            "reference": "911c01716730af0fc0b5074a0740fddce3156ac0",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~4.0"
-        },
-        "time": "2016-08-06 11:26:41",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Doctrine\\CouchDB": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Benjamin Eberlei",
-                "email": "kontakt@beberlei.de"
-            },
-            {
-                "name": "Lukas Kahwe Smith",
-                "email": "smith@pooteeweet.org"
-            }
-        ],
-        "description": "CouchDB Client",
-        "homepage": "http://www.doctrine-project.org",
-        "keywords": [
-            "couchdb",
-            "persistence"
-        ]
-    },
-    {
         "name": "zendframework/zendframework",
         "version": "2.4.9",
         "version_normalized": "2.4.9.0",
@@ -1088,6 +1033,59 @@
             "eventmanager",
             "persistence",
             "spl"
+        ]
+    },
+    {
+        "name": "doctrine/couchdb",
+        "version": "1.0.0-beta2",
+        "version_normalized": "1.0.0.0-beta2",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/doctrine/couchdb-client.git",
+            "reference": "5e8d808eba8d790d178e5558c182c648a12ec8e4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/doctrine/couchdb-client/zipball/5e8d808eba8d790d178e5558c182c648a12ec8e4",
+            "reference": "5e8d808eba8d790d178e5558c182c648a12ec8e4",
+            "shasum": ""
+        },
+        "require": {
+            "doctrine/common": "@stable",
+            "php": ">=5.3.2"
+        },
+        "time": "2015-07-06 16:08:10",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Doctrine\\CouchDB": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL"
+        ],
+        "authors": [
+            {
+                "name": "Benjamin Eberlei",
+                "email": "kontakt@beberlei.de"
+            },
+            {
+                "name": "Lukas Kahwe Smith",
+                "email": "smith@pooteeweet.org"
+            }
+        ],
+        "description": "CouchDB Client",
+        "homepage": "http://www.doctrine-project.org",
+        "keywords": [
+            "couchdb",
+            "persistence"
         ]
     }
 ]
