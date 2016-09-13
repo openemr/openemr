@@ -462,8 +462,8 @@ if ($_POST['form_action'] == "save") {
                 // this is important when editing an existing recurring event
                 // oct-08 JRM
                 if ($_POST['form_date'] == $_POST['selected_date']) {
-                    // user has NOT changed the start date of the event
-                    $event_date = fixDate($_POST['event_start_date']);
+                    // user has NOT changed the start date of the event (and not recurrtype 3)
+                    if($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
                 }
 
                 // this difference means that some providers were added
@@ -574,8 +574,8 @@ if ($_POST['form_action'] == "save") {
     // this is important when editing an existing recurring event
     // oct-08 JRM
     if ($_POST['form_date'] == $_POST['selected_date']) {
-        // user has NOT changed the start date of the event
-        $event_date = fixDate($_POST['event_start_date']);
+        // user has NOT changed the start date of the event (and not recurrtype 3)
+        if($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
     }
 
                 // mod the SINGLE event or ALL EVENTS in a repeating series
