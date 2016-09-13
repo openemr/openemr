@@ -11,16 +11,28 @@
     },
     "require": {
 
+        "php" : "^5.3 || ^7.0",
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.2",
         "phpmailer/phpmailer": "5.2.16",
         "rospdf/pdf-php": "0.12.22",
-        "phpseclib/phpseclib": "2.0.2"
-        
+        "phpseclib/phpseclib": "2.0.2",
+        "zendframework/zendframework": "2.4.9",
+        "phenx/php-font-lib": "0.4",
+        "phenx/php-svg-lib": "0.1",
+        "dompdf/dompdf": "0.7.0",
+        "doctrine/common": "2.5.0",
+        "doctrine/couchdb": "1.0.*@dev"
+
     },
     "require-dev": {
 
         "phing/phing": "2.14.0"
-        
+
+    },
+    "config": {
+        "preferred-install": {
+            "doctrine/couchdb": "dist"
+        }
     }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "phenx/php-svg-lib",
+  "type": "library",
+  "description": "A library to read, parse and export to PDF SVG files.",
+  "homepage": "https://github.com/PhenX/php-svg-lib",
+  "license": "LGPL-3.0",
+  "authors": [
+    {
+      "name": "Fabien Ménager",
+      "email": "fabien.menager@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "Svg\\": "src/"
+    }
+  }
+}
