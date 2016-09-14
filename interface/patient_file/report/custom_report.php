@@ -789,7 +789,7 @@ if ($PDF_OUTPUT) {
 else {
 ?>
 </body>
-<?php if (!$printable) { ?>
+<?php if (!$printable) { // Set up translated strings for use by interactive search ?>
 <script type="text/javascript">
 var xl_string = <?php echo json_encode( array(
 	'spcl_chars' => xla('Special characters are not allowed').'.',
@@ -799,7 +799,7 @@ var xl_string = <?php echo json_encode( array(
 ));
 ?>;
 </script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
 </html>
 <?php } ?>
