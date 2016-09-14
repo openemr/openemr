@@ -357,22 +357,15 @@ function random_drug_test($tracker_id,$percentage,$yearly_limit) {
   }
 }
 
-/* get information about how mach patients already arrived*/
-function getArrivedStatus($appointments){
+/* get information the statuses of the appointments*/
+function getApptStatus($appointments){
 
-    $status = array();
-    $status['count_all'] = count($appointments);
-    //not arrive statuses - none, canceled, canceled < 24,left w/o visit
-    $not_arrived_statuses = array('-', 'x', '%','!');
-    //calculate arrived count
-    $status['not_arrived_count'] = 0;
+    $astat = array();
+    $astat['count_all'] = count($appointments);
+    //group the appointment by status
     foreach($appointments as $appointment){
-        if(in_array($appointment['status'], $not_arrived_statuses)){
-            $status['not_arrived_count']++;
-        }
+        $astat[$appointment['status']] += 1;
     }
-    //calculate the count of patients have arrived
-    $status['arrived_count'] = $status['count_all'] - $status['not_arrived_count'];
-    return $status;
+    return $astat;
 }
 ?>

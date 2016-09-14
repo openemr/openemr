@@ -65,8 +65,12 @@ $datetime = date("Y-m-d H:i:s");
 $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
 $appointments = sortAppointments( $appointments, 'time' );
 
-//Count of arrived patient
-$arrived_status = getArrivedStatus($appointments);
+//grouping of the count of every status
+$appointments_status = getApptStatus($appointments);
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
+while ( $lrow = sqlFetchArray ( $lres ) ) {
+    $statuses_list[$lrow['option_id']] = substr($lrow['title'],2);
+}
 
 $chk_prov = array();  // list of providers with appointments
 
@@ -235,7 +239,6 @@ function openNewTopWindow(newpid,newencounterid) {
   <?php } ?>
  <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
-   <b><?php echo xlt('Total patients')  . ':' . $arrived_status['count_all'] .  ' ' . xlt('Arrived') . ':' .  $arrived_status['arrived_count']  ?>&ensp;</b>
    <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
    <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
    <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
@@ -256,7 +259,20 @@ function openNewTopWindow(newpid,newencounterid) {
 <?php } ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='100%'>
-
+ <tr>
+     <td colspan="12">
+         <b><small>
+             <?php
+             $statuses_output =  xlt('Total patients')  . ':' . $appointments_status['count_all'];
+             unset($appointments_status['count_all']);
+             foreach($appointments_status as $status_symbol => $count){
+                 $statuses_output .= " | " . xlt($statuses_list[$status_symbol])  .":" . $count;
+             }
+             echo $statuses_output;
+             ?>
+         </small></b>
+     </td>
+ </tr>
  <tr bgcolor="#cccff">
   <?php if ($GLOBALS['ptkr_show_pid']) { ?>
    <td class="dehead" align="center">
