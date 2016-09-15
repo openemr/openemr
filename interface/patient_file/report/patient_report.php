@@ -62,6 +62,10 @@ function show_date_fun(){
 <body class="body_top">
 <div id="patient_reports"> <!-- large outer DIV -->
 
+<p>
+<span class='title'><?php echo xlt('Patient Reports'); ?></span>
+</p>
+
 <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
 <div id="ccr_report">
 
