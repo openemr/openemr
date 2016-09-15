@@ -17,16 +17,6 @@
  * @link    http://www.open-emr.org
  */
 
-.tinylogocontainer_bar {
-    display: inline-block;
-    border: none;
-}
-.tinylogopng {
-    display: inline-block;
-    width: 27px;
-    height: 15px;
-}
-
 .top {
     vertical-align:top;
 }
