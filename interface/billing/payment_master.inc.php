@@ -41,7 +41,7 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
   $selectEmptyName = htmlspecialchars( xl($empty_name), ENT_QUOTES);
   if ($empty_name) $s .= "<option value=''>" . $selectEmptyName . "</option>";
   $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+    "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
   $got_selected = FALSE;
   while ($lrow = sqlFetchArray($lres)) {
     $optionValue = htmlspecialchars( $lrow['option_id'], ENT_QUOTES);

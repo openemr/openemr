@@ -65,7 +65,7 @@ abstract class ClinicalType
         $query = "SELECT * " .
                  "FROM `list_options` " .
                  "WHERE list_id = ? " .
-                 "AND option_id = ?";
+                 "AND option_id = ? AND activity = 1";
         $results = sqlStatement( $query, array( $this->getListId(), $id ) );
         $arr = sqlFetchArray( $results );
         return $arr;

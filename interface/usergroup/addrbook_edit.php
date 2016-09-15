@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -66,7 +66,7 @@ td { font-size:10pt; }
   // 2 = Person Centric
   // 3 = Company Centric
   $sql = sqlStatement("SELECT option_id, option_value FROM list_options WHERE " .
-   "list_id = 'abook_type'");
+   "list_id = 'abook_type' AND activity = 1");
   while ($row_query = sqlFetchArray($sql)) {
    echo "type_options_js"."['" . attr($row_query['option_id']) . "']=" . attr($row_query['option_value']) . ";\n";
   }
@@ -111,7 +111,7 @@ td { font-size:10pt; }
 
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
- $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ?", array(trim($_POST['form_abook_type'])));
+ $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
  $option_abook_type = $type_sql_row['option_value'];
  // Set up any abook_type specific settings
  if ($option_abook_type == 3) {

@@ -594,7 +594,7 @@ if ($form_action) { // if submit or export
     "s.drug_id = di.drug_id AND " .
     "( s.inventory_id = di.inventory_id OR s.xfer_inventory_id = di.inventory_id ) " .
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
-    "lo.option_id = di.warehouse_id " .
+    "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
     "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= '$form_from_date' )";
 

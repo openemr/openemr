@@ -103,7 +103,7 @@ class FeeSheet {
     $this->ALLOW_COPAYS = !$GLOBALS['ippf_specific'];
 
     // Get the user's default warehouse and an indicator if there's a choice of warehouses.
-    $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");
+    $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse' AND activity = 1");
     $this->got_warehouses = $wrow['count'] > 1;
     $wrow = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?",
       array($_SESSION['authUser']));

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2012, 2016 Rod Roark <rod@sunsetsystems.com>
 // Sponsored by David Eschelbacher, MD
 //
 // This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ $header0 = "";
 $header  = "";
 $coljson = "";
 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-  "list_id = 'ptlistcols' ORDER BY seq, title");
+  "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 while ($row = sqlFetchArray($res)) {
   $colname = $row['option_id'];
   $title = xl_list_label($row['title']);

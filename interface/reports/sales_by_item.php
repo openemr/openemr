@@ -511,7 +511,7 @@ $(document).ready(function() {
         "JOIN code_types AS ct ON ct.ct_key = b.code_type " .
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
         "LEFT JOIN codes AS c ON c.code_type = ct.ct_id AND c.code = b.code AND c.modifier = b.modifier " .
-        "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
+        "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill AND lo.activity = 1 " .
         "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= ? AND fe.date <= ?";
         array_push($sqlBindArray,$from_date,$to_date);

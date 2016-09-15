@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2011 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2011, 2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -266,7 +266,7 @@ function LBFgcac_default_in_ab_proc() {
       list($codetype, $code) = explode(':', $codestring);
       if ($codetype !== 'IPPF') continue;
       $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
-        "WHERE list_id = 'in_ab_proc'");
+        "WHERE list_id = 'in_ab_proc' AND activity = 1");
       while ($lrow = sqlFetchArray($lres)) {
         $maparr = explode(':', $lrow['mapping']);
         if (empty($maparr[1])) continue;

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006, 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class='') {
   $allow_multiple = $drow['allow_multiple'];
 
   $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = 'warehouse' ORDER BY seq, title");
+    "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
 
   echo "<select name='".attr($tag_name)."' id='".attr($tag_name)."'";
   if ($class) echo " class='".attr($class)."'";
@@ -456,7 +456,7 @@ $lres = sqlStatement("SELECT " .
   "di.inventory_id, di.lot_number, di.on_hand, lo.title " .
   "FROM drug_inventory AS di " .
   "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
-  "lo.option_id = di.warehouse_id " .
+  "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
   "WHERE di.drug_id = ? AND di.inventory_id != ? AND " .
   "di.on_hand > 0 AND di.destroy_date IS NULL " .
   "ORDER BY di.lot_number, lo.title, di.inventory_id", array ($drug_id,$lot_id));

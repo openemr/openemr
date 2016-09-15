@@ -854,7 +854,7 @@ function newPatientData(    $db_id="",
 
     // Get the default price level.
     $lrow = sqlQuery("SELECT option_id FROM list_options WHERE " .
-      "list_id = 'pricelevel' ORDER BY is_default DESC, seq ASC LIMIT 1");
+      "list_id = 'pricelevel' AND activity = 1 ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
     $query = ("replace into patient_data set

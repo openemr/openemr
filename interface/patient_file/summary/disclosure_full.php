@@ -94,17 +94,19 @@ $N=15;
 $offset = $_REQUEST['offset'];
 if (!isset($offset)) $offset = 0;
 
-$disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el ".
-		   " LEFT JOIN users u ON u.username = el.user ".
-		   " WHERE el.patient_id=? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type') ORDER BY el.date DESC ";
+$disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
+  " LEFT JOIN users u ON u.username = el.user " .
+  " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
+  " ORDER BY el.date DESC ";
 $r2= sqlStatement($disclQry, array($pid) );
 $totalRecords=sqlNumRows($r2);
 
 //echo "select id,event,recipient,description,date from extended_log where patient_id=$pid AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset ,$N";
 //display all of the disclosures for the day, as well as others that are active from previous dates, up to a certain number, $N
-$disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el ".
-				" LEFT JOIN users u ON u.username = el.user ".
-				" WHERE patient_id=? AND event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type') ORDER BY date DESC LIMIT $offset,$N";
+$disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
+  " LEFT JOIN users u ON u.username = el.user" .
+  " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
+  " ORDER BY date DESC LIMIT $offset, $N";
 
 $r1= sqlStatement($disclInnerQry, array($pid) );
 $n=sqlNumRows($r1);

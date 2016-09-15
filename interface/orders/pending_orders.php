@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2013, 2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -160,8 +160,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "JOIN patient_data AS pd ON pd.pid = po.patient_id " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
     "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
-    "LEFT JOIN list_options AS lop ON lop.list_id = 'ord_priority' AND lop.option_id = po.order_priority " .
-    "LEFT JOIN list_options AS los ON los.list_id = 'ord_status' AND los.option_id = po.order_status " .
+    "LEFT JOIN list_options AS lop ON lop.list_id = 'ord_priority' AND lop.option_id = po.order_priority AND lop.activity = 1 " .
+    "LEFT JOIN list_options AS los ON los.list_id = 'ord_status' AND los.option_id = po.order_status AND los.activity = 1 " .
     "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
     "WHERE " .
     "po.date_ordered >= '$from_date' AND po.date_ordered <= '$to_date' AND " .

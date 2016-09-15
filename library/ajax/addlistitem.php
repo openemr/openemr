@@ -30,7 +30,7 @@ $option_value = 0;
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and title='".trim($title). "'"
+                    " and title = '" . trim($title) . "' AND activity = 1" 
                     );
 if ($exists_title) {
 	echo json_encode(array("error"=> xl('Record already exist') ));
@@ -39,7 +39,7 @@ if ($exists_title) {
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and option_id='".trim($option_id)."'"
+                    " and option_id = '" . trim($option_id) . "' AND activity = 1"
                     );
 if ($exists_id) {
 	echo json_encode(array("error"=> xl('Record already exist') ));
@@ -49,7 +49,7 @@ if ($exists_id) {
 // determine the sequential order of the new item,
 // it should be the maximum number for the specified list plus one
 $seq = 0;
-$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id= '".$list_id."'");
+$row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id = '" . $list_id . "' AND activity = 1");
 $seq = $row['maxseq']+1;
 
 // add the new list item
@@ -70,7 +70,7 @@ echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
 echo '{"id":"","title":"' . xl('Unassigned') . '"}';
 $comma = ",";
-$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' ORDER BY seq");
+$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' AND activity = 1 ORDER BY seq");
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';

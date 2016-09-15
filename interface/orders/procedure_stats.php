@@ -3,7 +3,7 @@
  * This module creates statistical reports related to lab tests and
  * other procedure orders.
  *
- *  Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
+ *  Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
  *  Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -112,7 +112,7 @@ function genEndRow() {
 
 function getListTitle($list, $option) {
   $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = '$list' AND option_id = '$option'");
+    "list_id = '$list' AND option_id = '$option' AND activity = 1");
   if (empty($row['title'])) return $option;
   return $row['title'];
 }

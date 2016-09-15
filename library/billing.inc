@@ -276,7 +276,7 @@ function getInvoiceRefNumber() {
   $trow = sqlQuery("SELECT lo.notes " .
     "FROM users AS u, list_options AS lo " .
     "WHERE u.username = ? AND " .
-    "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool LIMIT 1",
+    "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
     array($_SESSION['authUser']));
   return empty($trow['notes']) ? '' : $trow['notes'];
 }

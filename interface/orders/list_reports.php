@@ -2,7 +2,7 @@
 /**
 * List procedure orders and reports, and fetch new reports and their results.
 *
-* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ require_once("./gen_hl7_order.inc.php");
  */
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ?",
+    "WHERE list_id = ? AND option_id = ? AND activity = 1",
     array($listid, $value));
   $tmp = xl_list_label($lrow['title']);
   if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");

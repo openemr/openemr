@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ $listid  = $_GET['listid'];
 $target  = $_GET['target'];
 $current = $_GET['current'];
 
-$res = sqlStatement("SELECT option_id FROM list_options WHERE list_id = ? " .
+$res = sqlStatement("SELECT option_id FROM list_options WHERE list_id = ? AND activity = 1 " .
   "ORDER BY seq, option_id", array($listid));
 
 echo "var itemsel = document.forms[0]['$target'];\n";

@@ -21,7 +21,7 @@ class RuleManager {
     "SELECT lo.title as title, cr.*
            FROM clinical_rules cr
            JOIN list_options lo
-            ON (cr.id = lo.option_id AND lo.list_id = 'clinical_rules')";
+            ON (cr.id = lo.option_id AND lo.list_id = 'clinical_rules' AND lo.activity = 1)";
 
     const SQL_RULE_REMINDER_INTERVAL =
     "SELECT id,
@@ -738,7 +738,7 @@ class RuleManager {
             );
         } else {
             // update
-            $result = sqlQuery( "select max(seq)+10 AS seq from list_options where list_id = ?", array($listId) );
+            $result = sqlQuery( "select max(seq)+10 AS seq from list_options where list_id = ? AND activity = 1", array($listId) );
             $seq = $result['seq'];
             sqlStatement("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ( ?, ?, ?, ? )", array(
                 $listId,
@@ -750,7 +750,7 @@ class RuleManager {
     }
 
     private function labelExists( $listId, $optionId, $title ) {
-        $result = sqlQuery( "SELECT COUNT(*) AS CT FROM list_options WHERE list_id = ? AND option_id = ? AND title = ?", array($listId, $optionId, $title) );
+        $result = sqlQuery( "SELECT COUNT(*) AS CT FROM list_options WHERE list_id = ? AND option_id = ? AND title = ? AND activity = 1", array($listId, $optionId, $title) );
         if ( $result && $result['CT'] > 0 ) {
             return true;
         } else {
