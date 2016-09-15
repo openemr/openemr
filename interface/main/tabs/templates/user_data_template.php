@@ -23,7 +23,7 @@
     <!-- ko with: user -->
         <div id="username" class="appMenu">
             <div class="menuSection userSection">
-                <div class='menuLabel'>
+                <div class='menuLabel' id="username" title="<?php echo xla('Current user') ?>">
                     <span data-bind="text:fname"></span>
                     <span data-bind="text:lname"></span>
                 </div>

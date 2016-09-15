@@ -29,7 +29,6 @@ html
 body
 {
     font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
-    font-size: 10pt;
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
