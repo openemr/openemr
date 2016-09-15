@@ -22,11 +22,11 @@
  */
 
 $menu_json='[
-  {"label":"Calendar","menu_id":"cal0","target":"lst","url":"/interface/main/main_info.php","children":[],"requirement":0},
-  {"label":"Flow Board","menu_id":"pfb0","target":"lst","url":"/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1","children":[],"requirement":0},
-  {"label":"Messages ","menu_id":"msg0","target":"pat","url":"/interface/main/messages/messages.php?form_active=1","children":[],"requirement":0},
+  {"label":"Calendar","menu_id":"cal0","target":"cal","url":"/interface/main/main_info.php","children":[],"requirement":0},
+  {"label":"Flow Board","menu_id":"pfb0","target":"flb","url":"/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1","children":[],"requirement":0},
+  {"label":"Messages ","menu_id":"msg0","target":"msg","url":"/interface/main/messages/messages.php?form_active=1","children":[],"requirement":0},
   {"label":"Patient/Client","menu_id":"patimg","children":[
-    {"label":"Patients","menu_id":"fin0","target":"lst","url":"/interface/main/finder/dynamic_finder.php","children":[],"requirement":0},
+    {"label":"Patients","menu_id":"fin0","target":"fin","url":"/interface/main/finder/dynamic_finder.php","children":[],"requirement":0},
     {"label":"New/Search","menu_id":"new0","target":"pat","url":"/interface/new/new.php","children":[],"requirement":0},
     {"label":"Summary","menu_id":"dem1","target":"pat","url":"/interface/patient_file/summary/demographics.php","children":[],"requirement":1},
     {"label":"Visits","icon":"fa-caret-right","children":[
@@ -77,7 +77,7 @@ $menu_json='[
     {"label":"Other","icon":"fa-caret-right","children":[
       {"label":"Language","menu_id":"adm0","target":"adm","url":"/interface/language/language.php","children":[],"requirement":0,"acl_req":["admin","language"]},
       {"label":"Forms","menu_id":"adm0","target":"adm","url":"/interface/forms_admin/forms_admin.php","children":[],"requirement":0,"acl_req":["admin","forms"]},
-      {"label":"Calendar","menu_id":"adm0","target":"lst","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"]},
+      {"label":"Calendar","menu_id":"adm0","target":"adm","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"]},
       {"label":"Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/logview.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"Database","menu_id":"adm0","target":"adm","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
       {"label":"Certificates","menu_id":"adm0","target":"adm","url":"/interface/usergroup/ssl_certificates_admin.php","children":[],"requirement":0,"acl_req":["admin","users"]},
