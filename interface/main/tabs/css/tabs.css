@@ -249,8 +249,8 @@ div.closeDlgIframe {
 
 #userData
 {
-    position: absolute;
-    right: 0;
+    position: relative;
+    float: right;
 }
 .patientInfo
 {
