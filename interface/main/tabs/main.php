@@ -68,21 +68,21 @@ function isEncounterLocked( encounterId ) {
 }
 var webroot_url="<?php echo $web_root; ?>";
 </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="css/tabs.css"/>
-<link rel="stylesheet" type="text/css" href="css/menu.css"/>
+<link rel="stylesheet" href="<?php echo $css_header;?>?v=<?php echo $v_js_includes; ?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="css/tabs.css?v=<?php echo $v_js_includes; ?>"/>
+<link rel="stylesheet" type="text/css" href="css/menu.css?v=<?php echo $v_js_includes; ?>"/>
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
 
-<script type="text/javascript" src="js/custom_bindings.js"></script>
+<script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<script type="text/javascript" src="js/user_data_view_model.js"></script>
-<script type="text/javascript" src="js/patient_data_view_model.js"></script>
-<script type="text/javascript" src="js/tabs_view_model.js"></script>
-<script type="text/javascript" src="js/application_view_model.js"></script>
-<script type="text/javascript" src="js/frame_proxies.js"></script>
-<script type="text/javascript" src="js/dialog_utils.js"></script>
+<script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <link rel='stylesheet' href='<?php echo $GLOBALS['assets_static_relative']; ?>/typicons-2-0-7/src/font/typicons.min.css' />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
