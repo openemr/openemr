@@ -16,7 +16,7 @@ var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 //  for entring of vitals and for graphing/trending previous vitals by being embedded
 //  in the interface/patient_file/encounter/trend_form.php page.
 if (typeof jQuery == 'undefined') {
-  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['webroot'];{/php}{literal}/library/js/jquery.js'><\/script>")
+  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['assets_static_relative'];{/php}{literal}/jquery-min-1-2-1/index.js'><\/script>")
 }
 
 function vitalsFormSubmitted() {

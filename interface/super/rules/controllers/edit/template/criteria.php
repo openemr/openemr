@@ -10,7 +10,7 @@
 <head>
     <?php html_header_show();?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header'] ?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
 
 </head>
