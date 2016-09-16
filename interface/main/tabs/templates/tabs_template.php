@@ -25,8 +25,8 @@
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </span>
         <!-- ko  foreach: tabsList -->
-            <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
-                <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
+            <span class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
+                <span  data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->
                     <span class="fa fa-fw fa-unlock"  data-bind="click: tabLockToggle"></span>
@@ -38,7 +38,7 @@
                 <!-- ko if:closable-->
                     <span class="fa fa-fw fa-times" data-bind="click: tabClose"></span>
                 <!-- /ko -->
-            </div>
+            </span>
         <!-- /ko -->
     </div>
 </script>
