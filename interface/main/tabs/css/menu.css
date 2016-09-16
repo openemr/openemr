@@ -24,10 +24,13 @@
 .appMenu > span
 {
     float: left;
-    padding:0px 0px;
+    padding: 0px;
     white-space: nowrap;
 }
-.appMenu > span:hover 
+
+.appMenu
+
+.appMenu > span:hover
 {
     color: #fff;
     text-decoration: none;
@@ -40,41 +43,27 @@
     margin:0;
     padding: 1px 5px 2px 1px;
 }
-.appMenu li
-{
-    padding-left: 14px;
-}
-.appMenu li:hover
-{
-    color: #fff;
-    text-decoration: none;
-    background-color: #1C5ECF;
-    text-shadow: none;
-}
+
 .appMenu li:hover > .menuDisabled
- {   
+ {
     background-color: transparent;
 }
 .menuSection{
     position: relative;
 }
+.menuSection:hover {
+    background-color: #CCE3F8;
+}
 .menuSection > .menuEntries{
-    background-color:#C9DBF2;
+    background:#fff;
     display: none;
     position: absolute;
-    top: 22px;
+    top: 48px;
     z-index:1000;
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
-    border: 0.5pt solid gray;
-    border-radius: 0px 5px 5px 5px;
-    color: black;
-    margin-top: 3px;
-    padding-top: 3px;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-bottom: 4px;
-    whitespace:nowrap;
+    box-shadow: 0px 5px 5px #adadad;
+    padding: 0px;
+    whitespace: nowrap;
 }
 
 .menuSection > .menuEntries .menuEntries {
@@ -82,20 +71,49 @@
     position: absolute;
     top: -3px;
     left: 161px;
-    transition: 2s background-color;
 }
 .menuSection:hover > .menuEntries{
     display: block;
 }
 
+/* Need separate styling for top level vs submenu items
+ * This currently controls ALL links in menu, no bueno
+ * --Robert Down */
 .menuLabel
 {
-    cursor: pointer;
-    padding: 5px 12px 3px;
+    color: #333;
+    display:inline-block;
+    padding: 15px 10px;
+    font-weight: 100;
 }
+.menuLabel:hover {
+    background: #CCE3F8;
+    color: #333;
+}
+
+/** Sub menu **/
+.menuEntries li .menuLabel {
+    font-size: 90%;
+    display: block;
+    padding: 10px 20px;
+}
+.menuEntries li .menuLabel:hover {
+    background-color: #CCE3F8;
+    color: #333;
+}
+
+.logo {
+    padding: 10px 0px;
+}
+
 .menuDisabled
 {
-    color:gray;
+    color: #d7d7d7;
+}
+.menuDisabled:hover {
+    color: #d7d7d7 !important;
+    background-color: #f4f4f4 !important;
+    cursor: not-allowed;
 }
 
 #username
@@ -107,18 +125,18 @@
     min-width: 200px;
     right:10px;
 }
+
+/* Main menu bar */
 .body_top {
-    background-color: #C9DBF2;   
-    padding:0px;
-    border-bottom:0.1pt solid black;
-    -moz-box-shadow:    0 0 10px #000;
-    -webkit-box-shadow:  0 0 10px #000;
-    box-shadow:          0 0 10px #000;
-    z-index:10;
+    background-color: #f4f4f4;
+    color: #333;
+    padding: 0px;
+    margin: 0px;
+    z-index: 10;
 }
 .body_title {
     color: black;
-    background-color: #c9dbf2;
+    background-color: #fff;
     padding:10px 0px 0px 0px;
 }
 #username:hover > .userfunctions
@@ -131,15 +149,7 @@
 {
     color: red;
 }
-.logo {
-  border-radius: 50%;
-  -webkit-transition: -webkit-transform .8s ease-in-out;
-  transition: transform .8s ease-in-out;
-}
-.logo:hover {
-  -webkit-transform: rotate(360deg);
-  transform: rotate(360deg);
-}
+
 .acck {}
 
 .menu_arrow {

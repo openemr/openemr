@@ -21,8 +21,8 @@
 
 <script type="text/html" id="menu-action">
     <i data-bind="css: icon,text:helperText" class="fa closeButton"></i>
-    <div class='menuLabel' data-bind="text:label,click: menuActionClick,css: {menuDisabled: ! enabled()}"></div>
-    
+    <a class='menuLabel' href="#" data-bind="text:label,click: menuActionClick,css: {menuDisabled: ! enabled()}"></a>
+
 </script>
 <script type="text/html" id="menu-header">
     <i data-bind="css: icon" class="fa closeButton"></i>
