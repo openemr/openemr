@@ -547,4 +547,12 @@ div#portal-buttons-bottom{
     text-align: left !important;
 }
 
+/* flow board */
+form#pattrk h2>span{
+    float: right !important;
+}
+form#pattrk #inanewwindow>span{
+    float: left !important;
+}
+
 
