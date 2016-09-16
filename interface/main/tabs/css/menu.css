@@ -62,13 +62,14 @@
     background-color:#C9DBF2;
     display: none;
     position: absolute;
-    top: 25px;
+    top: 22px;
     z-index:1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
     border: 0.5pt solid gray;
     border-radius: 0px 5px 5px 5px;
     color: black;
+    margin-top: 3px;
     padding-top: 3px;
     padding-left: 0px;
     padding-right: 0px;
