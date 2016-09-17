@@ -28,11 +28,12 @@ html
 }
 body
 {
-    font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
+    /*font-family: 'FontAwesome', Arial, Helvetica, sans-serif;*/
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     margin: 0px;
+    background-color: #f4f4f4;
 }
 #mainBox
 {
@@ -188,7 +189,10 @@ div.closeDlgIframe {
 }
 #patientData
 {
-    min-height: 4em;
+    background-color: #f4f4f4;
+}
+.patientInfo a {
+    color: #333 !important;
 }
 
 .patientDataColumn
@@ -212,20 +216,15 @@ div.closeDlgIframe {
     z-index:1;
 }
 
-.patientEncounterList  table.encounters
-{
+.patientEncounterList  table.encounters {
     display: none;
 }
 
-
-.patientEncounterList:hover table.encounters
-{
+.patientEncounterList:hover table.encounters {
     display: block;
-
 }
 
-.patientEncounterList > div
-{
+.patientEncounterList > div {
     padding: 2px;
 }
 .patientEncounterList:hover
@@ -265,19 +264,7 @@ div.closeDlgIframe {
     padding: 1px 1px 1px 10px;
 }
 
-.patientInfo .clear
-{
-    font-size: x-small;
-    margin: 1px;
-    padding: 3px;
-    border: 1px solid black;
-    background-color: lightgray;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.patientInfo .clear:hover
-{
-    color:red;
+.patientInfo .clear:hover i {
+    color: #ff5d5a;
 }
 

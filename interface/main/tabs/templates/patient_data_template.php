@@ -14,45 +14,41 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
+ * @author  Robert Down <robertdown@live.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
 ?>
 
 <script type="text/html" id="patient-data-template">
-        <div>
-            <span class="patientDataColumn">
-                <div class="patientInfo">
-                    <b>
-                    <span>
-                            <?php echo xlt("Patient"); ?>:
-                    </span>
-                    <!-- ko if: patient -->
-                        <a data-bind="click:refreshPatient,with: patient" href="#">
-                            <span data-bind="text: pname()"></span>(<span data-bind="text: pubpid"></span>)
-                        </a>
-                    <!-- /ko -->
-                    <!-- ko ifnot: patient -->
-                        <span><?php echo xlt("None");?></span>
-                    <!-- /ko -->
-
-                    <!-- ko if: patient -->
-                    <span class="clear" data-bind="click:clearPatient"><?php echo xlt("Clear") ?></span>
-                        <!-- /ko -->
-                    </b>
-                </div>
-                <div class="patientInfo">
-                    <b>
-                    <!-- ko if: patient -->
-                        <span data-bind="text:patient().str_dob()"></span>
-                    <!-- /ko -->
-                    </b>
-                </div>
+    <div>
+        <span class="patientDataColumn">
+            <div class="patientInfo">
+                <?php echo xlt("Patient"); ?>:
+                <!-- ko if: patient -->
+                    <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
+                        <span data-bind="text: pname()"></span>(<span data-bind="text: pubpid"></span>)
+                    </a>
+                <!-- /ko -->
+                <!-- ko ifnot: patient -->
+                    <?php echo xlt("None");?>
+                <!-- /ko -->
+                <!-- ko if: patient -->
+                    <strong><a href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
+                        <i class="fa fa-times"></i>
+                    </a></strong>
+                <!-- /ko -->
+            </div>
+            <div class="patientInfo">
+                <!-- ko if: patient -->
+                    <span data-bind="text:patient().str_dob()"></span>
+                <!-- /ko -->
+            </div>
             </span>
             <span class="patientDataColumn">
                 &nbsp;
-                 <!-- ko if: patient -->                
-                <!-- ko with: patient -->                
+                 <!-- ko if: patient -->
+                <!-- ko with: patient -->
                 <div>
                     <span>Selected Encounter:</span>
                     <!-- ko if:selectedEncounter() -->
@@ -61,15 +57,15 @@
                     <!-- /ko -->
                     <!-- ko if:!selectedEncounter() -->
                         <?php echo xlt("None") ?>
-                    <!-- /ko -->                
+                    <!-- /ko -->
                 </div>
-                <!-- /ko -->  
-                <!-- /ko -->  
+                <!-- /ko -->
+                <!-- /ko -->
             </span>
             <span class="patientDataColumn patientEncountersColumn">
-                <!-- ko if: patient -->                
-                <!-- ko with: patient -->                
-                
+                <!-- ko if: patient -->
+                <!-- ko with: patient -->
+
                 <span class="patientEncounterList" >
                     <div data-bind="click: clickNewEncounter"><?php echo xlt("New Encounter");?></div>
                     <div data-bind="click: clickEncounterList"><?php echo xlt("Past Encounter List");?>
@@ -90,8 +86,8 @@
                         </tbody>
                     </table>
                 </span>
-                <!-- /ko -->                
-                <!-- /ko -->                
+                <!-- /ko -->
+                <!-- /ko -->
 
             </span>
         </div>

@@ -84,7 +84,7 @@
     color: #333;
     display:inline-block;
     padding: 15px 10px;
-    font-weight: 100;
+    font-weight: 600;
 }
 .menuLabel:hover {
     background: #CCE3F8;
@@ -136,7 +136,7 @@
 }
 .body_title {
     color: black;
-    background-color: #fff;
+    background-color: #f4f4f4;
     padding:10px 0px 0px 0px;
 }
 #username:hover > .userfunctions
