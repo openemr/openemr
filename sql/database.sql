@@ -4141,21 +4141,21 @@ insert into list_options (list_id, option_id, title, seq, option_value, mapping,
 -- Medical Problem Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');
 INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'HTN', 'HTN', 10,'ICD10:I10');
-INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'Asthma', 'Asthma', 20,'ICD10:J45.909');
-INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'NIDDM w/o DR', 'NIDDM_wo_DR', 30, 'ICD10:E11.9');
-INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'Hyperlipidemia', 'Hyperlipidemia', 40,'ICD10:E78.5');
+INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'asthma', 'asthma', 20,'ICD10:J45.909');
+INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'diabetes', 'diabetes', 30, '');
+INSERT INTO list_options(list_id,option_id,title,seq,codes) VALUES ('medical_problem_issue_list', 'hyperlipidemia', 'hyperlipidemia', 40,'ICD10:E78.5');
 
 -- Ophthalmology: Medical Problem Issue List
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'POAG', 'poag', 10,'ICD10:H40.11X4','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'Dermatochalasis', 'dermatochalasis', 20,'ICD10:H02.839','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'NIDDM w/ BDR', 'niddm_bdr', 30,',ICD10:E11.319','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'NS Cataract', 'ns_cataract', 40,'ICD10:H25.10','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'BCC', 'BCC', 50,'ICD10:C44.191','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'IDDM w/ BDR', 'iddm_bdr', 60,'ICD10:E10.329','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'Keratoconus', 'Keratoconus', 70,'ICD10:H18.603','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'Dry Eye', 'dry eye', 80,'ICD10:H04.123','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'SCC', 'SCC', 90,'ICD10:C44.191','eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'stye', 'stye', 100,'ICD10:H00.029','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'poag','POAG', 10,'ICD10:H40.11X4','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'dermatochalasis','Dermatochalasis', 20,'ICD10:H02.839','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'niddm_bdr','NIDDM w/ BDR', 30,',ICD10:E11.319','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'ns_cataract','NS Cataract', 40,'ICD10:H25.10','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'BCC','BCC', 50,'ICD10:C44.191','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'iddm_bdr','IDDM w/ BDR', 60,'ICD10:E10.329','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'Keratoconus','Keratoconus', 70,'ICD10:H18.603','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'dry_eye','Dry Eye', 80,'ICD10:H04.123','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'SCC','SCC', 90,'ICD10:C44.191','eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('medical_problem_issue_list', 'stye','stye', 100,'ICD10:H00.029','eye');
 
 -- Medication Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medication_issue_list','Medication Issue List');
@@ -4172,16 +4172,16 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergy_issue_lis
 
 -- Surgery Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','surgery_issue_list','Surgery Issue List');
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'Tonsillectomy', 'Tonsillectomy', 10);
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'Appendectomy', 'Appendectomy', 20);
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'Cholecystectomy', 'Cholecystectomy', 30);
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Bleph Upper', 'Blepharoplasty', 40, 'CPT4:15823-50', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Phaco/IOL OD', 'Phaco/IOL OD', 50, 'CPT4:66984-RT', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Phaco/IOL OS', 'Phaco/IOL OS', 60, 'CPT4:66984-LT', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'LPI OD', 'LPI OD', 70, 'CPT4:66761-RT', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'LPI OS', 'LPI OS', 80, 'CPT4:66761-LT', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'ALT OD', 'ALT OD', 90, 'CPT4:65855-RT', 'eye');
-INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'ALT OS', 'ALT OS', 100, 'CPT4:65855-LT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'tonsillectomy', 'tonsillectomy', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'appendectomy', 'appendectomy', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'cholecystectomy', 'cholecystectomy', 30);
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Bleph_Upper', 'Blepharoplasty', 40, 'CPT4:15823-50', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Phaco_IOL_OD', 'Phaco/IOL OD', 50, 'CPT4:66984-RT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'Phaco_IOL_OS', 'Phaco/IOL OS', 60, 'CPT4:66984-LT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'LPI_OD', 'LPI OD', 70, 'CPT4:66761-RT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'LPI_OS', 'LPI OS', 80, 'CPT4:66761-LT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'ALT_OD', 'ALT OD', 90, 'CPT4:65855-RT', 'eye');
+INSERT INTO list_options(list_id,option_id,title,seq,codes,subtype) VALUES ('surgery_issue_list', 'ALT_OS', 'ALT OS', 100, 'CPT4:65855-LT', 'eye');
 
 -- Dental Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','dental_issue_list','Dental Issue List');
@@ -7931,27 +7931,24 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 
 -- list_options for `form_eye_mag`
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLManufacturer', 'Eye Contact Lens Manufacturer list', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'BNL', 'Bausch&Lomb', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'CibaVision', 'Ciba Vision', 2, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'Cooper', 'CooperVision', 3, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'JNJ', 'Johnson&Johnson', 4, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'BNL', 'Bausch&Lomb', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'CibaVision', 'Ciba Vision', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'Cooper', 'CooperVision', 30, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'JNJ', 'Johnson&Johnson', 40, 0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLSupplier', 'Eye Contact Lens Supplier list', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'ABB', 'ABB Optical', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'JNJ', 'Johnson&Johnson', 2, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'LF', 'Lens Ferry', 3, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'ABB', 'ABB Optical', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'JNJ', 'Johnson&Johnson', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLSupplier', 'LF', 'Lens Ferry', 30, 0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'CTLBrand', 'Eye Contact Lens Brand list', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'Acuvue', 'Acuvue', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'Acuvue2', 'Acuvue 2', 2, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'AcuvueOa', 'Acuvue Oasys', 3, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'SF66', 'SofLens Toric', 4, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'PVMF', 'PureVision MultiFocal', 5, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'Acuvue', 'Acuvue', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'Acuvue2', 'Acuvue 2', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'AcuvueOa', 'Acuvue Oasys', 30, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'SF66', 'SofLens Toric', 40, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLBrand', 'PVMF', 'PureVision MultiFocal', 50, 0);
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, subtype) VALUES
-  ('lists', 'Eye_Coding_Fields', 'Eye Coding Fields', 305, 1, 0, '', '', '', ''),
-  ('lists', 'Eye_Coding_Terms', 'Eye Coding Terms', 304, 1, 0, '', '', '', '');
-
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Coding_Fields', 'Eye Coding Fields', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Coding_Fields', 'RUL', 'RUL', 10, 0, 0, '', 'right upper eyelid', '', 0, 0, 1, ''),
 ('Eye_Coding_Fields', 'RLL', 'RLL', 20, 0, 0, '', 'right lower eyelid', '', 0, 0, 1, ''),
@@ -7984,6 +7981,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Coding_Fields', 'ODPERIPH', 'ODPERIPH', 290, 0, 0, '', 'right', '', 0, 0, 1, ''),
 ('Eye_Coding_Fields', 'OSPERIPH', 'OSPERIPH', 300, 0, 0, '', 'left', '', 0, 0, 1, '');
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Coding_Terms', 'Eye Coding Terms', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Coding_Terms', 'dermato_RUL', 'dermatochalasis', 10, 0, 0, '', 'RUL', '', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'dermato_RLL', 'dermatochalasis', 20, 0, 0, '', 'RLL', '', 0, 0, 1, ''),
@@ -8062,7 +8060,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Coding_Terms', 'drusen_ODMACULA', 'drusen', 750, 0, 0, '', 'ODMACULA', 'ICD10:H35.361', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'drusen_OSMACULA', 'drusen', 760, 0, 0, '', 'OSMACULA', 'ICD10:H35.362', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'drusen_ODDISC', 'drusen', 770, 0, 0, '', 'ODDISC', 'ICD10:H47.321', 0, 0, 1, ''),
-('Eye_Coding_Terms', 'drusen  OSDISC', 'drusen', 780, 0, 0, '', 'ODDISC', 'ICD10:H47.322', 0, 0, 1, ''),
+('Eye_Coding_Terms', 'drusen_OSDISC', 'drusen', 780, 0, 0, '', 'ODDISC', 'ICD10:H47.322', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'BRVO_ODPERIPHERY', 'BRVO', 790, 0, 0, '', 'ODVESSELS', 'ICD10:H34.831', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'CRVO_ODPERIPHERY', 'CRVO', 800, 0, 0, '', 'ODVESSELS', 'ICD10:H34.811', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'lattice_ODPERIPHERY', 'lattice', 810, 0, 0, '', 'ODPERIPH', 'ICD10:H35.412', 0, 0, 1, ''),
@@ -8082,11 +8080,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Coding_Terms', 'BDR_ODMACULA', 'BDR:DM', 950, 0, 0, '', 'ODMACULA', '', 0, 0, 1, ''),
 ('Eye_Coding_Terms', 'BDR_OSMACULA', 'BDR:DM', 960, 0, 0, '', 'OSMACULA', '', 0, 0, 1, '');
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, activity, subtype) VALUES
-  ('lists', 'Eye_QP_EXT_defaults', 'Eye QP List EXT for New Providers', 310, 0, 0, '', '', '', 1, ''),
-  ('lists', 'Eye_QP_ANTSEG_defaults', 'Eye QP List ANTSEG for New Providers', 310, 0, 0, '', '', '', 1, ''),
-  ('lists', 'Eye_QP_RETINA_defaults', 'Eye QP List RETINA for New Providers', 310, 0, 0, '', '', '', 1, '');
-
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_QP_ANTSEG_defaults', 'Eye QP List ANTSEG for New Providers', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_QP_ANTSEG_defaults', 'ODCONJ_cl', 'c: clear field', 10, 0, 0, 'CONJ', '', '', 0, 0, 1, 'OD'),
 ('Eye_QP_ANTSEG_defaults', 'OSCONJ_cl', 'c: clear field', 20, 0, 0, 'CONJ', '', '', 0, 0, 1, 'OS'),
@@ -8201,8 +8195,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_ANTSEG_defaults', 'OUIRIS_nev', 'iris: nevus', 1110, 0, 0, 'IRIS', 'nevus', '', 0, 0, 0, 'OU'),
 ('Eye_QP_ANTSEG_defaults', 'ODIRIS_nv', 'iris: NVI', 1120, 0, 0, 'IRIS', 'NVI', '', 0, 0, 0, 'OD'),
 ('Eye_QP_ANTSEG_defaults', 'OSIRIS_nv', 'iris: NVI', 1130, 0, 0, 'LENS', 'NVI', '', 0, 0, 0, 'OS'),
-('Eye_QP_ANTSEG_defaults', 'OUIRIS_nv', 'iris: NVI', 1140, 0, 0, 'IRIS', 'NVI', '', 0, 0, 0, 'OU'),
+('Eye_QP_ANTSEG_defaults', 'OUIRIS_nv', 'iris: NVI', 1140, 0, 0, 'IRIS', 'NVI', '', 0, 0, 0, 'OU');
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_QP_EXT_defaults', 'Eye QP List EXT for New Providers', 1, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_QP_EXT_defaults', 'RBROW', 'BROW: clear field', 10, 0, 0, 'BROW', '', '', 0, 0, 1, 'R'),
 ('Eye_QP_EXT_defaults', 'LBROW', 'BROW: clear field', 20, 0, 0, 'BROW', '', '', 0, 0, 1, 'L'),
 ('Eye_QP_EXT_defaults', 'BBROW', 'BROW: clear field', 30, 0, 0, 'BROW', '', '', 0, 0, 1, 'B'),
@@ -8315,8 +8311,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_EXT_defaults', 'BLL_chalazion', 'LL: chalazion', 1110, 0, 0, 'LL', 'chalazion', '', 0, 0, 0, 'B'),
 ('Eye_QP_EXT_defaults', 'RLL_stye', 'LL: stye', 1120, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'R'),
 ('Eye_QP_EXT_defaults', 'LLL_stye', 'LL: stye', 1130, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'L'),
-('Eye_QP_EXT_defaults', 'BLL_stye', 'LL: stye', 1140, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'B'),
+('Eye_QP_EXT_defaults', 'BLL_stye', 'LL: stye', 1140, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'B');
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_QP_RETINA_defaults', 'Eye QP List RETINA for New Providers', 1, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_QP_RETINA_defaults', 'ODCUP_0', 'cup: clear field', 10, 0, 0, 'CUP', '', '', 0, 0, 1, 'OD'),
 ('Eye_QP_RETINA_defaults', 'OSCUP_0', 'cup: clear field', 20, 0, 0, 'CUP', '', '', 0, 0, 1, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUCUP_0', 'cup: clear field', 30, 0, 0, 'CUP', '', '', 0, 0, 1, 'OU'),
@@ -8432,9 +8430,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_RETINA_defaults', 'OSPERIPH_RD', 'p: RD', 1130, 0, 0, 'PERIPH', 'RD', '', 0, 0, 0, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUPERIPH_RD', 'p: RD', 1140, 0, 0, 'PERIPH', 'RD', '', 0, 0, 0, 'OU');
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('lists', 'Eye_todo_done_defaults', 'Eye Orders Defaults', 308, 0, 0, '', '', '', 0, 0, 1, '');
-
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_todo_done_defaults', 'Eye Orders Defaults', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_todo_done_defaults', 'Ascan', 'A scan/IOL calc', 430, 0, 0, '', '', 'CPT4:76519', 0, 0, 1, ''),
 ('Eye_todo_done_defaults', 'Bscan', 'B scan', 440, 0, 0, '', '', 'CPT4:76512', 0, 0, 1, ''),
@@ -8462,9 +8458,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_todo_done_defaults', 'VFC30', 'VF C-30', 120, 0, 0, '', 'Central 30 VF', 'CPT4:92083', 0, 0, 1, ''),
 ('Eye_todo_done_defaults', 'Yag', 'Surg: YAG RT/LT', 480, 0, 0, '', '', 'CPT4:66821', 0, 0, 1, '');
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('lists', 'Eye_Defaults_for_GENERAL', 'Eye Exam Default Values for New Providers', 307, 1, 0, '', '', '', 0, 0, 0, '');
-
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Defaults_for_GENERAL', 'Eye Exam Default Values for New Providers', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Defaults_for_GENERAL', 'LBROW', 'no brow ptosis', 60, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'LLF', '17', 140, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
@@ -8520,10 +8514,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'RMRD', '+3', 110, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'RUL', 'normal lids and lashes', 10, 0, 0, '', 'EXT', '', 0, 0, 0, '');
 
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('lists', 'Eye_Lens_Material', 'Eye Lens Material', 310, 1, 0, '', '', '', 0, 0, 0, ''),
-('lists', 'Eye_Lens_Treatments', 'Eye Lens Treatments', 312, 1, 0, '', '', '', 0, 0, 0, '');
-
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Lens_Material', 'Eye Lens Material', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Lens_Material', 'LM_CG', 'Crown Glass', 10, 0, 0, '', 'Excellent optics. Low cost. Downsides: heavy, breakable. Abbe Value: 59', '', 0, 0, 1, ''),
 ('Eye_Lens_Material', 'LM_CR', 'CR-39', 20, 0, 0, '', 'Excellent optics. Low cost. Downside: thickness. Abbe Value: 58', '', 0, 0, 1, ''),
@@ -8531,11 +8522,16 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Lens_Material', 'LM_HI_PLASTICS_2', 'High-index Plastics (1.7 to 1.74)', 70, 0, 0, '', 'The thinnest lenses available. Block 100 percent UV. Lightweight.  Abbe: 36(1.7) - 33(1.74)', '', 0, 0, 1, ''),
 ('Eye_Lens_Material', 'LM_POLY', 'Polycarbonate', 40, 0, 0, '', 'Superior impact resistance. Blocks 100 percent UV. Lighter than high-index plastic lenses.  Abbe: 30', '', 0, 0, 1, ''),
 ('Eye_Lens_Material', 'LM_TRIBRID', 'Tribrid', 50, 0, 0, '', 'Thin and lightweight. Significantly more impact-resistant than CR-39 plastic and high-index plastic lenses (except polycarbonate and Trivex). Higher Abbe value than polycarbonate. Downside: Not yet available in a wide variety of lens designs.  Abbe: 41', '', 0, 0, 1, ''),
-('Eye_Lens_Material', 'LM_TRIVEX', 'Trivex', 30, 0, 0, '', 'Superior impact resistance. Blocks 100 percent UV. Higher Abbe value than polycarbonate. Lightest lens material available. Abbe Value: 45', '', 0, 0, 1, ''),
+('Eye_Lens_Material', 'LM_TRIVEX', 'Trivex', 30, 0, 0, '', 'Superior impact resistance. Blocks 100 percent UV. Higher Abbe value than polycarbonate. Lightest lens material available. Abbe Value: 45', '', 0, 0, 1, '');
+
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Lens_Treatments', 'Eye Lens Treatments', 1, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
 ('Eye_Lens_Treatments', 'LT_ARCOAT', 'Anti-reflective coating', 20, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_ASCRATCH', 'Anti-scratch coating', 10, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_UVBLOCK', 'UV-blocking treatment', 30, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_PHOTOGREY', 'Photochromic treatment', 40, 0, 0, '', '', '', 0, 0, 1, '');
+
 -- --------------------------------------------------------
 
 -- --------------------------------------------------------
@@ -8987,9 +8983,10 @@ CREATE TABLE calendar_external (
 
 -- --------------------------------------------------------
 --
--- Tables for `form_eye_mag` et al
+-- Tables for Eye Module
 --
-CREATE TABLE IF NOT EXISTS `form_eye_mag_dispense` (
+DROP TABLE IF EXISTS `form_eye_mag_dispense`;
+CREATE TABLE `form_eye_mag_dispense` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 `encounter` bigint(20) NULL,
@@ -9047,7 +9044,8 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_eye_mag` (
+DROP TABLE IF EXISTS `form_eye_mag`;
+CREATE TABLE `form_eye_mag` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `date` datetime DEFAULT NULL,
 `pid` bigint(20) DEFAULT NULL,
@@ -9475,7 +9473,8 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', '', '', '', '', ''),
 ('PREFS', 'MR_width','Detailed MR', 2048, 'MR_width', 81, '110', '', '', '', '', '');
 
-CREATE TABLE IF NOT EXISTS `form_eye_mag_orders` (
+DROP TABLE IF EXISTS `form_eye_mag_orders`;
+CREATE TABLE `form_eye_mag_orders` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `ORDER_PID` bigint(20) NOT NULL,
 `ORDER_DETAILS` varchar(255) NOT NULL,
@@ -9489,7 +9488,8 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `VISIT_ID` (`ORDER_PID`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`,`ORDER_PLACED_BYWHOM`,`ORDER_DATE_COMPLETED`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_eye_mag_impplan` (
+DROP TABLE IF EXISTS `form_eye_mag_impplan`;
+CREATE TABLE `form_eye_mag_impplan` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `form_id` bigint(20) NOT NULL,
 `pid` bigint(20) NOT NULL,
@@ -9505,7 +9505,8 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `second_index` (`form_id`,`pid`,`title`,`plan`(20))
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `form_eye_mag_wearing` (
+DROP TABLE IF EXISTS `form_eye_mag_wearing`;
+CREATE TABLE `form_eye_mag_wearing` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ENCOUNTER` int(11) NOT NULL,
   `FORM_ID` smallint(6) NOT NULL,
@@ -9550,11 +9551,9 @@ CREATE TABLE IF NOT EXISTS `form_eye_mag_wearing` (
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
--------------------------------------------------------- 
--- 
--- Table structure for table `form_taskman`
---
-CREATE TABLE IF NOT EXISTS `form_taskman` ( 
+
+DROP TABLE IF EXISTS `form_taskman`;
+CREATE TABLE `form_taskman` (
     `ID` bigint(20) NOT NULL AUTO_INCREMENT, 
     `REQ_DATE` datetime NOT NULL, 
     `FROM_ID` bigint(20) NOT NULL, 
@@ -9567,6 +9566,7 @@ CREATE TABLE IF NOT EXISTS `form_taskman` (
     `COMMENT` varchar(50) DEFAULT NULL, 
     `USERFIELD_1` varchar(50) DEFAULT NULL, 
     PRIMARY KEY (`ID`)
-) ENGINE=INNODB
+) ENGINE=INNODB;
 
+-- End of Eye Module tables
 --------------------------------------------------------
