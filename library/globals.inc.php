@@ -99,6 +99,7 @@ $USER_SPECIFIC_TABS = array('Appearance',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'new_tabs_layout',
+                               'theme_tabs_layout',
                                'concurrent_layout',
                                'css_header',
                                'gbl_pt_list_page_size',
@@ -136,13 +137,20 @@ $GLOBALS_METADATA = array(
     ),
 
     'new_tabs_layout' => array(
-      xl('Tabs Layout Style (need to logout/login after change this setting)'),
+      xl('Tabs Layout (need to logout/login after change this setting)'),
       array(
         '0' => xl('Off'),
         '1' => xl('On'),
       ),
       '1',                              // default = off
-      xl('Use the new tabs layout style (need to logout and then login to see this new setting).')
+      xl('Use the tabs layout (need to logout and then login to see this new setting).')
+    ),
+
+    'theme_tabs_layout' => array(
+      xl('Tabs Layout Theme (need to logout/login after change this setting)'),
+      'tabs_css',
+      'tabs_style_compact.css',
+      xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
     ),
 
     'concurrent_layout' => array(

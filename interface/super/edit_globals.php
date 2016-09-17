@@ -575,6 +575,32 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
     }
 
+    else if ($fldtype == 'tabs_css') {
+      if ($userMode) {
+        $globalTitle = $globalValue;
+      }
+      $themedir = "$webserver_root/interface/themes";
+      $dh = opendir($themedir);
+      if ($dh) {
+        echo "  <select name='form_$i' id='form_$i'>\n";
+        while (false !== ($tfname = readdir($dh))) {
+          // Only show files that contain tabs_style_ as options
+          if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) continue;
+          echo "<option value='" . attr($tfname) . "'";
+          // Drop the "tabs_style_" part and any replace any underscores with spaces
+          $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
+          // Strip the ".css" and uppercase the first character
+          $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+          if ($tfname == $fldvalue) echo " selected";
+          echo ">";
+          echo text($styleDisplayName);
+          echo "</option>\n";
+        }
+        closedir($dh);
+        echo "  </select>\n";
+      }
+    }
+
     else if ($fldtype == 'hour') {
       if ($userMode) {
         $globalTitle = $globalValue;
