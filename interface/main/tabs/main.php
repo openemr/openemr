@@ -68,7 +68,7 @@ function isEncounterLocked( encounterId ) {
 }
 var webroot_url="<?php echo $web_root; ?>";
 </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>?v=<?php echo $v_js_includes; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="css/tabs.css?v=<?php echo $v_js_includes; ?>"/>
 <link rel="stylesheet" type="text/css" href="css/menu.css?v=<?php echo $v_js_includes; ?>"/>
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />

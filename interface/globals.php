@@ -180,6 +180,9 @@ require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 // Includes functions for page validation
 require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
 
+// Include the version file
+require_once (dirname(__FILE__) . "/../version.php");
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -241,7 +244,7 @@ if (!empty($glrow)) {
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
     else if ($gl_name == 'css_header') {
-        $GLOBALS[$gl_name] = $rootdir.'/themes/'. $gl_value;
+        $GLOBALS[$gl_name] = $rootdir.'/themes/'.$gl_value.'?v='.$v_js_includes;
         $temp_css_theme_name = $gl_value;
     }
     else if ($gl_name == 'weekend_days') {
@@ -296,7 +299,7 @@ if (!empty($glrow)) {
 
         // Check file existance
         if( file_exists( $include_root.'/themes/'.$new_theme ) ) {
-            $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme;
+            $GLOBALS['css_header'] = $rootdir.'/themes/'.$new_theme.'?v='.$v_js_includes;
         } else {
             // throw a warning if rtl'ed file does not exist.
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme)   );
@@ -394,7 +397,6 @@ if (!empty($special_timeout)) {
 }
 
 //Version tag
-require_once(dirname(__FILE__) . "/../version.php");
 $patch_appending = "";
 if ( ($v_realpatch != '0') && (!(empty($v_realpatch))) ) {
 $patch_appending = " (".$v_realpatch.")";
