@@ -122,7 +122,46 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	$selectEmptyName = xlt($empty_name);
 	if ($empty_name)
 		$s .= "<option value=''>" . $selectEmptyName . "</option>";
-	$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array($list_id));
+
+        // List order depends on language translation options.
+        //  (Note we do not need to worry about the list order in the algorithm
+        //   after the below code block since that is where searches for exceptions
+        //   are done which include inactive items or items from a backup
+        //   list; note these will always be shown at the bottom of the list no matter the
+        //   chosen order.)
+        $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        // sort by title
+        if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) || !$GLOBALS['translate_lists']) {
+            // do not translate
+            if ($GLOBALS['gb_how_sort_list'] == '0') {
+                // order by seq
+                $order_by_sql = "seq, title";
+            }
+            else { //$GLOBALS['gb_how_sort_list'] == '1'
+                // order by title
+                $order_by_sql = "title, seq";
+            }
+            $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY " . $order_by_sql, array($list_id));
+        }
+        else {
+            // do translate
+            if ($GLOBALS['gb_how_sort_list'] == '0') {
+                // order by seq
+                $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
+            }
+            else { //$GLOBALS['gb_how_sort_list'] == '1'
+                // order by title
+                $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
+            }
+            $lres = sqlStatement("SELECT lo.option_id, lo.is_default, " .
+                "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                "FROM list_options AS lo " .
+                "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                "ld.lang_id = ? " .
+                "WHERE lo.list_id = ?  AND lo.activity=1 " .
+                "ORDER BY " . $order_by_sql, array($lang_id, $list_id));
+        }
 	$got_selected = FALSE;
 	
 	while ( $lrow = sqlFetchArray ( $lres ) ) {
@@ -131,12 +170,14 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		$optionValue = attr($lrow ['option_id']);
 		$s .= "<option value='$optionValue'";
 
-		if ($multiple && (strlen ( $currvalue ) == 0 && $lrow ['is_default']) || (strlen ( $currvalue ) > 0 && in_array ( $lrow ['option_id'], $selectedValues ))) {
+		if ((strlen ( $currvalue ) == 0 && $lrow ['is_default']) || (strlen ( $currvalue ) > 0 && in_array ( $lrow ['option_id'], $selectedValues ))) {
 			$s .= " selected";
 			$got_selected = TRUE;
 		}
-		
-		$optionLabel = text(xl_list_label($lrow ['title']));
+
+		// Already has been translated above (if applicable), so do not need to use
+		// the xl_list_label() function here 
+		$optionLabel = text($lrow ['title']);
 		$s .= ">$optionLabel</option>\n";
 	}
 
@@ -175,17 +216,15 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		//if not found in main list, display all selected values that exist in backup list
 		$list_id = $backup_list;
 		
-		$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
-		
 		$got_selected_backup = FALSE;
 		if (!empty($backup_list)) {
+			$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
 			while ( $lrow_backup = sqlFetchArray ( $lres_backup ) ) {
 				$selectedValues = explode ( "|", $currvalue );
 			
-				$optionValue = attr($lrow ['option_id']);
+				$optionValue = attr($lrow_backup['option_id']);
 			
-				if ($multiple && (strlen ( $currvalue ) == 0 && $lrow_backup ['is_default']) || 
-						(strlen ( $currvalue ) > 0 && in_array ( $lrow_backup ['option_id'], $selectedValues ))) {
+				if ( in_array($lrow_backup ['option_id'],$selectedValues)) {
 					$s .= "<option value='$optionValue'";
 					$s .= " selected";
 					$optionLabel = text(xl_list_label($lrow_backup ['title']));
@@ -195,7 +234,12 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			}
 		}
 		if (!$got_selected_backup) {
-			$s .= "<option value='$currescaped' selected>* $currescaped *</option>";
+			$selectedValues = explode ( "|", $currvalue );
+			foreach ( $selectedValues as $selectedValue ) {
+				$s .= "<option value='" . attr($selectedValue) . "'";
+				$s .= " selected";
+				$s .= ">* " . text($selectedValue) . " *</option>\n";
+			}
 			$s .= "</select>";
 			$fontTitle = xlt('Please choose a valid selection from the list.');
 			$fontText = xlt( 'Fix this' );
@@ -2513,14 +2557,14 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label'";
+					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
 					++$item_count;
 
 					$field_id_label = 'label_'.$group_fields['field_id'];
-					echo "<span id='".$field_id_label."'>";
+					echo "<span id='".attr($field_id_label)."'>";
 					// Added 5-09 by BM - Translate label if applicable
 					if ($group_fields['title']) echo htmlspecialchars(xl_layout_label($group_fields['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
 					echo "</span>";
@@ -2530,12 +2574,12 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<td class='text data' colspan='$datacols_esc' id='$field_id'  data-value='$currvalue'";
+					  echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
 					  echo ">";
 					  $cell_count += $datacols;
 					} else {
 					  $field_id = 'text_'.$group_fields['field_id'];
-					  echo "<span id='".$field_id."' style='display:none'>$currvalue</span>";
+					  echo "<span id='".attr($field_id)."' style='display:none'>" . text($currvalue) . "</span>";
 					}
 
 					++$item_count;

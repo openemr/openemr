@@ -34,24 +34,26 @@ require_once("$srcdir/user.inc");
 require_once("$srcdir/classes/CouchDB.class.php");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
-if ($_GET['mode'] != "user") {
+$userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
+
+if (!$userMode) {
   // Check authorization.
   $thisauth = acl_check('admin', 'super');
   if (!$thisauth) die(xlt('Not authorized'));
 }
 
 function checkCreateCDB(){
-  $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+  $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
     $options = array();
     while($globalsrow = sqlFetchArray($globalsres)){
       $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
     $directory_created = false;
-  if($GLOBALS['document_storage_method'] != 0){
+  if( !empty($GLOBALS['document_storage_method']) ) {
     // /documents/temp/ folder is required for CouchDB
     if(!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')){
-      $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/',0777,true);      
+      $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/',0777,true);
       if(!$directory_created){
 	echo htmlspecialchars( xl("Failed to create temporary folder. CouchDB will not work."),ENT_NOQUOTES);
       }
@@ -101,10 +103,10 @@ function checkBackgroundServices(){
       $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
 
-   //Set up phimail service
-   $phimail_active = $GLOBALS['phimail_enable'] ? '1' : '0';
-   $phimail_interval = max(0,(int)$GLOBALS['phimail_interval']);
-   updateBackgroundService('phimail',$phimail_active,$phimail_interval);
+  //Set up phimail service
+  $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
+  $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
+  updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 }
 ?>
 
@@ -117,7 +119,7 @@ html_header_show();
 
 // If we are saving user_specific globals.
 //
-if ($_POST['form_save'] && $_GET['mode'] == "user") {
+if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
   $i = 0;
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     if (in_array($grpname, $USER_SPECIFIC_TABS)) {
@@ -147,8 +149,8 @@ if ($_POST['form_save'] && $_GET['mode'] == "user") {
   echo "</script>";
 }
 
-if ($_POST['form_download']) {  
-  $client = portal_connection();  
+if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
+  $client = portal_connection();
   try {
     $response = $client->getPortalConnectionFiles($credentials);
   }
@@ -160,22 +162,22 @@ if ($_POST['form_download']) {
     error_log('Exception Error');
     error_log(var_dump(get_object_vars($e)));
   }
-  if($response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY    
-    $tmpfilename	= realpath(sys_get_temp_dir())."/".date('YmdHis').".zip";  
+  if(array_key_exists('status', $response) && $response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY
+    $tmpfilename	= realpath(sys_get_temp_dir())."/".date('YmdHis').".zip";
     $fp			= fopen($tmpfilename,"wb");
     fwrite($fp,base64_decode($response['value']));
     fclose($fp);
-    $practice_filename	= $response['file_name'];//practicename.zip    
-    ob_clean();    
+    $practice_filename	= $response['file_name'];//practicename.zip
+    ob_clean();
     // Set headers
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     header("Content-Disposition: attachment; filename=".$practice_filename);
     header("Content-Type: application/zip");
-    header("Content-Transfer-Encoding: binary");   
+    header("Content-Transfer-Encoding: binary");
     // Read the file from disk
-    readfile($tmpfilename);   
-    unlink($tmpfilename);    
+    readfile($tmpfilename);
+    unlink($tmpfilename);
     exit;
   }
   else{//WEBSERVICE CALL FAILED AND RETURNED AN ERROR MESSAGE
@@ -184,7 +186,7 @@ if ($_POST['form_download']) {
     <script type="text/javascript">
       alert('<?php echo xls('Offsite Portal web Service Failed').":\\n".text($response['value']);?>');
     </script>
-    <?php    
+    <?php
   }
 }
 ?>
@@ -194,7 +196,7 @@ if ($_POST['form_download']) {
 
 // If we are saving main globals.
 //
-if ($_POST['form_save'] && $_GET['mode'] != "user") {
+if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
   $force_off_enable_auditlog_encryption = true;
   // Need to force enable_auditlog_encryption off if the php mycrypt module
   // is not installed.
@@ -210,7 +212,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
    * Compare form values with old database values.
    * Only save if values differ. Improves speed.
    */
-  
+
   // Get all the globals from DB
   $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true );
 
@@ -227,9 +229,9 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
       if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
         if (isset($_POST["form_$i"])) {
           $fldindex = 0;
-          
+
           sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ) );
-          
+
           foreach ($_POST["form_$i"] as $fldvalue) {
             $fldvalue = trim($fldvalue);
             sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue )  );
@@ -239,7 +241,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
       }
       else {
         /* check value of single field. Don't update if the database holds the same value */
-        if (isset($_POST["form_$i"])) { 
+        if (isset($_POST["form_$i"])) {
           $fldvalue = trim($_POST["form_$i"]);
         }
         else {
@@ -248,10 +250,10 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
         if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
 
         // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
-        
-        if( 
+
+        if(
              !isset( $old_globals[$fldid]) // if the key not found in database - update database
-              ||              
+              ||
              ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
         ) {
             // Need to force enable_auditlog_encryption off if the php mcrypt module
@@ -303,14 +305,14 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<?php if ($_GET['mode'] == "user") { ?>
+<?php if ($userMode) { ?>
   <title><?php  echo xlt('User Settings'); ?></title>
 <?php } else { ?>
   <title><?php echo xlt('Global Settings'); ?></title>
@@ -328,11 +330,11 @@ input     { font-size:10pt; }
       type: "POST",
       url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
       data: {
-	action: 'check_file',      
+	action: 'check_file',
       },
       cache: false,
       success: function( message )
-      {	
+      {
 	if(message == 'OK'){
 	  document.getElementById('form_download').value = 1;
 	  document.getElementById('file_error_message').innerHTML = '';
@@ -341,7 +343,7 @@ input     { font-size:10pt; }
 	else{
 	  document.getElementById('form_download').value = 0;
 	  document.getElementById('file_error_message').innerHTML = message;
-	  return false;	  
+	  return false;
 	}
       }
     });
@@ -351,13 +353,13 @@ input     { font-size:10pt; }
 
 <body class="body_top">
 
-<?php if ($_GET['mode'] == "user") { ?>
+<?php if ($userMode) { ?>
   <form method='post' name='theform' id='theform' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
 <?php } else { ?>
   <form method='post' name='theform' id='theform' action='edit_globals.php' onsubmit='return top.restoreSession()'>
 <?php } ?>
 
-<?php if ($_GET['mode'] == "user") { ?>
+<?php if ($userMode) { ?>
   <p><b><?php echo xlt('Edit User Settings'); ?></b>
 <?php } else { ?>
   <p><b><?php echo xlt('Edit Global Settings'); ?></b>
@@ -367,7 +369,7 @@ input     { font-size:10pt; }
 <?php
 $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-  if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
+  if ( !$userMode || in_array($grpname, $USER_SPECIFIC_TABS) ) {
     echo " <li" . ($i ? "" : " class='current'") .
       "><a href='#'>" .
       xlt($grpname) . "</a></li>\n";
@@ -381,13 +383,13 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 <?php
 $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
- if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($grpname, $USER_SPECIFIC_TABS)) ) {
+ if ( !$userMode || in_array($grpname, $USER_SPECIFIC_TABS) ) {
   echo " <div class='tab" . ($i ? "" : " current") .
     "' style='height:auto;width:97%;'>\n";
 
   echo " <table>";
 
-  if ($_GET['mode'] == "user") {
+  if ($userMode) {
    echo "<tr>";
    echo "<th>&nbsp</th>";
    echo "<th>" . htmlspecialchars( xl('User Specific Setting'), ENT_NOQUOTES) . "</th>";
@@ -398,7 +400,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   }
 
   foreach ($grparr as $fldid => $fldarr) {
-   if ( $_GET['mode'] != "user" || ($_GET['mode'] == "user" && in_array($fldid, $USER_SPECIFIC_GLOBALS)) ) {
+   if ( !$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS) ) {
     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
 
     // Most parameters will have a single value, but some will be arrays.
@@ -414,7 +416,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     // Collect user specific setting if mode set to user
     $userSetting = "";
     $settingDefault = "checked='checked'";
-    if ($_GET['mode'] == "user") {
+    if ($userMode) {
       $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?",array($_SESSION['authId'],"global:".$fldid));
       $userSetting = $userSettingArray['setting_value'];
       $globalValue = $fldvalue;
@@ -429,7 +431,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     if (is_array($fldtype)) {
       echo "  <select name='form_$i' id='form_$i'>\n";
       foreach ($fldtype as $key => $value) {
-        if ($_GET['mode'] == "user") {
+        if ($userMode) {
           if ($globalValue == $key) $globalTitle = $value;
         }
         echo "   <option value='" . attr($key) . "'";
@@ -445,7 +447,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'bool') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         if ($globalValue == 1) {
           $globalTitle = htmlspecialchars( xl('Checked'), ENT_NOQUOTES);
         }
@@ -459,7 +461,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'num') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='text' name='form_$i' id='form_$i' " .
@@ -467,14 +469,14 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'text') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='text' name='form_$i' id='form_$i' " .
         "size='50' maxlength='255' value='" . attr($fldvalue) . "' />\n";
     }
     else if ($fldtype == 'pwd') {
-	  if ($_GET['mode'] == "user") {
+	  if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='password' name='form_$i' " .
@@ -482,7 +484,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'pass') {
-	  if ($_GET['mode'] == "user") {
+	  if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='password' name='form_$i' " .
@@ -534,7 +536,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'color_code') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <input type='text' class='color {hash:true}' name='form_$i' id='form_$i' " .
@@ -543,7 +545,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'css') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         $globalTitle = $globalValue;
       }
       $themedir = "$webserver_root/interface/themes";
@@ -574,7 +576,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
 
     else if ($fldtype == 'hour') {
-      if ($_GET['mode'] == "user") {
+      if ($userMode) {
         $globalTitle = $globalValue;
       }
       echo "  <select name='form_$i' id='form_$i'>\n";
@@ -590,7 +592,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
       echo "  </select>\n";
     }
-    if ($_GET['mode'] == "user") {
+    if ($userMode) {
       echo " </td>\n";
       echo "<td align='center' style='color:red;'>" . attr($globalTitle) . "</td>\n";
       echo "<td>&nbsp</td>";
@@ -603,12 +605,12 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     }
     ++$i;
    }
-    if(trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && $GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_providerid']){
+    if( trim(strtolower($fldid)) == 'portal_offsite_address_patient_link' && !empty($GLOBALS['portal_offsite_enable']) && !empty($GLOBALS['portal_offsite_providerid']) ){
       echo "<input type='hidden' name='form_download' id='form_download'>";
       echo "<tr><td><input onclick=\"return validate_file()\" type='button' value='".xla('Download Offsite Portal Connection Files')."' /></td><td id='file_error_message' style='color:red'></td></tr>";
     }
-  }  
-  echo " </table>\n";  
+  }
+  echo " </table>\n";
   echo " </div>\n";
  }
 }
@@ -631,7 +633,7 @@ $(document).ready(function(){
   enable_modals();
 
   // Use the counter ($i) to make the form user friendly for user-specific globals use
-  <?php if ($_GET['mode'] == "user") { ?>
+  <?php if ($userMode) { ?>
     <?php for ($j = 0; $j <= $i; $j++) { ?>
       $("#form_<?php echo $j ?>").change(function() {
         $("#toggle_<?php echo $j ?>").attr('checked',false);

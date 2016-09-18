@@ -22,21 +22,21 @@
  */
 
 $menu_json='[
-  {"label":"Calendar","menu_id":"cal0","target":"lst","url":"/interface/main/main_info.php","children":[],"requirement":0},
-  {"label":"Flow Board","menu_id":"pfb0","target":"lst","url":"/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1","children":[],"requirement":0},
-  {"label":"Messages ","menu_id":"msg0","target":"pat","url":"/interface/main/messages/messages.php?form_active=1","children":[],"requirement":0},
+  {"label":"Calendar","menu_id":"cal0","target":"cal","url":"/interface/main/main_info.php","children":[],"requirement":0},
+  {"label":"Flow Board","menu_id":"pfb0","target":"flb","url":"/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1","children":[],"requirement":0},
+  {"label":"Messages ","menu_id":"msg0","target":"msg","url":"/interface/main/messages/messages.php?form_active=1","children":[],"requirement":0},
   {"label":"Patient/Client","menu_id":"patimg","children":[
-    {"label":"Patients","menu_id":"fin0","target":"lst","url":"/interface/main/finder/dynamic_finder.php","children":[],"requirement":0},
+    {"label":"Patients","menu_id":"fin0","target":"fin","url":"/interface/main/finder/dynamic_finder.php","children":[],"requirement":0},
     {"label":"New/Search","menu_id":"new0","target":"pat","url":"/interface/new/new.php","children":[],"requirement":0},
     {"label":"Summary","menu_id":"dem1","target":"pat","url":"/interface/patient_file/summary/demographics.php","children":[],"requirement":1},
-    {"label":"Visits","children":[
+    {"label":"Visits","icon":"fa-caret-right","children":[
       {"label":"Create Visit","menu_id":"nen1","target":"enc","url":"/interface/forms/newpatient/new.php?autoloaded=1&calenc=","children":[],"requirement":1},
       {"label":"Current","menu_id":"enc2","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":3},
       {"label":"Visit History","menu_id":"ens1","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":1}],"requirement":0},
-    {"label":"Records","children":[
-    {"label":"Patient Record Request","menu_id":"prq1","target":"enc","url":"/interface/patient_file/transaction/record_request.php","children":[],"requirement":1}],"requirement":0},
-    {"label":"Visit Forms","children":[],"requirement":0},
-    {"label":"Import","children":[
+    {"label":"Records","icon":"fa-caret-right","children":[
+      {"label":"Patient Record Request","menu_id":"prq1","target":"enc","url":"/interface/patient_file/transaction/record_request.php","children":[],"requirement":1}],"requirement":0},
+    {"label":"Visit Forms","icon":"fa-caret-right","children":[],"requirement":0},
+    {"label":"Import","icon":"fa-caret-right","children":[
       {"label":"Upload","menu_id":"ccr0","target":"pat","url":"/interface/patient_file/ccr_import.php","children":[],"requirement":0},
       {"label":"Pending Approval","menu_id":"apr0","target":"pat","url":"/interface/patient_file/ccr_pending_approval.php","children":[],"requirement":0}],"requirement":0}],"requirement":0},
   {"label":"Fees","menu_id":"feeimg","children":[
@@ -74,10 +74,10 @@ $menu_json='[
     {"label":"Rules","menu_id":"adm0","target":"adm","url":"/interface/super/rules/index.php?action=browse!list","children":[],"requirement":0,"acl_req":["admin","super"],"global_req":"enable_cdr"},
     {"label":"Alerts","menu_id":"adm0","target":"adm","url":"/interface/super/rules/index.php?action=alerts!listactmgr","children":[],"requirement":0,"acl_req":["admin","super"],"global_req":"enable_cdr"},
     {"label":"Patient Reminders","menu_id":"adm0","target":"adm","url":"/interface/patient_file/reminder/patient_reminders.php?mode=admin&patient_id=","children":[],"requirement":0,"acl_req":["admin","super"],"global_req":"enable_cdr"},
-    {"label":"Other","children":[
+    {"label":"Other","icon":"fa-caret-right","children":[
       {"label":"Language","menu_id":"adm0","target":"adm","url":"/interface/language/language.php","children":[],"requirement":0,"acl_req":["admin","language"]},
       {"label":"Forms","menu_id":"adm0","target":"adm","url":"/interface/forms_admin/forms_admin.php","children":[],"requirement":0,"acl_req":["admin","forms"]},
-      {"label":"Calendar","menu_id":"adm0","target":"lst","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"]},
+      {"label":"Calendar","menu_id":"adm0","target":"adm","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"]},
       {"label":"Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/logview.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"Database","menu_id":"adm0","target":"adm","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
       {"label":"Certificates","menu_id":"adm0","target":"adm","url":"/interface/usergroup/ssl_certificates_admin.php","children":[],"requirement":0,"acl_req":["admin","users"]},
@@ -86,21 +86,22 @@ $menu_json='[
       {"label":"Merge Patients","menu_id":"adm0","target":"adm","url":"/interface/patient_file/merge_patients.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"Import Holidays","menu_id":"adm0","target":"adm","url":"/interface/main/holidays/import_holidays.php","children":[],"requirement":0,"acl_req":["admin","super"]}],"requirement":0}],"requirement":0},
   {"label":"Reports","menu_id":"repimg","children":[
-    {"label":"Clients","children":[
+    {"label":"Clients","icon":"fa-caret-right","children":[
       {"label":"List","menu_id":"rep0","target":"rep","url":"/interface/reports/patient_list.php","children":[],"requirement":0},
       {"label":"Rx","menu_id":"rep0","target":"rep","url":"/interface/reports/prescriptions_report.php","children":[],"requirement":0},
       {"label":"Patient List Creation","menu_id":"rep0","target":"rep","url":"/interface/reports/patient_list_creation.php","children":[],"requirement":0},
       {"label":"Clinical","menu_id":"rep0","target":"rep","url":"/interface/reports/clinical_reports.php","children":[],"requirement":0},
       {"label":"Referrals","menu_id":"rep0","target":"rep","url":"/interface/reports/referrals_report.php","children":[],"requirement":0},
       {"label":"Immunization Registry","menu_id":"rep0","target":"rep","url":"/interface/reports/immunization_report.php","children":[],"requirement":0}],"requirement":0},
-    {"label":"Clinic","children":[
+    {"label":"Clinic","icon":"fa-caret-right","children":[
       {"label":"Report Results","menu_id":"rep0","target":"rep","url":"/interface/reports/report_results.php","children":[],"requirement":0},
       {"label":"Standard Measures","menu_id":"rep0","target":"rep","url":"/interface/reports/cqm.php?type=standard","children":[],"requirement":0},
       {"label":"Quality Measures (CQM)","menu_id":"rep0","target":"rep","url":"/interface/reports/cqm.php?type=cqm","children":[],"requirement":0},
       {"label":"Automated Measures (AMC)","menu_id":"rep0","target":"rep","url":"/interface/reports/cqm.php?type=amc","children":[],"requirement":0},
       {"label":"AMC Tracking","menu_id":"rep0","target":"rep","url":"/interface/reports/amc_tracking.php","children":[],"requirement":0},
       {"label":"Alerts Log","menu_id":"rep0","target":"rep","url":"/interface/reports/cdr_log.php","children":[],"requirement":0}],"requirement":0},
-    {"label":"Visits","children":[
+    {"label":"Visits","icon":"fa-caret-right","children":[
+      {"label":"Daily Summary","menu_id":"rep0","target":"rep","url":"/interface/reports/daily_summary_report.php","children":[],"requirement":0},
       {"label":"Appointments","menu_id":"rep0","target":"rep","url":"/interface/reports/appointments_report.php","children":[],"requirement":0},
       {"label":"Patient Flow Board","menu_id":"rep0","target":"rep","url":"/interface/reports/patient_flow_board_report.php","children":[],"requirement":0},
       {"label":"Encounters","menu_id":"rep0","target":"rep","url":"/interface/reports/encounters_report.php","children":[],"requirement":0},
@@ -112,7 +113,7 @@ $menu_json='[
       {"label":"Charts Out","menu_id":"rep0","target":"rep","url":"/interface/reports/charts_checked_out.php","children":[],"requirement":0},
       {"label":"Services","menu_id":"rep0","target":"rep","url":"/interface/reports/services_by_category.php","children":[],"requirement":0},
       {"label":"Syndromic Surveillance","menu_id":"rep0","target":"rep","url":"/interface/reports/non_reported.php","children":[],"requirement":0}],"requirement":0},
-    {"label":"Financial","children":[
+    {"label":"Financial","icon":"fa-caret-right","children":[
       {"label":"Sales","menu_id":"rep0","target":"rep","url":"/interface/reports/sales_by_item.php","children":[],"requirement":0},
       {"label":"Cash Rec","menu_id":"rep0","target":"rep","url":"/interface/billing/sl_receipts_report.php","children":[],"requirement":0},
       {"label":"Front Rec","menu_id":"rep0","target":"rep","url":"/interface/reports/front_receipts_report.php","children":[],"requirement":0},
@@ -120,18 +121,18 @@ $menu_json='[
       {"label":"Collections","menu_id":"rep0","target":"rep","url":"/interface/reports/collections_report.php","children":[],"requirement":0},
       {"label":"Pat Ledger","menu_id":"rep0","target":"rep","url":"/interface/reports/pat_ledger.php?form=0","children":[],"requirement":0},
       {"label":"Financial Summary by Service Code","menu_id":"rep0","target":"rep","url":"/interface/reports/svc_code_financial_report.php","children":[],"requirement":0}],"requirement":0},
-    {"label":"Procedures","children":[
+    {"label":"Procedures","icon":"fa-caret-right","children":[
       {"label":"Pending Res","url":"/interface/orders/pending_orders.php","target":"rep","children":[],"requirement":0},
       {"label":"Statistics","url":"/interface/orders/procedure_stats.php","target":"rep","children":[],"requirement":0}],"requirement":0},
-    {"label":"Insurance","children":[
+    {"label":"Insurance","icon":"fa-caret-right","children":[
       {"label":"Distribution","menu_id":"rep0","target":"rep","url":"/interface/reports/insurance_allocation_report.php","children":[],"requirement":0},
       {"label":"Indigents","menu_id":"rep0","target":"rep","url":"/interface/billing/indigent_patients_report.php","children":[],"requirement":0},
       {"label":"Unique SP","menu_id":"rep0","target":"rep","url":"/interface/reports/unique_seen_patients_report.php","children":[],"requirement":0}],"requirement":0},
-    {"label":"Blank Forms","children":[
+    {"label":"Blank Forms","icon":"fa-caret-right","children":[
       {"label":"Demographics","url":"/interface/patient_file/summary/demographics_print.php","target":"rep","children":[],"requirement":0},
       {"label":"Superbill/Fee Sheet","url":"/interface/patient_file/printed_fee_sheet.php","target":"rep","children":[],"requirement":0},
       {"label":"Referral","url":"/interface/patient_file/transaction/print_referral.php","target":"rep","children":[],"requirement":0}],"requirement":0},
-    {"label":"Services","children":[
+    {"label":"Services","icon":"fa-caret-right","children":[
       {"label":"Background Services","menu_id":"rep0","target":"rep","url":"/interface/reports/background_services.php","children":[],"requirement":0},
       {"label":"Direct Message Log","menu_id":"rep0","target":"rep","url":"/interface/reports/direct_message_log.php","children":[],"requirement":0}],"requirement":0}],"requirement":0},
   {"label":"Miscellaneous","menu_id":"misimg","children":[
@@ -152,7 +153,6 @@ $menu_json='[
     {"label":"Export","menu_id":"Popup:Export","url":"/custom/export_xml.php","target":"pop","children":[],"requirement":1},
     {"label":"Import","menu_id":"Popup:Import","url":"/custom/import_xml.php","target":"pop","children":[],"requirement":1},
     {"label":"Appts","menu_id":"Popup:Appts","url":"/interface/reports/appointments_report.php?patient=","target":"pop","children":[],"requirement":1},
-    {"label":"Refer","menu_id":"Popup:Refer","url":"/custom/refer.php","target":"pop","children":[],"requirement":1},
     {"label":"Superbill","menu_id":"Popup:Superbill","url":"/interface/patient_file/printed_fee_sheet.php?fill=1","target":"pop","children":[],"requirement":1},
     {"label":"Payment","menu_id":"Popup:Payment","url":"/interface/patient_file/front_payment.php","target":"pop","children":[],"requirement":1},
     {"label":"Letter","menu_id":"Popup:Letter","url":"/interface/patient_file/letter.php","target":"pop","children":[],"requirement":1},

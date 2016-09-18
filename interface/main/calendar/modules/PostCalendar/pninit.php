@@ -323,7 +323,9 @@ function postcalendar_upgrade($oldversion)
             @define('NO_REPEAT',    0);
             @define('REPEAT',       1);
             @define('REPEAT_ON',    2);
-            //======================================================
+            @define('REPEAT_DAYS', 3);
+
+        //======================================================
             //  $recurrspec['event_repeat_freq']
             //======================================================
             @define('REPEAT_EVERY',         1);

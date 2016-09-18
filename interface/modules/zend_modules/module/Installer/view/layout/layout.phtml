@@ -28,6 +28,7 @@ echo $this->doctype(); ?>
         <meta charset="utf-8">
         <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>" type="text/css">
         <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+        <?php echo $this->headTitle($this->translate('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false) ?>
 				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
 												->prependStylesheet($this->basePath() . '/css/easyui.css')
                         ->prependStylesheet($this->basePath() . '/css/icon.css')
@@ -43,7 +44,7 @@ echo $this->doctype(); ?>
 
         <!-- Scripts -->
         <?php echo $this->headScript()
-					->prependFile($this->basePath() . '/js/application/common.js') 
+					->prependFile($this->basePath() . '/js/application/common.js')
           ->prependFile($this->basePath() . '/js/lib/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
 					->prependFile($this->basePath() . '/js/lib/bootstrap.min.js')
 					->prependFile($this->basePath() . '/js/lib/jquery.easyui.overrider.js')
@@ -54,7 +55,7 @@ echo $this->doctype(); ?>
     </head>
     <body class="body_top">
         <div class="container">
-            <?php echo $this->content; ?>          
+            <?php echo $this->content; ?>
         </div> <!-- /container -->
         <?php echo $this->inlineScript() ?>
     </body>

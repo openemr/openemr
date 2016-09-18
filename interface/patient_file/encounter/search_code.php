@@ -23,7 +23,7 @@ $code_type = $_GET['type'];
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- add jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 </head>
 <body class="body_bottom">

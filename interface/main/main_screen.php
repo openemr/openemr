@@ -115,8 +115,10 @@ require_once("tabs/redirect.php");
 <title>
 <?php echo text($openemr_name) ?>
 </title>
-<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
+
+<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

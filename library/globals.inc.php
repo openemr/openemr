@@ -47,6 +47,7 @@
 //   Korean                         // xl('Korean')
 //   Lithuanian                     // xl('Lithuanian')
 //   Marathi                        // xl('Marathi')
+//   Mongolian                      // xl('Mongolian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
 //   Polish                         // xl('Polish')
@@ -97,6 +98,7 @@ $USER_SPECIFIC_TABS = array('Appearance',
                             'Calendar',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
+                               'new_tabs_layout',
                                'concurrent_layout',
                                'css_header',
                                'gbl_pt_list_page_size',
@@ -113,7 +115,6 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'pat_trkr_timer',
                                'ptkr_visit_reason',
                                'checkout_roll_off',
-                               'ptkr_pt_list_new_window',                               
                                'erx_import_status_message');
 
 $GLOBALS_METADATA = array(
@@ -127,6 +128,7 @@ $GLOBALS_METADATA = array(
       array(
         'main_info.php' => xl('Calendar Screen'),
         '../new/new.php' => xl('Patient Search/Add Screen'),
+        '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
         '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),		
       ),
       'main_info.php',                  // default = calendar
@@ -139,7 +141,7 @@ $GLOBALS_METADATA = array(
         '0' => xl('Off'),
         '1' => xl('On'),
       ),
-      '0',                              // default = off
+      '1',                              // default = off
       xl('Use the new tabs layout style (need to logout and then login to see this new setting).')
     ),
 
@@ -355,8 +357,32 @@ $GLOBALS_METADATA = array(
       ),
       '4',                              // default
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
-    
-  ),
+    ),
+
+    'gb_how_sort_list' => array(
+      xl('How to sort a drop-lists'),
+      array(
+        '0' => 'Sort by seq',
+        '1' => 'Sort alphabetically'
+      ),
+      '0',
+      xl('What kind of sorting will be in the drop lists.')
+    ),
+
+    'show_label_login' => array(
+      xl('Show Title on Login'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Title on Login')
+    ),
+
+    'extra_logo_login' => array(
+      xl('Show Extra Logo on Login'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Show Extra Logo on Login')
+    ),
+
       'tiny_logo_1' => array(
           xl('Show Mini Logo 1'),
           'bool',                           // data type
@@ -1317,6 +1343,7 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
+
     'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',                           
@@ -1359,6 +1386,13 @@ $GLOBALS_METADATA = array(
       xl('Color for the last set when not all member appointments are displayed.')
     ),
 
+    'appt_recurrences_widget' => array(
+      xl('Recurrent Appointment Display Widget'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Display the recurrent appointment widget in the patient summary.')
+    ),
+
     'num_past_appointments_to_show' => array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
@@ -1387,13 +1421,6 @@ $GLOBALS_METADATA = array(
       xl('Do not display the patient flow board.')
     ),
 
-    'ptkr_pt_list_new_window' => array(
-      xl('Open Demographics in New Window from Patient Flow Board'),
-      'bool',                           // data type
-      '0',                              // default = false
-      xl('When Checked, Demographics Will Open in New Window from Patient Flow Board.')
-    ),
-    
     'ptkr_visit_reason' => array(
       xl('Show Visit Reason in Patient Flow Board'),
       'bool',                           // data type

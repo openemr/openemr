@@ -80,7 +80,7 @@ else { // not export
 <?php html_header_show();?>
 <title><?php xl('Pending Followup from Results','e') ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script language="JavaScript">
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;

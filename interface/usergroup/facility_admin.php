@@ -31,15 +31,42 @@ parent.$.fn.fancybox.close();
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
 <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+
+<!-- validation library -->
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
+<?php
+//Gets validation rules from Page Validation list.
+//Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+$collectthis = collectValidationPageRules("/interface/usergroup/facility_admin.php");
+if (empty($collectthis)) {
+    $collectthis = "undefined";
+}
+else {
+    $collectthis = $collectthis["facility-form"]["rules"];
+}
+?>
+
 <script type="text/javascript">
+
+/*
+ * validation on the form with new client side validation (using validate.js).
+ * this enable to add new rules for this form in the pageValidation list.
+ * */
+var collectvalidation = <?php echo($collectthis); ?>;
+
 function submitform() {
-	<?php if($GLOBALS['erx_enable']){ ?>
+
+    var valid = submitme(1, undefined, 'facility-form', collectvalidation);
+    if (!valid) return;
+
+<?php if($GLOBALS['erx_enable']){ ?>
 	alertMsg='';
 	f=document.forms[0];
 	for(i=0;i<f.length;i++){
@@ -72,19 +99,9 @@ function submitform() {
 		return false;
 	}
 	<?php } ?>
-    if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
-        top.restoreSession();
-        document.forms[0].submit();
-    } else {
-	if(document.forms[0].facility.value.length<=0){
-        document.forms[0].facility.style.backgroundColor="red";
-        document.forms[0].facility.focus();
-	}
-	else if(document.forms[0].ncolor.value == ''){
-	document.forms[0].ncolor.style.backgroundColor="red";
-        document.forms[0].ncolor.focus();	
-	}
-    }
+
+    document.forms[0].submit();
+    top.restoreSession();
 }
 
 $(document).ready(function(){
@@ -129,7 +146,7 @@ function displayAlert()
   </tr>
 </table>
 
-<form name='facility' method='post' action="facilities.php" target="_parent">
+<form name='facility-form' id="facility-form" method='post' action="facilities.php" target="_parent">
     <input type=hidden name=mode value="facility">
     <input type=hidden name=newmode value="admin_facility">	<!--	Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">

@@ -109,7 +109,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../../library/topdialog.js"></script>
@@ -290,7 +290,10 @@ if ($fend > $count) $fend = $count;
    </a>
    &nbsp;&nbsp;
 <?php } ?>
-   <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES); ?>
+  <?php
+   $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
+   echo ($fstart + 1) . htmlspecialchars( $countStatement, ENT_NOQUOTES);
+  ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
    <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
@@ -441,7 +444,7 @@ if ($result) {
           if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
-              $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
+              $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }
           // calculate date differences based on date of last encounter regardless of billing
           $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
@@ -456,7 +459,7 @@ if ($result) {
           if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
-              $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
+              $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }
 
           //calculate count of encounters by distinct billing dates with cpt4

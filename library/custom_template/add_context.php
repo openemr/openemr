@@ -59,7 +59,7 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
         .class1{background-color:#add9e9}
         .class2{background-color:#b1c0a5}
         </style>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
             $('#contextadd').hide();

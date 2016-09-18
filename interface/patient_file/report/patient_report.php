@@ -34,7 +34,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <!-- include jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 
 <script language='JavaScript'>
 
@@ -61,6 +61,10 @@ function show_date_fun(){
 
 <body class="body_top">
 <div id="patient_reports"> <!-- large outer DIV -->
+
+<p>
+<span class='title'><?php echo xlt('Patient Reports'); ?></span>
+</p>
 
 <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
 <div id="ccr_report">

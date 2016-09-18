@@ -48,7 +48,7 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script language="JavaScript">
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;

@@ -153,7 +153,7 @@ if(count($missingExtensions) > 0) {
 			<input type="submit" style="display:none">
 			<input type="hidden" id="RxInput" name="RxInput" value="<?php echo $xml; ?>">
 		</form>
-		<script type="text/javascript" src="../library/js/jquery.1.3.2.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 		<script type="text/javascript">
 			window.setTimeout(function() {
 				document.forms[0].submit();

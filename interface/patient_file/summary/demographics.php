@@ -180,7 +180,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-6-4/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
@@ -423,9 +423,9 @@ function setMyPatient() {
   return;
  }
 <?php if (isset($_GET['set_pid'])) { ?>
- parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars(($result['fname']) . " " . ($result['lname']),ENT_QUOTES) .
-   "'," . htmlspecialchars($pid,ENT_QUOTES) . ",'" . htmlspecialchars(($result['pubpid']),ENT_QUOTES) .
-   "','', ' " . htmlspecialchars(xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']), ENT_QUOTES) . "'"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) .
+   "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
+   "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
  var EncounterDateArray = new Array;
  var CalendarCategoryArray = new Array;
  var EncounterIdArray = new Array;
@@ -437,9 +437,9 @@ function setMyPatient() {
   if(sqlNumRows($result4)>0) {
     while($rowresult4 = sqlFetchArray($result4)) {
 ?>
- EncounterIdArray[Count] = '<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
- EncounterDateArray[Count] = '<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
- CalendarCategoryArray[Count] = '<?php echo htmlspecialchars(xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
+ EncounterIdArray[Count] = '<?php echo addslashes($rowresult4['encounter']); ?>';
+ EncounterDateArray[Count] = '<?php echo addslashes(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
+ CalendarCategoryArray[Count] = '<?php echo addslashes(xl_appt_category($rowresult4['pc_catname'])); ?>';
  Count++;
 <?php
     }
@@ -1486,6 +1486,54 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       } // End of Appointments.
 
 
+      /* Widget that shows recurrences for appointments. */
+     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget']) {
+
+         $widgetTitle = xl("Recurrent Appointments");
+         $widgetLabel = "recurrent_appointments";
+         $widgetButtonLabel = xl("Add");
+         $widgetButtonLink = "return newEvt();";
+         $widgetButtonClass = "";
+         $linkMethod = "javascript";
+         $bodyClass = "summary_item small";
+         $widgetAuth = false;
+         $fixedWidth = false;
+         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+         $count = 0;
+         $toggleSet = true;
+         $priorDate = "";
+
+         //Fetch patient's recurrences. Function returns array with recurrence appointments' category, recurrence pattern (interpreted), and end date.
+         $recurrences = fetchRecurrences($pid);
+         if($recurrences[0] == false){ //if there are no recurrent appointments:
+             echo "<div>";
+             echo "<span>" . xlt('None') . "</span>";
+             echo "</div>";
+             echo "<br>";
+         }
+         else {
+             foreach ($recurrences as $row) {
+                 //checks if there are recurrences and if they are current (git didn't end yet)
+                 if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                     continue;
+                 echo "<div>";
+                 echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
+                 echo "<br>";
+                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
+                 echo "<br>";
+                 $red_text = ""; //if ends in a week, make font red
+                 if (ends_in_a_week($row['pc_endDate'])) {
+                     $red_text = " style=\"color:red;\" ";
+                 }
+                 echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                 echo "</div>";
+                 echo "<br>";
+             }
+         }
+     }
+     /* End of recurrence widget */
+
+
 	// Show PAST appointments.
 	// added by Terry Hill to allow reverse sorting of the appointments
  	$direction = "ASC";
@@ -1512,7 +1560,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      $pres = sqlStatement($query, array($pid) );
 
 	// appointments expand collapse widget
-        $widgetTitle = xl("Past Appoinments");
+        $widgetTitle = xl("Past Appointments");
         $widgetLabel = "past_appointments";
         $widgetButtonLabel = '';
         $widgetButtonLink = '';

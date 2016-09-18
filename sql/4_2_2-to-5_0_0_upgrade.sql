@@ -705,6 +705,10 @@ ALTER TABLE drugs
   ADD dispensable tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here';
 #EndIf
 
+#IfNotColumnType list_options notes TEXT
+ALTER TABLE `list_options` MODIFY `notes` TEXT;
+#EndIf
+
 #IfNotRow2D list_options list_id lists option_id page_validation
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
@@ -776,6 +780,30 @@ ALTER TABLE `drugs` CHANGE `size` `size` varchar(25) NOT NULL default '';
 #EndIf
 
 #IfNotColumnType prescriptions size varchar(25)
-ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(25) default NULL ;
+ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(25) default NULL;
+#EndIf
+
+#IfNotColumnType user_settings setting_label varchar(100)
+ALTER TABLE `user_settings` CHANGE `setting_label` `setting_label` varchar(100) NOT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id add_edit_event#theform
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform', '/interface/main/calendar/add_edit_event.php', 60, '{form_patient:{presence: {message: "Patient Name Required"}}}', 1);
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id usergroup_admin_add#new_user
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'usergroup_admin_add#new_user', '/interface/usergroup/usergroup_admin_add.php', 70, '{rumple:{presence: {message:"Required field missing: Please enter the User Name"}}, stiltskin:{presence: {message:"Please enter the password"}}, fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id user_admin#user_form
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'user_admin#user_form', '/interface/usergroup/user_admin.php', 80, '{fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id facility_admin#facility-form
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
+#EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id facilities_add#facility-add
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
 #EndIf
 

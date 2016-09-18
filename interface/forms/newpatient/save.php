@@ -93,8 +93,8 @@ else if ($mode == 'update')
     "facility_id = '" . add_escape_custom($facility_id) . "', " .
     "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
     "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-    "referral_source = '" . add_escape_custom($referral_source) . "' " .
-    "pos_code = '" . add_escape_custom($pos_code) . "', " .
+    "referral_source = '" . add_escape_custom($referral_source) . "', " .
+    "pos_code = '" . add_escape_custom($pos_code) . "' " .
     "WHERE id = '" . add_escape_custom($id) . "'");
 }
 else {

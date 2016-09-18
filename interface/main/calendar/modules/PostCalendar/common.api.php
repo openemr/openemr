@@ -44,6 +44,7 @@ define('_EVENT_HIDDEN',       -1);
 define('NO_REPEAT',            0);
 define('REPEAT',               1);
 define('REPEAT_ON',            2);
+define('REPEAT_DAYS', 3);
 // $event_repeat_freq
 define('REPEAT_EVERY',         1);
 define('REPEAT_EVERY_OTHER',   2);

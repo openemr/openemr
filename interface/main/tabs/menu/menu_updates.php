@@ -30,7 +30,7 @@ function update_modules_menu(&$menu_list)
     if (sqlNumRows($module_query)) {
       while ($modulerow = sqlFetchArray($module_query)) {
                     $acl_section = strtolower($modulerow['mod_directory']);
-                    $disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
+                    if (!zh_acl_check($_SESSION['authUserID'],$acl_section)) continue;
                     $modulePath = "";
                     $added 		= "";
                     if($modulerow['type'] == 0) {
@@ -42,7 +42,7 @@ function update_modules_menu(&$menu_list)
                             $modulePath = $GLOBALS['zendModDir'];
                     }
 
-                    $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                    $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
                     $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
           $newEntry=new stdClass();
           $newEntry->label=xlt($mod_nick_name);

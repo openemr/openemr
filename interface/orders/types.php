@@ -109,7 +109,7 @@ tr.oddrow {
 .col5 {width:10%}
 </style>
 
-<script src="../../library/js/jquery-1.2.2.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js" type="text/javascript"></script>
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <?php } ?>

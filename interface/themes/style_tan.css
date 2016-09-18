@@ -6,7 +6,7 @@
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: 'FontAwesome'; 
+    font-family: 'FontAwesome' !important; 
     content: "\f0c4";
     font-size: 1em;  /* set the base font size for all DOM children */
 }
@@ -15,81 +15,59 @@ a {
   color: #0000cc;
   text-decoration: none;
 }
-
 a:visited {
   color: #0000cc;
 }
-
 a:hover {
   color: #ff5555;
 }
 
 .menu {
-    font-family: 'FontAwesome';
     font-style: italic;
-    font-size: 11pt;
+    font-size: 0.95em;
     color: #0000cc;
     text-decoration: none;
     text-align: left;
 }
 
-.menuBar{
-    width:100%;
-    height:auto;
-    display:block;
-    position:fixed;
-    top:0;
-    background-color:#FEFDCF;
-    z-index:100;
-     }
-    
-    .container{ 
-    margin-top:95px;
-}
 .menu_selected {
-    font-family: 'FontAwesome';
     font-style: italic;
-    font-size: 11pt;
+    font-size: 0.95em;
     color: #000000;
     text-decoration: none;
     text-align: left;
 }
 
 .logout {
-    font-family: 'FontAwesome', sans-serif;
     font-style: italic;
-    font-size: 11pt;
+    font-size: 0.95em;
     color: #000000;
     text-decoration: none;
     text-align: right;
 }
 
 .text {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
     color: #000000;
-    font-size: 10pt;
+    font-size: 0.9em;
 }
 
 .required {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
-    font-size: 10pt;
+    font-size: 0.9em;
     color: #880000;
     font-weight: bold;
 }
 
 .bold {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
-    font-size: 10pt;
+    font-size: 0.9em;
     color: #000000;
     font-weight: bold;
 }
 
 .alert {
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 70%;
+    font-size: 0.8em;
     color: #FF0000;
     text-decoration: none;
 }
@@ -97,82 +75,66 @@ a:hover {
 .small {
     text-decoration: none;
     color: #000000;
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 80%;
+    font-size: 0.8em;
 }
 
 .link {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
     color: #0000cc;
-    font-size: 70%;
+    font-size: 0.8em;
 }
 
 .more {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
-    font-size: 70%;
+    font-size: 0.8em;
 }
 
 .back {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
-    font-size: 70%;
+    font-size: 0.8em;
 }
 
 .link_selected {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
     color: #0000FF;
-    font-size: 70%;
+    font-size: 0.8em;
 }
 
 .link_selected:visited {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
     color: #0000FF;
-    font-size: 70%;
+    font-size: 0.8em;
 }
-
 .link_submit {
-    font-family: 'FontAwesome', sans-serif;
     text-decoration: none;
     color: #000077;
-    font-size: 10pt;
+    font-size: 0.85em;
 }
-
 .link_submit a:visited {
   color: #000077;
 }
-
 .link_submit a:hover {
   color: #ff5555;
 }
 
 .items {
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 6pt;
+    font-size: 0.6em;
 }
 
 .title {
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 12pt;
-    font-weight: bold;
-    text-decoration: none;
+    font-size: 1.2em;
 }
 
 /* see .titlebar below */
 .title_bar {
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 12pt;
+    font-size: 1.0em;
     font-weight: bold;
     text-decoration: none;
     color: #000000;
 }
 
 .title_bar_top {
-    font-family: 'FontAwesome', sans-serif;
-    font-size: 13px;
+    font-size: 1.1em;
     font-weight: bold;
     text-decoration: none;
     color: #000000;
@@ -209,20 +171,20 @@ padding-right: 4px;
 color:#0000cc;
 }
 #addressbook_list tr.search {
-font-size:9pt;
+font-size:0.8em;
 font-weight:bold;
 }
 #addressbook_list tr.head {
-font-size:10pt;
+font-size:0.9em;
 background-color:#cccccc;
 font-weight:bold;
 }
 #addressbook_list tr.detail {
-font-size:10pt;
+font-size:0.8em;
 }
 #addressbook_list .inputtext {
 font-family: 'FontAwesome',monospace;
-font-size:9pt;
+font-size:0.8em;
 font-weight:normal;
 border-style:solid;
 border-width:1px;
@@ -231,21 +193,28 @@ background-color:transparent;
 }
 #addressbook_list .button {
 font-family: 'FontAwesome',sans-serif;
-font-size:8pt;
+font-size:0.8em;
 font-weight:bold;
 }
 
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
-font-size:8pt;
+font-size:0.8em;
 font-family: 'FontAwesome',helvetica;
 }
 #reports_list a {
-font-size:8pt;
+font-size:0.8em;
 font-family: 'FontAwesome',helvetica;
 }
 
 /* styles taken out of templates/documents/general_list.html */
+#documents_list {
+  width: 29%;
+  height: 95%;
+  overflow: auto;
+  float: left;
+  border-right: dashed 1px;
+}
 #documents_list td {
 font-size:8pt;
 font-family: 'FontAwesome',helvetica;
@@ -261,13 +230,7 @@ font-style: italic;
 font-style: italic;
 font-weight: bold;
 }
-#documents_list {
-    width: 29%;
-    height: 95%;
-    overflow: auto; 
-    float: left;
-    border-right: dashed 1px;
-}
+
 #documents_actions {
     padding-top: 10px;
     width: 70%;
@@ -288,6 +251,9 @@ font-weight: bold;
 #documents_actions table {
     width: 100%;
     height: 95%;
+}
+.body_title table tr td {
+  Xpadding: 0px !important;
 }
 
 /*=============================================================
@@ -345,19 +311,15 @@ font-weight: bold;
 #pnotes .billing {
     background-color: #dfd;  
 }
-
 #pnotes .highlight {
     background-color: #fff;
 }
-
 #pnotes table {
     border-collapse:collapse;
 }
-
 #pnotes .noterow {
     cursor: pointer; 
 }
-
 #pnotes .noterow td {
     border-bottom:1px dashed black;
     vertical-align: top;
@@ -373,7 +335,6 @@ font-weight: bold;
 #patient_stats {
     padding: 10px;
 }
-
 #patient_stats table {
     width: 100%;
     border-collapse: collapse;
@@ -384,33 +345,27 @@ font-weight: bold;
 #patient_stats .statrow {
     cursor: pointer;
 }
-
 #patient_stats .head {
-    font-size:10pt;
+    font-size:0.9em;
     background-color:#cccccc;
     text-align:center;
 }
-
 #patient_stats .detail {
-    font-size:10pt;
+    font-size:0.9em;
     vertical-align: top;
 }
-
 #patient_stats .btn {
     background-color:transparent;
 }
-
 #patient_stats .bg1 {
     background-color: #ddddff;
 }
 #patient_stats .bg2 {
     background-color: #ffdddd;
 }
-
 #patient_stats .center {
     text-align: center;
 }
-
 
 /*=============================================================
  * Patient Stats Summary
@@ -485,7 +440,7 @@ font-weight: bold;
     background-color:#ffffaa;
     visibility:hidden;
     z-index:1000;
-    font-size:9pt;
+    font-size:0.85em;
 }
 #patient_pastenc .highlight {
     background-color: #fff;
@@ -591,10 +546,6 @@ font-weight: bold;
 #report_custom .issue_diag {
     margin: 0px 20px 0px 20px;
 }
-#report_custom .issue_title {
-}
-#report_custom .issue_comments {
-}
 #report_custom .encounter {
     width: 100%;
     border-top:2px dotted black;
@@ -615,79 +566,89 @@ font-weight: bold;
 #addressbook_list tr.oddrow {
     background-color:#ffffff;
 }
-
+tr.odd, td.even {
+    background-color: #ffffff;
+}
 
 /*
  * CSS BUTTONS
 */
+/* add ons testing */
 .css_button_small {
-    background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 9px 'FontAwesome',arial, sans-serif;
-    height: 19px;
-    margin-right: 3px;
-    padding-right: 10px; /* sliding doors padding */
-    text-decoration: none;
+  background: #063f80;
+  color: #ffffff !important;
+  display: inline-block;
+  font-weight: 300;
+  margin-right: 3px;
+  /* sliding doors padding */
+  text-decoration: none;
+  padding: 2px 7px 2px;
+  border: none;
+  font-size: 0.7em;
+  box-shadow: 2px 1px 4px #88888B;
+  border-radius: 5px;
 }
-
 .css_button_small span {
-    background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
-    display: block;
-    line-height: 20px;
-    padding: 0px 0px 0px 10px;
+  display: inline-block;
+}
+.css_button_small:hover {
+  background: #1050b6;
+  box-shadow: 0px 1px 3px #DDD;
+}
+#dateNAV {
+    font-size:1.1em !important;
+}
+.css_button, input[type="button"],input[type="submit"], button {
+  background: #063f80;
+  color: #ffffff !important;
+  display: inline-block;
+  font-weight: 300;
+  margin: 4px;
+  vertical-align: middle;
+  /* sliding doors padding */
+  text-decoration: none;
+  padding: 4px 6px 4px;
+  border: none;
+  border-radius: 5px;
+  font-size:0.8em;
+  box-shadow: 2px 1px 4px #88888B;
+}
+.css_button span, input[type="button"] span, button span {
+  display: inline-block;
+}
+.css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
+  background: red !important;
+}
+.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+  background: #1050b6;
+    box-shadow: 3px 4px 6px #DDD ;
 }
 
-.css_button {
-    background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 10px 'FontAwesome',arial, sans-serif;
-    height: 24px;
-    margin-right: 3px;
-    padding-right: 10px; /* sliding doors padding */
-    text-decoration: none;
+input[type="button"][style="background-color:#ffff55"] {
+  background: #2672ec !important;
 }
 
-.css_button span {
-    background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
-    display: block;
-    line-height: 14px;
-    padding: 5px 0 5px 10px;
+input[type="text"] {
+  background: #ffffff;
+  border: 1px solid #444444;
+  padding: 3px;
+  margin: 3px;
 }
-.css_btn {
-    background: #fcfcfc;
-    background-image: -webkit-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -moz-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -ms-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -o-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: linear-gradient(to bottom, #fcfcfc, #c1ced1);
-    -webkit-border-radius: 28;
-    -moz-border-radius: 28;
-    border-radius: 28px;
-    font: bold 10px arial, sans-serif;
-    color: #444;
-    font-size: 10px;
-    padding: 6px 15px 6px 15px;
-    border: solid #8d9194 1px;
-    text-decoration: none;
-    height: 24px;
-    outline: none;
+
+#logout_link:before {
+  content: "X";
 }
-.css_btn:hover{
-    color: orangered;
+#logout_link span {
+  display: none;
 }
+
 .sellistclass {
 float:left;
 }
 
 .disabled_button {
     color: grey;
-
 }
-
 a.disabled_button:hover {
   color: grey;
 }
@@ -696,8 +657,7 @@ a.disabled_button:hover {
  * TABS
 */
 
-ul.tabNav { margin: 0; padding: 0; }
-ul.tabNav { float: left; list-style: none; width: 100%; }
+ul.tabNav { margin: 0; padding: 0; float: left; list-style: none; width: 100%; }
 ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
     font-size: 0.8em;
     vertical-align: bottom;
@@ -715,7 +675,7 @@ ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }
 div.tabContainer { clear: both; float: left; width: 100%; }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; }
-div.tab {   min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
+div.tab {   min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:800px;}
 div.tab_long {  min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
 
@@ -995,6 +955,7 @@ font-size:9pt;
     text-decoration: none;
     background: #fefdcf;
     color: #2875DE;
+    font-size: 0.8em;
     font-weight:normal;
 }
 

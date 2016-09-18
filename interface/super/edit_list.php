@@ -397,7 +397,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   } else {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-        htmlspecialchars($notes, ENT_QUOTES) . "' size='25' maxlength='255' class='optin' />";
+        htmlspecialchars($notes, ENT_QUOTES) . "' size='25' class='optin' />";
     echo "</td>\n";
   }
   if($list_id == 'apptstat') {
@@ -603,7 +603,7 @@ function writeITLine($it_array) {
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('List Editor','e'); ?></title>

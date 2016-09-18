@@ -94,10 +94,10 @@
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
 
-    <script type="text/javascript" src="../library/js/jquery-1.5.js"></script>
-    <script type="text/javascript" src="../library/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/js/jquery.gritter.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/jquery.gritter.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/css/jquery.gritter.css" />
     <link rel="stylesheet" type="text/css" href="css/base.css" />
 
     <script type="text/javascript">

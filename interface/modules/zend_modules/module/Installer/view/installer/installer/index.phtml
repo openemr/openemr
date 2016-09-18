@@ -1,4 +1,4 @@
-<?php 
+<?php
 /* +-----------------------------------------------------------------------------+
 *    OpenEMR - Open Source Electronic Medical Record
 *    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
@@ -25,8 +25,6 @@ echo $this->headScript()->appendFile(
 		'text/javascript'
 );
 $listener	= $this->listenerObject;
-$title 		= $listener->z_xlt('Module Installer');
-$this->headTitle($title);
 $baseModuleDir 	= $GLOBALS['baseModDir'];
 $customDir 	= $GLOBALS['customModDir'];
 $zendModDir 	= $GLOBALS['zendModDir'];
@@ -50,12 +48,12 @@ $depObj 	= $this->dependencyObject;
 </ul>
 <div class="installer" >
 	<div id='err' class='bold '></div>
-	<div class="installer_code notranslate registered">			
+	<div class="installer_code notranslate registered">
 		<?php //REGISTERED SECTION ?>
 			<div class="imagetable">
 				<div class="imagetable_code notranslate">
 					<table id="table-6" class="imagetable" align="center">
-						<thead>  
+						<thead>
 							<tr>
 								<th colspan='10' class="groupReg">
 									<?php echo $listener->z_xlt('Registered Modules');?>
@@ -67,8 +65,8 @@ $depObj 	= $this->dependencyObject;
 								<th scope="col" ><?php echo $listener->z_xlt('Status'); ?> </th>
 								<th scope="col" ><?php echo $listener->z_xlt('Menu Text'); ?> </th>
 								<th scope="col" ><?php echo $listener->z_xlt('Nick Name'); ?> </th>
-								<th scope="col" ><?php echo $listener->z_xlt('Type'); ?> </th>	
-								<th scope="col" ><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>								
+								<th scope="col" ><?php echo $listener->z_xlt('Type'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
 								<th scope="col" ><?php echo $listener->z_xlt('Action'); ?> </th>
 								<th scope="col" ><?php echo $listener->z_xlt('Config'); ?> </th>
 							</tr>
@@ -79,25 +77,25 @@ $depObj 	= $this->dependencyObject;
 					 if(sizeof($InstallersAll) > 0)
 					    foreach ($InstallersAll as $moduleResult) {
 								if($moduleResult -> modName == 'Acl') continue;
-							$count++;							
+							$count++;
 						?>
 					     	<tr  id="<?php echo $this->escapeHtml($moduleResult -> modId);?>">
 								<td  ><?php echo $this->escapeHtml($count);?>	</td>
 								<td  ><?php echo $this->escapeHtml($moduleResult -> modName); ?></td>
 								<td  >
-									<?php					
-		 
+									<?php
+
 			  							if ($moduleResult -> sqlRun==0){?>
 			  								<?php echo $listener->z_xlt('Not Installed');?>
-			  							<?php 			  								
+			  							<?php
 			  							}else if ($moduleResult -> modActive == 1){?>
 			  								<?php echo $listener->z_xlt('Active');?>
 										<?php }
 										else{?>
 											<?php echo $listener->z_xlt('Inactive');?>
-										<?php 
+										<?php
 										}
-									?>		
+									?>
 			  					</td>
 								<td >
 								  <?php echo $this->escapeHtml($moduleResult -> modUiName); ?>
@@ -125,31 +123,31 @@ $depObj 	= $this->dependencyObject;
 								?>
 								</td>
 								<td>
-								<?php					
-		 
+								<?php
+
 			  							if ($moduleResult -> sqlRun==0){?>
 			  								<a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module');?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install');?>"/></a>
-			  							<?php 			  								
+			  							<?php
 			  							}else if ($moduleResult -> modActive == 1){?>
 			  								<a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','enable');" title="<?php echo $listener->z_xla('Click Here to Disable This module');?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable');?>"/></a>
 										<?php }
 										elseif($moduleResult -> modName != 'Acl'){?>
 											<a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module');?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable');?>"/></a>
-										<?php 
+										<?php
 										}?>
 								</td>
 								<td>
-								<?php					
-		 
+								<?php
+
 			  							if ($moduleResult -> sqlRun==0){?>
 			  								--
-			  							<?php 			  								
+			  							<?php
 			  							}else if ($moduleResult -> modActive == 1){?>
 			  								<a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult -> modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module');?>"><img src="<?php echo $this->basePath()?>/images/config.png" border=0></a>
 										<?php }
 										else{?>
 											--
-										<?php 
+										<?php
 										}?>
 								</td>
 							</tr>
@@ -157,16 +155,16 @@ $depObj 	= $this->dependencyObject;
 								<td colspan="10" align="center">
 								</td>
 							</tr>
-					<?php							
+					<?php
 							}
 						 //end of if & while
 					?>
 					</table>
 				</div>
 			</div>
-		
+
 	</div>
-	<div class="installer_code notranslate unregistered" style="display:none">			
+	<div class="installer_code notranslate unregistered" style="display:none">
 		<table class="imagetable" id="unregistered">
 			<tr>
 				<th colspan='4' class="groupRegUn">
@@ -184,7 +182,7 @@ $depObj 	= $this->dependencyObject;
 				$inDir = array();
 				for ($i=0; false != ($fname = readdir($dp)); $i++){
 					if ($fname != "." && $fname != ".." && $fname != "Application" && is_dir($dpath.$fname))
-						$inDir[$i] = $fname; 
+						$inDir[$i] = $fname;
 				}
 				if (sizeof($InstallersExisting) > 0){
 					foreach ( $InstallersExisting as $modules ){
@@ -193,7 +191,7 @@ $depObj 	= $this->dependencyObject;
 						 if($key !== false)
 						 	unset($inDir[$key]);
 					}
-				}				
+				}
 				$slno=0;
 				foreach ( $inDir as $fname ){
 					$slno++;
@@ -203,25 +201,25 @@ $depObj 	= $this->dependencyObject;
 						<td>
 	        			<?php
 	                		$form_title_file = @file($GLOBALS['srcdir']."/../{$baseModuleDir}{$customDir}/$fname/info.txt");
-				            if ($form_title_file)						
+				            if ($form_title_file)
 	                        	$form_title = $form_title_file[0];
 	                        else
 	                            $form_title = $fname;
-	                		echo $listener->z_xlt($form_title); 
-                		?>		
-                		</td>						
+	                		echo $listener->z_xlt($form_title);
+                		?>
+                		</td>
 						<td>
 							<?php echo $listener->z_xlt('Normal');?>
-						</td>	
+						</td>
 						<td >
 						 <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title);?>','<?php echo $this->escapeHtml($fname)?>','register','');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register');?>"/></a>
-						</td>	
+						</td>
 					</tr>
-					<?php								
+					<?php
 					flush();
 				}//end of foreach
 				$dpath 	= $GLOBALS['srcdir']."/../{$baseModuleDir}{$zendModDir}/module";
-				$dp 	= opendir($dpath);				
+				$dp 	= opendir($dpath);
 				$inDir = array();
 				for ($i=0; false != ($fname = readdir($dp)); $i++){
 					if ($fname != "." && $fname != ".." && ($fname != "Application" && $fname != "Acl" && $fname != "Installer") && is_dir($dpath."/".$fname))
@@ -234,42 +232,42 @@ $depObj 	= $this->dependencyObject;
 						 if($key !== false)
 						 	unset($inDir[$key]);
 					}
-				}							
+				}
 				foreach ( $inDir as $fname ){
 					$slno++;
 					?>
 					<tr>
 						<td ><?php echo $this->escapeHtml($slno);?> </td>
-						<td > 
+						<td >
 	        			<?php
 	                		$form_title_file = @file($GLOBALS['srcdir']."/../{$baseModuleDir}{$zendModDir}/$fname/info.txt");
-				            if ($form_title_file)						
+				            if ($form_title_file)
 	                        	$form_title = $form_title_file[0];
 	                        else
 	                            $form_title = $fname;
-	                		echo $this->escapeHtml($listener->z_xlt($form_title)); 
-                		?>		
+	                		echo $this->escapeHtml($listener->z_xlt($form_title));
+                		?>
                 		</td>
                 		<td >
 							<?php echo $listener->z_xlt('Zend Module');?>
-						</td>	
+						</td>
 						<td >
 							<a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title);?>','<?php echo $this->escapeHtml($fname)?>','register','zend');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register');?>"/></a>
-						</td>							
+						</td>
 					</tr>
-					<?php					
+					<?php
 					flush();
 				}//end of foreach
 			?>
-			
+
 		</table>
 	</div>
 </div>
-<?php 
+<?php
 if($slno > 0){
 ?>
 <script>
 	$('#ct').html('(<?php echo $this->escapeHtml($slno) ?>)');
 </script>
-<?php 
+<?php
 }?>

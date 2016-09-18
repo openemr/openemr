@@ -21,8 +21,11 @@
 
 <script type="text/html" id="tabs-controls">
     <div class="tabControls" data-bind="with: tabs">
+        <span class="tabNotchosen" style="width:2%">
+            <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
+        </span>
         <!-- ko  foreach: tabsList -->
-            <span class="tabSpan bgcolor2">
+            <span class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span  data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="typcn typcn-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->
@@ -37,6 +40,7 @@
                 <!-- /ko -->    
             </span>
         <!-- /ko -->
+        <span class="tabNotchosen" style="width:100%"></span>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">

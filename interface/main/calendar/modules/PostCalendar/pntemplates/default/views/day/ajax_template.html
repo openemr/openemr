@@ -147,7 +147,7 @@ if ( $_SESSION['pc_facility'] ) {
 //==================================
 
 [-/php-]
-<div id="topToolbarRight">  <!-- this wraps some of the top toolbar items -->
+<div id="topToolbarRight" class="bgcolor2">  <!-- this wraps some of the top toolbar items -->
 <div id="functions">
 <!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
 <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
@@ -736,7 +736,7 @@ foreach ($providers as $provider) {
           // a special case for the 'IN' event this puts the time ABOVE
           // the normal DIV so it doesn't overlap another event DIV and include the time
           if ($event['catid'] == 2) {
-              $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
+              $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
               echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                   "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                   "; $divWidth".
@@ -773,17 +773,13 @@ foreach ($providers as $provider) {
             " id='".$eventdate."-".$eventid."-".$pccattype."'".
             ">";
             }
-
-
-           //
-
           // second part for the special IN event
           if ($event['catid'] != 2) { echo $content; }
           echo "</div>\n";
        }
        elseif($_SESSION['pc_facility'] == $row['id']){
            if ($event['catid'] == 2) {
-               $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
+               $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
                echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
@@ -814,7 +810,7 @@ foreach ($providers as $provider) {
        else{
 
            if ($event['catid'] == 2) {
-               $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
+               $inTop = 20+($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
                echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".

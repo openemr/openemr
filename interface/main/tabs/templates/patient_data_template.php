@@ -20,13 +20,13 @@
 ?>
 
 <script type="text/html" id="patient-data-template">
-        <divs>
+        <div>
             <span class="patientDataColumn">
                 <div class="patientInfo">
+                    <b>
                     <span>
                             <?php echo xlt("Patient"); ?>:
                     </span>
-                    <b>
                     <!-- ko if: patient -->
                         <a data-bind="click:refreshPatient,with: patient" href="#">
                             <span data-bind="text: pname()"></span>(<span data-bind="text: pubpid"></span>)
@@ -51,9 +51,7 @@
             </span>
             <span class="patientDataColumn">
                 &nbsp;
-            </span>
-            <span class="patientDataColumn patientEncountersColumn">
-                <!-- ko if: patient -->                
+                 <!-- ko if: patient -->                
                 <!-- ko with: patient -->                
                 <div>
                     <span>Selected Encounter:</span>
@@ -65,6 +63,13 @@
                         <?php echo xlt("None") ?>
                     <!-- /ko -->                
                 </div>
+                <!-- /ko -->  
+                <!-- /ko -->  
+            </span>
+            <span class="patientDataColumn patientEncountersColumn">
+                <!-- ko if: patient -->                
+                <!-- ko with: patient -->                
+                
                 <span class="patientEncounterList" >
                     <div data-bind="click: clickNewEncounter"><?php echo xlt("New Encounter");?></div>
                     <div data-bind="click: clickEncounterList"><?php echo xlt("Past Encounter List");?>

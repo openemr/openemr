@@ -18,6 +18,15 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             'phpseclib\\' => 10,
         ),
+        'Z' => 
+        array (
+            'Zend\\' => 5,
+        ),
+        'D' => 
+        array (
+            'Dompdf\\' => 7,
+            'Doctrine\\Common\\Cache\\' => 22,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -25,11 +34,80 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
         ),
+        'Zend\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend',
+        ),
+        'Dompdf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
+        ),
+        'Doctrine\\Common\\Cache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'Z' => 
+        array (
+            'ZendXml\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/zendframework/zendxml/library',
+            ),
+        ),
+        'S' => 
+        array (
+            'Svg\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/phenx/php-svg-lib/src',
+            ),
+        ),
+        'F' => 
+        array (
+            'FontLib\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/phenx/php-font-lib/src',
+            ),
+        ),
+        'D' => 
+        array (
+            'Doctrine\\CouchDB' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/couchdb/lib',
+            ),
+            'Doctrine\\Common\\Lexer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
+            ),
+            'Doctrine\\Common\\Inflector\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
+            ),
+            'Doctrine\\Common\\Collections\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/collections/lib',
+            ),
+            'Doctrine\\Common\\Annotations\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
+            ),
+            'Doctrine\\Common\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/common/lib',
+            ),
+        ),
     );
 
     public static $classMap = array (
         'Config_File' => __DIR__ . '/..' . '/smarty/smarty/libs/Config_File.class.php',
+        'Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
         'EasyPeasyICS' => __DIR__ . '/..' . '/phpmailer/phpmailer/extras/EasyPeasyICS.php',
+        'HTML5_Data' => __DIR__ . '/..' . '/dompdf/dompdf/lib/html5lib/Data.php',
+        'HTML5_InputStream' => __DIR__ . '/..' . '/dompdf/dompdf/lib/html5lib/InputStream.php',
+        'HTML5_Parser' => __DIR__ . '/..' . '/dompdf/dompdf/lib/html5lib/Parser.php',
+        'HTML5_Tokenizer' => __DIR__ . '/..' . '/dompdf/dompdf/lib/html5lib/Tokenizer.php',
+        'HTML5_TreeBuilder' => __DIR__ . '/..' . '/dompdf/dompdf/lib/html5lib/TreeBuilder.php',
         'PHPMailer' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmailer.php',
         'PHPMailerOAuth' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmaileroauth.php',
         'PHPMailerOAuthGoogle' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmaileroauthgoogle.php',
@@ -46,6 +124,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$classMap;
 
         }, null, ClassLoader::class);

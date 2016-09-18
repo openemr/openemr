@@ -66,10 +66,10 @@ if ($pid != $thispid) {
   $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 ?>
 // The JavaScript part of switching to the new pid. Cloned from demographics.php.
-top.left_nav.setPatient(<?php echo "'" . htmlspecialchars(($prow['fname']) . " " . ($prow['lname']),ENT_QUOTES) .
-  "'," . htmlspecialchars($pid,ENT_QUOTES) . ",'" . htmlspecialchars(($prow['pubpid']),ENT_QUOTES) .
-  "','', ' " . htmlspecialchars(xl('DOB') . ": " . oeFormatShortDate($prow['DOB_YMD']) . " " .
-  xl('Age') . ": " . getPatientAge($prow['DOB_YMD']), ENT_QUOTES) . "'"; ?>);
+top.left_nav.setPatient(<?php echo "'" . addslashes(($prow['fname']) . " " . ($prow['lname'])) .
+  "'," . addslashes($pid) . ",'" . addslashes($prow['pubpid']) .
+  "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($prow['DOB_YMD'])) . " " .
+  xls('Age') . ": " . addslashes(getPatientAge($prow['DOB_YMD'])) . "'"; ?>);
 // TBD: ForceDual? Maybe load demographics.php into the top frame?
 <?php
 } // End of pid switch logic.
