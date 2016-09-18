@@ -91,6 +91,11 @@
     color: #333;
 }
 
+/** Only apply if not an actual link **/
+div.menuLabel:hover {
+    cursor: default !important;
+}
+
 /** Sub menu **/
 .menuEntries li .menuLabel {
     font-size: 90%;
@@ -142,7 +147,7 @@
 #username:hover > .userfunctions
 {
     display: block;
-    Xwidth:98%;
+    width:98%;
 }
 
 #username > .userfunctions > div:hover
