@@ -69,7 +69,8 @@ $appointments = sortAppointments( $appointments, 'time' );
 $appointments_status = getApptStatus($appointments);
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
 while ( $lrow = sqlFetchArray ( $lres ) ) {
-    $statuses_list[$lrow['option_id']] = substr($lrow['title'],2);
+    $splitTitle = explode(' ', $lrow['title']);
+    $statuses_list[$lrow['option_id']] = $splitTitle[1];
 }
 
 $chk_prov = array();  // list of providers with appointments
@@ -158,9 +159,8 @@ function openNewTopWindow(newpid,newencounterid) {
 </head>
 
 <body class="body_top" >
-
+<?php if($GLOBALS['docs_see_entire_calendar'] !='1'){ ?>
 <form method='post' name='theform' id='theform' action='patient_tracker.php' onsubmit='return top.restoreSession()'>
-
     <div id="flow_board_parameters">
         <table>
             <tr class="text">
@@ -226,7 +226,7 @@ function openNewTopWindow(newpid,newencounterid) {
         </table>
     </div>
 </form>
-
+<?php }?>
 <?php if ($GLOBALS['pat_trkr_timer'] == '0') { # if the screen is not set up for auto refresh it can be closed by auto log off ?>
 <form name='pattrk' id='pattrk' method='post' action='patient_tracker.php' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
 <?php } else { # if the screen is set up for auto refresh this will not allow it to be closed by auto logoff ?>
@@ -263,10 +263,10 @@ function openNewTopWindow(newpid,newencounterid) {
      <td colspan="12">
          <b><small>
              <?php
-             $statuses_output =  xlt('Total patients')  . ':' . $appointments_status['count_all'];
+             $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
              unset($appointments_status['count_all']);
              foreach($appointments_status as $status_symbol => $count){
-                 $statuses_output .= " | " . xlt($statuses_list[$status_symbol])  .":" . $count;
+                 $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
              }
              echo $statuses_output;
              ?>
@@ -497,6 +497,22 @@ function openNewTopWindow(newpid,newencounterid) {
 		 </tr>
         <?php
 	} //end for
+?>
+
+<?php
+//saving the filter for auto refresh
+if(!is_null($_POST['form_provider']) ){
+    echo "<input type='hidden' name='form_provider' value='" . $_POST['form_provider'] . "'>";
+}
+if(!is_null($_POST['form_facility']) ){
+    echo "<input type='hidden' name='form_facility' value='" . $_POST['form_facility'] . "'>";
+}
+if(!is_null($_POST['form_apptstatus']) ){
+    echo "<input type='hidden' name='form_apptstatus' value='" . $_POST['form_apptstatus'] . "'>";
+}
+if(!is_null($_POST['form_apptcat']) ){
+    echo "<input type='hidden' name='form_apptcat' value='" . $_POST['form_apptcat'] . "'>";
+}
 ?>
 
 </table>
