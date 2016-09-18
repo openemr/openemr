@@ -861,7 +861,7 @@ CREATE TABLE `form_eye_mag_dispense` (
 `OSDIAM` varchar(50) DEFAULT NULL,
 `OSBC` varchar(50) DEFAULT NULL,
 `RXCOMMENTS` text,
-`COMMENTS` text DEFAULT NULL,
+`COMMENTS` text,
 PRIMARY KEY (`id`),
 UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
 ) ENGINE=InnoDB;
@@ -1374,7 +1374,7 @@ CREATE TABLE `form_eye_mag_wearing` (
   `LENS_MATERIAL` varchar(20) DEFAULT NULL,
   `LENS_TREATMENTS` varchar(100) DEFAULT NULL,
   `RX_TYPE` varchar(25) DEFAULT NULL,
-  `COMMENTS` text DEFAULT NULL,
+  `COMMENTS` text,
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;
@@ -2114,4 +2114,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Lens_Treatments', 'LT_ASCRATCH', 'Anti-scratch coating', 10, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_UVBLOCK', 'UV-blocking treatment', 30, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_PHOTOGREY', 'Photochromic treatment', 40, 0, 0, '', '', '', 0, 0, 1, '');
+#EndIf
+
+#IfMissingColumn users suffix
+ALTER TABLE `users` ADD `suffix` varchar(255) default NULL;
 #EndIf

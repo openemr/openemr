@@ -274,7 +274,7 @@ CREATE TABLE `categories_seq` (
 -- Dumping data for table `categories_seq`
 -- 
 
-INSERT INTO `categories_seq` VALUES (13);
+INSERT INTO `categories_seq` VALUES (26);
 
 -- --------------------------------------------------------
 
@@ -2903,7 +2903,7 @@ CREATE TABLE `list_options` (
   `toggle_setting_1` tinyint(1) NOT NULL default '0',
   `toggle_setting_2` tinyint(1) NOT NULL default '0',
   `activity` TINYINT DEFAULT 1 NOT NULL,
-  `subtype` varchar(10) DEFAULT NULL,
+  `subtype` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`list_id`,`option_id`)
 ) ENGINE=InnoDB;
 
@@ -9039,7 +9039,7 @@ CREATE TABLE `form_eye_mag_dispense` (
 `OSDIAM` varchar(50) DEFAULT NULL,
 `OSBC` varchar(50) DEFAULT NULL,
 `RXCOMMENTS` text,
-`COMMENTS` text DEFAULT NULL,
+`COMMENTS` text,
 PRIMARY KEY (`id`),
 UNIQUE KEY `pid` (`pid`,`encounter`,`id`)
 ) ENGINE=InnoDB;
@@ -9547,7 +9547,7 @@ CREATE TABLE `form_eye_mag_wearing` (
   `LENS_MATERIAL` varchar(20) DEFAULT NULL,
   `LENS_TREATMENTS` varchar(100) DEFAULT NULL,
   `RX_TYPE` varchar(25) DEFAULT NULL,
-  `COMMENTS` text DEFAULT NULL,
+  `COMMENTS` text,
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `FORM_ID` (`FORM_ID`,`ENCOUNTER`,`PID`,`RX_NUMBER`)
 ) ENGINE=InnoDB;

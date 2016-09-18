@@ -62,7 +62,7 @@ function make_task($ajax_req) {
 	$task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
 
 	if ($task['ID'] && $task['COMPLETED'] =='2') {
-		$send['comments'] = xlt('This fax has already been sent.  Consider printing the Fax Report and sending it manually.');
+		$send['comments'] = xlt('This fax has already been sent. Consider printing the Fax Report and sending it manually.');
 		echo json_encode($send);
 		exit;
 	} else if ($task['ID'] && $task['COMPLETED'] =='1') {
@@ -82,7 +82,7 @@ function make_task($ajax_req) {
 			//we need to resend this fax????
 			//You can only resend from here once.
 			//If you are that messed up, print the report and fax it manually.
-			$send['comments'] = xlt('OK, we want to resend it.  We just do not know how to do this yet automatically, so you have do it manually...');
+			$send['comments'] = xlt('OK, we want to resend it. We just do not know how to do this yet automatically, so you have do it manually...');
 			echo json_encode($send);
 			update_taskman($task,'refaxed', '2');
 			exit;
@@ -124,7 +124,7 @@ function process_tasks($task) {
 	if ($task['DOC_TYPE'] == "Fax") {
 		//now return any objects you need to Eye Form
 		$send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
-								target='_blank' title=".xlt('Report was faxed.  Click to view.').">
+								target='_blank' title=".xlt('Report was faxed. Click to view.').">
 								<i class='fa fa-file-pdf-o fa-fw'></i>
 							</a>";
 							//if we want a "resend" icon, add it here.
@@ -302,10 +302,10 @@ function make_document($task) {
     	  	unlink($file); //maybe shorten to just unlink($filepath.'/'.$filename); - well this does test to see if it is there
     	}
     	
-    	$sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%".$filename."')";
-	    sqlQuery($sql);
-	    $sql = "DELETE from documents where documents.url like '%".$filename."'";
-	    sqlQuery($sql);
+    	$sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
+	    sqlQuery($sql,array("%".$filename));
+	    $sql = "DELETE from documents where documents.url like ?";
+	    sqlQuery($sql,array("%".$filename));
 	}
 	
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
