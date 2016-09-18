@@ -119,7 +119,7 @@ foreach ($versions as $version => $filename) {
 </p>
 <p>If you are unsure or were using a development version between two
 releases, then choose the older of possible releases.</p>
-<p style="color:red">If you are upgrading from a version below 4.3.1 to version 4.3.1 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data).</p>
+<p style="color:red">If you are upgrading from a version below 5.0.0 to version 5.0.0 or greater, do note that this upgrade can take anywhere from several minutes to several hours (you will only see a whitescreen until it is complete; do not stop the script before it is complete or you risk corrupting your data).</p>
 <p><input type='submit' name='form_submit' value='Upgrade Database' /></p>
 </form>
 </center>
