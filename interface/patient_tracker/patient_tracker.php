@@ -84,6 +84,7 @@ $appointments_status = getApptStatus($appointments);
 // xl('Canceled < 24h')
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
 while ( $lrow = sqlFetchArray ( $lres ) ) {
+    // if exists, remove the legend character
     if($lrow['title'][1] == ' '){
         $splitTitle = explode(' ', $lrow['title']);
         array_shift($splitTitle);
@@ -180,9 +181,20 @@ function openNewTopWindow(newpid,newencounterid) {
 
 </head>
 
+<?php
+  if ($GLOBALS['pat_trkr_timer'] == '0') {
+    // if the screen is not set up for auto refresh, use standard page call
+    $action_page = "patient_tracker.php";
+  }
+  else {
+    // if the screen is set up for auto refresh, this will allow it to be closed by auto logoff
+    $action_page = "patient_tracker.php?skip_timeout_reset=1";
+  }
+
+?>
+<span class="title"><?php echo xlt("Flow Board") ?></span>
 <body class="body_top" >
-<?php if($GLOBALS['docs_see_entire_calendar'] !='1'){ ?>
-<form method='post' name='theform' id='theform' action='patient_tracker.php' onsubmit='return top.restoreSession()'>
+<form method='post' name='theform' id='theform' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()'>
     <div id="flow_board_parameters">
         <table>
             <tr class="text">
@@ -248,12 +260,8 @@ function openNewTopWindow(newpid,newencounterid) {
         </table>
     </div>
 </form>
-<?php }?>
-<?php if ($GLOBALS['pat_trkr_timer'] == '0') { # if the screen is not set up for auto refresh it can be closed by auto log off ?>
-<form name='pattrk' id='pattrk' method='post' action='patient_tracker.php' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
-<?php } else { # if the screen is set up for auto refresh this will not allow it to be closed by auto logoff ?>
-<form name='pattrk' id='pattrk' method='post' action='patient_tracker.php?skip_timeout_reset=1' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
-<?php } ?>
+
+<form name='pattrk' id='pattrk' method='post' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
 
 <div>
   <?php if (count($chk_prov) == 1) {?>
