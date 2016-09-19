@@ -67,10 +67,32 @@ $appointments = sortAppointments( $appointments, 'time' );
 
 //grouping of the count of every status
 $appointments_status = getApptStatus($appointments);
+
+// Below are new constants for the translation pipeline
+// xl('None')
+// xl('Reminder done')
+// xl('Chart pulled')
+// xl('Canceled')
+// xl('No show')
+// xl('Arrived')
+// xl('Arrived late')
+// xl('Left w/o visit')
+// xl('Ins/fin issue')
+// xl('In exam room')
+// xl('Checked out')
+// xl('Coding done')
+// xl('Canceled < 24h')
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
 while ( $lrow = sqlFetchArray ( $lres ) ) {
-    $splitTitle = explode(' ', $lrow['title']);
-    $statuses_list[$lrow['option_id']] = $splitTitle[1];
+    if($lrow['title'][1] == ' '){
+        $splitTitle = explode(' ', $lrow['title']);
+        array_shift($splitTitle);
+        $title = implode(' ', $splitTitle);
+    }else{
+        $title = $lrow['title'];
+    }
+
+    $statuses_list[$lrow['option_id']] = $title;
 }
 
 $chk_prov = array();  // list of providers with appointments
@@ -502,16 +524,16 @@ function openNewTopWindow(newpid,newencounterid) {
 <?php
 //saving the filter for auto refresh
 if(!is_null($_POST['form_provider']) ){
-    echo "<input type='hidden' name='form_provider' value='" . $_POST['form_provider'] . "'>";
+    echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
 }
 if(!is_null($_POST['form_facility']) ){
-    echo "<input type='hidden' name='form_facility' value='" . $_POST['form_facility'] . "'>";
+    echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
 }
 if(!is_null($_POST['form_apptstatus']) ){
-    echo "<input type='hidden' name='form_apptstatus' value='" . $_POST['form_apptstatus'] . "'>";
+    echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
 }
 if(!is_null($_POST['form_apptcat']) ){
-    echo "<input type='hidden' name='form_apptcat' value='" . $_POST['form_apptcat'] . "'>";
+    echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
 }
 ?>
 

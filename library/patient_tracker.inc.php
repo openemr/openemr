@@ -364,7 +364,7 @@ function getApptStatus($appointments){
     $astat['count_all'] = count($appointments);
     //group the appointment by status
     foreach($appointments as $appointment){
-        $astat[$appointment['status']] += 1;
+        $astat[$appointment['pc_apptstatus']] += 1;
     }
     return $astat;
 }
