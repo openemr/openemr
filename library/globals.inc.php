@@ -149,7 +149,7 @@ $GLOBALS_METADATA = array(
     'theme_tabs_layout' => array(
       xl('Tabs Layout Theme (need to logout/login after change this setting)'),
       'tabs_css',
-      'tabs_style_compact.css',
+      'tabs_style_full.css',
       xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
     ),
 
