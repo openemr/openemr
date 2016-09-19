@@ -83,7 +83,6 @@ var webroot_url="<?php echo $web_root; ?>";
 <script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<link rel='stylesheet' href='<?php echo $GLOBALS['assets_static_relative']; ?>/typicons-2-0-7/src/font/typicons.min.css' />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     
 <?php require_once("templates/tabs_template.php"); ?>
