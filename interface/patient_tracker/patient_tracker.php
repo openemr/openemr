@@ -44,7 +44,15 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 #define variables, future enhancement allow changing the to_date and from_date 
 #to allow picking a date to review
 
-$provider = !is_null($_POST['form_provider']) ? $_POST['form_provider'] : null;
+if (!is_null($_POST['form_provider'])) {
+  $provider = $_POST['form_provider'];
+}
+else if ($_SESSION['userauthorized']) {
+  $provider = $_SESSION['authUserID'];
+}
+else {
+  $provider = null;
+}
 $facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
 $form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
 $form_apptcat=null;
