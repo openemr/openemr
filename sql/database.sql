@@ -5610,7 +5610,7 @@ CREATE TABLE `registry` (
   `category` varchar(255) default NULL,
   `nickname` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 ;
+) ENGINE=InnoDB AUTO_INCREMENT=22 ;
 
 -- 
 -- Dumping data for table `registry`

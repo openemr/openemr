@@ -1239,6 +1239,7 @@ CREATE TABLE `form_eye_mag` (
 `FINISHED` varchar(25) DEFAULT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=MyISAM;
+INSERT INTO `registry` (`name`,`state`,`directory`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Eye Exam', 1, 'eye_mag', 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '');
 #EndIf
 
 #IfNotTable form_eye_mag_prefs
