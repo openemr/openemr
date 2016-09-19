@@ -92,6 +92,7 @@ body
 
 .tabControls
 {
+    border-bottom: 1pt solid #1976d2;
     margin: 0px;
     padding: 0px;
     padding-top: 4px;
@@ -103,18 +104,29 @@ body
 .tabSpan
 {
     margin: 0px;
-    padding:  8px 14px;
-    border: 1pt solid ##e4e4e4;
-    border-left: 3px solid #e4e4e4;
+    padding: 8px 8px;
+    border-top: 3pt solid #1976d2;
+    border-left: 1px solid #1976d2;
     border-bottom: none;
-    border-right: none;
+    border-right: 1px solid #1976d2;
     cursor: pointer;
+    /**
+     * This next part "connects" the tab to the
+     * "content" by hiding the containing border
+     */
+    position: relative;
+    bottom: -1px;
     flex: 0 1 auto;
     white-space: nowrap;
     overflow: visible;
 }
-.tabSpan::last-child {
-    border-right: 1pt solid ##e4e4e4;
+.tabSpan:last-child {
+    /*border-right: 1pt solid #1976d2;*/
+}
+
+.tabSpan .fa {
+    font-size: 80%;
+    color: #888888;
 }
 
 .tabSpan:hover
@@ -123,11 +135,15 @@ body
 }
 .tabHidden
 {
-    color: gray;
+    color: #888888;
 }
 .tabNotchosen {
+    position: relative;
+    bottom: 0px;
     background: transparent;
-    border-bottom: 1pt solid black;
+    border-top: 3pt solid transparent;
+    border-left: none;
+    border-right: none;
     display:block;
     max-width:1000px;
 }
@@ -145,15 +161,15 @@ body
     width: 99%;
     height:99%;
 
-    background-color: gray;
+    background-color: #fff;
     z-index:1000;
-    opacity: 0.5;
+    opacity: 0.65;
 }
 
 #dialogDiv > div.container
 {
     display: table;
-    background-color: gray;
+    /*background-color: gray;*/
     margin: auto auto;
     opacity: 1;
 }
@@ -161,25 +177,35 @@ body
 .dialogIframe
 {
     position: absolute;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
     margin: auto auto;
     opacity: 1;
-    z-index:10000;
-    border: 1px solid black;
-    border-radius: 10px;
+    z-index: 10000;
+    box-shadow: 0px 0px 30px rgba(0,0,0,0.2);
 }
 
 div.closeDlgIframe {
-
+    background: #ff5d5a;
     position: absolute;
     top: -12px;
-    right: -15px;
+    right: -12px;
     height: 30px;
     width: 30px;
-    background: url('iframe_close.png') top left no-repeat;
     cursor: pointer;
     z-index: 10010;
+}
+div.closeDlgIframe:before {
+    color: #fff;
+    content: "\f00d";
+    font-family: "FontAwesome";
+    font-weight: bold;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    line-height: 30px;
+    height: 30px;
 }
 
 .dialogIframe > iframe{
@@ -343,6 +369,11 @@ div.closeDlgIframe {
     color: #333;
 }
 
+/** Only apply if not an actual link **/
+div.menuLabel:hover {
+    cursor: default !important;
+}
+
 /** Sub menu **/
 .menuEntries li .menuLabel {
     font-size: 90%;
@@ -394,7 +425,7 @@ div.closeDlgIframe {
 #username:hover > .userfunctions
 {
     display: block;
-    Xwidth:98%;
+    width:98%;
 }
 
 #username > .userfunctions > div:hover
