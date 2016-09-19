@@ -2493,7 +2493,7 @@ function display_QP($zone,$providerID){
         $here[$QP['title']][$QP['subtype']]['activity'] = $QP['activity'];  //1 to replace, 0 to append
     }
     foreach ($here as $title => $values) { //start QP section items
-        $title_show = (strlen($title) > 15) ? substr($title,0,13).'...' : $title; 
+        $title_show = (strlen($title) > 19) ? substr($title,0,16).'...' : $title; 
         if (preg_match('/clear field/',$title)) {
             $title_show = "<em><strong>$title</strong></em>";
         }
@@ -3185,7 +3185,7 @@ function display($pid,$encounter,$category_value) {
     }
     for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
         $episode .= "<tr>
-        <td class='right' style='font-size:1.3em;'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
+        <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
             <a href='../../../controller.php?document&upload&patient_id=".attr($pid)."&parent_id=".attr($documents['zones'][$category_value][$j]['id'])."&'>
             <img src='../../forms/".$form_folder."/images/upload_file.png' class='little_image'>
@@ -5159,10 +5159,10 @@ function generate_specRx($W) {
                          title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton4 fa fa-list-ul"></i>
                       <table id="wearing_<?php echo attr($W); ?>" >
                         <tr>
-                          <th colspan="9"><?php echo xlt('Current Glasses'); ?>: #<?php echo attr($W); ?>
+                          <th colspan="7"><?php echo xlt('Current Glasses'); ?>: #<?php echo attr($W); ?>
                           </th>
                         </tr>
-                        <tr style="font-weight:400;">
+                        <tr>
                           <td></td>
                           <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>"aria-hidden="true" id="revW<?php echo attr($W); ?>" ></i></td>
                           <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
@@ -5179,8 +5179,8 @@ function generate_specRx($W) {
                           <td name="W_wide" title="<?php echo xla('Monocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Monocular Pupillary Diameter - Near'); ?>"><?php echo xlt('MPD-N{{abbreviation for Monocular Pupillary Diameter - Near}}'); ?></td>
       
-                          <td rowspan="6" class="right" style="padding:10 0 10 0;font-size:0.8em;width:100px;">
-                            <b style="font-weight:600;text-decoration:underline;"><?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></b><br />
+                          <td rowspan="6" class="right">
+                            <?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br />
                             <label for="Single_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
                             <input type="radio" value="0" id="Single_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php if ($RX_TYPE == '0') echo 'checked="checked"'; ?> /></span><br /><br />
                             <label for="Bifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
@@ -5227,7 +5227,7 @@ function generate_specRx($W) {
                           <td name="W_wide"><input type="text" class="prism" id="OSMPDN_<?php echo attr($W); ?>" name="OSMPDN_<?php echo attr($W); ?>" value="<?php echo attr($OSMPDN); ?>" tabindex="<?php echo attr($W); ?>0127"></td>
                         </tr>                
                         <tr class="WNEAR">
-                          <td rowspan=2><span style="text-decoration:none;"><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></span></td>    
+                          <td rowspan=2><?php echo xlt('Mid{{middle Rx strength}}'); ?>/<br /><?php echo xlt('Near'); ?></td>    
                           <td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                           <?php echo '<input type="hidden" name="RXStart_'.$W.' id="RXStart_'.$W.'" value="'.attr($RX_TYPE).'">'; ?>
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD); ?>"></td>
@@ -5242,12 +5242,12 @@ function generate_specRx($W) {
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop" 
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>" 
-                                  name="Lens_mat"><span style="text-decoration:underline;"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
                           </td>
-                          <td name="W_wide" colspan="4" rowspan="4" style="text-align:left;vertical-align:top;padding-left:10px;">
+                          <td name="W_wide2" colspan="4" rowspan="4">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop" 
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>" 
-                                  name="Lens_txs"><span style="text-decoration:underline;"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
                             <br />
                             <?php  echo generate_lens_treatments($W,$LENS_TREATMENTS); ?>
                           </td>  
@@ -5267,14 +5267,14 @@ function generate_specRx($W) {
                             <?php echo generate_select_list("LENS_MATERIAL_".$W, "Eye_Lens_Material", "$LENS_MATERIAL",'',' ','','restoreSession;submit_form();','',array('style'=>'width:120px','tabindex'=>$W.'0130')); ?> 
                           </td>
                         </tr>
-                        <tr style="top:3.5in;">
-                          <td colspan="2" style="text-align:right;vertical-align:top;top:0px;"><b><?php echo xlt('Comments'); ?>:</b>
+                        <tr>
+                          <td colspan="2"><b><?php echo xlt('Comments'); ?>:</b>
                           </td>
-                          <td colspan="4" class="up" style="text-align:left;vertical-align:middle;top:0px;"></td>
+                          <td colspan="4" class="up"></td>
                         </tr>
                         <tr>
                           <td colspan="6">
-                            <textarea style="width:100%;height:3.0em;" id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_<?php echo attr($W); ?>" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS); ?></textarea>     
+                            <textarea id="COMMENTS_<?php echo attr($W); ?>" name="COMMENTS_W" tabindex="<?php echo attr($W); ?>0110"><?php echo text($COMMENTS); ?></textarea>     
                           </td>
                           <td colspan="2"> 
                           </td>

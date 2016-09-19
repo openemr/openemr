@@ -212,10 +212,11 @@ function check_lock(modify) {
             $.ajax({
                    type   : 'POST',
                    url    : url,
-                   data     : {
+                   data   : {
                    'acquire_lock'  : '1',
                    'uniqueID'      : uniqueID,
-                   'form_id'       : $("#form_id").val()
+                   'form_id'       : $("#form_id").val(),
+                   'locked_by'     : $("#LOCKEDBY").val()
                    }
                    }).done(function(d) {
                            $("#LOCKEDBY").val(uniqueID);
@@ -1855,7 +1856,7 @@ function openImage() {
  *  Keyboard shortcut commands.
  */
 
-shortcut.add("Control+T",function() {
+shortcut.add("Ctrl+T",function() {
              show_TEXT();
              });
 shortcut.add("Meta+T",function() {
@@ -1901,11 +1902,12 @@ $(function(){
                    }
                    });
   });
+
 /* Undo feature
  *  RIGHT NOW THIS WORKS PER FIELD ONLY in FF. In Chrome it works great.  Not sure about IE at all.
  *  In FF, you select a field and CTRL-Z reverses/Shift-Ctrl-Z forwards value
  *  To get true Undo Redo, we will need to create two arrays, one with the command/field, prior value, next value to undo
- *  and when undone, add this to the REDO array.  When a Undo command is followed by anything other than Redo, it erases REDO array.
+ *  and when undone, add this to the REDO array.  When an Undo command is followed by anything other than Redo, it erases REDO array.
  *  Ctrl-Z works without this extra code!  Fuzzy on the details for specific browsers so TODO.
  */
 
@@ -2680,7 +2682,11 @@ $(document).ready(function() {
                                                                  $(this).toggleClass('buttonRefraction_selected').toggleClass('underline');
                                                                  });
                   $("#pupils").click(function(){
-                                     $("#dim_pupils_panel").toggleClass('nodisplay');
+                                     if ($("#dim_pupils_panel").hasClass("nodisplay")) {
+                                        $("#dim_pupils_panel").removeClass('nodisplay');
+                                      } else {
+                                        $("#dim_pupils_panel").fadeToggle();
+                                      }
                                      });
                   $("#vision_tab").click(function(){
                                          $("#REFRACTION_sections").toggleClass('nodisplay');
@@ -2756,16 +2762,24 @@ $(document).ready(function() {
                                                     //make each display W wide
                                                     $("[name=currentRX]").addClass('refraction_wide');
                                                     $("[name=W_wide]").removeClass('nodisplay');
+                                                    $("[name=W_wide2]").removeClass('nodisplay');
                                                     } else {
                                                     $("#PREFS_W_width").val('0');
                                                     //make each display W narrow
                                                     $("[name=currentRX]").removeClass('refraction_wide');
                                                     $("[name=W_wide]").addClass('nodisplay');
+                                                    $("[name=W_wide2]").addClass('nodisplay');
                                                     }
                                                     update_PREFS();
                                                     
                                                     });
-                  ($("#PREFS_W_width").val() == '1') ? $("[name=W_wide]").removeClass('nodisplay') : $("[name=W_wide]").addClass('nodisplay');
+                  if ($("#PREFS_W_width").val() == '1') {
+                    $("[name=W_wide]").removeClass('nodisplay');
+                    $("[name=W_wide2]").removeClass('nodisplay')
+                  } else {
+                    $("[name=W_wide]").addClass('nodisplay'); 
+                    $("[name=W_wide2]").addClass('nodisplay'); 
+                  }
                   $("#Amsler-Normal").change(function() {
                                              if ($(this).is(':checked')) {
                                              var number1 = document.getElementById("AmslerOD").src.match(/(Amsler_\d)/)[1];
@@ -3395,8 +3409,9 @@ $(document).ready(function() {
                                                    var reset = $("#HPI_1").height();
                                                    $("#PMH_1").height(reset);
                                                    $("#PMH_left").height(reset-40);
+                                                   $("#LayerTechnical_sections_1").css("clear","both");
                                                    if (zone == "PMH") {
-                                                   $(document).scrollTop( $("#"+zone+"_anchor").offset().top - 25);
+                                                   $.scrollTop( $("#"+zone+"_anchor").offset().top - 25);
                                                    }
                                                    } else {
                                                    $("#"+zone+"_right").addClass('nodisplay');

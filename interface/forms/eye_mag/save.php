@@ -266,7 +266,6 @@ if ($_REQUEST['unlock'] == '1') {
   $result = sqlQuery($query,array($_REQUEST['uniqueID'],$form_id,$_REQUEST['locked_by']));
   $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
   $lock = sqlQuery($query,array($form_id));
-  echo $lock['LOCKEDDATE'];
   exit;
 } else { 
   $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
@@ -747,6 +746,7 @@ if ($_REQUEST["mode"] == "new")             {
     if (!$_POST['OSVF2']) $fields['OSVF2'] = '0';
     if (!$_POST['OSVF3']) $fields['OSVF3'] = '0';
     if (!$_POST['OSVF4']) $fields['OSVF4'] = '0';
+    if (!$_POST['TEST']) $fields['Resource'] = '';
     if (!$fields['PLAN']) $fields['PLAN'] = '0';
    
     $success = formUpdate($table_name, $fields, $form_id, $_SESSION['userauthorized']);

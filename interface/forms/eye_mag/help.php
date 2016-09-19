@@ -215,13 +215,13 @@ if ($showit=='ext') $showit="external";
 						<hr />
 						This tutorial shows you how to document each area using Shorthand.  <br />
 						We'll show you how to complete the HPI, PMH, POH, Medication list, Surgical History and Allergies.<br />
-						Using a handful of lines of typing in the Shorthand textbox,<br /> 
-						you can document all your normal findings <b>and more than 40 different clinical issues</b>. 
+						As an example, using a handful of lines of typing in the Shorthand textbox,<br /> 
+						you will document all your normal findings <b>and more than 40 different clinical issues</b>. 
 							<br />
 							That's a lot to document and one mighty complicated patient!<br />
-							Many more issues than we would see on a routine day with routine patients, but it could happen...  <br />
+							Combined it may be many more issues than we would see on a routine day, with routine patients, but it could happen...  <br />
 						Documenting this many findings would take a little bit of time on paper, and a lifetime in a typical EHR. <br />
-						The average typist can now do it <b>in less than a minute.</b>
+						The average typist can now do it <b>in less than a minute.</b>  A normal encounter can be completed in seconds.
 						<hr />
 
 						<h4 class="bold">HPI: </h4> 
