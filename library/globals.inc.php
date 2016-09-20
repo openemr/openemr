@@ -1320,7 +1320,7 @@ $GLOBALS_METADATA = array(
          '6' => xl('Saturday')
        ),
        '1',
-       xl('Your first day in the week.')
+       xl('Your first day of the week.')
      ),
     'calendar_appt_style' => array(
       xl('Appointment Display Style'),
