@@ -151,7 +151,7 @@ $res = sqlStatement($query,$sqlBindArray);
   if (! $row['active']) $username = '--';
 
   $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
-
+  if ($row['suffix'] >'') $displayName .=", ".$row['suffix'];
   if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
    // Allow edit, since have access or (no item type and not a local user)
    $trTitle = xl('Edit'). ' ' . $displayName;

@@ -636,6 +636,9 @@ function upgradeFromSqlFile($filename) {
     }
     // find MyISAM tables and attempt to convert them
     else if (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+      //tables that need to skip InnoDB migration (stay at MyISAM for now)
+      $tables_skip_migration = array('form_eye_mag');
+
       $tables_list = getTablesList( array('engine'=>'MyISAM'));
       if( count($tables_list)==0 ) {
         $skipping = true;
@@ -643,6 +646,10 @@ function upgradeFromSqlFile($filename) {
         $skipping = false;
         echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
         foreach( $tables_list as $k=>$t ) {
+          if (in_array($t,$tables_skip_migration)) {
+            printf( '<font color="green">Table %s was purposefully skipped and NOT migrated to InnoDB.</font><br />', $t );
+            continue;
+          }
           $res = MigrateTableEngine( $t, 'InnoDB' );
           if( $res === TRUE) {
             printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );

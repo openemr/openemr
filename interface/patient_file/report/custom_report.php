@@ -149,6 +149,7 @@ function postToGet($arin) {
     border-bottom: solid thin #6D6D6D;
     padding:0% 2% 0% 2.5%;
   }
+  img { max-width:700px; }
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
@@ -163,14 +164,18 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <?php  } ?>
 
 </head>
-<body class="body_top" style="padding-top:95px;">
+<?php 
+// remove blank header for printable version to conserve space
+// adjust this if you are printing to letterhead to appropriate height
+($printable) ? ($style = ''):($style='padding-top:95px;');
+?>
+<body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
 if (sizeof($_GET) > 0) { $ar = $_GET; }
 else { $ar = $_POST; }
-
 if ($printable) {
   /*******************************************************************
   $titleres = getPatientData($pid, "fname,lname,providerID");

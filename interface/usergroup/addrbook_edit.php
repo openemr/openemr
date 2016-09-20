@@ -29,6 +29,7 @@
  $info_msg = "";
 
  function invalue($name) {
+  if (!$_POST[$name]) return "''";
   $fld = add_escape_custom(trim($_POST[$name]));
   return "'$fld'";
  }
@@ -126,6 +127,7 @@ td { font-size:10pt; }
   $form_fname = invalue('form_fname');
   $form_lname = invalue('form_lname');
   $form_mname = invalue('form_mname');
+  $form_suffix = invalue('form_suffix');
  }
 
   if ($userid) {
@@ -136,6 +138,7 @@ td { font-size:10pt; }
     "fname = "        . $form_fname                  . ", " .
     "lname = "        . $form_lname                  . ", " .
     "mname = "        . $form_mname                  . ", " .
+    "suffix = "       . $form_suffix                 . ", " .
     "specialty = "    . invalue('form_specialty')    . ", " .
     "organization = " . invalue('form_organization') . ", " .
     "valedictory = "  . invalue('form_valedictory')  . ", " .
@@ -144,7 +147,7 @@ td { font-size:10pt; }
     "upin = "         . invalue('form_upin')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
     "taxonomy = "     . invalue('form_taxonomy')     . ", " .
-	"cpoe = "         . invalue('form_cpoe')         . ", " .    
+	  "cpoe = "         . invalue('form_cpoe')         . ", " .    
     "email = "        . invalue('form_email')        . ", " .
     "email_direct = " . invalue('form_email_direct') . ", " .
     "url = "          . invalue('form_url')          . ", " .
@@ -171,7 +174,7 @@ td { font-size:10pt; }
 
    $userid = sqlInsert("INSERT INTO users ( " .
     "username, password, authorized, info, source, " .
-    "title, fname, lname, mname,  " .
+    "title, fname, lname, mname, suffix, " .
     "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, " .
     "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
     "street, streetb, city, state, zip, " .
@@ -187,6 +190,7 @@ td { font-size:10pt; }
     $form_fname                   . ", " .
     $form_lname                   . ", " .
     $form_mname                   . ", " .
+    $form_suffix                  . ", " .
     invalue('form_federaltaxid')  . ", " .
     "'', "                               . // federaldrugid
     invalue('form_upin')          . ", " .
@@ -195,7 +199,7 @@ td { font-size:10pt; }
     "1, "                                . // active
     invalue('form_npi')           . ", " .
     invalue('form_taxonomy')      . ", " .
-	invalue('form_cpoe')          . ", " .
+	  invalue('form_cpoe')          . ", " .
     invalue('form_specialty')     . ", " .
     invalue('form_organization')  . ", " .
     invalue('form_valedictory')   . ", " .
@@ -294,6 +298,8 @@ td { font-size:10pt; }
      maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;
    <b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
      maxlength='50' value='<?php echo attr($row['mname']); ?>' />
+   <b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_suffix' class='inputtext'
+     maxlength='50' value='<?php echo attr($row['suffix']); ?>' />
   </td>
  </tr>
 
