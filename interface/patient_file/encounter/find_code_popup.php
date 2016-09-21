@@ -85,11 +85,8 @@ td { font-size:10pt; }
 
 </head>
 <?php 
-  if ($_REQUEST['search_term']) {
-    $focus = "document.theform.bn_search.focus();";
-  } else {
-    $focus = "document.theform.search_term.focus();";
-  } ?>
+    $focus = "document.theform.search_term.select();";
+?>
 <body class="body_top" OnLoad="<?php echo $focus; ?>">
 
 <?php
@@ -177,7 +174,10 @@ else {
 
 </table>
 
-<?php if ($_REQUEST['bn_search']) { ?>
+<?php 
+  if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) { 
+    if (!$form_code_type) $form_code_type = $codetype;
+?>
 
 <table border='0'>
  <tr>
