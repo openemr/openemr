@@ -738,7 +738,7 @@ foreach ($providers as $provider) {
                          $content .= xlt($event['title']);
                     }else{
                         // no patient id, just output the category name
-                        $content .= xlt($catname);
+                        $content .= text(xl_appt_category($catname));
                     }
                 }
                 $content .= "</span>";
