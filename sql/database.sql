@@ -6421,7 +6421,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES 
 ('ICD10', 'CMS', '2016-10-01', '2017-GEM-PCS.zip', 'a4e08b08fb9a53c81385867c82aa8a9e');
 
------------------------------------------------------------- 
+-- -------------------------------------------------------- 
 -- Table structure for table `transactions`
 -- 
 
@@ -8951,7 +8951,7 @@ CREATE TABLE `valueset` (
   PRIMARY KEY (`nqf_code`,`code`,`valueset`)
 ) ENGINE=InnoDB;
 
-----------------------------------------------------------
+-- ------------------------------------------------------
 -- Table structure for table `immunization_observation`
 --
 CREATE TABLE `immunization_observation` (
@@ -9569,4 +9569,4 @@ CREATE TABLE `form_taskman` (
 ) ENGINE=INNODB;
 
 -- End of Eye Module tables
---------------------------------------------------------
+-- ----------------------------------------------------
