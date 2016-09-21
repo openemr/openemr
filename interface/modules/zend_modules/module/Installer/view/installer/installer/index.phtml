@@ -21,7 +21,7 @@
 */
 
 echo $this->headScript()->appendFile(
-		$this->basePath() . '/js/installer/action.js',
+		$this->basePath() . '/js/installer/action.js?v=' . $v_js_includes,
 		'text/javascript'
 );
 $listener	= $this->listenerObject;

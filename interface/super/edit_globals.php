@@ -138,12 +138,14 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
     }
   }
   echo "<script type='text/javascript'>";
-  echo "parent.left_nav.location.reload();";
-  echo "parent.Title.location.reload();";
-  echo "if(self.name=='RTop'){";
-  echo "parent.RBot.location.reload();";
-  echo "}else{";
-  echo "parent.RTop.location.reload();";
+  echo "if (parent.left_nav.location) {";
+  echo "  parent.left_nav.location.reload();";
+  echo "  parent.Title.location.reload();";
+  echo "  if(self.name=='RTop'){";
+  echo "  parent.RBot.location.reload();";
+  echo "  }else{";
+  echo "  parent.RTop.location.reload();";
+  echo "  }";
   echo "}";
   echo "self.location.href='edit_globals.php?mode=user&unique=yes';";
   echo "</script>";
@@ -291,12 +293,14 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 	 auditSQLAuditTamper($auditLogStatusFieldNew);
   }
   echo "<script type='text/javascript'>";
-  echo "parent.left_nav.location.reload();";
-  echo "parent.Title.location.reload();";
-  echo "if(self.name=='RTop'){";
-  echo "parent.RBot.location.reload();";
-  echo "}else{";
-  echo "parent.RTop.location.reload();";
+  echo "if (parent.left_nav.location) {";
+  echo "  parent.left_nav.location.reload();";
+  echo "  parent.Title.location.reload();";
+  echo "  if(self.name=='RTop'){";
+  echo "  parent.RBot.location.reload();";
+  echo "  }else{";
+  echo "  parent.RTop.location.reload();";
+  echo "  }";
   echo "}";
   echo "self.location.href='edit_globals.php?unique=yes';";
   echo "</script>";
