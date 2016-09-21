@@ -32,6 +32,12 @@ class Thumbnail
      */
     public function __construct($max_size = null)
     {
+        //validate that GD extension was enabled
+        if (!extension_loaded('gd'))
+        {
+            die('Abort '.basename(__FILE__).' : Missing zlib extensions');
+        }
+
         if(!is_null($max_size)) {
             $this->max_size = $max_size;
         } else {
