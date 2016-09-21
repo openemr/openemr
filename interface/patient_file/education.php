@@ -63,7 +63,7 @@ if ($_POST['bn_submit']) {
     }
     else {
       echo "<html><body>"
-        ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"        
+        ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
         . "<script language='JavaScript'>\n";
       echo "document.location.href = '$url';\n";
       echo "</script></body></html>\n";

@@ -15,7 +15,7 @@ class AMC_302h_Numerator implements AmcFilterIF
         return "AMC_302h Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate )
     {
         $procedure_order_id = $patient->object['procedure_order_id'];
 		$sql =  "SELECT count(r.result) as cnt FROM procedure_result r ".
@@ -23,7 +23,7 @@ class AMC_302h_Numerator implements AmcFilterIF
 				"INNER JOIN procedure_order po ON po.procedure_order_id = pr.procedure_order_id ".
 				"WHERE r.result !=  '' ".
 				"AND po.procedure_order_id = ?";
-		$check = sqlQuery( $sql, array($procedure_order_id) );  
+		$check = sqlQuery( $sql, array($procedure_order_id) );
 		return $check['cnt'];
     }
 }

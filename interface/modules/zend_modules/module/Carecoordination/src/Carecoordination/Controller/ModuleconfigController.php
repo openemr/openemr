@@ -80,11 +80,11 @@ class ModuleconfigController extends AbstractActionController
 					    'name' 	=> "send_to_hie",
 					    'title'	=> "Send To HIE",
 					    'path'	=> "encountermanager",
-					),						
-		       );	
+					),
+		       );
 	
 	return $hooks;
-    }    
+    }
     
     public function getDependedModulesConfig()
     {

@@ -43,7 +43,7 @@ class FormEvaluation extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		
 		$this->_table = "form_evaluation";
@@ -64,7 +64,7 @@ class FormEvaluation extends ORDataObject {
 		$results = sqlQ($sql);
 
 		while ($row = sqlFetchArray($results)) {
-			$this->checks[] = $row['name'];	
+			$this->checks[] = $row['name'];
 		}
 					
 	}
@@ -114,7 +114,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_temp() {
-		return $this->temp;	
+		return $this->temp;
 	}
 	
 	function set_p($string) {
@@ -122,7 +122,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_p() {
-		return $this->p;	
+		return $this->p;
 	}
 	
 	function set_r($string) {
@@ -130,7 +130,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_r() {
-		return $this->r;	
+		return $this->r;
 	}
 	
 	function set_bp($string) {
@@ -138,7 +138,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_bp() {
-		return $this->bp;	
+		return $this->bp;
 	}
 	
 	function set_ht($string) {
@@ -146,7 +146,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_ht() {
-		return $this->ht;	
+		return $this->ht;
 	}
 	
 	function set_wt($string) {
@@ -154,7 +154,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_wt() {
-		return $this->wt;	
+		return $this->wt;
 	}
 	
 	function set_bmi($string) {
@@ -162,7 +162,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_bmi() {
-		return $this->bmi;	
+		return $this->bmi;
 	}
 	
 	function set_lmp($string) {
@@ -170,7 +170,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_lmp() {
-		return $this->lmp;	
+		return $this->lmp;
 	}
 	
 	function set_complaint($string) {
@@ -178,7 +178,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_complaint() {
-		return $this->complaint;	
+		return $this->complaint;
 	}
 	
 	function set_hpi($string) {
@@ -186,7 +186,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_hpi() {
-		return $this->hpi;	
+		return $this->hpi;
 	}
 	
 	function set_eyes_od($string) {
@@ -194,7 +194,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_eyes_od() {
-		return $this->eyes_od;	
+		return $this->eyes_od;
 	}
 	
 	function set_eyes_os($string) {
@@ -202,7 +202,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_eyes_os() {
-		return $this->eyes_os;	
+		return $this->eyes_os;
 	}
 	
 	function set_eyes_ou($string) {
@@ -210,7 +210,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_eyes_ou() {
-		return $this->eyes_ou;	
+		return $this->eyes_ou;
 	}
 	
 	function set_comments($string) {
@@ -218,7 +218,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_comments() {
-		return $this->comments;	
+		return $this->comments;
 	}
 	
 	function set_assesment($string) {
@@ -226,7 +226,7 @@ class FormEvaluation extends ORDataObject {
 	}
 	
 	function get_assesment() {
-		return $this->assesment;	
+		return $this->assesment;
 	}
 	
 	function get_checks() {
@@ -250,7 +250,7 @@ class FormEvaluation extends ORDataObject {
 					//echo "$sql<br>";
 				}
 			}
-		}	
+		}
 		
 	}
 	
@@ -260,12 +260,12 @@ class FormEvaluation extends ORDataObject {
 		//at is array temp
 		//a is array
 		//a_bottom is the textually identified rows of a checkbox group
-		
+
 		$at[1]['appearance_normal_development'] 	=  "Normal Developement";
     	$at[1]['appearance_normal_body_habitus'] 	=  "Normal Body Habitus";
     	$at[1]['appearance_well_groomed'] 	=  "Well Groomed";
     	 	
-    	$a['General Appearance'] = $at; 
+    	$a['General Appearance'] = $at;
     	
     	$at = array();
     	$a_bottom = array();
@@ -403,7 +403,7 @@ class FormEvaluation extends ORDataObject {
     	$a['Psychiatric'] = $at;
     	
     	    		
-		return $a;	
+		return $a;
 	}
 	
 

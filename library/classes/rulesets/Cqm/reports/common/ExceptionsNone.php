@@ -8,7 +8,7 @@
 //
 class ExceptionsNone implements CqmFilterIF
 {
-    public function getTitle() 
+    public function getTitle()
     {
         return "Exceptions: None";
     }

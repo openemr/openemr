@@ -14,7 +14,7 @@ function xl($constant,$mode='r',$prepend='',$append='') {
   }
   else {
     $lang_id = 1;
-  } 
+  }
 
   if ($lang_id == 1 && !empty($GLOBALS['skip_english_translation'])) {
     // language id = 1, so no need to translate
@@ -224,8 +224,8 @@ function getLanguageTitle($val) {
  // get language title
  $res = sqlStatement("select lang_description from lang_languages where lang_id =?",array($lang_id));
  for ($iter = 0;$row = sqlFetchArray($res);$iter++) $result[$iter] = $row;
- $languageTitle = $result[0]{"lang_description"};   
- return $languageTitle;    
+ $languageTitle = $result[0]{"lang_description"};
+ return $languageTitle;
 }
 
 

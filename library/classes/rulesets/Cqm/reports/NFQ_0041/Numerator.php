@@ -13,7 +13,7 @@ class NFQ_0041_Numerator implements CqmFilterIF
         return "Numerator";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate ) 
+    public function test( CqmPatient $patient, $beginDate, $endDate )
     {
     	$periodPlus89Days 	= date( 'Y-m-d 00:00:00', strtotime( '+89 day', strtotime( $beginDate ) ) );
     	$periodMinus153Days = date( 'Y-m-d 00:00:00', strtotime( '-153 day', strtotime( $beginDate ) ) );

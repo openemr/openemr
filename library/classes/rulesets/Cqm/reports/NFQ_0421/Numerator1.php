@@ -14,7 +14,7 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
     }
 
     public function test( CqmPatient $patient, $beginDate, $endDate )
-    {        
+    {
         // Flow of control loop
         $return = false;
         do {
@@ -77,7 +77,7 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
             $res = sqlStatement( $query, array( $patient->id ) );
             $number = sqlNumRows($res);
-            if ( $number >= 1 && 
+            if ( $number >= 1 &&
                 ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient ) ||
                   Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient ) ) ) {
                 $return = true;

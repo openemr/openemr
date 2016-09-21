@@ -49,7 +49,7 @@ function patient_reminder_widget($patient_id,$dateTarget='') {
   update_reminders($dateTarget, $patient_id);
 
   // Fetch the active reminders
-  $listReminders = fetch_reminders($patient_id);  
+  $listReminders = fetch_reminders($patient_id);
 
   if (empty($listReminders)) {
     // No reminders to show.
@@ -75,7 +75,7 @@ function patient_reminder_widget($patient_id,$dateTarget='') {
         echo htmlspecialchars( xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
       }
     echo "</span></td></tr>";
-  } 
+  }
   echo "</table>";
 }
 

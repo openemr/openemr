@@ -52,7 +52,7 @@ $formtarget = $GLOBALS['concurrent_layout'] ? "" : " target='Main'";
                		$priority_id = $matches[1];
 			sqlQuery("update registry set priority='".$val."' where id=".$priority_id);
 		}
-        }   
+        }
 ?>
 
 
@@ -83,7 +83,7 @@ $color="#CCCCCC";
 if ($bigdata != false)
 foreach($bigdata as $registry)
 {
-	$priority_category = sqlQuery("select priority, category, nickname from registry where id=".$registry['id']); 
+	$priority_category = sqlQuery("select priority, category, nickname from registry where id=".$registry['id']);
 	?>
 	<tr>
 		<td bgcolor="<?php echo $color?>" width="2%">
@@ -102,7 +102,7 @@ foreach($bigdata as $registry)
 		?></td>
 		<td bgcolor="<?php $color?>" width="10%">
 			<span class=text><?php
-			
+
 			if ($registry['unpackaged'])
 				echo xl('PHP extracted','e');
 			else
@@ -162,7 +162,7 @@ foreach ( $inDir as $fname )
 {
         // added 8-2009 by BM - do not show the metric vitals form as option since deprecated
 	//  also added a toggle in globals.php in case user wants the option to add this deprecated form
-        if (($fname == "vitalsM") && ($GLOBALS['disable_deprecated_metrics_form'])) continue;   
+        if (($fname == "vitalsM") && ($GLOBALS['disable_deprecated_metrics_form'])) continue;
     
 	if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz"))
 		$phpState = "PHP compressed";

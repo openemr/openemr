@@ -336,7 +336,7 @@ while($result = sqlFetchArray($res)) {
     if ($result{"form_name"} == "New Patient Encounter") {
         if ($isfirst == 0) {
             foreach($registry_form_name as $var) {
-                if ($toprint = $html_strings[$var]) { 
+                if ($toprint = $html_strings[$var]) {
                     foreach($toprint as $var) {print $var;}
                 }
             }
@@ -362,11 +362,11 @@ while($result = sqlFetchArray($res)) {
             $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
         }
 
-        echo $result{"reason"}. 
+        echo $result{"reason"}.
                 " (" . date("Y-m-d",strtotime($result{"date"})) .
                 ")\n";
         echo "<div class='encounter_forms'>\n";
-    } 
+    }
     else {
         $form_name = trim($result{"form_name"});
         //if form name is not in registry, look for the closest match by
@@ -389,7 +389,7 @@ while($result = sqlFetchArray($res)) {
     }
 }
 foreach($registry_form_name as $var) {
-    if ($toprint = $html_strings[$var]) { 
+    if ($toprint = $html_strings[$var]) {
         foreach($toprint as $var) {print $var;}
     }
 }
@@ -468,7 +468,7 @@ while ($result && !$result->EOF) {
     echo '&nbsp;&nbsp;<i>' .  xl_document_category($result->fields['name']) . "</i>";
     echo '&nbsp;&nbsp;' . xl('Name') . ': <i>' . basename($result->fields['url']) . "</i>";
     echo '</li>';
-    $result->MoveNext();	
+    $result->MoveNext();
 }
 ?>
 </ul>

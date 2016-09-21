@@ -33,7 +33,7 @@ $fake_register_globals=false;
 		date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
 		date('d',$cd)+$day, date('Y',$cd)+$yr));
 		return $newdate;
-        }	
+        }
 	$type = $_POST["type"];
 	$facility = isset($_POST['facility']) ? $_POST['facility'] : '';
 	if($_POST['date_from'] != "")
@@ -361,7 +361,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <?php
 // SQL scripts for the various searches
 $sqlBindArray = array();
-if ($_POST['form_refresh']) 
+if ($_POST['form_refresh'])
 {
 $sqlstmt = "select
                 concat(pd.fname, ' ', pd.lname) AS patient_name,
@@ -425,7 +425,7 @@ $sqlstmt = "select
 	$sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 	
-	if(strlen($form_diagnosis) > 0 || ($_POST['form_diagnosis_allergy'] == true && $_POST['form_diagnosis_medprb'] == true)){	
+	if(strlen($form_diagnosis) > 0 || ($_POST['form_diagnosis_allergy'] == true && $_POST['form_diagnosis_medprb'] == true)){
 		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
 	}elseif($_POST['form_diagnosis_allergy'] == true){
 		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
@@ -447,7 +447,7 @@ $sqlstmt = "select
 		$sqlstmt = $sqlstmt." LEFT OUTER JOIN immunizations as imm ON imm.patient_id = pd.pid
 						  LEFT OUTER JOIN codes as immc ON imm.cvx_code = immc.id ";
 	}
-	if(strlen($form_drug_name)!=0 || $_POST['form_drug'] == true) {	
+	if(strlen($form_drug_name)!=0 || $_POST['form_drug'] == true) {
 	       $sqlstmt=$sqlstmt." left outer join prescriptions AS r on r.patient_id=pd.pid
                         LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id";
 	}
@@ -479,8 +479,8 @@ $sqlstmt = "select
 	if($type == 'Medical History') {
 	     $whr_stmt=$whr_stmt." AND hd.date >= ? AND hd.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(hd.date) <= ?";
              array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
-	} 
-	if($type == 'Procedure') {       
+	}
+	if($type == 'Procedure') {
 	     $whr_stmt=$whr_stmt." AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
              array_push($sqlBindArray, substr($sql_date_from,0,10), substr($sql_date_to,0,10), date("Y-m-d"));
 	 }
@@ -492,13 +492,13 @@ $sqlstmt = "select
             $whr_stmt= $whr_stmt." AND (pr.result LIKE ?) ";
             if(empty($form_lab_results)) $form_lab_results ="%";
             array_push($sqlBindArray, $form_lab_results);
-        }          
+        }
 	if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true) {
             $whr_stmt .= " AND (
                         d.name LIKE ?
                         OR r.drug LIKE ?
                         ) ";
-			if(empty($form_drug_name)) $form_drug_name ="%";			
+			if(empty($form_drug_name)) $form_drug_name ="%";
             array_push($sqlBindArray, $form_drug_name, $form_drug_name);
          }
        if($type == 'Service Codes') {
@@ -575,10 +575,10 @@ $sqlstmt = "select
   }
   if (($_POST['form_drug'] == true) || (strlen($form_drug_name) > 0)){
         $odrstmt=$odrstmt.",r.drug";
-  } 
+  }
   if (($_POST['ndc_no'] == true) && (strlen($form_drug_name) > 0)) {
          $odrstmt=$odrstmt.",d.ndc_number";
-  } 
+  }
   if (($_POST['lab_results'] == true) || (strlen($form_lab_results) > 0)) {
          $odrstmt=$odrstmt.",procedure_result_result";
   }
@@ -589,7 +589,7 @@ $sqlstmt = "select
 
   if($odrstmt == '') {
 	$odrstmt = " ORDER BY patient_id";
-  }  
+  }
   else {
 	$odrstmt = " ORDER BY ".ltrim($odrstmt,",");
   }
@@ -820,7 +820,7 @@ if(sqlNumRows($result) > 0)
                                          if ($tmp_d[1] == "currentrecreational_drugs") $resd = xl('Current Recreational Drugs');
                                          if ($tmp_d[1] == "quitrecreational_drugs") $resd = xl('Quit');
                                          if ($tmp_d[1] == "neverrecreational_drugs") $resd = xl('Never');
-                                         if ($tmp_d[1] == "not_applicablerecreational_drugs") $resd = xl('N/A');                                                      
+                                         if ($tmp_d[1] == "not_applicablerecreational_drugs") $resd = xl('N/A');
                                   ?>		
                                   <td colspan=8> <?php echo htmlspecialchars($resd,ENT_NOQUOTES); ?>&nbsp;</td>
 		                  </tr>
@@ -868,7 +868,7 @@ if(sqlNumRows($result) > 0)
 						<td>
 					    <?php 
 						if ($row["amount_administered"] > 0) {
-							echo htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']) , ENT_NOQUOTES); 
+							echo htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']) , ENT_NOQUOTES);
 						}else{
 							echo "&nbsp;";
 						}

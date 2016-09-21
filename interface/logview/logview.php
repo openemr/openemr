@@ -90,8 +90,8 @@ if ($start_date && $end_date)
 {
 	if($start_date > $end_date){
 		echo "<table><tr class='alert'><td colspan=7>"; xl('Start Date should not be greater than End Date',e);
-		echo "</td></tr></table>"; 
-		$err_message=1;	
+		echo "</td></tr></table>";
+		$err_message=1;
 	}
 }
 
@@ -213,7 +213,7 @@ echo " <option value='" .$ename_list[$k]. "'";
   echo ">" . $ename_list[$k];
   echo "</option>\n";
 }
-echo "</select>\n"; 
+echo "</select>\n";
 ?>
 </td>
 <!-- type of events ends  -->
@@ -290,13 +290,13 @@ if($eventname != "" && $type_event != "")
 }
       
 	if(($eventname == "") && ($type_event != ""))
-    {	$tevent=$type_event;   	
+    {	$tevent=$type_event;
     }
 	else if($type_event =="" && $eventname != "")
     {$gev=$eventname;}
     else if ($eventname == "")
  	{$gev = "";}
- else 
+ else
     {$gev = $getevent;}
     
 if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
@@ -337,7 +337,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
  </TR>
 
 <?php
-      
+
     }
   }
 if (($eventname=="disclosure") || ($gev == ""))

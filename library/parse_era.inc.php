@@ -278,7 +278,7 @@ function parse_era($filename, $cb) {
         }
         else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') {
             $out['crossover']     = 1;//Claim automatic forward case.
-            
+
         }
         // 74 = Corrected Insured
         // TT = Crossover Carrier (Transfer To another payer)
@@ -489,7 +489,7 @@ function parse_era_for_check($filename) {
             $out['check_amount'.$check_count] = trim($seg[2]);
             $out['check_date'.$check_count] = trim($seg[16]); // yyyymmdd
             // TBD: BPR04 is a payment method code.
-        
+
         }
         else if ($segid == 'N1' && $seg[1] == 'PE') {
             //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';

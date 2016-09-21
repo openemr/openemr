@@ -33,7 +33,7 @@ require_once("../../interface/globals.php");
 <div class="dialog"><p>
 <?php echo xlt("Steps to install the Snomed database"); ?>:
 <ol>
-<li><?php echo xlt("The first step is to download the SNOMED CT release. Access to SNOMED CT is provided by IHTSDO and their member countries. For more information see") . 
+<li><?php echo xlt("The first step is to download the SNOMED CT release. Access to SNOMED CT is provided by IHTSDO and their member countries. For more information see") .
 " <a href='http://www.ihtsdo.org/snomed-ct/get-snomed-ct'>http://www.ihtsdo.org/snomed-ct/get-snomed-ct</a>."; ?> 
 </li>
 <li><?php echo xlt("Place the downloaded Snomed database zip file into the following directory"); ?>: contrib/snomed 

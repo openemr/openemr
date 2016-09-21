@@ -390,7 +390,7 @@ if(isset($_REQUEST['submitform']) && $_REQUEST['submitform']=='save'){
                                     tu_user_id=?) ".
                                     $where.
                                     " ORDER BY cl_list_id,tu_user_id,cl_list_item_long";
-                            $resTemplates = sqlStatement($sql,$arval);        
+                            $resTemplates = sqlStatement($sql,$arval);
                             if($_REQUEST['filter_users']){
                                $sql = " SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE
                                 tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 AND tu.tu_template_id NOT IN

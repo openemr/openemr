@@ -34,7 +34,7 @@ class AMC_304a_1 extends AbstractAmcReport
         return "lab_radiology";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_304a_1_Denominator();
     }

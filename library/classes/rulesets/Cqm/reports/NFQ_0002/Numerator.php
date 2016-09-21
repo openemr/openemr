@@ -44,7 +44,7 @@ class NFQ_0002_Numerator implements CqmFilterIF
 				 "WHERE opc.pc_catname = 'Office Visit' AND fe.pid = ? AND (fe.date BETWEEN ? AND  ? ) ".
 				 " AND pres.result_code in ($strep_test_code) AND ( DATEDIFF(po.date_ordered,fe.date) between 0 and 3 or DATEDIFF(fe.date,po.date_ordered) between 0 and 3)";
 		
-		$check = sqlQuery( $query, array($patient->id, $beginDate, $endDate) );   
+		$check = sqlQuery( $query, array($patient->id, $beginDate, $endDate) );
 		if ($check['cnt'] > 0){
 			return true;
 		}else{

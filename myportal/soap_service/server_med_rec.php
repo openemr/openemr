@@ -127,7 +127,7 @@ class Userforms extends UserAudit{
     }
     
     //Return the forms requested from Portal.
-    
+
     private function getforms($fId){
 	global $pid;
 	$GLOBALS['pid'] = $pid;
@@ -238,13 +238,13 @@ class Userforms extends UserAudit{
 		?>
 		</table>
 		<?php
-	    }                    
+	    }
 	   ?>
 	    </div>
 	    <?php
 	    ?>                            
 		</td>
-	    <?php                        
+	    <?php 
 
     }
     
@@ -382,7 +382,7 @@ class Userforms extends UserAudit{
 		?>
 		</div>
 		<?php
-	   
+
 	}
 	elseif ($val == "batchcom")
 	{
@@ -495,7 +495,7 @@ class Userforms extends UserAudit{
     {
 	  $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
 	  $res = sqlStatement($sql, array($moduleName));
-	  $row = sqlFetchArray($res);   
+	  $row = sqlFetchArray($res);
 	  return !empty($row);
     }
     
@@ -505,8 +505,8 @@ class Userforms extends UserAudit{
     * @param string - $childElementName - child element name
     */
 	public function arrayToXml($inputArray, $rootElementName = 'root', $childElementName = 'RowItem')
-	{ 
-	  $xmlData = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n"; 
+	{
+	  $xmlData = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
 	  $xmlData .= "<" . $rootElementName . ">";
 	  foreach ($inputArray as $rowItem) {
 		$xmlData .= "<" . $childElementName . ">";
@@ -517,9 +517,9 @@ class Userforms extends UserAudit{
 		}
 		$xmlData .= "</" . $childElementName . ">";
 	  }
-	  $xmlData .= "</" . $rootElementName . ">"; 
+	  $xmlData .= "</" . $rootElementName . ">";
 
-      return $xmlData; 
+      return $xmlData;
 	}
    
 	/**
@@ -566,7 +566,7 @@ class Userforms extends UserAudit{
 		}
 		$sql .= "  ORDER BY date DESC LIMIT 5000";
 		
-		$res = sqlStatement($sql, $arrBinds);                
+		$res = sqlStatement($sql, $arrBinds);
 		$all = array();
 		for($iter=0; $row=sqlFetchArray($res); $iter++) {
 		  $all[$iter] = $row;
@@ -587,7 +587,7 @@ class Userforms extends UserAudit{
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    function transmitCCD($data  = array()) { 
+    function transmitCCD($data  = array()) {
         $ccd = $data['ccd'];
         $recipient =  $data['recipient'];
         $requested_by = $data['requested_by'];
@@ -607,8 +607,8 @@ class Userforms extends UserAudit{
             } else {
                //spaces are the argument delimiter for the phiMail API calls and must be removed
                $extension = $xml_type == 'CCDA' ? 'xml' : strtolower($xml_type);
-               $att_filename = " " . 
-                  str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname'] 
+               $att_filename = " " .
+                  str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
                   . "_" . $patientData[0]['fname']) . "." . $extension;
                $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
             }
@@ -630,10 +630,10 @@ class Userforms extends UserAudit{
             $ret=fgets($fp,1024); //ignore extra server data
 
             if($requested_by=="patient")
-             $text_out = xl("Delivery of the attached clinical document was requested by the patient") . 
+             $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
                      ($patientName2=="" ? "." : ", " . $patientName2 . ".");
             else
-             $text_out = xl("A clinical document is attached") . 
+             $text_out = xl("A clinical document is attached") .
                      ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
             $text_len=strlen($text_out);
@@ -648,7 +648,7 @@ class Userforms extends UserAudit{
             if($ret!==TRUE) return("$config_err 6");
 
             if(in_array($xml_type, array('CCR', 'CCDA', 'CDA')))
-            { 
+            {
                 $ccd = simplexml_load_string($ccd);
                 $ccd_out = $ccd->saveXml();
                 $ccd_len = strlen($ccd_out);

@@ -184,7 +184,7 @@ class Controller_edit extends BaseController {
             } else {
                 $this->ruleManager->updateTargetCriteria( $rule, $criteria );
             }
-        } 
+        }
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 

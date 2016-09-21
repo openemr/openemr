@@ -563,16 +563,16 @@ function checkAll(checked) {
 if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   $rows = array();
   $where = "";
-  $sqlArray = array(); 
+  $sqlArray = array();
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
        
       $where = "( 1 = 2";
       foreach ($_POST['form_cb'] as $key => $value) {
-         list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key); 
-         $newkey = $key_newval['pid']; 
+         list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
+         $newkey = $key_newval['pid'];
          $newencounter =  $key_newval['encounter'];
          # added this condition to handle the downloading of individual invoices (TLH)
-         if($_POST['form_individual'] ==1){         
+         if($_POST['form_individual'] ==1){
            $where .= " OR f.encounter = ? ";
            array_push($sqlArray, $newencounter);
          }
@@ -581,7 +581,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
            $where .= " OR f.pid = ? ";
            array_push($sqlArray, $newkey);
          }
-      } 
+      }
       $where .= ' )';
     }
     if ($form_date) {
@@ -794,29 +794,29 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     if (true) {
       echo '"' . xl('Insurance') . '",';
       echo '"' . xl('Name') . '",';
-      if ($form_cb_ssn) 
+      if ($form_cb_ssn)
       {
-       echo '"' . xl('SSN') . '",';   
+       echo '"' . xl('SSN') . '",';
       }
-      if ($form_cb_dob) 
+      if ($form_cb_dob)
       {
-       echo '"' . xl('DOB') . '",';   
+       echo '"' . xl('DOB') . '",';
       }
-      if ($form_cb_pubid) 
+      if ($form_cb_pubid)
       {
-       echo '"' . xl('Pubid') . '",';   
+       echo '"' . xl('Pubid') . '",';
       }
-      if ($form_cb_policy) 
+      if ($form_cb_policy)
       {
-       echo '"' . xl('Policy') . '",';   
+       echo '"' . xl('Policy') . '",';
       }
-      if ($form_cb_phone) 
+      if ($form_cb_phone)
       {
-       echo '"' . xl('Phone') . '",';   
+       echo '"' . xl('Phone') . '",';
       }
-      if ($form_cb_city) 
+      if ($form_cb_city)
       {
-       echo '"' . xl('City') . '",';   
+       echo '"' . xl('City') . '",';
       }
       echo '"' . xl('Invoice') . '",';
       echo '"' . xl('DOS') . '",';
@@ -827,12 +827,12 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       echo '"' . xl('Paid') . '",';
       echo '"' . xl('Balance') . '",';
       echo '"' . xl('IDays') . '",';
-      if ($form_cb_err) 
+      if ($form_cb_err)
       {
         echo '"' . xl('LADate') . '",';
-        echo '"' . xl('Error') . '"' . "\n";        
-      } 
-      else 
+        echo '"' . xl('Error') . '"' . "\n";
+      }
+      else
       {
         echo '"' . xl('LADate') . '"' . "\n";
       }
@@ -1082,29 +1082,29 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       // echo '"' . $insname                             . '",';
       echo '"' . $row['ins1']                         . '",';
       echo '"' . $ptname                              . '",';
-      if ($form_cb_ssn) 
+      if ($form_cb_ssn)
       {
-        echo '"' . $row['ss']                          . '",';        
+        echo '"' . $row['ss']                          . '",';
       }
-      if ($form_cb_dob) 
+      if ($form_cb_dob)
       {
-        echo '"' . oeFormatShortDate($row['DOB'])       . '",';        
-      } 
-      if ($form_cb_pubid) 
-      {
-        echo '"' . $row['pubpid']                       . '",';        
+        echo '"' . oeFormatShortDate($row['DOB'])       . '",';
       }
-      if ($form_cb_policy) 
+      if ($form_cb_pubid)
       {
-        echo '"' . $row['policy']                       . '",';        
+        echo '"' . $row['pubpid']                       . '",';
       }
-      if ($form_cb_phone) 
+      if ($form_cb_policy)
       {
-        echo '"' . $row['phone']                       . '",';        
+        echo '"' . $row['policy']                       . '",';
       }
-      if ($form_cb_city) 
+      if ($form_cb_phone)
       {
-        echo '"' . $row['city']                       . '",';        
+        echo '"' . $row['phone']                       . '",';
+      }
+      if ($form_cb_city)
+      {
+        echo '"' . $row['city']                       . '",';
       }
       echo '"' . (empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']) . '",';
       echo '"' . oeFormatShortDate($row['dos'])       . '",';
@@ -1115,7 +1115,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       echo '"' . oeFormatMoney($row['paid'])          . '",';
       echo '"' . oeFormatMoney($balance)              . '",';
       echo '"' . $row['inactive_days']                . '",';
-      if ($form_cb_err) 
+      if ($form_cb_err)
       {
         echo '"' . oeFormatShortDate($row['ladate'])    . '",';
         echo '"' . $row['billing_errmsg']               . '"' . "\n";
@@ -1124,7 +1124,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       {
         echo '"' . oeFormatShortDate($row['ladate'])    . '"' . "\n";
       }
-     } 
+     }
     } // end $form_csvexport
 
   } // end loop

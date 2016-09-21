@@ -56,7 +56,7 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 // array of the data_types of the fields
 $datatypes = array(
-  "1"  => xl("List box"), 
+  "1"  => xl("List box"),
   "2"  => xl("Textbox"),
   "3"  => xl("Textarea"),
   "4"  => xl("Text-date"),
@@ -566,7 +566,7 @@ function writeFieldLine($linedata) {
     }
     echo "</td>\n";
     //Backup List End
-    
+
     echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
          htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
@@ -592,8 +592,8 @@ function writeFieldLine($linedata) {
         ", U = " . xla('Capitalize all') .
         ", V = " . xla('Vendor') .
         ", 0 = " . xla('Read Only') .
-        ", 1 = " . xla('Write Once') . 
-        ", 2 = " . xla('Billing Code Descriptions') . 
+        ", 1 = " . xla('Write Once') .
+        ", 2 = " . xla('Billing Code Descriptions') .
         "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
       htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
@@ -1057,7 +1057,7 @@ while ($row = sqlFetchArray($res)) {
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
       // echo "<span class='translation'>>>&nbsp; " . xl(preg_replace("/^\d+/", "", $row['group_name'])) . "</span>";
       echo "<span class='translation'>>>&nbsp; " . xl(substr($row['group_name'], 1)) . "</span>";
-      echo "&nbsp; ";	
+      echo "&nbsp; ";
     }
     echo "&nbsp; ";
     echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='" . xl('Add Field') . "'/>";
@@ -1081,7 +1081,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <?php // if not english and showing layout label translations, then show translation header for title
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";	
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
   } ?>		  
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>

@@ -174,7 +174,7 @@
 <br><br>
     <center>
 
-    <?php if (isset($_SESSION['password_update'])||isset($_GET['password_update'])) { 
+    <?php if (isset($_SESSION['password_update'])||isset($_GET['password_update'])) {
         $_SESSION['password_update']=1;
         ?>
       <div id="wrapper" class="centerwrapper">

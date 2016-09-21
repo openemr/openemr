@@ -11,7 +11,7 @@ class C_PatientFinder extends Controller {
 	
 	function __construct($template_mod = "general") {
 		parent::__construct();
-		$this->_db = $GLOBALS['adodb']['db']; 
+		$this->_db = $GLOBALS['adodb']['db'];
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		///////////////////////////////////
@@ -34,7 +34,7 @@ class C_PatientFinder extends Controller {
 	function find_action($form_id, $form_name,$pid) {
 		$isPid = false;
 		//fix any magic quotes meddling
-		
+
 		$form_id = strip_escape_custom($form_id);
 		$form_name = strip_escape_custom($form_name);
 		$pid = strip_escape_custom($pid);
@@ -46,7 +46,7 @@ class C_PatientFinder extends Controller {
         $this->assign('form_name', $form_name);
         if(!empty($pid))
         	$isPid = true;
-        $this->assign('hidden_ispid', $isPid);	
+        $this->assign('hidden_ispid', $isPid);
 		
 		return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
 	}
@@ -65,7 +65,7 @@ class C_PatientFinder extends Controller {
 		if(!empty($_POST['pid']))
 		{
 			$isPub = !$_POST['pid'];
-		}			
+		}
 		//get the db connection and pass it to the helper functions
 		$sql = "SELECT CONCAT(lname, ' ', fname, ' ', mname) as name, DOB, pubpid, pid FROM patient_data";
 		//parse search_string to determine what type of search we have

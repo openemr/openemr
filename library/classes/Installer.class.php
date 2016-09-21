@@ -118,7 +118,7 @@ class Installer
     if ( $this->dbh ) {
       if (! $this->set_sql_strict()) {
         $this->error_message = 'unable to set strict sql setting';
-        return FALSE;        
+        return FALSE;
       }
       return TRUE;
     } else {
@@ -209,7 +209,7 @@ class Installer
     }
     if ( ! $this->execute_sql("START TRANSACTION;") ){
       return FALSE;
-    }    
+    }
 
     while (!feof ($fd)){
             $line = fgets($fd,1024);
@@ -226,7 +226,7 @@ class Installer
                     $query = rtrim($query,";");
                     if ( ! $this->execute_sql( $query ) ){
                             return FALSE;
-                    }                    
+                    }
                     $query = "";
             }
     }

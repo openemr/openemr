@@ -10,7 +10,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 $provider_results = sqlQuery("select fname, lname from users where username=?",array($_SESSION{"authUser"}));
 
 /* name of this form */
-$form_name = "note"; 
+$form_name = "note";
 
 // get the record from the database
 if ($_GET['id'] != "") $obj = formFetch("form_".$form_name, $_GET["id"]);

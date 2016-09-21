@@ -27,7 +27,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Installer\Model\InstModule;          
+use Installer\Model\InstModule;
 use Application\Listener\Listener;
 
 class InstallerController extends AbstractActionController
@@ -49,7 +49,7 @@ class InstallerController extends AbstractActionController
   }
     
   public function indexAction()
-  { 
+  {
     //get the list of installed and new modules
     $result = $this->getInstallerTable()->allModules();
 
@@ -64,9 +64,9 @@ class InstallerController extends AbstractActionController
       'InstallersExisting'    => $allModules,
       'InstallersAll'         => $allModules,
       'listenerObject'        => $this->listenerObject,
-      'dependencyObject'      => $this->getInstallerTable(),	
-    )); 
-  }   
+      'dependencyObject'      => $this->getInstallerTable(),
+    ));
+  }
 
   public function getInstallerTable()
   {
@@ -102,8 +102,8 @@ class InstallerController extends AbstractActionController
             if(!$module_exist_in_config){
             $content = "<?php return array(";
             $content .= $this->getContent($data);
-            $content .= ");";    					
-            file_put_contents($fileName, $content);    					
+            $content .= ");";
+            file_put_contents($fileName, $content);
             }
           } else {
             die($this->listenerObject->z_xlt("Unable to modify application config Please give write permission to")." $fileName");
@@ -115,9 +115,9 @@ class InstallerController extends AbstractActionController
         if($this -> getInstallerTable() -> register($request->getPost('mod_name'),$rel_path)){
           $status = true;
         }
-      }    	
-      die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));    		
-    }    	
+      }
+      die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
+    }
   }
     
   public function manageAction()
@@ -145,7 +145,7 @@ class InstallerController extends AbstractActionController
         } else {
           $status = $this->listenerObject->z_xlt("Success");
         }
-      } elseif ($request->getPost('modAction') == "install"){    
+      } elseif ($request->getPost('modAction') == "install"){
         $dirModule = $this->getInstallerTable()->getRegistryEntry( $request->getPost('modId'), "mod_directory" );
         $mod_enc_menu = $request->getPost('mod_enc_menu');
         $mod_nick_name = $request->getPost('mod_nick_name');
@@ -155,7 +155,7 @@ class InstallerController extends AbstractActionController
             $status = $this->listenerObject->z_xlt("Success");
           } else {
             $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";
-          }			    
+          }
       }
     }
       echo $status;
@@ -168,7 +168,7 @@ class InstallerController extends AbstractActionController
    * @return boolean
    */
   private function installACL ($dir)
-  {    	
+  {
     $aclfile = $dir."/moduleACL.php";
     if (file_exists($aclfile)) {
       include_once($aclfile);
@@ -189,11 +189,11 @@ class InstallerController extends AbstractActionController
         $string .= " array(";
         $string .= 		$this ->getContent($value);
         $string .= " )";
-      } else 
+      } else
         $string .= "'$value'";
       $string .= ",";
     }
-    return $string;     
+    return $string;
   }
   
   public function SaveHooksAction()
@@ -211,10 +211,10 @@ class InstallerController extends AbstractActionController
       $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("Saved Successfully"));
     } else {
       $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("No Hooks enabled for this Module"));
-    }	
+    }
     $arr = new JsonModel($return);
     return $arr;
-  }   
+  }
  
   public function configureAction()
   {
@@ -291,7 +291,7 @@ class InstallerController extends AbstractActionController
   }
 
   public function saveConfigAction()
-  {   
+  {
     $request    = $this->getRequest();
     $moduleId   = $request->getPost()->module_id;
    
@@ -306,7 +306,7 @@ class InstallerController extends AbstractActionController
     $data 		= array();
     $returnArr 	= array('modeId' => $moduleId);
     $return 	= new JsonModel($returnArr);
-    return $return;  
+    return $return;
   }
   
   public function DeleteAclAction()

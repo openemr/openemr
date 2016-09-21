@@ -15,7 +15,7 @@ class AMC_302j_Numerator implements AmcFilterIF
         return "AMC_302j Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate )
     {
         // Need a medication reconciliation completed.
         //  (so basically the completed element of the object can't be empty
@@ -25,7 +25,7 @@ class AMC_302j_Numerator implements AmcFilterIF
 		"AND amc_misc_data.map_category = 'form_encounter' " .
 		"AND amc_misc_data.amc_id = 'med_reconc_amc' " .
 		"AND form_encounter.encounter = ?";
-		$check = sqlQuery( $sql, array($patient->object['encounter']) );   
+		$check = sqlQuery( $sql, array($patient->object['encounter']) );
 		if ($check['completed'] != ""){
 			return true;
 		}else{

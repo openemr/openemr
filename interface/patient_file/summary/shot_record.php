@@ -33,7 +33,7 @@ $data_array = convertToDataArray($res3);
 
 $title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
 
-if ($_GET['output'] == "html") { 
+if ($_GET['output'] == "html") {
 	printHTML($res, $res2, $data_array);
 }
 else {
@@ -41,7 +41,7 @@ else {
 }
 
 
-function convertToDataArray($data_array) {	
+function convertToDataArray($data_array) {
 	$current = 0;
 	while ($row = sqlFetchArray($data_array)) {
 		//admin date
@@ -60,12 +60,12 @@ function convertToDataArray($data_array) {
             else {
                 $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
             }
-        } 		
+        }
 		$data[$current][xl('Vaccine')] = $vaccine_display;
 		
 		//Amount
                 if ($row['amount_administered'] > 0) {
-		        $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " . 
+		        $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " .
 			        generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']);
                 }
                 else {
@@ -92,10 +92,10 @@ function convertToDataArray($data_array) {
 		
 		//education date
 		$temp_date = new DateTime($row['education_date']);
-		$data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');		
+		$data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
 
 		//Route
-		$data[$current][xl('Route')] = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']); 
+		$data[$current][xl('Route')] = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']);
 		
 		//Admin Site
 		$data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']);
@@ -104,7 +104,7 @@ function convertToDataArray($data_array) {
 		$data[$current][xl('Comments')] = $row['note'];
 		$current ++;
 	}
-	return $data;	
+	return $data;
 }
 
 function printPDF($res, $res2, $data) {
@@ -128,7 +128,7 @@ function printPDF($res, $res2, $data) {
 
 function printHTML($res, $res2, $data) {
 //print html css
-    
+
   //convert end of line characters to html (escape for html output first)
   $patterns = array ('/\n/');
   $replace = array ('<br>');
@@ -139,7 +139,7 @@ function printHTML($res, $res2, $data) {
   
   //deal with bug (last array index is empty)
   //array_pop($data);
-    
+
   ?>  
 	
   <html>
@@ -254,7 +254,7 @@ function printHTML($res, $res2, $data) {
 	    echo "<td class ='odd'>";
 	  }
 	  else {
-	    echo "<td>";   
+	    echo "<td>";
 	  }
 	    
 	  // output data of cell
@@ -264,7 +264,7 @@ function printHTML($res, $res2, $data) {
       }
       else {
 	//done displaying shot data, so leave loop
-        break;	    
+        break;
       }
     }
   
@@ -281,7 +281,7 @@ function printHTML($res, $res2, $data) {
 	"</div>\n";
     }
       
-    echo "</div>\n";    
+    echo "</div>\n";
   }
   
   ?>

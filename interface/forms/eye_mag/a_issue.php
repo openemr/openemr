@@ -111,53 +111,53 @@ foreach (explode(',',$given) as $item) {
     if ($key =="PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['authProvider'])); 
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medical_problem_issue_list"));
       }
-    } elseif ($key =="Medication") { 
+    } elseif ($key =="Medication") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['authProvider'])); 
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medication_issue_list"));
       }
-    } elseif ($key =="Surgery") { 
+    } elseif ($key =="Surgery") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['authProvider'])); 
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("surgery_issue_list"));
       }
-    } elseif ($key =="Allergy") { 
+    } elseif ($key =="Allergy") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['authProvider'])); 
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("allergy_issue_list"));
       }
     } elseif ($key == "POH") { // POH medical group 
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-      $qry = sqlStatement($query,array($_SESSION['authProvider'])); 
+      $qry = sqlStatement($query,array($_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
       }
     } elseif ($key == "POS") { // POS surgery group 
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-      $qry = sqlStatement($query,array($_SESSION['authProvider'])); 
+      $qry = sqlStatement($query,array($_SESSION['authProvider']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
       }
     } elseif ($key == "FH") {
       $local = "";
       $qry = "";
-    } elseif ($key == "SOCH") { 
+    } elseif ($key == "SOCH") {
       $local = "";
-      $qry = ""; 
-    } elseif ($key == "ROS") { 
-      $local = "";  
-      $qry = ""; 
-    } 
+      $qry = "";
+    } elseif ($key == "ROS") {
+      $local = "";
+      $qry = "";
+    }
     if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
       while($res = sqlFetchArray($qry)){
         echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
@@ -413,7 +413,7 @@ function sel_diagnosis() {
   var f = document.forms[0];
   term = f.form_title.value;
   <?php
-  if(($irow['type'] == 'PMH') ||($irow['type'] == 'POH')) 
+  if(($irow['type'] == 'PMH') ||($irow['type'] == 'POH'))
   {
     ?>
   dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>&search_term='+term, '_blank', 500, 400);
@@ -626,7 +626,7 @@ function negate_radio(section) {
         global $counter_header;
         $count_header='0';
         $output= array();
-        foreach ($PMSFH[0] as $key => $value) {   
+        foreach ($PMSFH[0] as $key => $value) {
           $checked = '';
           if ($key == "POH") {  $checked = " checked='checked' "; }
           $key_short_title = $key;
@@ -1182,7 +1182,7 @@ function negate_radio(section) {
         class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
         onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />
         <?php
-            $display_delete = "nodisplay"; 
+            $display_delete = "nodisplay";
           ?>
         &nbsp;
         <input type='button' name='delete_button' id='delete_button' 

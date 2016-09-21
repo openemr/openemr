@@ -42,7 +42,7 @@ class line
 	function set_default_dot_style( $style )
 	{
 		$tmp = 'dot-style';
-		$this->$tmp = $style;	
+		$this->$tmp = $style;
 	}
 	
 	/**
@@ -53,7 +53,7 @@ class line
 	 */
 	function set_values( $v )
 	{
-		$this->values = $v;		
+		$this->values = $v;
 	}
 	
 	/**
@@ -63,12 +63,12 @@ class line
      */
     function append_value($v)
     {
-        $this->values[] = $v;       
+        $this->values[] = $v;
     }
 	
 	function set_width( $width )
 	{
-		$this->width = $width;		
+		$this->width = $width;
 	}
 	
 	function set_colour( $colour )
@@ -88,7 +88,7 @@ class line
 	function set_halo_size( $size )
 	{
 		$tmp = 'halo-size';
-		$this->$tmp = $size;		
+		$this->$tmp = $size;
 	}
 	
 	function set_key( $text, $font_size )
@@ -130,7 +130,7 @@ class line
      * Sets the text for the line.
      *
      * @param string $text
-     */   
+     */
     function set_text($text)
     {
         $this->text = $text;

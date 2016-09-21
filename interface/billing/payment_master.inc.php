@@ -204,9 +204,9 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
 	    <td align="left">
 			<?php	
-				if($PaymentMethod=='' && $screen=='edit_payment') 
-					$blankValue=' '; 
-				else 
+				if($PaymentMethod=='' && $screen=='edit_payment')
+					$blankValue=' ';
+				else
 					$blankValue='';
 			echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method","$blankValue","class1 text",'CheckVisible("yes")');
 			?>
@@ -241,9 +241,9 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	    <td align="left" ></td>
 		<td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
 		<td align="left"><?php
-				if($PaymentType=='' && $screen=='edit_payment') 
-					$blankValue=' '; 
-				else 
+				if($PaymentType=='' && $screen=='edit_payment')
+					$blankValue=' ';
+				else
 					$blankValue='';
 			echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity","$blankValue","class1 text",'PayingEntityAction()');
 			?>
@@ -252,11 +252,11 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	    <td align="left" ></td>
 		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
 		<td align="left"><?php
-				if($AdjustmentCode=='' && $screen=='edit_payment') 
-					$blankValue=' '; 
-				else 
+				if($AdjustmentCode=='' && $screen=='edit_payment')
+					$blankValue=' ';
+				else
 					$blankValue='';
-			echo generate_list_payment_category("adjustment_code", "payment_adjustment_code", "$AdjustmentCode", 
+			echo generate_list_payment_category("adjustment_code", "payment_adjustment_code", "$AdjustmentCode",
 			"Payment Category","$blankValue","class1 text",'FilterSelection(this)',"$PaymentType","$screen");
 			?>
 	   </td>

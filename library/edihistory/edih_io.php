@@ -46,7 +46,7 @@ function edih_php_inivals() {
     $ival['maxfuploads'] = ini_get('max_file_uploads');
     $ival['postmaxsize'] = ini_get('post_max_size');
     $ival['tmpdir'] = $td;
-    $json = json_encode($ival); 
+    $json = json_encode($ival);
     //
     return $json;
 }
@@ -61,7 +61,7 @@ function edih_disp_log() {
 	$lfn = '';
 	if ( isset($_GET['log_select']) ) {
 		$lfn = filter_input(INPUT_GET, 'log_select', FILTER_SANITIZE_STRING);
-	} 
+	}
 	$str_html = csv_log_html($lfn);
 	return $str_html;
 }
@@ -257,7 +257,7 @@ function edih_disp_file_process() {
 		$dbg_str = 'GET vars ';
 		foreach($_GET as $k=>$v) {
 			$dbg_str .= $k.' '.$v.'  ';
-		} 
+		}
 		csv_edihist_log("edih_disp_file_process $dbg_str");
 	}
 	//
@@ -283,7 +283,7 @@ function edih_disp_file_process() {
     $ftype = array_keys($p);
     $fct = 0;
     //
-	foreach($ftype as $tp) { 
+	foreach($ftype as $tp) {
         $checkdir = false;
         // check for directory contents
         $fdir = $p[$tp]['directory'];
@@ -291,7 +291,7 @@ function edih_disp_file_process() {
             $dh = opendir($fdir);
             if ($dh) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..') { 
+                    if ($file != '.' && $file != '..') {
                         $checkdir = true;
                         break;
                     }
@@ -346,8 +346,8 @@ function edih_disp_file_process() {
 function edih_disp_file_upload() {
 	// multiple file upload
 	$str_html = '';
-	if ( isset($_FILES) && count($_FILES) ) {	
-		$f_array = edih_upload_files(); 
+	if ( isset($_FILES) && count($_FILES) ) {
+		$f_array = edih_upload_files();
 		if ( is_array($f_array) && count($f_array) ) {
 			$str_html .= edih_sort_upload($f_array);
 		} else {
@@ -369,7 +369,7 @@ function edih_disp_denied_claims() {
 	$str_html = edih_list_denied_claims($ft, $fn, $trace);
 	//
 	return $str_html;
-}	
+}
 
 /**
  * display the contents of an x12_edi transaction selected from
@@ -533,7 +533,7 @@ function edih_disp_x12trans() {
 			} else {
 				$str_htm .= edih_display_text($fn, $ft);
 			}
-		} elseif ($fn && $ft == 'f835') {			
+		} elseif ($fn && $ft == 'f835') {
 			if ($clm01) {
 				if ($summary == 'yes') {
 					$str_htm .= edih_835_html($fn, '', $clm01, true);
@@ -542,9 +542,9 @@ function edih_disp_x12trans() {
 				}
 			} elseif ($trace) {
 				$str_htm .= edih_835_html($fn, $trace);
-			} 
+			}
 		}
-	} else {			
+	} else {
 		$str_htm .= 'error: could not process request.';
 	}
 
@@ -579,7 +579,7 @@ function edih_disp_x12file() {
 		$format = 'seg';
 	}
 	// post request from x12 file tab
-	if ( count($_FILES) && isset($_FILES['fileUplx12']) ) {	
+	if ( count($_FILES) && isset($_FILES['fileUplx12']) ) {
 		$fnupl = htmlentities($_FILES['fileUplx12']['name']);
 		// the upload files validator
 		$f_array = edih_upload_files();
@@ -673,7 +673,7 @@ function edih_disp_x12file() {
 			$str_htm .= edih_display_text($fn, $ft, $icn, true);
 		} else {
 			$str_htm .= edih_display_text($fn, $ft);
-		}			
+		}
 		csv_edihist_log("edih_disp_x12file: segments display $fn");
 		//
 		return $str_htm;
@@ -705,7 +705,7 @@ function edih_disp_x12file() {
 		//$str_htm .= edih_html_heading('x12display', $fn);
 		$str_htm .= edih_display_text($fn, $ft);
 		//$str_htm .= "</body>".PHP_EOL."</html>".PHP_EOL;
-	}		
+	}
 	//		
 	return $str_htm;
 }
@@ -722,8 +722,8 @@ function edih_disp_csvtable() {
 	$str_html = '';
 	$prd = (isset($_GET['csv_period'])) ? filter_input(INPUT_GET, 'csv_period', FILTER_SANITIZE_STRING) : '';
 	$dts = (isset($_GET['csv_date_start'])) ? filter_input(INPUT_GET, 'csv_date_start', FILTER_SANITIZE_NUMBER_INT) : '';
-	$dte = (isset($_GET['csv_date_end'])) ? filter_input(INPUT_GET, 'csv_date_end', FILTER_SANITIZE_NUMBER_INT) : '';  
-	$csvfile = (isset($_GET['csvtables'])) ? filter_input(INPUT_GET, 'csvtables', FILTER_SANITIZE_STRING) : '';	
+	$dte = (isset($_GET['csv_date_end'])) ? filter_input(INPUT_GET, 'csv_date_end', FILTER_SANITIZE_NUMBER_INT) : '';
+	$csvfile = (isset($_GET['csvtables'])) ? filter_input(INPUT_GET, 'csvtables', FILTER_SANITIZE_STRING) : '';
 	//
 	// debug
 	csv_edihist_log("edih_disp_csvtable: $csvfile period $prd datestart $dts dateend $dte");
@@ -744,9 +744,9 @@ function edih_disp_csvtable() {
 			$dte = '';
 		}
 	}
-	if ( !$csvfile || $csvfile == NULL || $csvfile === FALSE ) { 
+	if ( !$csvfile || $csvfile == NULL || $csvfile === FALSE ) {
 		// here we have an error and must quit
-		$str_html = "<p>Error in CSV table name </p>".PHP_EOL; 
+		$str_html = "<p>Error in CSV table name </p>".PHP_EOL;
 		return $str_html;
 	} else {
 		$tp_ar = explode('_', $csvfile);
@@ -797,8 +797,8 @@ function edih_disp_835_processed($erasavename) {
 		closedir($hd);
     } else {
 		csv_edihist_log("edih_disp_processed_835: did not find processed era directory");
-	}	
-    return $found; 
+	}
+    return $found;
 }
 
 function edih_disp_clmhist() {
@@ -822,7 +822,7 @@ function edih_disp_clmhist() {
  * 
  * @uses ibr_997_errscan()
  * @return string
- */ 
+ */
 function ibr_disp_997_message() {
 	//
 	$fname = ''; $akval = ''; $errval = '';
@@ -834,7 +834,7 @@ function ibr_disp_997_message() {
 	} else {
 		$str_html = ibr_997_errscan($fname, $akval);
 	}
-	return $str_html; 
+	return $str_html;
 }
 
 /**
@@ -842,7 +842,7 @@ function ibr_disp_997_message() {
  * 
  * @uses ibr_ack_error()
  * @return string
- */ 
+ */
 function ibr_disp_ta1_message() {
 	//
 	$fname = ''; $code = '';
@@ -867,7 +867,7 @@ function ibr_disp_997_for_batch() {
     $str_html = '';
     $batch_icn = filter_input(INPUT_GET, 'batchicn', FILTER_SANITIZE_STRING);
     if ($batch_icn) {
-        $ctln = (strlen($batch_icn) >= 9) ? substr($batch_icn, 0, 9) : trim(strval($batch_icn)); 
+        $ctln = (strlen($batch_icn) >= 9) ? substr($batch_icn, 0, 9) : trim(strval($batch_icn));
         $search = array('s_val'=>$ctln, 's_col'=>3, 'r_cols'=>'all');
         $result = csv_search_record('f997', 'file', $search, "1");
         //
@@ -875,7 +875,7 @@ function ibr_disp_997_for_batch() {
         if (is_array($result) && count($result)) {
             $str_html .= "<p>Acknowledgement information</p>".PHP_EOL;
             foreach($result as $rslt) {
-                $ext = substr($rslt[1], -3); 
+                $ext = substr($rslt[1], -3);
                 //
                 $str_html .= "Date: {$rslt[0]} <br />".PHP_EOL;
                 $str_html .= "File: <a target=\"blank\" href=edi_history_main.php?fvkey={$rslt[1]}>{$rslt[1]}</a> <br />".PHP_EOL;
@@ -892,11 +892,11 @@ function ibr_disp_997_for_batch() {
             }
         } else {
             $str_html .= "Did not find corresponding 997/999 file for $ctln<br />".PHP_EOL;
-        }       
+        }
     } else {
         $str_html .= "Invalid value for ICN number<br />".PHP_EOL;
     }
-    return $str_html; 
+    return $str_html;
 }
 
 /**
@@ -922,7 +922,7 @@ function edih_disp_era_processed() {
                 $str_html .= " ({$row['global_amount']} not allocated)";
             }
         } else {
-            $str_html .= "trace $ckno not posted"; 
+            $str_html .= "trace $ckno not posted";
         }
     } else {
         $str_html .= "trace $ckno not found";

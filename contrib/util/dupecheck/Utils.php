@@ -30,7 +30,7 @@ function NBSPPadSuffix ($strInfo, $intMaxLength)
  * properly quote the passed value
  * or return NULL if there is no value at all
  */
-function SQLQuote ($strValue) 
+function SQLQuote ($strValue)
 {
     /* are we quoting a number or string? */
 

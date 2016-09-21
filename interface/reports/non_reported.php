@@ -47,20 +47,20 @@ function mapCodeType($incode){
 			 break;
 		 default:
 			 $outcode = "I9CDX"; // default to ICD9
-			 break;		 
+			 break;
 			 // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
     }
-    return $outcode;	
+    return $outcode;
 }
 
 
 if(isset($_POST['form_from_date'])) {
-  $from_date = $_POST['form_from_date'] !== "" ? 
+  $from_date = $_POST['form_from_date'] !== "" ?
     fixDate($_POST['form_from_date'], date('Y-m-d')) :
     0;
 }
 if(isset($_POST['form_to_date'])) {
-  $to_date =$_POST['form_to_date'] !== "" ? 
+  $to_date =$_POST['form_to_date'] !== "" ?
     fixDate($_POST['form_to_date'], date('Y-m-d')) :
     0;
 }
@@ -80,13 +80,13 @@ function tr($a) {
   return (str_replace(' ','^',$a));
 }
 
-  $query = 
+  $query =
   "select " .
   "l.pid as patientid, " .
   "p.language, ".
   "l.diagnosis , " ;
   if ($_POST['form_get_hl7']==='true') {
-    $query .= 
+    $query .=
       "DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, ".
       "concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address, ".
       "p.country_code, ".
@@ -141,14 +141,14 @@ $facility_info = getLoggedInUserFacility();
 
 // GENERATE HL7 FILE
 if ($_POST['form_get_hl7']==='true') {
-  $content = ''; 
+  $content = '';
 
   $res = sqlStatement($query);
 
   while ($r = sqlFetchArray($res)) {
     // MSH
     $content .= "MSH|^~\&|".strtoupper($openemr_name).
-		"|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" . 
+		"|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
 		"|||$now||".
 		"ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility
 		"|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowlegement
@@ -172,9 +172,9 @@ if ($_POST['form_get_hl7']==='true') {
     if ($r['status']==='domestic partner') $r['status'] = 'P';
 	
 	// PID
-    $content .= "PID|" . 
+    $content .= "PID|" .
         "1|" . // 1. Set id
-        "|" . 
+        "|" .
         $r['patientid']."^^^^MR"."|". // 3. (R) Patient indentifier list
         "|" . // 4. (B) Alternate PID
         "^^^^^^~^^^^^^S"."|" . // 5.R. Name
@@ -184,29 +184,29 @@ if ($_POST['form_get_hl7']==='true') {
 		"|||^^^||||||||||||||||||||||||||||" .
         "$D" ;
 		
-    $content .= "PV1|" . 
+    $content .= "PV1|" .
         "1|" . // 1. Set ID
         "|||||||||||||||||" .
 		// Restrict the string to 15 characters. Will fail if longer.
 		substr($now . "_" . $r['patientid'], 0, 15) . "^^^^VN" . // Supposed to be visit number. Since, we don't have any encounter, we'll use the format 'date_pid' to make it unique
 		"|||||||||||||||||||||||||" .
-		$r['begin_date'] . 
+		$r['begin_date'] .
         "$D" ;
 		
 	// OBX: Records chief complaint in LOINC code
-    $content .= "OBX|" . 
+    $content .= "OBX|" .
         "1|" . // 1. Set ID
 		"CWE|8661-1^^LN||" . // LOINC code for chief complaint
 		"^^^^^^^^" . $r['issuetitle'] .
 		"||||||" .
-		"F" . 
+		"F" .
         "$D" ;
 		
 	// DG1
 	$r['diagnosis'] = mapCodeType($r['diagnosis']);  // Only ICD9, ICD10 and SNOMED
 	$r['code'] = str_replace(".", "", $r['code']); // strip periods code
 
-    $content .= "DG1|" . 
+    $content .= "DG1|" .
         "1|" . // 1. Set ID
 		"|" .
 		$r['code'] . "^" . $r['code_text'] . "^" . $r['diagnosis'] .
@@ -216,7 +216,7 @@ if ($_POST['form_get_hl7']==='true') {
         
         // mark if issues generated/sent
         $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) " .
-         "values (" . $r['issueid'] . ",'" . $now1 . "','" . $filename . "')"; 
+         "values (" . $r['issueid'] . ",'" . $now1 . "','" . $filename . "')";
         sqlStatement($query_insert);
 }
 

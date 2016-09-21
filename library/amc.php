@@ -32,7 +32,7 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
   if (!($complete === True || $complete === False)) {
     if ($complete === "true") $complete = True;
     if ($complete === "false") $complete = False;
-  }  
+  }
 
   if ($mode == "add") {
     amcAdd($amc_id, $complete, $patient_id, $object_category, $object_id);

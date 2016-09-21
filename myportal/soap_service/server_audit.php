@@ -162,7 +162,7 @@ class UserAudit extends UserMail{
 					$ins1_type="primary";
 					$ins2_type="secondary";
 					$ins3_type="tertiary";
-					for($i=1;$i<=3;$i++) 
+					for($i=1;$i<=3;$i++)
 					{
 						$newdata[$rowfield['entry_identification']][$rowfield['field_name']]=$rowfield['field_value'];
 					}
@@ -275,11 +275,11 @@ class UserAudit extends UserMail{
 				    "NOW(), " .
 				    "'" . add_escape_custom($newdata['ar_session']['payment_type']) . "', " .
 				    "'" . add_escape_custom($newdata['ar_session']['description']) . "', " .
-					"NOW(), " . 
+					"NOW(), " .
 				    "'" . add_escape_custom($pid) . "', " .
 				    "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')"
 				  );
-			    }			    
+			    }
 			    elseif($table=='documents_legal_master'){
 			      $master_doc_id = sqlInsert("INSERT INTO documents_legal_master ( " .
 				    "dlm_category,dlm_subcategory,dlm_document_name,dlm_filepath,dlm_facility,dlm_provider,dlm_sign_height,dlm_sign_width,dlm_filename,dlm_effective_date,dlm_version,content,dlm_savedsign,dlm_review,dlm_upload_type" .
@@ -325,7 +325,7 @@ class UserAudit extends UserMail{
 				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_content']) . "', " .
 				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_file_for_pdf_generation']) . "', " .
 				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_denial_reason']) . "', " .
-				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_moved']) . "', " .	 
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_moved']) . "', " .
 				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_patient_comments']) . "')"
 				  );
 			    }

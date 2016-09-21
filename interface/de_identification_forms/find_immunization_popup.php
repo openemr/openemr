@@ -150,7 +150,7 @@ function check_search_str()
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' ) " ;
 	$res = sqlStatement($query);
-	if ($row = sqlFetchArray($res)) 
+	if ($row = sqlFetchArray($res))
 	{
 	 $no_of_items = addslashes($row['count']);
 	 if($no_of_items < 1)
@@ -162,7 +162,7 @@ function check_search_str()
 	 document.theform.search_term.focus();
      </script>	  
 	 <?php
-      }    
+      }
     $query = "SELECT option_id,title FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' ) " .
       "ORDER BY title";
@@ -173,9 +173,9 @@ function check_search_str()
       $itercode = addslashes($row['option_id']);
       $itertext = addslashes(ucfirst(strtolower(trim($row['title']))));
       ?>
-	   <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";	   
-	  }	   
-    }	
+	   <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
+	  }
+    }
   }
 ?>
 </td>

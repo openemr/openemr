@@ -43,7 +43,7 @@ abstract class Abstract_Controller implements ViewableIF
     public function __construct( Request $request )
     {
         $this->_request = $request;
-        $this->_method = $this->_request->getParam( 'method' );     
+        $this->_method = $this->_request->getParam( 'method' );
         $this->_viewDir = $GLOBALS['srcdir']."/ESign/views";
         $this->_viewScript = 'esign_error.php';
         $this->_view = new Viewer();

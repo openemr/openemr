@@ -18,8 +18,8 @@ class NFQ_0038_InitialPatientPopulation implements CqmFilterIF
         // Rs_Patient characteristic: birth dateÓ (age) >=1 year and <2 years to capture all Rs_Patients who will reach 2 years during the Òmeasurement periodÓ;
         $age = $patient->calculateAgeOnDate( $beginDate );
         if ( $age >= 1 &&
-            $age < 2 ) { 
-            return true;        
+            $age < 2 ) {
+            return true;
         }
         
         return false;

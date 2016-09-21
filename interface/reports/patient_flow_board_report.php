@@ -341,11 +341,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         
         <th><?php 
                  if ($chk_show_details) { # not sure if Sorting by Arrive Time is useful
-                     echo xlt('Start Time');  
+                     echo xlt('Start Time');
                  }
                  else
                  {
-                     echo xlt('Arrive Time');                    
+                     echo xlt('Arrive Time');
                  }?></th>
 
         <th><?php
@@ -404,7 +404,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     <tbody>
         <!-- added for better print-ability -->
     <?php
-	
+
     $lastdocname = "";
     #Appointment Status Checking
         $form_apptstatus = $_POST['form_apptstatus'];
@@ -442,7 +442,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         #if a patient id is entered just get that patient.       
         if (strlen($form_pid) !=0 ) {
           if ($appointment['pid'] != $form_pid ) continue;
-        } 
+        }
         
         $errmsg  = "";
         $newarrive = '';
@@ -460,7 +460,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         $tracker_status = $appointment['status'];
         # get the time interval for the entire visit. to display seconds add last option of true. 
         # get_Tracker_Time_Interval($newarrive, $newend, true)
-        $timecheck2 = get_Tracker_Time_Interval($newarrive, $newend);        
+        $timecheck2 = get_Tracker_Time_Interval($newarrive, $newend);
         # Get the tracker elements.
         $tracker_elements = collect_Tracker_Elements($tracker_id);
         # $j is incremented for a patient that made it for display.
@@ -520,7 +520,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         <?php if ($chk_show_details) { # lets show the detail lines 
               $i = '0';
               $k = '0';
-              for ($x = 1; $x <= $last_seq; $x++) {   
+              for ($x = 1; $x <= $last_seq; $x++) {
         ?>
 	    <tr valign='top' class="detail" >
 	      <td colspan="6" class="detail" align='left'>
@@ -554,7 +554,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
              $k = $i+1;
             if($k < $last_seq) {
                # get the start time of the next status to determine the total time in this status
-               $start_tracker_time = $tracker_elements[$i][start_datetime]; 
+               $start_tracker_time = $tracker_elements[$i][start_datetime];
                $next_tracker_time = $tracker_elements[$k][start_datetime];
              }
              else

@@ -66,7 +66,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
   $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
-  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
+  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status'];
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
   $report_noteid = '';
@@ -89,7 +89,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   // allow for 0 to be displayed as a result value
   if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
     $result_result = '';
-  } else { 
+  } else {
     $result_result = $rrow['result'];
   }
   $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];

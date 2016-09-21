@@ -371,7 +371,7 @@ class HTML_TreeNode
    //because of this redeclaration of $parent.  I do not know what the 
   // author's intention was in using this name twice or if it was a mistake
     //var $parent;
-    
+
 
     /**
     * Javascript event handlers;

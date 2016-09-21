@@ -50,8 +50,8 @@ function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD") {
       $patientName2 = "";
    } else {
       //spaces are the argument delimiter for the phiMail API calls and must be removed
-      $att_filename = " " . 
-         str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname'] 
+      $att_filename = " " .
+         str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
          . "_" . $patientData[0]['fname']) . ".xml";
       $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
    }
@@ -73,10 +73,10 @@ function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD") {
    $ret=fgets($fp,1024); //ignore extra server data
 
    if($requested_by=="patient")
-	$text_out = xl("Delivery of the attached clinical document was requested by the patient") . 
+	$text_out = xl("Delivery of the attached clinical document was requested by the patient") .
             ($patientName2=="" ? "." : ", " . $patientName2 . ".");
    else
-	$text_out = xl("A clinical document is attached") . 
+	$text_out = xl("A clinical document is attached") .
             ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
    $text_len=strlen($text_out);

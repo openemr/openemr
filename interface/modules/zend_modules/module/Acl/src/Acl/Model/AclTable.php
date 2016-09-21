@@ -50,7 +50,7 @@ class AclTable extends AbstractTableGateway
             $sql = "SELECT * FROM module_acl_sections ";
             $result = $obj->zQuery($sql);
         }
-        return $result;  
+        return $result;
     }
     public function aclUserGroupMapping(){
         $sql = "SELECT 
@@ -74,7 +74,7 @@ class AclTable extends AbstractTableGateway
         $params = array('users');
         $obj    = new ApplicationTable;
         $result = $obj->zQuery($sql,$params);
-        return $result; 
+        return $result;
     }
     public function getActiveModules(){
         $sql    = "SELECT * FROM modules";

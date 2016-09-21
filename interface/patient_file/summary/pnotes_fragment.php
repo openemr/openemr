@@ -63,7 +63,7 @@ $fake_register_globals=false;
      } else { ?>
     <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
     <?php
-    
+
     $pres = getPatientData($pid,"lname, fname");
     $patientname = $pres['lname'] . ", " . $pres['fname'];
     //retrieve all active notes

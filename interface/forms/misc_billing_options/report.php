@@ -12,7 +12,7 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id) {
                 continue;
             }
             if ($value == "1") {
-                $value = "yes"; 
+                $value = "yes";
             }
             if(($key==='box_14_date_qual')||$key==='box_15_date_qual')
             {

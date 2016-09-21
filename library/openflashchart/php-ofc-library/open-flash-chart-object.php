@@ -23,7 +23,7 @@ function _ofc( $width, $height, $url, $use_swfobject, $base )
     // not JUST for IE...
     //
     //$ie = strstr(getenv('HTTP_USER_AGENT'), 'MSIE');
-    
+
     //
     // escape the & and stuff:
     //
@@ -62,7 +62,7 @@ function _ofc( $width, $height, $url, $use_swfobject, $base )
     $div_name = 'flashcontent';
     
     //$out[] = '<script type="text/javascript" src="'. $base .'js/ofc.js"></script>';
-    
+
     if( !isset( $open_flash_chart_seqno ) )
     {
         $open_flash_chart_seqno = 1;

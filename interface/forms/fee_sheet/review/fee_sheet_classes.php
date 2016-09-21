@@ -42,7 +42,7 @@ class code_info
         $this->allowed_to_create_diagnosis_from_problem="FALSE";
         if (check_code_set_filters($ct,array("active","diag"))) $this->allowed_to_create_diagnosis_from_problem="TRUE";
     }
-    public $code;    
+    public $code;
     public $code_type;
     public $description;
     public $selected;
@@ -91,7 +91,7 @@ class procedure extends code_info
     public $units;
 
     //modifier, units, fee, justify
-    
+
     public function addProcParameters(&$params)
     {
         array_push($params,$this->modifiers,$this->units,$this->fee,$this->justify);

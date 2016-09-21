@@ -35,7 +35,7 @@ $fake_register_globals=false;
 
 require_once("../../interface/globals.php");
 
-$action 		= $_POST['action']; 
+$action 		= $_POST['action'];
 $updateRecordsArray 	= $_POST['clorder'];
 
 if ($action == "updateRecordsListings"){
@@ -45,7 +45,7 @@ if ($action == "updateRecordsListings"){
 		
 		$query = "UPDATE template_users SET tu_template_order = ? WHERE tu_template_id = ? AND tu_user_id=?";
 		sqlStatement($query,array($listingCounter,$recordIDValue,$_SESSION['authId']));
-		$listingCounter = $listingCounter + 1;	
+		$listingCounter = $listingCounter + 1;
 	}
 }
 ?>

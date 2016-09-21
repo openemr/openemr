@@ -48,7 +48,7 @@ function diag_code_types($format='json',$sqlEscape=false)
     }
     if($format=='keylist')
     {
-        return implode(",",$diagCodes);    
+        return implode(",",$diagCodes);
     }
 }
 ?>

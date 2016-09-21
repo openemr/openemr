@@ -1,5 +1,5 @@
 <?php
-include_once ('../../globals.php'); 
+include_once ('../../globals.php');
 include_once("../../../library/formdata.inc.php");
 ?>
 <?php
@@ -70,8 +70,8 @@ if ($_POST['import']) {
 				if ($result = sqlFetchArray($statement)) {
 					$category_id = $result['id'];
 				} else {
-					$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) ". 
-						"values ('".$_SESSION['authUser']."', \"$category\")"; 
+					$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) ".
+						"values ('".$_SESSION['authUser']."', \"$category\")";
 					sqlInsert($query);
 					$statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_category")." where category like \"$category\"");
 					if ($result = sqlFetchArray($statement)) {
@@ -87,8 +87,8 @@ if ($_POST['import']) {
 				if ($result = sqlFetchArray($statement)) {
 					$subcategory_id = $result['id'];
 				} else {
-					$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) ". 
-						"values ('".$_SESSION['authUser']."', \"$subcategory\", $category_id)"; 
+					$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) ".
+						"values ('".$_SESSION['authUser']."', \"$subcategory\", $category_id)";
 					sqlInsert($query);
 					$statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where subcategory " .
 						"like \"$subcategory\" and category_id = $category_id");
@@ -97,7 +97,7 @@ if ($_POST['import']) {
 					}
 				}
 			}
-			if ((preg_match('/<(item)>(.*?)<\/item>/',$buffer,$matches)) || 
+			if ((preg_match('/<(item)>(.*?)<\/item>/',$buffer,$matches)) ||
 			(preg_match('/<(content)>(.*?)<\/content>/s',$buffer,$matches))) {
 
 				$mode = $matches[1];
@@ -116,16 +116,16 @@ if ($_POST['import']) {
 								"where item like \"$insert_value\" " .
 								"and subcategory_id = $subcategory_id");
 							if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
-								$inner_query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ". 
+								$inner_query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
 									"values ('".$_SESSION['authUser']."', \"$insert_value\", ".
-									"$subcategory_id)"; 
+									"$subcategory_id)";
 								sqlInsert($inner_query);
 								$inserted_duplicate = true;
 							} else {$postfix++;}
 						}
 					} else {
-						$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ". 
-							"values ('".$_SESSION['authUser']."', \"$value\", $subcategory_id)"; 
+						$query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
+							"values ('".$_SESSION['authUser']."', \"$value\", $subcategory_id)";
 						sqlInsert($query);
 					}
 					if ($postfix == 0) {$insert_value = $value;}

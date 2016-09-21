@@ -31,7 +31,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
 require_once $GLOBALS['srcdir'].'/formdata.inc.php';
 
 class Encounter_Signable extends DbRow_Signable implements SignableIF
-{    
+{
     private $_encounterId = null;
     
     public function __construct( $encounterId )

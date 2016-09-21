@@ -20,7 +20,7 @@ class AMC_304h extends AbstractAmcReport
         return "encounters_office_visit";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_304h_Denominator();
     }

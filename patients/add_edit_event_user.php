@@ -1008,7 +1008,7 @@ td { font-size:0.8em; }
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . $urow['id'] . "'";
 //            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
-            if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) echo " selected"; 
+            if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) echo " selected";
             echo ">" . $urow['lname'];
             if ($urow['fname']) echo ", " . $urow['fname'];
             echo "</option>\n";

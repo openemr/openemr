@@ -148,8 +148,8 @@ $encounter . "' and pid='$pid'"))
    } elseif ($val == "insurance") {
 
     print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);		
-    print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";	
+    printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+    print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
     print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
@@ -260,7 +260,7 @@ $encounter . "' and pid='$pid'"))
       echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
      }
      else {
-      echo "<b>NOTE</b>: ".xl('Document')." '" . $fname ."' ".xl('cannot be displayed inline becuase its type is not supported by the browser').".<br><br>";	
+      echo "<b>NOTE</b>: ".xl('Document')." '" . $fname ."' ".xl('cannot be displayed inline becuase its type is not supported by the browser').".<br><br>";
      }
     }
    }
@@ -348,7 +348,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$billing_html[$iter["code_type"]] .= $html;
 			$counter++;
 		}
-		elseif ($iter["code_type"] == "COPAY") { 
+		elseif ($iter["code_type"] == "COPAY") {
 			$html .= "<tr><td>".xl('Payment').":</td><td>".xl('Thank You')."!</td><td>"
 				.$iter["code_text"]."</td><td>"
 				. oeFormatMoney($iter["code"]) . "</td></tr>\n";
@@ -375,7 +375,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 						$billing_html[$iter["code_type"]] .= " ($j)";
 					}
 					$counter++;
-				}		
+				}
 			}
 			
 		        	

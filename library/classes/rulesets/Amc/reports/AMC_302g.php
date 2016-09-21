@@ -20,7 +20,7 @@ class AMC_302g extends AbstractAmcReport
         return "patients";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_302g_Denominator();
     }

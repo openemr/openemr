@@ -59,7 +59,7 @@
     form_encounter.encounter = forms.encounter and 
     form_eye_mag.id=forms.form_id and
     forms.deleted != '1' and 
-    form_eye_mag.pid=? ";        
+    form_eye_mag.pid=? ";
     $encounter_data =sqlQuery($query,array($encounter,$pid));
     $dated = new DateTime($encounter_data['encounter_date']);
     $dated = $dated->format('Y-m-d');
@@ -333,7 +333,7 @@
 						      	if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
 						      	if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
 					    	  		if ($zone[0][value] == $category_name) {
-					      				$class='play'; 
+					      				$class='play';
 					      			} else {
 					      				$class = "git";
 					      			}
@@ -426,10 +426,10 @@
                                         <ul class="dropdown-menu" role="menu">
                                         ';
                                       $old_category = $new_category;
-                                    } 
+                                    }
                                     $StringEcho.= "<li>
                                     <a target='RBot' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
-                                    <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>". 
+                                    <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
                                     xl_form_title($nickname) . "</a></li>";
                               }
                           }
@@ -437,7 +437,7 @@
                             </ul>
                           </li>
                           ';
-                        } 
+                        }
                         echo $StringEcho;
                     ?>
                     <li class="dropdown">
@@ -479,7 +479,7 @@
 				foreach ($documents['zones'][$category_name] as $zone) {
 					$class = "git";
 		    		$append ='';
-		    		if ($category_id == $zone['id']) { 
+		    		if ($category_id == $zone['id']) {
 		    			$class="play";
 		    			$append = "<i class='fa fa-arrow-down'></i>"; }
 			      	
@@ -487,7 +487,7 @@
 						$zone['name'] == xl('Durable Power of Attorney') ||
 						$zone['name'] == xl('Patient Information') ||
 						$zone['name'] == xl('Living Will') ||
-						$zone['name'] == xl('Imaging')) { 
+						$zone['name'] == xl('Imaging')) {
 					} else {
 						$count = count($documents['docs_in_name'][$zone['name']]);
 		      				if ($count!=1) {$s ="s";} else {$s='';}
@@ -497,13 +497,13 @@
 							$disabled = "disabled='disabled'";
 							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="" >
 								<span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a> 
-							'.$append;	
+							'.$append;
 						} else {
 
 							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'" 
 								href="Anything_simple.php?display=i&category_id='.$zone['id'].'&encounter='.$encounter.'&category_name='.$category_name.'">
 								<span  class="borderShadow">'.text($zone['name']).'</span></a> 
-								'.$append;	
+								'.$append;
 						}
 					}
 				}
@@ -547,7 +547,7 @@
 		?>
 	</center>
 	<?php
-    if ($display=="fullscreen") { 
+    if ($display=="fullscreen") {
        // this function is in php/".$form_name."_functions.php
       $output = menu_overhaul_bottom($pid,$encounter);
       echo $output;

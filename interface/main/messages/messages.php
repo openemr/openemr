@@ -60,11 +60,11 @@ require_once("$srcdir/formatting.inc.php");
 <br /><br />
 <span class="title"><?php echo xlt('Reminders'); ?></span>
 
-<?php       
+<?php 
         
         // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
         // I am asuming that at this point security checks have been performed
-        require_once '../dated_reminders/dated_reminders.php';   
+        require_once '../dated_reminders/dated_reminders.php';
         
 // Check to see if the user has Admin rights, and if so, allow access to See All.
 $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "" ;
@@ -297,7 +297,7 @@ if ($noteid) {
     echo "  <td class='text'><b>";
     echo xlt('Linked document') . ":</b>\n";
     while ($gprow = sqlFetchArray($tmp)) {
-      $d = new Document($gprow['id1']);	
+      $d = new Document($gprow['id1']);
       echo "   <a href='";
       echo $GLOBALS['webroot'] . "/controller.php?document&retrieve";
       echo "&patient_id="  . $d->get_foreign_id();

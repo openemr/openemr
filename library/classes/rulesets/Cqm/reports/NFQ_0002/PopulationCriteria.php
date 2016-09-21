@@ -50,6 +50,6 @@ class NFQ_0002_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     
     public function createDenominatorException()
     {
-    	return new ExceptionsNone();	
+    	return new ExceptionsNone();
     }
 }

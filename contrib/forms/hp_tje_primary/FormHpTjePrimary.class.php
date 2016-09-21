@@ -61,7 +61,7 @@ class FormHpTjePrimary extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		$this->date = date("Y-m-d H:i:s");
 		$this->date_of_onset = date("Y-m-d");
@@ -80,7 +80,7 @@ class FormHpTjePrimary extends ORDataObject {
 		$results = sqlQ($sql);
 
 		while ($row = sqlFetchArray($results)) {
-			$this->checks[] = $row['name'];	
+			$this->checks[] = $row['name'];
 		}
 		
 		
@@ -88,14 +88,14 @@ class FormHpTjePrimary extends ORDataObject {
 		$results = sqlQ($sql);
 
 		while ($row = sqlFetchArray($results)) {
-			$this->history[] = $row;	
+			$this->history[] = $row;
 		}
 		
 		$sql = "SELECT nature_of_accident,injuries,date from form_hp_tje_previous_accidents where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
 		while ($row = sqlFetchArray($results)) {
-			$this->previous_accidents[] = $row;	
+			$this->previous_accidents[] = $row;
 		}
 		
 			}
@@ -186,12 +186,12 @@ class FormHpTjePrimary extends ORDataObject {
 	function set_event($event) {
 		if (!is_numeric) {
 			return;
-		}	
+		}
 		$this->event = $event;
 	}
 	
 	function get_event() {
-		return $this->event;	
+		return $this->event;
 	}
 	
 	function set_referred_by($string) {
@@ -199,7 +199,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_referred_by() {
-		return $this->referred_by;	
+		return $this->referred_by;
 	}
 	
 	function set_complaints($string) {
@@ -207,7 +207,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_complaints() {
-		return $this->complaints;	
+		return $this->complaints;
 	}
 	
 	function set_prior_symptoms($string) {
@@ -215,7 +215,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_prior_symptoms() {
-		return $this->prior_symptoms;	
+		return $this->prior_symptoms;
 	}
 	
 	function set_aggravated_symptoms($string) {
@@ -223,7 +223,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_aggravated_symptoms() {
-		return $this->aggravated_symptoms;	
+		return $this->aggravated_symptoms;
 	}
 	
 	function set_comments($string) {
@@ -231,7 +231,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_comments() {
-		return $this->comments;	
+		return $this->comments;
 	}
 	
 	function set_event_description($description) {
@@ -239,7 +239,7 @@ class FormHpTjePrimary extends ORDataObject {
 	}
 	
 	function get_event_description() {
-		return $this->event_description;	
+		return $this->event_description;
 	}
 	function get_teeth_sore_number() {
 		return $this->teeth_sore_number;
@@ -247,7 +247,7 @@ class FormHpTjePrimary extends ORDataObject {
 	
 	function set_teeth_sore_number($num) {
 		$this->teeth_sore_number = $num;
-	}	
+	}
 	
 	function get_teeth_mobile_number() {
 		return $this->teeth_mobile_number;
@@ -255,7 +255,7 @@ class FormHpTjePrimary extends ORDataObject {
 	
 	function set_teeth_mobile_number($num) {
 		$this->teeth_mobile_number = $num;
-	}	
+	}
 	
 	function get_teeth_fractured_number() {
 		return $this->teeth_fractured_number;
@@ -263,7 +263,7 @@ class FormHpTjePrimary extends ORDataObject {
 	
 	function set_teeth_fractured_number($num) {
 		$this->teeth_fractured_number = $num;
-	}	
+	}
 	
 	function get_teeth_avulsed_number() {
 		return $this->teeth_avulsed_number;
@@ -271,7 +271,7 @@ class FormHpTjePrimary extends ORDataObject {
 	
 	function set_teeth_avulsed_number($num) {
 		$this->teeth_avulsed_number = $num;
-	}	
+	}
 	
 	function get_precipitating_factors_other_text() {
 		return $this->precipitating_factors_other_text;
@@ -323,7 +323,7 @@ class FormHpTjePrimary extends ORDataObject {
 					//echo "$sql<br>";
 				}
 			}
-		}	
+		}
 		if (is_numeric($this->id) and !empty($this->history)) {
 			$sql = "delete FROM form_hp_tje_history where foreign_id = '" . $this->id . "'";
 			sqlQuery($sql);
@@ -339,7 +339,7 @@ class FormHpTjePrimary extends ORDataObject {
 					//echo "$sql<br>";
 				}
 			}
-		}	
+		}
 		
 		if (is_numeric($this->id) and !empty($this->previous_accidents)) {
 			$sql = "delete FROM form_hp_tje_previous_accidents where foreign_id = '" . $this->id . "'";
@@ -356,7 +356,7 @@ class FormHpTjePrimary extends ORDataObject {
 					//echo "$sql<br>";
 				}
 			}
-		}	
+		}
 		
 	}
 	
@@ -366,7 +366,7 @@ class FormHpTjePrimary extends ORDataObject {
 		//at is array temp
 		//a is array
 		//a_bottom is the textually identified rows of a checkbox group
-		
+
 		$at[1]['headache_facial_pain_frontal'] 	=  "Frontal";
     	$at[1]['headache_facial_pain_frontal_l'] 	=  "L";
     	$at[1]['headache_facial_pain_frontal_r'] 	=  "R";
@@ -394,7 +394,7 @@ class FormHpTjePrimary extends ORDataObject {
     	$at[2]['headache_facial_pain_jaw_muscles_r'] 	=  "R";
     	
     	$a_bottom = $this->_name_rows("headache_facial_pain",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
-    	$a['Headaches / Facial Pain'] = array_merge($at, $a_bottom); 
+    	$a['Headaches / Facial Pain'] = array_merge($at, $a_bottom);
     	
     	$at = array();
     	$a_bottom = array();
@@ -478,7 +478,7 @@ class FormHpTjePrimary extends ORDataObject {
     	$at[1]['teeth_fractured'] 	=  "Fractured";
     	$at[1]['teeth_avulsed'] 	=  "Avulsed";
     	//special actions are included for teeth in the template
-    	 	
+
   		$a_bottom = $this->_name_rows("teeth",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
     	$a['Teeth'] = array_merge($at, $a_bottom);
     	
@@ -522,7 +522,7 @@ class FormHpTjePrimary extends ORDataObject {
     	$at = array();
     	$a_bottom = array();
     	$at[1]['tmj_chewing_swallowing_difficult'] 	=  "Difficult";
-    	$at[1]['tmj_chewing_swallowing_painful'] 	=  "Painful";    	
+    	$at[1]['tmj_chewing_swallowing_painful'] 	=  "Painful";
     	
     	$a_bottom = $this->_name_rows("tmj_chewing_swallowing",array("onset","intensity"));
     	$a['TMJ Chewing / Swallowing'] = array_merge($at, $a_bottom);
@@ -544,7 +544,7 @@ class FormHpTjePrimary extends ORDataObject {
     	$at[1]['migraine_headache_relieved_by_vascular_drugs'] 	=  "Relieved by Vascular Drugs";
     	$at[1]['migraine_headache_vertigo'] 	=  "Vertigo";
     	 	
-  		$a_bottom = $this->_name_rows("migraine_headache",array("onset","intensity","duration","frequency","aggravation")); 
+  		$a_bottom = $this->_name_rows("migraine_headache",array("onset","intensity","duration","frequency","aggravation"));
     	$a['Migraine Headache'] = array_merge($at, $a_bottom);
     	
     	$at = array();
@@ -637,7 +637,7 @@ class FormHpTjePrimary extends ORDataObject {
     	 	
     	$a['Perpetuating Factors'] = $at;
     		
-		return $a;	
+		return $a;
 	}
 	
 	function _name_rows ($name,$row_array) {
@@ -685,12 +685,12 @@ class FormHpTjePrimary extends ORDataObject {
     				$a["Occurance"][$name . '_occurance_mid_day'] =  "Mid Day";
     				$a["Occurance"][$name . '_occurance_evening'] =  "Evening";
     				$a["Occurance"][$name . '_occurance_variable'] =  "Variable";
-					break;	
+					break;
 			}
 			
 		}
 		
-		return $a;	
+		return $a;
 	}
 
 }	// end of Form

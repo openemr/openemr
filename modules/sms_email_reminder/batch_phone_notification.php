@@ -57,7 +57,7 @@ echo "<br>" . htmlspecialchars( xl("Total Records Found") . ": " . count($db_pat
 $client = new MaviqClient($phone_id, $phone_token, $phone_url);
 
 for($p=0;$p<count($db_patient);$p++)
-{  
+{
 	$prow =$db_patient[$p];
 	
 	//Get the apptDate and apptTime
@@ -74,8 +74,8 @@ for($p=0;$p<count($db_patient);$p++)
 	}
 	//Set up the parameters for the call
 	$data = array(
-    		"firstName" => $prow['fname'], 	      
-    		"lastName" => $prow['lname'],	 
+    		"firstName" => $prow['fname'],
+    		"lastName" => $prow['lname'],
     		"phone" => $prow['phone_home'],
 		"apptDate" => $appt_date,
 		"apptTime" => $appt_time,
@@ -88,11 +88,11 @@ for($p=0;$p<count($db_patient);$p++)
 		);
 	
 	//Make the call
-	$response = $client->sendRequest("appointment", "POST", $data); 
+	$response = $client->sendRequest("appointment", "POST", $data);
     
     // check response for success or error
     if($response->IsError) {
-  	  $strMsg =  "Error starting phone call for {$prow['fname']} | {$prow['lname']} | {$prow['phone_home']} | {$appt_date} | {$appt_time} | {$response->ErrorMessage}\n"; 	  	
+  	  $strMsg =  "Error starting phone call for {$prow['fname']} | {$prow['lname']} | {$prow['phone_home']} | {$appt_date} | {$appt_time} | {$response->ErrorMessage}\n";
     }
     else {
     	$strMsg = "\n========================".$type." || ".date("Y-m-d H:i:s")."=========================";
@@ -166,7 +166,7 @@ function cron_getPhoneAlertpatientData( $type, $trigger_hours )
 	$db_patient = (sqlStatement($query, array($check_date)));
 	$patient_array = array();
 	$cnt=0;
-	while ($prow = sqlFetchArray($db_patient)) 
+	while ($prow = sqlFetchArray($db_patient))
 	{
 		$patient_array[$cnt] = $prow;
 		$cnt++;
@@ -199,19 +199,19 @@ function WriteLog( $data )
 
 	if ($log_file != null) {
 	
-		$filename = $log_file . "/"."phone_reminder_cronlog_".date("Ymd").".html"; 
+		$filename = $log_file . "/"."phone_reminder_cronlog_".date("Ymd").".html";
 
 	   	if (!$fp = fopen($filename, 'a'))
-	   	{ 
-			print "Cannot open file ($filename)"; 
+	   	{
+			print "Cannot open file ($filename)";
 	     
-	   	}else { 
+	   	}else {
 	   	
-			$sdata = "\n====================================================================\n";	
+			$sdata = "\n====================================================================\n";
 		   	
 		   	if (!fwrite($fp, $data.$sdata))
-		   	{ 
-		   		print "Cannot write to file ($filename)"; 
+		   	{
+		   		print "Cannot write to file ($filename)";
 			}
 	
 		   	fclose($fp);
@@ -232,7 +232,7 @@ function cron_getFacilitiesMap()
 	//get facilities from the database
 	$query = "select fac.id, fac.name, fac.phone from facility as fac";
 	$db_res = (sqlStatement($query));
-	while ($prow = sqlFetchArray($db_res)) 
+	while ($prow = sqlFetchArray($db_res))
 	{
 		$facility_msg_map[$prow['id']] = $message_map[$prow['name']];
 		$facility_phone_map[$prow['id']] = $prow['phone'];

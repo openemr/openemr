@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-class NFQ_0024_Numerator1 implements CqmFilterIF 
+class NFQ_0024_Numerator1 implements CqmFilterIF
 {
     public function getTitle() {
         return "Numerator 1";

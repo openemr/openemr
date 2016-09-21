@@ -13,7 +13,7 @@ class NFQ_0043_Numerator implements CqmFilterIF
         return "Numerator";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate ) 
+    public function test( CqmPatient $patient, $beginDate, $endDate )
     {
     	$vac_medication 	= implode(',',Codes::lookup(Medication::PNEUMOCOCCAL_VAC,'CVX'));
     	$vac_procedure 		= implode(',',Codes::lookup(Procedure::PNEUMOCOCCAL_VACCINE,'SNOMED'));

@@ -161,7 +161,7 @@ class Prescription extends ORDataObject {
 	// Modified 7-2009 by BM to load the arrays from the lists in lists_options.
 	// Plan for this to only be temporary, hopefully have the lists used directly
 	//  from forms in future to allow use of widgets etc.
-        $this->route_array = load_drug_attributes('drug_route');        
+        $this->route_array = load_drug_attributes('drug_route');
         $this->form_array = load_drug_attributes('drug_form');
         $this->interval_array = load_drug_attributes('drug_interval');
 	$this->unit_array = load_drug_attributes('drug_units');
@@ -275,7 +275,7 @@ class Prescription extends ORDataObject {
         }
         else {
             return ($this->dosage . " " . xl('in') . " " . $this->form_array[$this->form] . " " . $this->interval_array[$this->interval]);
-        } 
+        }
     }
 
     function set_dosage($dosage) {
@@ -346,7 +346,7 @@ class Prescription extends ORDataObject {
 	
         //below statements are bypassing the persist() function and being used directly in database statements, hence need to use the functions in library/formdata.inc.php
 	// they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
-	
+
         //check if this drug is on the medication list
         $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
 
@@ -574,7 +574,7 @@ class Prescription extends ORDataObject {
         
         while(strlen($gnd)<31) { $gnd .= " "; }
         
-        $string .= $gnd . $this->provider->federal_drug_id . "\n"; 
+        $string .= $gnd . $this->provider->federal_drug_id . "\n";
         
         $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
         $results = $db->Execute($sql);
@@ -598,13 +598,13 @@ class Prescription extends ORDataObject {
         $string .= "\n";
         $string .= strtoupper($this->drug) . " " . $this->size  . " ". $this->unit_array[$this->unit] . "\n";
         if (strlen($this->note) > 0) {
-            $string .= "Notes: \n" . $this->note . "\n";	
+            $string .= "Notes: \n" . $this->note . "\n";
         }
         if (!empty($this->dosage)) {
             $string .= $this->dosage;
-            if (!empty($this->form)){ 
+            if (!empty($this->form)){
                 $string .= " " . $this->form_array[$this->form];
-            } 
+            }
             if (!empty($this->interval)) {
                 $string .= " " . $this->interval_array[$this->interval];
             }

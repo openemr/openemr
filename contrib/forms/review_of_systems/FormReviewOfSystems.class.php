@@ -49,7 +49,7 @@ class FormReviewOfSystems extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		$this->_table = "form_review_of_systems";
 		$this->date = date("Y-m-d H:i:s");
@@ -79,7 +79,7 @@ class FormReviewOfSystems extends ORDataObject {
 		$results = sqlQ($sql);
 
 		while ($row = sqlFetchArray($results)) {
-			$this->checks[] = $row['name'];	
+			$this->checks[] = $row['name'];
 		}
 					
 	}
@@ -96,7 +96,7 @@ class FormReviewOfSystems extends ORDataObject {
 					//echo "$sql<br>";
 				}
 			}
-		}	
+		}
 		
 	}
 	
@@ -221,7 +221,7 @@ class FormReviewOfSystems extends ORDataObject {
 	}
 	
 	function get_checks() {
-		return $this->checks;	
+		return $this->checks;
 	}
 	
 	
@@ -231,7 +231,7 @@ class FormReviewOfSystems extends ORDataObject {
 		//at is array temp
 		//a is array
 		//a_bottom is the textually identified rows of a checkbox group
-		
+
 		$at[1]['constitutional_fever'] 	=  "Fever";
     	$at[1]['constitutional_chills'] 	=  "Chills";
     	$at[1]['constitutional_fatigue'] 	=  "Fatigue";
@@ -241,7 +241,7 @@ class FormReviewOfSystems extends ORDataObject {
     	$at[2]['constitutional__unexplained_weight_loss'] 	=  "Unexplained Weight Loss";
     	$at[2]['constitutional_unexplained_weight_gain'] 	=  "Unexplained Weight Gain";
     	 	
-    	$a['Constitutional'] = $at; 
+    	$a['Constitutional'] = $at;
     	
     	$at = array();
     	$a_bottom = array();
@@ -355,7 +355,7 @@ class FormReviewOfSystems extends ORDataObject {
     	
     	$a['General'] = $at;
     	    		
-		return $a;	
+		return $a;
 	}
 	
 	

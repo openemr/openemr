@@ -17,7 +17,7 @@ class ORDataObject {
 	var $_db;
 
 	function __construct() {
-	  $this->_db = $GLOBALS['adodb']['db']; 	
+	  $this->_db = $GLOBALS['adodb']['db'];
 	}
 	
 	function persist() {
@@ -49,7 +49,7 @@ class ORDataObject {
 
 				if (!empty($val)) {
 					//echo "s: $field to: $val <br>";
-					
+
                                         //modified 01-2010 by BGM to centralize to formdata.inc.php
 			                // have place several debug statements to allow standardized testing over next several months
 					$sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) ."',";
@@ -114,11 +114,11 @@ class ORDataObject {
 	 * @return array array of values as name to index pairs found in the db enumeration of this field  
 	 */
 	function _load_enum($field_name,$blank = true) {
-		if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name]) 
+		if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
 			&& is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
 			&& !empty($this->_table)) 												{
 				
-			return $GLOBALS['static']['enums'][$this->_table][$field_name];		
+			return $GLOBALS['static']['enums'][$this->_table][$field_name];
 		}
 		else {
 			$cols = $this->_db->MetaColumns($this->_table);
@@ -144,7 +144,7 @@ class ORDataObject {
 			   }
 			   $enum = array_flip($enum);
 			  $GLOBALS['static']['enums'][$this->_table][$field_name] = $enum;
-			}	
+			}
 			return $enum;
 		}
 	}
@@ -156,10 +156,10 @@ class ORDataObject {
 		}
 		if (!is_array($obj_ar)) return $ar;
 		foreach($obj_ar as $obj) {
-			$ar[$obj->$value_func()] = $obj->$name_func();	
+			$ar[$obj->$value_func()] = $obj->$name_func();
 		}
 		if ($reverse) {
-			$ar = array_flip($ar);	
+			$ar = array_flip($ar);
 		}
 		return $ar;
 	}

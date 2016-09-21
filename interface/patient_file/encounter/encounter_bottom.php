@@ -12,7 +12,7 @@ include_once("$srcdir/encounter.inc");
  <?php 
    echo '<frame src="coding.php" name="Codesets" scrolling="auto">';
    echo '<frame src="blank.php" name="Codes" scrolling="auto">';
-   echo '<frame src="diagnosis.php" name="Diagnosis" scrolling="auto"> '; 
+   echo '<frame src="diagnosis.php" name="Diagnosis" scrolling="auto"> ';
  ?>
 </frameset>
 </html>

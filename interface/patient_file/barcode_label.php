@@ -37,7 +37,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/classes/php-barcode.php");
   
 //Get the data to place on labels
- 
+
 $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.postal_code, p.pid " .
@@ -54,7 +54,7 @@ $dob   = substr($patdata['DOB'],5,2) ."/". Substr($patdata['DOB'],8,2) ."/". Sub
 // -------------------------------------------------- //
 //            BARCODE DATA AND TYPE
 // -------------------------------------------------- //
-  
+
 $code     = $patdata['pubpid']; // what is wanted as the barcode
 $bartype = $GLOBALS['barcode_label_type'] ; // Get barcode type
 
@@ -130,7 +130,7 @@ $pdf->AddPage();
 // -------------------------------------------------- //
 //                      BARCODE
 // -------------------------------------------------- //
-  
+
 $data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code'=>$code), $width, $height);
 $pdf->SetFont('Arial','B',$fontSize);
 $pdf->SetTextColor(0, 0, 0);
@@ -140,7 +140,7 @@ Barcode::rotate(-$len / 2, ($data['height'] / 2) + $fontSize + $marge, $angle, $
 // -------------------------------------------------- //
 //                      OUTPUT
 // -------------------------------------------------- //
- 
+
 $pdf->TextWithRotation($x + $xt, $y + $yt, $data['hri'], $angle);
 $pdf->Output();
 ?>

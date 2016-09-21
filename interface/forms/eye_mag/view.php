@@ -40,11 +40,11 @@ require_once("$srcdir/patient.inc");
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
-$Form_Name = "Eye Exam"; 
+$Form_Name = "Eye Exam";
 
 include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
-$form_id    = $_REQUEST['id']; 
+$form_id    = $_REQUEST['id'];
 $action     = $_REQUEST['action'];
 $finalize   = $_REQUEST['finalize'];
 $id         = $_REQUEST['id'];
@@ -58,8 +58,8 @@ if ($_REQUEST['url']) {
 }
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
-$result = sqlStatement($query,array($_SESSION['authId'])); 
-while ($prefs= sqlFetchArray($result))   {    
+$result = sqlStatement($query,array($_SESSION['authId']));
+while ($prefs= sqlFetchArray($result))   {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
 }
@@ -74,9 +74,9 @@ $query="select form_encounter.date as encounter_date,form_encounter.*, form_eye_
                     form_eye_mag.id=forms.form_id and
                     forms.deleted != '1'  and 
                     forms.formdir='eye_mag' and 
-                    form_eye_mag.pid=? ";        
+                    form_eye_mag.pid=? ";
 $encounter_data =sqlQuery($query,array($encounter,$pid));
-@extract($encounter_data); 
+@extract($encounter_data);
 //Do we have to have it?  
 //We can iterate through every value and perform openEMR escape-specfific functions?
 //We can rewrite the code to rename variables eg $encounter_data['RUL'] instead of $RUL?
@@ -94,7 +94,7 @@ $prov_data    =  sqlQuery($query,array($providerID));
 // build $PMSFH array
 global $priors;
 global $earlier;
-$PMSFH = build_PMSFH($pid); 
+$PMSFH = build_PMSFH($pid);
 
 /*
   Two windows anywhere with the same chart open is not compatible with the autosave feature.
@@ -122,7 +122,7 @@ $warning_text ='READ-ONLY mode.';
 
 if (!$LOCKED||!$LOCKEDBY) { //no one else has write privs.
   $LOCKEDBY= $uniqueID;
-  $LOCKED='1';  
+  $LOCKED='1';
 } else {
     //warning.  This form is locked by another user.
     $warning = ""; //remove nodisplay class
@@ -135,12 +135,12 @@ $dated = new DateTime($encounter_data['encounter_date']);
 $dated = $dated->format('Y-m-d');
 $visit_date = oeFormatShortDate($dated);
 
-if (!$form_id && !$encounter) { echo text($encounter)."-".text($form_id).xlt('No encounter...'); exit;} 
+if (!$form_id && !$encounter) { echo text($encounter)."-".text($form_id).xlt('No encounter...'); exit;}
 //ideally this would point to an error databased by problem #, cause it'd be a problem.
 
 if ($refresh and $refresh != 'fullscreen') {
-  if ($refresh == "PMSFH")  { 
-    echo display_PRIOR_section($refresh,$id,$id,$pid); 
+  if ($refresh == "PMSFH")  {
+    echo display_PRIOR_section($refresh,$id,$id,$pid);
   } else if ($refresh == "PMSFH_panel") {
     echo show_PMSFH_panel($PMSFH);
   } else if ($refresh == "page") {
@@ -159,7 +159,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
     <script language="JavaScript">    
-    <?php require_once("$srcdir/restoreSession.php"); 
+    <?php require_once("$srcdir/restoreSession.php");
     ?>
     function dopclick(id) {
       <?php if ($thisauth != 'write'): ?>
@@ -238,7 +238,7 @@ if ($refresh and $refresh != 'fullscreen') {
             {
               parent.Forms.location.href = sel;
             }
-            <?php } 
+            <?php }
           else { ?>
               top.frames['Main'].location.href = sel;
               <?php } ?>
@@ -254,16 +254,16 @@ if ($refresh and $refresh != 'fullscreen') {
       <div id="Layer2" name="Layer2" class="nodisplay">
       </div>
       <div id="Layer3" name="Layer3" class="container-fluid">
-        <?php   
+        <?php 
 
-        $output_priors = priors_select("ALL",$id,$id,$pid); 
+        $output_priors = priors_select("ALL",$id,$id,$pid);
 
         if ($output_priors != '') {
           // get any orders from the last visit for this visit
           // $priors[earlier]['PLAN'] contains the orders from last visit
           // explode '|' and display as needed
         }
-        menu_overhaul_left($pid,$encounter); 
+        menu_overhaul_left($pid,$encounter);
         ?>
      
 
@@ -374,7 +374,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <textarea name="HPI1" id="HPI1" class="HPI_text" tabindex="21"><?php echo text($HPI1); ?></textarea>
                                       <br />
                                     </td>
-                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php echo xla('Chronic/Inactive Problems:')."&nbsp\n".xla('document 3 and their status to reach the detailed HPI level')."&nbsp\n"; 
+                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php echo xla('Chronic/Inactive Problems:')."&nbsp\n".xla('document 3 and their status to reach the detailed HPI level')."&nbsp\n";
                                     echo "PMH items flagged as Chronic with a comment regarding status will automatically appear here.";?>"><?php echo xlt('Chronic Problems') ?>:</span>
                                       <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC1</div>
                                       <textarea name="CHRONIC1" id="CHRONIC1" class="HPI_text chronic_HPI" tabindex="22"><?php echo text($CHRONIC1); ?></textarea>
@@ -778,24 +778,24 @@ if ($refresh and $refresh != 'fullscreen') {
                   ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
                   ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
                   ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
-                  ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF']; 
-                  ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST']; 
-                  ${"OSHPD_$count_rx"}            = $wearing['OSHPD']; 
-                  ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE']; 
-                  ${"OSVPD_$count_rx"}            = $wearing['OSVPD']; 
-                  ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE']; 
-                  ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF']; 
-                  ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST']; 
-                  ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD']; 
-                  ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN']; 
-                  ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD']; 
-                  ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN']; 
-                  ${"BPDD_$count_rx"}             = $wearing['BPDD']; 
-                  ${"BPDN_$count_rx"}             = $wearing['BPDN']; 
-                  ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL']; 
-                  ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS']; 
-                  ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS']; 
-                } 
+                  ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
+                  ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
+                  ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
+                  ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
+                  ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
+                  ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
+                  ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
+                  ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
+                  ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
+                  ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
+                  ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
+                  ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
+                  ${"BPDD_$count_rx"}             = $wearing['BPDD'];
+                  ${"BPDN_$count_rx"}             = $wearing['BPDN'];
+                  ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
+                  ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
+                  ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
+                }
               ?>
               <div class="loading row clear_both" id="LayerTechnical_sections_loading" name="LayerTechnical_sections_loading"><i class="fa fa-spinner fa-spin"></i>
               </div> 
@@ -891,9 +891,9 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="top_left">
                               <b id="tension_tab"><?php echo xlt('Tension'); ?>:</b> 
                               <div>
-                                  <?php  
+                                  <?php 
                                   if (($IOPTIME == '00:00:00')||(!$IOPTIME)) {
-                                      $IOPTIME =  date('G:i A'); 
+                                      $IOPTIME =  date('G:i A');
                                   }
                                     $show_IOPTIME = date('g:i A',strtotime($IOPTIME));
                                  ?>
@@ -934,7 +934,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         if (!$AMSLEROD) $AMSLEROD= "0";
                         if (!$AMSLEROS) $AMSLEROS= "0";
                         if ($AMSLEROD || $AMSLEROS) {
-                            $checked = 'value="0"'; 
+                            $checked = 'value="0"';
                         } else {
                             $checked = 'value="1" checked';
                         }
@@ -1171,8 +1171,8 @@ if ($refresh and $refresh != 'fullscreen') {
               <div id="REFRACTION_sections" name="REFRACTION_sections" class="row nodisplay clear_both">
                 <div id="LayerVision2">
                   <?php 
-                    ($W ==1) ? ($display_W = "") : ($display_W = "nodisplay"); 
-                    ($W_width =='1') ? ($display_W_width = "refraction_wide") : ($display_W_width = ""); 
+                    ($W ==1) ? ($display_W = "") : ($display_W = "nodisplay");
+                    ($W_width =='1') ? ($display_W_width = "refraction_wide") : ($display_W_width = "");
                   ?>
                   <div id="LayerVision_W" class="<?php echo $display_W; ?> <?php echo $display_W_width; ?> ">
                     <input type="hidden" id="W_1" name="W_1" value="1">
@@ -1498,11 +1498,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLMANUFACTURER_list_OD .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLMANUFACTUREROD == $row['option_id']) $CTLMANUFACTURER_list_OD .= "selected";
                                     $CTLMANUFACTURER_list_OD .= '>'.text(substr($row['title'],0,12)).'</option>
-                                    ' ; 
+                                    ' ;
                                     $CTLMANUFACTURER_list_OS .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLMANUFACTUREROS == $row['option_id']) $CTLMANUFACTURER_list_OS .= "selected";
                                     $CTLMANUFACTURER_list_OS .= '>'.text(substr($row['title'],0,12)).'</option>
-                                    ' ; 
+                                    ' ;
                                   }
                                                       //build supplier list from list_options::list_id::CTLSupplier
                                   $query = "select * from list_options where list_id like 'CTLSupplier' order by seq";
@@ -1511,11 +1511,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLSUPPLIER_list_OD .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLSUPPLIEROD == $row['option_id']) $CTLSUPPLIER_list_OD .= "selected";
                                     $CTLSUPPLIER_list_OD .= '>'.text(substr($row['title'],0,10)).'</option>
-                                    ' ; 
+                                    ' ;
                                     $CTLSUPPLIER_list_OS .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLSUPPLIEROS == $row['option_id']) $CTLSUPPLIER_list_OS .= "selected";
                                     $CTLSUPPLIER_list_OS .= '>'.text(substr($row['title'],0,10)).'</option>
-                                    ' ; 
+                                    ' ;
                                   }
                                                       //build manufacturer list from list_options::list_id::CTLManufacturer
                                   $query = "select * from list_options where list_id like 'CTLBrand' order by seq";
@@ -1524,11 +1524,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLBRAND_list_OD .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLBRANDOD == $row['option_id']) $CTLBRAND_list_OD .= "selected";
                                     $CTLBRAND_list_OD .= '>'.text(substr($row['title'],0,15)).'</option>
-                                    ' ; 
+                                    ' ;
                                     $CTLBRAND_list_OS .= '<option value="'.attr($row['option_id']).'"';
                                     if ($CTLBRANDOS == $row['option_id']) $CTLBRAND_list_OS .= "selected";
                                     $CTLBRAND_list_OS .= '>'.text(substr($row['title'],0,15)).'</option>
-                                    ' ; 
+                                    ' ;
                                   }
                                   ?>
                                   <select id="CTLMANUFACTUREROD" name="CTLMANUFACTUREROD" tabindex="10230">
@@ -1807,7 +1807,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="EXT_left_1">
                         <table>
                            <?php 
-                              list($imaging,$episode) = display($pid,$encounter, "EXT"); 
+                              list($imaging,$episode) = display($pid,$encounter, "EXT");
                               echo $episode;
                             ?>
                         </table>
@@ -1977,7 +1977,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                
                           <div id="EXT_QP_block1" name="EXT_QP_block1" class="QP_block borderShadow text_clinical" >
 
-                            <?php  
+                            <?php 
                             echo $QP_ANTSEG = display_QP("EXT",$providerID); ?>
                           </div>      
                       </div>
@@ -1997,7 +1997,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="ANTSEG_left_1" class="text_clinical">
                         <table>
                           <?php 
-                            list($imaging,$episode) = display($pid,$encounter, "ANTSEG"); 
+                            list($imaging,$episode) = display($pid,$encounter, "ANTSEG");
                             echo $episode;
                           ?>
                         </table>
@@ -2209,7 +2209,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="RETINA_left_1" class="text_clinical">
                         <table>
                             <?php 
-                              list($imaging,$episode) = display($pid,$encounter, "POSTSEG"); 
+                              list($imaging,$episode) = display($pid,$encounter, "POSTSEG");
                               echo $episode;
                             ?>
                         </table>
@@ -2236,7 +2236,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <br />
                         <table>
                           <?php 
-                            list($imaging,$episode) = display($pid,$encounter, "NEURO"); 
+                            list($imaging,$episode) = display($pid,$encounter, "NEURO");
                             echo $episode;
                           ?>
                         </table>
@@ -3198,7 +3198,7 @@ if ($refresh and $refresh != 'fullscreen') {
                        *    e. DoubleClick a DX appends this DX to the bottom of the IMP/Plan list 
                        */
 
-                      if (!$PMSFH) $PMSFH = build_PMSFH($pid); 
+                      if (!$PMSFH) $PMSFH = build_PMSFH($pid);
                       $total_DX='0';
                       if (($PMSFH[0]['POH'][0] >'') && ($PMSFH[0]['PMH'][0] >'')) $total_DX ='1';
 
@@ -3207,8 +3207,8 @@ if ($refresh and $refresh != 'fullscreen') {
 
                       <br />
                       <dl class="building_blocks" id="building_blocks" name="building_blocks">
-                      <dt class="borderShadow"><i title="<?php echo xla('Drag the arrow for each diagnosis to sort the list.'); echo "\n"; 
-                        echo xla('Select the diagnoses to include in the Impression/Plan.'). "\n"; 
+                      <dt class="borderShadow"><i title="<?php echo xla('Drag the arrow for each diagnosis to sort the list.'); echo "\n";
+                        echo xla('Select the diagnoses to include in the Impression/Plan.'). "\n";
                         echo xla('Press this icon to build your Impression/Plan.'); ?>" class="fa fa-share-square-o fa-flip-horizontal" id="make_new_IMP" name="make_new_IMP"></i>
                         <span id="IMP_start" name="IMP_start"><?php echo xlt('Impression/Plan Builder'); ?></span>
                         <div id="IMP_start2">
@@ -3219,7 +3219,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       </dt>  
                         <dd id="IMP_start_acc" name="IMP_start_acc">
                           <ol id="build_DX_list" name="build_DX_list">
-                          <?php  
+                          <?php 
                           $i=0;
                           if ($total_DX == '1') {
                             foreach ($PMSFH[0]['POH'] as $k => $v) {
@@ -3326,7 +3326,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         $last_category = $fs_category;
                                         echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
                                       }
-                                      $code_text = (strlen(substr($fs_option, 1)) > 18) ? substr(substr($fs_option, 1),0,16).'...' : substr($fs_option, 1); 
+                                      $code_text = (strlen(substr($fs_option, 1)) > 18) ? substr(substr($fs_option, 1),0,16).'...' : substr($fs_option, 1);
                                     
                                       echo "    <option value='" . attr($fs_codes) . "'>" . text($code)." ".text(substr($fs_category, 1)).": ".text($code_text) . "</option>\n";
                                     }
@@ -3342,7 +3342,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       while ($row = sqlFetchArray($res)) {
                                         $ctkey = alphaCodeType($row['code_type']);
                                         if ($code_types[$ctkey]['nofs']) continue;
-                                        $code_text = (strlen($row['code_text']) > 15) ? substr($row['code_text'],0,13).'...' : $row['code_text']; 
+                                        $code_text = (strlen($row['code_text']) > 15) ? substr($row['code_text'],0,13).'...' : $row['code_text'];
                                       echo "    <option value='" . attr($ctkey) . "|" .
                                           attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($code_text) . "</option>\n";
                                       }
@@ -3372,7 +3372,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <tr>
                                     <td style="padding-right:20px;padding-left:20px;">
                                     <?php
-                                    
+
                                     $counter='0';
                                     $count='0';
                                     $arrTESTS = explode("|",$Resource); //form_eye_mag:Resource = billable things (not visit code) performed today 
@@ -3387,7 +3387,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       if ($codedesc =='') $codedesc = $row['title'];
                                       $codetext = $codedesc ." (".$row['codes'].")";
                                       $checked ='';
-                                      if (in_array($row['codes'],$arrTESTS)) { 
+                                      if (in_array($row['codes'],$arrTESTS)) {
                                         $checked = "checked='yes'";
                                       }
                                       /**
@@ -3410,7 +3410,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       if ($count =="2") {
                                         echo '</td><tr><td style="padding-right:20px;padding-left:20px;">';
                                         $count='0';
-                                      } else { 
+                                      } else {
                                         echo "</td><td>";
                                       }
                                     }
@@ -3511,7 +3511,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 if ($count =="3") {
                                   echo '</td><tr><td style="padding-right:20px;padding-left:20px;">';
                                   $count='0';
-                                } else { 
+                                } else {
                                   echo "</td><td>";
                                 }
                               }
@@ -3561,8 +3561,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             <tr>
                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                               <td class="bold">
-                                <?php  
-                                  if ($pcp_data['fax'] > '') { 
+                                <?php 
+                                  if ($pcp_data['fax'] > '') {
                                     // does the fax already exist?
                                     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like '%Fax_".$encounter."_".$pat_data['providerID']."%'";
                                     $FAX_PCP = sqlQuery($query,array($encounter,$pid));
@@ -3580,11 +3580,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <?php echo text($pcp_data['fax']); ?></a>&nbsp;&nbsp;
                                       <span id="status_Fax_pcp"><i class="fa fa-fax fa-fw"></i></span>
                                       <?php 
-                                    } 
+                                    }
                                   } ?>
                               </td>
                               <td class="bold">
-                                <?php if ($ref_data['fax'] > '') { 
+                                <?php if ($ref_data['fax'] > '') {
                                     // does the fax already exist?
                                     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like '%Fax_".$encounter."_".$pat_data['ref_providerID']."%'";
                                     $FAX_REF = sqlQuery($query,array($encounter,$pid));
@@ -3602,40 +3602,40 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <?php echo text($ref_data['fax']); ?></a>&nbsp;&nbsp;
                                       <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
                                       <?php 
-                                    } 
+                                    }
                                   } ?>
                               </td>
                             </tr>
                             <tr>
                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
                               <td class="top"><?php 
-                                  if ($pcp_data['organization'] >'') echo text($pcp_data['organization'])."<br />"; 
-                                  if ($pcp_data['street'] >'') echo text($pcp_data['street'])."<br />"; 
-                                  if ($pcp_data['streetb'] >'') echo text($pcp_data['streetb'])."<br />"; 
-                                  if ($pcp_data['city'] >'') echo text($pcp_data['city']).", "; 
-                                  if ($pcp_data['state'] >'') echo text($pcp_data['state'])." "; 
-                                  if ($pcp_data['zip'] >'') echo text($pcp_data['zip'])."<br />"; 
+                                  if ($pcp_data['organization'] >'') echo text($pcp_data['organization'])."<br />";
+                                  if ($pcp_data['street'] >'') echo text($pcp_data['street'])."<br />";
+                                  if ($pcp_data['streetb'] >'') echo text($pcp_data['streetb'])."<br />";
+                                  if ($pcp_data['city'] >'') echo text($pcp_data['city']).", ";
+                                  if ($pcp_data['state'] >'') echo text($pcp_data['state'])." ";
+                                  if ($pcp_data['zip'] >'') echo text($pcp_data['zip'])."<br />";
                                   
-                                  if ($pcp_data['street2'] >'') echo "<br />".text($pcp_data['street2'])."<br />"; 
-                                  if ($pcp_data['streetb2'] >'') echo text($pcp_data['streetb2'])."<br />"; 
-                                  if ($pcp_data['city2'] >'') echo text($pcp_data['city2']).", "; 
-                                  if ($pcp_data['state2'] >'') echo text($pcp_data['state2'])." "; 
-                                  if ($pcp_data['zip2'] >'') echo text($pcp_data['zip2'])."<br />"; 
+                                  if ($pcp_data['street2'] >'') echo "<br />".text($pcp_data['street2'])."<br />";
+                                  if ($pcp_data['streetb2'] >'') echo text($pcp_data['streetb2'])."<br />";
+                                  if ($pcp_data['city2'] >'') echo text($pcp_data['city2']).", ";
+                                  if ($pcp_data['state2'] >'') echo text($pcp_data['state2'])." ";
+                                  if ($pcp_data['zip2'] >'') echo text($pcp_data['zip2'])."<br />";
                                   ?>
                               </td>
                               <td class="top"><?php 
-                                  if ($ref_data['organization'] >'') echo text($ref_data['organization'])."<br />"; 
-                                  if ($ref_data['street'] >'') echo text($ref_data['street'])."<br />"; 
-                                  if ($ref_data['streetb'] >'') echo text($ref_data['streetb'])."<br />"; 
-                                  if ($ref_data['city'] >'') echo text($ref_data['city']).", "; 
-                                  if ($ref_data['state'] >'') echo text($ref_data['state'])." "; 
-                                  if ($ref_data['zip'] >'') echo text($ref_data['zip'])."<br />"; 
+                                  if ($ref_data['organization'] >'') echo text($ref_data['organization'])."<br />";
+                                  if ($ref_data['street'] >'') echo text($ref_data['street'])."<br />";
+                                  if ($ref_data['streetb'] >'') echo text($ref_data['streetb'])."<br />";
+                                  if ($ref_data['city'] >'') echo text($ref_data['city']).", ";
+                                  if ($ref_data['state'] >'') echo text($ref_data['state'])." ";
+                                  if ($ref_data['zip'] >'') echo text($ref_data['zip'])."<br />";
                                   
-                                  if ($ref_data['street2'] >'') echo "<br />".text($ref_data['street2'])."<br />"; 
-                                  if ($ref_data['streetb2'] >'') echo text($ref_data['streetb2'])."<br />"; 
-                                  if ($ref_data['city2'] >'') echo text($ref_data['city2']).", "; 
-                                  if ($ref_data['state2'] >'') echo text($ref_data['state2'])." "; 
-                                  if ($ref_data['zip2'] >'') echo text($ref_data['zip2'])."<br />"; 
+                                  if ($ref_data['street2'] >'') echo "<br />".text($ref_data['street2'])."<br />";
+                                  if ($ref_data['streetb2'] >'') echo text($ref_data['streetb2'])."<br />";
+                                  if ($ref_data['city2'] >'') echo text($ref_data['city2']).", ";
+                                  if ($ref_data['state2'] >'') echo text($ref_data['state2'])." ";
+                                  if ($ref_data['zip2'] >'') echo text($ref_data['zip2'])."<br />";
                                   ?>
                               </td>
                             </tr>
@@ -3659,12 +3659,12 @@ if ($refresh and $refresh != 'fullscreen') {
       </div>    <!-- end Layer3 -->
     </div>     <!-- end page wrapper -->
     <?php
-    if ($display!="fullscreen") { 
+    if ($display!="fullscreen") {
       // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
       // this function is in php/eye_mag_functions.php
       $output = menu_overhaul_bottom($pid,$encounter);
       echo $output;
-   } 
+   }
     ?>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-panelslider-0-1-1/jquery.panelslider.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>   
@@ -3740,7 +3740,7 @@ if ($refresh and $refresh != 'fullscreen') {
         // 2. Right Panel
         //      - function show_PMSFH_panel($PMSFH) in php/eye_mag_functions.php
         //      - creates/populates the right panel NavBar 
-        echo $output_PMSFH_panel = show_PMSFH_panel($PMSFH);  
+        echo $output_PMSFH_panel = show_PMSFH_panel($PMSFH);
         ?>
       </div>
     </div>
@@ -3755,7 +3755,7 @@ if ($refresh and $refresh != 'fullscreen') {
       if ($PANEL_RIGHT >'0') { ?>
         $("#right-panel-link").trigger("click");
         <?php 
-      } 
+      }
       ?>
     </script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>

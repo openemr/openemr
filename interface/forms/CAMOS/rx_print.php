@@ -1,15 +1,15 @@
 <?php
-include_once ('../../globals.php'); 
-include_once ('../../../library/sql.inc'); 
+include_once ('../../globals.php');
+include_once ('../../../library/sql.inc');
 include_once ('../../../library/classes/Prescription.class.php');
 include_once("../../../library/formdata.inc.php");
 //practice data
-$physician_name = ''; 
+$physician_name = '';
 $practice_fname = '';
 $practice_lname = '';
 $practice_title = '';
-$practice_address = ''; 
-$practice_city = ''; 
+$practice_address = '';
+$practice_city = '';
 $practice_state = '';
 $practice_zip  = '';
 $practice_phone = '';
@@ -19,23 +19,23 @@ $practice_dea = '';
 //patient data
 $patient_name = '';
 $patient_address = '';
-$patient_city = ''; 
+$patient_city = '';
 $patient_state = '';
 $patient_zip = '';
 $patient_phone = '';
 $patient_dob = '';
 $sigline = array();
-$sigline['plain'] =  
-    "<div class='signature'>" 
+$sigline['plain'] =
+    "<div class='signature'>"
   . " ______________________________________________<br/>"
   . "</div>\n";
-$sigline['embossed'] =  
-    "<div class='signature'>" 
+$sigline['embossed'] =
+    "<div class='signature'>"
   . " _____________________________________________________<br/>"
 #  . "Signature - Valid for three days and in Broward County only."
   . "Signature"
   . "</div>\n";
-$sigline['signed'] =  
+$sigline['signed'] =
     "<div class='sig'>"
   . "<img src='./sig.jpg'>"
   . "</div>\n";
@@ -52,39 +52,39 @@ if ($result = sqlFetchArray($query)) {
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
   $query = "update users set " .
-    "fname = '" . formData('practice_fname') . "', " .  
-    "lname = '" . formData('practice_lname') . "', " .  
-    "title = '" . formData('practice_title') . "', " .  
-    "street = '" . formData('practice_address') . "', " .  
-    "city = '" . formData('practice_city') . "', " .  
-    "state = '" . formData('practice_state') . "', " .  
-    "zip = '" . formData('practice_zip') . "', " .  
-    "phone = '" . formData('practice_phone') . "', " .  
-    "fax = '" . formData('practice_fax') . "', " .  
-    "federaldrugid = '" . formData('practice_dea') . "' " .  
+    "fname = '" . formData('practice_fname') . "', " .
+    "lname = '" . formData('practice_lname') . "', " .
+    "title = '" . formData('practice_title') . "', " .
+    "street = '" . formData('practice_address') . "', " .
+    "city = '" . formData('practice_city') . "', " .
+    "state = '" . formData('practice_state') . "', " .
+    "zip = '" . formData('practice_zip') . "', " .
+    "phone = '" . formData('practice_phone') . "', " .
+    "fax = '" . formData('practice_fax') . "', " .
+    "federaldrugid = '" . formData('practice_dea') . "' " .
     "where id =" . $_SESSION['authUserID'];
   sqlInsert($query);
 }
 //get user information
 $query = sqlStatement("select * from users where id =" . $_SESSION['authUserID']);
 if ($result = sqlFetchArray($query)) {
-  $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title']; 
+  $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title'];
   $practice_fname = $result['fname'];
   $practice_lname = $result['lname'];
   $practice_title = $result['title'];
-  $practice_address = $result['street']; 
-  $practice_city = $result['city']; 
+  $practice_address = $result['street'];
+  $practice_city = $result['city'];
   $practice_state = $result['state'];
   $practice_zip  = $result['zip'];
   $practice_phone = $result['phone'];
   $practice_fax = $result['fax'];
   $practice_dea = $result['federaldrugid'];
 }
-if ($_POST['print_pdf'] || $_POST['print_html']) { 
+if ($_POST['print_pdf'] || $_POST['print_html']) {
   $camos_content = array();
   foreach ($_POST as $key => $val) {
     if (substr($key,0,3) == 'ch_') {
-      $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" . 
+      $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" .
         substr($key,3));
       if ($result = sqlFetchArray($query)) {
 
@@ -94,16 +94,16 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 	} else {
 		$content = $result['content'];
 	}
-        array_push($camos_content,$content); 
+        array_push($camos_content,$content);
       }
     }
     if (substr($key,0,5) == 'chrx_') {
       $rx = new Prescription(substr($key,5));
       //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
-      $content = '' 
+      $content = ''
       . text($rx->drug) . ' '
       . text($rx->size) . ''
-      . text($rx->unit_array[$rx->unit]) . '<br/>' 
+      . text($rx->unit_array[$rx->unit]) . '<br/>'
       . text($rx->quantity). ' '
       . text($rx->form_array[$rx->form]). '<br/>'
       . text($rx->dosage) . ' '
@@ -114,7 +114,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
       . 'refills:' . $rx->refills . '';
 //      . $rx->substitute_array[$rx->substitute]. ''
 //      . $rx->per_refill . '';
-      array_push($camos_content,$content); 
+      array_push($camos_content,$content);
     }
   }
   if (!$_GET['letterhead']) { //OPTION print a prescription with css formatting
@@ -142,7 +142,7 @@ function topHeaderRx() {
     print $practice_state . " ";
     print $practice_zip . "<br/>\n";
     print xl('Voice') . ': ' . $practice_phone . ' / ' . xl('Fax') . ': ' . $practice_fax . "<br/>\n";
-    print xl('DEA') . ': ' . $practice_dea;   
+    print xl('DEA') . ': ' . $practice_dea;
 }
 function bottomHeaderRx() {
     global $patient_name,$patient_address,$patient_city,$patient_state,$patient_zip,$patient_phone,$patient_dob;
@@ -174,7 +174,7 @@ function bottomHeaderRx() {
   </div>
   <div class='content'>
     <?php
-        print $camos_content[0]; 
+        print $camos_content[0];
     ?>
   </div>
   <?php print $sigline[$_GET[sigline]] ?>
@@ -200,13 +200,13 @@ if ($camos_content[1]) { //decide if we are printing this rx
   <div class='bottomheader'>
   <?php
 
-    bottomHeaderRx();  
+    bottomHeaderRx();
   ?>
   </div>
   <div class='content'>
     <?php
 
-        print $camos_content[1]; 
+        print $camos_content[1];
     ?>
   </div>
   <?php print $sigline[$_GET[sigline]] ?>
@@ -226,7 +226,7 @@ if ($camos_content[2]) { //decide if we are printing this rx
   <div class='topheader'>
   <?php
 
-    topHeaderRx();  
+    topHeaderRx();
   ?>
   </div>
     <hr/>
@@ -239,7 +239,7 @@ if ($camos_content[2]) { //decide if we are printing this rx
   <div class='content'>
     <?php
 
-        print $camos_content[2]; 
+        print $camos_content[2];
     ?>
   </div>
   <?php print $sigline[$_GET[sigline]] ?>
@@ -272,7 +272,7 @@ if ($camos_content[3]) { //decide if we are printing this rx
   <div class='content'>
     <?php
 
-        print $camos_content[3]; 
+        print $camos_content[3];
     ?>
   </div>
   <?php print $sigline[$_GET[sigline]] ?>
@@ -382,7 +382,7 @@ else {
 	if ($_GET['signer'] == 'patient') {
 		$pdf->ezText("__________________________________________________________________________________",12);
 		$pdf->ezText(xl("Print name, sign and date."),12);
-	} 
+	}
 	elseif ($_GET['signer'] == 'doctor') {
 		$pdf->ezText(xl('Sincerely,'),12);
 		$pdf->ezText('',12);
@@ -471,18 +471,18 @@ function cycle_engine(cb,seed) {
 <?php
 
 //check if an encounter is set
-if ($_SESSION['encounter'] == NULL) { 
-  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
-  mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " . 
-  "where y.pid = " . $_SESSION['pid'] . 
-  " and y.form_name like 'CAMOS%'" . 
-  " and x.activity = 1"); 
-} 
-else { 
-  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
-  mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " . 
-  "where y.encounter = " .  $_SESSION['encounter'] . 
-  " and y.pid = " . $_SESSION['pid'] .  
+if ($_SESSION['encounter'] == NULL) {
+  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
+  mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " .
+  "where y.pid = " . $_SESSION['pid'] .
+  " and y.form_name like 'CAMOS%'" .
+  " and x.activity = 1");
+}
+else {
+  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
+  mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " .
+  "where y.encounter = " .  $_SESSION['encounter'] .
+  " and y.pid = " . $_SESSION['pid'] .
   " and y.form_name like 'CAMOS%'" .
   " and x.activity = 1");
 }

@@ -13,12 +13,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/formatting.inc.php");
 
 if(isset($_POST['form_from_date'])) {
-  $from_date = $_POST['form_from_date'] !== "" ? 
+  $from_date = $_POST['form_from_date'] !== "" ?
     fixDate($_POST['form_from_date'], date('Y-m-d')) :
     0;
 }
 if(isset($_POST['form_to_date'])) {
-  $to_date =$_POST['form_to_date'] !== "" ? 
+  $to_date =$_POST['form_to_date'] !== "" ?
     fixDate($_POST['form_to_date'], date('Y-m-d')) :
     0;
 }
@@ -41,7 +41,7 @@ function tr($a) {
 function format_cvx_code($cvx_code) {
 
 	if ( $cvx_code < 10 ) {
-		return "0$cvx_code"; 
+		return "0$cvx_code";
 	}
 	
 	return $cvx_code;
@@ -75,13 +75,13 @@ function format_ethnicity($ethnicity) {
  }
 
 
-  $query = 
+  $query =
   "select " .
   "i.patient_id as patientid, " .
   "p.language, ".
   "i.cvx_code , " ;
   if ($_POST['form_get_hl7']==='true') {
-    $query .= 
+    $query .=
       "DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, ".
       "concat(p.street, '^^', p.city, '^', p.state, '^', p.postal_code) as address, ".
       "p.country_code, ".
@@ -90,8 +90,8 @@ function format_ethnicity($ethnicity) {
       "p.status, ".
       "p.sex, ".
       "p.ethnoracial, ".
-      "p.race, ". 
-      "p.ethnicity, ".   
+      "p.race, ".
+      "p.ethnicity, ".
       "c.code_text, ".
       "c.code, ".
       "c.code_type, ".
@@ -130,7 +130,7 @@ function format_ethnicity($ethnicity) {
   $query .=  "i.added_erroneously = 0";
 
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
-  
+
 
 $D="\r";
 $nowdate = date('Ymd');
@@ -140,7 +140,7 @@ $filename = "imm_reg_". $now . ".hl7";
 
 // GENERATE HL7 FILE
 if ($_POST['form_get_hl7']==='true') {
-	$content = ''; 
+	$content = '';
 
   $res = sqlStatement($query);
 
@@ -198,10 +198,10 @@ if ($_POST['form_get_hl7']==='true') {
         ""  . // 39. Tribal Citizenship
         "$D" ;
     $content .= "ORC" . // ORC mandatory for RXA
-        "|" . 
+        "|" .
         "RE" .
         "$D" ;
-    $content .= "RXA|" . 
+    $content .= "RXA|" .
         "0|" . // 1. Give Sub-ID Counter
         "1|" . // 2. Administrattion Sub-ID Counter
     	$r['administered_date']."|" . // 3. Date/Time Start of Administration

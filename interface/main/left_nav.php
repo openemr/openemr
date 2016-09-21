@@ -263,7 +263,7 @@ function genPopupsList($style='') {
 <?php if (!$GLOBALS['ippf_specific']) { ?>
  <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
  <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
-<?php } 
+<?php }
  if (!$GLOBALS['disable_calendar']) { ?>
  <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;} ?>'><?php xl('Appts','e'); ?></option>
 <?php } ?>
@@ -1177,7 +1177,7 @@ if (!empty($reg)) {
 	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
 	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
       
-	<?php 	
+	<?php 
 		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
 		if (sqlNumRows($module_query)) {
 		  while ($modulerow = sqlFetchArray($module_query)) {
@@ -1189,7 +1189,7 @@ if (!empty($reg)) {
 		  			$modulePath = $GLOBALS['customModDir'];
 		  			$added		= "";
 		  		}
-		  		else{ 	
+		  		else{
 					$added		= "index";
 		  			$modulePath = $GLOBALS['zendModDir'];
 		  		}
@@ -1292,7 +1292,7 @@ if (!empty($reg)) {
   <?php } ?>
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
-				<?php 	
+				<?php 
 				$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
@@ -1306,7 +1306,7 @@ if (!empty($reg)) {
 								$modulePath = $GLOBALS['customModDir'];
 								$added		= "";
 							}
-							else{ 	
+							else{
 								$added		= "index";
 								$modulePath = $GLOBALS['zendModDir'];
 							}

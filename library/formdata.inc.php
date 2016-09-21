@@ -98,7 +98,7 @@ function escape_sql_column_name($s,$tables,$long=FALSE) {
       }
 
       // Collect all the possible sql columns from the tables
-      $columns_options = array(); 
+      $columns_options = array();
       foreach ($tables_escaped as $table_escaped) {
             $res = sqlStatementNoLog("SHOW COLUMNS FROM ".$table_escaped);
             while ($row=sqlFetchArray($res)) {
@@ -139,7 +139,7 @@ function escape_table_name($s) {
       $res = sqlStatementNoLog("SHOW TABLES");
       $tables_array = array();
       while ($row=sqlFetchArray($res)) {
-            $keys_return = array_keys($row); 
+            $keys_return = array_keys($row);
             $tables_array[]=$row[$keys_return[0]];
       }
 
@@ -205,7 +205,7 @@ function escape_identifier($s,$whitelist_items,$die_if_no_match=FALSE,$case_sens
                     }
                     else {
                         // Return first token since no match
-                        $key = 0; 
+                        $key = 0;
                     }
                 }
             }

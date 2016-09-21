@@ -118,7 +118,7 @@ if ($newInstall === "1") {
     ?>
     <div><?php echo xlt("Successfully installed the following database") . ": " . text($db); ?></div>
     <?php
-} else { 
+} else {
     ?>
     <div><?php echo xlt("Successfully upgraded the following database") . ": " . text($db); ?></div>
     <?php

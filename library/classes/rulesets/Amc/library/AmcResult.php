@@ -11,7 +11,7 @@ class AmcResult implements RsResultIF
     public $rule;
 //    public $numeratorLabel;
 //    public $populationLabel;
-     
+
     public $totalPatients; // Total number of patients considered
     public $patientsInPopulation; // Number of patients that pass filter
     public $patientsExcluded; // Number of patients that are excluded
@@ -38,7 +38,7 @@ class AmcResult implements RsResultIF
 
     public function format()
     {
-        $rowFormat = array( 
+        $rowFormat = array(
         	'is_main'=>TRUE, // TO DO: figure out way to do this when multiple groups.
 //            'population_label' => $this->populationLabel,
 //            'numerator_label' => $this->numeratorLabel,

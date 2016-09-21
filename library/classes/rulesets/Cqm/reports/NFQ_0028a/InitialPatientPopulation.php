@@ -7,8 +7,8 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0028a_InitialPatientPopulation implements CqmFilterIF
-{ 
-    public function getTitle() 
+{
+    public function getTitle()
     {
         return "Initial Patient Population";
     }
@@ -26,10 +26,10 @@ class NFQ_0028a_InitialPatientPopulation implements CqmFilterIF
                 Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_SER_18_OLDER, $patient, $beginDate, $endDate, $oneEncounter ) ||
                 Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_IND_COUNSEL, $patient, $beginDate, $endDate, $oneEncounter ) ||
                 Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_GROUP_COUNSEL, $patient, $beginDate, $endDate, $oneEncounter ) ||
-                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_OTHER_SERV, $patient, $beginDate, $endDate, $oneEncounter ) 
+                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_OTHER_SERV, $patient, $beginDate, $endDate, $oneEncounter )
               ) ) {
             return true;
-        } 
+        }
 
         return false;
     }

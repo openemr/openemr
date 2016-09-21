@@ -25,7 +25,7 @@ class POSRef {
 	function __construct($state = "") {
 		$this->pos_ref = array();
 		$this->pos_ref = POSRef::init_pos();
-		$this->pos_ref = array_merge ($this->pos_ref,$this->state_overides($state));	
+		$this->pos_ref = array_merge ($this->pos_ref,$this->state_overides($state));
 	}
 	
 	function init_pos() {
@@ -130,20 +130,20 @@ class POSRef {
 		$pos[] = array ("code" => "98","title" => xl("Unassigned"), "description" => "N/A");
 		$pos[] = array ("code" => "99","title" => xl("Other Place of Service"), "description" => "Other place of service not identified above. ");
 		return $pos;
-	} 
+	}
 	function state_overides($state) {
 		$pos = array();
 		switch (strtoupper($state)) {
 			case "CA":
 				break;
 			default:
-				break;	
+				break;
 		}
 		return $pos;
 	}
 	
 	function get_pos_ref() {
-		return $this->pos_ref;	
+		return $this->pos_ref;
 	}
 }
 ?>

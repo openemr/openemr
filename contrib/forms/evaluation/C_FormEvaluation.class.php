@@ -54,7 +54,7 @@ class C_FormEvaluation extends Controller {
 		if (!empty($_POST['cpt_code'])) {
 			$sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
 			
-			$results = sqlQ($sql);	
+			$results = sqlQ($sql);
 			
 			$row = sqlFetchArray($results);
 			if (!empty($row)) {

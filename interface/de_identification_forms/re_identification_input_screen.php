@@ -79,7 +79,7 @@ function download_file()
 		<br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
 	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
-	<?php echo xl('to run'); 
+	<?php echo xl('to run');
     	echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
@@ -93,7 +93,7 @@ function download_file()
 		<td>&nbsp;</td>
 	</tr>
 	</table>
-  <?php  
+  <?php 
   }
  else {
 	$query = "select status from re_identification_status";
@@ -105,7 +105,7 @@ function download_file()
 	*  0 - There is no Re Identification in progress. (start new Re Identification process)
 	*  1 - A Re Identification process is currently in progress.
 	*  2 - The Re Identification process completed and xls file is ready to download
-	*/  
+	*/
 
 	}
 	if($reIdentificationStatus == 1)

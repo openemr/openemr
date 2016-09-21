@@ -63,7 +63,7 @@ $isAjaxCall = isset($_POST['ajax']);
 
 //if false, we may assume this is a cron job and set up accordingly
 if (!$isAjaxCall) {
-   $ignoreAuth = 1; 
+   $ignoreAuth = 1;
    //process optional arguments when called from cron
    $_GET['site'] = (isset($argv[1])) ? $argv[1] : 'default';
    if (isset($argv[2]) && $argv[2]!='all') $_GET['background_service'] = $argv[2];

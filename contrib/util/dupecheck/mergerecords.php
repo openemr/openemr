@@ -99,7 +99,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue) {
     $sqlstmt = "select count(*) as numrows from ".$tablename." where ".$pid_col."='".$oldvalue."'";
     $qResults = sqlStatement($sqlstmt);
 
-    if ($qResults) { 
+    if ($qResults) {
         $row = sqlFetchArray($qResults);
         if ($row['numrows'] > 0) {
             $sqlstmt = "update ".$tablename." set ".$pid_col."='".$newvalue."' where ".$pid_col."='".$oldvalue."'";

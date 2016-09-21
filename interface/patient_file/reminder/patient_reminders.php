@@ -104,7 +104,7 @@ $sort = array("category, item", "lname, fname", "due_status", "date_created", "h
 if($sortby == "") {
   $sortby = $sort[0];
 }
-if($sortorder == "") { 
+if($sortorder == "") {
   $sortorder = "asc";
 }
 for($i = 0; $i < count($sort); $i++) {
@@ -156,7 +156,7 @@ if($end < $start) {
 if($prev >= 0) {
   $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
 }
-else { 
+else {
   $prevlink = "<<";
 }
 

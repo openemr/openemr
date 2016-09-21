@@ -59,8 +59,8 @@ class UserService extends Userforms
 * To display the result/report names from lists
 */
   public function get_display_field($data){
-    if($this->valid($data[0])){        
-        $ret = generate_display_field(array('data_type'=>$data['data_type'],'list_id'=>$data['list_id']),$data['value']);        
+    if($this->valid($data[0])){
+        $ret = generate_display_field(array('data_type'=>$data['data_type'],'list_id'=>$data['list_id']),$data['value']);
         return $ret;
     }
   }
@@ -70,7 +70,7 @@ class UserService extends Userforms
 */
   public function procedure_order($data){
     if($this->valid($data[0])){
-      global $pid;            
+      global $pid;
       $arr = array();
       $i   = 0;
       $proc_query = "SELECT 
@@ -146,8 +146,8 @@ class UserService extends Userforms
         }
       }
       return $arr;
-    }  
-  }  
+    }
+  }
 
 /**  
 * To display the patient uploaded files/pdf patient wise
@@ -181,13 +181,13 @@ class UserService extends Userforms
           AND approval_status = '1' 
           AND am.type = '4'
           ORDER BY am.pid ASC
-      ";        
+      ";
       if(!empty($data[1])){
         $query .= " AND am.id = ?";
         $res = sqlStatement($query,array($data[1]));
       }else{
         $res = sqlStatement($query);
-      }		  
+      }
       if ($res) {
         for($iter=0; $row=sqlFetchArray($res); $iter++) {
           $all[$iter] = $row;
@@ -196,7 +196,7 @@ class UserService extends Userforms
       $v = ob_get_clean();
       return $all;
     }
-  }  
+  }
     
   public function createandstoretodirectory($data){
     global $pid;
@@ -217,7 +217,7 @@ class UserService extends Userforms
     }
     else{
       throw new SoapFault("Server", "credentials failed");
-    }    
+    }
   }
   
 /**  
@@ -234,7 +234,7 @@ class UserService extends Userforms
       elseif($data[9] == 1)
 	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/".$data[6];
       elseif($data[9] == 4)
-	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];        
+	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];
       $mime_types = array(
 	      "pdf"=>"application/pdf"
 	      ,"exe"=>"application/octet-stream"
@@ -275,7 +275,7 @@ class UserService extends Userforms
       $_GET['patient_id']            = $_POST['patient_id'];
       $_POST['destination']          = $data[3];
 
-      $cdoc = new C_Document();      
+      $cdoc = new C_Document();
       $cdoc->upload_action_process();
       if($GLOBALS['document_storage_method']==0){
 	if($data[3])
@@ -293,9 +293,9 @@ class UserService extends Userforms
       $cdoc->note_action_process($_GET['patient_id']);
       $sql_patient_no = "UPDATE documents_legal_detail SET dld_moved = '1' WHERE dld_master_docid = ? AND dld_id = ?";
       sqlQuery($sql_patient_no,array($data[2],$data[8]));
-      unset($_POST);      
+      unset($_POST);
     }
-  }  
+  }
  
 /** 
 * To display the files/pdfforms patient wise
@@ -348,7 +348,7 @@ class UserService extends Userforms
 	for($iter=0; $row=sqlFetchArray($res); $iter++) {
 	    $all[$iter] = $row;
 	}
-      } 
+      }
       $v = ob_get_clean();
       return $all;
     }
@@ -366,16 +366,16 @@ class UserService extends Userforms
 	for($iter=0; $row=sqlFetchArray($res); $iter++) {
 	    $all[$iter] = $row;
 	}
-      }       
+      }
       $v = ob_get_clean();
       return $all;
     }
-  }   
+  }
     
 //Converts a text to xml format.Format is as follows
   public function text_to_xml($data){
 	if($this->valid($data[0])){
-	 $text = $data[1];	
+	 $text = $data[1];
 	 $doc = new DOMDocument();
 	 $doc->formatOutput = true;
 	 
@@ -398,7 +398,7 @@ class UserService extends Userforms
     }
 
 //Accepts an array and returns the result in xml format.Format is as follows
- 
+
 
   public function function_return_to_xml($var=array()){
 	
@@ -691,7 +691,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       }
 	       
 	       else
-	       { 
+	       {
 		$set= "portal_pwd=? ";
 	       $setarray[]=$pwd;
 	       $where = " pid=?";
@@ -729,7 +729,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
     }
     
     //appointment update
-    
+
 
   public function update_openemr_appointment($var)
        {
@@ -842,7 +842,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
     }
     
     //Marking PDF documets for audit.
- 
+
   public function update_dld_pending($data){
       if($this->valid($data[0])){
 	$qry = "UPDATE documents_legal_detail SET dld_signed=0,dld_filepath=?,dld_filename=?, dld_file_for_pdf_generation=? WHERE dld_id=?";
@@ -1299,14 +1299,14 @@ static  public function batch_despatch($var,$func,$data_credentials){
           $module_name = isset($parameter_array[1]) ? $parameter_array[1] : '';
 	  $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
 	  $res = sqlStatement($sql, array($module_name));
-	  $row = sqlFetchArray($res);   
+	  $row = sqlFetchArray($res);
 	  return !empty($row);
 	   
        }
        else{
 	   return 'noauth';
        }
-    }    
+    }
     
     /**
      * Soap function to add direct address
@@ -1360,7 +1360,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
                         <status>' . $status . '</status>
                       </level>
                     </root>';
-    }   
+    }
     
     
     /**
@@ -1386,7 +1386,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
                         <status>' . $status . '</status>
                       </level>
                     </root>';
-    }       
+    }
     
     /**
      * Soap function to get list of direct address
@@ -1415,7 +1415,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
                         <status>' . $status . '</status>
                       </level>
                     </root>';
-    }       
+    }
 }
 $server = new SoapServer(null,array('uri' => "urn://portal/res"));
 $server->setClass('UserService');

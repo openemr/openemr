@@ -23,7 +23,7 @@ class bar_sketch extends bar_base
 	function set_outline_colour( $outline_colour )
 	{
 		$tmp = 'outline-colour';
-		$this->$tmp = $outline_colour;	
+		$this->$tmp = $outline_colour;
 	}
 }
 

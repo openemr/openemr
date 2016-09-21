@@ -12,7 +12,7 @@ class scatter_line
 	function set_default_dot_style( $style )
 	{
 		$tmp = 'dot-style';
-		$this->$tmp = $style;	
+		$this->$tmp = $style;
 	}
 	
 	function set_colour( $colour )

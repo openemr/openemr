@@ -40,7 +40,7 @@ class bar_stack_value
 	function set_tooltip( $tip )
 	{
 		$this->tip = $tip;
-	} 
+	}
 }
 
 class bar_stack_key

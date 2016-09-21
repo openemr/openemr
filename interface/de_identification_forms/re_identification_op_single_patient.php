@@ -32,7 +32,7 @@ if ($row = sqlFetchArray($res))
 	*  0 - There is no Re Identification in progress. (start new Re Identification process)
 	*  1 - A Re Identification process is currently in progress.
 	*  2 - The Re Identification process completed and xls file is ready to download
-	*/  
+	*/
 }
 if($status == 0)
 {

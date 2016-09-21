@@ -8,12 +8,12 @@ if (! $encounter) { // comes from globals.php
  die(xl("Internal error: we do not seem to be in an encounter!"));
 }
 
-if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "") 
-	{ $_POST["is_unable_to_work"] = "0"; $_POST["off_work_to"] = "";} 
+if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "")
+	{ $_POST["is_unable_to_work"] = "0"; $_POST["off_work_to"] = "";}
 	else {$_POST["is_unable_to_work"] = "1";}
 
-if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "") 
-	{ $_POST["is_hospitalized"] = "0"; $_POST["hospitalization_date_to"] = "";} 
+if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "")
+	{ $_POST["is_hospitalized"] = "0"; $_POST["hospitalization_date_to"] = "";}
 	else {$_POST["is_hospitalized"] = "1";}
 
 $id = formData('id','G') + 0;

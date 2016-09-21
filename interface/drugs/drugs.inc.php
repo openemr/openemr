@@ -79,7 +79,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
   $qty_left = $quantity;
   $bad_lot_list = '';
   $total_on_hand = 0;
-  $gotexpired = false;  
+  $gotexpired = false;
 
   // If the user has a default warehouse, sort those lots first.
   $orderby = ($default_warehouse === '') ?
@@ -200,7 +200,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
       "on_hand = on_hand - ? " .
       "WHERE inventory_id = ?", array($thisqty,$inventory_id));
     $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
-      "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " . 
+      "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " .
       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       array($drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
       $sale_date, $thisqty, $thisfee, $pricelevel, $selector));

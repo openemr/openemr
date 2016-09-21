@@ -21,8 +21,8 @@ function check_yes_no ($option) {
 }
 
 function where_or_and ($and) {
-	if  ($and=='') { 
-		$and='WHERE '; 
+	if  ($and=='') {
+		$and='WHERE ';
 	} elseif ($and=='WHERE '){
 		$and='AND ';
 	} else {

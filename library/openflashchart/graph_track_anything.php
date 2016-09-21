@@ -65,14 +65,14 @@ if(!function_exists('getIdealYSteps')) {
 		if ($a>1000) {
 			return 400;
 		} else if ($a>500) {
-			return 200;  
+			return 200;
 		} else if ($a>100) {
 			return 40;
 		} else if ($a>50) {
 			return 20;
 		} else {
 			return 5;
-		}	
+		}
 	} // end function getIdeal...
 } // end if function_exist
 
@@ -125,7 +125,7 @@ foreach($the_checked_cols as $col) {
 	// Prepare and insert data
 	$s_{$col}->set_values( $the_data );
 	$s_{$col}-> set_key( $the_item_names[$col] , 10 );
-	$chart->add_element( $s_{$col} ); 
+	$chart->add_element( $s_{$col} );
 } // end foreach data-column-------------------------------------
 //###############################################################
 
@@ -162,7 +162,7 @@ $step_vis=2;
 // do not allow steps to be less than 30 minutes
 	if ($step < 26400) { # 86400
 			$step = 26400;
-			$step_vis=1; 
+			$step_vis=1;
 	}
 
 $x->set_steps($step);
@@ -186,5 +186,5 @@ $chart->add_y_axis( $y );
  
 
 // echo a pretty ofc-string anyway
-echo $chart->toPrettyString();  
+echo $chart->toPrettyString();
 ?>

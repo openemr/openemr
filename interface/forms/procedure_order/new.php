@@ -67,7 +67,7 @@ function getListOptions($list_id , $fieldnames=array('option_id', 'title', 'seq'
 	$query = sqlStatement("SELECT ".implode(',',$fieldnames)." FROM list_options where list_id=? order by seq", array($list_id));
 	while($ll = sqlFetchArray($query)) {
 		foreach($fieldnames as $val)
-		  $output[$ll['option_id']][$val] = $ll[$val];					
+		  $output[$ll['option_id']][$val] = $ll[$val];
 	}
 	return $output;
 }

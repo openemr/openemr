@@ -58,7 +58,7 @@ class EncountermanagerController extends AbstractActionController
         $current_page   = $request->getPost('form_current_page', 1);
         $expand_all     = $request->getPost('form_expand_all', 0);
         $select_all     = $request->getPost('form_select_all', 0);
-        $end            = $current_page*$results; 
+        $end            = $current_page*$results;
         $start          = ($end - $results);
         $new_search     = $request->getPost('form_new_search',null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
@@ -137,7 +137,7 @@ class EncountermanagerController extends AbstractActionController
     }
     
     public function downloadAction()
-    {        
+    {
         $id         = $this->getRequest()->getQuery('id');
         $dir        = sys_get_temp_dir()."/CCDA_$id/";
         $filename   = "CCDA_$id.xml";
@@ -149,7 +149,7 @@ class EncountermanagerController extends AbstractActionController
         $zip_dir    = sys_get_temp_dir()."/";
         $zip_name   = "CCDA_$id.zip";
         
-        $content    = $this->getEncountermanagerTable()->getFile($id);        
+        $content    = $this->getEncountermanagerTable()->getFile($id);
         $f          = fopen($dir.$filename, "w");
         fwrite($f, $content);
         fclose($f);
@@ -182,17 +182,17 @@ class EncountermanagerController extends AbstractActionController
           mkdir($parent_dir, true);
           chmod($parent_dir, 0777);
         }
-        $arr = explode('|', $pids); 
-        foreach($arr as $row){ 
-            $pid      = $row; 
-            $id       = $this->getEncountermanagerTable()->getFileID($pid); 
+        $arr = explode('|', $pids);
+        foreach($arr as $row){
+            $pid      = $row;
+            $id       = $this->getEncountermanagerTable()->getFileID($pid);
             $dir      = $parent_dir."/CCDA_$id/";
             $filename = "CCDA_$id.xml";
             if(!is_dir($dir)){
               mkdir($dir, true);
               chmod($dir, 0777);
             }
-            $content = $this->getEncountermanagerTable()->getFile($id);        
+            $content = $this->getEncountermanagerTable()->getFile($id);
             $f2      = fopen($dir.$filename, "w");
             fwrite($f2, $content);
             fclose($f2);
@@ -230,7 +230,7 @@ class EncountermanagerController extends AbstractActionController
     * @return type
     */
     public function getEncountermanagerTable()
-    {	
+    {
         if (!$this->encountermanagerTable) {
             $sm = $this->getServiceLocator();
             $this->encountermanagerTable = $sm->get('Carecoordination\Model\EncountermanagerTable');

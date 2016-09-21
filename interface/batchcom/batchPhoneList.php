@@ -42,6 +42,6 @@ while ($row=sqlFetchArray($res)) {
     echo ("<td align='right'>${row['phone_cell']} </td></tr>\n");
 }
 
-echo ("</table>"); 
+echo ("</table>");
 
 ?>

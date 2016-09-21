@@ -165,8 +165,8 @@ else {
 <table border='0'>
  <tr>
  <td colspan="4">
-<?php if ($_REQUEST['bn_search']) 
-{  
+<?php if ($_REQUEST['bn_search'])
+{
   $search_term = $_REQUEST['search_term'];
   if ($form_code_type == 'PROD') {
     $query = "SELECT dt.drug_id, dt.selector, d.name " .
@@ -183,15 +183,15 @@ else {
       $selector = addslashes($row['selector']);
       $desc = addslashes($row['name']);
      ?>	 
-	   <input type="checkbox" name="diagnosis[row_count]" value= "<?php echo $desc; ?>" > <?php echo $drug_id."    ".$selector."     ".$desc."</br>";	   
+	   <input type="checkbox" name="diagnosis[row_count]" value= "<?php echo $desc; ?>" > <?php echo $drug_id."    ".$selector."     ".$desc."</br>";
     }
   }
-  else {   
+  else {
    $query = "SELECT count(*) as count FROM codes " .
       "WHERE (code_text LIKE '%$search_term%' OR " .
       "code LIKE '%$search_term%') " ;
 	$res = sqlStatement($query);
-	if ($row = sqlFetchArray($res)) 
+	if ($row = sqlFetchArray($res))
 	{
 	 $no_of_items = addslashes($row['count']);
 	 if($no_of_items < 1)
@@ -217,9 +217,9 @@ else {
       $itertext = addslashes(ucfirst(strtolower(trim($row['code_text']))));
       ?>
 	   <input type="checkbox" id="chkbox" value= "<?php echo $form_code_type.":".$itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
-	  } 	  
-    }	
-  }  
+	  }
+    }
+  }
   ?>
   </td>
  </tr>

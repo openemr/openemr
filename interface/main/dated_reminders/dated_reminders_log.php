@@ -1,4 +1,4 @@
-<?php            
+<?php 
 /**
  * Used for displaying log of dated reminders.
  *
@@ -25,21 +25,21 @@
 
   require_once("../../globals.php");
   require_once("$srcdir/htmlspecialchars.inc.php");
-  require_once("$srcdir/acl.inc");    
-  require_once("$srcdir/dated_reminder_functions.php"); 
+  require_once("$srcdir/acl.inc");
+  require_once("$srcdir/dated_reminder_functions.php");
   
   
-  $isAdmin =acl_check('admin', 'users'); 
+  $isAdmin =acl_check('admin', 'users');
 ?>
 <?php
   /*
     -------------------  HANDLE POST ---------------------
   */
   if($_GET){
-    if(!$isAdmin){ 
+    if(!$isAdmin){
       if(empty($_GET['sentBy']) and empty($_GET['sentTo']))
-        $_GET['sentTo'] = array(intval($_SESSION['authId'])); 
-    }  
+        $_GET['sentTo'] = array(intval($_SESSION['authId']));
+    }
     echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
             <thead>
               <tr>
@@ -56,19 +56,19 @@
             </thead>
             <tbody>';
     $remindersArray = array();
-    $TempRemindersArray = logRemindersArray(); 
+    $TempRemindersArray = logRemindersArray();
     foreach($TempRemindersArray as $RA){
-      $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID']; 
+      $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
       $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
       $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
-      $remindersArray[$RA['messageID']]['message'] = $RA['message'];   
-      $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];       
-      $remindersArray[$RA['messageID']]['sDate'] = $RA['sDate'];  
-      $remindersArray[$RA['messageID']]['pDate'] = $RA['pDate'];  
-      $remindersArray[$RA['messageID']]['processedByName'] = $RA['processedByName'];   
-      $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName']; 
+      $remindersArray[$RA['messageID']]['message'] = $RA['message'];
+      $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
+      $remindersArray[$RA['messageID']]['sDate'] = $RA['sDate'];
+      $remindersArray[$RA['messageID']]['pDate'] = $RA['pDate'];
+      $remindersArray[$RA['messageID']]['processedByName'] = $RA['processedByName'];
+      $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName'];
     }
-    foreach($remindersArray as $RA){ 
+    foreach($remindersArray as $RA){
       echo '<tr class="heading">
               <td>',text($RA['messageID']),'</td>
               <td>',text($RA['sDate']),'</td>
@@ -81,7 +81,7 @@
               <td>',text($RA['processedByName']),'</td>
             </tr>';
     }
-    echo '</tbody></table>'; 
+    echo '</tbody></table>';
     
     die;
   }
@@ -103,7 +103,7 @@
                   <?php
                     if(!$isAdmin){
                       echo '$("select option").removeAttr("selected");';
-                    } 
+                    }
                   ?>  
                 	return false;
                }
@@ -118,10 +118,10 @@
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
              
-<?php     
-  $allUsers = array(); 
+<?php 
+  $allUsers = array();
   $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
-  for($i=0; $uRow=sqlFetchArray($uSQL); $i++){ $allUsers[] = $uRow; } 
+  for($i=0; $uRow=sqlFetchArray($uSQL); $i++){ $allUsers[] = $uRow; }
 ?>     
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">         
       <h1><?php echo xlt('Dated Message Log') ?></h1>  
@@ -139,10 +139,10 @@
             <?php echo xlt('Sent By, Leave Blank For All') ?> : <br />                                    
             <select style="width:100%;" id="sentBy" name="sentBy[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-              <?php  
-                if($isAdmin)    
+              <?php 
+                if($isAdmin)
                   foreach($allUsers as $user)
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>'; 
+                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
               ?>
             </select>   
           </td>
@@ -150,10 +150,10 @@
             <?php echo xlt('Sent To, Leave Blank For All') ?> : <br />      
             <select style="width:100%" id="sentTo" name="sentTo[]" multiple="multiple">    
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-              <?php                    
+              <?php 
                 if($isAdmin)
-                  foreach($allUsers as $user) 
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';  
+                  foreach($allUsers as $user)
+                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
               ?>
             </select>  
           </td>

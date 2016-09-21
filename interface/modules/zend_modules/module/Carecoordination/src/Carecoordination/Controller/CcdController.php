@@ -89,14 +89,14 @@ class CcdController extends AbstractActionController
     * @return   none
     */
     public function importAction()
-    { 
+    {
         $request     = $this->getRequest();
         if($request->getQuery('document_id')) {
           $_REQUEST["document_id"] = $request->getQuery('document_id');
           $category_details  	     = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
           \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
         }
-        $document_id                      =    $_REQUEST["document_id"]; 
+        $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->getDocument($document_id);
         
         $xmltoarray                       =    new \Zend\Config\Reader\Xml();
@@ -119,6 +119,6 @@ class CcdController extends AbstractActionController
             $this->ccdTable = $sm->get('Carecoordination\Model\CcdTable');
         }
         return $this->ccdTable;
-    } 
+    }
 
 }

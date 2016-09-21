@@ -70,7 +70,7 @@ class SetupController extends AbstractActionController
         $components = explode('|***|',$tosave);
         foreach($components as $key => $value){
             $sections 		= explode('|**|',$value);
-            $component_name 	= array_shift($sections);		
+            $component_name 	= array_shift($sections);
             
             foreach($sections as $key_1 => $value_1){
                 $forms 		= explode('|*|',$value_1);
@@ -92,7 +92,7 @@ class SetupController extends AbstractActionController
                         if(strpos($value_2, '|')){
                             $temp_1 	= explode('|',$value_2);
                             $form_table = $form_dir = $temp_1[0];
-                            $sub_id 	= $temp_1[1];				
+                            $sub_id 	= $temp_1[1];
                         }
                         else{
                             $form_dir = $value_2;
@@ -104,7 +104,7 @@ class SetupController extends AbstractActionController
                         if(strpos($value_2, '|')){
                             $temp_1 	= explode('|',$value_2);
                             $form_table = $form_dir = $temp_1[0];
-                            $sub_id 	= $temp_1[1];				
+                            $sub_id 	= $temp_1[1];
                         }
                         else{
                             $form_dir = $value_2;
@@ -133,7 +133,7 @@ class SetupController extends AbstractActionController
     * @return type
     */
     public function getSetupTable()
-    {	
+    {
         if (!$this->setupTable) {
             $sm = $this->getServiceLocator();
             $this->setupTable = $sm->get('Carecoordination\Model\SetupTable');

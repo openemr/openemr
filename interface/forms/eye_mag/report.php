@@ -72,7 +72,7 @@ if (!$id) $id=$form_id;
 // (and if not the default where a fresh install begins from, or someone else's) 
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
 $result = sqlStatement($query,array($_SESSION['authUserID']));
-while ($prefs= sqlFetchArray($result))   {    
+while ($prefs= sqlFetchArray($result))   {
   $LOCATION = $prefs['LOCATION'];
   $$LOCATION = text($prefs['GOVALUE']);
 }
@@ -85,7 +85,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname='eye_mag') {
   /** openEMR note:  eye_mag Index is id, 
     * linked to encounter in form_encounter 
     * whose encounter is linked to id in forms.
-  */ 
+  */
 
   $query="select form_encounter.date as encounter_date,form_eye_mag.* 
   from form_eye_mag ,forms,form_encounter 
@@ -94,7 +94,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname='eye_mag') {
   form_encounter.encounter = forms.encounter and 
   form_eye_mag.id=forms.form_id and
   forms.pid =form_eye_mag.pid and 
-  form_eye_mag.pid=? ";        
+  form_eye_mag.pid=? ";
   $objQuery =sqlQuery($query,array($encounter,$pid));
   @extract($objQuery);
   
@@ -114,9 +114,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname='eye_mag') {
    * @param string $encounter = encounter number
    * @param string $pid value = patient id
    * @return string => returns the HTML of the report selected
-   */    
+   */
 
-  if ($choice == 'DRAW') {  
+  if ($choice == 'DRAW') {
     /*
     $side="OU";
     $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
@@ -205,7 +205,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             form_encounter.encounter = forms.encounter and 
             form_eye_mag.id=forms.form_id and
             forms.deleted != '1' and 
-            form_eye_mag.pid=? ";        
+            form_eye_mag.pid=? ";
 
   $encounter_data =sqlQuery($query,array($encounter,$pid));
   @extract($encounter_data);
@@ -246,11 +246,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
       }
       $facility = sqlQuery($sql);
-    } 
+    }
 
     if ($choice !== 'TEXT') { ?>
 
-      <?php  
+      <?php 
     } ?>
     <table class="report_exam_group">
       <tr> 
@@ -266,19 +266,19 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                 <div style="padding-left:20px;">
                   <?php 
                   if ($TIMING1) {
-                    echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1)."<br />"; 
+                    echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1)."<br />";
                   }
                   if ($CONTEXT1) {
-                    echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1)."<br />"; 
+                    echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1)."<br />";
                   }
                   if ($SEVERITY1) {
-                    echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1)."<br />"; 
+                    echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1)."<br />";
                   }
                   if ($MODIFY1) {
                     echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1)."<br />";
                   }
                   if ($ASSOCIATED1) {
-                    echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1)."<br />"; 
+                    echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1)."<br />";
                   }
                   if ($LOCATION1) {
                     echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1)."<br />";
@@ -304,19 +304,19 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <div style="padding-left:10px;">
                       <?php 
                       if ($TIMING2) {
-                        echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2)."<br />"; 
+                        echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2)."<br />";
                       }
                       if ($CONTEXT2) {
-                        echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2)."<br />"; 
+                        echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2)."<br />";
                       }
                       if ($SEVERITY2) {
-                        echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2)."<br />"; 
+                        echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2)."<br />";
                       }
                       if ($MODIFY2) {
                         echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2)."<br />";
                       }
                       if ($ASSOCIATED2) {
-                        echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2)."<br />"; 
+                        echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2)."<br />";
                       }
                       if ($LOCATION2) {
                         echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2)."<br />";
@@ -342,19 +342,19 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <div style="padding-left:10px;">
                       <?php 
                       if ($TIMING3) {
-                        echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3)."<br />"; 
+                        echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3)."<br />";
                       }
                       if ($CONTEXT3) {
-                        echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3)."<br />"; 
+                        echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3)."<br />";
                       }
                       if ($SEVERITY3) {
-                        echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3)."<br />"; 
+                        echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3)."<br />";
                       }
                       if ($MODIFY3) {
                         echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3)."<br />";
                       }
                       if ($ASSOCIATED3) {
-                        echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3)."<br />"; 
+                        echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3)."<br />";
                       }
                       if ($LOCATION3) {
                         echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3)."<br />";
@@ -369,13 +369,13 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     </div>
 
                     <?php
-                  } 
+                  }
                   ?>
                
                   <?php 
                 if (($CHRONIC1)&&($cols != 'Fax')) { ?>
                   <b><?php echo xlt('Chronic or Inactive Problems'); ?>:</b> <br />
-                  &nbsp;<?php echo text($CHRONIC1)."<br />"; 
+                  &nbsp;<?php echo text($CHRONIC1)."<br />";
                   if ($CHRONIC2) echo "&nbsp;".$CHRONIC2."<br />";
                   if ($CHRONIC3) echo "&nbsp;".$CHRONIC3."<br />";
                 } ?> 
@@ -420,7 +420,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             else {
               $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
               '/documents/' . $from_pathname . '/' . $from_filename;
-            } 
+            }
             if ($PDF_OUTPUT) {
               echo "<img src='". $from_file."' style='width:220px;'>";
             } else {
@@ -433,7 +433,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
       </tr>
     </table>
     <?php 
-    if ($choice !== 'TEXT') { 
+    if ($choice !== 'TEXT') {
     //exclude all of this from displaying on the summary mouseover by default 
     ?>
     <hr style="width:50%;text-align:center;" />
@@ -469,7 +469,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                   ${"COMMENTS_$count_rx"} = $wearing['COMMENTS'];
                   ${"W_$count_rx"} = '1';
                   ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
-                } 
+                }
         ?>
         
         </td>
@@ -682,9 +682,9 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         <td class="report_vitals">
           <b class="underline"><?php echo xlt('Motility'); ?></b>
           <?php 
-          if ($MOTILITYNORMAL =='on') { 
+          if ($MOTILITYNORMAL =='on') {
             echo "<br /><br />&nbsp;".xlt('D&V Full OU{{Ductions and Versions full both eyes}}') ."&nbsp;<br /><br />";
-          } else { 
+          } else {
             if ($PDF_OUTPUT) {
               $background = "url(".$GLOBALS["fileroot"] . "/interface/forms/".$form_folder."/images/eom.jpg)";
             } else {
@@ -746,14 +746,14 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         </td>
       
           <?php
-        if (($PUPIL_NORMAL =='1')|| $ODPUPILSIZE1||$OSPUPILSIZE1) { 
+        if (($PUPIL_NORMAL =='1')|| $ODPUPILSIZE1||$OSPUPILSIZE1) {
            ?>
         <td class="report_vitals" style="border-right:0px;">
-              <?php  
+              <?php 
               if (($PUPIL_NORMAL =='1')&&(!$ODPUPILSIZE1||!$OSPUPILSIZE1)) { ?>
                 <b class="underline"><?php echo xlt('Pupils'); ?></b>&nbsp;&nbsp;
-                <?php echo xlt('Round and Reactive')."<br />"; 
-              } 
+                <?php echo xlt('Round and Reactive')."<br />";
+              }
               if ($ODPUPILSIZE1||$OSPUPILSIZE1) { ?>
                 <table cellspacing="0" style="margin:1px;text-align:center;font-size:9px;">
                   <tr>
@@ -807,7 +807,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                 </table>
               </td>
               <?php 
-              } 
+              }
               } ?>
       </tr>
     </table>
@@ -889,7 +889,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
       <?php 
     }
 
-    if ($cols !='Fax') {    
+    if ($cols !='Fax') {
     if ($ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
       <!-- start of the refraction boxes -->
       <br />
@@ -914,14 +914,14 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               //$count_rx++;
               for ($i=1; $i <= $count_rx; $i++) {
                 if (${"RX_TYPE_$i"} =="0") {
-                  $RX_TYPE = ''; 
+                  $RX_TYPE = '';
                 } else if (${"RX_TYPE_$i"} =="1") {
-                  $RX_TYPE = xlt('Bifocals'); 
+                  $RX_TYPE = xlt('Bifocals');
                 } else if (${"RX_TYPE_$i"} =="2") {
-                  $RX_TYPE = xlt('Trifocals'); 
+                  $RX_TYPE = xlt('Trifocals');
                 } else if (${"RX_TYPE_$i"} =="3") {
-                  $RX_TYPE = xlt('Progressive'); 
-                }  
+                  $RX_TYPE = xlt('Progressive');
+                }
                 /*
                     Note html2pdf does not like the last field of a table to be blank.  
                     If it is it will squish the lines together.
@@ -962,8 +962,8 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
                   </tr>
                   <?php 
-                } 
-              } 
+                }
+              }
 
               if ($ARODSPH||$AROSSPH) { ?>
                 <tr style="border-bottom:1pt solid black;">
@@ -999,7 +999,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
                   </tr>
                   <?php 
-                } 
+                }
               }
               if ($MRODSPH||$MROSSPH) { ?>
                   <tr>
@@ -1110,7 +1110,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               }
        ?>
       </table>
-      <?php   
+      <?php 
     } ?>  
     <br />
 
@@ -1184,7 +1184,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         </tr> 
       </table>
       <?php 
-    } 
+    }
     }
     ?>
         
@@ -1225,15 +1225,15 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                 <td class="report_text left"><?php echo text($LMCT); ?></td>
               </tr>
               <?php 
-              if ($RADNEXA || $LADNEXA) { 
+              if ($RADNEXA || $LADNEXA) {
                 ?> 
                 <tr>
                   <td class="report_text right"><?php echo text($RADNEXA); ?></td>
                   <td class="middle"><?php echo xlt('Adnexa'); ?></td>
                   <td class="report_text left"><?php echo text($LADNEXA); ?></td>
                 </tr>
-                <?php  
-              } 
+                <?php 
+              }
               if ($EXT_COMMENTS) { ?>
               <tr>
                 <td colspan="3">
@@ -1249,7 +1249,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
           </td>
           <td style="text-align:center;padding:1px;vertical-align:middle;"> 
               <?php 
-              display_draw_image ("EXT",$encounter,$pid); 
+              display_draw_image ("EXT",$encounter,$pid);
               ?>           
           </td>
         </tr>
@@ -1326,7 +1326,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                       <td class="middle" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT'); ?></td>
                       <td class="report_text left"><?php echo text($OSTBUT); ?></td>
                     </tr>
-                    <?php } 
+                    <?php }
                     if ($ANTSEG_COMMENTS) { ?>
                     <tr>
                       <td colspan="2">
@@ -1341,7 +1341,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               </td>
               <td style="text-align:center;padding:1px;vertical-align:middle;">
                   <?php 
-                  display_draw_image ("ANTSEG",$encounter,$pid); 
+                  display_draw_image ("ANTSEG",$encounter,$pid);
                   ?>   
               </td>
             </tr>
@@ -1349,16 +1349,16 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
           <!-- end of Anterior Segment exam -->
           
           <?php 
-      }  
+      }
       ?>
     </div>
     <div class="report_exam_group">
     
       <!-- start of Other exam -->
       <?php
-      if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE || 
-        $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV || 
-        $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT || 
+      if ($RLF || $LLF || $RMRD || $LMRD || $RVFISSURE || $LVFISSURE ||
+        $RCAROTID || $LCAROTID || $RTEMPART || $LTEMPART || $RCNV || $LCNV ||
+        $RCNVII || $LCNVII || $HERTELBASE || $ODCOLOR || $OSCOLOR || $ODREDDESAT ||
         $OSREDDESAT ||$ODCOINS || $OSCOINS || $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS ||
         $DACCDIST || $DACCNEAR || $CACCDIST || $CACCNEAR || $VERTFUSAMPS) {
         ?>
@@ -1384,56 +1384,56 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <td class="middle" style="width:100px;"><?php echo xlt('Levator Function'); ?></td>
                     <td class="report_text left" style=""><?php echo text($LLF); ?></td>
                   </tr> 
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RMRD || $LMRD) { ?> 
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
                     <td class="middle" title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
                     <td  class="report_text left"><?php echo text($LMRD); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RVFISSURE || $LVFISSURE) { ?> 
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
                     <td class="middle" title="<?php echo xla('Vertical Fissure: central height between lid margins'); ?>"><?php echo xlt('Vert Fissure{{vertical fissure}}'); ?></td>
                     <td class="report_text left"><?php echo text($LVFISSURE); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RCAROTID || $LCAROTID) { ?> 
                   <tr>
                     <td class="report_text right"><?php echo text($RCAROTID); ?></td>
                     <td class="middle" title="<?php echo xla('Any carotid bruits appreciated?'); ?>"><?php echo xlt('Carotid{{carotid arteries}}'); ?></td>
                     <td class="report_text left"><?php echo text($LCAROTID); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RTEMPART || $LTEMPART) { ?> 
                   <tr>
                     <td class="report_text right"><?php echo text($RTEMPART); ?></td>
                     <td class="middle" title="<?php echo xla('Temporal Arteries'); ?>"><?php echo xlt('Temp. Art.{{temporal arteries}}'); ?></td>
                     <td class="report_text left"><?php echo text($LTEMPART); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RCNV || $LCNV) { ?> 
                   <tr>
                   <td class="report_text right"><?php echo text($RCNV); ?></td>
                   <td class="middle" title="<?php echo xla('Cranial Nerve 5: Trigeminal Nerve'); ?>"><?php echo xlt('CN V{{cranial nerve five}}'); ?></td>
                   <td class="report_text left"><?php echo text($LCNV); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($RCNVII || $LCNVII) { ?> 
                   <tr>
                   <td class="report_text right"><?php echo text($RCNVII); ?></td>
                   <td class="middle" title="<?php echo xla('Cranial Nerve 7: Facial Nerve'); ?>"><?php echo xlt('CN VII{{cranial nerve seven}}'); ?></td>
                   <td class="report_text left"><?php echo text($LCNVII); ?></td>
                   </tr>
-                  <?php  
-                } 
+                  <?php 
+                }
                 if ($HERTELBASE) { ?> 
                   <tr>
                   <td colspan="3" style="text-align:center;padding-top:15px;">
@@ -1459,11 +1459,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                   } ?>
                   </td>
                   </tr>
-                  <?php  
-                }  
+                  <?php 
+                }
 
-                if ($ODCOLOR || $OSCOLOR || $ODREDDESAT || 
-                    $OSREDDESAT ||$ODCOINS || $OSCOINS || 
+                if ($ODCOLOR || $OSCOLOR || $ODREDDESAT ||
+                    $OSREDDESAT ||$ODCOINS || $OSCOINS ||
                     $ODNPA || $OSNPA || $NPA || $NPC || $STEREOPSIS) { ?>
                       <!-- start of NEURO exam -->
                       <tr>
@@ -1477,7 +1477,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                       <td class="middle"><span title="<?php xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desaturation'); ?></span></td>
                       <td class="report_text left"><?php echo text($OSREDDESAT); ?></td>
                     </tr><?php 
-                } 
+                }
                 if ($ODCOINS or $OSCOINS) { ?> 
                   <tr>
                     <td class="report_text right"><?php echo text($ODCOINS); ?></td>
@@ -1485,41 +1485,41 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     <td class="report_text left"><?php echo text($OSCOINS); ?></td>
                   </tr>  
                   <?php 
-                } 
+                }
                 if ($ODNPA or $OSNPA) { ?> 
                   <tr>
                   <td class="report_text right"><?php echo text($ODNPA); ?></td>
                   <td class="middle"><span title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?></span></td>
                   <td class="report_text left"><?php echo text($OSNPA); ?></td>
                   </tr>            
-                <?php } 
+                <?php }
                 if ($ODNPC or $OSNPC) { ?> 
                   <tr>
                               <td class="right" style="font-weight:600;"><?php echo xlt('NPC{{near point of convergence}}'); ?>:&nbsp;</td>
                               <td class="center" colspan="2" ><?php echo text($NPC); ?></td>
                   </tr>
-                <?php } 
+                <?php }
                 if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?> 
                   <tr style="text-decoration:underline;">
                     <td></td>
                     <td  class="middle"><?php echo xlt('Distance'); ?> </td>
                     <td class="middle"> <?php echo xlt('Near'); ?></td>
                   </tr>
-                <?php } 
+                <?php }
                 if ($DACCDIST or $DACCNEAR) { ?> 
                   <tr>
                     <td class="right" style="font-weight:600;"><?php echo xlt('Divergence Amps'); ?>: </td>
                     <td class="center"><?php echo text($DACCDIST); ?></td>
                     <td class="center"><?php echo text($DACCNEAR); ?></td>
                   </tr>
-                <?php } 
+                <?php }
                  if ($CACCDIST or $CACCNEAR) { ?> 
                             <tr>
                               <td class="right" style="font-weight:600;"><?php echo xlt('Convergence Amps'); ?>: </td>
                               <td class="center"><?php echo text($CACCDIST); ?></td>
                               <td class="center"><?php echo text($CACCNEAR); ?></td>
                             </tr>
-                <?php } 
+                <?php }
                  if ($VERTFUSAMPS) { ?> 
                             <tr>
                                 <td class="right" style="font-weight:600;">
@@ -1530,24 +1530,24 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                   <br />
                                 </td>
                             </tr>
-                <?php } 
+                <?php }
                  if ($STEREOPSIS) { ?> 
                             <tr>
                               <td class="right" style="font-weight:600;"><?php echo xlt('Stereopsis'); ?>:&nbsp;</td>
                               <td  class="center" colspan="2"><?php echo text($STEREOPSIS); ?></td>
                             </tr>
-                <?php } 
+                <?php }
               }  ?> 
             </table> 
           </td>
           <td style="text-align:center;padding:1px;vertical-align:middle;"> 
             <?php 
-            display_draw_image ("NEURO",$encounter,$pid); 
+            display_draw_image ("NEURO",$encounter,$pid);
             ?>           
           </td>
         </tr>
         </table>
-        <?php  
+        <?php 
       }  ?>
       <!-- end of Other exam -->    
       </div>
@@ -1616,7 +1616,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;"> 
                 <?php 
-                display_draw_image ("RETINA",$encounter,$pid); 
+                display_draw_image ("RETINA",$encounter,$pid);
                 ?>           
             </td>
           </tr>
@@ -1678,8 +1678,8 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                   </table>
                                 </td>
                                 <?php 
-                              } 
-                              if ($ACT5CCDIST) { 
+                              }
+                              if ($ACT5CCDIST) {
                                 ?>
                                 <td style="text-align:center;"> <!-- ccDIST -->
                                   <table cellpadding="0" style="position:relative;text-align:center;font-size:1.5em;margin: 7 5 10 5;border-collapse: separate;">
@@ -1719,8 +1719,8 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                             </tr>
                             <tr>
                                 <?php 
-                              } 
-                              if ($ACT5SCNEAR) { 
+                              }
+                              if ($ACT5SCNEAR) {
                                 ?>
                              
                               <td style="text-align:center;"> <!-- scNEAR -->
@@ -1759,8 +1759,8 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                   </table>
                               </td>
                                 <?php 
-                              } 
-                              if ($ACT5CCNEAR) { 
+                              }
+                              if ($ACT5CCNEAR) {
                                 ?>
                              
                               <td style="text-align:center;"> <!-- ccNEAR -->
@@ -1818,7 +1818,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                   </tr>
                 </table>
                 <?php 
-    } 
+    }
     }
     //end choice !== 'TEXT' -- include this in summary mouseover report.
     ?>
@@ -1830,7 +1830,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
           <table style="">
             <tr>
               <td style="padding:5px;text-align: left;text-align:justify;width:680px;">
-                <?php        
+                <?php 
                 /*  
                  *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
                  */
@@ -1879,7 +1879,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         </td>
         <td style="text-align:left;vertical-align:bottom;padding:5 5 10 5;">
           <?php 
-            display_draw_image ("IMPPLAN",$encounter,$pid); 
+            display_draw_image ("IMPPLAN",$encounter,$pid);
           ?>
         </td>
       </tr>
@@ -1894,7 +1894,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               $PLAN_items = explode('|',$PLAN);
               foreach ($PLAN_items as $item) {
                 echo  $item."<br />";
-              }  
+              }
               if ($PLAN2) {
                 echo $PLAN2."<br />";
               }
@@ -1919,9 +1919,9 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             } else {
               $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
               if (file_exists($signature)) {
-                  echo "<img src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'  style='width:30mm; height:6mm;bottom:1px;' height='10' />"; 
+                  echo "<img src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'  style='width:30mm; height:6mm;bottom:1px;' height='10' />";
               }
-            } 
+            }
             ?> 
           </div>
         </td>
@@ -1929,7 +1929,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
     </table>
   </div>
   <?php
-   return; 
+   return;
 }
 
 function display_draw_image($zone,$encounter,$pid){
@@ -1996,12 +1996,12 @@ function display_draw_image($zone,$encounter,$pid){
       $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=$pid&document_id=".$doc['id']."&as_file=false&blahblah=".rand();
       echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
     }
-  }  
+  }
   //else show base_image
    else {
    
-    $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg"; 
-    if ($PDF_OUTPUT) $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg"; 
+    $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+    if ($PDF_OUTPUT) $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
     // uncomment to show base image, no touch up by user.
     // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
   }
@@ -2029,19 +2029,19 @@ function full_report( $pid, $encounter, $cols='2', $id) {
     print "<table><tr>";
 
     foreach($data as $key => $value) {
-      if ($key == "id" || $key == "pid" || $key == "user" || 
-        $key == "groupname" || $key == "authorized" || 
-        $key == "activity" || $key == "date" || 
-        $value == "" || $value == "0000-00-00 00:00:00" || 
-        $value == "n") 
+      if ($key == "id" || $key == "pid" || $key == "user" ||
+        $key == "groupname" || $key == "authorized" ||
+        $key == "activity" || $key == "date" ||
+        $value == "" || $value == "0000-00-00 00:00:00" ||
+        $value == "n")
       {
       // skip certain fields and blank data
         continue;
       }
 
       $key=ucwords(str_replace("_"," ",$key));
-      print("<tr>\n");  
-      print("<tr>\n");  
+      print("<tr>\n");
+      print("<tr>\n");
       print "<td><span class=bold>".xlt($key)." </span><span class=text>".text($value)."</span></td>";
       $count++;
       if ($count == $cols) {

@@ -168,7 +168,7 @@ function tableHasEngine($tblname, $engine) {
 function listExists($option_id) {
   $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
   if (empty($row)) return false;
-  return true;  
+  return true;
 }
 /**
 * Function to migrate the Clickoptions settings (if exist) from the codebase into the database.
@@ -207,17 +207,17 @@ function clickOptionsMigrate() {
 *  Note this function is only run once in the sql upgrade script  if the list Occupation does not exist
 */
 function CreateOccupationList() {
-   $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''"); 
+   $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''");
    while($row = sqlFetchArray($res)) {
-    $records[] = $row['occupation'];  
+    $records[] = $row['occupation'];
    }
    sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
    if(count($records)>0) {
-    $seq = 0;    
+    $seq = 0;
     foreach ($records as $key => $value) {
      sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));
-     $seq = $seq + 10;     
-    }   
+     $seq = $seq + 10;
+    }
    }
 }
 /**
@@ -225,17 +225,17 @@ function CreateOccupationList() {
 *  Note this function is only run once in the sql upgrade script  if the list reaction does not exist
 */
 function CreateReactionList() {
-   $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''"); 
+   $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''");
    while($row = sqlFetchArray($res)) {
-    $records[] = $row['reaction'];  
+    $records[] = $row['reaction'];
    }
    sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
    if(count($records)>0) {
-    $seq = 0;    
+    $seq = 0;
     foreach ($records as $key => $value) {
      sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
      $seq = $seq + 10;
-    }   
+    }
    }
 }
 
@@ -246,15 +246,15 @@ function CreateReactionList() {
 function CreateImmunizationManufacturerList() {
   $res = sqlStatement("SELECT DISTINCT manufacturer FROM immunizations WHERE manufacturer <> ''");
   while($row = sqlFetchArray($res)) {
-    $records[] = $row['manufacturer'];  
+    $records[] = $row['manufacturer'];
   }
-  sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");    
+  sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");
   if(count($records)>0) {
     $seq = 0;
-    foreach ($records as $key => $value) {      
+    foreach ($records as $key => $value) {
       sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq+10)));
       $seq = $seq + 10;
-    }   
+    }
   }
 }
 
@@ -275,13 +275,13 @@ function getTablesList( $arg = array() ) {
     
     if( !empty($arg['table_name'])) {
         $binds[] = $arg['table_name'];
-        $sql .= ' AND table_name=?';        
+        $sql .= ' AND table_name=?';
     }
     $res = sqlStatement( $sql, $binds );
 
     $records = array();
     while($row = sqlFetchArray($res)) {
-        $records[ $row['table_name'] ] = $row['table_name'];  
+        $records[ $row['table_name'] ] = $row['table_name'];
     }
     return $records;
 }
@@ -524,7 +524,7 @@ function upgradeFromSqlFile($filename) {
 	$firstCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
 	$secondCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
 	if ($firstCheck || $secondCheck) {
-	  $skipping = true;   
+	  $skipping = true;
 	}
 	else {
           $skipping = false;
@@ -562,7 +562,7 @@ function upgradeFromSqlFile($filename) {
       }
       else {
         // Create issue_types table and import the Issue Types and clickoptions settings from codebase into the database
-        clickOptionsMigrate(); 
+        clickOptionsMigrate();
         $skipping = false;
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
@@ -573,7 +573,7 @@ function upgradeFromSqlFile($filename) {
       }
       else {
         // Create Occupation list
-        CreateOccupationList(); 
+        CreateOccupationList();
         $skipping = false;
         echo "<font color='green'>Built Occupation List</font><br />\n";
       }
@@ -585,21 +585,21 @@ function upgradeFromSqlFile($filename) {
       }
       else {
         // Create Reaction list
-        CreateReactionList(); 
+        CreateReactionList();
         $skipping = false;
-        echo "<font color='green'>Built Reaction List</font><br />\n";        
+        echo "<font color='green'>Built Reaction List</font><br />\n";
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
-    else if (preg_match('/^#IfNotListImmunizationManufacturer/', $line)){      
+    else if (preg_match('/^#IfNotListImmunizationManufacturer/', $line)){
       if ( listExists("Immunization_Manufacturer") ) {
         $skipping = true;
       }
       else {
         // Create Immunization Manufacturer list
-        CreateImmunizationManufacturerList(); 
+        CreateImmunizationManufacturerList();
         $skipping = false;
-        echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";        
+        echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
@@ -655,9 +655,9 @@ function upgradeFromSqlFile($filename) {
             printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );
           } else {
             printf( '<font color="red">Error migrating table %s to InnoDB</font><br />', $t );
-            error_log( sprintf( 'Error migrating table %s to InnoDB', $t )); 
+            error_log( sprintf( 'Error migrating table %s to InnoDB', $t ));
           }
-        } 
+        }
       }
       if($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }

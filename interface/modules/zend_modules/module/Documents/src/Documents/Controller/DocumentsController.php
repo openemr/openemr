@@ -47,7 +47,7 @@ class DocumentsController extends AbstractActionController
       $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
     }
     return $this->documentsTable;
-  }  
+  }
   
   /*
   * Upload document
@@ -168,7 +168,7 @@ class DocumentsController extends AbstractActionController
         $contentType  = "application/octet-stream";
       } else {
         $contentType  = $result['mimetype'];
-      }  
+      }
     }
     
     if(!$skip_headers) {

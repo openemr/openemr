@@ -61,7 +61,7 @@ switch($viewtype) {
         $output->Text(pnModAPIFunc('postcalendar','user','buildView',array('Date'=>$Date,
 																		  'viewtype'=>$viewtype,
 																		  'cacheid'=>$cacheid)));
-        break;   
+        break;
 }
 
 $output->Text(postcalendar_footer());

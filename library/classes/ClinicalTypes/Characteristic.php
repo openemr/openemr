@@ -9,7 +9,7 @@
 require_once( 'ClinicalType.php' );
 
 class Characteristic extends ClinicalType
-{   
+{
     const TERMINAL_ILLNESS = 'terminal_illness';
     const TOBACCO_USER = 'char_tobacco_user';
     const TOBACCO_NON_USER = 'char_tobacco_non_user';
@@ -18,15 +18,15 @@ class Characteristic extends ClinicalType
         return 'Clinical_Rules_Char_Types';
     }
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
+    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
     {
         $return = false;
         
-        if ( $this->getOptionId() == self::TERMINAL_ILLNESS ) 
+        if ( $this->getOptionId() == self::TERMINAL_ILLNESS )
         {
             // TODO check for terminal illness
-        } 
-        else if ( $this->getOptionId() == self::TOBACCO_USER ) 
+        }
+        else if ( $this->getOptionId() == self::TOBACCO_USER )
         {
             $tobaccoHistory = getHistoryData( $patient->id, "tobacco", $beginDate, $endDate );
             
@@ -39,11 +39,11 @@ class Characteristic extends ClinicalType
                     $quitDate = $tmp[2];
                     if ( strtotime( $quitDate ) > strtotime( $beginDate ) ) {
                         $return = true;
-                    }     
-                }        
+                    }
+                }
             }
-        } 
-        else if ( $this->getOptionId() == self::TOBACCO_NON_USER ) 
+        }
+        else if ( $this->getOptionId() == self::TOBACCO_NON_USER )
         {
             $tobaccoHistory = getHistoryData( $patient->id, "tobacco", $beginDate, $endDate );
             if ( isset( $tobaccoHistory['tobacco'] ) ) {
@@ -53,10 +53,10 @@ class Characteristic extends ClinicalType
                     $quitDate = $tmp[2];
                     if ( strtotime( $quitDate ) < strtotime( $beginDate ) ) {
                         $return = true;
-                    }     
+                    }
                 } else if ( $tobaccoStatus == 'nevertobacco' ) {
                     $return = true;
-                }        
+                }
             }
         }
         

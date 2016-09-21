@@ -36,7 +36,7 @@ class MapperTable extends AbstractTableGateway
     * @return       array       $sections.
     */
     public function getSections()
-    {        
+    {
         $sections   = array();
         
         $query      = "select com.ccda_components_field, com.ccda_components_name, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping
@@ -97,7 +97,7 @@ class MapperTable extends AbstractTableGateway
 		$lbf[$count][2][$count_sub][0] = ($row_1['title'] ? $row_1['title'] : $row_1['field_id']);
 		$lbf[$count][2][$count_sub][1] = $lbf[$count][1]."|".$row_1['field_id'];
 		$count_sub++;
-	    }            
+	    }
 	    $count++;
         }
         
@@ -228,7 +228,7 @@ class MapperTable extends AbstractTableGateway
 	foreach($res as $row){
 	    return $row['id'];
 	}
-    }    
+    }
     
     /*Saving the CCDA structure in the master table
     

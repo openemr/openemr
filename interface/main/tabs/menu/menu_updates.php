@@ -37,7 +37,7 @@ function update_modules_menu(&$menu_list)
                             $modulePath = $GLOBALS['customModDir'];
                             $added		= "";
                     }
-                    else{ 	
+                    else{
                             $added		= "index";
                             $modulePath = $GLOBALS['zendModDir'];
                     }
@@ -90,7 +90,7 @@ if (sqlNumRows($lres)) {
         $formEntry->target='enc';
         array_push($menu_list->children,$formEntry);
       }
-    }    
+    }
 }
 function menu_update_entries(&$menu_list)
 {
@@ -104,7 +104,7 @@ function menu_update_entries(&$menu_list)
             if(isset($menu_update_map[$entry->label]))
             {
                 $menu_update_map[$entry->label]($entry);
-            }                
+            }
         }
         // Translate the labels 
         $entry->label=xlt($entry->label);
@@ -189,11 +189,11 @@ function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
             {
                 $includeEntry=false;
             }
-        }        
+        }
         if($includeEntry)
         {
 
             array_push($menu_list_updated,$srcEntry);
-        }        
+        }
     }
 }

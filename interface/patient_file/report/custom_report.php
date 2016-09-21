@@ -204,7 +204,7 @@ if ($printable) {
    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
    if (file_exists($practice_logo)) {
         echo "<img src='$practice_logo' align='left'><br />\n";
-     } 
+     }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -217,7 +217,7 @@ if ($printable) {
 
 <?php
 
-} 
+}
 else { // not printable
 ?>
 
@@ -345,8 +345,8 @@ foreach ($ar as $key => $val) {
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
             print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);		
-            print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";	
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+            print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
@@ -575,7 +575,7 @@ foreach ($ar as $key => $val) {
             $pdf->writeHTML($content, false);
             $pagecount = $pdf->pdf->setSourceFile($from_file);
             for($i = 0; $i < $pagecount; ++$i){
-              $pdf->pdf->AddPage();  
+              $pdf->pdf->AddPage();
               $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
               $pdf->pdf->useTemplate($itpl);
             }

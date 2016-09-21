@@ -101,11 +101,11 @@ function upload_file_to_client_pdf($file_to_send) {
 	  }
 	
 	if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
-	 $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6)); 
+	 $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6));
 	else
-	 $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6)); 
+	 $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
 	 
-	$countline++; 
+	$countline++;
    }
 	
 	$fh = @fopen($STMT_TEMP_FILE_PDF, 'w');//stored to a pdf file
@@ -228,12 +228,12 @@ $today = date("Y-m-d");
         $line = array();
         $line['dos']     = $svcdate;
         if ($GLOBALS['use_custom_statement']) {
-	      $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text']; 
+	      $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
 		}
-        else 
-		{ 
+        else
+		{
         $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
-	    } 
+	    }
         $line['amount']  = sprintf("%.2f", $value['chg']);
         $line['adjust']  = sprintf("%.2f", $value['adj']);
         $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);

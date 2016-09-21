@@ -364,7 +364,7 @@ form {
 
         $utime = ($slotbase + $i) * $slotsecs;
         $thisdate = date("Y-m-d", $utime);
-        if ($thisdate != $lastdate) { 
+        if ($thisdate != $lastdate) {
             // if a new day, start a new row
             if ($lastdate) {
                 echo "</div>";

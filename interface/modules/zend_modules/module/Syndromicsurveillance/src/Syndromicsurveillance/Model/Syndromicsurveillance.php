@@ -29,7 +29,7 @@ use Zend\InputFilter\InputFilterInterface;
 use Zend\Form\Form;
 
 class Syndromicsurveillance extends Form implements InputFilterAwareInterface
-{	
+{
 	protected $inputFilter;
 
 	public function exchangeArray($data)

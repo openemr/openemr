@@ -448,17 +448,17 @@ function openNewTopWindow(newpid,newencounterid) {
          </a>
 
 		 </td>
-        <?php		 
+        <?php	
 		 #time in current status
 		 $to_time = strtotime(date("Y-m-d H:i:s"));
-		 $yestime = '0'; 
+		 $yestime = '0';
 		 if (strtotime($newend) != '') {
  			$from_time = strtotime($newarrive);
 			$to_time = strtotime($newend);
 			$yestime = '0';
 		 }
          else
-        {	
+        {
 			$from_time = strtotime($appointment['start_datetime']);
 			$yestime = '1';
         }
@@ -471,8 +471,8 @@ function openNewTopWindow(newpid,newencounterid) {
         {
            echo "<td align='center' class='detail'> "; # and if not do not blink
         }
-        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) { 
-		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute'))); 
+        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
+		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
 		}
         #end time in current status
         ?>	
@@ -486,7 +486,7 @@ function openNewTopWindow(newpid,newencounterid) {
          </td>
          <?php } ?>
          <td class="detail" align="center"> 
-         <?php		 
+         <?php	
 		 
 		 # total time in practice
 		 if (strtotime($newend) != '') {
@@ -494,12 +494,12 @@ function openNewTopWindow(newpid,newencounterid) {
 			$to_time = strtotime($newend);
 		 }
          else
-         {	
+         {
 			$from_time = strtotime($newarrive);
  		    $to_time = strtotime(date("Y-m-d H:i:s"));
-         }	
-         $timecheck2 = round(abs($to_time - $from_time) / 60,0);	 
-         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {  		
+         }
+         $timecheck2 = round(abs($to_time - $from_time) / 60,0);
+         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
             echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
          }
          # end total time in practice

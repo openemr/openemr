@@ -685,7 +685,7 @@ class FeeSheet {
         }
       }
       if (($GLOBALS['replicate_justification'] == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
-        $justify =  $autojustify; 
+        $justify =  $autojustify;
       }
 
       if ($justify) $justify = str_replace(',', ':', $justify) . ':';
@@ -781,7 +781,7 @@ class FeeSheet {
           }
           if ($rxid) {
             sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
-          }        
+          }
         }
         else {
           // Modify the sale and adjust inventory accordingly.
@@ -824,7 +824,7 @@ class FeeSheet {
           if ($GLOBALS['gbl_auto_create_rx'] && $rxid && empty($iter['rx'])) {
             sqlStatement("UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ?", array($sale_id));
             sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
-          }        
+          }
         }
       }
 

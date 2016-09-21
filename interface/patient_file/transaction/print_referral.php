@@ -152,7 +152,7 @@ foreach ($patdata as $key => $value) {
    $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
   }
   else {
-   $s = str_replace("{pt_$key}", $value, $s);   
+   $s = str_replace("{pt_$key}", $value, $s);
   }
 }
 

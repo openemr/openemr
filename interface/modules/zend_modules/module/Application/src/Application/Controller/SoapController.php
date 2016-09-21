@@ -44,13 +44,13 @@ class SoapController extends AbstractActionController
     public function indexAction()
     {
 
-        $server = new Server(null, 
+        $server = new Server(null,
         array('uri' => 'http://localhost/index/soap'));
         // set SOAP service class        
         // Bind already initialized object to Soap Server
         $server->setObject(new EncounterccdadispatchController($this->getServiceLocator()));
         // handle request
-        $server->handle();				
+        $server->handle();
         exit;
     }
     

@@ -60,7 +60,7 @@ class SendtoTable extends AbstractTableGateway
     * getFaxRecievers
     * @return array fax reciever types
     * 
-    **/ 
+    **/
     public function getFaxRecievers()
     {
         $appTable   = new ApplicationTable();

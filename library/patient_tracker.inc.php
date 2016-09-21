@@ -32,116 +32,116 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
     $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
 
     $tracker_time = "";
-    if ($tracker_time_calc > 60*60*24) {        
+    if ($tracker_time_calc > 60*60*24) {
         $days = floor($tracker_time_calc/60/60/24);
-        if($days >= 2){   
-          $tracker_time .=  "$days ". xl('days'); 
+        if($days >= 2){
+          $tracker_time .=  "$days ". xl('days');
         }
         else
         {
-          $tracker_time .=  "$days ". xl('day');   
+          $tracker_time .=  "$days ". xl('day');
         }
-        $tracker_time_calc = $tracker_time_calc - ($days * (60*60*24));        
+        $tracker_time_calc = $tracker_time_calc - ($days * (60*60*24));
     }
     if ($tracker_time_calc > 60*60) {
         $hours = floor($tracker_time_calc/60/60);
         if(strlen($days != 0)) {
-          if($hours >= 2){   
-             $tracker_time .=  ", $hours " . xl('hours'); 
+          if($hours >= 2){
+             $tracker_time .=  ", $hours " . xl('hours');
           }
           else
           {
-             $tracker_time .=  ", $hours " . xl('hour');   
+             $tracker_time .=  ", $hours " . xl('hour');
           }
         }
         else
         {
-          if($hours >= 2){ 
+          if($hours >= 2){
              $tracker_time .=  "$hours " . xl('hours');
           }
           else
           {
-             $tracker_time .=  "$hours " . xl('hour');   
+             $tracker_time .=  "$hours " . xl('hour');
           }
         }
-        $tracker_time_calc = $tracker_time_calc - ($hours * (60*60));        
+        $tracker_time_calc = $tracker_time_calc - ($hours * (60*60));
     }
-    if ($allow_sec) { 
+    if ($allow_sec) {
      if ($tracker_time_calc > 60) {
         $minutes = floor($tracker_time_calc/60);
         if(strlen($hours != 0)) {
-          if($minutes >= 2){   
+          if($minutes >= 2){
             $tracker_time .=  ", $minutes " . xl('minutes');
           }
           else
           {
             $tracker_time .=  ", $minutes " . xl('minute');
-          }          
+          }
          }
         else
-        {  
-          if($minutes >= 2){     
-            $tracker_time .=  "$minutes " . xl('minutes'); 
+        {
+          if($minutes >= 2){
+            $tracker_time .=  "$minutes " . xl('minutes');
           }
           else
           {
-            $tracker_time .=  "$minutes " . xl('minute'); 
-          }          
-        }        
-        $tracker_time_calc = $tracker_time_calc - ($minutes * 60);        
+            $tracker_time .=  "$minutes " . xl('minute');
+          }
+        }
+        $tracker_time_calc = $tracker_time_calc - ($minutes * 60);
      }
     }
     else
     {
        $minutes = round($tracker_time_calc/60);
         if(strlen($hours != 0)) {
-          if($minutes >= 2){   
+          if($minutes >= 2){
             $tracker_time .=  ", $minutes " . xl('minutes');
           }
           else
           {
             $tracker_time .=  ", $minutes " . xl('minute');
-          }          
-         }
-        else
-        {  
-          if($minutes >= 2){     
-            $tracker_time .=  "$minutes " . xl('minutes'); 
           }
-          else
-          {
-            if($minutes > 0){ 
-              $tracker_time .=  "$minutes " . xl('minute');
-            }            
-          }          
-        }        
-        $tracker_time_calc = $tracker_time_calc - ($minutes * 60);  
-    }
-      if ($allow_sec) {   
-       if ($tracker_time_calc > 0) {
-        if(strlen($minutes != 0)) {
-          if($tracker_time_calc >= 2){   
-            $tracker_time .= ", $tracker_time_calc " . xl('seconds'); 
-          }
-          else
-          {
-            $tracker_time .= ", $tracker_time_calc " . xl('second');               
-          }    
          }
         else
         {
-          if($tracker_time_calc >= 2){ 
-            $tracker_time .= "$tracker_time_calc " . xl('seconds'); 
+          if($minutes >= 2){
+            $tracker_time .=  "$minutes " . xl('minutes');
           }
           else
           {
-            $tracker_time .= "$tracker_time_calc " . xl('second');    
+            if($minutes > 0){
+              $tracker_time .=  "$minutes " . xl('minute');
+            }
           }
-        }        
+        }
+        $tracker_time_calc = $tracker_time_calc - ($minutes * 60);
+    }
+      if ($allow_sec) {
+       if ($tracker_time_calc > 0) {
+        if(strlen($minutes != 0)) {
+          if($tracker_time_calc >= 2){
+            $tracker_time .= ", $tracker_time_calc " . xl('seconds');
+          }
+          else
+          {
+            $tracker_time .= ", $tracker_time_calc " . xl('second');
+          }
+         }
+        else
+        {
+          if($tracker_time_calc >= 2){
+            $tracker_time .= "$tracker_time_calc " . xl('seconds');
+          }
+          else
+          {
+            $tracker_time .= "$tracker_time_calc " . xl('second');
+          }
+        }
       }
-}  
+}
     return $tracker_time ;
-} 
+}
 
 function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null)
 {
@@ -196,7 +196,7 @@ function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$r
 
   $datetime = date("Y-m-d H:i:s");
   if (is_null($room)) {
-      $room = '';   
+      $room = '';
   }
   #Check to see if there is an entry in the patient_tracker table.
   $tracker = sqlQuery("SELECT id, apptdate, appttime, eid, pid, original_user, encounter, lastseq,".
@@ -239,7 +239,7 @@ function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$r
     if (!empty($enc_id)) {
       #enc_id (encounter number) is not blank, so update this in tracker.
       sqlStatement("UPDATE `patient_tracker` SET `encounter` = ? WHERE `id` = ?", array($enc_id,$tracker_id));
-    }  
+    }
   }
   #Ensure the entry in calendar appt entry has been updated.
   $pc_appt =  sqlQuery("SELECT `pc_apptstatus`, `pc_room` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", array($eid));
@@ -251,7 +251,7 @@ function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$r
   }
   if( $GLOBALS['drug_screen'] && !empty($status)  && is_checkin($status)) {
     $yearly_limit = $GLOBALS['maximum_drug_test_yearly'];
-    $percentage = $GLOBALS['drug_testing_percentage'];	  
+    $percentage = $GLOBALS['drug_testing_percentage'];
     random_drug_test($tracker_id,$percentage,$yearly_limit);
   }
   # Returning the tracker id that has been managed
@@ -271,7 +271,7 @@ function collectApptStatusSettings($option) {
 
 # This is used to collect the tracker elements for the Patient Flow Board Report
 # returns the elements in an array 
-function collect_Tracker_Elements($trackerid) 
+function collect_Tracker_Elements($trackerid)
 {
  $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", array($trackerid));
  for($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -346,11 +346,11 @@ function random_drug_test($tracker_id,$percentage,$yearly_limit) {
          $drugtest = 1;
        }
 
-    }   
+    }
    #Update the tracker file.    
    sqlStatement("UPDATE patient_tracker SET " .
                  "random_drug_test = ? " .
-                 "WHERE id =? ", array($drugtest,$tracker_id)); 
+                 "WHERE id =? ", array($drugtest,$tracker_id));
   }
 }
 

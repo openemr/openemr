@@ -156,17 +156,17 @@
 		
 		//assignedAuthoringDevice Start
 		$xml->open_customTag('assignedAuthoringDevice');
-		$xml->element('manufacturerModelName', 'DrCloudEMR'); 
-		$xml->element('softwareName', 'DrCloudEMR'); 
+		$xml->element('manufacturerModelName', 'DrCloudEMR');
+		$xml->element('softwareName', 'DrCloudEMR');
 		//assignedAuthoringDevice Close
 		$xml->close_customTag();
 		
 		$xml->close_assignAuthor();
 		################## Author Info End ##########################
-		
+
 		$xml->close_author();
 		############### Author Info End#######################
-		
+
 		############### Custodian Info Start #######################
 		$xml->open_custodian();
 		$xml->open_assgnCustodian();
@@ -174,7 +174,7 @@
 		$xml->close_assgnCustodian();
 		$xml->close_custodian();
 		############### Custodian Info End #######################
-		
+
 		############### Legal Authenticator Start#######################
 		$xml->open_legalAuthenticator();
 		$auth_dtime = date('Ymdhis');
@@ -187,7 +187,7 @@
 		$xml->add_facilAddress($facilResRow);
 		if(!empty($facilResRow['phone']))
 			$xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use'=>'WP'));
-		else 
+		else
 			$xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
 		
 		$xml->open_customTag('assignedPerson');
@@ -205,7 +205,7 @@
 
 		$xml->close_legalAuthenticator();
 		############### Legal Authenticator End#######################
-		
+
 		############### documentationOf  START  #######################
 		$xml->open_customTag('documentationOf');
 
@@ -227,7 +227,7 @@
 		if($userRow['phone'] != ""){
 			$xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
 		}
-		else 
+		else
 			$xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
 
 		$xml->open_customTag('assignedPerson');
@@ -309,7 +309,7 @@
 		$title = "Patient Data";
 		$xml->add_title($title);
 		
-		$xml->element('text', "Patient Data"); 
+		$xml->element('text', "Patient Data");
 		
 		//Insurance(Payer) Info
 		payerQRDA($xml, $patient_id);
@@ -376,7 +376,7 @@
 			$arr = array('code'=>'416118004', 'codeSystemName'=>'SNOMED CT', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName' => 'Administration');
 			$xml->self_codeCustom($arr);
 			
-			if($medRow['status'] == "" || $medRow['status'] == "not_completed") 
+			if($medRow['status'] == "" || $medRow['status'] == "not_completed")
 				$statusChk = "active";
 			else
 				$statusChk = "completed";
@@ -397,7 +397,7 @@
 
 			//$tempID = "2.16.840.1.113883.10.20.24.3.41";
 			//$xml->self_templateid($tempID);
-			
+
 			$refID = getUuid();
 			$xml->self_customId($refID);
 			
@@ -490,11 +490,11 @@
 				
 				//code Open
 				$xml->open_customTag('code', $arr);
-				$xml->element('originalText', "Physical Exam, Finding: ".$measure['measure']); 
+				$xml->element('originalText', "Physical Exam, Finding: ".$measure['measure']);
 				//code Close
 				$xml->close_customTag();
 			
-				$xml->element('text', "Physical Exam, Finding: ".$measure['category']); 
+				$xml->element('text', "Physical Exam, Finding: ".$measure['category']);
 			
 				$arr = array('code'=>'completed');
 				$xml->self_customTag('statusCode', $arr);
@@ -539,11 +539,11 @@
 			$arr = array('code'=>$vset['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
 			//code Open
 			$xml->open_customTag('code', $arr);
-			$xml->element('originalText', $procRow['procedure_name']); 
+			$xml->element('originalText', $procRow['procedure_name']);
 			//code Close
 			$xml->close_customTag();
 			
-			$xml->element('text', $procRow['procedure_name']); 
+			$xml->element('text', $procRow['procedure_name']);
 			
 			$arr = array('code'=>'completed');
 			$xml->self_customTag('statusCode', $arr);
@@ -594,11 +594,11 @@
 			$arr = array('code'=>$procRow['procedure_code'], 'codeSystem'=> $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
 			//code Open
 			$xml->open_customTag('code', $arr);
-			$xml->element('originalText', $procRow['procedure_name']); 
+			$xml->element('originalText', $procRow['procedure_name']);
 			//code Close
 			$xml->close_customTag();
 			
-			$xml->element('text', $procRow['procedure_name']); 
+			$xml->element('text', $procRow['procedure_name']);
 			
 			$arr = array('code'=>'completed');
 			$xml->self_customTag('statusCode', $arr);
@@ -1234,7 +1234,7 @@
 		$exDocID = $uniqIdArr[0];
 		$xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.738', 'extension' =>$exDocID));
 		
-		$xml->element('text', "NQF# ".$rule_id); 
+		$xml->element('text', "NQF# ".$rule_id);
 		
 		$setidVal =getUuid();
 		$xml->self_setid($setidVal);

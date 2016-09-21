@@ -32,7 +32,7 @@ class bar_base
 	 */
 	function set_values( $v )
 	{
-		$this->values = $v;		
+		$this->values = $v;
 	}
 	
 	/**
@@ -40,7 +40,7 @@ class bar_base
 	 */
 	function append_value( $v )
 	{
-		$this->values[] = $v;		
+		$this->values[] = $v;
 	}
 	
 	/**
@@ -48,7 +48,7 @@ class bar_base
 	 */
 	function set_colour( $colour )
 	{
-		$this->colour = $colour;	
+		$this->colour = $colour;
 	}
 	
 	/**
@@ -64,7 +64,7 @@ class bar_base
 	 */
 	function set_alpha( $alpha )
 	{
-		$this->alpha = $alpha;	
+		$this->alpha = $alpha;
 	}
 	
 	/**
@@ -72,7 +72,7 @@ class bar_base
 	 */
 	function set_tooltip( $tip )
 	{
-		$this->tip = $tip;	
+		$this->tip = $tip;
 	}
 	
 	/**

@@ -61,7 +61,7 @@ $query = "SELECT * FROM users where id = ?";
 $prov_data =  sqlQuery($query,array($providerID));
 
 $query = "SELECT * FROM facility WHERE primary_business_entity='1'";
-$practice_data = sqlQuery($query); 
+$practice_data = sqlQuery($query);
 
 if (!$_REQUEST['pid']) $_REQUEST['pid'] = $_REQUEST['id'];
 $query = "SELECT * FROM patient_data where pid=?";
@@ -76,12 +76,12 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
       //exclude critical columns/fields, define below as needed
-      if ($row['Field'] == 'id' || 
-         $row['Field'] == 'pid' || 
-         $row['Field'] == 'user' || 
-         $row['Field'] == 'groupname' || 
-         $row['Field'] == 'authorized' || 
-         $row['Field'] == 'activity'  
+      if ($row['Field'] == 'id' ||
+         $row['Field'] == 'pid' ||
+         $row['Field'] == 'user' ||
+         $row['Field'] == 'groupname' ||
+         $row['Field'] == 'authorized' ||
+         $row['Field'] == 'activity'
          ) continue;
             if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
         }
@@ -94,7 +94,7 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
     $query ="DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query,array($_REQUEST['delete_id']));
     echo xlt('Prescription successfully removed.');
-    exit;    
+    exit;
 } elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
     $query ="UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
     sqlStatement($query,array($_REQUEST['RXTYPE'],$_REQUEST['id']));
@@ -112,10 +112,10 @@ if ($_REQUEST['REFTYPE']) {
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
-    if (!$_REQUEST['encounter']) { 
-        $encounter = $_SESSION['encounter']; 
-    } else { 
-        $encounter = $_REQUEST['encounter']; 
+    if (!$_REQUEST['encounter']) {
+        $encounter = $_SESSION['encounter'];
+    } else {
+        $encounter = $_REQUEST['encounter'];
     }
     $query = "SELECT * FROM form_eye_mag JOIN forms on forms.form_id = form_eye_mag.id 
     where form_eye_mag.pid =? and forms.encounter=? and forms.deleted !='1'";
@@ -133,7 +133,7 @@ if ($_REQUEST['REFTYPE']) {
         $OSSPH = $wearing['OSSPH'];
         $OSCYL = $wearing['OSCYL'];
         $OSAXIS = $wearing['OSAXIS'];
-        $COMMENTS = $wearing['COMMENTS']; 
+        $COMMENTS = $wearing['COMMENTS'];
         $ODMIDADD = $wearing['ODMIDADD'];
         $ODADD2 = $wearing['ODADD'];
         $OSMIDADD = $wearing['OSMIDADD'];
@@ -151,7 +151,7 @@ if ($_REQUEST['REFTYPE']) {
         } elseif ($wearing['RX_TYPE']=='3'){
             $Progressive ="checked='checked'";
             $RXTYPE="Progressive";
-        } 
+        }
         //do LT and Lens materials
     } elseif ($REFTYPE =="AR") {
             $ODSPH = $data['ARODSPH'];
@@ -162,7 +162,7 @@ if ($_REQUEST['REFTYPE']) {
             $OSCYL = $data['AROSCYL'];
             $OSAXIS = $data['AROSAXIS'];
             $OSPRISM = $data['AROSPRISM'];
-            $COMMENTS = $data['CRCOMMENTS']; 
+            $COMMENTS = $data['CRCOMMENTS'];
             $ODADD2 = $data['ARODADD'];
             $OSADD2 = $data['AROSADD'];
             $Bifocal ="checked='checked'";
@@ -175,7 +175,7 @@ if ($_REQUEST['REFTYPE']) {
             $OSCYL = $data['MROSCYL'];
             $OSAXIS = $data['MROSAXIS'];
             $OSPRISM = $data['MROSPRISM'];
-            $COMMENTS = $data['CR_COMMENTS']; 
+            $COMMENTS = $data['CR_COMMENTS'];
             $ODADD2 = $data['MRODADD'];
             $OSADD2 = $data['MROSADD'];
             $Bifocal ="checked='checked'";
@@ -188,7 +188,7 @@ if ($_REQUEST['REFTYPE']) {
             $OSCYL = $data['CROSCYL'];
             $OSAXIS = $data['CROSAXIS'];
             $OSPRISM = $data['CROSPRISM'];
-            $COMMENTS = $data['CRCOMMENTS']; 
+            $COMMENTS = $data['CRCOMMENTS'];
     } elseif ($REFTYPE=="CTL") {
             $ODSPH = $data['CTLODSPH'];
             $ODAXIS = $data['CTLODAXIS'];
@@ -210,7 +210,7 @@ if ($_REQUEST['REFTYPE']) {
             $OSADD = $data['CTLOSADD'];
             $OSVA = $data['CTLOSVA'];
 
-            $COMMENTS = $data['CTL_COMMENTS']; 
+            $COMMENTS = $data['CTL_COMMENTS'];
 
             $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
             $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
@@ -229,15 +229,15 @@ if ($_REQUEST['REFTYPE']) {
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
       //exclude critical columns/fields, define below as needed
-      if ($row['Field'] == 'id' || 
-         $row['Field'] == 'pid' || 
-         $row['Field'] == 'user' || 
-         $row['Field'] == 'groupname' || 
-         $row['Field'] == 'authorized' || 
-         $row['Field'] == 'activity' || 
-         $row['Field'] == 'RXTYPE' || 
-         $row['Field'] == 'REFDATE' 
-         ) 
+      if ($row['Field'] == 'id' ||
+         $row['Field'] == 'pid' ||
+         $row['Field'] == 'user' ||
+         $row['Field'] == 'groupname' ||
+         $row['Field'] == 'authorized' ||
+         $row['Field'] == 'activity' ||
+         $row['Field'] == 'RXTYPE' ||
+         $row['Field'] == 'REFDATE'
+         )
         continue;
             if (isset(${$row['Field']})) $fields[$row['Field']] = ${$row['Field']};
         }
@@ -533,7 +533,7 @@ if ($_REQUEST['dispensed']) {
     <?php 
     exit;
 }
-    $filename = $pid."_".$encounter."_RX_".$REFTYPE.".pdf"; 
+    $filename = $pid."_".$encounter."_RX_".$REFTYPE.".pdf";
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
                          $GLOBALS['pdf_size'],
                          $GLOBALS['pdf_language'],
@@ -541,7 +541,7 @@ if ($_REQUEST['dispensed']) {
                          'UTF-8', // default encoding setting is UTF-8
                          array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
                          $_SESSION['language_direction'] == 'rtl' ? true : false
-                      ); 
+                      );
     ob_start();
     ?>
     <html>
@@ -738,9 +738,9 @@ if ($_REQUEST['dispensed']) {
             </script>
         </head>
         <body>
-            <?php echo report_header($pid,"web"); 
-            $visit= getEncounterDateByEncounter($encounter); 
-            $visit_date = $visit['date']; 
+            <?php echo report_header($pid,"web");
+            $visit= getEncounterDateByEncounter($encounter);
+            $visit_date = $visit['date'];
             ?>
             <br /><br />
             <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update" id="Spectacle" class="eye_mag pure-form" name="Spectacle" style="text-align:center;">
@@ -820,7 +820,7 @@ if ($_REQUEST['dispensed']) {
                                                         } else {
                                                             $detailed ='0';
                                                             ?><i class="fa fa-plus-square-o"></i><?php
-                                                        }  
+                                                        }
                                                         ?>
                                                 </span>
 
@@ -872,7 +872,7 @@ if ($_REQUEST['dispensed']) {
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDD" name="BPDD" value="<?php echo attr($BPDD); ?>"></td>
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDN" name="BPDN" value="<?php echo attr($BPDN); ?>"></td>
                                             <td colspan="2">   <?php 
-                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL",'',' ','','restoreSession;submit_form();','',array('style'=>'width:120px')); 
+                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL",'',' ','','restoreSession;submit_form();','',array('style'=>'width:120px'));
                                                                 ?>
                                                 </td> 
                                         </tr>
@@ -979,7 +979,7 @@ if ($_REQUEST['dispensed']) {
                           
                                     <?php } ?>
 
-                        <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']); 
+                        <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
                         if ($prov_data['suffix']) { echo ", ".$prov_data['suffix'];} ?><br />
                                 <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
                             </td>
@@ -1175,7 +1175,7 @@ if ($_REQUEST['dispensed']) {
 exit;
     global $web_root, $webserver_root;
     $content = ob_get_clean();
-    echo $content; 
+    echo $content;
 
     //display Rx to user, now store it too...
     // Fix a nasty html2pdf bug - it ignores document root!
@@ -1198,14 +1198,14 @@ exit;
     $ID = sqlFetchArray($result);
     $category_id = $ID['id'];
     $pdf->writeHTML($content, false);
-    $content_pdf = $pdf->Output($temp_filename, 'F'); 
-    $type = "application/pdf"; 
+    $content_pdf = $pdf->Output($temp_filename, 'F');
+    $type = "application/pdf";
 
     $size = filesize($temp_filename);
 
-    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$_SESSION['authUserID'],$pid,$category_id);    
+    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$_SESSION['authUserID'],$pid,$category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql,array($encounter,$doc_id));  
+    sqlQuery($sql,array($encounter,$doc_id));
 exit;
 ?> 

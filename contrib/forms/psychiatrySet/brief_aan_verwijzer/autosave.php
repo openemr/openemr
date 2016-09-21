@@ -53,7 +53,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
   sqlQuery( $strSql );
 
 //echo "DEBUG :: id=$newid, sql=$strSql<br>";
-                  
+
 } else
 {
     $newid = formSubmit( "form_brief_aan_verwijzer", $_POST, $_GET["id"], $userauthorized );

@@ -147,7 +147,7 @@ td { font-size:10pt; }
     "upin = "         . invalue('form_upin')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
     "taxonomy = "     . invalue('form_taxonomy')     . ", " .
-	  "cpoe = "         . invalue('form_cpoe')         . ", " .    
+	  "cpoe = "         . invalue('form_cpoe')         . ", " .
     "email = "        . invalue('form_email')        . ", " .
     "email_direct = " . invalue('form_email_direct') . ", " .
     "url = "          . invalue('form_url')          . ", " .

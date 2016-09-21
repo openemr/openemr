@@ -130,7 +130,7 @@ $GLOBALS_METADATA = array(
         'main_info.php' => xl('Calendar Screen'),
         '../new/new.php' => xl('Patient Search/Add Screen'),
         '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),		
+        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
       ),
       'main_info.php',                  // default = calendar
       xl('Type of screen layout')
@@ -422,7 +422,7 @@ $GLOBALS_METADATA = array(
       xl('All Languages Allowed'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Allow all available languages as choices on menu at login.')			     				     
+      xl('Allow all available languages as choices on menu at login.')
     ),
 			
     'language_menu_other' => array(
@@ -847,7 +847,7 @@ $GLOBALS_METADATA = array(
 	   '0',                              // default = false 
 	   xl('Allow Administrators to Delete Patients')
 
-    ),	
+    ),
          
     'observation_results_immunization' => array(
       xl('Immunization Observation Results'),
@@ -856,7 +856,7 @@ $GLOBALS_METADATA = array(
       xl('Observation Results in Immunization')
     ),
 	
-   ),   
+   ),
     // Report Tab
     //
     'Report' => array(
@@ -891,8 +891,8 @@ $GLOBALS_METADATA = array(
         'M6' => xl('Six Months Ago'),
         'M3' => xl('Three Months Ago'),
         'M1' => xl('One Month Ago'),
-        'D1' => xl('One Day Ago'),        
-      ),                       
+        'D1' => xl('One Day Ago'),
+      ),
       'Y1',                     // default = One Year
       xl('This is the Beginning date for the Ledger Report.')
     ),
@@ -909,18 +909,18 @@ $GLOBALS_METADATA = array(
       array(
         '0' => xl('Invoice Number'),
         '1' => xl('Patient Name and ID'),
-        '2' => xl('Patient Name and Invoice'),   
-      ),   
+        '2' => xl('Patient Name and Invoice'),
+      ),
       '2',                              // default = 2
       xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
-    ), 
+    ),
 	
     'cash_receipts_report_invoice' => array(
       xl('Display Invoice Number or Patient Name in the Cash Receipt Report'),
       array(
         '0' => xl('Invoice Number'),
-        '1' => xl('Patient Name'),  
-      ),   
+        '1' => xl('Patient Name'),
+      ),
       '0',                              // default = 0
       xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
     ),
@@ -928,7 +928,7 @@ $GLOBALS_METADATA = array(
   ),
     
   // Billing Tab
-    
+
   'Billing' => array(
 
     'default_search_code_type' => array(
@@ -950,7 +950,7 @@ $GLOBALS_METADATA = array(
 	   'bool',                           // data type
 	   '0',                              // default = false
 	   xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
-    ),	
+    ),
  
     'replicate_justification' => array(
       xl('Automatically replicate justification codes in Fee Sheet'),
@@ -971,9 +971,9 @@ $GLOBALS_METADATA = array(
       array(
         '0' => xl('None'),
         '1' => xl('Encounter Billing Note'),
-        '2' => xl('Patient Billing Note'), 
-        '3' => xl('All'),  		
-      ),   
+        '2' => xl('Patient Billing Note'),
+        '3' => xl('All'),
+      ),
       '3',
      xl('Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.')
     ),
@@ -1018,7 +1018,7 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('This will allow printing of the Patient Billing Note on the statements.')
-    ),  
+    ),
 	
     'number_appointments_on_statement' => array(
       xl('Number of Appointments on Statement'),
@@ -1032,7 +1032,7 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('This will allow printing of a custom Message on the statements.')
-    ),    
+    ),
     
     'statement_msg_text' => array(
       xl('Custom Statement message'),
@@ -1074,7 +1074,7 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',
       xl('Text for second account message.')
-    ),  
+    ),
 
     'third_dun_msg_set' => array(
       xl('Number of days before showing third account message'),
@@ -1346,16 +1346,16 @@ $GLOBALS_METADATA = array(
 	
     'number_of_appts_to_show' => array(
       xl('Appointments - Patient Summary - Number to Display'),
-      'num',                           
-      '10',                            
+      'num',
+      '10',
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
 
     'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
-      'num',                           
-      '20',                            
+      'num',
+      '20',
       xl('Number of Appointments to display in the Onsite Patient Portal')
     ),
 
@@ -1406,7 +1406,7 @@ $GLOBALS_METADATA = array(
       'num',                           // data type
       '0',                             // default = false
       xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
-    ),      
+    ),
 	
     'docs_see_entire_calendar' => array(
       xl('Providers See Entire Calendar'),
@@ -1434,21 +1434,21 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('When Checked, Visit Reason Will Show in Patient Flow Board.')
-    ),  
+    ),
 
     'ptkr_show_pid' => array(
       xl('Show Patient ID in Patient Flow Board'),
       'bool',                           // data type
       '1',                              // default = true
       xl('When Checked, Patient ID Will Show in Patient Flow Board.')
-    ),  
+    ),
 	
     'ptkr_show_encounter' => array(
       xl('Show Patient Encounter Number in Patient Flow Board'),
       'bool',                           // data type
       '1',                              // default = true
       xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
-    ),  
+    ),
 	
     'pat_trkr_timer' => array(
       xl('Patient Flow Board Timer Interval'),
@@ -2190,7 +2190,7 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',
       xl('Offsite Patient Portal Provider ID(Put Blank If not Registered).')
-    ),    
+    ),
 
     'portal_offsite_username' => array(
       xl('Offsite Patient Portal Username'),
@@ -2547,7 +2547,7 @@ $GLOBALS_METADATA = array(
       '30',
       xl('Rx Bottom Margin (px)')
     ),
-  ),  
+  ),
     
   'PDF' => array (
    'pdf_layout' => array (
@@ -2559,7 +2559,7 @@ $GLOBALS_METADATA = array(
        'P', //defaut
        xl("Choose Layout Direction"),
     ),
-    'pdf_language' => array (  
+    'pdf_language' => array (
        xl('PDF Language'),
        array(
             'aa' => xl('Afar'),
@@ -2802,7 +2802,7 @@ $GLOBALS_METADATA = array(
         'SRA3' => ('SRA3' . " " . xl('Paper Size')),
         'SRA4' => ('SRA4' . " " . xl('Paper Size')),
       ),
-      'LETTER',               
+      'LETTER',
       xl('Choose Paper Size')
     ),
     'pdf_left_margin' => array(
@@ -2849,7 +2849,7 @@ $GLOBALS_METADATA = array(
         ),
         '1', // default	
         xl('Avery Label type for printing patient labels from popups in left nav screen'),
-    ),   
+    ),
 
     'barcode_label_type' => array(
         xl('Barcode Label Type'),

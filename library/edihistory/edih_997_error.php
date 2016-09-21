@@ -61,7 +61,7 @@ function edih_997_sbmtfile($icn, $filetype) {
  *
  * @param object
  * @return array
- */ 
+ */
 function edih_997_errdata($obj997) {
 	//
 	$segments = $obj997->edih_segments();
@@ -89,7 +89,7 @@ function edih_997_errdata($obj997) {
 			$ackcode = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';
 			$acknote = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';
 			//
-			
+
 			continue;
 		}
 		if (strncmp($seg, 'AK1'.$de, 4) == 0) {
@@ -166,7 +166,7 @@ function edih_997_errdata($obj997) {
 			}
 				//
 			continue;
-		}			
+		}
 		if (strncmp($seg, 'AK9'.$de, 4) == 0) {
 			$diag['summary']['sub_icn'] = $sub_icn;
 			$diag['summary']['subtype'] = $subtype;
@@ -186,7 +186,7 @@ function edih_997_errdata($obj997) {
 			$diag['summary']['ak906'] = (isset($sar[6])) ?  $sar[6] : '';
 			$diag['summary']['ak907'] = (isset($sar[7])) ?  $sar[7] : '';
 			$diag['summary']['ak908'] = (isset($sar[8])) ?  $sar[8] : '';
-			$diag['summary']['ak909'] = (isset($sar[9])) ?  $sar[9] : ''; 
+			$diag['summary']['ak909'] = (isset($sar[9])) ?  $sar[9] : '';
 			//
 			continue;
 		}
@@ -204,7 +204,7 @@ function edih_997_errdata($obj997) {
  * 
  * @param object
  * @return array
- */ 
+ */
 function edih_997_err_report($err_array) {
 	//
 	if (!is_array($err_array) || !count($err_array)) {
@@ -285,7 +285,7 @@ function edih_997_err_report($err_array) {
 		$str_html .= (isset($v['ik3code'])) ? "<br /> <em>Code</em> ".$v['ik3code']." ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "<br />";
 		//
 		$str_html .= (isset($v['ctxid'])) ? "Situational ".PHP_EOL."<em>Segment</em> ".$v['ctxid'] : "";
-		$str_html .= (isset($v['ctxpos'])) ? " <em>Position</em> ".$v['ctxpos'] : ""; 
+		$str_html .= (isset($v['ctxpos'])) ? " <em>Position</em> ".$v['ctxpos'] : "";
 		$str_html .= (isset($v['ctxloop'])) ? " <em>Position</em> ".$v['ctxloop'] : "";
 		$str_html .= (isset($v['ctxelem'])) ? " <em>Element</em> ".$v['ctxelem']."<br />".PHP_EOL : PHP_EOL;
 		//
@@ -300,7 +300,7 @@ function edih_997_err_report($err_array) {
 		$str_html .= (isset($v['ik504']) && $v['ik504']) ?  " <em>code</em> ".$v['ik504']." ".edih_997_code_text('ak502',$v['ik504'])."<br />" : "";
 		$str_html .= (isset($v['ik505']) && $v['ik505']) ?  " <em>code</em> ".$v['ik505']." ".edih_997_code_text('ak502',$v['ik505'])."<br />" : "";
 		//
-		$str_html .= "</p>".PHP_EOL;		
+		$str_html .= "</p>".PHP_EOL;
 	}
 	return $str_html;
 }
@@ -314,7 +314,7 @@ function edih_997_err_report($err_array) {
  * 
  * @param string
  * @return string
- */							
+ */
 function edih_997_error($filepath) {
 	//
 	$html_str = '';

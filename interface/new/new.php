@@ -245,7 +245,7 @@ while ($orow = sqlFetchArray($ores)) {
 </form>
 <script language="Javascript">
 <?php
-if ($form_pubpid) { 
+if ($form_pubpid) {
   echo "alert('" . xl('This patient ID is already in use!') . "');\n";
 }
 ?>

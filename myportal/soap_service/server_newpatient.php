@@ -38,7 +38,7 @@ class newpatient{
 	
 //this will return the query string along with the parameter array, according to the case case.
 //actual execution is done in the select_query function in Server_side
-	
+
 	
     public function query_formation($data){
         global $pid;
@@ -94,7 +94,7 @@ class newpatient{
             return array($query,array($pid));
             break;
             // Demo building from layout options.
-            case 'P7': 
+            case 'P7':
             
             $query=" select * from layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
                 " ORDER BY group_name, seq";
@@ -112,24 +112,24 @@ class newpatient{
             return array($query);
             break;
             //getting the password
-            case 'P18':	
+            case 'P18':
             $query = "select  portal_username from patient_access_offsite where portal_username =? ";
             return array($query,$data[1]);
             break;
 			
-            case 'P20':	
+            case 'P20':
             $x=array($data[1][0]);
             $query="select count(*) AS count from patient_data where pubpid = ?";
             return array($query,$x);
             break;
 	    //getting DOB and SSN for verifying the duplicate patient existance
-            case 'P21':	
+            case 'P21':
             $x=array($data[1][0]);
             $query="select  ss,DOB  from patient_data where DOB=?";
             return array($query,$x);
             break;
 	    //master data for calendar from Globals
-            case 'B1':    
+            case 'B1':
             
             if($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end')
             {
@@ -251,7 +251,7 @@ class newpatient{
             AND dld_id IS NOT NULL AND (dld_signed = ? OR dlm_upload_type = '1') AND dld_pid=? ORDER BY dlm_effective_date DESC";
             array_push($data[1],$pid);
             return array($query,$data[1]);
-            break;	
+            break;
                         
             case 'F1':
             //Patient details . 

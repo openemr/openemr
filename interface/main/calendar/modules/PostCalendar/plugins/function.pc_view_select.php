@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_view_select($args) 
+function smarty_function_pc_view_select($args)
 {
     @define('_PC_FORM_TEMPLATE',true);
 	$Date = postcalendar_getDate();
@@ -68,6 +68,6 @@ function smarty_function_pc_view_select($args)
     // build the form
     if($t > 1) {
         echo $options,$submit;
-    } 
+    }
 }
 ?>

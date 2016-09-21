@@ -1,5 +1,5 @@
 <?php
-    
+
 /**
  * forms/eye_mag/js/eye_base.php
  *

@@ -48,8 +48,8 @@ if($GLOBALS['date_display_format'] == 1) {
    $title_tooltip = "YYYY-MM-DD";
 }
 
-$display_div = "style='display:block;'"; 
-$display_expand_msg = "display:none;"; 
+$display_div = "style='display:block;'";
+$display_expand_msg = "display:none;";
 $display_collapse_msg = "display:inline;";
 
 ?>
@@ -185,7 +185,7 @@ $display_collapse_msg = "display:inline;";
 </div>
 
 <div id='docdiv' <?php echo $display_div; ?>>
-	<?php        
+	<?php 
 	$current_user = $_SESSION["authId"];
 	$date_filter = '';
         $query_array = array();
@@ -223,8 +223,8 @@ $display_collapse_msg = "display:inline;";
 		<th width="10%"><?php echo xlt('Encounter ID'); ?></th>
 	</tr>
 	<?php
-	if (sqlNumRows($resultSet)) { 
-		while ( $row = sqlFetchArray($resultSet) ) { 
+	if (sqlNumRows($resultSet)) {
+		while ( $row = sqlFetchArray($resultSet) ) {
 			$url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
 			// Get the notes for this document.
 			$notes = array();

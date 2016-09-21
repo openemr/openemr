@@ -37,7 +37,7 @@ function smarty_function_user_info($params, &$smarty)
         $user_info=getUserIDInfo($user_id);
         if($user_info)
         {
-            echo $user_info['fname']." ".$user_info['lname'];            
+            echo $user_info['fname']." ".$user_info['lname'];
         }
 }
 

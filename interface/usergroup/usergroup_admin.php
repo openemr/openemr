@@ -43,7 +43,7 @@ if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on')
 	$row = sqlFetchArray($res);
 	$uname=$row['username'];
 	$mail = new MyMailer();
-        $mail->From = "admin@".$mail_id[1].".".$mail_id[2];     
+        $mail->From = "admin@".$mail_id[1].".".$mail_id[2];
         $mail->FromName = "Administrator OpenEMR";
         $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
                                                 " was activated at ".date('l jS \of F Y h:i:s A')." \n\nThanks,\nAdmin OpenEMR.";
@@ -150,7 +150,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
           "' WHERE id = '" . formData('id','P') . "'");
       }
 
-     if ($_POST["adminPass"] && $_POST["clearPass"]) { 
+     if ($_POST["adminPass"] && $_POST["clearPass"]) {
         require_once("$srcdir/authentication/password_change.php");
         $clearAdminPass=$_POST['adminPass'];
         $clearUserPass=$_POST['clearPass'];
@@ -158,7 +158,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         $success=update_password($_SESSION['authId'],$_POST['id'],$clearAdminPass,$clearUserPass,$password_err_msg);
         if(!$success)
         {
-            error_log($password_err_msg);    
+            error_log($password_err_msg);
             $alertmsg.=$password_err_msg;
         }
      }
@@ -183,7 +183,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
          $set_active_msg=1;
         }
       }
-    }	
+    }
       if ($_POST["comments"]) {
         $tqvar = formData('comments','P');
         sqlStatement("update users set info = '$tqvar' where id = ? ", array($_POST["id"]));
@@ -232,7 +232,7 @@ if (isset($_POST["mode"])) {
     $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
     }
     
-    $insertUserSQL=            
+    $insertUserSQL=
             "insert into users set " .
             "username = '"         . trim(formData('rumple'       )) .
             "', password = '"      . 'NoLongerUsed'                  .

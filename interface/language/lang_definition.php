@@ -40,7 +40,7 @@
 	    if ($tempLangID == $row['lang_id']) {
 	      echo "<option value='" . htmlspecialchars($row['lang_id'],ENT_QUOTES) . "' selected>" . htmlspecialchars($row['lang_description'],ENT_NOQUOTES) . "</option>";
 	    }
-	    else { 
+	    else {
               echo "<option value='" . htmlspecialchars($row['lang_id'],ENT_QUOTES) . "'>" . htmlspecialchars($row['lang_description'],ENT_NOQUOTES) . "</option>";
 	    }
           }
@@ -90,7 +90,7 @@ if ($_POST['load']) {
       insert_language_log($row_l['lang_description'], $row_l['lang_code'], $row_c['constant_name'], $value);
 	  
       $go = 'yes';
-    }  
+    }
   }
     
   // query for updating preexistant definitions uses def_id because there is no def yet.
@@ -102,7 +102,7 @@ if ($_POST['load']) {
       // only continue if the definition is new
       $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? ".$case_sensitive_collation;
       $res_test = SqlStatement($sql, array($key, $value) );
-      if (!SqlFetchArray($res_test)) {	
+      if (!SqlFetchArray($res_test)) {
         // insert into the main language tables
         $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
         SqlStatement($sql, array($value, $key) );
@@ -124,7 +124,7 @@ if ($_POST['load']) {
 }
 
 if ($_POST['edit']){
-  if ($_POST['language_select'] == '') {  
+  if ($_POST['language_select'] == '') {
      exit(htmlspecialchars(xl("Please select a language"),ENT_NOQUOTES));
   }
     
@@ -169,7 +169,7 @@ if ($_POST['edit']){
 				$cons_name = "def_id[" . $row['def_id'] . "]";
 			        $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
 			        $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def) );
-			        if (SqlFetchArray($res2)) $isShow = true;   
+			        if (SqlFetchArray($res2)) $isShow = true;
 			}
 			$stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name,ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'],ENT_QUOTES) . '">';
 			$stringTemp .= '</td><td></td></tr>';
@@ -190,7 +190,7 @@ if ($_POST['edit']){
       }
 		        $isShow = false; //flag if passes the definition filter
 			$stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'],ENT_NOQUOTES).'</td>';
-			if ($row['definition']=='' OR $row['definition']=='NULL') { 
+			if ($row['definition']=='' OR $row['definition']=='NULL') {
 				$def=" " ;
 			} else {
 				$def=$row['definition'];
@@ -226,7 +226,7 @@ if ($_POST['edit']){
 	        <?php
 	}
         else {
-	        echo htmlspecialchars(xl('No Results Found For Search'),ENT_NOQUOTES);   
+	        echo htmlspecialchars(xl('No Results Found For Search'),ENT_NOQUOTES);
 	}
 	echo ('</FORM></table>');
 }

@@ -31,7 +31,7 @@ function oeFormatShortDate($date='today') {
 
 // 0 - Time format 24 hr
 // 1 - Time format 12 hr
-function oeFormatTime( $time, $format = "" ) 
+function oeFormatTime( $time, $format = "" )
 {
 	$formatted = $time;
 	if ( $format == "" ) {
@@ -39,9 +39,9 @@ function oeFormatTime( $time, $format = "" )
 	}
 	
 	if ( $format == 0 ) {
-		$formatted = date( "H:i", strtotime( $time ) );	
+		$formatted = date( "H:i", strtotime( $time ) );
 	} else if ( $format == 1 ) {
-		$formatted = date( "g:i a", strtotime( $time ) );		
+		$formatted = date( "g:i a", strtotime( $time ) );
 	}
 	
 	return $formatted;
@@ -167,7 +167,7 @@ function oeFormatAge($dobYMD, $nowYMD='', $format=0) {
     else {
       $age = $ageInMonths;
       if ($format == 0) {
-        $age .= ' ' . $ageInMonths == 1 ? xl('month') : xl('months'); 
+        $age .= ' ' . $ageInMonths == 1 ? xl('month') : xl('months');
       }
     }
   }

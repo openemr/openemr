@@ -28,7 +28,7 @@ require_once $GLOBALS['srcdir'].'/ESign/SignatureIF.php';
 require_once $GLOBALS['srcdir'].'/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
-{    
+{
     private $id; // id of the signature
     private $tid;
     private $table;

@@ -30,8 +30,8 @@
 
 
 	//  File location (URL or server path) 
-	
-	$target			= $GLOBALS['edi_271_file_path']; 
+
+	$target			= $GLOBALS['edi_271_file_path'];
 
 	if(isset($_FILES) && !empty($_FILES))
 	{
@@ -40,21 +40,21 @@
 	
 			$FilePath	= $target;
 			
-			if ($_FILES['uploaded']['size'] > 350000) 
-			{ 
+			if ($_FILES['uploaded']['size'] > 350000)
+			{
 				$message .= htmlspecialchars( xl('Your file is too large'), ENT_NOQUOTES)."<br>";
 				
 			}
 			
-			if ($_FILES['uploaded']['type']!="text/plain") 
-			{ 
-				 $message .= htmlspecialchars( xl('You may only upload .txt files'), ENT_NOQUOTES)."<br>"; 				 
-			} 
+			if ($_FILES['uploaded']['type']!="text/plain")
+			{
+				 $message .= htmlspecialchars( xl('You may only upload .txt files'), ENT_NOQUOTES)."<br>";
+			}
 			if(!isset($message))
 			{
-				if(move_uploaded_file($_FILES['uploaded']['tmp_name'], $target)) 
-				{ 
-					$message	= htmlspecialchars( xl('The following EDI file has been uploaded').': "'. basename( $_FILES['uploaded']['name']).'"', ENT_NOQUOTES); 
+				if(move_uploaded_file($_FILES['uploaded']['tmp_name'], $target))
+				{
+					$message	= htmlspecialchars( xl('The following EDI file has been uploaded').': "'. basename( $_FILES['uploaded']['name']).'"', ENT_NOQUOTES);
 					
 					// Stores the content of the file    
 					$Response271= file($FilePath);
@@ -79,7 +79,7 @@
 					   // In the array store this line 
 						// with values delimited by ^ (tilt) 
 						// as separate array values 
-						
+
 						$DataSegment271[$i] = explode("^", $Value);
 						
 						
@@ -103,8 +103,8 @@
 
 								
 								// Switch Case for Segment
-								
-								switch ($segment) 
+
+								switch ($segment)
 								{
 									case 'ISA':
 										
@@ -169,12 +169,12 @@
 					  //Increase the line index  
 					   $i++;
 					}
-				}				
-			} 
-			else 
-			{ 
-				$message .= htmlspecialchars( xl('Sorry, there was a problem uploading your file'), ENT_NOQUOTES). "<br><br>"; 
-			}  
+				}
+			}
+			else
+			{
+				$message .= htmlspecialchars( xl('Sorry, there was a problem uploading your file'), ENT_NOQUOTES). "<br><br>";
+			}
 	}
 	
 ?>

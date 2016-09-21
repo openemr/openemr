@@ -10,7 +10,7 @@ include_once("../../../library/formdata.inc.php");
 if ($_GET["mode"] == "delete") {
   foreach($_POST as $key => $val) {
     if (substr($key,0,3) == 'ch_' and $val='on') {
-      $id = substr($key,3); 
+      $id = substr($key,3);
       if ($_POST['delete']) {
         sqlInsert("delete from ".mitigateSqlTableUpperCase("form_CAMOS")." where id=$id");
         sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id");

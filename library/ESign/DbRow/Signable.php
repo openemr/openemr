@@ -30,7 +30,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Signature.php';
 require_once $GLOBALS['srcdir'].'/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
-{   
+{
     private $_signatures = array();
     private $_tableId = null;
     private $_tableName = null;
@@ -54,7 +54,7 @@ abstract class DbRow_Signable implements SignableIF
         $result = sqlStatement( $statement, array( $this->_tableId, $this->_tableName ) );
         
         while ( $row = sqlFetchArray( $result ) ) {
-            $signature = new Signature( $row['id'], $row['tid'], $row['table'], $row['is_lock'], 
+            $signature = new Signature( $row['id'], $row['tid'], $row['table'], $row['is_lock'],
                 $row['uid'], $row['fname'], $row['lname'], $row['datetime'], $row['hash'], $row['amendment'], $row['signature_hash'] );
             $this->_signatures[]= $signature;
         }
@@ -121,11 +121,11 @@ abstract class DbRow_Signable implements SignableIF
         $hash = $this->_verification->hash( $this->getData() );
         
         // Crate a hash of the signature data itself. This is the same data as Signature::getData() method
-        $signature = array( 
-            $this->_tableId, 
-            $this->_tableName, 
-            $userId, 
-            $isLock, 
+        $signature = array(
+            $this->_tableId,
+            $this->_tableName,
+            $userId,
+            $isLock,
             $hash,
             $amendment );
         $signatureHash = $this->_verification->hash( $signature );
@@ -150,7 +150,7 @@ abstract class DbRow_Signable implements SignableIF
             $signatures = $this->getSignatures();
         
             // SignableIF is locked, so if it has any signatures, make sure it hasn't been edited since lock
-            if ( count( $signatures ) ) {    
+            if ( count( $signatures ) ) {
                 
                 // Verify the data of the SignableIF object
                 $lastLockHash = $this->getLastLockHash();

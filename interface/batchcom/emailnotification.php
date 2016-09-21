@@ -26,7 +26,7 @@ $type = "Email";
 $email_sender = "EMR Group";
 $email_subject = "Welcome to EMR Group";
 // process form
-if ($_POST['form_action']=='Save') 
+if ($_POST['form_action']=='Save')
 {
     //validation uses the functions in notification.inc.php
     if ($_POST['email_sender']=="") $form_err.=xl('Empty value in "Email Sender"','','<br>');
@@ -37,7 +37,7 @@ if ($_POST['form_action']=='Save')
     if ($_POST['provider_name']=="") $form_err.=xl('Empty value in "Name of Provider"','','<br>');
     if ($_POST['message']=="") $form_err.=xl('Empty value in "Email Text"','','<br>');
     //process sql
-    if (!$form_err) 
+    if (!$form_err)
     {
         $next_app_time = $_POST[hour].":".$_POST['min'];
         $sql_text=" ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
@@ -47,7 +47,7 @@ if ($_POST['form_action']=='Save')
         $id = sqlInsert($query);
         $sql_msg="ERROR!... in Update";
         if($id)    $sql_msg="Email Notification Settings Updated Successfully";
-    } 
+    }
 }
 
 // fetch data from table

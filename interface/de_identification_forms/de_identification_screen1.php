@@ -261,7 +261,7 @@ function download_file()
 		<br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
 	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
-	<?php echo xl('to run'); 
+	<?php echo xl('to run');
     	echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
@@ -275,7 +275,7 @@ function download_file()
 		<td>&nbsp;</td>
 	</tr>
 	</table>
-  <?php  
+  <?php 
   }
  else {
  $query = "select status from de_identification_status";
@@ -288,9 +288,9 @@ function download_file()
  *  1 - A De Identification process is currently in progress.
  *  2 - The De Identification process completed and xls file is ready to download
  *  3 - The De Identification process completed with error
- */    
+ */
  }
- if($deIdentificationStatus == 1) 
+ if($deIdentificationStatus == 1)
  {
   //1 - A De Identification process is currently in progress.
  ?>
@@ -304,7 +304,7 @@ function download_file()
 		<br>
         <?php echo xl('De Identification Process is ongoing');
 	echo "</br></br>";
-	echo xl('Please visit De Identification screen after some time'); 
+	echo xl('Please visit De Identification screen after some time');
     	echo "</br>";	?>      <br>
 		</td>
 		<td>&nbsp;</td>
@@ -325,14 +325,14 @@ function download_file()
   //2 - The De Identification process completed and xls file is ready to download
   $query = "SELECT count(*) as count FROM de_identified_data ";
      $res = sqlStatement($query);
-     if ($row = sqlFetchArray($res)) 
+     if ($row = sqlFetchArray($res))
      {
       $no_of_items = addslashes($row['count']);
 	  }
       if($no_of_items <= 1)
       {
 	 //start new search - no patient record fount
-	 $query = "update de_identification_status set status = 0"; 
+	 $query = "update de_identification_status set status = 0";
  $res = sqlStatement($query);
 	 ?>
 	 <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -346,7 +346,7 @@ function download_file()
 		<br>
        <?php echo xl('No Patient record found for given Selection criteria');
 	echo "</br></br>";
-	echo xl('Please start new De Identification process'); 
+	echo xl('Please start new De Identification process');
     echo "</br>";	?> </br>      
 		</td>
 		<td>&nbsp;</td>
@@ -373,7 +373,7 @@ function download_file()
 		<br>
         <?php echo xl('De Identification Process is completed');
 	echo "</br></br>";
-	echo xl('Please Click download button to download the De Identified data'); 
+	echo xl('Please Click download button to download the De Identified data');
     echo "</br>";	?>      <br>
 		</td>
 		<td>&nbsp;</td>
@@ -405,9 +405,9 @@ function download_file()
 		<br>
         <?php echo xl('Some error has occured during De Identification Process');
 	echo "</br></br>";
-	echo xl('De Identified data may not be complete'); 
-    echo "</br></br>";	    
-   ?><span class="text"><?php echo xl('Please view De Identification error log table for more details'); 
+	echo xl('De Identified data may not be complete');
+    echo "</br></br>";
+   ?><span class="text"><?php echo xl('Please view De Identification error log table for more details');
     echo "</br>";	?></span> 	<br>
 		</td>
 		<td>&nbsp;</td>
@@ -426,7 +426,7 @@ function download_file()
  </table>
 
   <?php
-  } 
+  }
   if($deIdentificationStatus == 0 )
   {
   //0 - There is no De Identification in progress. (start new De Identification process)
@@ -550,7 +550,7 @@ Calendar.setup({inputField:"begin_date", ifFormat:"%Y-%m-%d", button:"img_begin_
 Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
 </script>		
 	<?php	
-	}   
+	}
        }
       
    ?>

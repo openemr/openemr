@@ -114,11 +114,11 @@ function process_tasks($task) {
  	 *	First see if the doc_ID exists
  	 * 	if not we need to create this
  	 */
-	$task = make_document($task); 
+	$task = make_document($task);
 	update_taskman($task,'created', '1');
 	if ($task['DOC_TYPE'] == 'Fax') {
 		deliver_document($task);
-	}	
+	}
 	update_taskman($task,'completed', '1');
 	
 	if ($task['DOC_TYPE'] == "Fax") {
@@ -141,17 +141,17 @@ function update_taskman($task,$action,$value) {
 		$sql = "UPDATE form_taskman set DOC_ID=?,COMMENT=concat('Created: ',NOW(),'\n') where ID=?";
 		sqlQuery($sql,array($task['DOC_ID'],$task['ID']));
 		$send['comments'] .="Documented created.\n";
-	} 
+	}
 	if ($action == 'completed') {
 		$sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Completed: ', NOW(),'\n') where ID=?";
 		sqlQuery($sql,array($task['DOC_ID'],$value,$task['ID']));
 		$send['comments'] .="Task completed.\n";
-	} 
+	}
 	if ($action == 'refaxed') {
 		$sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Refaxed: ', NOW(),'\n') where ID=?";
 		sqlQuery($sql,array($task['DOC_ID'],$value,$task['ID']));
 		$send['comments'] .="Ok, we resent it to the Fax Server.\n";
-	} 
+	}
 
 }
 
@@ -180,7 +180,7 @@ function deliver_document($task) {
   	$from_fax 	= preg_replace("/[^0-9]/", "", $facility_data['fax']);
 	$from_name 	= $from_data['fname']." ".$from_data['lname'];
 	$from_fac 	= $from_facility['name'];
-	$to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']); 
+	$to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']);
 
   	$to_name  	= $to_data['fname']." ".$to_data['lname'];
 	$pt_name	= $patientData['fname'].' '.$patientData['lname'];
@@ -190,7 +190,7 @@ function deliver_document($task) {
 	$mail = new MyMailer();
 
     $to_email= $to_fax."@".$GLOBALS['hylafax_server'];
-    $email_sender=$GLOBALS['patient_reminder_sender_email']; 
+    $email_sender=$GLOBALS['patient_reminder_sender_email'];
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
     $file_to_attach =   preg_replace('/^file:\/\//', "", $task['DOC_url']);
@@ -248,7 +248,7 @@ function make_document($task) {
 	$from_name 	= $from_data['fname']." ".$from_data['lname'];
 	if ($from_data['suffix']) $from_name .=", ".$from_data['suffix'];
 	$from_fac 	= $from_facility['name'];
-	$to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']); 
+	$to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']);
   	$to_name  	= $to_data['fname']." ".$to_data['lname'];
   	if ($to_data['suffix']) $to_name .=", ".$to_data['suffix'];
 	$pt_name	= $patientData['fname'].' '.$patientData['lname'];
@@ -260,7 +260,7 @@ function make_document($task) {
             form_encounter.encounter = forms.encounter and 
             form_eye_mag.id=forms.form_id and
             forms.deleted != '1' and 
-            form_eye_mag.pid=? ";   
+            form_eye_mag.pid=? ";
     $encounter_data =sqlQuery($query,array($encounter,$task['PATIENT_ID']));
 	@extract($encounter_data);
 	$providerID  =  getProviderIdOfEncounter($encounter);
@@ -279,25 +279,25 @@ function make_document($task) {
     //If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to 
     // always remake it?  For now, REMAKE IT...
 
-	if ($task['DOC_TYPE'] =='Fax') { 
+	if ($task['DOC_TYPE'] =='Fax') {
 		$category_name = "Communication"; //Faxes are stored in the Documents->Communication category.  Do we need to translate this?
 		//$category_name = xl('Communication');
 		$query = "select id from categories where name =?";
     	$ID = sqlQuery($query,array($category_name));
     	$category_id = $ID['id'];
     	
-    	$filename = "Fax_".$encounter."_".$to_data['lname'].".pdf"; 
+    	$filename = "Fax_".$encounter."_".$to_data['lname'].".pdf";
 		while (file_exists($filepath.'/'.$filename)) {
     		$count++;
-    		$filename = "FAX_".$encounter."_".$to_data['lname']."_".$count.".pdf"; 
-    	} 
+    		$filename = "FAX_".$encounter."_".$to_data['lname']."_".$count.".pdf";
+    	}
 	} else {
 		$category_name = "Encounters";
 		$query = "select id from categories where name =?";
     	$ID = sqlQuery($query,array($category_name));
     	$category_id = $ID['id'];
 		
-		$filename = "Report_".$encounter.".pdf"; 
+		$filename = "Report_".$encounter.".pdf";
 		foreach (glob($filepath.'/'.$filename) as $file) {
     	  	unlink($file); //maybe shorten to just unlink($filepath.'/'.$filename); - well this does test to see if it is there
     	}
@@ -315,7 +315,7 @@ function make_document($task) {
                          'UTF-8', // default encoding setting is UTF-8
                          array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
                          $_SESSION['language_direction'] == 'rtl' ? true : false
-                      ); 
+                      );
 
    ob_start();
  	?><html>
@@ -453,15 +453,15 @@ function make_document($task) {
    
     $pdf->writeHTML($content, false);
     $temp_filename = '/tmp/'.$filename;
-    $content_pdf = $pdf->Output($temp_filename, 'F'); 
-    $type = "application/pdf"; 
+    $content_pdf = $pdf->Output($temp_filename, 'F');
+    $type = "application/pdf";
     $size = filesize($temp_filename);
 
-    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$task['FROM_ID'],$task['PATIENT_ID'],$category_id);    
+    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$task['FROM_ID'],$task['PATIENT_ID'],$category_id);
     $task['DOC_ID'] = $return['doc_id'];
     $task['DOC_url'] = $filepath.'/'.$filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql,array($encounter,$task['DOC_ID']));  
+    sqlQuery($sql,array($encounter,$task['DOC_ID']));
 
     return $task;
 }

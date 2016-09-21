@@ -35,6 +35,6 @@ header('Pragma: private');
 header('Cache-control: private, must-revalidate');
 header("Content-type: text/comma-separated-values");
 header("Content-Disposition: attachment; filename=".$filename);
-print $file; 
+print $file;
 exit()
 ?>

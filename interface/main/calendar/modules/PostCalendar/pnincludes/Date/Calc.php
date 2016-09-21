@@ -814,7 +814,7 @@ class Date_Calc {
 				$first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) - 1);
 			}
 		// starts on saturday
-		} elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {	
+		} elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {
 			if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
 				$first_week_days = 6;
 			} else {
@@ -1099,7 +1099,7 @@ class Date_Calc {
 		// starts on sunday		
 		} else {
 			$curr_day = (Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year));
-		}		
+		}
 		// number of days in this month
         $daysInMonth = Date_Calc::daysInMonth($month,$year);
 

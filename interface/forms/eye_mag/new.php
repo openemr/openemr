@@ -30,7 +30,7 @@ $sanitize_all_escapes=true;
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 
-$form_name = "Eye Exam"; 
+$form_name = "Eye Exam";
 $table_name = "form_eye_mag";
 $form_folder = "eye_mag";
 include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
@@ -62,7 +62,7 @@ if ($erow['form_id'] > '0') {
 }  else {
     $id = $erow2['count']++;
     $providerid = findProvider(attr($pid),$encounter);
-    $newid = formSubmit($table_name, $_POST, $id, $providerid); 
+    $newid = formSubmit($table_name, $_POST, $id, $providerid);
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir) values (NOW(),?,?,?,?,?,?,?,?)";//activity=1, date = NOW()
     $answer = sqlInsert( $sql ,array($encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder));

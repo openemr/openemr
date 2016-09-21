@@ -12,7 +12,7 @@ $data2 = array();
 while ($row = sqlFetchArray($results)) {
 	$data2[] = $row['name'];
 }
-$data = array_merge($data,$data2);	
+$data = array_merge($data,$data2);
 if ($data) {
 	print "<table><tr>";
 	foreach($data as $key => $value) {
@@ -25,7 +25,7 @@ if ($data) {
 	
 		$key=ucwords(str_replace("_"," ",$key));
 		if (is_numeric($key)){
-			$key = "check";	
+			$key = "check";
 		}
 		print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
 		$count++;
@@ -33,7 +33,7 @@ if ($data) {
 			$count = 0;
 			print "</tr><tr>\n";
 		}
-	}	
+	}
 }
 print "</tr></table>";
 }

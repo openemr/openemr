@@ -112,7 +112,7 @@ require_once("$srcdir/billing.inc");
         $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars( xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars( xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars( xl('Check Amount'), ENT_QUOTES)."</td></tr>";
         $WarningFlag=false;
         for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
-         { 
+         {
             if($check_count%2==1)
              {
                 $bgcolor='#ddddff';
@@ -142,7 +142,7 @@ require_once("$srcdir/billing.inc");
         else
         {
         for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
-         { 
+         {
         $chk_num=$out['check_number'.$check_count];
         $chk_num=str_replace(' ','_',$chk_num);
         if(isset($_REQUEST['chk'.$chk_num]))
@@ -161,7 +161,7 @@ require_once("$srcdir/billing.inc");
         global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
         global $invoice_total, $last_code, $paydate;
          global $InsertionId;//last inserted ID of
-         
+
         
         // Some heading information.
         $chk_123=$out['check_number'];

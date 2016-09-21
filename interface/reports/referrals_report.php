@@ -242,7 +242,7 @@
    		}
    		else {
    				echo text($row['referer_to']);
-   		}	 
+   		}
    			
    	?>
   </td>

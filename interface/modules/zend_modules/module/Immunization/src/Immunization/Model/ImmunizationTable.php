@@ -21,9 +21,9 @@
 namespace Immunization\Model;
 
 use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\AbstractTableGateway; 
-use Zend\Db\Adapter\Adapter; 
-use Zend\Db\ResultSet\ResultSet; 
+use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
 use Zend\InputFilter\Factory as InputFactory;
 use Zend\InputFilter\InputFilter;
@@ -68,16 +68,16 @@ class ImmunizationTable extends AbstractTableGateway
 		$from_date       = $form_data['form_from_date'];
 		$to_date         = $form_data['form_to_date'];
 		$form_get_hl7    = $form_data['form_get_hl7'];
-                $query_pids      = $form_data['query_pids']; 
+                $query_pids      = $form_data['query_pids'];
 		$fdate           = '';
-		$todate          = '';    
-		$query = 
+		$todate          = '';
+		$query =
         "SELECT " .
         "i.patient_id AS patientid, " .
         "p.language, ".
         "i.cvx_code , " ;
         if ($form_get_hl7==='true') {
-			$query .= 
+			$query .=
 				"DATE_FORMAT(p.DOB,'%Y%m%d') AS DOB, ".
                                 "p.pubpid, ".
                                 "CONCAT(IF(p.street IS NULL,'',p.street), '^^', IF(p.city IS NULL,'',p.city), '^', IF(p.state IS NULL,'',p.state), '^', IF(p.postal_code IS NULL,'',p.postal_code) ,'^', IF(l.option_id IS NULL,'',l.notes)) AS address, ".
@@ -87,9 +87,9 @@ class ImmunizationTable extends AbstractTableGateway
 				"p.status, ".
 				"p.sex, ".
 				"p.ethnoracial, ".
-				"p.race, ". 
-				"p.ethnicity, ".   
-                                "p.guardiansname, ". 
+				"p.race, ".
+				"p.ethnicity, ".
+                                "p.guardiansname, ".
                                 "p.guardianrelationship, ".
                                 "p.guardiansex, ".
                                 "p.guardianphone, ".
@@ -128,7 +128,7 @@ class ImmunizationTable extends AbstractTableGateway
                                 "i.ordering_provider, ".
                                 "CONCAT(u1.lname,'^',u1.fname,'^',IF(u1.mname IS NULL,'',u1.mname)) AS entered_by_name, ".
                                 "CONCAT(u2.lname,'^',u2.fname,'^',IF(u2.mname IS NULL,'',u2.mname)) AS ordering_provider_name, ".
-                                "i.administered_by_id,i.note,i.information_source,DATE_FORMAT(i.expiration_date,'%Y%m%d') AS expiration_date,i.refusal_reason,i.completion_status,";   
+                                "i.administered_by_id,i.note,i.information_source,DATE_FORMAT(i.expiration_date,'%Y%m%d') AS expiration_date,i.refusal_reason,i.completion_status,";
         } else {
 			$query .= "CONCAT(IF(p.fname IS NULL,'',p.fname),' ',IF(p.mname IS NULL,'',p.mname),' ',IF(p.lname IS NULL,'',p.lname)) AS  patientname, ".
 				"i.vis_date AS immunizationdate, "  ;
@@ -174,10 +174,10 @@ class ImmunizationTable extends AbstractTableGateway
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
         $result	=	$this->applicationTable->zQuery($query,$query_data);
         return $result;
-	}     
+	}
   
     public function getNotes($option_id,$list_id)
-    { 
+    {
         if($option_id) {
             $query   = "SELECT 
                           notes 

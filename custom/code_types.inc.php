@@ -181,7 +181,7 @@ $cd_external_options = array(
   '6' => xl('ICD10 Procedure/Service'),
   '2' => xl('SNOMED (RF1) Diagnosis'),
   '7' => xl('SNOMED (RF1) Clinical Term'),
-  '9' => xl('SNOMED (RF1) Procedure')    
+  '9' => xl('SNOMED (RF1) Procedure')
 );
 
 /**
@@ -243,7 +243,7 @@ function convert_type_id_to_key($id) {
  global $code_types;
  foreach ($code_types as $key => $value) {
   if ($value['id'] == $id) return $key;
- } 
+ }
 }
 
 /**
@@ -361,7 +361,7 @@ function collect_codetypes($category,$return_format="array") {
  * @return recordset                  will contain only one item (row).
  */
 function return_code_information($form_code_type,$code,$active=true) {
-  return code_set_search($form_code_type,$code,false,$active,true);  
+  return code_set_search($form_code_type,$code,false,$active,true);
 }
 
 /**
@@ -455,7 +455,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   }
   else { // Start a codes search
       // We are looking up the external table id here.  An "unset" value gets treated as 0(zero) without this test.  This way we can differentiate between "unset" and explicitly zero.
-      $table_id=isset($code_types[$form_code_type]['external']) ? intval(($code_types[$form_code_type]['external'])) : -9999 ;  
+      $table_id=isset($code_types[$form_code_type]['external']) ? intval(($code_types[$form_code_type]['external'])) : -9999 ;
       if($table_id>=0) // We found a definition for the given code search, so start building the query
       {
             // Place the common columns variable here since all check codes table
@@ -518,8 +518,8 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             }
             else {
                 $query = "SELECT '" . $code_external ."' as code_external, " .
-                         $table_dot.$code_col . " as code, " . 
-                         $display_description . " as code_text, " .        
+                         $table_dot.$code_col . " as code, " .
+                         $display_description . " as code_text, " .
                          $display_description_brief . " as code_text_short, " .
                          $columns . " ";
             }
@@ -550,7 +550,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
                       $query.=" AND ";
                   }
                   $query.=$field;
-                  $not_first=true;                
+                  $not_first=true;
               }
             }
       
@@ -570,7 +570,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
           foreach($description_keywords as $keyword)
           {
               $query.= " AND ".$table_dot.$code_text_col." LIKE ? ";
-              array_push($sql_bind_array,"%".$keyword."%");          
+              array_push($sql_bind_array,"%".$keyword."%");
           }
           $query.=")";
         }
@@ -579,7 +579,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
         array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
       }
       // Done setting up the where clause by mode
-      
+
         // Add the metadata related filter clauses
         foreach($table_info[EXT_FILTER_CLAUSES] as $filter_clause)
         {
@@ -587,7 +587,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             $dot_location=strpos($filter_clause,".");
             if($dot_location!==false) {
               // The filter clause already includes a table specifier, so don't add one
-              $query .=$filter_clause;   
+              $query .=$filter_clause;
             }
             else {
                 $query .=$table_dot.$filter_clause;
@@ -596,7 +596,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
         
         $query .=$active_query . $query_filter_elements;
 
-        $query .= " ORDER BY ".$table_dot.$code_col."+0,".$table_dot.$code_col; 
+        $query .= " ORDER BY ".$table_dot.$code_col."+0,".$table_dot.$code_col;
 
         if ($return_query) {
           // Just returning the actual query without the LIMIT information in it. This
@@ -608,8 +608,8 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
 
         $query .= $limit_query;
         
-        $res = sqlStatement($query,$sql_bind_array);         
-      }   
+        $res = sqlStatement($query,$sql_bind_array);
+      }
     else
     {
         HelpfulDie("Code type not active or not defined:".$join_info[JOIN_TABLE]);
@@ -680,7 +680,7 @@ function lookup_code_descriptions($codes,$desc_detail="code_text") {
                   $sql.=" AND ";
               }
               $sql.=$field;
-              $not_first=true;                
+              $not_first=true;
           }
         }
                 
@@ -690,7 +690,7 @@ function lookup_code_descriptions($codes,$desc_detail="code_text") {
         // Start building up the WHERE clause
 
         // When using the external codes table, we have to filter by the code_type.  (All the other tables only contain one type)  
-        if ($table_id==0) { $sql .= " code_type = '".add_escape_custom($code_types[$codetype]['id'])."' AND ";   }      
+        if ($table_id==0) { $sql .= " code_type = '".add_escape_custom($code_types[$codetype]['id'])."' AND ";   }
 
         // Specify the code in the query.
         $sql .= $table_name.".".$code_col."=? ";
@@ -704,7 +704,7 @@ function lookup_code_descriptions($codes,$desc_detail="code_text") {
             $sql.= " AND ".$filter_clause;
         }
         // END building the WHERE CLAUSE
-        
+
         
         if($table_info[EXT_VERSION_ORDER]){$sql .= " ORDER BY ".$table_info[EXT_VERSION_ORDER];}
 
@@ -797,7 +797,7 @@ function multiple_code_set_search($form_code_types=array(),$search_term,$limit=N
   }
   else {
     // Figure out the appropriate limit clause
-    $limit_query = limit_query_string($limit,$start,$number); 
+    $limit_query = limit_query_string($limit,$start,$number);
 
     // Prepare the sql bind array
     $sql_bind_array = array();

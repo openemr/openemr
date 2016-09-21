@@ -678,7 +678,7 @@ class eRxSOAP {
 					$prescriptionId = $result['id'];
 
 				// Making sure only transmitted prescriptions entry added into amc_misc_data for eRx Numerator
-				if(!empty($med['PharmacyNCPDP'])){ 
+				if(!empty($med['PharmacyNCPDP'])){
 				processAmcCall(
 					'e_prescribe_amc',
 					true,
@@ -688,7 +688,7 @@ class eRxSOAP {
 					$prescriptionId
 				);
 				}
-				if($med['FormularyChecked'] === 'true'){	
+				if($med['FormularyChecked'] === 'true'){
 					processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $med['ExternalPatientID'], 'prescriptions', $prescriptionId);
 				}
 			}

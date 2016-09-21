@@ -69,7 +69,7 @@ if ($form_abook_type) {
 if ($form_external) {
  $query .= "AND u.username = '' ";
 }
-if ($form_lname) { 
+if ($form_lname) {
     $query .= "ORDER BY u.lname, u.fname, u.mname";
 } else if ($form_organization) {
     $query .= "ORDER BY u.organization";
@@ -156,7 +156,7 @@ $res = sqlStatement($query,$sqlBindArray);
    // Allow edit, since have access or (no item type and not a local user)
    $trTitle = xl('Edit'). ' ' . $displayName;
    echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n"; 
+        "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
   }
   else {
    // Do not allow edit, since no access and (item is a type or is a local user)

@@ -47,7 +47,7 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-  $retVal = getProviderId($_SESSION['authUser']);	
+  $retVal = getProviderId($_SESSION['authUser']);
   newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
   sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]) );
   sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]) );

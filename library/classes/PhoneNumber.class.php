@@ -150,7 +150,7 @@ class PhoneNumber extends ORDataObject{
 			
 			foreach ($nums as $n) {
 				if (!is_numeric($n)) {
-					return false;	
+					return false;
 				}
 			}
 			

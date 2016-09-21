@@ -64,7 +64,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 	echo "<tr class=text>";
 	echo "<td class=bold>" . xlt("Request Description") . ":"  . "</td>";
 	echo "<td>". text($resultSet['amendment_desc']) . "</td>";
-	echo "</tr>";	
+	echo "</tr>";
 
 	echo "</table>";
 	

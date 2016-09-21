@@ -28,11 +28,11 @@ class AMC_304i_STG2_Numerator implements AmcFilterIF
         return "AMC_304i_STG2 Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate )
     {
         //The number of transitions of care and referrals in the denominator where a summary of care record was electronically transmitted using CEHRT to a recipient.
         //  (so basically both amc elements of send_sum_amc and send_sum_elec_amc needs to exist)
-	
+
         $amcElement_elec = amcCollect('send_sum_elec_amc',$patient->id,'transactions',$patient->object['id']);
 	$amc_elec_check  = sqlQuery('select count(*) as cnt from ccda where pid = ? and emr_transfer = 1', array($patient->id));
         if (!(empty($amcElement_elec))) {

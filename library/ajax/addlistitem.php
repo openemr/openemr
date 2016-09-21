@@ -30,20 +30,20 @@ $option_value = 0;
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and title='".trim($title). "'" 
+                    " and title='".trim($title). "'"
                     );
-if ($exists_title) { 
+if ($exists_title) {
 	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit; 
+	exit;
 }
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
                     " and option_id='".trim($option_id)."'"
                     );
-if ($exists_id) { 
+if ($exists_id) {
 	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit; 
+	exit;
 }
 
 // determine the sequential order of the new item,
@@ -80,7 +80,7 @@ while ($lrow = sqlFetchArray($lres)) {
      echo '"title":"' . xl($lrow['title']) .'"}';
     }
     else {
-     echo '"title":"'.$lrow['title'].'"}';	
+     echo '"title":"'.$lrow['title'].'"}';
     }
 }
 echo "]}";

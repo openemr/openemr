@@ -344,7 +344,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	<tbody>
 		<!-- added for better print-ability -->
 	<?php
-	
+
 	$lastdocname = "";
 	//Appointment Status Checking
         $form_apptstatus = $_POST['form_apptstatus'];
@@ -377,7 +377,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
 	$appointments = sortAppointments( $appointments, $form_orderby );
     $pid_list = array();  // Initialize list of PIDs for Superbill option
-    $totalAppontments = count($appointments);   
+    $totalAppontments = count($appointments);
 	
 	foreach ( $appointments as $appointment ) {
                 array_push($pid_list,$appointment['pid']);
@@ -448,7 +448,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	</tr>
 	<?php
     } // End of row 2 display
-    
+
 	$lastdocname = $docname;
 	}
 	// assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.

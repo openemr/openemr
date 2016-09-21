@@ -68,7 +68,7 @@ function getMeasureNumber($row) {
          	return $row['cqm_nqf_code'];
          }
        }
-       else 
+       else
        {
        	 return "";
        }
@@ -89,7 +89,7 @@ $xml->add_file_audit_data();
 // Add the registry entries
 if ( $nested == 'false') {
 	$xml->add_registry('A');
-}	
+}
 else {
 	$xml->add_registry('E');
 }
@@ -130,10 +130,10 @@ foreach ($dataSheet as $row) {
 			$pqri_measures['performance-rate'] = $row['percentage'];
 	        $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
                 $pqri_measures['reporting-rate']=$pqri_measures['reporting-rate'].'%';
-	        $xml->add_pqri_measures($pqri_measures);	
+	        $xml->add_pqri_measures($pqri_measures);
 		}
 		else { // $row[0] == "sub"
-				
+
 		}
  	}
     else if (isset($row['is_provider'])) {
@@ -150,7 +150,7 @@ foreach ($dataSheet as $row) {
 	           $physician_ids['tin'] = $row['federaltaxid'];
 	       }
 	     }
-	     $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date )); 
+	     $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date ));
 	     $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
 	     
        	 $xml->open_provider($physician_ids);
@@ -158,7 +158,7 @@ foreach ($dataSheet as $row) {
 	     $existProvider = TRUE;
    }
    else { // isset($row['is_plan'])
-   	
+
    	    if ( $firstPlanFlag == FALSE ) {
    	    	if ( $firstProviderFlag == FALSE ) {
 		    	$xml->close_provider();

@@ -104,7 +104,7 @@ function doedclick_edit(ppid) {
   if (acl_check('admin', 'practice' )) {
    $trTitle = xl('Edit') . ' ' . $row['name'];
    echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n"; 
+        "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
   }
   else {
    $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";

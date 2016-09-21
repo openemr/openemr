@@ -47,7 +47,7 @@ class Controller extends Smarty {
                        $func = "set_" . $varname;
                        if (    (!(strpos("_",$varname) === 0)) && is_callable(array($obj,$func))       ) {
                                //echo "c: $func on w: "  . $var . "<br />";
-			       
+
 			       //modified 01-2010 by BGM to centralize to formdata.inc.php
 			       // have place several debug statements to allow standardized testing over next several months
                                if (!is_array($var)) {

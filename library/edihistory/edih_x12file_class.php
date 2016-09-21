@@ -888,13 +888,13 @@ class edih_x12_file {
 			//$env_ar = $vars['envelopes'];  // probably faster without envelopes in this case
 		} elseif ( count($this->segments) ) {
 			// default created object
-			$seg_ar = $this->segments;			
+			$seg_ar = $this->segments;
 			if (count($this->delimiters)) {
 				$de = $this->delimiters['e'];
 			} else {
 				$de = (substr(reset($segment_ar), 0, 3) == 'ISA') ? substr(reset($segment_ar), 3, 1) : '';
 			}
-			$tp = ($this->type) ? $this->type : $this->edih_x12_type(); 
+			$tp = ($this->type) ? $this->type : $this->edih_x12_type();
 			$env_ar = ( isset($this->envelopes['ST']) ) ? $this->envelopes : $env_ar;
 		} elseif ($this->text) {
 			// object with file text, but no processing
@@ -1116,14 +1116,14 @@ class edih_x12_file {
 			} else {
 				$seg_ar = $seg_array;
 			}
-		} elseif ( count($this->segments) ) { 
-			$seg_ar = $this->segments; 
+		} elseif ( count($this->segments) ) {
+			$seg_ar = $this->segments;
 		} elseif ( $this->text ) {
 			if ( !$de ) {
 				$delims = $this->edih_x12_delimiters( substr($this->text, 0, 126) );
 				$dt = ( isset($delims['t']) ) ? $delims['t'] : '';
 				$de = ( isset($delims['e']) ) ? $delims['e'] : '';
-			} 
+			}
 			if ( !$de || !$dt ) {
 				$this->message[] = 'edih_get_segment() : unable to get delimiters';
 				return $ret_ar;
@@ -1147,7 +1147,7 @@ class edih_x12_file {
 					$seg_pos = $see_pos+1;
 				}
 			}
-		}			
+		}
 		//
 		if ( count($seg_ar) ) {
 			$cmplen = strlen($segid.$de);
@@ -1204,15 +1204,15 @@ class edih_x12_file {
 				$f_str = $file_text;
 				$dt = ( isset($vars['delimiters']['t']) ) ? $vars['delimiters']['t'] : '';
 				$de = ( isset($vars['delimiters']['e']) ) ? $vars['delimiters']['e'] : '';
-				$ft = ( isset($vars['type']) ) ?  $vars['type'] : '';			 
+				$ft = ( isset($vars['type']) ) ?  $vars['type'] : '';
 				//$seg_ar = ( isset($vars['segments']) ) ? $vars['segments'] : '';
 				//$env_ar = $this->edih_x12_envelopes($f_str);
 			} else {
 				$this->message[] = 'edih_x12_slice() error processing file text';
 				// debug
 				//echo $this->edih_message().PHP_EOL;
-				return $ret_ar;			
-			} 
+				return $ret_ar;
+			}
 		} elseif ( count($this->segments) && count($this->envelopes) && count($this->delimiters) ) {
 			$seg_ar = $this->segments;
 			$env_ar = $this->envelopes;
@@ -1283,10 +1283,10 @@ class edih_x12_file {
 				$segidx = ($prskeys) ? substr_count ($f_str, $dt, 0, $gspos+2) + 1 : 0;
 				//
 				$srchstr = substr($srchstr, $gspos, $gepos-$gspos);
-			}			
-			if ($stn) {	
+			}
+			if ($stn) {
 				$srchstr = ($srchstr) ? $srchstr : $f_str;
-				$sttp = $this->gstype_ar[$ft]; 
+				$sttp = $this->gstype_ar[$ft];
 				$seg_st = $dt.'ST'.$de.$sttp.$de.$stn	;
 				$seg_se = $dt.'SE'.$de;
 				// $segpos = 1;
@@ -1312,8 +1312,8 @@ class edih_x12_file {
 					$this->message[] = 'edih_x12_slice() did not find trace '.$trace;
 					return $ret_ar;
 				}
-				$sttp = $this->gstype_ar[$ft]; 	
-				$seg_st = $dt.'ST'.$de.$sttp.$de;				
+				$sttp = $this->gstype_ar[$ft];
+				$seg_st = $dt.'ST'.$de.$sttp.$de;
 				$stpos = strrpos($f_str, $seg_st, ($trpos - strlen($f_str)) );
 				$sepos = strpos($f_str, $dt.'SE'.$de, $stpos);
 				$sepos = strpos($f_str, $dt, $sepos+1);
@@ -1334,7 +1334,7 @@ class edih_x12_file {
 				} else {
 					$this->message[] = 'edih_x12_slice() error creating substring';
 					return $ret_ar;
-				}				
+				}
 			}
 		// file_text not supplied, check for object values
 		} elseif (!($seg_ar && $env_ar && $dt && $de && $ft) ) {
@@ -1343,7 +1343,7 @@ class edih_x12_file {
 			return $ret_ar;
 		}
 		// file_text not supplied, use object values
-		if ($trace) { 
+		if ($trace) {
 			foreach($env_ar['ST'] as $st) {
 				if ($st['trace'] == $trace) {
 					$ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
@@ -1354,7 +1354,7 @@ class edih_x12_file {
 			if ( isset($env_ar['ISA'][$icn]) ) {
 				$ret_ar = array_slice($seg_ar, $env_ar['ISA'][$icn]['start'], $env_ar['ISA'][$icn]['count'], $prskeys);
 			}
-		} elseif ($gsn && !$stn) {		
+		} elseif ($gsn && !$stn) {
 			foreach($env_ar['GS'] as $gs) {
 				if ($icn) {
 					if ( ($gs['icn'] == $icn) && ($gs['gsn'] == $gsn) ) {
@@ -1397,13 +1397,13 @@ class edih_x12_file {
 			}
 		} else {
 			$this->message[] = 'edih_x12_slice() no file text or invalid array argument keys or values';
-		}				 
+		}
 		//
 		if ( !count($ret_ar) ) {
 			$this->message[] = 'edih_x12_slice() no match';
-		}		
+		}
 		return $ret_ar;
-	}			
+	}
 
 // end class edih_x12_file
 }

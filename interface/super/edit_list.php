@@ -138,7 +138,7 @@ if ($_POST['formaction']=='save' && $list_id) {
             ")");
         }
       }
-    }    
+    }
     else {
         // all other lists
         //
@@ -189,7 +189,7 @@ if ($_POST['formaction']=='save' && $list_id) {
               }
               else
               {
-                $notes = formTrim($iter['notes']); 
+                $notes = formTrim($iter['notes']);
               }
               // Insert the list item
               sqlInsert("INSERT INTO list_options ( " .
@@ -567,7 +567,7 @@ function writeCTLine($ct_array) {
 /**
  * Special case of Issue Types
  */
-function writeITLine($it_array) {        
+function writeITLine($it_array) {
   global $opt_line_no,$ISSUE_TYPE_CATEGORIES,$ISSUE_TYPE_STYLES;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -909,7 +909,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Title'  ,'e'); ?></b></td>	
   <?php //show translation column if not english and the translation lists flag is set 
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-    echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";    
+    echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
   } ?>  
   <td><b><?php xl('Order'  ,'e'); ?></b></td>
   <td><b><?php xl('Default','e'); ?></b></td>
@@ -994,14 +994,14 @@ if ($list_id) {
   }
   else if ($list_id == 'issue_types') {
     $res = sqlStatement("SELECT * FROM issue_types " .
-      "ORDER BY category, ordering ASC");  
+      "ORDER BY category, ordering ASC");
     while ($row = sqlFetchArray($res)) {
       writeITLine($row);
     }
     for ($i = 0; $i < 3; ++$i) {
       writeITLine(array());
     }
-  }  
+  }
   else {
     $res = sqlStatement("SELECT * FROM list_options WHERE " .
       "list_id = '$list_id' ORDER BY seq,title");

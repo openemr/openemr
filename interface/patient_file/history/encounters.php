@@ -48,7 +48,7 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
 
  //maximum number of encounter entries to display on this page:
  // $N = 12;
- 
+
  //Get the default encounter from Globals
  $default_encounter = $GLOBALS['default_encounter_view']; //'0'=clinical, '1' = billing
 
@@ -83,7 +83,7 @@ if (isset($_GET['billing']))
 
 //Get Document List by Encounter ID
 function getDocListByEncID($encounter,$raw_encounter_date,$pid){
-	global $ISSUE_TYPES, $auth_med; 
+	global $ISSUE_TYPES, $auth_med;
 
 	$documents = getDocumentsByEncounter($pid,$encounter);
 	if ( count($documents) > 0 ) {
@@ -292,7 +292,7 @@ else
     else
     {
         $pagesize=0;
-    }    
+    }
 }
 if(isset($_GET['pagestart']))
 {
@@ -407,7 +407,7 @@ if ($issue) {
 $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
 $sqlBindArray[] = $pid;
 
-$query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .  
+$query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
         "ORDER BY fe.date DESC, fe.id DESC";
 
 $countQuery = "SELECT COUNT(*) as c " . $from;
@@ -526,7 +526,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
                         echo htmlspecialchars( "$tcode: " . $irow['title'], ENT_NOQUOTES);
                 }
-            } 
+            }
             else {
                 echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
             }
@@ -537,7 +537,7 @@ while ($result4 = sqlFetchArray($res4)) {
             echo "<td>".$reason_string;
 			
 			//Display the documents tagged to this encounter
-			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);	
+			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);
 			
             echo "<div style='padding-left:10px;'>";
 
@@ -589,7 +589,7 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
 
             } // end encounter Forms loop
-    
+
             echo "</div>";
             echo "</td>\n";
 

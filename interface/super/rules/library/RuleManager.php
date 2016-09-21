@@ -125,7 +125,7 @@ class RuleManager {
      * @return Rule
      */
     function getRule($id, $pid = 0) {
-        $ruleResult = sqlQuery( 
+        $ruleResult = sqlQuery(
             self::SQL_RULE_DETAIL . " WHERE id = ? AND pid = ?", array($id, $pid)
         );
 
@@ -237,10 +237,10 @@ class RuleManager {
         if ( sizeof( $criterion ) > 0 ) {
             foreach( $criterion as $criteria ) {
                 if ( !isset( $ruleTargetGroups[$criteria->groupId] ) ) {
-                    $ruleTargetGroups[$criteria->groupId] = new RuleTargets();        
+                    $ruleTargetGroups[$criteria->groupId] = new RuleTargets();
                 }
                 $ruleTargetGroups[$criteria->groupId]->add( $criteria );
-            }    
+            }
         }
         ksort($ruleTargetGroups);
         return $ruleTargetGroups;
@@ -446,7 +446,7 @@ class RuleManager {
             // add
             $result = sqlQuery( "select count(*)+1 AS id from clinical_rules" );
             $ruleId = "rule_" . $result['id'];
-            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference ) " . 
+            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference ) " .
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?) ",
                     array(
                         $ruleId,

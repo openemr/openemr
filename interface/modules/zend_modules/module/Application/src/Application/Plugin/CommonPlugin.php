@@ -25,7 +25,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 
-class CommonPlugin extends AbstractPlugin 
+class CommonPlugin extends AbstractPlugin
 {
   protected $application;
   
@@ -35,7 +35,7 @@ class CommonPlugin extends AbstractPlugin
    * @param type $sm Service Manager
    */
   public function __construct($sm)
-  { 
+  {
     $sm->get('Zend\Db\Adapter\Adapter');
     $this->application    = new ApplicationTable();
     $this->listenerObject	= new Listener;
@@ -141,7 +141,7 @@ class CommonPlugin extends AbstractPlugin
           $detail_query_array[] = trim($entry_identification_array[$key][$cnt]);
         }
       }
-    } 
+    }
     $detail_query = substr($detail_query, 0, -1);
     $detail_query = $detail_query.';';
     $appTable->zQuery($detail_query,$detail_query_array);

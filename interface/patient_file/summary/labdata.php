@@ -113,7 +113,7 @@ echo "<h2>" . xlt('Labs') . "</h2>";
 echo "<span class='text'>";
 // some patient data...
 $spell  = "SELECT * ";
-$spell .= "FROM patient_data "; 
+$spell .= "FROM patient_data ";
 $spell .= "WHERE id = ?";
 //---
 $myrow = sqlQuery($spell,array($pid));
@@ -135,7 +135,7 @@ if($printable) {
 
 echo "<div id='reports_list'>";
 if(!$printable){
-	echo "<form method='post' action='" . $path_to_this_script . "' onsubmit='return top.restoreSession()'>"; 
+	echo "<form method='post' action='" . $path_to_this_script . "' onsubmit='return top.restoreSession()'>";
 	// What items are there for patient $pid?
 	// -----------------------------------------------
 	$value_list = array();
@@ -168,12 +168,12 @@ if(!$printable){
 		}
 		echo " /> " . text($myrow['value_code']) . "<br />";
 		$value_list[$i][value_code] = $myrow['value_code'];
-		$i++;	
+		$i++;
 		$tab++;
 		if($tab == 10) {
 			echo "</td><td>";
 			$tab=0;
-		}	
+		}
 	}
 	echo "</tr>";
 	echo "</table>";
@@ -244,7 +244,7 @@ if($value_select){
 
 			// get data from db
 			$spell  = $main_spell;
-			$query  = sqlStatement($spell,array($this_value,$pid));	
+			$query  = sqlStatement($spell,array($this_value,$pid));
 			while($myrow = sqlFetchArray($query)){
 				
 				$value_array[0][$value_count] 	= $myrow['result'];
@@ -337,7 +337,7 @@ if($value_select){
 		echo "</table><br>";
 	
 	}// end if mode = list
-	
+
 	//##########################################################################################################################
 	if($mode=='matrix'){
 	
@@ -348,7 +348,7 @@ if($value_select){
 		foreach($value_select as $this_value){
 				
 			$spell  = $main_spell;
-			$query  = sqlStatement($spell,array($this_value,$pid));	
+			$query  = sqlStatement($spell,array($this_value,$pid));
 	
 			while($myrow = sqlFetchArray($query)){
 				$value_matrix[$i][procedure_result_id] 	= $myrow['procedure_result_id'];
@@ -362,7 +362,7 @@ if($value_select){
 				$value_matrix[$i][review_status] 		= $myrow['review_status'];
 				$value_matrix[$i][encounter_id] 		= $myrow['encounter_id'];
 				$value_matrix[$i][date_collected] 		= $myrow['date_collected'];
-				$datelist[] 							= $myrow['date_collected'];	
+				$datelist[] 							= $myrow['date_collected'];
 				$i++;
 			}
 		}
@@ -384,7 +384,7 @@ if($value_select){
 		$itemcount = count($value_matrix);
 	
 		// print matrix
-		echo "<table border='1' cellpadding='2'>"; 
+		echo "<table border='1' cellpadding='2'>";
 		echo "<tr>";
 		#echo "<th class='matrix'>Item</th>";
 		echo "<th class='matrix'>" . xlt('Name') . "</th>";
@@ -392,7 +392,7 @@ if($value_select){
 		echo "<th class='matrix'>" . xlt('Unit') . "</th>";
 		echo "<th class='matrix_spacer'>|</td>";
 		foreach($datelist as $this_date){
-			echo "<th width='30' class='matrix_time'>" . text($this_date) . "</th>";	
+			echo "<th width='30' class='matrix_time'>" . text($this_date) . "</th>";
 		}
 		echo "</tr>";
 	
@@ -415,7 +415,7 @@ if($value_select){
 					} else {
 
 						if($value_matrix[$i]['abnormal'] == 'No' || $value_matrix[$i]['abnormal'] == 'no'  || $value_matrix[$i]['abnormal'] == '' || $value_matrix[$i]['abnormal'] == NULL ) {
-							echo "<td class='matrix_result'>&nbsp;&nbsp;&nbsp;" . text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";	
+							echo "<td class='matrix_result'>&nbsp;&nbsp;&nbsp;" . text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";
 																	
 						} else {
 							echo "<td class='matrix_result_abnorm'>&nbsp;&nbsp;" ;
@@ -423,21 +423,21 @@ if($value_select){
 								echo "+ ";
 							} elseif ($value_matrix[$i]['abnormal'] == 'low') {
 								echo "- ";
-							} 
+							}
 							echo text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";
 
 						}
 	
 					}
 					$j = $i;
-					$i++;	
+					$i++;
 					
 					if($value_matrix[$i]['result_code'] != $value_matrix[$j]['result_code']){
 						$z = $cellcount;
-					}			
+					}
 				} else {
 					echo "<td class='matrix_result'>&nbsp;</td>";
-				}		
+				}
 				$z++;
 			}
 			if( $i == $itemcount){$a=FALSE;}
@@ -447,7 +447,7 @@ if($value_select){
 	
 	}// end if mode = matrix
 } else { // end of "are items selected"
-	echo "<p>" . xlt('No parameters selected') . ".</p>"; 
+	echo "<p>" . xlt('No parameters selected') . ".</p>";
 	$nothing = TRUE;
 	}
 
@@ -456,10 +456,10 @@ if(!$printable){
 	if(!$nothing){
 		echo "<p>";
 		echo "<form method='post' action='" . $path_to_this_script . "' target='_new' onsubmit='return top.restoreSession()'>";
-		echo "<input type='hidden' name='mode' value='". attr($mode) . "'>";	
+		echo "<input type='hidden' name='mode' value='". attr($mode) . "'>";
 		foreach($_POST['value_code'] as $this_valuecode) {
 			echo "<input type='hidden' name='value_code[]' value='". attr($this_valuecode) . "'>";
-		}	
+		}
 		echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
 		echo "</form>";
   	    echo "<br><a href='../summary/demographics.php' ";

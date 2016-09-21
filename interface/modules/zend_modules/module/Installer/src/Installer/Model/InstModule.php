@@ -87,7 +87,7 @@ class InstModule implements InputFilterAwareInterface
   }
 
   public function getInputFilter()
-  {	
+  {
     return $this->inputFilter;
   }
 }

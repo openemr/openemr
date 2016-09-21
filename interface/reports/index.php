@@ -28,7 +28,7 @@ $show_options = array ("10" => "10","20" => "20","50" => "50","100" => "100","20
 $smarty->assign("show_options",$show_options);
 
 //query to select all canned queries from the pma_bookmark table
-$sql = "SELECT * FROM pma_bookmark ORDER BY id"; 
+$sql = "SELECT * FROM pma_bookmark ORDER BY id";
 $res = $db->Execute($sql);
 
 //array to hold id's and labels of canned queries
@@ -56,7 +56,7 @@ if (!is_numeric($show)) {
 }
 
 //assign the var to the template
-$smarty->assign("show",$show);	
+$smarty->assign("show",$show);
 
 //conditional to see if a query has been selected and should be run
 if (is_numeric($query_id)) {
@@ -104,7 +104,7 @@ if (is_numeric($query_id)) {
 	
 	//hide links if in print view
 	if ($_GET['print'] == 1) {
-	  $pager->showPageLinks = false;	
+	  $pager->showPageLinks = false;
 	}
 	
 	//assign the pager object so the template can call it, need a more elegant way to do this or need to put error handling in the template, how can you capture the output from the pager?

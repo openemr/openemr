@@ -8,12 +8,12 @@
 //
 class NFQ_0041_InitialPatientPopulation implements CqmFilterIF
 {
-    public function getTitle() 
+    public function getTitle()
     {
         return "NFQ 0041 Initial Patient Population";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate ) 
+    public function test( CqmPatient $patient, $beginDate, $endDate )
     {
      	$oneEncounter = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         $twoEncounters = array( Encounter::OPTION_ENCOUNTER_COUNT => 2 );
@@ -25,7 +25,7 @@ class NFQ_0041_InitialPatientPopulation implements CqmFilterIF
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_SER_18_OLDER, $patient, $beginDate, $endDate, $oneEncounter ) ||
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_IND_COUNSEL, $patient, $beginDate, $endDate, $oneEncounter ) ||
                Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_GROUP_COUNSEL, $patient, $beginDate, $endDate, $oneEncounter ) ||
-               Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_OTHER_SERV, $patient, $beginDate, $endDate, $oneEncounter ) 
+               Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_PRE_MED_OTHER_SERV, $patient, $beginDate, $endDate, $oneEncounter )
              ) ) {
             return true;
         }

@@ -27,7 +27,7 @@ use Application\Listener\Listener;
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use C_Document;
 
-class Documents extends AbstractPlugin 
+class Documents extends AbstractPlugin
 {
   protected $documentsTable;
 	
@@ -37,7 +37,7 @@ class Documents extends AbstractPlugin
    * @param type $sm Service Manager
    **/
   public function __construct($sm)
-  { 
+  {
     $sm->get('Zend\Db\Adapter\Adapter');
     $this->documentsTable = new DocumentsTable();
   }
@@ -135,18 +135,18 @@ class Documents extends AbstractPlugin
 	  $result = $obj->zQuery($query);
 	  $count  = 0;
 	  $module = array();
-	  foreach($result as $row) {			
-	    $content = \Documents\Plugin\Documents::getDocument($row['id']);			
+	  foreach($result as $row) {
+	    $content = \Documents\Plugin\Documents::getDocument($row['id']);
 	    $module[$count]['doc_id']   = $row['id'];
 	    if (preg_match("/<ClinicalDocument/", $content)) {
-	      if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)){    					
-		$module[$count]['doc_type'] = 'CCD';				  
+	      if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)){
+		$module[$count]['doc_type'] = 'CCD';
 	      }
 	      else
 		$module[$count]['doc_type'] = 'CCDA';
 	    }
 	    elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content))
-	      $module[$count]['doc_type'] = 'CCR';	    	    
+	      $module[$count]['doc_type'] = 'CCR';
 	    $count++;
 	  }
 	  return $module;

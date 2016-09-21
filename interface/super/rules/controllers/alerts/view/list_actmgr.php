@@ -21,7 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__)."/../../../../../../library/acl.inc"); 
+require_once(dirname(__FILE__)."/../../../../../../library/acl.inc");
 global $phpgacl_location;
 require_once("$phpgacl_location/gacl_api.class.php");
 ?>
@@ -80,7 +80,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                  <td>&nbsp;</td>
                  <td>
                         <?php //Place the ACO selector here
-                        $gacl_temp = new gacl_api(); 
+                        $gacl_temp = new gacl_api();
                         $list_aco_objects = $gacl_temp->get_objects(NULL, 0, 'ACO');
                         foreach ($list_aco_objects as $key => $value) {
                           asort($list_aco_objects[$key]);

@@ -75,7 +75,7 @@ class open_flash_chart
 	
 	function set_x_axis( $x )
 	{
-		$this->x_axis = $x;	
+		$this->x_axis = $x;
 	}
 	
 	function set_y_axis( $y )
@@ -110,7 +110,7 @@ class open_flash_chart
 	
 	function set_bg_colour( $colour )
 	{
-		$this->bg_colour = $colour;	
+		$this->bg_colour = $colour;
 	}
 	
 	function set_radar_axis( $radar )
@@ -120,7 +120,7 @@ class open_flash_chart
 	
 	function set_tooltip( $tooltip )
 	{
-		$this->tooltip = $tooltip;	
+		$this->tooltip = $tooltip;
 	}
 	
 	/**

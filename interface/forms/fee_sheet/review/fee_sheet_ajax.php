@@ -27,8 +27,8 @@ require_once("fee_sheet_queries.php");
 
 if(!acl_check('acct', 'bill'))
 {
-    header("HTTP/1.0 403 Forbidden");    
-    echo "Not authorized for billing";   
+    header("HTTP/1.0 403 Forbidden");
+    echo "Not authorized for billing";
     return false;
 }
 
@@ -55,7 +55,7 @@ if($task=='retrieve')
         {
             $prev_enc=$_REQUEST['prev_encounter'];
         }
-        else 
+        else
         {
             if(count($encounters)>0)
             {
@@ -71,7 +71,7 @@ if($task=='retrieve')
     }
     if($_REQUEST['mode']=='issues')
     {
-        $issues=issue_diagnoses($req_pid,$req_encounter);      
+        $issues=issue_diagnoses($req_pid,$req_encounter);
     }
     if($_REQUEST['mode']=='common')
     {
@@ -103,7 +103,7 @@ if($task=='add_diags')
     }
     $database->StartTrans();
     create_diags($req_pid,$req_encounter,$diags);
-    update_issues($req_pid,$req_encounter,$diags);  
+    update_issues($req_pid,$req_encounter,$diags);
     create_procs($req_pid,$req_encounter,$procs);
     $database->CompleteTrans();
     return;

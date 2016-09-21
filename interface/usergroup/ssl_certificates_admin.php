@@ -168,7 +168,7 @@ function download_file($filename, $filetype) {
     readfile($filename);
     exit;
     flush();
-    @unlink($filename);   
+    @unlink($filename);
 }
 
 /* This function is called when the "Create Client Certificate" button is clicked.
@@ -264,7 +264,7 @@ function create_and_download_certificates()
         $error_msg .= xl('Error, unable to create the Certificate Authority certificate.', 'e');
         delete_certificates();
         return;
-    } 
+    }
     $ca_csr = $arr[0];
     $ca_key = $arr[1];
     $ca_crt = create_crt($ca_key, $ca_csr, NULL, $ca_key);
@@ -305,7 +305,7 @@ function create_and_download_certificates()
         $serial = $row['id'];
     }
 
-    $user_cert = create_user_certificate("admin", $emailAddress, $serial, 
+    $user_cert = create_user_certificate("admin", $emailAddress, $serial,
                                          $tempDir . "/CertificateAuthority.crt",
                                          $tempDir . "/CertificateAuthority.key",
                                          $clientCertValidity);
@@ -321,14 +321,14 @@ function create_and_download_certificates()
 	
     /* Create a zip file containing the CertificateAuthority, Server, and admin files */
    try {
-    if (! (class_exists('ZipArchive')) ) {  
+    if (! (class_exists('ZipArchive')) ) {
      	 $_SESSION["zip_error"]="Error, Class ZipArchive does not exist";
 	 return;
     }
 
     $zip = new ZipArchive;
-    if(!($zip)) { 
-      $_SESSION["zip_error"]="Error, Could not create file archive"; 
+    if(!($zip)) {
+      $_SESSION["zip_error"]="Error, Could not create file archive";
       return;
     }
 
@@ -338,7 +338,7 @@ function create_and_download_certificates()
         foreach ($files as $file) {
             $zip->addFile($tempDir . "/" . $file, $file);
         }
-    } 
+    }
     else {
         $_SESSION["zip_error"]="Error, unable to create zip file with all the certificates";
         return;
@@ -352,7 +352,7 @@ function create_and_download_certificates()
    catch (Exception $e) {
     $_SESSION["zip_error"]="Error, Could not create file archive";
     return;
-   } 
+   }
 
     download_file($zipName, "zip");
 }
@@ -529,8 +529,8 @@ else if ($_POST["mode"] == "download_certificates") {
   <?php } else { ?>
   <span class='text'>
   <?php 
-    if ($error_msg != "") { 
-      echo "<font class='redtext'>" . $error_msg . "</font><br><br>"; 
+    if ($error_msg != "") {
+      echo "<font class='redtext'>" . $error_msg . "</font><br><br>";
     }
   ?>
   <?php xl('To setup https access with client certificate authentication, do the following', 'e'); ?>

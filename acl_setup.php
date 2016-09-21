@@ -26,7 +26,7 @@
  // ensure the database includes all the required Access Control 
  // Objects(ACO).
  //
- 
+
  // On 06/2009, added pertinent comments below each entry to allow capture
  //  of these terms by the translation engine.
 
@@ -134,17 +134,17 @@
      // xl('Language List (write,addonly optional)')
  $gacl->add_object('lists', 'Ethnicity-Race List (write,addonly optional)' , 'ethrace'  , 10, 0, 'ACO');
      // xl('Ethnicity-Race List (write,addonly optional)')
- 
+
  // Create ACOs for patientportal.
  //
  $gacl->add_object('patientportal', 'Patient Portal' , 'portal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
-     
+
  // Create ACOs for modules.
  //
  $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
      // xl('Modules') 
-     
+
  // Create ACOs for patients.
  //
  $gacl->add_object('patients', 'Appointments (write,wsome optional)'      , 'appt' , 10, 0, 'ACO');
@@ -173,7 +173,7 @@
  //
  $gacl->add_object('placeholder', 'Placeholder (Maintains empty ACLs)', 'filler', 10, 0, 'ACO');
      // xl('Placeholder (Maintains empty ACLs)')
-     
+
  // Create ACO for nationnotes.
  //
  $gacl->add_object('nationnotes', 'Nation Notes Configure', 'nn_configure', 10, 0, 'ACO');

@@ -72,7 +72,7 @@ if ($ret=getInsuranceCompanies($pid)) {
 				.$plan_name
 				."'>".$plan_name ."\n";
 			}
-		}	
+		}
 		echo "</select>\n";
 	}
 }

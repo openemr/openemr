@@ -45,9 +45,9 @@ class Form_Log implements LogIF
      */
     public function __construct( $formId, $formDir, $encounterId )
     {
-        $this->_viewer = new Viewer(); 
-        $this->_viewer->formId = $formId; 
-        $this->_viewer->formDir = $formDir; 
+        $this->_viewer = new Viewer();
+        $this->_viewer->formId = $formId;
+        $this->_viewer->formDir = $formDir;
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->logId = $formDir."-".$formId;
     }

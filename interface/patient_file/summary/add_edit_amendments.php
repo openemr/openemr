@@ -96,7 +96,7 @@ if ( isset($_POST['mode'] )) {
 	);
 	sqlStatement($query,$sqlBindArray);
 	header("Location:add_edit_amendments.php?id=$amendment_id");
-	exit;	
+	exit;
 }
 
 $amendment_id = ( $amendment_id ) ? $amendment_id : $_REQUEST['id'];

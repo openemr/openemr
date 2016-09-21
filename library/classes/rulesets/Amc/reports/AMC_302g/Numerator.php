@@ -15,7 +15,7 @@ class AMC_302g_Numerator implements AmcFilterIF
         return "AMC_302g Numerator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate )
     {
         // Is smoking status recorded as structured data before the end date of the report
         if ( exist_lifestyle_item($patient->id,'tobacco','',$endDate) ) {

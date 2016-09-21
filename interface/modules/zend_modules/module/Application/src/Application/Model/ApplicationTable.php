@@ -98,7 +98,7 @@ class ApplicationTable extends AbstractTableGateway
      */
      public function errorHandler($e, $sql, $binds = '')
      {
-        $escaper = new \Zend\Escaper\Escaper('utf-8'); 
+        $escaper = new \Zend\Escaper\Escaper('utf-8');
         $trace  = $e->getTraceAsString();
         $nLast = strpos($trace , '[internal function]');
         $trace = substr($trace, 0, ($nLast - 3));
@@ -128,7 +128,7 @@ class ApplicationTable extends AbstractTableGateway
         echo 'SQL statement : ' . $escaper->escapeHtml($sql);
         echo $escaper->escapeHtml($processedBinds);
         echo '</span></pre>';
-        echo '<pre>'; 
+        echo '<pre>';
         echo $trace;
         echo '</pre>';
         /** Error Logging */
@@ -290,21 +290,21 @@ class ApplicationTable extends AbstractTableGateway
                 OR DATE_FORMAT(DOB,'%Y-%m-%d') LIKE ?  
                 ORDER BY fname ";
         $result = $this->zQuery($sql, array(
-                                          $keyword,                               
-                                          $keyword, 
-                                          $keyword, 
-                                          $keyword, 
-                                          $keyword, 
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
                                           $keyword
                                       ));
-        $rowCount   =  $result->count();  
+        $rowCount   =  $result->count();
         $sql        .= "LIMIT $limitStart, $limitEnd";
         $result     = $this->zQuery($sql, array(
-                                          $keyword,                               
-                                          $keyword, 
-                                          $keyword, 
-                                          $keyword, 
-                                          $keyword, 
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
                                           $keyword,
 
                                       ));
@@ -318,16 +318,16 @@ class ApplicationTable extends AbstractTableGateway
                 AND active = 1
                 ORDER BY fname ";
         $result = $this->zQuery($sql, array(
-                                          $keyword,                               
-                                          $keyword, 
-                                          $keyword,  
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
                                       ));
-        $rowCount   =  $result->count();  
+        $rowCount   =  $result->count();
         $sql        .= "LIMIT $limitStart, $limitEnd";
         $result     = $this->zQuery($sql, array(
-                                          $keyword,                               
-                                          $keyword, 
-                                          $keyword, 
+                                          $keyword,
+                                          $keyword,
+                                          $keyword,
                                       ));
       }
       $arr = array();
@@ -373,7 +373,7 @@ class ApplicationTable extends AbstractTableGateway
         $input_date = $temp[0];
         
         $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
-        $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);        
+        $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
         
         preg_match("/[^ymd]/", $output_format,$date_seperator_output);
         $seperator_output   = $date_seperator_output[0];

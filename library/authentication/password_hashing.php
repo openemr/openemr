@@ -58,7 +58,7 @@ function oemr_password_salt()
     for($i=0; $i<$Salt_Length; $i++)
     {
         $salt .= $Allowed_Chars[mt_rand(0,$Chars_Len)];
-    }    
+    }
 
     // This is the preferred hashing mechanism
     if(CRYPT_BLOWFISH===1)
@@ -68,7 +68,7 @@ function oemr_password_salt()
         $Blowfish_Pre = '$2a$'.$rounds.'$';
         $Blowfish_End = '$';
 
-        return $Blowfish_Pre.$salt.$Blowfish_End;        
+        return $Blowfish_Pre.$salt.$Blowfish_End;
     }
     error_log("Blowfish hashing algorithm not available.  Upgrading to PHP 5.3.x or newer is strongly recommended");
     

@@ -307,7 +307,7 @@ $print = '';
 $csv = '';
 
 if($row['financial_reporting']){ $bgcolor = "#FFFFDD";  }else { $bgcolor = "#FFDDDD";  }
-$print = "<tr bgcolor='$bgcolor'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>"; 
+$print = "<tr bgcolor='$bgcolor'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
 
 $csv = '"' . text($row['Procedure codes']) . '","' . text($row['Units']) . '","' . text(oeFormatMoney($row['Amt Billed'])) . '","' . text(oeFormatMoney($row['Paid Amt'])) . '","' . text(oeFormatMoney($row['Adjustment Amt'])) . '","' . text(oeFormatMoney($row['Balance Amt'])) . '"' . "\n";
 
@@ -318,13 +318,13 @@ $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
                                                 $grand_total_amt_adjustment  += $row['Adjustment Amt'];
                                                 $grand_total_amt_balance  += $row['Balance Amt'];
 
-        if ($_POST['form_csvexport']) { echo $csv; } 
+        if ($_POST['form_csvexport']) { echo $csv; }
 	else { echo $print;
  }
      }
        if (!$_POST['form_csvexport']) {
          echo "<tr bgcolor='#ffffff'>\n";
-         echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n"; 
+         echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n";
          echo " <td class='detail'>" . text($grand_total_units) . "</td>\n";
 		 echo " <td class='detail'>" .
          text(oeFormatMoney($grand_total_amt_billed)) . "</td>\n";

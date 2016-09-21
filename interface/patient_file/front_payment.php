@@ -141,11 +141,11 @@ if ($_POST['form_save']) {
 		  $payment_id = idSqlStatement("insert into ar_session set "    .
 			"payer_id = ?"       .
 			", patient_id = ?"   .
-			", user_id = ?"     . 
+			", user_id = ?"     .
 			", closed = ?"      .
-			", reference = ?"   . 
+			", reference = ?"   .
 			", check_date =  now() , deposit_date = now() "	.
-			",  pay_total = ?"    . 
+			",  pay_total = ?"    .
 			", payment_type = 'patient'" .
 			", description = ?"   .
 			", adjustment_code = 'pre_payment'" .
@@ -161,12 +161,12 @@ if ($_POST['form_save']) {
       if ($amount = 0 + $payment) {
 	       $zero_enc=$enc;
 	       if($_REQUEST['radio_type_of_payment']=='invoice_balance')
-		    { 
+		    {
 			 ;
 		    }
 		   else
-		    { 
-			 if (!$enc) 
+		    {
+			 if (!$enc)
 			  {
 					$enc = calendar_arrived($form_pid);
 			  }
@@ -270,7 +270,7 @@ if ($_POST['form_save']) {
 						
 						$Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 						$Copay=0;
-						if(round($Remainder,2)!=0 && $amount!=0) 
+						if(round($Remainder,2)!=0 && $amount!=0)
 						 {
 						  if($amount-$Remainder >= 0)
 						   {
@@ -922,7 +922,7 @@ function make_insurance()
   <?php
   $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
   $bres1112 = sqlStatement($query1112,array('payment_method'));
-  while ($brow1112 = sqlFetchArray($bres1112)) 
+  while ($brow1112 = sqlFetchArray($bres1112))
    {
   	if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
 	 continue;

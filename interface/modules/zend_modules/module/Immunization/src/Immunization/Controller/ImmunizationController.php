@@ -50,7 +50,7 @@ class ImmunizationController extends AbstractActionController
         $request         =   $this->getRequest();
         $form->setData($request->getPost());
         $isPost          =   '';
-        $data            =   $request->getPost();   
+        $data            =   $request->getPost();
         $isFormRefresh   =   'true';
         $form_code       =   isset($data['codes']) ? $data['codes'] : Array();
         $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
@@ -61,7 +61,7 @@ class ImmunizationController extends AbstractActionController
         $results         =   $request->getPost('form_results', 100);
         $results         =   ($results > 0) ? $results : 100;
         $current_page    =   $request->getPost('form_current_page', 1);
-        $end             =   $current_page*$results; 
+        $end             =   $current_page*$results;
         $start           =   ($end - $results);
         $new_search      = $request->getPost('form_new_search',null);
         //end pagination
@@ -89,11 +89,11 @@ class ImmunizationController extends AbstractActionController
         
         if(empty($form_code)){
             $query_codes = '';
-        } 
+        }
         else {
             $query_codes = 'c.id in ( ';
             foreach($form_code as $code){
-                $query_codes .= $code . ","; 
+                $query_codes .= $code . ",";
             }
             $query_codes = substr($query_codes ,0,-1);
             $query_codes .= ') and ';
@@ -113,7 +113,7 @@ class ImmunizationController extends AbstractActionController
 
         if($new_search) {
             $count  = $this->getImmunizationTable()->immunizedPatientDetails($params,1);
-        } 
+        }
         else {
             $count  = $request->getPost('form_count');
             if($count == ''){
@@ -123,7 +123,7 @@ class ImmunizationController extends AbstractActionController
 
         $totalpages     = ceil($count/$results);
         $details        = $this->getImmunizationTable()->immunizedPatientDetails($params);
-        $rows = array(); 
+        $rows = array();
         foreach ($details as $row){
             $rows[] =  $row;
         }
@@ -136,8 +136,8 @@ class ImmunizationController extends AbstractActionController
         
         $view = new ViewModel(array(
                 'listenerObject'    =>  $this->listenerObject,
-                'form'             =>  $form, 
-                'view'             =>  $rows, 
+                'form'             =>  $form,
+                'view'             =>  $rows,
                 'isFormRefresh'    =>  $isFormRefresh,
                 'form_data'        =>  $params,
 				'commonplugin'  => $this->CommonPlugin(),
@@ -151,7 +151,7 @@ class ImmunizationController extends AbstractActionController
     */
     public function getAllCodes($data)
     {
-        $defaultCode   =   isset($data['codes']) ? $data['codes'] : ''; 
+        $defaultCode   =   isset($data['codes']) ? $data['codes'] : '';
         $res           =   $this->getImmunizationTable()->codeslist();
         $i             =   0;
         foreach ($res as $value) {
@@ -167,7 +167,7 @@ class ImmunizationController extends AbstractActionController
                             );
     	    $i++;
         }
-        return $rows; 
+        return $rows;
     }
     
     /**
@@ -182,13 +182,13 @@ class ImmunizationController extends AbstractActionController
             $form_code        =   isset($data['codes']) ? $data['codes'] : Array();
             $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
             $to_date         =   $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
-            $form_get_hl7     =   'true'; 
+            $form_get_hl7     =   'true';
             $patient_id       =   $request->getPost('patient_id', null);
             //pagination
             $results          =   $request->getPost('form_results', 100);
             $results          =   ($results > 0) ? $results : 100;
             $current_page     =   $request->getPost('form_current_page', 1);
-            $end              =   $current_page*$results; 
+            $end              =   $current_page*$results;
             $start            =   ($end - $results);
             $new_search     = $request->getPost('form_new_search',null);
             //endpagination
@@ -198,8 +198,8 @@ class ImmunizationController extends AbstractActionController
             }
             else {
                 $query_codes = 'c.id in ( ';
-                foreach( $form_code as $code ){ 
-                    $query_codes .= $code . ","; 
+                foreach( $form_code as $code ){
+                    $query_codes .= $code . ",";
                 }
                 $query_codes = substr($query_codes ,0,-1);
                 $query_codes .= ') and ';
@@ -229,7 +229,7 @@ class ImmunizationController extends AbstractActionController
                 'form_from_date'     => $from_date,
                 'form_to_date'       => $to_date,
                 'form_get_hl7'       => $form_get_hl7,
-                'query_codes'        => $query_codes,    
+                'query_codes'        => $query_codes,
                 'results'            => $results,
                 'current_page'       => $current_page,
                 'limit_start'        => $start,
@@ -249,7 +249,7 @@ class ImmunizationController extends AbstractActionController
             $totalpages     = ceil($count/$results);
 
             $details        = $this->getImmunizationTable()->immunizedPatientDetails($params);
-            $rows = array(); 
+            $rows = array();
             foreach ($details as $row){
                 $rows[] =  $row;
             }
@@ -262,7 +262,7 @@ class ImmunizationController extends AbstractActionController
 
             // GENERATE HL7 FILE
             if ($form_get_hl7==='true'){
-                $content = ''; 
+                $content = '';
                 $patient_id = '';
                 foreach($rows as $r){
                     $race_code              = $administered_unit_title = $administered_route_title = '';
@@ -274,7 +274,7 @@ class ImmunizationController extends AbstractActionController
                     $publicity_code         = $imm_registry_status_code = $protection_indicator = '';
                     $guardiansname          = '';
                     
-                    if($r['patientid'] != $patient_id) {          
+                    if($r['patientid'] != $patient_id) {
                         $content .= "MSH|^~\&|OPENEMR|" .$r['facility_code']."||NIST Test Iz Reg|$nowdate||".
                         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1|||AL|ER" .
                     "$D" ;
@@ -372,7 +372,7 @@ class ImmunizationController extends AbstractActionController
                         if ($r['guardiansex']==='male') $r['guardiansex'] = 'M';
                         if ($r['guardiansex']==='female') $r['guardiansex'] = 'F';
                         $guardian_relationship_code  = $this->getImmunizationTable()->getNotes($r['guardianrelationship'],'next_of_kin_relationship');
-                        if($r['guardiansname'] && $r['guardianrelationship']) { 
+                        if($r['guardiansname'] && $r['guardianrelationship']) {
                             $content .=  "NK1|" . // Nearest of kin
                                 "1|" . // Set ID
                                 $guardianname."^^^^^L|".  // 2. Legal Name of next of kin
@@ -407,7 +407,7 @@ class ImmunizationController extends AbstractActionController
                         }
                     }
                     if($r['completion_status'] == 'Refused') $r['immunizationid'] = '9999';
-                    if($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') { 
+                    if($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') {
                         $ordering_provider = "";
                     }
                     else if($r['ordering_provider']) {
@@ -415,7 +415,7 @@ class ImmunizationController extends AbstractActionController
                     }
                     if($r['created_by']) $entered_by = $r['created_by']."^".$r['entered_by_name']."^^^^^NIST-AA-1";
                     $content .= "ORC" . // ORC mandatory for RXA
-                        "|" . 
+                        "|" .
                         "RE|". //1. Order Control
                         "|" . //2. Placer Order Number
                         $r['immunizationid']."^NDA|" . //3. Filler Order Number 9999 for refusal and identifier for historic immunization
@@ -457,12 +457,12 @@ class ImmunizationController extends AbstractActionController
                     if($r['providername'] != NULL && $r['information_source'] == 'new_immunization_record') $r['providername'] = $r['users_id']."^".$r['providername'];
                     $refusal_reason_code = $this->getImmunizationTable()->getNotes($r['refusal_reason'],'immunization_refusal_reason');
                     $completion_status   = $this->getImmunizationTable()->getNotes($r['completion_status'],'Immunization_Completion_Status');
-                    if($r['refusal_reason']) { 
+                    if($r['refusal_reason']) {
                         $completion_status        = 'RE' ;
                         $immunization_refusal     = $refusal_reason_code."^".$r['refusal_reason']."^NIP002";
                     }
                     if($r['code'] == '998') $completion_status = 'NA';
-                    $content .= "RXA|" . 
+                    $content .= "RXA|" .
                         "0|" . // 1. Give Sub-ID Counter
                         "1|" . // 2. Administrattion Sub-ID Counter
                         $r['administered_date']."|" . // 3. Date/Time Start of Administration
@@ -484,10 +484,10 @@ class ImmunizationController extends AbstractActionController
                         "|" . // 19.Indication
                         $completion_status."|" . // 20.Completion Status
                         "A" . // 21.Action Code - RXA
-                        "$D" ; 
+                        "$D" ;
                     $administered_route_title      =  $this->CommonPlugin()->getListtitle('drug_route', $r['route']);
                     $administered_site_code        =  $this->getImmunizationTable()->getNotes($r['administration_site'],'immunization_administered_site');
-                    if($r['route_code'] || $r['administration_site']) { 
+                    if($r['route_code'] || $r['administration_site']) {
                         $content .=  "RXR|".
                             $r['route_code']."^".$administered_route_title."^HL70162|"      . //1. Route 
                             $administered_site_code."^".$r['administration_site']."^HL70163". // 2. Administration Site
@@ -526,7 +526,7 @@ class ImmunizationController extends AbstractActionController
                                     $key_val = $last_key + 1;
                                 }
                                 else {
-                                    $key_val = $key_val + 1; 
+                                    $key_val = $key_val + 1;
                                 }
                             }
                             else {
@@ -562,7 +562,7 @@ class ImmunizationController extends AbstractActionController
                                         $key_val            = $last_key + 1;
                                     }
                                     else {
-                                        $key_val            = $key_val + 1; 
+                                        $key_val            = $key_val + 1;
                                     }
                                 }
                                 else {
@@ -598,7 +598,7 @@ class ImmunizationController extends AbstractActionController
                                         $key_val            = $last_key + 1;
                                     }
                                     else {
-                                        $key_val            = $key_val + 1; 
+                                        $key_val            = $key_val + 1;
                                     }
                                 }
                                 else {
@@ -644,7 +644,7 @@ class ImmunizationController extends AbstractActionController
     * @param type $ethnicity
     * @return type
     */
-    public function format_ethnicity($ethnicity) 
+    public function format_ethnicity($ethnicity)
     {
         switch ($ethnicity){
             case "hisp_or_latin":
@@ -661,7 +661,7 @@ class ImmunizationController extends AbstractActionController
     * @param type   $a
     * @return type
     */
-    public function tr($a) 
+    public function tr($a)
     {
         return (str_replace(' ','^',$a));
     }
@@ -671,10 +671,10 @@ class ImmunizationController extends AbstractActionController
     * @param type   $cvx_code
     * @return type
     */
-    public function format_cvx_code($cvx_code) 
+    public function format_cvx_code($cvx_code)
     {
         if ( $cvx_code < 10 ){
-            return "0$cvx_code"; 
+            return "0$cvx_code";
         }
         return $cvx_code;
     }
@@ -684,7 +684,7 @@ class ImmunizationController extends AbstractActionController
     * @param   $phone      String          phone number
     * @return              String          formatted phone
     */
-    public function format_phone($phone) 
+    public function format_phone($phone)
     {
         $phone = preg_replace("/[^0-9]/", "", $phone);
         switch (strlen($phone)){

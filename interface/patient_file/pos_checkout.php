@@ -384,7 +384,7 @@ function printFacilityHeader($frow){
 
 // Pring receipt header for Provider
 function printProviderHeader($pvdrow){
-	echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " . 
+	echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
     "<br>" . text($pvdrow['street']) .
     "<br>" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
     "<br>" . text($pvdrow['phone']) .
@@ -876,7 +876,7 @@ if ($inv_encounter) {
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112,array('payment_method'));
-    while ($brow1112 = sqlFetchArray($bres1112)) 
+    while ($brow1112 = sqlFetchArray($bres1112))
      {
       if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
      continue;

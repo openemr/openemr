@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 //
 class NFQ_0038_PopulationCriteria implements CqmPopulationCrtiteriaFactory
-{    
+{
     public function getTitle()
     {
         return "Population Criteria";

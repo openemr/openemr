@@ -47,16 +47,16 @@ class SyndromicsurveillanceController extends AbstractActionController
     public function indexAction()
     {
         $request        = $this->getRequest();
-        $this->search   = $request->getPost('search', null);        
-        $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));		
+        $this->search   = $request->getPost('search', null);
+        $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
         $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
 		$code_selected  = $request->getPost('form_icd_codes', null);
-        $provider_selected  = $request->getPost('form_provider_id', null);        
+        $provider_selected  = $request->getPost('form_provider_id', null);
         
         $results        = $request->getPost('form_results', 100);
         $results        = ($results > 0) ? $results : 100;
         $current_page   = $request->getPost('form_current_page', 1);
-        $end            = $current_page*$results; 
+        $end            = $current_page*$results;
         $start          = ($end - $results);
         $new_search     = $request->getPost('form_new_search',null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
@@ -87,7 +87,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $params['total_pages']  = $totalpages;
         if($download_hl7){
             $this->getSyndromicsurveillanceTable()->generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
-        }        
+        }
         $search_result  = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
         
         $code_list  = $this->getSyndromicsurveillanceTable()->non_reported_codes();

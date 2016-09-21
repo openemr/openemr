@@ -81,12 +81,12 @@ function optionalAge($frow, $date, &$asof) {
 //
 function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '',
 		$onchange = '', $tag_id = '', $custom_attributes = null, $multiple = false, $backup_list = '') {
-        $s = '';	
+        $s = '';
 	
 	$tag_name_esc = attr($tag_name);
 
-        if ($multiple) {		
-            $tag_name_esc = $tag_name_esc . "[]";		
+        if ($multiple) {
+            $tag_name_esc = $tag_name_esc . "[]";
         }
  
 	$s .= "<select name='$tag_name_esc'";
@@ -98,7 +98,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	$tag_id_esc = attr( $tag_name );
         
 	if ($tag_id != '') {
-		$tag_id_esc = attr($tag_id); 
+		$tag_id_esc = attr($tag_id);
 	}
         
 	$s .= " id='$tag_id_esc'";
@@ -210,7 +210,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 			$fontTitle = xlt('Please choose a valid selection from the list.');
 			$fontText = xlt( 'Fix this' );
 			$s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
-		}		
+		}
 		
 	} else if (!$got_selected && strlen ( $currvalue ) > 0 && $multiple) {
 		//if not found in main list, display all selected values that exist in backup list
@@ -228,7 +228,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 					$s .= "<option value='$optionValue'";
 					$s .= " selected";
 					$optionLabel = text(xl_list_label($lrow_backup ['title']));
-					$s .= ">$optionLabel</option>\n";				
+					$s .= ">$optionLabel</option>\n";
 					$got_selected_backup = TRUE;
 				}
 			}
@@ -295,12 +295,12 @@ function generate_form_field($frow, $currvalue) {
     $showEmpty = false;
     $empty_title = "Unassigned";
    }
-   else {     
+   else {
     $empty_title = $frow['empty_title'];
    }
   }
   else {
-   $empty_title = "Unassigned";   
+   $empty_title = "Unassigned";
   }
 
   $disabled = strpos($frow['edit_options'], '0') === FALSE ? '' : 'disabled';
@@ -894,7 +894,7 @@ function generate_form_field($frow, $currvalue) {
     }
     else {
      // no specific aco exist for this list, so check for access to 'default' list
-     if (acl_check('lists', 'default')) echo $outputAddButton;	
+     if (acl_check('lists', 'default')) echo $outputAddButton;
     }
   }
 
@@ -948,7 +948,7 @@ function generate_form_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     switch(count($tmp)) {
       case "4": {
-        $resnote = $tmp[0]; 
+        $resnote = $tmp[0];
         $restype = $tmp[1];
         $resdate = $tmp[2];
         $reslist = $tmp[3];
@@ -1082,7 +1082,7 @@ function generate_form_field($frow, $currvalue) {
   }
 
   //facilities drop-down list
-  else if ($data_type == 35) {   
+  else if ($data_type == 35) {
     if (empty($currvalue)){
    	  $currvalue = 0;
     }
@@ -1144,12 +1144,12 @@ function generate_print_field($frow, $currvalue) {
       $showEmpty = false;
       $empty_title = "Unassigned";
     }
-    else {     
+    else {
       $empty_title = $frow['empty_title'];
     }
   }
   else {
-    $empty_title = "Unassigned";   
+    $empty_title = "Unassigned";
   }
 
   // generic single-selection list
@@ -1603,14 +1603,14 @@ function generate_print_field($frow, $currvalue) {
       " value='$resnote' /></td>";
     echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
-      htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;</td>";  
-    } 
+      htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;</td>";
+    }
     else if($data_type == 32)
     {
     echo "<tr><td><input type='text'" .
       " size='$fldlength'" .
       " class='under'" .
-      " value='$resnote' /></td></tr>"; 
+      " value='$resnote' /></td></tr>";
     $fldlength = 30;
     $smoking_status_title = generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist);
     echo "<td><input type='text'" .
@@ -1808,7 +1808,7 @@ function generate_display_field($frow, $currvalue) {
     	$uname = $urow['organization'];
     }else{
     	$uname = $urow['lname'];
-    	if ($urow['fname']) $uname .= ", " . $urow['fname'];    	
+    	if ($urow['fname']) $uname .= ", " . $urow['fname'];
     }
     $s = htmlspecialchars($uname,ENT_NOQUOTES);
   }
@@ -1954,7 +1954,7 @@ function generate_display_field($frow, $currvalue) {
       // Added 5-09 by BM - Translate label if applicable	
       $s .= "<tr><td class='bold' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . "&nbsp;</td>";
 	
-      $restype = $restype ? xl('Yes') : xl('No');  
+      $restype = $restype ? xl('Yes') : xl('No');
       $s .= "<td class='text' valign='top'>" . htmlspecialchars($restype,ENT_NOQUOTES) . "</td></tr>";
       $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "</td></tr>";
       $s .= "</tr>";
@@ -2008,7 +2008,7 @@ function generate_display_field($frow, $currvalue) {
      //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
      else if ($data_type == 32)
     {//changes on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
-       $smoke_codes = getSmokeCodes(); 
+       $smoke_codes = getSmokeCodes();
        if (!empty($reslist)) {
            if($smoke_codes[$reslist]!="")
                $code_desc = "( ".$smoke_codes[$reslist]." )";
@@ -2263,7 +2263,7 @@ function generate_plaintext_field($frow, $currvalue) {
       if (empty($restype) && empty($resnote)) continue;
       if ($s !== '') $s .= '; ';
       $s .= xl_list_label($lrow['title']);
-      $restype = $restype ? xl('Yes') : xl('No');  
+      $restype = $restype ? xl('Yes') : xl('No');
       $s .= $restype;
       if ($resnote) $s .= ' ' . $resnote;
     }
@@ -2410,7 +2410,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
 		echo "<td class='groupname'>";
 		//echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
 		//echo "<font color='#008800'>$group_name</font>";
-	
+
 		// Added 5-09 by BM - Translate label if applicable
 		echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES);
 	  
@@ -2443,7 +2443,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
 	if ($datacols > 0) {
 	  disp_end_cell();
 	  //echo "<td class='text data' colspan='$datacols' valign='top'";
-	  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);      
+	  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
 	  echo "<td class='text data' colspan='$datacols_esc'";
 	  //if ($cell_count > 0) echo " style='padding-left:5pt'";
 	  echo ">";
@@ -2938,7 +2938,7 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
 
   if ($allow_allfacilities) {
     $option_value = '';
-    $option_selected_attr = '';	
+    $option_selected_attr = '';
     if ($selected == '') {
       $option_selected_attr = ' selected="selected"';
       $have_selected = true;

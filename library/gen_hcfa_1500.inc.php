@@ -158,7 +158,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     if      ($tmp === 'S') $tmpcol = 35; // Single
     else if ($tmp === 'M') $tmpcol = 41; // Married
     put_hcfa(14, $tmpcol, 1, 'X');
-  }  
+  }
     
   // Box 7 continued. Insured's City and State
   put_hcfa(14, 50, 20, $claim->insuredCity());
@@ -342,7 +342,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
     // Only include the Box 15 qualifier if there we are using version 02/12 and there is a Box 15 date.
-    put_hcfa(32, 31, 3, $claim->box15qualifier());    
+    put_hcfa(32, 31, 3, $claim->box15qualifier());
   }
 
 
@@ -613,7 +613,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(57, 66,  3, substr($tmp,0,3));
   put_hcfa(57, 70, 3, substr($tmp,3)); // slight adjustment for better look smw 030315
   put_hcfa(57, 73, 1, '-');
-  put_hcfa(57, 74, 4, substr($tmp,6));  
+  put_hcfa(57, 74, 4, substr($tmp,6));
 
   // 32. Service Facility Location Information: Name
   put_hcfa(58, 23, 25, $claim->facilityName());
@@ -652,7 +652,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     }
     put_hcfa(58, 50, 25, $billingProviderName);
   }
-  else { 
+  else {
   put_hcfa(58, 50, 25, $claim->billingFacilityName());
   }
   // 32. Service Facility Location Information: Street
@@ -665,11 +665,11 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
    if($GLOBALS['cms_1500_box_31_format']==0)
    {
-      put_hcfa(60, 1, 20, 'Signature on File');   
+      put_hcfa(60, 1, 20, 'Signature on File');
    }
    else if($GLOBALS['cms_1500_box_31_format']==1)
    {
-      put_hcfa(60, 1, 22, $claim->providerFirstName()." ".$claim->providerLastName());   
+      put_hcfa(60, 1, 22, $claim->providerFirstName()." ".$claim->providerLastName());
    }
   //
   // $tmp = $claim->providerFirstName();

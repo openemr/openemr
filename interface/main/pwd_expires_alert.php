@@ -40,11 +40,11 @@ $pwd_alert = date("Y-m-d", strtotime($pwd_expires . "-7 days"));
 $msg_alert = "";
 
 // Determine the expiration message to display
-if (($pwd_expires == "0000-00-00") or ($pwd_expires == "")) { 
+if (($pwd_expires == "0000-00-00") or ($pwd_expires == "")) {
   $msg_alert = xl("Your Password Expired. Please change your password.");
   $case="alertmsg1";
-}  
-else if ((strtotime($current_date) > strtotime($pwd_expires)) && ($grace_time != "") && 
+}
+else if ((strtotime($current_date) > strtotime($pwd_expires)) && ($grace_time != "") &&
          ($pwd_expires != "") && (strtotime($current_date) < strtotime($grace_time)))  {
 
   //display warning if user is in grace period to change password

@@ -134,7 +134,7 @@ class QRDAXml extends XmlWriterOemr {
 	function add_authReprestOrginisation($facilArr) {
 		$this->push('representedOrganization');
 		$this->self_customTag('id', array('root' => '2.16.840.1.113883.19.5', 'extension' =>'223344'));
-		$this->element('name', $facilArr['name']); 
+		$this->element('name', $facilArr['name']);
 		if(!empty($facilArr['phone']))
 			$this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
 		else
@@ -166,7 +166,7 @@ class QRDAXml extends XmlWriterOemr {
 	function add_represtCustodianOrginisation($facilArr) {
 		$this->push('representedCustodianOrganization');
 		$this->self_reprsntCustId();
-		$this->element('name', $facilArr['name']); 
+		$this->element('name', $facilArr['name']);
 		if(!empty($facilArr['phone']))
 			$this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
 		else
@@ -222,7 +222,7 @@ class QRDAXml extends XmlWriterOemr {
 		$this->push('representedOrganization');
 		$this->self_represntOrgId();
 		if($name)
-			$this->element('name', $name); 
+			$this->element('name', $name);
 		else
 			$this->emptyelement('name');
 		$this->pop();
@@ -262,7 +262,7 @@ class QRDAXml extends XmlWriterOemr {
 		if($addrArr['street'] != "")
 			$this->element('streetAddressLine', $addrArr['street']);
 		else
-			$this->emptyelement('streetAddressLine',array("nullFlavor" => "UNK")); 
+			$this->emptyelement('streetAddressLine',array("nullFlavor" => "UNK"));
 		
 		if($addrArr['city'] != "")
 			$this->element('city', $addrArr['city']);
@@ -385,15 +385,15 @@ class QRDAXml extends XmlWriterOemr {
 	}
 	
 	function add_trElementsTitles() {
-		$this->element('th', 'eMeasure Title'); 
-		$this->element('th', 'Version neutral identifier'); 
-		$this->element('th', 'Version specific identifier'); 
+		$this->element('th', 'eMeasure Title');
+		$this->element('th', 'Version neutral identifier');
+		$this->element('th', 'Version specific identifier');
 	}
 	
 	function add_trElementsValues($arr = array()) {
-		$this->element('td', $arr[0]); 
-		$this->element('td', $arr[1]); 
-		$this->element('td', $arr[2]); 
+		$this->element('td', $arr[0]);
+		$this->element('td', $arr[1]);
+		$this->element('td', $arr[2]);
 	}
 	
 	function innerContent($arr = array()) {
@@ -410,13 +410,13 @@ class QRDAXml extends XmlWriterOemr {
 	
 	function add_providerName($nameArr) {
 		$this->push('name');
-		$this->element('given', $nameArr['fname']); 
-		$this->element('family', $nameArr['lname']); 
+		$this->element('given', $nameArr['fname']);
+		$this->element('family', $nameArr['lname']);
 		$this->pop();
 	}
 	
 	function add_facilName($facilName) {
-		$this->element('name', $facilName); 
+		$this->element('name', $facilName);
 	}
 	
 	function add_patientAddress($addrArr) {
@@ -443,7 +443,7 @@ class QRDAXml extends XmlWriterOemr {
 		
 		if($addrArr['country_code'] != "")
 			$this->element('country', $addrArr['country_code']);
-		else 
+		else
 			$this->emptyelement('country',array("nullFlavor" => "UNK"));
 
 		$this->pop();
@@ -453,8 +453,8 @@ class QRDAXml extends XmlWriterOemr {
 	
 	function add_patName($nameArr) {
 		$this->push('name');
-		$this->element('given', $nameArr['fname']); 
-		$this->element('family', $nameArr['lname']); 
+		$this->element('given', $nameArr['fname']);
+		$this->element('family', $nameArr['lname']);
 		$this->pop();
 	}
 	
@@ -478,7 +478,7 @@ class QRDAXml extends XmlWriterOemr {
 		
 		if($addrArr['postal_code'] != "")
 			$this->element('postalCode', $addrArr['postal_code']);
-		else 
+		else
 			$this->emptyelement('postalCode',array("nullFlavor" => "UNK"));
 		
 		if($addrArr['country_code'] != "")

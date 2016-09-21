@@ -37,7 +37,7 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/options.inc.php");
 
 //if the edit button for editing disclosure is set.
-if (isset($_GET['editlid'])) 
+if (isset($_GET['editlid']))
 {
 	$editlid=$_GET['editlid'];
 }
@@ -153,7 +153,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 	<tr>   
 		<td>
 		<span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'),ENT_NOQUOTES); ?>:</span></td>
-		<?php if($editlid) 
+		<?php if($editlid)
 		{
 		?>
 		<td>

@@ -37,7 +37,7 @@ class OEMRUser{
     
     //this will return the query string along with the parameter array, according to the case case.
     //actual execution is done in the select_query function in Server_side
-    
+
     private function getPid($id){
         $row = sqlQuery("SELECT pid FROM audit_master WHERE id=? AND approval_status=1",array($id));
         return $row['pid'];
@@ -138,7 +138,7 @@ class OEMRUser{
             
             break;
             // Demo building from layout options.
-            
+
             case 'P7':
             $query=" select * from layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
             " ORDER BY group_name, seq";

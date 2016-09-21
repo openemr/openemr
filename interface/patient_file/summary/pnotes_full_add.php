@@ -34,11 +34,11 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid)); 
+  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
   $patient_id = intval($row['foreign_id']);
 }
 else if ($orderid) {
-  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid)); 
+  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
   $patient_id = intval($row['patient_id']);
 }
 
@@ -173,7 +173,7 @@ document.forms[0].submit();
 $title_docname = "";
 if ($docid) {
   $title_docname .= " " . xl("linked to document") . " ";
-  $d = new Document($docid);	
+  $d = new Document($docid);
   $title_docname .= $d->get_url_file();
 }
 if ($orderid) {
@@ -216,7 +216,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
     <?php
      if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-       echo htmlspecialchars( xl('Amend Existing Note'), ENT_NOQUOTES) . 
+       echo htmlspecialchars( xl('Amend Existing Note'), ENT_NOQUOTES) .
          "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
      } else {
        echo htmlspecialchars( xl('Add New Note'), ENT_NOQUOTES) . "\n";

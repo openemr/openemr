@@ -19,7 +19,7 @@ if (isset($_GET['mode'])) {
 	 * WHEN BACK IS CLICKED, ANOTHER ITEM GETS ADDED
 	 */
 	
-	if ($_GET['mode'] == "add") {		
+	if ($_GET['mode'] == "add") {
         $sql = "REPLACE INTO immunizations set 
                       id = ?,
                       administered_date = if(?,?,NULL),  
@@ -68,7 +68,7 @@ if (isset($_GET['mode'])) {
                 trim($_GET['immuniz_completion_status']),
                 trim($_GET['immunization_informationsource']),
                 trim($_GET['immunization_refusal_reason']),
-                trim($_GET['ordered_by_id'])          
+                trim($_GET['ordered_by_id'])
 		     );
         $newid = sqlInsert($sql,$sqlBindArray);
         $administered_date=date('Y-m-d H:i');
@@ -108,7 +108,7 @@ if (isset($_GET['mode'])) {
 		
 		$immuniz_amt_adminstrd = $result['amount_administered'];
 		$drugunitselecteditem = $result['amount_administered_unit'];
-        $immunization_id = $result['immunization_id'];	
+        $immunization_id = $result['immunization_id'];
 		$immuniz_exp_date = $result['expiration_date'];
 		
 		$cvx_code = $result['cvx_code'];
@@ -128,7 +128,7 @@ if (isset($_GET['mode'])) {
 	$entered_by_id      = ($result['created_by'] ? $result['created_by'] : 0);
 
 		$administered_by = "";
-		if (!$result['administered_by'] && !$row['administered_by_id']) { 
+		if (!$result['administered_by'] && !$row['administered_by_id']) {
     		$stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             		"from users where ".
             		"id=?";
@@ -143,13 +143,13 @@ if (isset($_GET['mode'])) {
         $note = $result['note'];
 		$isAddedError = $result['added_erroneously'];
 		
-	$immuniz_completion_status = $result['completion_status'];	
-        $immuniz_information_source = $result['information_source'];	
+	$immuniz_completion_status = $result['completion_status'];
+        $immuniz_information_source = $result['information_source'];
         $immuniz_refusal_reason     = $result['refusal_reason'];
 	//set id for page
 	$id = $_GET['id'];
 	
-        $imm_obs_data = getImmunizationObservationResults();	
+        $imm_obs_data = getImmunizationObservationResults();
     }
 }
 
@@ -180,7 +180,7 @@ $sortby = $_GET['sortby'];
 if (!$sortby) { $sortby = 'vacc'; }
 
 // set the default value of 'administered_by'
-if (!$administered_by && !$administered_by_id) { 
+if (!$administered_by && !$administered_by_id) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             " from users where ".
             " id=?";
@@ -189,7 +189,7 @@ if (!$administered_by && !$administered_by_id) {
 }
 
 // get the entered username
-if ($entered_by_id) { 
+if ($entered_by_id) {
     $stmt = "select CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name ".
             " from users where ".
             " id=?";
@@ -244,7 +244,7 @@ function getImmunizationObservationResults()
 }
 
 function saveImmunizationObservationResults($id,$immunizationdata)
-{ 
+{
     $imm_obs_data = getImmunizationObservationResults();
     if(count($imm_obs_data) > 0) {
         foreach($imm_obs_data as $key=>$val) {
@@ -579,7 +579,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                 <legend><?php echo htmlspecialchars( xl('Observation Results'), ENT_QUOTES); ?></legend>
                 <table class="obs_res_table">
                   <?php if(count($imm_obs_data) > 0) {
-                    foreach($imm_obs_data as $key=>$value) { 
+                    foreach($imm_obs_data as $key=>$value) {
                       $key_snomed = 0; $key_cvx = 0; $style= '';?>
                       <tr id="or_tr_<?php echo $key + 1 ;?>">
                         <?php 
@@ -789,15 +789,15 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                 else {
                     $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                 }
-            } 
+            }
 			
 			if ($isError) {
 				$del_tag_open = "<del>";
 				$del_tag_close = "</del>";
 			} else {
 				$del_tag_open = "";
-				$del_tag_close = "";				
-			}			
+				$del_tag_close = "";
+			}
 			
             echo "<td>" . $del_tag_open . $vaccine_display . $del_tag_close . "</td>";
 			
@@ -806,7 +806,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 				$administered_date_summary = $administered_date_summary->format('Y-m-d H:i');
 			} else {
 				$administered_date_summary = "";
-			}			
+			}
 			echo "<td>" . $del_tag_open . htmlspecialchars( $administered_date_summary, ENT_NOQUOTES) . $del_tag_close . "</td>";
                         if ($row["amount_administered"] > 0) {
 			        echo "<td>" . $del_tag_open . htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']) , ENT_NOQUOTES) . $del_tag_close . "</td>";
@@ -819,7 +819,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["lot_number"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["administered_by"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["education_date"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";			
+			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";
 			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
 			echo "<td>" . $del_tag_open . htmlspecialchars( $row["note"], ENT_NOQUOTES) . $del_tag_close . "</td>";
                         echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";

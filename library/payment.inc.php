@@ -169,7 +169,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', account_code = '" . "Deduct"  .
 		"'");
 	   sqlCommitTrans();
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
    {
@@ -192,7 +192,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', account_code = '" . "Takeback"  .
 		"'");
 	   sqlCommitTrans();
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
    {
@@ -216,7 +216,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
 		"'");
 	   sqlCommitTrans();
-	  $Affected='yes';		
+	  $Affected='yes';
    }
   if($Affected=='yes')
    {

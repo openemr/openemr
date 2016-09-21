@@ -1082,7 +1082,7 @@ function postcalendar_user_search()
         if(!empty($s_topic)) $searchargs['s_topic'] = $s_topic;
         
         // some new search parameters introduced in the ajax_search form...  JRM March 2008
-        
+
         // the ajax_search form has form parameters for 'start' and 'end' already built in
         // so use them if available
         $tmpDate = pnVarCleanFromInput("start");

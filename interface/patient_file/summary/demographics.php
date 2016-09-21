@@ -144,7 +144,7 @@ function image_widget($doc_id,$doc_catg)
                     "&patient_id=$pid&document_id=$doc_id'" .
                     " onclick='top.restoreSession()' class='css_button_small'>" .
                     "<span>" .
-                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . 
+                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" .
 					htmlspecialchars( "$doc_catg - $image_file", ENT_QUOTES ) .
                     "</span> </td>";
 		}
@@ -451,7 +451,7 @@ function setMyPatient() {
  parent.left_nav.syncRadios();
 <?php if ( (isset($_GET['set_pid']) ) && (isset($_GET['set_encounterid'])) && ( intval($_GET['set_encounterid']) > 0 ) ) {
  $encounter = intval($_GET['set_encounterid']);
- $_SESSION['encounter'] = $encounter; 
+ $_SESSION['encounter'] = $encounter;
  $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
@@ -647,14 +647,14 @@ if ($GLOBALS['patient_id_category_name']) {
 				$modulePath 	= $GLOBALS['customModDir'];
 				$added		= "";
 			}
-			else{ 	
+			else{
 				$added		= "index";
 				$modulePath 	= $GLOBALS['zendModDir'];
 			}
 			$relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
 			$nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
 			$jid++;
-			$modid = $modulerow['mod_id'];			
+			$modid = $modulerow['mod_id'];
 			?>
 			|
 			<a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
@@ -728,7 +728,7 @@ if ($GLOBALS['patient_id_category_name']) {
     xlt('Billing Note') . ":" .
     text($result['billing_note']) .
     "</font></span></td></tr>";
-  } 
+  }
   if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
    echo "<tr><td><span class='bold'>" .
     xlt('Primary Insurance') . ': ' . text($insco_name) .
@@ -1094,11 +1094,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $bodyClass = "notab";
   // check to see if any labdata exist
   $spruch = "SELECT procedure_report.date_collected AS date " .
-			"FROM procedure_report " . 
-			"JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id " . 
-			"WHERE procedure_order.patient_id = ? " . 
+			"FROM procedure_report " .
+			"JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id " .
+			"WHERE procedure_order.patient_id = ? " .
 			"ORDER BY procedure_report.date_collected DESC ";
-  $existLabdata = sqlQuery($spruch, array($pid) );	
+  $existLabdata = sqlQuery($spruch, array($pid) );
   if ($existLabdata) {
     $widgetAuth = true;
   }
@@ -1290,7 +1290,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
           } ?>
       </div>
  <?php  }  // close advanced dir block
- 
+
 	// This is a feature for a specific client.  -- Rod
 	if ($GLOBALS['cene_specific']) {
 	  echo "   <br />\n";
@@ -1319,7 +1319,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 
      // Show Clinical Reminders for any user that has rules that are permitted.
-     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']); 
+     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
      if ( (!empty($clin_rem_check)) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
         // clinical summary expand collapse widget
         $widgetTitle = xl("Clinical Reminders");
@@ -1554,7 +1554,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  "openemr_postcalendar_categories AS c WHERE " .
 	  "e.pc_pid = ? AND e.pc_eventDate < CURRENT_DATE AND " .
 	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
-	  "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " . 
+	  "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " .
       "LIMIT " . $showpast;
 	
      $pres = sqlStatement($query, array($pid) );
@@ -1569,7 +1569,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $bodyClass = "summary_item small";
         $widgetAuth = false; //no button
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);   
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
         while($row = sqlFetchArray($pres)) {
             $count++;
@@ -1591,14 +1591,14 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             echo htmlspecialchars($row['fname'] . " " . $row['lname'],ENT_NOQUOTES) . "</a><br>\n";
         }
         if (isset($pres) && $res != null) {
-           if ( $count < 1 ) { 
-               echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);          
+           if ( $count < 1 ) {
+               echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
            }
         echo "</div>";
         }
     }
 // END of past appointments            
-            
+
 			?>
 		</div>
 
@@ -1610,7 +1610,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     </tr>
     
            <?php // TRACK ANYTHING -----
-		
+
 		// Determine if track_anything form is in use for this site.
 		$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE " .
 						"directory = 'track_anything' AND state = 1");
@@ -1628,10 +1628,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 			$bodyClass = "notab";
 			// check to see if any tracks exist
 			$spruch = "SELECT id " .
-				"FROM forms " . 
+				"FROM forms " .
 				"WHERE pid = ? " .
-				"AND formdir = ? "; 
-			$existTracks = sqlQuery($spruch, array($pid, "track_anything") );	
+				"AND formdir = ? ";
+			$existTracks = sqlQuery($spruch, array($pid, "track_anything") );
 
 			$fixedWidth = false;
 			expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,

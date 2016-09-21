@@ -25,7 +25,7 @@ if ($is_lbf) {
 //Bring in the style sheet
 ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<?php  
+<?php 
 // Hide the current value css entries. This is currently specific
 //  for the vitals form but could use this mechanism for other
 //  forms.

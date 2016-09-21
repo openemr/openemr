@@ -36,16 +36,16 @@ if ($_POST['submit']) {
 	$icd9 = "sql/icd9.sql";
 	$conffile = "library/sqlconf.php";
 	$server = "localhost";
-	$port = "3306"; 
+	$port = "3306";
 	$dbname = $newname;
-	$root = "root";	
+	$root = "root";
 	$rootpass = "";
 	$login = $newname;
 	$pass = $newname;
 	$loginhost = "localhost";
  
 	//setup of database
-	
+
 	echo "Connecting to MySQL Server...\n";
 	flush();
 	if ($server == "localhost")

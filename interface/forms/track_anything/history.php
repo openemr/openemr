@@ -28,17 +28,17 @@ require_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
-if(!$formid){ 
+if(!$formid){
 	$formid = $_POST['formid']; // call from track_anything encounter
 	$fromencounter = 1;
-	if(!$formid){ 
+	if(!$formid){
 		$formid = $_GET['formid']; // call from demographic-widget "track_anything_fragement.php"
 		$fromencounter = 0;
 	}
 }
 
 if ($_POST['fromencounter'] != ''){
-	$fromencounter = $_POST['fromencounter'];	
+	$fromencounter = $_POST['fromencounter'];
 }
 
 // get $_POSTed vars
@@ -69,7 +69,7 @@ $globalplot		= 0;		# flag if global plot-button is shown
 $globalplot_c	= array();	# flag if global plot-button is shown
 $track_count	= 0;		# counts tracks and generates div-ids
 //-----------end setup vars
-		
+
 
 
 echo "<html><head>";
@@ -144,7 +144,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 }
 //------------------------------------------------------
 </script>
-<?php  
+<?php 
 
 //#########################################################
 // Here starts webpage-output
@@ -155,7 +155,7 @@ echo "</head><body class='body_top'>";
 echo "<div id='track_anything'>";
 // Choose output mode (order ASC vs order DESC)
 //---------------------------------------------
-echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>"; 
+echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>";
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
 if($ASC_DESC == 'ASC'){ echo "checked='checked' "; }
@@ -189,7 +189,7 @@ echo "<hr>";
 
 // get name and id of selected track
 $spell  = "SELECT form_track_anything.procedure_type_id AS the_id, form_track_anything_type.name AS the_name ";
-$spell .= "FROM form_track_anything "; 
+$spell .= "FROM form_track_anything ";
 $spell .= "INNER JOIN form_track_anything_type ON form_track_anything.procedure_type_id = form_track_anything_type.track_anything_type_id ";
 $spell .= "WHERE id = ? AND form_track_anything_type.active = 1";
 //---
@@ -236,7 +236,7 @@ while($myrow = sqlFetchArray($query)){
 	$col 			= 0; // how many Items per row	
 	$row_lc 		= 0; // local row counter
 	//--- end reset local arrays
-	
+
 	
 	// get every single tracks
 	echo "<div id='graph" . attr($track_count) . "'> </div><br>"; // here goes the graph
@@ -246,10 +246,10 @@ while($myrow = sqlFetchArray($query)){
 	echo "<table border='1'>";
 	$spell2  = "SELECT DISTINCT track_timestamp ";
 	$spell2 .= "FROM form_track_anything_results ";
-	$spell2 .= "WHERE track_anything_id = ? "; 
+	$spell2 .= "WHERE track_anything_id = ? ";
 	$spell2 .= "ORDER BY track_timestamp " . escape_sort_order($ASC_DESC);
 	$query2 = sqlStatement($spell2, array($the_track));
-	while($myrow2 = sqlFetchArray($query2)){ 
+	while($myrow2 = sqlFetchArray($query2)){
 		$thistime = $myrow2['track_timestamp'];
 		$shownameflag++;
 		
@@ -272,16 +272,16 @@ while($myrow = sqlFetchArray($query)){
 				if($save_item_flag == 0) {
 					$items_n[$items_c] = $myrow3['the_name']; // save item names
 					$items_c++; // count number of items
-				}	
+				}
 				$col++;
 			}
 			$save_item_flag++;
-			echo "</tr>";		
+			echo "</tr>";
 		}
 		//-----/end print local table head
-		
+
 		// data-rows
-		echo "<tr><td class='time'>&nbsp;" . text($thistime) . "</td>";				
+		echo "<tr><td class='time'>&nbsp;" . text($thistime) . "</td>";
 		$col_i = 0; // how many columns
 		$date_global[$row_gl] = $thistime; // save datetime into global array
 		$date_local[$row_lc]  = $thistime; // save datetime into local array
@@ -294,7 +294,7 @@ while($myrow = sqlFetchArray($query)){
 					$value_local[$col_i][$row_lc]  = $myrow3['result']; // save value into local array 
 			}
 			$col_i++;
-		} 
+		}
 		echo "</tr>";
 		$row++;
 		$row_gl++;
@@ -309,14 +309,14 @@ while($myrow = sqlFetchArray($query)){
 	for ($col_i = 0; $col_i < $col; $col_i++){
 		echo "<td class='check'>";
 		for ($row_b=0; $row_b <$row_lc; $row_b++) {
-			if(is_numeric($value_local[$col_i][$row_b])){ 
+			if(is_numeric($value_local[$col_i][$row_b])){
 				$localplot_c[$col_i]++; // count more than 1 to show graph-button
 				$globalplot_c[$col_i]++;
 			}
 		}
 		
 		// show graph-checkbox only if we have more than 1 valid data
-		if ($localplot_c[$col_i] > 1 || $globalplot_c[$col_i] > 1){ 
+		if ($localplot_c[$col_i] > 1 || $globalplot_c[$col_i] > 1){
 			echo "<input type='checkbox' name='check_col" . attr($track_count) . "' value='" . attr($col_i) . "'>";
 			if ($localplot_c[$col_i] > 1) {
 				$localplot++;
@@ -324,7 +324,7 @@ while($myrow = sqlFetchArray($query)){
 			$globalplot++;
 		}
 		echo "</td>";
-	}	
+	}
 
 
 	echo "</tr>";
@@ -333,13 +333,13 @@ while($myrow = sqlFetchArray($query)){
 	echo "<tr>";
 	echo "<td class='check'>" . xlt('With checked items plot') . ":</td>"; // 
 	echo "<td class='check'>";
-	if ($localplot > 0){ 
+	if ($localplot > 0){
 		echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($track_count) . "(\"local\")' name='' value='" . xla('encounter data') . "'>";
 	}
 	if ($localplot > 0 && $globalplot > 0){
 			echo "<br>";
 	}
-	if ($globalplot > 0){ 
+	if ($globalplot > 0){
 		echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($track_count) . "(\"global\")' name='' value='" . xla('data of all encounters so far') . "'>";
 	}
 	echo "</td>";
@@ -385,7 +385,7 @@ echo "<hr>";
 
 // Choose output mode (order ASC vs order DESC)
 //---------------------------------------------
-echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>"; 
+echo "<form method='post' action='history.php' onsubmit='return top.restoreSession()'>";
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
 if($ASC_DESC == 'ASC'){ echo "checked='checked' "; }

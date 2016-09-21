@@ -337,10 +337,10 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
     }
 }
 function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql format
-        
+
         // All 4 parameters have previously been trimmed, globally validated,
 	//  and prepared for database insert
-    
+
 	$name_clause = '';
 	$date_clause = "date(t2.date) >= '".$start_date."' and date(t2.date) <= '".$end_date."' ";
 	if ($lname || $fname) {
@@ -359,7 +359,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 	      	"t2.reason from " .
 		"forms as t1 join " .
 		"form_encounter as t2 on " .
-		"(t1.pid = t2.pid and t1.encounter = t2.encounter) " . 
+		"(t1.pid = t2.pid and t1.encounter = t2.encounter) " .
 		"join patient_data as t3 on " .
 		"(t1.pid = t3.pid) where " .
 		$date_clause .
@@ -392,20 +392,20 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 		}
 		if (strtolower($results1['form_name']) == 'vitals') { // deal with Vitals
 			$query2 = sqlStatement("select * from form_vitals where id = " .
-			    	$results1['form_id']);	
+			    	$results1['form_id']);
 	                if ($results2 = sqlFetchArray($query2)) {
 				$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['vitals'] = formatVitals($results2);
 			}
 		}
 		if (substr(strtolower($results1['form_name']),0,5) == 'camos') { // deal with camos
 			$query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = " .
-			    	$results1['form_id']);	
+			    	$results1['form_id']);
 	                if ($results2 = sqlFetchArray($query2)) {
 				if ($results2['category'] == 'exam') {
 					array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['exam'],$results2['content']);
 				}
 				elseif ($results2['category'] == 'prescriptions') {
-					array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['prescriptions'],preg_replace("/\n+/",' ',$results2['content'])); 
+					array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['prescriptions'],preg_replace("/\n+/",' ',$results2['content']));
 				}
 				elseif ($results2['category'] == 'communications') {
 					//do nothing
