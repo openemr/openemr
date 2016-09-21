@@ -247,7 +247,7 @@ function displayAlert()
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . $pos["code"] . "\" ";
-                    echo ">" . $pos['code']  . ": ". $pos['title'];
+                    echo ">" . $pos['code']  . ": ". text($pos['title']);
                     echo "</option>\n";
                 }
 

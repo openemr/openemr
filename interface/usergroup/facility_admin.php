@@ -232,7 +232,7 @@ function displayAlert()
                     if ($facility['pos_code'] == $pos['code']) {
                         echo "selected";
                     }
-                    echo ">" . $pos['code']  . ": ". $pos['title'];
+                    echo ">" . $pos['code']  . ": ". text($pos['title']);
                     echo "</option>\n";
                 }
 
