@@ -336,7 +336,7 @@ div.closeDlgIframe:before {
     background:#fff;
     display: none;
     position: absolute;
-    top: 48px;
+    top: 40px;
     z-index:1000;
     min-width: 175px;
     box-shadow: 0px 5px 5px #adadad;
