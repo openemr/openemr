@@ -29,12 +29,11 @@ html
 }
 body
 {
-    /*font-family: 'FontAwesome', Arial, Helvetica, sans-serif;*/
+    font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     margin: 0px;
-    background-color: #f4f4f4;
 }
 #mainBox
 {
@@ -92,63 +91,39 @@ body
 
 .tabControls
 {
-    border-bottom: 1pt solid #1976d2;
-    margin: 0px;
-    padding: 0px;
-    padding-top: 4px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
     display: flex;
     flex-direction: row;
-    background: #f4f4f4;
 }
 
 .tabSpan
 {
-    margin: 0px;
-    padding: 8px 8px;
-    border-top: 3pt solid #1976d2;
-    border-left: 1px solid #1976d2;
-    border-bottom: none;
-    border-right: 1px solid #1976d2;
+    margin: 0 0 0 0;
+    padding:  1px 7px;
+    border: 1pt solid black;
+    border-bottom:0pt;
+    border-radius: 6px 6px 0 0;
     cursor: pointer;
-    /**
-     * This next part "connects" the tab to the
-     * "content" by hiding the containing border
-     */
-    position: relative;
-    bottom: -1px;
     flex: 0 1 auto;
-    white-space: nowrap;
+    white-space:nowrap;
+    box-shadow: 2px -2px 6px rgba(0, 0, 0, 0.6);
     overflow: visible;
-}
-.tabSpan:last-child {
-    /*border-right: 1pt solid #1976d2;*/
-}
-
-.tabSpan .fa {
-    font-size: 80%;
-    color: #888888;
 }
 
 .tabSpan:hover
 {
-    /*color: red;*/
+    color: red;
 }
 .tabHidden
 {
-    color: #888888;
+    color: gray;
 }
 .tabNotchosen {
-    position: relative;
-    bottom: 0px;
-    background: transparent;
-    border-top: 3pt solid transparent;
-    border-left: none;
-    border-right: none;
+    border-bottom:1pt solid black;
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
     display:block;
     max-width:1000px;
-}
-.tabNotchosen:hover {
-    background: #e9e9e9;
 }
 
 #dialogDiv
@@ -161,15 +136,15 @@ body
     width: 99%;
     height:99%;
 
-    background-color: #fff;
+    background-color: gray;
     z-index:1000;
-    opacity: 0.65;
+    opacity: 0.5;
 }
 
 #dialogDiv > div.container
 {
     display: table;
-    /*background-color: gray;*/
+    background-color: gray;
     margin: auto auto;
     opacity: 1;
 }
@@ -177,35 +152,25 @@ body
 .dialogIframe
 {
     position: absolute;
-    top: 0;
-    left: 0;
+    top:0;
+    left:0;
     margin: auto auto;
     opacity: 1;
-    z-index: 10000;
-    box-shadow: 0px 0px 30px rgba(0,0,0,0.2);
+    z-index:10000;
+    border: 1px solid black;
+    border-radius: 10px;
 }
 
 div.closeDlgIframe {
-    background: #ff5d5a;
+
     position: absolute;
     top: -12px;
-    right: -12px;
+    right: -15px;
     height: 30px;
     width: 30px;
+    background: url('iframe_close.png') top left no-repeat;
     cursor: pointer;
     z-index: 10010;
-}
-div.closeDlgIframe:before {
-    color: #fff;
-    content: "\f00d";
-    font-family: "FontAwesome";
-    font-weight: bold;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    margin: auto;
-    line-height: 30px;
-    height: 30px;
 }
 
 .dialogIframe > iframe{
@@ -216,10 +181,7 @@ div.closeDlgIframe:before {
 }
 #patientData
 {
-    background-color: #f4f4f4;
-}
-.patientInfo a {
-    color: #333 !important;
+    min-height: 4em;
 }
 
 .patientDataColumn
@@ -243,15 +205,20 @@ div.closeDlgIframe:before {
     z-index:1;
 }
 
-.patientEncounterList  table.encounters {
+.patientEncounterList  table.encounters
+{
     display: none;
 }
 
-.patientEncounterList:hover table.encounters {
+
+.patientEncounterList:hover table.encounters
+{
     display: block;
+
 }
 
-.patientEncounterList > div {
+.patientEncounterList > div
+{
     padding: 2px;
 }
 .patientEncounterList:hover
@@ -291,8 +258,20 @@ div.closeDlgIframe:before {
     padding: 1px 1px 1px 10px;
 }
 
-.patientInfo .clear:hover i {
-    color: #ff5d5a;
+.patientInfo .clear
+{
+    font-size: x-small;
+    margin: 1px;
+    padding: 3px;
+    border: 1px solid black;
+    background-color: lightgray;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.patientInfo .clear:hover
+{
+    color:red;
 }
 
 .top {
@@ -305,7 +284,7 @@ div.closeDlgIframe:before {
     padding:0px 0px;
     white-space: nowrap;
 }
-.appMenu > span:hover 
+.appMenu > span:hover
 {
     color: #fff;
     text-decoration: none;
@@ -330,7 +309,7 @@ div.closeDlgIframe:before {
     text-shadow: none;
 }
 .appMenu li:hover > .menuDisabled
- {   
+ {
     background-color: transparent;
 }
 .menuSection{
@@ -386,7 +365,7 @@ div.closeDlgIframe:before {
     right:10px;
 }
 .body_top {
-    background-color: #C9DBF2;   
+    background-color: #C9DBF2;
     padding:0px;
     border-bottom:0.1pt solid black;
     -moz-box-shadow:    0 0 10px #000;
