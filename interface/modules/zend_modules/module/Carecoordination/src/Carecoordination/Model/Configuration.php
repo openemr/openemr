@@ -261,8 +261,8 @@ class Configuration extends Form implements InputFilterAwareInterface
 					    'name' 	=> "send_to_hie",
 					    'title'	=> "Send To HIE",
 					    'path'	=> "encountermanager",
-					),						
-		       );	
+					),
+		       );
 	
 	return $hooks;
     }

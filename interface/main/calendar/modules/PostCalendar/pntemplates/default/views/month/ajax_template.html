@@ -538,10 +538,10 @@ foreach ($providers as $provider) {
                 else {
                 //Category Clinic closaed or holiday take the event title
                      if ( $catid == 6 || $catid == 7){
-                        $content  = $event['title'];
+                        $content  = xlt($event['title']);
                     }else{
                     // no patient id, just output the category name
-                        $content .= $catname;
+                        $content .= text(xl_appt_category($catname));
                      }
                     }
             }

@@ -47,7 +47,7 @@ class Module
                 $controller->getEvent()->getViewModel()->setVariables(array(
                     'current_controller' => $route->getParam('controller'),
                     'current_action' => $route->getParam('action'),
-                )); 
+                ));
         }, 100);
     }
     
@@ -59,7 +59,7 @@ class Module
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new CarecoordinationTable($tableGateway);
                     return $table;
-                },		
+                },
 		
 		'Carecoordination\Model\EncounterccdadispatchTable' =>  function($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');

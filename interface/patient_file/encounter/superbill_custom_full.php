@@ -629,7 +629,7 @@ if (!empty($all)) {
       $arel = explode(';', $iter['related_code']);
       foreach ($arel as $tmp) {
         list($reltype, $relcode) = explode(':', $tmp);
-        $code_description = lookup_code_descriptions($reltype.":".$relcode);        
+        $code_description = lookup_code_descriptions($reltype.":".$relcode);
         echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
       }
       echo "</td>\n";

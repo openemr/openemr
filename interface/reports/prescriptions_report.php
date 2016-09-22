@@ -10,7 +10,7 @@
  // to various input selection criteria.
  // 
  // Fix drug name search to work in a broader sense - tony@mi-squared.com 2010
- 
+
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");

@@ -31,36 +31,36 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
 
     foreach($data as $key => $value) {
 
-      if ($key == "id" || $key == "pid" || 
-          $key == "user" || $key == "groupname" || 
-          $key == "authorized" || $key == "activity" || 
-          $key == "date" || $value == "" || 
+      if ($key == "id" || $key == "pid" ||
+          $key == "user" || $key == "groupname" ||
+          $key == "authorized" || $key == "activity" ||
+          $key == "date" || $value == "" ||
           $value == "0000-00-00 00:00:00" || $value == "0.0" )
       {
         // skip certain data
         continue;
       }
 
-      if ($value == "on") { $value = "yes"; } 
+      if ($value == "on") { $value = "yes"; }
 
       $key = ucwords(str_replace("_"," ",$key));
 
       //modified by BM 06-2009 for required translation
-      if ($key == "Temp Method" || $key == "BMI Status") { 
+      if ($key == "Temp Method" || $key == "BMI Status") {
         if ($key == "BMI Status") {
-          if ($patient_age <= 20 || (preg_match('/month/', $patient_age))) { 
-            $value = "See Growth-Chart"; 
+          if ($patient_age <= 20 || (preg_match('/month/', $patient_age))) {
+            $value = "See Growth-Chart";
           }
         }
-        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>"; 
-      } 
+        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
+      }
       elseif ($key == "Bps") {
         $bps = $value;
         if ($bpd) {
           $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
-          continue;   
+          continue;
         }
       }
       elseif ($key == "Bpd") {
@@ -69,7 +69,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
           $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
-          continue;   
+          continue;
         }
       }
       elseif ($key == "Weight") {
@@ -94,7 +94,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
         $convValue = number_format($value*2.54,2);
         // show appropriate units
-        if ($GLOBALS['units_of_measurement'] == 2) { 
+        if ($GLOBALS['units_of_measurement'] == 2) {
           $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('cm') . " (" . $value . " " . xl('in')  . ")</span></td>";
         }
         elseif ($GLOBALS['units_of_measurement'] == 3) {
@@ -136,9 +136,9 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
           $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('per min') . "</span></td>";
         }
       }
-      else { 
-        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>"; 
-      } 
+      else {
+        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+      }
 
       $count++;
 

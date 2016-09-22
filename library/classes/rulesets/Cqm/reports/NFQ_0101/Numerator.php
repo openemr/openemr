@@ -41,7 +41,7 @@ class NFQ_0101_Numerator implements CqmFilterIF
 							"AND ( prc.procedure_code = '73830-2' OR prc.procedure_code = '57254-5' ) ".
 							"AND prc.procedure_order_title = 'Risk Category Assessment'";
 		
-		$check = sqlQuery( $riskCatAssessQry, array($beginDate, $endDate, $patient->id) );   
+		$check = sqlQuery( $riskCatAssessQry, array($beginDate, $endDate, $patient->id) );
 		if ($check['cnt'] > 0){
 			return true;
 		}else{

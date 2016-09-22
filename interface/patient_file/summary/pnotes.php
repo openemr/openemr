@@ -41,11 +41,11 @@ $fake_register_globals=false;
 
  $patient_id = $pid;
  if ($docid) {
-  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid)); 
+  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
   $patient_id = intval($row['foreign_id']);
  }
  else if ($orderid) {
-  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid)); 
+  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
   $patient_id = intval($row['patient_id']);
  }
  $urlparms = "docid=$docid&orderid=$orderid";
@@ -88,7 +88,7 @@ $fake_register_globals=false;
 <?php
   if ($docid) {
     echo " " . xlt("linked to document") . " ";
-    $d = new Document($docid);	
+    $d = new Document($docid);
     echo $d->get_url_file();
   }
   else if ($orderid) {
@@ -125,7 +125,7 @@ if ($balance != "0") {
   $formatted = sprintf((xl('$').'%01.2f'), $balance);
   echo " <tr class='text billing'>\n";
   echo "  <td>" . $colorbeg . htmlspecialchars( xl('Balance Due'), ENT_NOQUOTES) .
-    $colorend . "</td><td>" . $colorbeg . 
+    $colorend . "</td><td>" . $colorbeg .
     htmlspecialchars( $formatted, ENT_NOQUOTES) . $colorend."</td>\n";
   echo " </tr>\n";
 }

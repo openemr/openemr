@@ -99,7 +99,7 @@ class EncounterccdadispatchController extends AbstractActionController
 				foreach($components0 as $key => $value){
 					if($str) $str .= '|';
 					$str .= $key;
-				}        
+				}
 				$this->sections = $str;
 			}
 			if(!$this->components){
@@ -107,7 +107,7 @@ class EncounterccdadispatchController extends AbstractActionController
                             foreach($components1 as $key => $value){
                                 if($str1) $str1 .= '|';
                                 $str1 .= $key;
-                            }        
+                            }
                             $this->components = $str1;
                         }
 			if($combination != ''){
@@ -132,7 +132,7 @@ class EncounterccdadispatchController extends AbstractActionController
 					xmlns:mif="urn:hl7-org:v3/mif">
 					<!--';
 					$content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
-					$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);					
+					$ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
                     try {
                         $event = isset ($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
@@ -213,7 +213,7 @@ class EncounterccdadispatchController extends AbstractActionController
     }
 	
      public function downloadCcdaLogDoc($parameterArray = array())
-    {    
+    {
         $validResult = $this->getEncounterccdadispatchTable()->valid($parameterArray[0]);
         
 	    // validate credentials 
@@ -254,7 +254,7 @@ class EncounterccdadispatchController extends AbstractActionController
         //$assignedEntity['postalCode']           = '02368';
         //$assignedEntity['country']              = 'US';
         //$assignedEntity['telecom']              = '5555551234';
-        
+
 		$representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
         
         $request            = $this->getRequest();
@@ -284,15 +284,15 @@ class EncounterccdadispatchController extends AbstractActionController
             foreach($components0 as $key => $value){
                 if($str) $str .= '|';
                 $str .= $key;
-            }        
+            }
             $this->sections = $str;
-        } 
+        }
         if(!$this->components){
             $components1  = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
             foreach($components1 as $key => $value){
                 if($str1) $str1 .= '|';
                 $str1 .= $key;
-            }        
+            }
             $this->components = $str1;
         }
         if($combination != ''){
@@ -336,7 +336,7 @@ class EncounterccdadispatchController extends AbstractActionController
       if($downloadccda)
         $this->forward()->dispatch('encountermanager',array('action'    => 'downloadall',
                                                             'pids'      => $this->params('pids')));
-      else 
+      else
            die;
         }
         else{
@@ -354,7 +354,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send,$emr_transfer);
 			echo $content;
 			die;
-        }        
+        }
         
         try{
             ob_clean();
@@ -372,7 +372,7 @@ class EncounterccdadispatchController extends AbstractActionController
     }
     
     public function socket_get($ip, $port, $data)
-    {   
+    {
         $output = "";
       
         // Create a TCP Stream Socket
@@ -394,7 +394,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $line = "";
             $line = socket_read($socket, 1024, PHP_NORMAL_READ);
             $output .= $line;
-        } while ($line != "");        
+        } while ($line != "");
         
         $output = substr(trim($output),0,strlen($output)-3);
         // Close and return.
@@ -474,7 +474,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $this->data .= $this->getEncounterccdadispatchTable()->getUnstructuredDocuments($pid, $encounter);
         /***************CCDA Body Information***************/
         
-        $this->data .="</CCDA>";  
+        $this->data .="</CCDA>";
     }
     
     public function get_file_name($dir_source)
@@ -489,7 +489,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     }
                 }
                 closedir($dh);
-            }            
+            }
         }
         return $tmpfile;
     }
@@ -503,7 +503,7 @@ class EncounterccdadispatchController extends AbstractActionController
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($tmpfile);
-    }    
+    }
     
     public function getContinuityCareDocument($pid,$encounter,$components_list)
     {
@@ -657,7 +657,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getSocialHistory($pid, $encounter);
         $history_and_physical_notes .= "</history_physical>";
         return $history_and_physical_notes;
-    }        
+    }
     
     /**
     * Table Gateway
@@ -688,7 +688,7 @@ class EncounterccdadispatchController extends AbstractActionController
             'combination' => $combination,
 			'listenerObject' => $this->listenerObject,
         ));
-        $view->setTerminal(true);                
+        $view->setTerminal(true);
         return $this->forward()->dispatch('encounterccdadispatch',array('action'=>'index'));
     }
     

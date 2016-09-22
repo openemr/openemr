@@ -227,7 +227,7 @@ if ( $encounterLocked === false ) {
       while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id']; // should start with LBF
       $title = $lrow['title'];
-      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname=' 
+      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname='
     				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
       }
     }
@@ -251,7 +251,7 @@ if ( $encounterLocked === false ) {
         $modulePath = $GLOBALS['customModDir'];
         $added		= "";
       }
-      else{ 	
+      else{
         $added		= "index";
         $modulePath = $GLOBALS['zendModDir'];
       }

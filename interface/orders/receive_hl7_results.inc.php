@@ -516,7 +516,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
       $context = $a[0];
       // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
-      if (strstr($a[8], "ORU^R01")) { 
+      if (strstr($a[8], "ORU^R01")) {
         $msgtype = 'ORU';
       }
       else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
@@ -917,7 +917,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
       $performingOrganization = getPerformingOrganizationDetails($a[23], $a[24], $a[25], $d2, $commentdelim);
       if (!empty($performingOrganization)) {
-        $ares['facility'] .= $performingOrganization . $commentdelim;		
+        $ares['facility'] .= $performingOrganization . $commentdelim;
       }
 
       /****

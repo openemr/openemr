@@ -402,8 +402,8 @@ if ( $esign->isButtonViewable() ) {
 </div>
 
 <div class='encounter-summary-column'>
-<?php if ( $esign->isLogViewable() ) { 
-    $esign->renderLog(); 
+<?php if ( $esign->isLogViewable() ) {
+    $esign->renderLog();
 } ?>
 </div>
 
@@ -538,7 +538,7 @@ if ( $esign->isButtonViewable() ) {
 			$notes = explode("|",$noteData['docNotes']);
 			$dates = explode("|", $noteData['docDates']);
 			for ( $i = 0 ; $i < count($notes) ; $i++ )
-				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";	
+				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
 		}
 ?>
 	<br>

@@ -54,7 +54,7 @@ do {
   $e_Actor = $ccr->createElement('Actor');
   $e_Source->appendChild($e_Actor);
 
-  $e_ActorID = $ccr->createElement('ActorID',$uuid); 
+  $e_ActorID = $ccr->createElement('ActorID',$uuid);
   //$e_ActorID = $ccr->createElement('ActorID',${"labID{$row['lab']}"});
   $e_Actor->appendChild($e_ActorID);
 	
@@ -147,7 +147,7 @@ do {
 		$e_Text = $ccr->createElement('Text', $row['abnormal']);
 		$e_Flag->appendChild($e_Text);
 	//}
-	
+
 	//$e_Test = $ccr->createElement('Test');
 	//$e_Result->appendChild($e_Test);
 	//
@@ -211,7 +211,7 @@ do {
 	//	$e_Flag->appendChild($e_Text);
 	//	
 	//}
-	
+
 } while ($row = sqlFetchArray($result));
 
 ?>

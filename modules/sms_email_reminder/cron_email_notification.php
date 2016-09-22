@@ -37,7 +37,7 @@ $db_email_msg = cron_getNotificationData($TYPE);
 $db_patient = cron_getAlertpatientData($TYPE);
 echo "<br>Total ".count($db_patient)." Records Found\n";
 for($p=0;$p<count($db_patient);$p++)
-{  
+{
 	$prow =$db_patient[$p];
 	//my_print_r($prow);
 	/*
@@ -69,7 +69,7 @@ for($p=0;$p<count($db_patient);$p++)
 		$db_email_msg['message'] = cron_setmessage( $prow, $db_email_msg );
 		
 		// send mail to patinet
-		cron_SendMail( $prow['email'], $db_email_msg['email_subject'], 
+		cron_SendMail( $prow['email'], $db_email_msg['email_subject'],
 				$db_email_msg['message'], $db_email_msg['email_sender'] );
 		
 		//update entry >> pc_sendalertemail='Yes'

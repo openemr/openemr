@@ -133,7 +133,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
 
     $modeIssueTypes[$idx2] = $issueTypeX;
     $issueTypeIdx2[$issueTypeX] = $idx2;
-    ++$idx2;    
+    ++$idx2;
   
   }
 
@@ -414,7 +414,7 @@ div.section {
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php
- $i = 0;  
+ $i = 0;
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
@@ -429,7 +429,7 @@ div.section {
  }
 
 ///////////     
-ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);  
+ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
 ///////////
 ?>
 

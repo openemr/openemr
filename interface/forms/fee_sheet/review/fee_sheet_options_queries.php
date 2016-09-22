@@ -39,7 +39,7 @@ class fee_sheet_option
             $this->price=xl("Not Specified");
         }
     }
-    public $code;    
+    public $code;
     public $code_type;
     public $description;
     public $price;
@@ -60,7 +60,7 @@ function load_fee_sheet_options($pricelevel)
     
     $sql= "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category"
         . " FROM fee_sheet_options as fso, code_types "
-        . " ,codes LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)"    
+        . " ,codes LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)"
         . " WHERE codes.code=".$clFSO_code
         . " AND code_types.ct_key=".$clFSO_code_type
         . " AND codes.code_type=code_types.ct_id"

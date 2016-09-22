@@ -97,7 +97,7 @@ class EncountermanagerTable extends AbstractTableGateway
     }
     
     public function getStatus($data)
-    {		
+    {
 		foreach($data as $row){
 			if($pid) $pid .= ',';
 			$pid 	.= $row['pid'];
@@ -131,7 +131,7 @@ class EncountermanagerTable extends AbstractTableGateway
     public function date_format($date, $format)
     {
 	if(!$date) return;
-	$format = $format ? $format : 'm/d/y';	
+	$format = $format ? $format : 'm/d/y';
 	$temp = explode(' ',$date); //split using space and consider the first portion, incase of date with time
 	$date = $temp[0];
         $date = str_replace('/','-',$date);
@@ -157,7 +157,7 @@ class EncountermanagerTable extends AbstractTableGateway
 				$content = base64_decode($resp->data);
 			}
 			else if(!$row['couch_docid']){
-				$fccda 	 = fopen($row['ccda_data'], "r");		
+				$fccda 	 = fopen($row['ccda_data'], "r");
 				$content = fread($fccda, filesize($row['ccda_data']));
 				fclose($fccda);
 			}
@@ -177,8 +177,8 @@ class EncountermanagerTable extends AbstractTableGateway
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    public function transmitCCD($data  = array()) 
-    {   
+    public function transmitCCD($data  = array())
+    {
         $appTable         = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
         $recipients       = $data['recipients'];
@@ -239,9 +239,9 @@ class EncountermanagerTable extends AbstractTableGateway
               if($refs->count() == 0){
               		$trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1",array($value));
               		$trans_cur = $trans->current();
-              		$trans_id  = $trans_cur['id'] ? $trans_cur['id'] : 0; 
+              		$trans_id  = $trans_cur['id'] ? $trans_cur['id'] : 0;
               }
-              else{ 
+              else{
               	foreach($refs as $r){
               		$trans_id = $r['trans_id'];
               	}
@@ -280,19 +280,19 @@ class EncountermanagerTable extends AbstractTableGateway
                if (empty($patientData[0]['lname'])) {
                   $att_filename = "";
                   $patientName2 = "";
-               } 
+               }
                else {
                   //spaces are the argument delimiter for the phiMail API calls and must be removed
                   $extension = $xml_type == 'CCDA' ? 'xml' : strtolower($xml_type);
                   $att_filename = " " . str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']  . "_" . $patientData[0]['fname']) . "." . $extension;
                   $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
                }
-               if(strtolower($xml_type) == 'xml') {  
+               if(strtolower($xml_type) == 'xml') {
                    $ccda     = simplexml_load_string($ccda_file);
                    $ccda_out = $ccda->saveXml();
                    $ccda_len = strlen($ccda_out);
                    \Application\Plugin\Phimail::phimail_write($fp,"ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccda_len . $att_filename . "\n");
-               } 
+               }
                else if(strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
                    $ccda_out = $ccda_file;
                    $message_length = strlen($ccda_out);
@@ -330,7 +330,7 @@ class EncountermanagerTable extends AbstractTableGateway
            else {
              return("Delivery is not allowed to:".$d_Address);
            }
-     } 
+     }
     public function getFileID($pid)
     {
       $appTable = new ApplicationTable();
@@ -350,7 +350,7 @@ class EncountermanagerTable extends AbstractTableGateway
     * @param	String		direct address
     *
     */
-    public function AddNewUSer($data  = array()) 
+    public function AddNewUSer($data  = array())
     {
       $fname          = $data['fname'];
       $lname          = $data['lname'];

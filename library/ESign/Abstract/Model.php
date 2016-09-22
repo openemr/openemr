@@ -40,7 +40,7 @@ abstract class Abstract_Model
         foreach ( $this->_args as $key => $value ) {
             if ( $force ) {
                 $this->{$key} = $value;
-            } else { 
+            } else {
                 if ( property_exists( $this, $key ) ) {
                     $this->{$key} = $value;
                 } else if ( property_exists( $this, "_".$key )  ) {

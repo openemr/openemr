@@ -103,7 +103,7 @@ class y_axis_base
 	 */
 	function set_steps( $steps )
 	{
-		$this->steps = $steps;	
+		$this->steps = $steps;
 	}
 	
 	/**

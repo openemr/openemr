@@ -70,7 +70,7 @@ function era_callback(&$out) {
 	   {
         $Processed=1;
 		$alertmsg .=  xl("and processed.").' ';
-	   } 
+	   }
       else
         $alertmsg .=  xl("but not yet processed.").' ';;
     }

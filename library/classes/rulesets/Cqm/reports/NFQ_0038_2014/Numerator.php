@@ -21,7 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
-class NFQ_0038_2014_Numerator implements CqmFilterIF 
+class NFQ_0038_2014_Numerator implements CqmFilterIF
 {
     public function getTitle() {
         return "Numerator";
@@ -35,11 +35,11 @@ class NFQ_0038_2014_Numerator implements CqmFilterIF
 			  ( Immunizations::checkHib( $patient, $beginDate, $endDate ) ) ||
 			  ( Immunizations::checkHepB( $patient, $beginDate, $endDate ) ) ||
 			  ( Immunizations::checkVzv( $patient, $beginDate, $endDate ) )  ||
-			  ( Immunizations::checkPheumococcal( $patient, $beginDate, $endDate ) ) || 
+			  ( Immunizations::checkPheumococcal( $patient, $beginDate, $endDate ) ) ||
 			  ( Immunizations::checkHepA( $patient, $beginDate, $endDate ) ) ||
 			  ( Immunizations::checkRotavirus_2014( $patient, $beginDate, $endDate ) ) ||
-			  ( Immunizations::checkInfluenza( $patient, $beginDate, $endDate ) ) 
-			) 
+			  ( Immunizations::checkInfluenza( $patient, $beginDate, $endDate ) )
+			)
 		{
             return true;
         }

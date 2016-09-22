@@ -72,13 +72,13 @@ class InstModuleTable
           $query    = rtrim("$sqlq");
           $result = $this->applicationTable->zQuery($query);
         }
-      }		    
+      }
       return true;
     } else {
       return true;
     }
     } else {
-      return true;  
+      return true;
     }
   }
   
@@ -178,7 +178,7 @@ class InstModuleTable
       }
 
       $params = array(
-         $section_id, 
+         $section_id,
          $name,
          $state,
          $uiname,
@@ -224,8 +224,8 @@ class InstModuleTable
         $mod -> exchangeArray($row);
         array_push($all,$mod);
       }
-    }	
-    return $all;    
+    }
+    return $all;
   }
   
   /**
@@ -239,12 +239,12 @@ class InstModuleTable
     $results   = $this->applicationTable->zQuery($sql, array($id));
     
     $resultSet 	= new ResultSet();
-    $resultSet->initialize($results);	
+    $resultSet->initialize($results);
     $resArr		= $resultSet->toArray();
     $rslt 		= $resArr[0];
 
     $mod = new InstModule();
-    $mod -> exchangeArray($rslt);   
+    $mod -> exchangeArray($rslt);
 
     return $mod;
   }
@@ -254,7 +254,7 @@ class InstModuleTable
    * @param int 		$id		Module PK
    * @param string 	$mod	Status
    */
-  public function updateRegistered ( $id, $mod = '', $values = '' ) 
+  public function updateRegistered ( $id, $mod = '', $values = '' )
   {
     if($mod == "mod_active=1"){
       $resp	= $this->checkDependencyOnEnable($id);
@@ -269,7 +269,7 @@ class InstModuleTable
         $results   = $this->applicationTable->zQuery($sql, $params);
       }
     } else if($mod == "mod_active=0"){
-      $resp	= $this->checkDependencyOnDisable($id);	    
+      $resp	= $this->checkDependencyOnDisable($id);
       if($resp['status'] == 'success' && $resp['code'] == '1') {
         $sql = "UPDATE modules SET mod_active = 0, 
                                     date = ? 
@@ -278,15 +278,15 @@ class InstModuleTable
           date('Y-m-d H:i:s'),
           $id,
         );
-        $results   = $this->applicationTable->zQuery($sql, $params);                
-      }	 
+        $results   = $this->applicationTable->zQuery($sql, $params);
+      }
     } else {
       $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?, 
                                  date=NOW() 
                              WHERE mod_id = ?";
       $params = array(
         $values[0],
-        $values[1],  
+        $values[1],
         $id,
       );
       $resp   = $this->applicationTable->zQuery($sql, $params);
@@ -451,7 +451,7 @@ class InstModuleTable
     foreach($res as $row) {
       $mod = new InstModule();
       $mod -> exchangeArray($row);
-      array_push($all,$mod);        
+      array_push($all,$mod);
     }
     return $all;
   }
@@ -461,7 +461,7 @@ class InstModuleTable
    */
   public function getHookStatus($modId,$hookId,$hangerId)
   {
-    if($modId && $hookId && $hangerId){	
+    if($modId && $hookId && $hangerId){
       $sql = "select * FROM modules_hooks_settings 
                         WHERE mod_id = ? 
                         AND enabled_hooks = ? 
@@ -486,7 +486,7 @@ class InstModuleTable
   {
     if($modId){
       $sql = "INSERT INTO modules_hooks_settings(mod_id, enabled_hooks, attached_to) VALUES (?,?,?) ";
-      $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));			
+      $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
     }
   }
   
@@ -514,8 +514,8 @@ class InstModuleTable
    */
   public function DeleteHooks($post)
   {
-    if($post['hooksID']){						
-      $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ",array($post['hooksID']));			
+    if($post['hooksID']){
+      $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ",array($post['hooksID']));
     }
   }
   
@@ -540,13 +540,13 @@ class InstModuleTable
       $requiredModules	= array();
       if(count($depModules) > 0){
         foreach($depModules as $depModule){
-          if($depModule <> ""){																						
-            $res	= $this->getModuleStatusByDirectoryName($depModule);																								
+          if($depModule <> ""){
+            $res	= $this->getModuleStatusByDirectoryName($depModule);
             if($res <> "Enabled"){
               $requiredModules[]	= $depModule;
-            }	
-          }						
-        }			
+            }
+          }
+        }
       }
   
       if(count($requiredModules) > 0) {
@@ -591,7 +591,7 @@ class InstModuleTable
                 $depFlag	= "1";
                 $usedModArr[] = $InstalledmodDirectory;
               }
-            }		
+            }
           }
         }
       }
@@ -618,7 +618,7 @@ class InstModuleTable
   {
     $reader = new Ini();
     $modDirname	= $this->getModuleDirectory($mod_id);
-    if($modDirname <> ""){			
+    if($modDirname <> ""){
       $depModuleStatusArr	= array();
       //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
       $depModulesArr	= $this->getDependedModulesByDirectoryName($modDirname);
@@ -631,21 +631,21 @@ class InstModuleTable
           }
           $ret_str.= trim($modDir)."(".$this->getModuleStatusByDirectoryName($modDir).")";
           $count++;
-        }			
-      }		
-    }		
-    return $ret_str;		
+        }
+      }
+    }
+    return $ret_str;
   }
   
   public function getDependencyModulesDir($mod_id)
   {
     $depModulesArr	= array();
     $modDirectory 	= $this->getModuleDirectory($mod_id);
-    if($modDirectory){			
+    if($modDirectory){
       //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
-      $depModulesArr	= $this->getDependedModulesByDirectoryName($modDirectory);							 
-    }		
-    return $depModulesArr;		
+      $depModulesArr	= $this->getDependedModulesByDirectoryName($modDirectory);
+    }
+    return $depModulesArr;
   }
   
   public function getModuleStatusByDirectoryName($moduleDir)
@@ -661,7 +661,7 @@ class InstModuleTable
         return "Enabled";
       } else {
         return "Disabled";
-      }		
+      }
     } else {
       return "Missing";
     }
@@ -679,25 +679,25 @@ class InstModuleTable
   public function getModuleDirectory($mod_id)
   {
     $moduleName	= "";
-    if($mod_id <> ""){	
+    if($mod_id <> ""){
       $res	= $this->applicationTable->zQuery("SELECT mod_directory FROM modules WHERE mod_id = ? ",array($mod_id));
       foreach($res as $row) {
         $modArr	= $row;
       }
-      if($modArr['mod_directory'] <> ""){			
+      if($modArr['mod_directory'] <> ""){
         $moduleName = $modArr['mod_directory'];
-      }		
+      }
       return $moduleName;
     }
   }
   
   public function checkModuleHookExists($mod_id,$hookId)
-  {  
+  {
     $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
     $res	= $this->applicationTable->zQuery($sql, array($mod_id, $hookId));
     foreach($res as $row){
       $modArr	= $row;
-    }			
+    }
     if($modArr['obj_name'] <> ""){
       return "1";
     } else {
@@ -707,7 +707,7 @@ class InstModuleTable
   
   //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
   public function getModuleHooks($moduleDirectory)
-  {	
+  {
     $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
     $hooksArr	= array();
     if($objHooks){
@@ -719,7 +719,7 @@ class InstModuleTable
   
   //GET MODULE ACL SECTIONS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
   public function getModuleAclSections($moduleDirectory)
-  {	
+  {
     $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
     $aclArray	= array();
     if($objHooks){
@@ -784,7 +784,7 @@ class InstModuleTable
   
   //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
   public function getDependedModulesByDirectoryName($moduleDirectory)
-  {	
+  {
     $objHooks = $this->getObject($moduleDirectory, $option = 'Controller');
     $retArr	= array();
     if($objHooks){
@@ -797,10 +797,10 @@ class InstModuleTable
    * Function to Save Module Hooks
    */
   public function saveModuleHooks($modId,$hookId,$hookTitle,$hookPath)
-  {				
+  {
     if($modId){
       $sql = "INSERT INTO modules_settings(mod_id, fld_type, obj_name, menu_name, path) VALUES (?,'3',?,?,?) ";
-      $this->applicationTable->zQuery($sql, array($modId, $hookId, $hookTitle, $hookPath));			
+      $this->applicationTable->zQuery($sql, array($modId, $hookId, $hookTitle, $hookPath));
     }
   }
   
@@ -812,7 +812,7 @@ class InstModuleTable
   {
     if($modId){
       $sql = "DELETE FROM modules_settings WHERE mod_id = ? AND fld_type = '3'";
-      $this->applicationTable->zQuery($sql, array($modId));			
+      $this->applicationTable->zQuery($sql, array($modId));
     }
   }
   
@@ -857,7 +857,7 @@ class InstModuleTable
    * @param String $name nickname
    * @return boolean Nickname available or not.
    * 
-   **/ 
+   **/
   public function validateNickName($name)
   {
     $sql 		= "SELECT * FROM `modules` WHERE mod_nick_name = ? ";

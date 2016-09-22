@@ -106,7 +106,7 @@ $.extend($.ui.multiselect.locale, {
 				
 				$.post
 		    	(
-			    	'<?php echo  _base_url() . 
+			    	'<?php echo  _base_url() .
 			    			"/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + selected_plan
 			    			+ '&plan_pid=' + selected_plan_pid							
 				)
@@ -256,7 +256,7 @@ $.extend($.ui.multiselect.locale, {
 			
 		    $.post
 		    	(
-			    	'<?php echo  _base_url() . 
+			    	'<?php echo  _base_url() .
 			    			'/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan								
 				)
 				.done(function(resp) {
@@ -291,7 +291,7 @@ $.extend($.ui.multiselect.locale, {
 	$loadPlanStatus = function(selected_plan, selected_plan_pid) {
 		$.post
     	(
-	    	'<?php echo  _base_url() . 
+	    	'<?php echo  _base_url() .
 	    			'/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + selected_plan
 	    			+ '&plan_pid=' + selected_plan_pid
 		)

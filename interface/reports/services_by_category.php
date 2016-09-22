@@ -151,7 +151,7 @@ table.mymaintable td, table.mymaintable th {
 </div> <!-- end of parameters -->
 
 <?php 
-    if ($_POST['form_refresh']) { 
+    if ($_POST['form_refresh']) {
 ?>
 
 <div id="report_results">

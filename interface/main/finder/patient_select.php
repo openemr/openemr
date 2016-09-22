@@ -423,9 +423,9 @@ if ($result) {
           
           //setup for display of encounter date info
           $encounter_count = 0;
-          $day_diff = ''; 
-          $last_date_seen = ''; 
-          $next_appt_date= ''; 
+          $day_diff = '';
+          $last_date_seen = '';
+          $next_appt_date= '';
           $pid = '';
 
           // calculate date differences based on date of last encounter with billing entries
@@ -442,7 +442,7 @@ if ($result) {
                   "form_encounter.pid = ?";
           $statement= sqlStatement($query, array($iter{"pid"}) );
           if ($results = sqlFetchArray($statement)) {
-              $last_date_seen = $results['mydate']; 
+              $last_date_seen = $results['mydate'];
               $day_diff = $results['day_diff'];
               $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }
@@ -457,7 +457,7 @@ if ($result) {
                   " where form_encounter.pid = ?";
           $statement= sqlStatement($query, array($iter{"pid"}) );
           if ($results = sqlFetchArray($statement)) {
-              $last_date_seen = $results['mydate']; 
+              $last_date_seen = $results['mydate'];
               $day_diff = $results['day_diff'];
               $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
           }

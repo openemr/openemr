@@ -48,11 +48,11 @@ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
 if ($docid) {
-  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid)); 
+  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
   $patient_id = intval($row['foreign_id']);
 }
 else if ($orderid) {
-  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid)); 
+  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
   $patient_id = intval($row['patient_id']);
 }
 
@@ -227,7 +227,7 @@ function show_div(name){
 $title_docname = "";
 if ($docid) {
   $title_docname .= " " . xl("linked to document") . " ";
-  $d = new Document($docid);	
+  $d = new Document($docid);
   $title_docname .= $d->get_url_file();
 }
 if ($orderid) {

@@ -33,13 +33,13 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	$col = 0; // how many Items per row	
 	$dummy = array(); // counter to decide if graph-button is shown
 	$formid = $id;
-	$shownameflag = 0;	
+	$shownameflag = 0;
 	echo "<div id='graph" . attr($formid) . "'> </div><br>";
 	echo "<table border='1'>";
 
 	// get name of selected track, used for GraphTitle
 	$spell  = "SELECT form_track_anything_type.name AS track_name ";
-	$spell .= "FROM form_track_anything "; 
+	$spell .= "FROM form_track_anything ";
 	$spell .= "INNER JOIN form_track_anything_type ON form_track_anything.procedure_type_id = form_track_anything_type.track_anything_type_id ";
 	$spell .= "WHERE id = ? AND form_track_anything_type.active = 1";
 	$myrow = sqlQuery($spell, array($formid));
@@ -54,9 +54,9 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	$query = sqlStatement($spell0, array($formid));
 	
 	// get all data of this specific track
-	while($myrow = sqlFetchArray($query)){ 
+	while($myrow = sqlFetchArray($query)){
 		$thistime = $myrow['track_timestamp'];
-		$shownameflag++;		
+		$shownameflag++;
 		$spell  = "SELECT form_track_anything_results.itemid, form_track_anything_results.result, form_track_anything_type.name AS the_name ";
 		$spell .= "FROM form_track_anything_results ";
 		$spell .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
@@ -68,15 +68,15 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 		if ($shownameflag==1){
 			echo "<tr><th class='time'>" . xlt('Time') . "</th>";
 			while($myrow2 = sqlFetchArray($query2)){
-				echo "<th class='item'>&nbsp;" . text($myrow2['the_name']) . "&nbsp;</th>";		
+				echo "<th class='item'>&nbsp;" . text($myrow2['the_name']) . "&nbsp;</th>";
 				$ofc_name[$col] = $myrow2['the_name']; // save for openflashchart-form
 				$col++;
 			}
-			echo "</tr>";		
+			echo "</tr>";
 		}
 		
 		// post data entries per row
-		echo "<tr><td class='time'>" . text($thistime) . "</td>";	
+		echo "<tr><td class='time'>" . text($thistime) . "</td>";
 		$ofc_date[$row] = $thistime; // save for openflashchart-form			
 		$col_i = 0; // how many columns
 		$query2  = sqlStatement($spell, array($formid, $thistime));
@@ -86,7 +86,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 					$ofc_value[$col_i][$row] = $myrow2['result'];// save for openflashchart-form
 			}
 			$col_i++;
-		} 
+		}
 		echo "</tr>";
 		$row++;
 	}
@@ -100,16 +100,16 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	// Graph-Button row
 	//-------------------------------		
 		echo "<tr>";
-		echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>"; 
+		echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
 		for ($col_i = 0; $col_i < $col; $col_i++){
 			echo "<td class='check'><div class='navigateLink'>";
 			for ($row_b=0; $row_b <$row; $row_b++) {
 				// count more than 1 to show graph-button
-				if(is_numeric($ofc_value[$col_i][$row_b])){ $dummy[$col_i]++; 
+				if(is_numeric($ofc_value[$col_i][$row_b])){ $dummy[$col_i]++;
 				}
 			}
 			// show graph-button only if we have more than 1 valid data
-			if ($dummy[$col_i] > 1){ 
+			if ($dummy[$col_i] > 1){
 				echo "<input type='checkbox' name='check_col" . attr($formid) . "' value='" . attr($col_i) . "'>";
 				$showbutton++;
 			}
@@ -118,7 +118,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 		echo "</tr>";
 	
 	// end Graph-Button-Row---------
-	
+
 		if($showbutton>0){
 			echo "<tr><td></td>";
 			echo "<td colspan='" . attr($col) . "'><div class='navigateLink'>";
@@ -128,10 +128,10 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 			echo "</div></td></tr>";
 		}
 	//---/end graph button------------------
-		echo "</table>";	
+		echo "</table>";
 		echo "<br>";
 	echo "<div class='navigateLink'>"; // see custom_report.php
-		echo "<form method='post' action='../../forms/track_anything/history.php' onsubmit='return top.restoreSession()'>"; 
+		echo "<form method='post' action='../../forms/track_anything/history.php' onsubmit='return top.restoreSession()'>";
 		echo "<input type='hidden' name='formid' value='". attr($formid) . "'>";
 		echo "<input type='submit' name='history' value='" . xla('Show track history') . "' />";
 		echo "</form>";

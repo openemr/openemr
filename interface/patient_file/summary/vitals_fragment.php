@@ -36,7 +36,7 @@ $result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FO
     
 if ( !$result ) //If there are no disclosures recorded
 { ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."),ENT_NOQUOTES); 
+  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."),ENT_NOQUOTES);
 ?>
   </span> 
 <?php 

@@ -25,7 +25,7 @@
 	$row = sqlFetchArray($result);
 	$pCount =0;
 	//while ($row = sqlFetchArray($result)) {
-	
+
 	do {
 		
 		$pCount++;
@@ -83,7 +83,7 @@
 		
 		//$e_CommentID = $ccr->createElement('CommentID', $row['comments']);
 		//$e_Problem->appendChild($e_CommentID);
-    
+
     $e_Source = $ccr->createElement('Source');
 		
 		$e_Actor = $ccr->createElement('Actor');

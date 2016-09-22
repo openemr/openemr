@@ -10,7 +10,7 @@ require_once "version.php";
 
 $webserver_root = dirname(__FILE__);
 if (stripos(PHP_OS,'WIN') === 0)
-  $webserver_root = str_replace("\\","/",$webserver_root); 
+  $webserver_root = str_replace("\\","/",$webserver_root);
 $OE_SITES_BASE = "$webserver_root/sites";
 
 function sqlQuery($statement, $link) {

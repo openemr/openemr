@@ -50,7 +50,7 @@ function observation_report($pid, $encounter, $cols, $id) {
             </tr>";
         foreach ($data as $key => $value) {
             if($value['code'] == 'SS003') {
-              if($value['ob_value'] == '261QE0002X') 
+              if($value['ob_value'] == '261QE0002X')
                 $value['ob_value'] ='Emergency Care';
               else if($value['ob_value'] == '261QM2500X')
                 $value['ob_value'] ='Medical Specialty';
@@ -60,7 +60,7 @@ function observation_report($pid, $encounter, $cols, $id) {
                 $value['ob_value'] ='Urgent Care';
             }
             if($value['code'] == '21612-7') {
-              if($value['ob_unit'] == 'd') 
+              if($value['ob_unit'] == 'd')
                 $value['ob_unit'] ='Day';
               else if($value['ob_unit'] == 'mo')
                 $value['ob_unit'] ='Month';

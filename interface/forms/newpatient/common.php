@@ -421,8 +421,8 @@ if (!$viewmode) { ?>
   // Search for an encounter from today
   $erow = sqlQuery("SELECT fe.encounter, fe.date " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
-    "fe.pid = ? " . 
-    " AND fe.date >= ? " . 
+    "fe.pid = ? " .
+    " AND fe.date >= ? " .
     " AND fe.date <= ? " .
     " AND " .
     "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .

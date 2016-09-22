@@ -66,7 +66,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
   sqlQuery( $strSql );
 
 //echo "lalalalal id=$newid, sql=$strSql<br>";
-                  
+
 } else
 {
     $newid = formSubmit( "form_intakeverslag", $_POST, $_GET["id"], $userauthorized );

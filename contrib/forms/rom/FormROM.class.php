@@ -47,7 +47,7 @@ class FormROM extends ORDataObject {
 		}
 		else {
 			$id = "";
-			$this->date = date("Y-m-d H:i:s");	
+			$this->date = date("Y-m-d H:i:s");
 		}
 		
 		$this->_table = "form_rom";

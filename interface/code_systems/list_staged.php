@@ -397,5 +397,5 @@ if ($supported_file === 1) {
     <?php
     }
   }
-} 
+}
 ?>

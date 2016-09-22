@@ -130,7 +130,7 @@ function postcalendar_admin_adminevents()
                 $output .= postcalendar_admin_showlist($e,_EVENT_APPROVED,'showlist');
                 break;
         }
-        return $output;     
+        return $output;
     }
     
     // main menu
@@ -200,10 +200,10 @@ function postcalendar_admin_approveevents()
             WHERE $events_column[eid] IN ($approve_list)";
 
     $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) { 
-		$msg = _PC_ADMIN_EVENT_ERROR; 
-	} else { 
-		$msg = _PC_ADMIN_EVENTS_APPROVED; 
+    if ($dbconn->ErrorNo() != 0) {
+		$msg = _PC_ADMIN_EVENT_ERROR;
+	} else {
+		$msg = _PC_ADMIN_EVENTS_APPROVED;
 	}
 
 	// clear the template cache
@@ -355,7 +355,7 @@ function postcalendar_admin_submit($args)
     $is_update   = pnVarCleanFromInput('is_update');
     $authid      = pnVarCleanFromInput('authid');
 	
-	if(pnUserLoggedIn()) { $uname = pnUserGetVar('uname'); } 
+	if(pnUserLoggedIn()) { $uname = pnUserGetVar('uname'); }
     else { $uname = pnConfigGetVar('anonymous'); }
     if(!isset($event_repeat)) { $event_repeat = 0; }
     
@@ -491,7 +491,7 @@ function postcalendar_admin_submit($args)
             $preview = false;
             $output .= '<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">';
             $output .= '<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">';
-                $output .= '<center><b>' . _PC_SUBMIT_ERROR . '</b></center>'; 
+                $output .= '<center><b>' . _PC_SUBMIT_ERROR . '</b></center>';
                 $output .= '<br />';
                 $output .= $error_msg;
             $output .= '</td></td></table>';
@@ -512,7 +512,7 @@ function postcalendar_admin_submit($args)
             $preview = false;
             $output .= '<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">';
             $output .= '<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">';
-                $output .= '<center><b>'._PC_SUBMIT_ERROR.'</b></center>'; 
+                $output .= '<center><b>'._PC_SUBMIT_ERROR.'</b></center>';
                 $output .= '<br />';
                 $output .= $error_msg;
             $output .= '</td></td></table>';
@@ -520,21 +520,21 @@ function postcalendar_admin_submit($args)
             $output .= '<br /><br />';
         } else {
             if (!pnModAPIFunc(__POSTCALENDAR__,'admin','submitEvent',$eventdata)) {
-        		$output .= '<center><div style="padding:5px; border:1px solid red; background-color: pink;">';		
-				$output .= "<b>"._PC_EVENT_SUBMISSION_FAILED."</b>";		
-				$output .= '</div></center><br />';	
+        		$output .= '<center><div style="padding:5px; border:1px solid red; background-color: pink;">';
+				$output .= "<b>"._PC_EVENT_SUBMISSION_FAILED."</b>";
+				$output .= '</div></center><br />';
 				$output .= '<br />';
         	} else {
         		// clear the Smarty cache
 				$tpl = new pcSmarty();
 				$tpl->clear_all_cache();
-				$output .= '<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">';		
+				$output .= '<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">';
 				if($is_update) {
-					$output .= "<b>"._PC_EVENT_EDIT_SUCCESS."</b>";		
+					$output .= "<b>"._PC_EVENT_EDIT_SUCCESS."</b>";
 				} else {
-					$output .= "<b>"._PC_EVENT_SUBMISSION_SUCCESS."</b>";		
+					$output .= "<b>"._PC_EVENT_SUBMISSION_SUCCESS."</b>";
 				}
-				$output .= '</div></center><br />';	
+				$output .= '</div></center><br />';
 				$output .= '<br />';
         		// clear the form vars
         		$event_subject=$event_desc=$event_sharing=$event_category=$event_topic=
@@ -1019,10 +1019,10 @@ EOF;
    	}
    	foreach($durationh as $i=>$val)
     {
-    	if(!is_numeric($durationh[$i]) || !is_numeric($durationm[$i]) || 
-    		!is_numeric($event_repeat_freq[$i]) || 
+    	if(!is_numeric($durationh[$i]) || !is_numeric($durationm[$i]) ||
+    		!is_numeric($event_repeat_freq[$i]) ||
     		!is_numeric($event_repeat_on_freq[$i]) || !is_numeric($end_date_freq[$i]))
-   		{	
+   		{
    			$output->Text(postcalendar_admin_categories($msg," Hours, Minutes and recurrence values must be numeric!"));
    			return $output->GetOutput();
    		}
@@ -1030,14 +1030,14 @@ EOF;
       		
     if(!empty($newnam))
     {
-    	if(!is_numeric($new_durationh) || !is_numeric($new_durationm) || 
+    	if(!is_numeric($new_durationh) || !is_numeric($new_durationm) ||
 	    	!is_numeric($new_event_repeat_freq) || !is_numeric($new_event_repeat_on_freq)
 	    	|| !is_numeric($new_end_date_freq) )
 	   	{
 	   		$output->Text(postcalendar_admin_categories($msg,"Hours, Minutes and recurrence values must be numeric!"));
 	   		return $output->GetOutput();
 	   	}
-    }			
+    }
 	$new_duration = ($new_durationh * (60 * 60)) + ($new_durationm * 60);
 	$event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
                                           'event_repeat_on_day', 'event_repeat_on_freq'));
@@ -1186,7 +1186,7 @@ function postcalendar_admin_categoriesUpdate()
             	
 		        array_push($updates, $update_sql);
 		       	unset($recurrspec);
-		       	unset($dur);            	
+		       	unset($dur);
         	}
     	}
 	}
@@ -1204,7 +1204,7 @@ function postcalendar_admin_categoriesUpdate()
     }
     if(isset($newname)) {
     	$unpacked = unserialize($new_event_recurrspec);
-    	unset($new_event_recurrspec);	
+    	unset($new_event_recurrspec);
  		$new_event_recurrspec['event_repeat_freq'] = $unpacked['new_event_repeat_freq'];
     	$new_event_recurrspec['event_repeat_freq_type'] = $unpacked['new_event_repeat_freq_type'];
     	$new_event_recurrspec['event_repeat_on_num'] = $unpacked['new_event_repeat_on_num'];
@@ -1559,17 +1559,17 @@ function postcalendar_admin_clearCache()
         $tpl = new pcSmarty();
         //fmg: check that both subdirs to be cleared first exist and are writeable  
         $spec_err = '';
-    if (!file_exists($tpl->compile_dir)) 
+    if (!file_exists($tpl->compile_dir))
 		 $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
     else if (!is_writeable($tpl->compile_dir))
        $spec_err .= "Error: folder '$tpl->compile_dir' not writeable!<br>";
     if (!file_exists($tpl->cache_dir))
        $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
-    else if (!is_writeable($tpl->cache_dir))                      
-	    $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";             
+    else if (!is_writeable($tpl->cache_dir))
+	    $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";
         //note: we don't abort on error... like before.                                       
-        $tpl->clear_all_cache();   
-        $tpl->clear_compiled_tpl();  
+        $tpl->clear_all_cache();
+        $tpl->clear_compiled_tpl();
 		  
     return postcalendar_admin_modifyconfig('<center>'.$spec_err._PC_CACHE_CLEARED.'</center>');
 }
@@ -1959,7 +1959,7 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     //===============================================================
     //  Setup titles for smarty 
     //===============================================================
-    
+
     $tpl->assign('_PC_LIMIT_TITLE', 	_PC_LIMIT_TITLE);
     $tpl->assign('StartTimeTitle',		_PC_LIMIT_START_TIME);
     $tpl->assign('EndTimeTile', 	_PC_LIMIT_END_TIME);
@@ -1969,14 +1969,14 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
 	//=============================================================
 	// Setup Vars for smarty
 	//============================================================
-	$tpl->assign('mer_title', 'mer');    
+	$tpl->assign('mer_title', 'mer');
     $mer = array('am','pm');
     $tpl->assign_by_ref('mer',		$mer);
     $tpl->assign('starttimeh',		'starttimeh');
     $tpl->assign('starttimem',		'starttimem');
     $tpl->assign('endtimeh',		'endtimeh');
     $tpl->assign('endtimem',		'endtimem');
-    $tpl->assign('InputLimit',		'limit');   
+    $tpl->assign('InputLimit',		'limit');
     $tpl->assign('LimitTitle',		_PC_LIMIT_TITLE);
     $tpl->assign('_PC_NEW_LIMIT_TITLE',	_PC_NEW_LIMIT_TITLE);
     $tpl->assign('_PC_CAT_DELETE',		_PC_CAT_DELETE);
@@ -2051,7 +2051,7 @@ function postcalendar_admin_categoryLimitsUpdate()
 		                                 pc_endtime='".pnVarPrepForStore($end)."',
 		                                 pc_limit='".pnVarPrepForStore($limit[$k])."'
 		                             WHERE pc_limitid=$i";
-		        array_push($updates, $update_sql);         	
+		        array_push($updates, $update_sql);
         	}
     	}
 	}

@@ -326,7 +326,7 @@ else {
 
     // Form Validation
     //   (applicable if not cloning from another database)
-    
+
     $pass_step2_validation = TRUE;
     $error_step2_message   = "ERROR at ";
 
@@ -342,7 +342,7 @@ else {
     if ( ! $installer->char_is_valid($_REQUEST['dbname']))  {
         $pass_step2_validation = FALSE;
         $error_step2_message .= "Database Name, ";
-    }  
+    }
     if ( ! $installer->char_is_valid($_REQUEST['login']))  {
         $pass_step2_validation = FALSE;
         $error_step2_message .= "Database Login Name, ";
@@ -352,11 +352,11 @@ else {
         $error_step2_message .= "Database Login Password, ";
     }
     if (!$pass_step2_validation) {
-       die($error_step2_message);  
+       die($error_step2_message);
      }
 
 
-    if (empty($installer->clone_database)) { 
+    if (empty($installer->clone_database)) {
       if ( ! $installer->login_is_valid() ) {
         echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
         echo "Click Back in browser to re-enter.<br>\n";
@@ -533,7 +533,7 @@ else {
     }
     else {
       echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
-      $next_state = 4; 
+      $next_state = 4;
     }
     
     echo "
@@ -684,7 +684,7 @@ if ($checkPermissions) {
 		}
 	}
 	if ($errorWritable) {
-		echo "<p><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>\n";	
+		echo "<p><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>\n";
 		echo "In linux, recommend changing file permissions with the 'chmod 666 filename' command.<br>\n";
 		echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>\n";
     echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p>" .

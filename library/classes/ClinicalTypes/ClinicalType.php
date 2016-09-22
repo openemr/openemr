@@ -13,7 +13,7 @@ require_once(dirname(__FILE__) . "/../../lists.inc");
 require_once(dirname(__FILE__) . "/../rulesets/library/RsPatient.php");
 require_once( 'codes.php' );
 
-abstract class ClinicalType 
+abstract class ClinicalType
 {
     const ALLERGY = 'Allergy';
     const CARE_GOAL = 'CareGoal';
@@ -25,7 +25,7 @@ abstract class ClinicalType
     const PHYSICAL_EXAM = 'PhysicalExam';
     const LAB_RESULT = 'LabResult';
     
-    private $_optionId; 
+    private $_optionId;
     private $_title;
     private $_notes;
     
@@ -45,7 +45,7 @@ abstract class ClinicalType
      * 
      * @return true if type applies, false ow
      */
-    public abstract function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ); 
+    public abstract function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null );
     public abstract function getListId();
     
     public function getOptionId() {
@@ -57,7 +57,7 @@ abstract class ClinicalType
     }
     
     public function getListOptions() {
-        return array();    
+        return array();
     }
     
     private function getListOptionById( $id )
@@ -68,6 +68,6 @@ abstract class ClinicalType
                  "AND option_id = ?";
         $results = sqlStatement( $query, array( $this->getListId(), $id ) );
         $arr = sqlFetchArray( $results );
-        return $arr;    
+        return $arr;
     }
 }

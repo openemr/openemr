@@ -35,35 +35,35 @@ function postcalendar_pntables()
     $pntable = array();
 	$prefix = pnConfigGetVar('prefix');
     //$prefix = 'Rogue';
-	
+
 	$pc_events = $prefix . '_postcalendar_events';
     $pntable['postcalendar_events'] = $pc_events;
     $pntable['postcalendar_events_column'] = array(
-        'eid'           => 'pc_eid', 
+        'eid'           => 'pc_eid',
         'catid'         => 'pc_catid',
-        'lid'           => 'pc_lid',       
-        'aid'           => 'pc_aid',       
-        'title'         => 'pc_title',     
-        'time'          => 'pc_time',      
-        'hometext'      => 'pc_hometext',   
-        'comments'      => 'pc_comments',   
-        'counter'       => 'pc_counter',   
-        'topic'         => 'pc_topic',     
-        'informant'     => 'pc_informant', 
-        'eventDate'     => 'pc_eventDate', 
+        'lid'           => 'pc_lid',
+        'aid'           => 'pc_aid',
+        'title'         => 'pc_title',
+        'time'          => 'pc_time',
+        'hometext'      => 'pc_hometext',
+        'comments'      => 'pc_comments',
+        'counter'       => 'pc_counter',
+        'topic'         => 'pc_topic',
+        'informant'     => 'pc_informant',
+        'eventDate'     => 'pc_eventDate',
         'duration'      => 'pc_duration',
-        'endDate'       => 'pc_endDate',   
+        'endDate'       => 'pc_endDate',
         'recurrtype'    => 'pc_recurrtype',
         'recurrspec'    => 'pc_recurrspec',
-        'recurrfreq'    => 'pc_recurrfreq', 
-        'startTime'     => 'pc_startTime',  
+        'recurrfreq'    => 'pc_recurrfreq',
+        'startTime'     => 'pc_startTime',
         'endTime'       => 'pc_endTime',
         'alldayevent'   => 'pc_alldayevent',
         'location'      => 'pc_location',
-        'conttel'       => 'pc_conttel',  
-        'contname'      => 'pc_contname',  
-        'contemail'     => 'pc_contemail', 
-        'website'       => 'pc_website',  
+        'conttel'       => 'pc_conttel',
+        'contname'      => 'pc_contname',
+        'contemail'     => 'pc_contemail',
+        'website'       => 'pc_website',
         'fee'           => 'pc_fee',
         'eventstatus'   => 'pc_eventstatus',
         'sharing'       => 'pc_sharing',
@@ -72,7 +72,7 @@ function postcalendar_pntables()
     
     // @since version 3.1
     // new category table
-    $pc_categories = $prefix . '_postcalendar_categories';   
+    $pc_categories = $prefix . '_postcalendar_categories';
     $pntable['postcalendar_categories'] = $pc_categories;
     $pntable['postcalendar_categories_column'] = array(
         'catid'         => 'pc_catid',

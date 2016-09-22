@@ -25,7 +25,7 @@ class ReportManager
         }
     }
 
-    public function runReport( $rowRule, $patients, $dateTarget, $options=array() ) 
+    public function runReport( $rowRule, $patients, $dateTarget, $options=array() )
     {
         $ruleId = $rowRule['id'];
         $patientData = array();
@@ -35,7 +35,7 @@ class ReportManager
         
         $reportFactory = null;
         if ( ReportTypes::getType( $ruleId ) == ReportTypes::CQM ) {
-            $reportFactory = new CqmReportFactory(); 
+            $reportFactory = new CqmReportFactory();
         } else if ( ReportTypes::getType( $ruleId ) == ReportTypes::AMC ) {
             $reportFactory = new AmcReportFactory();
         } else {

@@ -55,7 +55,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
   sqlQuery( $strSql );
 
 //echo "DEBUG :: id=$newid, sql=$strSql<br>";
-                  
+
 } else
 {
     $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );

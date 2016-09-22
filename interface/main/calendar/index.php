@@ -57,10 +57,10 @@ if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 *********************************************************************/
 if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
 // override the cookie if the user doesn't have access to that facility any more
-if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) { 
+if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
   $facilities = getUserFacilities($_SESSION['authId']);
   // use the first facility the user has access to, unless...
-  $_SESSION['pc_facility'] = $facilities[0]['id']; 
+  $_SESSION['pc_facility'] = $facilities[0]['id'];
   // if the cookie is in the users' facilities, use that.
   foreach ($facilities as $facrow) {
     if (($facrow['id'] == $_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie'])

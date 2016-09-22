@@ -78,7 +78,7 @@ function json_format($json)
                 }
             default:
                 $new_json .= $char;
-                break;                   
+                break;
         }
     }
 

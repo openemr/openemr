@@ -195,11 +195,11 @@ class Parser_HL7v2 {
 	function __parse_segment ($segment) {
 		return explode($this->field_separator, $segment);
 	} // end method __parse_segment
-	
+
 	function composite_array() {
 		$cmp = array();
 		$cmp["MSH"] = $this->MSH;
-		$cmp["EVN"] = $this->EVN;	
+		$cmp["EVN"] = $this->EVN;
 		return $cmp;
 	}
 } // end class Parser_HL7v2

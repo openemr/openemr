@@ -25,7 +25,7 @@ class ReportTypes
     }
     
     protected static $_types = array(
-        "rule_htn_bp_measure_cqm" => array( ReportTypes::CQM, "NFQ_0013" ), 
+        "rule_htn_bp_measure_cqm" => array( ReportTypes::CQM, "NFQ_0013" ),
         "rule_tob_use_assess_cqm" => array( ReportTypes::CQM, "NFQ_0028a" ),
     	"rule_tob_cess_inter_cqm" => array( ReportTypes::CQM, "NFQ_0028b" ),
         "rule_adult_wt_screen_fu_cqm" => array( ReportTypes::CQM, "NFQ_0421" ),
@@ -38,9 +38,9 @@ class ReportTypes
         "rule_dm_bp_control_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_dm_a1c_cqm" => array( ReportTypes::CQM, "NFQ_0059" ),
         "rule_dm_ldl_cqm" => array( ReportTypes::CQM, "NFQ_0064" ),
-        "rule_children_pharyngitis_cqm" => array( ReportTypes::CQM, "NFQ_0002" ), 
-        "rule_fall_screening_cqm" => array( ReportTypes::CQM, "NFQ_0101" ), 
-        "rule_pain_intensity_cqm" => array( ReportTypes::CQM, "NFQ_0384" ), 
+        "rule_children_pharyngitis_cqm" => array( ReportTypes::CQM, "NFQ_0002" ),
+        "rule_fall_screening_cqm" => array( ReportTypes::CQM, "NFQ_0101" ),
+        "rule_pain_intensity_cqm" => array( ReportTypes::CQM, "NFQ_0384" ),
         "rule_child_immun_stat_2014_cqm" => array( ReportTypes::CQM, "NFQ_0038_2014" ), //MU-2014-CQM Immunization Status
         "rule_tob_use_2014_cqm" => array( ReportTypes::CQM, "NFQ_0028_2014" ),
     	"problem_list_amc" => array( ReportTypes::AMC, "AMC_302c" ), // MU-2014-AMC: 170.314(g)(1)/(2)–4

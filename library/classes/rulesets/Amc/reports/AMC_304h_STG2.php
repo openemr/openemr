@@ -35,7 +35,7 @@ class AMC_304h_STG2 extends AbstractAmcReport
         return "encounters_office_visit";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_304h_STG2_Denominator();
     }

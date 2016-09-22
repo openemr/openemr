@@ -35,9 +35,9 @@ class Form_Button implements ButtonIF
     public function __construct( $formId, $formDir, $encounterId )
     {
         // Configure the viewer so it has access to these variables
-        $this->_viewer = new Viewer(); 
-        $this->_viewer->formId = $formId; 
-        $this->_viewer->formDir = $formDir; 
+        $this->_viewer = new Viewer();
+        $this->_viewer->formId = $formId;
+        $this->_viewer->formDir = $formDir;
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->target = $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
     }
@@ -54,7 +54,7 @@ class Form_Button implements ButtonIF
     
     public function render( SignableIF $signable = null )
     {
-        return $this->_viewer->render( $this ); 
+        return $this->_viewer->render( $this );
     }
     
     public function getHtml( SignableIF $signable = null )

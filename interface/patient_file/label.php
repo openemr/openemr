@@ -41,24 +41,24 @@ $patdata = sqlQuery("SELECT " .
 
 // re-order the dates
 //
-  
+
 $today = oeFormatShortDate($date='today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
 //get label type and number of labels on sheet
 //
 
-if ($GLOBALS['chart_label_type'] == '1') { 
+if ($GLOBALS['chart_label_type'] == '1') {
 $pdf = new PDF_Label('5160');
 $last = 30;
 }
 
-if ($GLOBALS['chart_label_type'] == '2') { 
+if ($GLOBALS['chart_label_type'] == '2') {
 $pdf = new PDF_Label('5161');
 $last = 20;
 }
 
-if ($GLOBALS['chart_label_type'] == '3') { 
+if ($GLOBALS['chart_label_type'] == '3') {
 $pdf = new PDF_Label('5162');
 $last = 14;
 }

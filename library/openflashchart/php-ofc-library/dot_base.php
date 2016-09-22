@@ -3,7 +3,7 @@
 /**
  * A private class. All the other line-dots inherit from this.
  * Gives them all some common methods.
- */ 
+ */
 class dot_base
 {
 	/**
@@ -107,7 +107,7 @@ class dot_base
  * Draw a hollow dot
  */
 class hollow_dot extends dot_base
-{	
+{
 	function hollow_dot($value=null)
 	{
 		parent::dot_base( 'hollow-dot', $value );

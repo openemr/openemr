@@ -86,7 +86,7 @@ function update_issues($pid,$encounter,$diags)
             if(sqlNumRows($res)>0)
             {
                 $list_id=$res->fields['id'];
-            }           
+            }
         }
         
         if(!($list_id==null))
@@ -112,12 +112,12 @@ function update_issues($pid,$encounter,$diags)
                 sqlInsert($sqlCreateProblem,array($target_date,$target_date,$pid,$diagnosis_key,$diags->description));
                 $newProblem=sqlStatement($sqlFindProblem,$lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatbility with 4.1.0 and earlier insert ID bug.
                 if(sqlNumRows($newProblem)>0)
-                {                   
+                {
                     $list_id=$newProblem->fields['id'];
                     if($list_id>0)
                     {
-                        sqlInsert($sqlCreateIssueEncounter,array($pid,$list_id,$encounter));                
-                    }                    
+                        sqlInsert($sqlCreateIssueEncounter,array($pid,$list_id,$encounter));
+                    }
                 }
                 $list_touched=true; // Since we are creating a new problem, the list has been touched
             }
@@ -166,7 +166,7 @@ function create_diags($req_pid,$req_encounter,$diags)
             $bound_params=array();
             array_push($bound_params,$req_encounter);
             $diag->addArrayParams($bound_params);
-            array_push($bound_params,$req_pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'],$provid);       
+            array_push($bound_params,$req_pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'],$provid);
             $res=sqlInsert($sqlCreateDiag,$bound_params);
         }
         else
@@ -203,7 +203,7 @@ function create_procs($req_pid,$req_encounter,$procs)
             "groupname, activity,   billed,     provider_id, " .
             "modifier,  units,      fee,        ndc_info, ".
             "justify,   notecodes".
-            ") values ";    
+            ") values ";
     $param="(NOW(),?,?,?,". // date, encounter, code_type, code
             "?,?,?,?,".     // code_text,pid,authorized,user
             "?,1,0,?,".     // groupname,activity,billed,provider_id
@@ -216,7 +216,7 @@ function create_procs($req_pid,$req_encounter,$procs)
         $proc->addArrayParams($insert_params);
         array_push($insert_params,$req_pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'],$provid);
         $proc->addProcParameters($insert_params);
-        sqlInsert($sql.$param,$insert_params);        
+        sqlInsert($sql.$param,$insert_params);
     }
 }
 
@@ -308,8 +308,8 @@ function common_diagnoses($limit=10)
 function fee_sheet_items($pid,$encounter, &$diagnoses,&$procedures)
 {
     $param=array($encounter);
-    $sql="SELECT code,code_type,code_text,fee,modifier,justify,units,ct_diag,ct_fee,ct_mod " 
-          ." FROM billing, code_types as ct " 
+    $sql="SELECT code,code_type,code_text,fee,modifier,justify,units,ct_diag,ct_fee,ct_mod "
+          ." FROM billing, code_types as ct "
           ." WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
           ." ORDER BY id";
     $results=sqlStatement($sql,$param);

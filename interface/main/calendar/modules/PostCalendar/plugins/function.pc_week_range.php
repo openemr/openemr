@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_week_range($args) 
+function smarty_function_pc_week_range($args)
 {
 	// $args['date'] date to use for range building
 	// $args['sep'] seperate the dates by this string
@@ -43,7 +43,7 @@ function smarty_function_pc_week_range($args)
 	if(!isset($args['sep'])) {
 		$args['sep'] = ' - ';
 	}
-	if(!isset($args['format'])) {	
+	if(!isset($args['format'])) {
 		if(!isset($args['format1'])) {
 			$args['format1'] = _SETTING_DATE_FORMAT;
 		}
@@ -53,7 +53,7 @@ function smarty_function_pc_week_range($args)
 	} else {
 		$args['format1'] = $args['format'];
 		$args['format2'] = $args['format'];
-	}	
+	}
 	
 	// get the week date range for the supplied $date
 	$dow = date('w',mktime(0,0,0,$m,$d,$y));

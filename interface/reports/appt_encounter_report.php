@@ -376,7 +376,7 @@ $(document).ready(function() {
     } // End IPPF stuff
 
    } // end while
-   
+
    $copays -= getPatientCopay($patient_id,$encounter);
 
    // The following is removed, perhaps temporarily, because gcac reporting

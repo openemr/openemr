@@ -83,5 +83,5 @@ function load_menu($menu_set)
             }
         
     }
-    return json_decode(json_encode($retval));       
+    return json_decode(json_encode($retval));
 }

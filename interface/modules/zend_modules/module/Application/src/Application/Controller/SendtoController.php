@@ -46,12 +46,12 @@ class SendtoController extends AbstractActionController
         $selected_cform         = $this->params()->fromQuery('selected_form');
         $default_send_via       = $this->params()->fromQuery('default_send_via');
         $default_send_via       = $default_send_via ? $default_send_via : 'printer';
-        $encounter              = $GLOBALS['encounter'];        
+        $encounter              = $GLOBALS['encounter'];
         $faxRecievers           = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections          = $this->getSendtoTable()->getCCDAComponents(0);
         $ccda_components        = $this->getSendtoTable()->getCCDAComponents(1);
         $this->layout('layout/sendto');
-        $view =  new ViewModel(array(                                
+        $view =  new ViewModel(array(
                                 'send_via'            => $default_send_via,
                                 'faxRecievers'        => $faxRecievers,
                                 'ccda_sections'       => $ccda_sections,
@@ -111,7 +111,7 @@ class SendtoController extends AbstractActionController
                         }else {
                             $displayName = $user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname'];
                         }
-                        echo "<option value='".$this->escapeHtml($user['fax'])."' >".$displayName."</option>";    
+                        echo "<option value='".$this->escapeHtml($user['fax'])."' >".$displayName."</option>";
                     }
                 }
                 break;

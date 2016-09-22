@@ -45,7 +45,7 @@ function edih_parse_date($strdate) {
 		$cy = (string)$gtdt['year'];
 		$dt1 = substr($cy, 0, 2) . $strdate;
 	} elseif (strpos($strdate, '-') >= 6) {
-		$dt1 = substr($strdate, 0, strpos($strdate, '-') - 1  ); 
+		$dt1 = substr($strdate, 0, strpos($strdate, '-') - 1  );
 	} elseif (strlen($strdate) == 8) {
 		$dt1 = $strdate;
 	} else {
@@ -100,13 +100,13 @@ function edih_835_csv_data($obj835) {
 		//
 		if ( array_key_exists('GS', $env_ar) ) {
 			// for unlikely case of 'mixed' GS types in file
-			foreach($env_ar['GS'] as $gs) { 
-				if ($gs['icn'] == $icn) { 
-					$ft = $gs['type']; 
+			foreach($env_ar['GS'] as $gs) {
+				if ($gs['icn'] == $icn) {
+					$ft = $gs['type'];
 					$gsdate = $gs['date'];
 					$payer_id = $gs['srcid'];  // from TRN03
-					break; 
-				} 
+					break;
+				}
 			}
 		}
 		$ret_ar[$icn]['type'] = csv_file_type($ft);
@@ -246,10 +246,10 @@ function edih_837_csv_data($obj837) {
 		$ret_ar[$icn]['file'] = array();
 		//$ret_ar[$icn]['type'] = $ft;
 		foreach($env_ar['GS'] as $gs) {
-			if ($gs['icn'] == $icn) { 
+			if ($gs['icn'] == $icn) {
 				$ret_ar[$icn]['type'] = csv_file_type( $gs['type'] );
-				$gsdate = $gs['date']; 
-				break; 
+				$gsdate = $gs['date'];
+				break;
 			}
 		}
 		//
@@ -304,7 +304,7 @@ function edih_837_csv_data($obj837) {
 							$ret_ar[$icn]['claim'][$cdx]['Fee'] = '0';
 							$ret_ar[$icn]['claim'][$cdx]['PtPaid'] = '0';
 							$ret_ar[$icn]['claim'][$cdx]['Provider'] = '';
-						}							
+						}
 						if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
 							$sar = explode($de, $seg);
 							$hl = $sar[3];
@@ -387,7 +387,7 @@ function edih_277_csv_data($obj277) {
 	if ( !isset($env_ar['ST']) ) {
 		csv_edihist_log( 'edih_277_csv_data: envelope error');
 		return $ret_ar;
-	}	
+	}
 	if ( !isset($env_ar['GS']) ) {
 		csv_edihist_log('edih_277_csv_data: envelope error');
 		return $ret_ar;
@@ -400,10 +400,10 @@ function edih_277_csv_data($obj277) {
 		//
 		$rspdate = $isa['date'];
 		foreach($env_ar['GS'] as $gs) {
-			if ($gs['icn'] == $icn) { 
-				$ret_ar[$icn]['type'] = csv_file_type($gs['type']); 
+			if ($gs['icn'] == $icn) {
+				$ret_ar[$icn]['type'] = csv_file_type($gs['type']);
 				$rspdate = $gs['date'];
-				break; 
+				break;
 			}
 		}
 		//$ret_ar[$icn]['type'] = csv_file_type($ft);
@@ -481,7 +481,7 @@ function edih_277_csv_data($obj277) {
 								$ret_ar[$icn]['claim'][$cdx]['BHT03'] = sprintf("%s%04d", $st_icn, $stn);
 							}
 							//
-							
+
 							$ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
 							//
 							$ret_ar[$icn]['claim'][$cdx]['Payer'] = '';
@@ -692,7 +692,7 @@ function edih_278_csv_data($obj278) {
 			//
 			foreach($stsegs as $seg) {
 				//
-				if (strncmp($seg, 'BHT'.$de, 4) === 0 ) {		
+				if (strncmp($seg, 'BHT'.$de, 4) === 0 ) {
 					// new transaction
 					// bht01 0007  --> Src, Rcv, Sbr, Dep, Event, Services
 					$rqst = '';
@@ -705,7 +705,7 @@ function edih_278_csv_data($obj278) {
 						if ($sar[2] == '13') { $rqst = 'Req'; }
 						if ($sar[2] == '11') { $rqst = 'Rsp'; }
 						if ($sar[2] == '36') { $rqst = 'Reply'; }
-					} 						
+					}
 					$loopid = 0;
 					//
 					$ret_ar[$icn]['claim'][$cdx]['PtName'] = '';
@@ -724,7 +724,7 @@ function edih_278_csv_data($obj278) {
 					$sar = explode($de, $seg);
 					$hl = $sar[1];
 					$hlpc = $sar[2];							// parent code
-					$hllc = $sar[3];							
+					$hllc = $sar[3];
 					$hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
 					if ($sar[3] == '20') {						// level code
 						$loopid = '2000A';						// info source (payer)
@@ -796,7 +796,7 @@ function edih_278_csv_data($obj278) {
 						$status .= ' Svc '.$aaa_code;
 					} elseif ($loopid == '2010EC') {
 						$status .= ' Tpt '.$aaa_code;
-					} 
+					}
 					//
 					$ret_ar[$icn]['claim'][$cdx]['Status'] = $status;
 					//
@@ -833,7 +833,7 @@ function edih_278_csv_data($obj278) {
 		//
 	} // endforeach($env_ar['ISA'] as $icn=>$isa)
 	//
-	return $ret_ar;	
+	return $ret_ar;
 }
 
 
@@ -865,7 +865,7 @@ function edih_rsp_st_match($rsp_trace, $file_type) {
 		// debug
 		csv_edihist_log('edih_rsp_st_match() invalid trace argument '.$rsp_trace);
 		return $info_ar;
-	} 
+	}
 	//
 	$ft = csv_file_type($file_type);
 	//
@@ -916,17 +916,17 @@ function edih_997_csv_data($obj997) {
 	if ( !isset($env_ar['GS']) ) {
 		csv_edihist_log('edih_997_csv_data: envelope error');
 		return $ret_ar;
-	}	
+	}
 	foreach($env_ar['ISA'] as $icn => $isa) {
 		// 
 		$ret_ar[$icn]['claim'] = array();
 		$ret_ar[$icn]['file'] = array();
 		
 		foreach($env_ar['GS'] as $gs) {
-			if ($gs['icn'] == $icn) { 
+			if ($gs['icn'] == $icn) {
 				$ret_ar[$icn]['type'] = csv_file_type( $gs['type'] );
 				$rspdate = $gs['date'];
-				break; 
+				break;
 			}
 		}
 		//
@@ -970,7 +970,7 @@ function edih_997_csv_data($obj997) {
 					//
 					continue;
 				}
-				if ( strncmp($seg, 'AK2'.$de, 4) === 0 ) {	
+				if ( strncmp($seg, 'AK2'.$de, 4) === 0 ) {
 					$sar = explode($de, $seg);
 					$rspsttype = csv_file_type($sar[1]);
 					$rspstn = (string)$sar[2];
@@ -1010,7 +1010,7 @@ function edih_997_csv_data($obj997) {
 							$have_pt = true;
 						} else {
 							$ptname = 'Unknown';
-						}						
+						}
 					}
 					// ///////////////////////// 
 					continue;
@@ -1021,7 +1021,7 @@ function edih_997_csv_data($obj997) {
 					//$sar = explode($de, $seg);
 					//$loopid == '2110';
 					//$iserr = true;
-					
+
 					//$ctx_ct = 0;
 					//$err_seg .= ($err_seg) ? '|IK4' : '';
 					//$err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
@@ -1163,7 +1163,7 @@ function edih_271_csv_data($obj270) {
 			//
 			foreach($stsegs as $seg) {
 				//
-				if (strncmp($seg, 'BHT'.$de, 4) === 0 ) {		
+				if (strncmp($seg, 'BHT'.$de, 4) === 0 ) {
 					// new transaction
 					$cdx = (isset($ret_ar[$icn]['claim']) ) ? count($ret_ar[$icn]['claim']) : 0;
 					//
@@ -1197,7 +1197,7 @@ function edih_271_csv_data($obj270) {
 					$sar = explode($de, $seg);
 					$hl = $sar[1];
 					$hlpc = $sar[2];							// parent code
-					$hllc = $sar[3];							
+					$hllc = $sar[3];
 					$hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
 					if ($sar[3] == '20') {						// level code
 						$loopid = '2000A';						// info source (payer)
@@ -1331,8 +1331,8 @@ function edih_271_csv_data($obj270) {
 						}
 					}
 					//
-					continue;	
-				}				
+					continue;
+				}
 				//
 				/*
 				if (strncmp($seg, 'REF'.$de.'EJ'.$de, 7) === 0 ) {
@@ -1364,7 +1364,7 @@ function edih_271_csv_data($obj270) {
 		//
 	} // endforeach($env_ar['ISA'] as $icn=>$isa)
 	//
-	return $ret_ar;	
+	return $ret_ar;
 }
 
 /*
@@ -1388,7 +1388,7 @@ function edih_parse_select($file_path) {
 	// csvdata array design:
 	//  $csvdata[$icn]['claims'][i]  [$icn]['files'][i]  [$icn]['type']
 	//
-	$x12_obj = csv_check_x12_obj($file_path); 
+	$x12_obj = csv_check_x12_obj($file_path);
 	//$x12_obj = new edih_x12_file($file_path);
 	if ($x12_obj instanceof edih_x12_file) {
 		$ft = $x12_obj->edih_type();
@@ -1406,7 +1406,7 @@ function edih_parse_select($file_path) {
 	} elseif ( $ft == 'HN' || $ft == 'HR' ) {
 		$csvdata = edih_277_csv_data($x12_obj);
 	} elseif ( $ft == 'FA') {
-		$csvdata = edih_997_csv_data($x12_obj);	
+		$csvdata = edih_997_csv_data($x12_obj);
 	} elseif ( $ft == 'HB' || $ft == 'HS') {
 		$csvdata = edih_271_csv_data($x12_obj);
 	} elseif ( $ft == 'HI') {

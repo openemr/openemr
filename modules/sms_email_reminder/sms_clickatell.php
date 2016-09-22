@@ -34,7 +34,7 @@
  * @package sms_api
  */
 
-class sms 
+class sms
 {
 
     /**

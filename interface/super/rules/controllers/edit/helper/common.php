@@ -101,14 +101,14 @@ Compound Helpers
 <!--                  -->
 <!-- render time unit -->
 <!--                  -->
-<?php function timeunit_select( $args ) { 
+<?php function timeunit_select( $args ) {
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-    return generate_select_list( 
-        $args['name'], 
-        $args['context'], 
-        $args['value']->code, 
-        $args['name'], 
+    return generate_select_list(
+        $args['name'],
+        $args['context'],
+        $args['value']->code,
+        $args['name'],
         '',
         '',
         '',

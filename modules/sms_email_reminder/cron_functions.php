@@ -25,21 +25,21 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 	{
 		// larry :: debug
 		//echo "\nDEBUG :: use mail method\n";	
-	
+
 		// larry :: add cc/bcc - bot used ?
 		$cc = "";
 		$bcc = "";
 		$format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
-	
+
 		//echo "function called";exit;
 		if( strlen( $format )==0 )	$format="text/html";
-		$headers  = "MIME-Version: 1.0\r\n"; 
-		$headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n"; 
+		$headers  = "MIME-Version: 1.0\r\n";
+		$headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
 		
 		// additional headers 
-		$headers .= "From: $from\r\n"; 
-		if( strlen($cc)>5 ) $headers .= "Cc: $cc\r\n"; 
-		if( strlen($bcc)>5 ) $headers .= "Bcc: $bcc\r\n"; 
+		$headers .= "From: $from\r\n";
+		if( strlen($cc)>5 ) $headers .= "Cc: $cc\r\n";
+		if( strlen($bcc)>5 ) $headers .= "Bcc: $bcc\r\n";
 		$cnt = "";
 		$cnt .= "\nHeaders : ".$headers;
 		$cnt .= "\nDate Time :". date("d M, Y  h:i:s");
@@ -60,7 +60,7 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 	{
 		// larry :: debug
 		//echo "\nDEBUG :: use smtp method\n";	
-		
+
 		if( !class_exists( "smtp_class" ) )
 		{
 			include("../../library/classes/smtp/smtp.php");
@@ -119,7 +119,7 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 				"Subject: $subject",
 				"Date Time :". date("d M, Y  h:i:s")
 				),
-			$vBody ) )	
+			$vBody ) )
 		{
 			echo "Message sent to $to OK.\n";
 			$mstatus = true;
@@ -129,8 +129,8 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 			 $mstatus = false;
 		}
 		
-		unset( $smtp );	
-	}		
+		unset( $smtp );
+	}
 	
 	return $mstatus;
 }
@@ -143,20 +143,20 @@ function WriteLog( $data )
 {
 	global $log_folder_path;
 	
-	$filename = $log_folder_path . "/cronlog_".date("Ymd").".html"; 
+	$filename = $log_folder_path . "/cronlog_".date("Ymd").".html";
 	//echo $filename;exit;
    	if (!$fp = fopen($filename, 'a'))
-   	{ 
-        	print "Cannot open file ($filename)"; 
-        	exit; 
+   	{
+        	print "Cannot open file ($filename)";
+        	exit;
    	}
    	
-	$sdata = "\n====================================================================\n";	
+	$sdata = "\n====================================================================\n";
    	
    	if (!fwrite($fp, $sdata.$data.$sdata))
-   	{ 
-   		print "Cannot write to file ($filename)"; 
-		exit; 
+   	{
+   		print "Cannot write to file ($filename)";
+		exit;
 	}
 	
    	fclose($fp);
@@ -207,7 +207,7 @@ function cron_updateentry($type,$pid,$pc_eid)
 	// larry :: this was commented - i remove comment - what it means * in this field ?
 	//$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
 	//$set = " pc_apptstatus='*' ";
-	
+
 	//$query="update openemr_postcalendar_events set $set ";
 	$query = "update openemr_postcalendar_events set ";
 	
@@ -231,7 +231,7 @@ function cron_getAlertpatientData( $type )
 	// larry :: move this at the top - not in the function body
 	global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
 	// larry :: end commment
-	
+
 	
 	//$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";
 	if($type=='SMS')
@@ -239,14 +239,14 @@ function cron_getAlertpatientData( $type )
 		// larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar
 		$ssql = " and pd.hipaa_allowsms='YES' and pd.phone_cell<>'' and ope.pc_sendalertsms='NO' ";
 		// $ssql = " and pd.hipaa_allowsms='YES' and pd.phone_cell<>'' ";
-		
+
 		$check_date = date("Y-m-d", mktime(date("h")+$SMS_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
 	}else
 	{
 		// larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar 
 		$ssql = " and pd.hipaa_allowemail='YES' and pd.email<>''  and ope.pc_sendalertemail='NO' ";
 		//$ssql = " and pd.hipaa_allowemail='YES' and pd.email<>'' ";
-		
+
 		$check_date = date("Y-m-d", mktime(date("h")+$EMAIL_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
 	}
 	
@@ -254,7 +254,7 @@ function cron_getAlertpatientData( $type )
 	$ssql .= " and (ope.pc_eventDate='$check_date')";
 	// larry :: add condition if remnder was already sent
 	// $ssql .= " and (ope.pc_apptstatus != '*' ) ";
-	
+
 	$query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
 			ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
 			ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime
@@ -266,11 +266,11 @@ function cron_getAlertpatientData( $type )
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
 			
 	//echo "<br>".$query;
-	
+
 	$db_patient = (sqlStatement($query));
 	$patient_array = array();
 	$cnt=0;
-	while ($prow = sqlFetchArray($db_patient)) 
+	while ($prow = sqlFetchArray($db_patient))
 	{
 		$patient_array[$cnt] = $prow;
 		$cnt++;
@@ -287,7 +287,7 @@ function cron_getNotificationData($type)
 	// larry :: pre populate array fields
 	//$db_email_msg['notification_id'] = '';	
 	//$db_email_msg['sms_gateway_type'] = '';
-	
+
 	$query = "select * from automatic_notification where type='$type' ";
 	//echo "<br>".$query;
 	$db_email_msg = sqlFetchArray(sqlStatement($query));
@@ -322,10 +322,10 @@ function cron_setmessage($prow,$db_email_msg)
 {
 	// larry :: debug
 	//echo "\nDEBUG :cron_setmessage: set message ".$prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."\n";
-	
+
 	$NAME = $prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname'];
 	//echo "DEBUG :1: name=".$NAME."\n";
-	
+
 	$PROVIDER = $db_email_msg['provider_name'];
 	$dtWrk = strtotime($prow['pc_eventDate'].' '.$prow['pc_startTime']);
 	$DATE = date('l F j, Y', $dtWrk);
@@ -336,7 +336,7 @@ function cron_setmessage($prow,$db_email_msg)
 	$message = str_replace($find_array,$replare_array,$db_email_msg['message']);
 	// larry :: debug
 	//echo "DEBUG :2: msg=".$message."\n";
-	
+
 	return $message;
 }
 

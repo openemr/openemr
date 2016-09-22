@@ -112,7 +112,7 @@ class CarecoordinationController extends AbstractActionController
      * @return   none
      */
     public function importAction()
-    { 
+    {
         $request = $this->getRequest();
         if ($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
@@ -392,8 +392,8 @@ class CarecoordinationController extends AbstractActionController
          <tr>
           <td colspan="9" id="hideComp-'.\Application\Plugin\CommonPlugin::escape($key.$amid.$pid).'" class="imported_ccdaComp_details" style="display: none;"></td>
          </tr>';
-        } 
-        $temp .= '</table>'; 
+        }
+        $temp .= '</table>';
         echo $temp;
         exit;
     }
@@ -435,7 +435,7 @@ class CarecoordinationController extends AbstractActionController
                                          $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Allergies');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Allergies');
                                         }
                                         break;
             case 'medications'       :  $medications_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists3');
@@ -450,7 +450,7 @@ class CarecoordinationController extends AbstractActionController
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Fill Instructions').'</th>
                                                 </tr></thead>
                                             <tbody>';
-                                          foreach($medications_audit['lists3'] as $key => $val) { 
+                                          foreach($medications_audit['lists3'] as $key => $val) {
                                            if($val['enddate'] && $val['enddate'] != 0)
                                             $active = 'completed';
                                            else
@@ -463,11 +463,11 @@ class CarecoordinationController extends AbstractActionController
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['indication']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['note']).'</td>
                                                     </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Medications');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Medications');
                                         }
                                         break;
             case 'problems'          :  $problems_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists1');
@@ -481,13 +481,13 @@ class CarecoordinationController extends AbstractActionController
                                           else{
                                             $status = 'Active';
                                           }
-                                          $temp .='<li>'.$i.'. '.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).','.substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';  
+                                          $temp .='<li>'.$i.'. '.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).','.substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';
                                           $i++;
                                          }
                                          $temp .='</ul></div>';
                                         }
                                         else {
-                                          $temp .= \Application\Listener\Listener::z_xlt('No Known Problems');  
+                                          $temp .= \Application\Listener\Listener::z_xlt('No Known Problems');
                                         }
                                         break;
             case 'immunizations'     :  $immunizations_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'immunization');
@@ -499,17 +499,17 @@ class CarecoordinationController extends AbstractActionController
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Status').'</th>
                                                 </tr></thead>
                                             <tbody>';
-                                          foreach($immunizations_audit['immunization'] as $key => $val) { 
+                                          foreach($immunizations_audit['immunization'] as $key => $val) {
                                            $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['cvx_code_text']).'</td>
                                                 <td>'.$this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)).' '.substr($val['administered_date'],0,4).'</td>
                                                 <td>'.\Application\Listener\Listener::z_xlt('Completed').'</td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Immunizations');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Immunizations');
                                         }
                                         break;
             case 'procedures'        :  $procedure_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure');
@@ -520,16 +520,16 @@ class CarecoordinationController extends AbstractActionController
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Date').'</th>
                                                 </tr></thead>
                                             <tbody>';
-                                          foreach($procedure_audit['procedure'] as $key => $val) { 
+                                          foreach($procedure_audit['procedure'] as $key => $val) {
                                            $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['code_text']).'</td>
                                                 <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Procedures');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Procedures');
                                         }
                                         break;
             case 'results'           :  $lab_results_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure_result');
@@ -550,11 +550,11 @@ class CarecoordinationController extends AbstractActionController
                                                 <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                              </tr>';
                                             }
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Lab Results');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Lab Results');
                                         }
                                         break;
             case 'plan_of_care'      :  $care_plan_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'care_plan');
@@ -565,16 +565,16 @@ class CarecoordinationController extends AbstractActionController
                                             <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Planned Date').'</th>
                                             </tr></thead>
                                             <tbody>';
-                                          foreach($care_plan_audit['care_plan'] as $key => $val) { 
+                                          foreach($care_plan_audit['care_plan'] as $key => $val) {
                                            $temp .='<tr class="narr_tr">
                                             <td>'.\Application\Plugin\CommonPlugin::escape($val['code_text']).'</td>
                                             <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Plan of Care');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Plan of Care');
                                         }
                                         break;
             case 'vitals'            :  $vitals_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'vital_sign');
@@ -584,29 +584,29 @@ class CarecoordinationController extends AbstractActionController
                                          <th class="narr_th" align="right">'.\Application\Listener\Listener::z_xlt('Date / Time').': </th>';
                                          foreach($vitals_audit['vital_sign'] as $key => $val){
                                           $temp .= '<th class="narr_th">'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</th>';
-                                         } 
+                                         }
                                          $temp .= '</tr></thead><tbody>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Temperature').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['temperature']).'</td>';
-                                            } 
+                                            }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Diastolic').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['bpd']).'</td>';
                                             }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Systolic').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['bps']).'</td>';
                                             }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Head Circumference').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['head_circ']).'</td>';
                                             }
                                          $temp .= '</tr>
@@ -618,37 +618,37 @@ class CarecoordinationController extends AbstractActionController
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Height').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['height']).'</td>';
                                             }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Oxygen Saturation').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['oxygen_saturation']).'</td>';
                                             }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Breath').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['breath']).'</td>';
-                                            } 
+                                            }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('Weight').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['weight']).'</td>';
                                             }
                                          $temp .= '</tr>
                                          <tr class="narr_tr">
                                             <th class="narr_th" align="left">'.\Application\Listener\Listener::z_xlt('BMI').'</th>';
-                                            foreach($vitals_audit['vital_sign'] as $key => $val){ 
+                                            foreach($vitals_audit['vital_sign'] as $key => $val){
                                              $temp .= '<td>'.\Application\Plugin\CommonPlugin::escape($val['BMI']).'</td>';
                                             }
                                          $temp .= '</tr></tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Vitals');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Vitals');
                                         }
                                         break;
             case 'social_history'    :  $social_history_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'social_history');
@@ -670,11 +670,11 @@ class CarecoordinationController extends AbstractActionController
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($array_his_tobacco[0]).'</td>
                                                 <td>'.\Application\Model\ApplicationTable::fixDate($his_tob_date, $this->date_format, 'yyyy-mm-dd').'</td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Social History');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Social History');
                                         }
                                         break;
             case 'encounters'        :  $encounter_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'encounter');
@@ -704,11 +704,11 @@ class CarecoordinationController extends AbstractActionController
                                                 <td>'.\Application\Listener\Listener::z_xlt($encounter_activity).'</td>
                                                 <td></td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Encounters');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Encounters');
                                         }
                                         break;
             case 'functional_status' :  $functional_cognitive_status_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'functional_cognitive_status');
@@ -720,17 +720,17 @@ class CarecoordinationController extends AbstractActionController
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Condition Status').'</th>
                                                 </tr></thead>
                                             <tbody>';
-                                          foreach($functional_cognitive_status_audit['functional_cognitive_status'] as $key => $val) { 
+                                          foreach($functional_cognitive_status_audit['functional_cognitive_status'] as $key => $val) {
                                            $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['description']).'</td>
                                                 <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                                 <td>'.\Application\Listener\Listener::z_xlt('Active').'</td>
                                             </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Social Functional Status');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Social Functional Status');
                                         }
                                         break;
             case 'referral'          :  $referral_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'referral');
@@ -741,11 +741,11 @@ class CarecoordinationController extends AbstractActionController
                                            foreach($referal_data as $k => $v) {
                                             $temp .='<p>'.\Application\Plugin\CommonPlugin::escape($v).'</p>';
                                            }
-                                          }   
+                                          }
                                           $temp .='</div>';
                                         }
                                         else {
-                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Referrals');  
+                                         $temp .= \Application\Listener\Listener::z_xlt('No Known Referrals');
                                         }
                                         break;
             case 'instructions'      :  $temp .= \Application\Listener\Listener::z_xlt('No Known Clinical Instructions');
@@ -761,7 +761,7 @@ class CarecoordinationController extends AbstractActionController
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Fill Instructions').'</th>
                                                 </tr></thead>
                                             <tbody>';
-                                          foreach($discharge_medication_audit['discharge_medication'] as $key => $val) { 
+                                          foreach($discharge_medication_audit['discharge_medication'] as $key => $val) {
                                            if($val['enddate'] && $val['enddate'] != 0)
                                             $active = 'completed';
                                            else
@@ -774,7 +774,7 @@ class CarecoordinationController extends AbstractActionController
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['indication']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['note']).'</td>
                                                     </tr>';
-                                           }   
+                                           }
                                            $temp .='</tbody></table></div>';
                                         break;
             case 'discharge_summary'  : $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
@@ -782,7 +782,7 @@ class CarecoordinationController extends AbstractActionController
                                           foreach($discharge_summary_audit['discharge_summary'] as $key => $val) {
                                             $text = str_replace("#$%","<br>",\Application\Plugin\CommonPlugin::escape($val['text']));
                                             $temp .=$text;
-                                          }   
+                                          }
                                           $temp .='</div>';
                                         break;
         }

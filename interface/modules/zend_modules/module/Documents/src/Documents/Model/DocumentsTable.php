@@ -27,7 +27,7 @@ use \Application\Model\ApplicationTable;
 
 
 class DocumentsTable extends AbstractTableGateway
-{ 
+{
   /*
   * Save the category - document mapping
   * @param    $category_id    integer   Category ID

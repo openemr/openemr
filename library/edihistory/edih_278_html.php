@@ -70,9 +70,9 @@ function edih_278_transaction_html($obj278, $bht03) {
 			$idtype = '';
 			$name = '';
 			$var = '';
-			$rej_reason = ''; 
+			$rej_reason = '';
 			$follow = '';
-			$addr = ''; 
+			$addr = '';
 			// debug
 			//
 			if ( strncmp('BHT'.$de, $seg, 4) === 0 ) {
@@ -87,7 +87,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				//
 				$elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('BHT06', $sar[6]) : "";
 				//
-				$hdr_html .= "<tr><td colspan=2><em>Transaction ID:</em> $elem03 </td><td colspan=2><em>Sequence:</em> $elem01</td></tr>".PHP_EOL;	
+				$hdr_html .= "<tr><td colspan=2><em>Transaction ID:</em> $elem03 </td><td colspan=2><em>Sequence:</em> $elem01</td></tr>".PHP_EOL;
 				if ($elem06) {
 					$hdr_html .= "<tr><td colspan=2><em>Transaction Date:</em> $elem04 </td><td colspan=2>$elem02 <em>Type:</em> $elem06</td></tr>".PHP_EOL;
 				} else {
@@ -101,10 +101,10 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$sar = explode($de, $seg);
 				$hl = $sar[1];
 				$hlpc = $sar[2];							// parent code
-				$hllc = $sar[3];							
+				$hllc = $sar[3];
 				$hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
 				if ($sar[3] == '20') {						// level code
-					$loopid = '2000A';	
+					$loopid = '2000A';
 					$cls = 'src';					// info source (payer)
 					$src_html .= "<tr class='$cls'><td colspan=4><b>Information Source</b></td></tr>".PHP_EOL;
 				} elseif ($sar[3] == '21') {
@@ -130,8 +130,8 @@ function edih_278_transaction_html($obj278, $bht03) {
 				}
 				//
 				continue;
-			}				
-			if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {	
+			}
+			if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
 				$sar = explode($de, $seg);
 				//
 				$nm101 = ( isset($sar[1]) ) ? $sar[1] : '';
@@ -160,18 +160,18 @@ function edih_278_transaction_html($obj278, $bht03) {
 				} elseif ( $loopid == '2000E' || strpos($loopid, '010E') ) {
 					$loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010EA' : $loopid;
 					$loopid = (strpos('|45|FS|ND|PW|R3', $nm101) ) ? '2010EB' : $loopid;
-					$loopid = ($nm101 == 'L5') ? '2010EC' : $loopid;					
+					$loopid = ($nm101 == 'L5') ? '2010EC' : $loopid;
 					$evt_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$descr $name</td></tr>" .PHP_EOL;
 				} elseif ( $loopid == '2000F' || strpos($loopid, '010F') ) {
 					$loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010FA' : $loopid;
 					$loopid = ($nm101 == 'L5') ? '2010FB' : $loopid;
 					$svc_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$descr $name</td></tr>" .PHP_EOL;
-				} 
+				}
 				//
 				continue;
 			}
 			//
-			if ( strncmp('N3'.$de, $seg, 3) === 0 ) {	
+			if ( strncmp('N3'.$de, $seg, 3) === 0 ) {
 				$sar = explode($de, $seg);
 				$addr = (isset($sar[1])) ? $sar[1] : "";
 				$addr .= (isset($sar[2])) ? " {$sar[2]}" : "";
@@ -190,7 +190,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//
-			if ( strncmp('N4'.$de, $seg, 3) === 0 ) {	
+			if ( strncmp('N4'.$de, $seg, 3) === 0 ) {
 				$sar = explode($de, $seg);
 				if ($loopid == '2010B') {
 					$rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
@@ -206,7 +206,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//								//
-			if ( strncmp('PER'.$de, $seg, 4) === 0 ) {	 
+			if ( strncmp('PER'.$de, $seg, 4) === 0 ) {
 				$sar = explode($de, $seg);
 				$elem01 = (isset($sar[1])) ? $sar[1] : '';
 				$elem02 = (isset($sar[2])) ? $sar[2] : '';
@@ -226,13 +226,13 @@ function edih_278_transaction_html($obj278, $bht03) {
 				} elseif ($loopid == '2010EA') {
 					$evt_html .= "<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
 				} elseif ($loopid == '2010FA') {
-					$svc_html .="<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL; 
+					$svc_html .="<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
 				}
 				//
 				continue;
 			}
 			//
-			if ( strncmp('AAA'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('AAA'.$de, $seg, 4) === 0 ) {
 				// rejection
 				$sar = explode($de, $seg);
 				$rej_reason = $cd27x->get_271_code('AAA03', $sar[3]);
@@ -263,7 +263,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//			
-			if ( strncmp('TRN'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('TRN'.$de, $seg, 4) === 0 ) {
 				// trace identifier
 				$sar = explode($de, $seg);
 				$elem01 = ( isset($sar[1]) ) ? $sar[1] : '';
@@ -280,12 +280,12 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//  
-			
+
 			if ( strncmp('UM'.$de, $seg, 3) === 0 ) {
 				$sar = explode($de, $seg);
 				//
 				$elem01 = (isset($sar[1])) ? $cd27x->get_271_code('UM01', $sar[1]) : '';
-				$elem02 = (isset($sar[2])) ? $cd27x->get_271_code('UM02', $sar[2]) : '';	
+				$elem02 = (isset($sar[2])) ? $cd27x->get_271_code('UM02', $sar[2]) : '';
 				$elem03 = (isset($sar[3])) ? $cd27x->get_271_code('EB03', $sar[3]) : '';
 				$elem04 = (isset($sar[4])) ? $sar[4] : '';
 				$elem04a = '';
@@ -334,7 +334,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('HCR01', $sar[1]) : '';
 				$elem02 = (isset($sar[2]) && $sar[2]) ? "<em>Reference: </em>".$sar[2] : '';
 				$elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('HCR03', $sar[3]) : '';
-				$elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('HCR04', $sar[4]) : ''; { 
+				$elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('HCR04', $sar[4]) : ''; {
 				$elem04 = ($elem04) ? "<em>2nd Surgical Opinion:</em> $elem04" : "";
 				}
 				//
@@ -373,18 +373,18 @@ function edih_278_transaction_html($obj278, $bht03) {
 					$svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
 				}elseif ($loopid == '2010FA' ) {
 					$svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
-				} 
+				}
 				//
 				continue;
 			}
 			//
-			if ( strncmp('DMG'.$de, $seg, 4) === 0 ) {	 
+			if ( strncmp('DMG'.$de, $seg, 4) === 0 ) {
 				$sar = explode($de, $seg);
 				$elem02 = (isset($sar[2]) && $sar[2]) ? edih_format_date($sar[2]) : "";
 				if (isset($sar[3]) && $sar[3]) {
-					if  ($sar[3] == 'M') { 
-						$elem03 = "Male"; 
-					} elseif  ($sar[3] == 'F') { 
+					if  ($sar[3] == 'M') {
+						$elem03 = "Male";
+					} elseif  ($sar[3] == 'F') {
 						$elem03 = "Female";
 					} else {
 						$elem03 = "Unknown";
@@ -398,7 +398,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//
-			if ( strncmp('INS'.$de, $seg, 4) === 0 ) {	 
+			if ( strncmp('INS'.$de, $seg, 4) === 0 ) {
 				$sar = explode($de, $seg);
 				$elem01 = (isset($sar[1]) && $sar[1] == 'Y') ? "Subscriber" : "Dependent";
 				$elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('INS02', $sar[2]) : "";
@@ -412,9 +412,9 @@ function edih_278_transaction_html($obj278, $bht03) {
 					$dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td>$elem01 $elem17</td><td>$elem02</td><td>$elem03 $elem04</td></tr>" .PHP_EOL;
 				}
 				continue;
-			}							
+			}
 			//
-			if ( strncmp('DTP'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('DTP'.$de, $seg, 4) === 0 ) {
 				//
 				$sar = explode($de, $seg);
 				$var = '';
@@ -433,11 +433,11 @@ function edih_278_transaction_html($obj278, $bht03) {
 					$evt_html .= "<tr class='$cls'><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
 				} elseif ($loopid == '2000F') {
 					$svc_html .= "<tr class='$cls'><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
-				} 
+				}
 				continue;
 			}
 			//
-			if ( strncmp('HI'.$de, $seg, 3) === 0 ) {	
+			if ( strncmp('HI'.$de, $seg, 3) === 0 ) {
 				// This is the Health Care Information Codes segment
 				//  -- to give all information in the segment, we need to
 				//     lookup all the code values ICD-9, ICD-10, LOINC, DRG, etc.
@@ -488,23 +488,23 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('HSD08', $sar[8]) : '';	// delivery
 				//
 				if ( ($elem01 || $elem02) && !$elem08 ) {
-					$tr_str .= ($elem03 && $elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : ""; 
-					$tr_str .= ($elem03 && $elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 $elem07</td></tr>".PHP_EOL : ""; 
-					$tr_str .= ($elem03 && !$elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : ""; 
-					$tr_str .= ($elem03 && !$elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 $elem07</td></tr>".PHP_EOL : ""; 
+					$tr_str .= ($elem03 && $elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : "";
+					$tr_str .= ($elem03 && $elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 $elem07</td></tr>".PHP_EOL : "";
+					$tr_str .= ($elem03 && !$elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : "";
+					$tr_str .= ($elem03 && !$elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 $elem07</td></tr>".PHP_EOL : "";
 				} else {
 					$tr_str .= "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 $elem07 $elem08</td></tr>" .PHP_EOL;
 				}
 				//
-				if ($loopid == '2000E') { 
+				if ($loopid == '2000E') {
 					$evt_html .= $tr_str;
-				} elseif ($loopid == '2000F') { 
+				} elseif ($loopid == '2000F') {
 					$svc_html .= $tr_str;
 				}
 				continue;
-			} 
+			}
 			//
-			if ( strncmp('CRC'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CRC'.$de, $seg, 4) === 0 ) {
 				// Certification
 				$sar = explode($de, $seg);
 				//
@@ -524,9 +524,9 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$evt_html .= ($elem07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem07</td></tr>".PHP_EOL : "";
 				//
 				continue;
-			} 
+			}
 			//
-			if ( strncmp('CL1'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CL1'.$de, $seg, 4) === 0 ) {
 				//					
 				$sar = explode($de, $seg);
 				//
@@ -538,22 +538,22 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$tr_str .= "<tr class='$cls'><td><em>Hospital</em> </td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
 				$tr_str .= ($elem03) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL : "";
 				//
-				if ($loopid == '2000E') { 
+				if ($loopid == '2000E') {
 					$evt_html .= $tr_str;
-				} elseif ($loopid == '2000F') { 
+				} elseif ($loopid == '2000F') {
 					$svc_html .= $tr_str;
 				}
 				continue;
 			}
 			//
-			if ( strncmp('CR1'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CR1'.$de, $seg, 4) === 0 ) {
 				//	ambulance				
 				$sar = explode($de, $seg);
 				//							
 				$elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR103', $sar[3]) : '';	// ambulance transit code			
-				if ( isset($sar[5]) ) { 
+				if ( isset($sar[5]) ) {
 					if ($sar[5] == 'DH') {
-						$elem05 = "miles"; 
+						$elem05 = "miles";
 					} elseif ($sar[5] == 'DK') {
 						$elem05 = "kilometers";
 					} else {
@@ -569,12 +569,12 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//				
-			if ( strncmp('CR2'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CR2'.$de, $seg, 4) === 0 ) {
 				//	spinal manipulation				
 				$sar = explode($de, $seg);
 				//
 				$elem01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : "";
-				$elem02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : "";				
+				$elem02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : "";
 				$elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR203', $sar[3]) : "";	// spinal code	
 				$elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR203', $sar[4]) : "";	// spinal code
 				$elem04 = ($elem04) ? "-- ".$elem04 : "";
@@ -585,11 +585,11 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//							
-			if ( strncmp('CR5'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CR5'.$de, $seg, 4) === 0 ) {
 				//	oxygen				
 				$sar = explode($de, $seg);
 				//
-				$tr_str = '';			
+				$tr_str = '';
 				$elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR503', $sar[3]) : "";	// oxygen code	
 				$elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR503', $sar[4]) : "";	// oxygen code
 				$elem06 = (isset($sar[6]) && $sar[6]) ? "Flow (lpm): ".$sar[6] : "";
@@ -617,7 +617,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				continue;
 			}
 			//
-			if ( strncmp('CR6'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('CR6'.$de, $seg, 4) === 0 ) {
 				//	oxygen				
 				$sar = explode($de, $seg);
 				//
@@ -636,14 +636,14 @@ function edih_278_transaction_html($obj278, $bht03) {
 				//
 				$evt_html .= "<tr class='$cls'><td><em>Home Health</em></td><td><em>HH Began</em> $elem02</td><td colspan=2>$elem01</td></tr>".PHP_EOL;
 				$evt_html .= ($elem03 || $elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem04</td><td>(MCR) $elem07</td></tr>".PHP_EOL : "";
-				$evt_html .= ($elem08) ?  "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem08</td><td>(MCR) $elem05</td></tr>".PHP_EOL : ""; 
+				$evt_html .= ($elem08) ?  "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem08</td><td>(MCR) $elem05</td></tr>".PHP_EOL : "";
 				//
 				continue;
 			}
 			//							
-			if ( strncmp('PWK'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('PWK'.$de, $seg, 4) === 0 ) {
 				//	paperwork			
-				$sar = explode($de, $seg);	
+				$sar = explode($de, $seg);
 				//
 				$tr_str = '';
 				//
@@ -657,33 +657,33 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$tr_str .= ($elem05) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem05 $elem06</td></tr>".PHP_EOL : "";
 				$tr_str .= ($elem07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem07</td></tr>".PHP_EOL : "";
 				//
-				if ($loopid == '2000E') { 
+				if ($loopid == '2000E') {
 					$evt_html .= $tr_str;
-				} elseif ($loopid == '2000F') { 
+				} elseif ($loopid == '2000F') {
 					$svc_html .= $tr_str;
 				}
 				continue;
 			}
 			//						
-			if ( strncmp('MSG'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('MSG'.$de, $seg, 4) === 0 ) {
 				//	paperwork			
-				$sar = explode($de, $seg);	
+				$sar = explode($de, $seg);
 				//
 				$elem01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : "";
 				//
-				if ($loopid == '2000E') { 
+				if ($loopid == '2000E') {
 					$evt_html .= ($elem01) ? "<tr class='$cls'><td><em>Message</em></td><td colspan=3>$elem01</td></tr>".PHP_EOL : "";
-				} elseif ($loopid == '2000F') { 
+				} elseif ($loopid == '2000F') {
 					$svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Message</em></td><td colspan=3>$elem01</td></tr>".PHP_EOL : "";
 				}
 				continue;
 			}
 			//
-			if ( strncmp('SV1'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('SV1'.$de, $seg, 4) === 0 ) {
 				//	professional services			
-				$sar = explode($de, $seg);	
+				$sar = explode($de, $seg);
 				//
-				
+
 				$elem01 = '';
 				if ( isset($sar[1]) && strpos($sar[1], $ds ) ) {
 					$ar01 = explode($ds, $sar[1]);
@@ -695,7 +695,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 						$elem01 .= " ".$ar01[1]." --  ".$ar01[8];
 					} else {
 						$elem01 .= " ".$ar01[1];
-					} 
+					}
 						
 					if ($elem01 && $ct > 2) {
 						for ($i=2; $i<$ct; $i++) { $elem01 .= ' '.$ar01[$i]; }
@@ -712,17 +712,17 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$elem11 = ($elem11) ? "<em>EPSDT</em> ".$elem11 : "";
 				//
 				$svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Professional Svc</em></td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL : "";
-				$svc_html .= ($elem03 ||$elem04 || $elem11) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem11</td></tr>".PHP_EOL : "";					 			
+				$svc_html .= ($elem03 ||$elem04 || $elem11) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem11</td></tr>".PHP_EOL : "";
 				$svc_html .= ($elem20) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem20</td></tr>".PHP_EOL : "";
 				//
 				continue;
 			}
 			//
-			if ( strncmp('SV2'.$de, $seg, 4) === 0 ) {	
+			if ( strncmp('SV2'.$de, $seg, 4) === 0 ) {
 				//	paperwork			
-				$sar = explode($de, $seg);	
+				$sar = explode($de, $seg);
 				//
-				
+
 				$elem01 = '';
 				if ( isset($sar[1]) && strpos($sar[1], $ds ) ) {
 					$ar01 = explode($ds, $sar[1]);
@@ -734,7 +734,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 						$elem01 .= " ".$ar01[1]." --  ".$ar01[8];
 					} else {
 						$elem01 .= " ".$ar01[1];
-					} 
+					}
 						
 					if ($elem01 && count($ar01) > 2) {
 						for ($i=2; $i<$ct; $i++) { $elem01 .= ' '.$ar01[$i]; }
@@ -750,7 +750,7 @@ function edih_278_transaction_html($obj278, $bht03) {
 				$elem10 = (isset($sar[20]) && $sar[20]) ? $cd27x->get_271_code('SV120', $ar01[20]) : "";
 				//
 				$svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Inst Service</em></td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL : "";
-				$svc_html .= ($elem03 ||$elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem05 $elem06</td></tr>".PHP_EOL : "";					 			
+				$svc_html .= ($elem03 ||$elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem05 $elem06</td></tr>".PHP_EOL : "";
 				$svc_html .= ($elem10) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem10</td></tr>".PHP_EOL : "";
 				//
 				continue;
@@ -781,7 +781,7 @@ function edih_278_transaction_html($obj278, $bht03) {
  * @param string  $bht03 identifier from 837 CLM or27 BHT segment
  * 
  * @return string  either an error message or an html table
- */			
+ */
 function edih_278_html($filename, $bht03='' ) {
 	// create a display for an individual 277 response
 	$html_str = '';
@@ -790,7 +790,7 @@ function edih_278_html($filename, $bht03='' ) {
 		csv_edihist_log ("edih_278_html: called with no file arguments");
 		$html_str .= "Error, no file given<br />".PHP_EOL;
 		return $html_str;
-	} else { 
+	} else {
 		$obj278 = csv_check_x12_obj($filename, 'f278');
 		if ($obj278 && 'edih_x12_file' == get_class($obj278) ) {
 			if ($bht03) {
@@ -814,7 +814,7 @@ function edih_278_html($filename, $bht03='' ) {
 							$gs_sender = $gs['sender'];
 							break;
 						}
-					}						
+					}
 					//
 					// get each transaction
 					foreach($st['bht03'] as $bht) {
@@ -834,7 +834,7 @@ function edih_278_html($filename, $bht03='' ) {
 		}
 	}
 	//
-	return $html_str;				
+	return $html_str;
 }
 						
 			

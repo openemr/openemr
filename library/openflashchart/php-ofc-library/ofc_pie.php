@@ -128,7 +128,7 @@ class pie
 	 */
 	function set_values( $v )
 	{
-		$this->values = $v;		
+		$this->values = $v;
 	}
 
 	/**
@@ -219,7 +219,7 @@ class pie
 	function set_label_colour( $label_colour )
 	{
 		$tmp = 'label-colour';
-		$this->$tmp = $label_colour;	
+		$this->$tmp = $label_colour;
 	}
 	
 	function label_colour( $label_colour )

@@ -82,7 +82,7 @@ function messageCreate($uname,$pass,$site){
         $message .= "<a href='" . $offsite_portal_patient_link . "'>" .
                     $offsite_portal_patient_link . "</a><br><br>";
 	$message .= htmlspecialchars(xl("Provider Id"),ENT_NOQUOTES) . ": " .
-		    htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_NOQUOTES) . "<br><br>";		    
+		    htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_NOQUOTES) . "<br><br>";
     }
     
         $message .= htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
@@ -129,7 +129,7 @@ function emailLogin($patient_id,$message){
 function displayLogin($patient_id,$message,$emailFlag){
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ($emailFlag) {
-        $message = "<br><br>" . 
+        $message = "<br><br>" .
                    htmlspecialchars(xl("Email was sent to following address"),ENT_NOQUOTES) . ": " .
                    htmlspecialchars($patientData['email'],ENT_NOQUOTES) . "<br><br>" .
                    $message;
@@ -138,7 +138,7 @@ function displayLogin($patient_id,$message,$emailFlag){
 }
 
 if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
-    require_once("$srcdir/authentication/common_operations.php");    
+    require_once("$srcdir/authentication/common_operations.php");
 
     $clear_pass=$_REQUEST['pwd'];
     
@@ -207,7 +207,7 @@ function transmit(){
             <td><?php echo htmlspecialchars(xl('Provider Id').':',ENT_QUOTES);?></td>
             <td><span><?php echo htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_QUOTES);?></span></td>
         </tr>			
-	<?php		
+	<?php	
 		}
 	?>
         <tr class="text">

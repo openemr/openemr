@@ -30,10 +30,10 @@
 	$eleDataSep		= "*";
 
 	// Segment Terminator	
-	$segTer			= "~"; 	
+	$segTer			= "~";
 
 	// Component Element seperator
-	$compEleSep		= "^"; 	
+	$compEleSep		= "^";
 	
 	// filter conditions for the report and batch creation 
 
@@ -138,7 +138,7 @@
 			$to_date
 		));
 		print_elig($res,$X12info,$segTer,$compEleSep);
-		exit; 
+		exit;
 	}
 ?>
 
@@ -275,7 +275,7 @@
 
 		<div id="report_parameters_daterange">
 			<?php echo htmlspecialchars( date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .
-				" &nbsp; " . htmlspecialchars( xl('to'), ENT_NOQUOTES) . 
+				" &nbsp; " . htmlspecialchars( xl('to'), ENT_NOQUOTES) .
 				"&nbsp; ". htmlspecialchars( date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
 		</div>
 
@@ -348,7 +348,7 @@
 																	<option value='<?php echo htmlspecialchars( $clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
 																		<?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
 																	><?php echo htmlspecialchars( $clearinghouse['name'], ENT_NOQUOTES); ?></option>
-														<?php	endforeach; 
+														<?php	endforeach;
 															}
 															
 														?>

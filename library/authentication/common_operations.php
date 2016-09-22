@@ -59,7 +59,7 @@ function initializePassword($username,$userid,&$password)
                     $hash,
                     $salt
     );
-    privStatement($passwordSQL,$params); 
+    privStatement($passwordSQL,$params);
     return $hash;
 }
 
@@ -73,7 +73,7 @@ function initializePassword($username,$userid,&$password)
  */
 function purgeCompatabilityPassword($username,$userid)
 {
-    $purgeSQL = " UPDATE " . TBL_USERS 
+    $purgeSQL = " UPDATE " . TBL_USERS
                 ." SET ". COL_PWD . "='NoLongerUsed' "
                 ." WHERE ".COL_UNM. "=? "
                 ." AND ".COL_ID. "=?";

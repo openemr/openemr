@@ -40,20 +40,20 @@ if (!acl_check('patients', 'med')) {
 
 // Conversion functions/constants
 function convertFtoC($a) {
-  return ($a-32)*0.5556;  
+  return ($a-32)*0.5556;
 }
 function getLbstoKgMultiplier() {
   return 0.45359237;
 }
 function getIntoCmMultiplier() {
-  return 2.54;   
+  return 2.54;
 }
 function getIdealYSteps($a) {
   if ($a>1000) {
     return 200;
   }
   else if ($a>500) {
-    return 100;  
+    return 100;
   }
   else if ($a>100) {
     return 20;
@@ -121,7 +121,7 @@ function graphsGetRanges($name) {
       "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
       "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
       "FROM " . add_escape_custom($table) . " " .
-		  "WHERE " . add_escape_custom($name) . " != 0 " . 
+		  "WHERE " . add_escape_custom($name) . " != 0 " .
 		  "AND pid = ?", array($pid));
   }
   return $ranges;
@@ -311,7 +311,7 @@ $step_vis=2;
 // do not allow steps to be less than 1 day
 if ($step < 86400) {
   $step = 86400;
-  $step_vis=1; 
+  $step_vis=1;
 }
 $x->set_steps($step);
 $labels = new x_axis_labels();
@@ -368,13 +368,13 @@ if ($isBP) {
 }
 else {
   // Set up the line
-  $chart->add_element( $s );   
+  $chart->add_element( $s );
 }
 $chart->set_x_axis( $x );
 $chart->add_y_axis( $y );
     
 //error_log("Chart: ".$chart->toPrettyString(),0);
-    
+
 echo $chart->toPrettyString();
 
 ?>

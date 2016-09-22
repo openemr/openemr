@@ -14,7 +14,7 @@ class line_base
 	
 	function set_values( $v )
 	{
-		$this->values = $v;		
+		$this->values = $v;
 	}
 	
 	/**
@@ -24,12 +24,12 @@ class line_base
      */
     function append_value($v)
     {
-        $this->values[] = $v;       
+        $this->values[] = $v;
     }
 	
 	function set_width( $width )
 	{
-		$this->width = $width;		
+		$this->width = $width;
 	}
 	
 	function set_colour( $colour )
@@ -40,13 +40,13 @@ class line_base
 	function set_dot_size( $size )
 	{
 		$tmp = 'dot-size';
-		$this->$tmp = $size;		
+		$this->$tmp = $size;
 	}
 	
 	function set_halo_size( $size )
 	{
 		$tmp = 'halo-size';
-		$this->$tmp = $size;		
+		$this->$tmp = $size;
 	}
 	
 	function set_key( $text, $font_size )
@@ -82,7 +82,7 @@ class line_base
      * Sets the text for the line.
      *
      * @param string $text
-     */   
+     */
     function set_text($text)
     {
         $this->text = $text;

@@ -161,7 +161,7 @@ function process_form($ar) {
       }
 
       $tmp = 1;
-      if (isset($ar['HiddenMarkAsCleared']) && $ar['HiddenMarkAsCleared']=='yes') 
+      if (isset($ar['HiddenMarkAsCleared']) && $ar['HiddenMarkAsCleared']=='yes')
        {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);// $sql .= " billed = 1, ";
        }

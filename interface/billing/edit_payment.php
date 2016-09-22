@@ -823,7 +823,7 @@ return false;
 				$allowedtot=0;
 				if($RowSearchSub = sqlFetchArray($ResultSearchSub))
 				 {
-					do 
+					do
 					 {
 						$CountPatient++;
 						$PId=$RowSearchSub['pid'];
@@ -1102,7 +1102,7 @@ return false;
 							<td class="<?php echo $StringClass; ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex; ?>"    name="FollowUpReason<?php echo $CountIndex; ?>"  <?php echo $FollowUpDB=='y' ? '' : ' readonly '; ?>  type="text"  value="<?php echo htmlspecialchars($FollowUpReasonDB); ?>"    style="width:110px;font-size:12px" /></td>
 						  </tr>
 						<?php
-								
+
 								
 							 }//while ($RowSearch = sqlFetchArray($ResultSearch))
 						?>

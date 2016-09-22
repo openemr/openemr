@@ -387,7 +387,7 @@ if ($res) {
     $errmsg  = "";
     if ($form_details) {
       // Fetch all other forms for this encounter.
-      $encnames = '';      
+      $encnames = '';
       $encarr = getFormByEncounter($patient_id, $row['encounter'],
         "formdir, user, form_name, form_id");
       if($encarr!='') {
@@ -396,7 +396,7 @@ if ($res) {
 	        if ($encnames) $encnames .= '<br />';
 	        $encnames .= text($enc['form_name']); // need to html escape it here for output below
 	      }
-      }     
+      }
 
       // Fetch coding and compute billing status.
       $coded = "";

@@ -179,7 +179,7 @@ $(document).ready(function() {
     text($row['name']) . "</a></td>\n";
    echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
    echo "  <td>" . text($row['ndc_number']) . "</td>\n";
-   echo "  <td>" . 
+   echo "  <td>" .
 	generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
 	"</td>\n";
    echo "  <td>" . text($row['size']) . "</td>\n";

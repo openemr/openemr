@@ -54,7 +54,7 @@ class Tree {
 	  if ($this->root_type == ROOT_TYPE_NAME) {
 	  	$sql = "SELECT * FROM " . $this->_table . " WHERE name='".$root."'";
 	  }
-	  $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());   
+	  $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 	  $row = array();
 
 	  if($result && !$result->EOF) {
@@ -79,13 +79,13 @@ class Tree {
 	    
 	    //create a lookup table of id to name for every node that will end up in this tree, this is used
 	    //by the array building code below to find the chain of parents for each node
-	    
+
 	    // ADDED below by BM on 06-2009 to translate categories, if applicable
 	    if ($this->_table == "categories") {
 	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']), "parent" => $row['parent']);
 	    }
 	    else {
-	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);	
+	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
 	    }
 		
 	    // only check stack if there is one
@@ -101,7 +101,7 @@ class Tree {
 	    $loop = 0;
 	    
 	    //this is a string that gets evaled below to create the array representing the tree
-	    $ar_string = "[\"".($row['id']) ."\"] = \$row[\"value\"]"; 
+	    $ar_string = "[\"".($row['id']) ."\"] = \$row[\"value\"]";
 	    
 	    //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
 	    //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
@@ -113,7 +113,7 @@ class Tree {
 		
 		$ar_string = '$ar' . $ar_string . ";";
 		//echo $ar_string;
-		
+
 		//now eval the string to create the tree array
 		//there must be a more efficient way to do this than eval?
 		eval($ar_string);
@@ -143,7 +143,7 @@ class Tree {
 	*	call this to fix the mess than to use the add and delete functions.
 	*	@param int $parent id of the node you would like to rebuild all nodes below
 	*	@param int $left optional proper left value of the node you are rebuilding below, then used recursively
-	*/	
+	*/
 	function rebuild_tree($parent, $left = null) {
 	  
 	  //if no left is supplied assume the existing left is proper
@@ -152,12 +152,12 @@ class Tree {
 	    $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 
 	    if($result && !$result->EOF) {
-	    	$left = $result->fields['lft'];	
+	    	$left = $result->fields['lft'];
 	    }
 	    else {
 	    	//the node you are rebuilding below if goofed up and you didn't supply a proper value
 	    	//nothing we can do so error
-	    	die("Error: The node you are rebuilding from could not be found, please supply an existing node id.");	
+	    	die("Error: The node you are rebuilding from could not be found, please supply an existing node id.");
 	    }
 	  }
 	  // get all children of this node
@@ -185,7 +185,7 @@ class Tree {
 
 	  // return the right value of this node + 1
 	  return $right+1;
-	} 
+	}
 
 	
 	/*
@@ -210,12 +210,12 @@ class Tree {
    	  $next_right = 0;
    	  
 	  if ($result && !$result->EOF) {
-	    $next_right = $result->fields['rght']; 
+	    $next_right = $result->fields['rght'];
 	  }
    
 	  $sql = "UPDATE " . $this->_table . " SET rght=rght+2 WHERE rght>=" . $next_right;
 	  $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
-	  $sql = "UPDATE " . $this->_table . " SET lft=lft+2 WHERE lft>=" . $next_right;	
+	  $sql = "UPDATE " . $this->_table . " SET lft=lft+2 WHERE lft>=" . $next_right;
 	  $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 	  
 	  $id = $this->_db->GenID($this->_table . "_seq");
@@ -244,7 +244,7 @@ class Tree {
 	  if ($result && !$result->EOF) {
 	    $left = $result->fields['lft'];
 	    $right = $result->fields['rght'];
-	    $new_parent = $result->fields['parent']; 
+	    $new_parent = $result->fields['parent'];
 	  }
    
 	  $sql = "UPDATE " . $this->_table . " SET rght=rght-2 WHERE rght>" . $right;
@@ -255,7 +255,7 @@ class Tree {
 	  //echo $sql . "<br>";
 	  $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 	  
-	  $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>" . $left . " and rght < " . $right;	
+	  $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>" . $left . " and rght < " . $right;
 	  //echo $sql . "<br>";
 	  $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
    
@@ -279,7 +279,7 @@ class Tree {
 			return $this->_id_name[$id];
 		}
 		else {
-			return array();	
+			return array();
 		}
 	}
 	
@@ -288,9 +288,9 @@ class Tree {
 			return $this->_id_name[$id]['name'];
 		}
 		else {
-			return false;	
+			return false;
 		}
-	}   
+	}
 
 }
 

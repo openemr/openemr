@@ -39,7 +39,7 @@ class FormPriorAuth extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		$this->_table = "form_prior_auth";
 		$this->date = date("Y-m-d H:i:s");
@@ -93,7 +93,7 @@ class FormPriorAuth extends ORDataObject {
 	}
 	
 	function get_comments() {
-		return $this->comments;	
+		return $this->comments;
 	}
 	
 	function set_prior_auth_number($string) {
@@ -101,7 +101,7 @@ class FormPriorAuth extends ORDataObject {
 	}
 	
 	function get_prior_auth_number() {
-		return $this->prior_auth_number;	
+		return $this->prior_auth_number;
 	}
 	
 	

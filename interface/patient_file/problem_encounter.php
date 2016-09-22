@@ -72,7 +72,7 @@
     ") VALUES ( " .
     " ?, ?, ?" .
     ")";
-   sqlQuery($query, array($form_pid, $list_id, $encounter)); 
+   sqlQuery($query, array($form_pid, $list_id, $encounter));
   }
 
   echo "<html><body>"

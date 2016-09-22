@@ -223,11 +223,11 @@ $check_res = $formid ? $check_res : array();
                         <td id="ob_value_head_<?php echo $key + 1; ?>" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
                         <td class="forms"> 
                            <?php 
-                                if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) { 
-                                  $style = 'display: block;'; 
-                                } 
+                                if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
+                                  $style = 'display: block;';
+                                }
                                 elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
-                                  $style = 'display: none;'; 
+                                  $style = 'display: none;';
                                 }
                            ?>
                           <input type="text" name="ob_value[]" id="ob_value_<?php echo $key + 1; ?>" style="width: 60%; <?php echo $style;?>" class="ob_value" value="<?php if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
@@ -290,11 +290,11 @@ $check_res = $formid ? $check_res : array();
                 <td id="ob_value_head_1" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
                 <td class="forms"> 
                   <?php 
-                      if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) { 
-                        $style = 'display: block;'; 
-                      } 
+                      if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
+                        $style = 'display: block;';
+                      }
                       elseif(text($obj{"code"}) == 'SS003' || !$obj{"ob_value"}) {
-                        $style = 'display: none;'; 
+                        $style = 'display: none;';
                       }
                    ?>
                   <input type="text" name="ob_value[]" id="ob_value_1" style="width: 60%;<?php echo $style;?>" class="ob_value" value="<?php if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">

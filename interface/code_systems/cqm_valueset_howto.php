@@ -32,7 +32,7 @@ require_once("../../interface/globals.php");
 <div class="dialog"><p>
 <?php echo xlt("Steps to install the VALUSET database"); ?>:
 <ol>
-<li><?php echo xlt("The first step is to download the VALUESET release. Access to VALUESET is provided by NLM. Only valueset for Eligible Professionals need to be downloaded and it should be downloaded in XML format from Sorted By CMS ID column. For more details see the below link") . 
+<li><?php echo xlt("The first step is to download the VALUESET release. Access to VALUESET is provided by NLM. Only valueset for Eligible Professionals need to be downloaded and it should be downloaded in XML format from Sorted By CMS ID column. For more details see the below link") .
 " <a href='https://vsac.nlm.nih.gov/#download-tab'>https://vsac.nlm.nih.gov/#download-tab</a>."; ?> 
 </li>
 <li><?php echo xlt("Place the downloaded VALUESET database zip file into the following directory"); ?>: contrib/cqm_valueset 

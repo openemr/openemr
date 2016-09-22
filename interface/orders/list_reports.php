@@ -459,7 +459,7 @@ while ($row = sqlFetchArray($res)) {
   $report_id        = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
   $date_report      = empty($row['date_report'        ]) ? '' : substr($row['date_report'], 0, 16);
   $date_report_suf  = empty($row['date_report_tz'     ]) ? '' : (' ' . $row['date_report_tz' ]);
-  $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status']; 
+  $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status'];
   $review_status    = empty($row['review_status'      ]) ? '' : $row['review_status'];
 
   // Sendable procedures sort first, so this also applies to the order on an order ID change.
@@ -503,7 +503,7 @@ while ($row = sqlFetchArray($res)) {
     echo " />";
     // Order date comes with a link to open results in the same frame.
     echo "<a href='javascript:openResults($order_id)' ";
-    echo "title='" . xla('Click for results') . "'>";    
+    echo "title='" . xla('Click for results') . "'>";
     echo text($date_ordered);
     echo "</a></td>\n";
     echo "  <td>";

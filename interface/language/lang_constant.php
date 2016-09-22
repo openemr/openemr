@@ -18,7 +18,7 @@ if ($_POST['add']){
 		$val_constant=$_POST['constant_name'];
 	} else {
 	        //insert into the main table
-		$sql="INSERT INTO lang_constants SET constant_name=?"; 
+		$sql="INSERT INTO lang_constants SET constant_name=?";
 		SqlStatement($sql, array($_POST['constant_name']) );
 	    
                 //insert into the log table - to allow persistant customizations

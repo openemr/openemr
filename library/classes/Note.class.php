@@ -136,7 +136,7 @@ class Note extends ORDataObject{
 	}
 	function get_note() {
 		return $this->note;
-	}	
+	}
 	function set_date($date) {
 		$this->date = $date;
 	}

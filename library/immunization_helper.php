@@ -32,7 +32,7 @@ function getImmunizationList($pid,$sortby,$showError) {
         $sql = "select i1.id ,i1.immunization_id, i1.cvx_code, i1.administered_date, c.code_text_short, c.code".
                 ",i1.manufacturer ,i1.lot_number, i1.completion_status ".
                 ",ifnull(concat(u.lname,', ',u.fname),'Other') as administered_by ".
-                ",i1.education_date ,i1.note ". ",i1.expiration_date " . 
+                ",i1.education_date ,i1.note ". ",i1.expiration_date " .
                 ",i1.amount_administered, i1.amount_administered_unit, i1.route, i1.administration_site, i1.added_erroneously".
                 " from immunizations i1 ".
                 " left join users u on i1.administered_by_id = u.id ".
@@ -45,11 +45,11 @@ function getImmunizationList($pid,$sortby,$showError) {
 
         $sql .= " order by ";
         
-        if ($sortby == "vacc") { 
-                $sql .= " c.code_text_short, i1.immunization_id, i1.administered_date DESC"; 
+        if ($sortby == "vacc") {
+                $sql .= " c.code_text_short, i1.immunization_id, i1.administered_date DESC";
         }
-        else { 
-                $sql .= " administered_date desc"; 
+        else {
+                $sql .= " administered_date desc";
         }
 
         $results = sqlStatement($sql,array($pid));

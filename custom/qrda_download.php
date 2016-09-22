@@ -47,7 +47,7 @@
 		header("Content-Length: ". filesize($xmlurl));
 		ob_clean();
 		flush();
-		readfile( $xmlurl ); 
+		readfile( $xmlurl );
 	}else{
 		echo xlt("File path not found.");
 	}

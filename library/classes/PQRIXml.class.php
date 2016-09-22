@@ -18,7 +18,7 @@ class PQRIXml extends XmlWriterOemr {
 	
 	function open_submission() {
 		
-		$this->push('submission', array('type'=>'PQRI-REGISTRY', 'option'=>'payment', 
+		$this->push('submission', array('type'=>'PQRI-REGISTRY', 'option'=>'payment',
            'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation'=>'Registry_Payment.xsd'));
 	}
 	
@@ -33,21 +33,21 @@ class PQRIXml extends XmlWriterOemr {
 
 					
 		$this->push('file_audit_data');
-		$this->element('create-date', date("m-d-Y")); 
-		$this->element('create-time', date("H:i")); 
-		$this->element('create-by', $res{"fname"}.' '.$res{"lname"}); 
-		$this->element('version', '1.0'); 
-		$this->element('file-number', '1'); 
-		$this->element('number-of-files', '1'); 
+		$this->element('create-date', date("m-d-Y"));
+		$this->element('create-time', date("H:i"));
+		$this->element('create-by', $res{"fname"}.' '.$res{"lname"});
+		$this->element('version', '1.0');
+		$this->element('file-number', '1');
+		$this->element('number-of-files', '1');
 		$this->pop();
 	}
 	
 	function add_registry($submission_method) {
 			    
 		$this->push('registry');
-		$this->element('registry-name', $GLOBALS['pqri_registry_name']); 
-		$this->element('registry-id', $GLOBALS['pqri_registry_id']); 
-		$this->element('submit-method', $submission_method); 
+		$this->element('registry-name', $GLOBALS['pqri_registry_name']);
+		$this->element('registry-id', $GLOBALS['pqri_registry_id']);
+		$this->element('submit-method', $submission_method);
 		$this->pop();
 	}
 

@@ -42,7 +42,7 @@ class NumberToText {
 		$this->number = $number;
 		$this->currency = $currency;
 		$this->capatalize = $capatalize;
-		$this->and = $and;	
+		$this->and = $and;
 	}
 
 	/** Number to text converter. Converts a number into a textual description, such as
@@ -79,7 +79,7 @@ class NumberToText {
 	    
 	    if ($number === 0) {
 	    	return "zero";
-	    }	
+	    }
     
 	    $text = "";
 	    
@@ -103,21 +103,21 @@ class NumberToText {
 	    }
 	    // $int_o and $decimal_o are for "original value"
 	    // conversion for integer part:
-    
+
 	    $section = 0; // $section controls "thousand" "million" etc
 	    $text = '';
 		    do {
 	        // keep breaking down into 3 digits ($convert) and the rest
 	        //$convert = $int % 1000;
 	        //$int = floor($int / 1000);
-	        
+
 	        if ($section > count($big) - 1) {
 	            // ran out of names for numbers this big, call recursively
 	            $text = NumberToText($int, false, false, $and)." ".$big[$section-1]." ".$text;
 	            $int = 0;
 	        } else {
 	            // we can handle it
-	            
+
 		    if (strlen($int)<3) {
 			  $convert = $int;
 			  $int = 0;
@@ -140,7 +140,7 @@ class NumberToText {
 	    } while ($int > 0);
 	    
 	    // conversion for decimal part:
-	    
+
 	    if ($currency && floor($number)) {
 	        // add " dollars"
 	        $text .= " ".($int_o == 1 ? N2T_DOLLARS_ONE : N2T_DOLLARS)." ";
@@ -154,7 +154,7 @@ class NumberToText {
 	        
 	        $cents = substr($decimal,0,2); // (0.)2342 -> 23
 	        $decimal = substr($decimal,2); // (0.)2345.. -> 45..
-	        
+
 	        $text .= $this->n2t_convertthree($cents, false, true); // explicitly show "and" if there was an $int
 	    }
 	    

@@ -61,13 +61,13 @@ $this->code271['BHT06'] = array(
 'CH'=>'Chargeable',
 'DG'=>'Response',
 'RP'=>'Reporting',
-'RT'=>'Spend Down',	
+'RT'=>'Spend Down',
 'RU'=>'Medical Services Reservation',
 'TH'=>'Receipt Acknowledgment'
 );
 
 // AAA reject reason code
-$this->code271['AAA03'] = array(			
+$this->code271['AAA03'] = array(
 '04'=>'Authorized quantity exceeded',
 '15'=>'Required application data missing',
 '33'=>'Input Errors',
@@ -120,13 +120,13 @@ $this->code271['AAA03'] = array(
 'CI'=>'Certification information does not match patient.',
 'E8'=>'Requires medical review.',
 'IA'=>'Invalid authorization number format.',
-'MA'=>'Missing authorization number.'			
+'MA'=>'Missing authorization number.'
 );
 
 
 
 // follow-up action code
-$this->code271['AAA04'] = array(	
+$this->code271['AAA04'] = array(
 'C'=>'Please correct and resubmit',
 'N'=>'Resubmission not allowed',
 'P'=>'Please resubmit original transaction',
@@ -138,7 +138,7 @@ $this->code271['AAA04'] = array(
 );
 
 // provider PRV codes		
-$this->code271['PRV'] = array(			
+$this->code271['PRV'] = array(
 'AD'=>'Admitting',
 'AT'=>'Attending',
 'BI'=>'Billing',
@@ -194,11 +194,11 @@ $this->code271['REF'] = array(
 "EV" => "Receiver Identificaton Number",
 "F2" => "Version Identification Qualifier",
 "F6" => "Health Ins Claim (HIC) Number",
-"F8" => "Original Reference Number", 
+"F8" => "Original Reference Number",
 "FJ" => "Service Item Information",
 "G1" => "Prior Authorization Number",
 "G2" => "Provider Commercial Number",
-"G3" => "Predetermination of Benefits ID Number", 
+"G3" => "Predetermination of Benefits ID Number",
 "G5" => "Provider Site Number",
 "GH" => "ID Card Serial Number",
 "HI" => "Health Industry Number (HIN)",
@@ -272,7 +272,7 @@ $this->code271['DTP'] = array(
 
 // entity identifier code  --code source 237
 // NM101 STC01-3 N101
-$this->code271['NM101'] = array(	
+$this->code271['NM101'] = array(
 '03'=>'Dependent',
 '13'=>'Contracted Service Provider',
 '17'=>'Consultant\'s Office',
@@ -309,7 +309,7 @@ $this->code271['NM101'] = array(
 '36'=>'Employer',
 '40'=>'Receiver',
 '41'=>'Submitter',
-'45'=>'Drop-off Location', 
+'45'=>'Drop-off Location',
 '61'=>'Performed At',
 '6A'=>'Reproductive Health Services',
 '6G'=>'Sports Medicine Clinic/Services',
@@ -382,7 +382,7 @@ $this->code271['NM101'] = array(
 'VY'=>'Organization Completing Configuration Change',
 'X3'=>'Utilization Management Organization',
 'X4'=>'Spouse',
-'Y2'=>'Managed Care Organization'				
+'Y2'=>'Managed Care Organization'
 );
 
 
@@ -403,7 +403,7 @@ $this->code271['NM108'] = array(
 "HN"=>"Health Ins Claim No",
 "MC"=>"Medicaid Provider No",
 "MI"=>"Member ID",
-"MR"=>"Medicaid Recipient ID No", 
+"MR"=>"Medicaid Recipient ID No",
 "NI"=>"NAIC Identification",
 "PI"=>"Payer ID",
 "PP"=>"Pharmacy Processor No",
@@ -539,11 +539,11 @@ $this->code271['MPI'] = array(
 'SC'=>'Staff Sergeant Specialist 6',
 'T1'=>'Technical Sergeant',
 'V1'=>'Vice Admiral',
-'W1'=>'Warrant Officer'			
+'W1'=>'Warrant Officer'
 );
 
 // eligibility or benifit information code
-$this->code271['EB01'] = array(			
+$this->code271['EB01'] = array(
 '1'=>'Active Coverage',
 '2'=>'Active-Full Risk Capitation',
 '3'=>'Active-Services Capitated',  			//	'4'=>'Active - Services Capitated to Primary Care Physician',
@@ -582,7 +582,7 @@ $this->code271['EB01'] = array(
 );
 
 // coverage level code		
-$this->code271['EB02'] = array(		
+$this->code271['EB02'] = array(
 'CHD'=>'Children Only',
 'DEP'=>'Dependents Only',
 'E1D'=>'Employee and One Dependent',
@@ -816,7 +816,7 @@ $this->code271['EB03'] = array(
 );
 
 // insurance type codes
-$this->code271['EB04'] = array(			
+$this->code271['EB04'] = array(
 'D'=>'Disability',
 //'12'=>'Medicare Secondary Working Aged Beneficiary or Spouse with Employer Group Health Plan',
 //'13'=>'Medicare Secondary End-Stage Renal Disease Beneficiary in the 12 month coordination period with an employer\'s group health plan',
@@ -835,7 +835,7 @@ $this->code271['EB04'] = array(
 '41'=>'Medicare Secondary (Black Lung)',
 '42'=>'Medicare Secondary (VA)',
 '43'=>'Medicare Secondary (LGHP)',
-'47'=>'Medicare Secondary, Liability Ins Primary',			
+'47'=>'Medicare Secondary, Liability Ins Primary',
 'AP'=>'Auto Insurance Policy',
 'C1'=>'Commercial',				// 'CO'=>'Consolidated Omnibus Budget Reconciliation Act (COBRA)',
 'CO'=>'(COBRA)',
@@ -846,7 +846,7 @@ $this->code271['EB04'] = array(
 'GP'=>'Group Policy',			//'HM'=>'Health Maintenance Organization (HMO)',
 'HM'=>'(HMO)',					//'HN'=>'Health Maintenance Organization (HMO) - Medicare Risk',
 'HN'=>'(HMO)-Medicare Risk',	//'HS'=>'Special Low Income Medicare Beneficiary',
-'HS'=>'Special Low Income Medicare',			
+'HS'=>'Special Low Income Medicare',
 'IN'=>'Indemnity',
 'IP'=>'Individual Policy',
 'LC'=>'Long Term Care',
@@ -863,7 +863,7 @@ $this->code271['EB04'] = array(
 'PE'=>'Property Ins-Personal',
 'PL'=>'Personal',				//'PP'=>'Personal Payment (Cash - No Insurance)',
 'PP'=>'Cash (No Ins)',			//'PR'=>'Preferred Provider Organization (PPO)',
-'PR'=>'(PPO)',			
+'PR'=>'(PPO)',
 'PS'=>'Point of Service (POS)',
 'QM'=>'Qualified Medicare Beneficiary',
 'RP'=>'Property Insurance-Real',
@@ -874,7 +874,7 @@ $this->code271['EB04'] = array(
 );
 
 // time period qualifier
-$this->code271['EB06'] = array(			
+$this->code271['EB06'] = array(
 '1'=>'Month',
 '2'=>'Year',
 '6'=>'Hour',
@@ -935,7 +935,7 @@ $this->code271['EB12'] = array(
 'U'=>'In Network: Unknown',
 'W'=>'In Network: N/A',
 'Y'=>'In Network: Yes'
-);				
+);
 
 // product/service id qualifier
 $this->code271['EB13'] = array(
@@ -952,10 +952,10 @@ $this->code271['EB13'] = array(
 'UI'=>'U.P.C. Consumer Pkg Code (1-5-5)',
 'WK'=>'Advanced Billing Concepts (ABC) Codes',
 'ZZ'=>'Mutually Defined'
-);	
+);
 
 // quantity qualifier - unit or basis copde
-$this->code271['HSD01'] = array(	
+$this->code271['HSD01'] = array(
 'DY'=>'Days',
 'FL'=>'Units',
 'HS'=>'Hours',
@@ -964,7 +964,7 @@ $this->code271['HSD01'] = array(
 'DA'=>'Days',
 'MO'=>'Months',
 'WK'=>'Week',
-'YR'=>'Years'			
+'YR'=>'Years'
 );
 
 // delivery frequency code
@@ -1016,7 +1016,7 @@ $this->code271['HSD07'] = array(
 );
 
 // Ship/Delivery Pattern Time Code
-$this->code271['HSD08'] = array(			
+$this->code271['HSD08'] = array(
 'A'=>'1st Shift (9-5)',
 'B'=>'2nd Shift',
 'C'=>'3rd Shift',
@@ -1093,7 +1093,7 @@ $this->code271['IIIGR'] = array(
 
 
 // place of service  --code source 237
-$this->code271['POS'] = array(				
+$this->code271['POS'] = array(
 '01'=>'Pharmacy',
 '02'=>'Unassigned',
 '03'=>'School',
@@ -1142,10 +1142,10 @@ $this->code271['POS'] = array(
 );
 
 // insurance relationship code  
-$this->code271['INS02'] = array(	
+$this->code271['INS02'] = array(
 '18'=>'self',
 '01'=>'spouse',
-'19'=>'child', 
+'19'=>'child',
 '20'=>'employee',
 '21'=>'unknown',
 '39'=>'Organ Donor',
@@ -1162,28 +1162,28 @@ $this->code271['UM01'] = array(
 'SC'=>'Specialty Care review'
 );
 
-$this->code271['UM02'] = array( 
-'1'=>'Appeal--Immediate', 
-'2'=>'Appeal--Standard', 
-'3'=>'Cancel',  
+$this->code271['UM02'] = array(
+'1'=>'Appeal--Immediate',
+'2'=>'Appeal--Standard',
+'3'=>'Cancel',
 '4'=>'Extension',
 'I'=>'Initial',
-'N'=>'Reconsideration', 
+'N'=>'Reconsideration',
 'R'=>'Renewal',
 'S'=>'Revised'
 );
 
 // related causes code		
-$this->code271['UM05'] = array( 
-'AA'=>'Auto Accident',  
-'AP'=>'Another Party responsible',  
+$this->code271['UM05'] = array(
+'AA'=>'Auto Accident',
+'AP'=>'Another Party responsible',
 'EM'=>'Employment'
 );
 
 // level of service code	
 $this->code271['UM06'] = array(
-'03'=>'Emergency', 
-'E'=>'Elective', 
+'03'=>'Emergency',
+'E'=>'Elective',
 'U'=>'Urgent'
 );
 
@@ -1233,18 +1233,18 @@ $this->code271['UM10'] = array(
 
 // certification action code
 $this->code271['HCR01'] = array(
-'A1'=>'Certified in total', 
-'A2'=>'Certified - partial', 
+'A1'=>'Certified in total',
+'A2'=>'Certified - partial',
 'A3'=>'Not Certified',
-'A4'=>'Pended', 
-'A6'=>'Modified', 
-'C'=>'Cancelled', 
-'CT'=>'Contact Payer', 
+'A4'=>'Pended',
+'A6'=>'Modified',
+'C'=>'Cancelled',
+'CT'=>'Contact Payer',
 'NA'=>'No Action Required'
 );
 
 // health care decision reason code			
-$this->code271['HCR03'] = array(				
+$this->code271['HCR03'] = array(
 '1'=>'Price Authorization Expired',
 '2'=>'Price authorization no longer required',
 '3'=>'Product not on the price authorization',
@@ -1301,7 +1301,7 @@ $this->code271['HCR03'] = array(
 );
 
 // yes/no condition code			
-$this->code271['HCR04'] = array(									
+$this->code271['HCR04'] = array(
 'N'=>'No',
 'U'=>'Unknown',
 'W'=>'Not Applicable',
@@ -1324,7 +1324,7 @@ $this->code271['HI01'] = array(
 );
 
 // code source identifier		
-$this->code271['SV101'] = array(				
+$this->code271['SV101'] = array(
 'HP'=>'Health Ins Prospective Pmt System',
 'N6'=>'National Health Related Item Code in 4-6 Format',
 'UI'=>'U.P.C. Consumer Package Code (1-5-5)',
@@ -1347,26 +1347,26 @@ $this->code271['SV101'] = array(
 'UK'=>'GTIN 14-digit Data Structure',
 'UP'=>'UCC--12',
 'WK'=>'Advanced Billing Concepts (ABC) Codes',
-'ZZ'=>'Mutually Defined' 
+'ZZ'=>'Mutually Defined'
 );
 
 
 // code source identifier		
 $this->code271['SV103'] = array(
-'DA'=>'Days',	
+'DA'=>'Days',
 'F2'=>'International Unit',
-'MJ'=>'Minutes', 
+'MJ'=>'Minutes',
 'UN'=>'Unit'
 );
 
 // nursing home level of care		
-$this->code271['SV120'] = array(		
-'1'=>'Skilled Nursing Facility (SNF)', 
+$this->code271['SV120'] = array(
+'1'=>'Skilled Nursing Facility (SNF)',
 '2'=>'Intermediate Care Facility (ICF)',
-'3'=>'Intermediate Care Facility - Mentally Retarded (ICF-MR)', 
-'4'=>'Chronic Disease Hospital (CD)', 
+'3'=>'Intermediate Care Facility - Mentally Retarded (ICF-MR)',
+'4'=>'Chronic Disease Hospital (CD)',
 '5'=>'ntermediate Care Facility (ICF) Level II I',
-'6'=>'Special Skilled Nursing Facility (SNF)', 
+'6'=>'Special Skilled Nursing Facility (SNF)',
 '7'=>'Nursing Facility (NF)',
 '8'=>'Hospice'
 );
@@ -1383,7 +1383,7 @@ $this->code271['CL101'] = array(
 );
 
 // admission source type code			
-$this->code271['CL102'] = array(			
+$this->code271['CL102'] = array(
 '1'=>'Physician Referral',
 '2'=>'Clinic Referral',
 '3'=>'HMO Referral',
@@ -1410,7 +1410,7 @@ $this->code271['CL102'] = array(
 
 
 // patient status code			
-$this->code271['CL103'] = array(	
+$this->code271['CL103'] = array(
 '1'=>'Discharged to Home or Self-Care (Routine Discharge)',
 '2'=>'Discharged/Transferred to Another Short-Term General Hospital',
 '3'=>'Discharged/Transferred to an SNF',
@@ -1452,7 +1452,7 @@ $this->code271['CL103'] = array(
 );
 
 // ambulance transport code
-$this->code271['CR103'] = array(	
+$this->code271['CR103'] = array(
 'I'=>'Initial Trip',
 'R'=>'Return Trip',
 'T'=>'Transfer Trip',
@@ -1461,7 +1461,7 @@ $this->code271['CR103'] = array(
 
 
 // spinal subluxation level code
-$this->code271['CR203'] = array(	
+$this->code271['CR203'] = array(
 'C1'=>'Cervical 1',
 'C2'=>'Cervical 2',
 'C3'=>'Cervical 3',
@@ -1493,11 +1493,11 @@ $this->code271['CR203'] = array(
 );
 
 // oxygen type code			
-$this->code271['CR503'] = array(	
-'A'=>'Concentrator', 
-'B'=>'Liquid Stationary', 
-'C'=>'Gaseous Stationary', 
-'D'=>'Liquid Portable', 
+$this->code271['CR503'] = array(
+'A'=>'Concentrator',
+'B'=>'Liquid Stationary',
+'C'=>'Gaseous Stationary',
+'D'=>'Liquid Portable',
 'E'=>'Gaseous Portable',
 'O'=>'Other'
 );
@@ -1514,22 +1514,22 @@ $this->code271['CR517'] = array(
 
 
 // certification type code			
-$this->code271['CR608'] = array(				 
+$this->code271['CR608'] = array(
 '1'=>'Appeal-Immediate',
 '2'=>'Appeal-Standard',
-'3'=>'Cancel', 
-'4'=>'Extension', 
-'5'=>'Notification', 
+'3'=>'Cancel',
+'4'=>'Extension',
+'5'=>'Notification',
 '6'=>'Verification',
-'I'=>'Initial', 
-'R'=>'Renewal', 
+'I'=>'Initial',
+'R'=>'Renewal',
 'S'=>'Revised'
 );
 
 
 
 // paperwork type code			
-$this->code271['PWK01'] = array(				
+$this->code271['PWK01'] = array(
 '3'=>' Report Justifying Treatment Beyond Utilization Guidelines',
 '4'=>' Drugs Administered',
 '5'=>' Treatment Diagnosis',

@@ -54,7 +54,7 @@ function listingCDRReminderLog($begin_date='',$end_date='') {
     $sql .= " AND `date` >= ?";
     array_push($sqlArray,$begin_date);
   }
-  $sql .= " ORDER BY `date` DESC"; 
+  $sql .= " ORDER BY `date` DESC";
 
   return sqlStatement($sql,$sqlArray);
 
@@ -295,7 +295,7 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
              ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item). '<br>';
       }
     }
-  }  
+  }
 
   return $returnOutput;
 }
@@ -334,7 +334,7 @@ function allergy_conflict($patient_id,$mode,$user,$test=FALSE) {
     else {
       $sqlIN .= ",?";
     }
-  } 
+  }
 
   // Check if allergies conflict with medications or prescriptions
   $conflicts_unique = array();
@@ -619,7 +619,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   // then run through this function recursively and return results.
   if (($provider == "collate_outer") || ($provider == "collate_inner" && $organize_mode != 'plans')) {
     // First, collect an array of all providers
-    $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname"; 
+    $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
     $ures = sqlStatementCdrEngine($query);
     // Second, run through each provider recursively
     while ($urow = sqlFetchArray($ures)) {
@@ -698,7 +698,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   //    Reminder that action is due soon
   //    Reminder that action is due
   //    Reminder that action is post-due
-  
+
   //Collect applicable rules
   // Note that due to a limitation in the this function, the patient_id is explicitly
   //  for grouping items when not being done in real-time or for official reporting.
@@ -828,7 +828,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
             $pass_filter++;
             // If report itemization is turned on, trigger flag.
             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-              $temp_track_pass = 0; 
+              $temp_track_pass = 0;
             }
           }
           else {
@@ -837,13 +837,13 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           }
 
           // Check if pass target
-          $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],'',$dateFocus); 
+          $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],'',$dateFocus);
           if ($passTarget) {
             // increment pass target counter
             $pass_target++;
             // If report itemization is turned on, then record the "passed" item and set the flag
             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-              insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']); 
+              insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
               $temp_track_pass = 1;
             }
             // send to reminder results
@@ -879,7 +879,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // If report itemization is turned on, then record the "failed" item if it did not pass
         if ($GLOBALS['report_itemizing_temp_flag_and_id'] && !($temp_track_pass)) {
           insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
-        } 
+        }
       }
     }
 
@@ -942,7 +942,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
             }
             else { // $dateCounter == 3
               $reminder_due = "past_due";
-            }    
+            }
 
             // Check if pass filter
             $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
@@ -1555,7 +1555,7 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
   if (empty($patient_rule)) {
     // Create a new patient specific rule with flags all set to default
     $query = "INSERT into `clinical_rules` (`id`, `pid`, `access_control`) VALUES (?,?,?)";
-    sqlStatementCdrEngine($query, array($rule, $patient_id, $patient_rule_original['access_control']) ); 
+    sqlStatementCdrEngine($query, array($rule, $patient_id, $patient_rule_original['access_control']) );
   }
 
   // Update patient specific row
@@ -1711,7 +1711,7 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
       else {
        // If this is a required entry then return false
        if ($row['required_flag']) return false;
-      }  
+      }
     }
     else {
       // Default mode
@@ -2524,10 +2524,10 @@ function convertCompSql($comp) {
  * @param  string  $target  date to calculate age on
  * @return float            years(decimal) from dob to target(date)
  */
-function convertDobtoAgeYearDecimal($dob,$target) { 
+function convertDobtoAgeYearDecimal($dob,$target) {
     $ageInfo=parseAgeInfo($dob,$target);
-    return $ageInfo['age']; 
-}  
+    return $ageInfo['age'];
+}
 
 /**
  * Function to find age in months (with decimal) on the target date
@@ -2538,7 +2538,7 @@ function convertDobtoAgeYearDecimal($dob,$target) {
  */
 function convertDobtoAgeMonthDecimal($dob,$target) {
     $ageInfo=parseAgeInfo($dob,$target);
-    return $ageInfo['age_in_months']; 
+    return $ageInfo['age_in_months'];
 }
 
 /**

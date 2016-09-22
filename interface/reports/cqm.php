@@ -747,7 +747,7 @@ else {
      
      if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
      	echo "<td align='center'>" . $row['initial_population'] . "</td>";
-     else 
+     else
      	echo "<td align='center'>" . $row['total_patients'] . "</td>";
 
      if ( isset($row['itemized_test_id']) && ($row['pass_filter'] > 0) ) {

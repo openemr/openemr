@@ -77,7 +77,7 @@ if (isset($mode)) {
 			foreach ($procs as $proc) {
 				$justify_string = "";
 				foreach ($diags as $diag) {
-					$justify_string .= $diag . ":"; 
+					$justify_string .= $diag . ":";
 				}
 				$sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  ."') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
 			}

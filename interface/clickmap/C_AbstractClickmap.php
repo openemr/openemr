@@ -160,7 +160,7 @@ abstract class C_AbstractClickmap extends Controller {
             $GLOBALS['encounter'] = date("Ymd");
         }
         if(empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], 
+            addForm($GLOBALS['encounter'],
                     $this->model->getTitle(),
                     $this->model->id,
                     $this->model->getCode(),

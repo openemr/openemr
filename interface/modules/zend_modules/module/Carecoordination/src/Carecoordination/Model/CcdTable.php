@@ -63,19 +63,19 @@ class CcdTable extends AbstractTableGateway
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['extension']    = $xml['recordTarget']['patientRole']['id']['extension'];
 
 		
-	$audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);  
+	$audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
         $this->update_document_table($document_id,$audit_master_id,$audit_master_approval_status);
     }
     
     public function update_document_table($document_id,$audit_master_id,$audit_master_approval_status)
-   { 
+   {
     $appTable   = new ApplicationTable();
     $query = "UPDATE documents 
               SET audit_master_id = ?,
                   imported = ?,
                   audit_master_approval_status=? 
               WHERE id = ?";
-    $appTable->zQuery($query, array($audit_master_id, 
+    $appTable->zQuery($query, array($audit_master_id,
                                     1,
                                     $audit_master_approval_status,
                                     $document_id));

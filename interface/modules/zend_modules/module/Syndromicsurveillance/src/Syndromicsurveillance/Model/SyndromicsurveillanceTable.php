@@ -21,9 +21,9 @@
 namespace Syndromicsurveillance\Model;
 
 use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\AbstractTableGateway; 
-use Zend\Db\Adapter\Adapter; 
-use Zend\Db\ResultSet\ResultSet; 
+use Zend\Db\TableGateway\AbstractTableGateway;
+use Zend\Db\Adapter\Adapter;
+use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Select;
 use Zend\InputFilter\Factory as InputFactory;
 use Zend\InputFilter\InputFilter;
@@ -60,10 +60,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     function getProviderList()
     {
 		global $encounter;
-		global $pid;	
-		$appTable   = new ApplicationTable();	
+		global $pid;
+		$appTable   = new ApplicationTable();
 		
-		$sqlSelctProvider 		= "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";	
+		$sqlSelctProvider 		= "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
 		$resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, array($encounter, $pid));
 		foreach($resultSelctProvider as $resultSelctProvider_row){
 			$provider = $resultSelctProvider_row['provider_id'];
@@ -120,7 +120,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 		$query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname,l.date AS issuedate, l.id AS issueid,l.title AS issuetitle 
 			FROM
 			  lists l, patient_data p, codes c, form_encounter AS fe 
-			WHERE c.reportable = 1 ";	
+			WHERE c.reportable = 1 ";
 		
 		if($provider_selected){
 			$query .= " AND provider_id = ? ";
@@ -217,7 +217,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			FROM
 			  lists l, patient_data p, codes c, form_encounter AS fe
         LEFT JOIN facility AS fac ON fac.id = fe.facility_id
-			WHERE c.reportable = 1 ";	
+			WHERE c.reportable = 1 ";
 		
 		if($provider_selected){
 			$query .= " AND provider_id = ? ";
@@ -274,7 +274,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 		$query_string[] = $fromDate;
 		$query_string[] = $toDate;
 		
-		$content = ''; 
+		$content = '';
 		
 		$appTable   = new ApplicationTable();
 		$result     = $appTable->zQuery($query, $query_string);
@@ -283,7 +283,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 		$nowdate    = date('YmdHis');
 		$now 	      = date('YmdGi');
 		$now1 	    = date('Y-m-d G:i');
-		$filename   = "syn_sur_". $now . ".hl7"; 
+		$filename   = "syn_sur_". $now . ".hl7";
 	
 		foreach($result as $r) {
       $fac_name = $race_code = $ethnicity_code = $county_code = '';
@@ -477,7 +477,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			"$D" ;
 			  
 			//mark if issues generated/sent
-			$query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)"; 
+			$query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)";
 			$appTable->zQuery($query_insert, array($r['issueid'], $now1, $filename));
 		}
 		//send the header here
@@ -511,7 +511,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     public function date_format($date, $format)
     {
 		if(!$date) return;
-		$format = $format ? $format : 'm/d/y';	
+		$format = $format ? $format : 'm/d/y';
 		$temp 	= explode(' ',$date); //split using space and consider the first portion, incase of date with time
 		$date 	= $temp[0];
 		$date 	= str_replace('/','-',$date);

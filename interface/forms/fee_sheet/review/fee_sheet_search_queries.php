@@ -38,6 +38,6 @@ function diagnosis_search($search_type_id,$search_type,$search_query)
     {
         array_push($retval,new code_info($code['code'],$search_type,$code['code_text']));
     }
-    return $retval;            
+    return $retval;
 }
 ?>

@@ -38,7 +38,7 @@ $ORDERHASH = array(
   	'comment' => array( 'comment', 'date', 'time', 'patient' ),
     'status' => array( 'status', 'date', 'time', 'patient' ),
     'completed' => array( 'completed', 'date', 'time', 'patient' ),
-    'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
+    'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),
 );
 
 /*Arrays for the interpretation of recurrence patterns.*/
@@ -117,8 +117,8 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
     // Tracker Board specific stuff
     $tracker_fields = '';
-    $tracker_joins = '';     
-    if ($tracker_board) {     
+    $tracker_joins = '';
+    if ($tracker_board) {
     $tracker_fields = "e.pc_room, e.pc_pid, t.id, t.date, t.apptdate, t.appttime, t.eid, t.pid, t.original_user, t.encounter, t.lastseq, t.random_drug_test, t.drug_screen_completed, " .
     "q.pt_tracker_id, q.start_datetime, q.room, q.status, q.seq, q.user, " .
     "s.toggle_setting_1, s.toggle_setting_2, s.option_id, ";
@@ -141,7 +141,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
     "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
     "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
-    "WHERE $where " . 
+    "WHERE $where " .
     "ORDER BY $order_by";
 
     if($bind_param) $sqlBindArray = array_merge($sqlBindArray, $bind_param);
@@ -190,7 +190,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 //        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
         $occurance = $event['pc_eventDate'];
 
-        while($occurance < $from_date) { 
+        while($occurance < $from_date) {
           $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
@@ -287,7 +287,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
             }
 
-          }     
+          }
 
           $occuranceYmX = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
           list($ny,$nm,$nd) = explode('-',$occuranceYmX);
@@ -301,7 +301,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 	    
     }
 
-  }    
+  }
   return $events2;
 ////////////////////// End of code inserted by epsdky
 }
@@ -434,18 +434,18 @@ function getAvailableSlots( $from_date, $to_date, $provider_id = null, $facility
 
 		if ( $next_appointment_time && $same_day ) {
 			// check the start time of the next appointment
-				
+
 			$start_datetime = strtotime( $date." ".$start_time );
 			$next_appointment_datetime = strtotime( $next_appointment_date." ".$next_appointment_time );
 			$curr_time = $start_datetime;
 			while ( $curr_time < $next_appointment_datetime - (getSlotSize() / 2) ) {
 				//create a new appointment ever 15 minutes
 				$time = date( "H:i:s", $curr_time );
-				$available_slot = createAvailableSlot( 
-					$appointments[$i]['pc_eventDate'], 
-					$time, 
-					$appointments[$i]['ufname'], 
-					$appointments[$i]['ulname'], 
+				$available_slot = createAvailableSlot(
+					$appointments[$i]['pc_eventDate'],
+					$time,
+					$appointments[$i]['ufname'],
+					$appointments[$i]['ulname'],
 					$appointments[$i]['umname'] );
 				$availableSlots []= $available_slot;
 				$curr_time += getSlotSize(); // add a 15-minute slot
@@ -507,7 +507,7 @@ function compareAppointments( $appointment1, $appointment2 )
 	return 0;
 }
 
-function compareBasic( $e1, $e2 ) 
+function compareBasic( $e1, $e2 )
 {
 	if ( $e1 < $e2 ) {
 		return -1;
@@ -606,8 +606,8 @@ function compareAppointmentsByCompletedDrugScreen( $appointment1, $appointment2 
 
 function fetchAppointmentCategories()
 {
-     $catSQL= " SELECT pc_catid as id, pc_catname as category " 
-            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";    
+     $catSQL= " SELECT pc_catid as id, pc_catname as category "
+            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";
      return sqlStatement($catSQL);
 }
 

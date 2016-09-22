@@ -75,7 +75,7 @@ function calendar_arrived($form_pid) {
 				if($pc_eventDate==$Today)//Matches so insert.
 				 {
 				 if(!$exist_eid=check_event_exist($pc_eid))
-					{ 
+					{
 					 update_event($pc_eid);
 					}
 				 else
@@ -261,14 +261,14 @@ function update_event($eid)
 	$args['starttime'] = $starttime;
 	$args['endtime'] = $endtime;
 	$args['locationspec'] = $locationspec;
-	$args['form_category']=$origEvent['pc_catid'];             
-	$args['new_multiple_value']=$origEvent['pc_multiple'];             
-	$args['form_provider']=$origEvent['pc_aid'];                           
-	$args['form_pid']=$origEvent['pc_pid'];                  
-	$args['form_title']=$origEvent['pc_title'];  
-	$args['form_allday']=$origEvent['pc_alldayevent'];               
-	$args['form_apptstatus']='@';           
-	$args['form_prefcat']=$origEvent['pc_prefcatid'];              
+	$args['form_category']=$origEvent['pc_catid'];
+	$args['new_multiple_value']=$origEvent['pc_multiple'];
+	$args['form_provider']=$origEvent['pc_aid'];
+	$args['form_pid']=$origEvent['pc_pid'];
+	$args['form_title']=$origEvent['pc_title'];
+	$args['form_allday']=$origEvent['pc_alldayevent'];
+	$args['form_apptstatus']='@';
+	$args['form_prefcat']=$origEvent['pc_prefcatid'];
 	$args['facility']=$origEvent['pc_facility'];
 	$args['billing_facility']=$origEvent['pc_billing_location'];
 	InsertEvent($args,'payment');

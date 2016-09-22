@@ -46,7 +46,7 @@ class Allergy extends ClinicalType
      * 	@param	(date) $beginDate		Lower bound on date to check for allergy
      * 	@param	(date) $endDate			Upper bound on date to check for allergy
      */
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
+    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
     {
         $data = Codes::lookup( $this->getOptionId() );
         $type = $this->getListType();

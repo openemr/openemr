@@ -23,7 +23,7 @@
  
 class NFQ_0101_InitialPatientPopulation implements CqmFilterIF
 {
-    public function getTitle() 
+    public function getTitle()
     {
         return "Initial Patient Population";
     }
@@ -34,7 +34,7 @@ class NFQ_0101_InitialPatientPopulation implements CqmFilterIF
 		if ( ($patient->calculateAgeOnDate( $beginDate ) >= 65) &&
 			 ( Helper::check( ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate, $oneEncounter ) ) ) {
             return true;
-        } 
+        }
 		
 		return false;
     }

@@ -32,7 +32,7 @@ if ($_GET["mode"] == "new") {
     
     /* link the form to the encounter in the 'forms' table */
     addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-} 
+}
 elseif ($_GET["mode"] == "update") {
     /* update existing record */
     $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);

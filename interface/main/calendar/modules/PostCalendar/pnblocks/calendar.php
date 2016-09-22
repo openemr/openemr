@@ -121,7 +121,7 @@ function postcalendar_calendarblock_display($blockinfo)
 		if(!$tpl->is_cached($template_name.'/views/calendarblock/todays_events.html',$cacheid2)) {
 			$templates_cached = false;
 		}
-    }   
+    }
     if($nextevents) {
         $cacheid3 = md5($Date.'U'.$template_view.$template_name.$showcalendar.$showevents.$nextevents.$uid.$theme);
 		if(!$tpl->is_cached($template_name.'/views/calendarblock/upcoming_events.html',$cacheid3)) {
@@ -150,16 +150,16 @@ function postcalendar_calendarblock_display($blockinfo)
     	$pc_month_names = array(_CALJAN,_CALFEB,_CALMAR,_CALAPR,_CALMAY,_CALJUN,
                             	_CALJUL,_CALAUG,_CALSEP,_CALOCT,_CALNOV,_CALDEC);
 
-    	$pc_short_day_names = array(_CALSUNDAYSHORT, _CALMONDAYSHORT, 
+    	$pc_short_day_names = array(_CALSUNDAYSHORT, _CALMONDAYSHORT,
                                 	_CALTUESDAYSHORT, _CALWEDNESDAYSHORT,
-                                	_CALTHURSDAYSHORT, _CALFRIDAYSHORT, 
+                                	_CALTHURSDAYSHORT, _CALFRIDAYSHORT,
                                 	_CALSATURDAYSHORT);
 
-    	$pc_long_day_names = array(_CALSUNDAY, _CALMONDAY, 
+    	$pc_long_day_names = array(_CALSUNDAY, _CALMONDAY,
                             	   _CALTUESDAY, _CALWEDNESDAY,
-                            	   _CALTHURSDAY, _CALFRIDAY, 
+                            	   _CALTHURSDAY, _CALFRIDAY,
                             	   _CALSATURDAY);
-    	switch (_SETTING_FIRST_DAY_WEEK) 
+    	switch (_SETTING_FIRST_DAY_WEEK)
     	{
         	case _IS_MONDAY:
             	$pc_array_pos = 1;
@@ -251,7 +251,7 @@ function postcalendar_calendarblock_display($blockinfo)
 		$tpl->assign_by_ref('DISPLAY_LIMIT',$eventslimit);
     	$tpl->assign('TODAYS_EVENTS_TITLE',_PC_TODAYS_EVENTS);
     	$tpl->assign('UPCOMING_EVENTS_TITLE',_PC_UPCOMING_EVENTS);
-    	$tpl->assign('NO_EVENTS',_PC_BLOCK_NO_EVENTS);   
+    	$tpl->assign('NO_EVENTS',_PC_BLOCK_NO_EVENTS);
 	}
     
 	if($showcalendar) {
@@ -267,7 +267,7 @@ function postcalendar_calendarblock_display($blockinfo)
         }
         // we need to create a unique ID for caching purposes
 		$output .= $tpl->fetch($template_name.'/views/calendarblock/todays_events.html',$cacheid2);
-    }   
+    }
     
 	if($nextevents) {
         if($showcalendar || $showevents) {
@@ -277,21 +277,21 @@ function postcalendar_calendarblock_display($blockinfo)
         }
         // we need to create a unique ID for caching purposes
 		$output .= $tpl->fetch($template_name.'/views/calendarblock/upcoming_events.html',$cacheid3);
-    }   
+    }
 
     if($pcbshowsslinks) {
         $output .= '<br /><br />';
         $submit_event_url = pnModURL(__POSTCALENDAR__,'user','submit');
-        $search_event_url = pnModURL(__POSTCALENDAR__,'user','search'); 
+        $search_event_url = pnModURL(__POSTCALENDAR__,'user','search');
         $output .= '<center>';
         if(PC_ACCESS_ADD) {
-			$output .= '[ <a href="'.$submit_event_url.'">'._PC_SUBMIT_EVENT.'</a> ] '; 
+			$output .= '[ <a href="'.$submit_event_url.'">'._PC_SUBMIT_EVENT.'</a> ] ';
 		}
         $output .= '[ <a href="'.$search_event_url.'">'._PC_SEARCH_EVENT.'</a> ]';
-        $output .= '</center>';  
+        $output .= '</center>';
     }
     // Populate block info and pass to theme
-    
+
     $blockinfo['content'] = $output;
     return themesideblock($blockinfo);
 }
@@ -310,7 +310,7 @@ function postcalendar_calendarblock_modify($blockinfo)
     $output =& new pnHTML();
     // Get variables from content block
     $vars = unserialize($blockinfo['content']);
-    $i=0;    
+    $i=0;
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     
     $settings[$i][]     = $output->Text(_PC_BLOCK_SHOW_CALENDAR);
@@ -354,14 +354,14 @@ function postcalendar_calendarblock_update($blockinfo)
         return false;
     }
 	
-	list($vars['pcbshowcalendar'],  
+	list($vars['pcbshowcalendar'],
          $vars['pcbeventslimit'],
-         $vars['pcbeventoverview'], 
+         $vars['pcbeventoverview'],
          $vars['pcbnextevents'],
 		 $vars['pcbeventsrange'],
-         $vars['pcbshowsslinks']) = pnVarCleanFromInput('pcbshowcalendar', 
+         $vars['pcbshowsslinks']) = pnVarCleanFromInput('pcbshowcalendar',
                                                         'pcbeventslimit',
-                                                        'pcbeventoverview', 
+                                                        'pcbeventoverview',
                                                         'pcbnextevents',
 														'pcbeventsrange',
                                                         'pcbshowsslinks');

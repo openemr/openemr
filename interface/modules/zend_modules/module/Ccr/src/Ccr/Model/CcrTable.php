@@ -442,7 +442,7 @@ class CcrTable extends AbstractTableGateway
       $query = "UPDATE patient_data SET $patient_data_fields WHERE pid=?";
       $appTable->zQuery($query, $patient_data_values);
     }
-    $appTable->zQuery("UPDATE documents SET foreign_id = ? WHERE id =? ", array($data['pid'], $data['document_id']));    
+    $appTable->zQuery("UPDATE documents SET foreign_id = ? WHERE id =? ", array($data['pid'], $data['document_id']));
     $appTable->zQuery("UPDATE audit_master SET approval_status = '2' WHERE id=?", array($data['amid']));
     $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($data['amid']));
   }
@@ -504,7 +504,7 @@ class CcrTable extends AbstractTableGateway
         }elseif($table == 'documents'){
           $newdata['documents'][$rowfield['field_name']]          = $rowfield['field_value'];
         }
-      }      
+      }
       if($table == 'patient_data'){
         updatePatientData($pid,$newdata['patient_data'],true);
       }
@@ -514,7 +514,7 @@ class CcrTable extends AbstractTableGateway
       }
       elseif($table == 'lists2' && $newdata['lists2']['diagnosis'] != ''){
         $query_insert = "INSERT INTO lists(pid,date,type,title,diagnosis,reaction) VALUES (?,?,?,?,?,?)";
-        $appTable->zQuery($query_insert, array($pid, $newdata['lists2']['date'], $newdata['lists2']['type'], $newdata['lists2']['title'], $newdata['lists2']['diagnosis'], $newdata['lists2']['reaction']));        
+        $appTable->zQuery($query_insert, array($pid, $newdata['lists2']['date'], $newdata['lists2']['type'], $newdata['lists2']['title'], $newdata['lists2']['diagnosis'], $newdata['lists2']['reaction']));
       }
       elseif($table == 'prescriptions' && $newdata['prescriptions']['drug'] != ''){
         $query_insert = "INSERT INTO prescriptions(patient_id,date_added,active,drug,size,form,quantity) VALUES (?,?,?,?,?,?,?)";
@@ -551,9 +551,9 @@ class CcrTable extends AbstractTableGateway
   */
   public function update_imported($document_id)
   {
-    $appTable   = new ApplicationTable();    
+    $appTable   = new ApplicationTable();
     $appTable->zQuery("UPDATE documents SET imported = 1 WHERE id = ?",array($document_id));
-  }  
+  }
 }
 
 

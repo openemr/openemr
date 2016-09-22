@@ -9,7 +9,7 @@
 require_once( 'ClinicalType.php' );
 
 class PhysicalExam extends ClinicalType
-{   
+{
     const NOT_DONE_PATIENT = 'phys_exm_not_done_patient';
     const NOT_DONE_MEDICAL = 'phys_exm_not_done_medical';
     const NOT_DONE_SYSTEM = 'phys_exm_not_done_system';
@@ -49,7 +49,7 @@ class PhysicalExam extends ClinicalType
             $number = sqlNumRows($res);
             if ( $number >= 1 ) {
                 return true;
-            }    
+            }
         }
         
         return false;

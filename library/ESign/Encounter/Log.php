@@ -43,7 +43,7 @@ class Encounter_Log implements LogIF
      */
     public function __construct( $encounterId )
     {
-        $this->_viewer = new Viewer(); 
+        $this->_viewer = new Viewer();
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->logId = "encounter-".$encounterId;
     }

@@ -284,7 +284,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
                         "date between ? and ? " ;
                 array_push($sqlBindArray,$startdate,$enddate);
 		if($form_pid) {
-		$res_query.= " and pid=? ";	
+		$res_query.= " and pid=? ";
 		array_push($sqlBindArray,$form_pid);
 		}
         $res_query.=     " order by date DESC" ;
@@ -293,7 +293,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
-			$pids[] = $result{"pid"};	
+			$pids[] = $result{"pid"};
         }
     }
     $N = 6;

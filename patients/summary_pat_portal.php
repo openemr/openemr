@@ -672,11 +672,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "edit_event iframe";
 	$linkMethod = "";
 	$bodyClass = "summary_item small";
-    if ($GLOBALS['portal_onsite_appt_modify']) 
+    if ($GLOBALS['portal_onsite_appt_modify'])
     {
       $widgetAuth = true;
     }
-    else 
+    else
     {
       $widgetAuth = false;
     }

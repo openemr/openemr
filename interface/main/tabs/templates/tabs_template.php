@@ -25,26 +25,25 @@
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </span>
         <!-- ko  foreach: tabsList -->
-            <span class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
-                <span  data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
-                <span class="typcn typcn-refresh" data-bind="click: tabRefresh"></span>
+            <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
+                <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
+                <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->
-                    <span class="typcn typcn-lock-open"  data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-unlock"  data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
                 <!--ko if:locked() -->
-                    <span class="typcn typcn-lock-closed"  data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-lock"  data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
 
                 <!-- ko if:closable-->
-                    <span class="typcn typcn-delete" data-bind="click: tabClose"></span>
-                <!-- /ko -->    
-            </span>
+                    <span class="fa fa-fw fa-times" data-bind="click: tabClose"></span>
+                <!-- /ko -->
+            </div>
         <!-- /ko -->
-        <span class="tabNotchosen" style="width:100%"></span>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">
-        
+
         <!-- ko  foreach: tabs.tabsList -->
         <div class="frameDisplay" data-bind="visible:visible">
             <iframe data-bind="location: $data, iframeName: $data.name, ">

@@ -142,7 +142,7 @@ function echoServiceLines() {
         } else {
           echo "  <td class='billcell'>&nbsp;</td>\n";
         }
-        echo "  <td class='billcell' align='center'$justifystyle>$justify</td>\n";      
+        echo "  <td class='billcell' align='center'$justifystyle>$justify</td>\n";
       }
 
       // Show provider for this line.
@@ -163,7 +163,7 @@ function echoServiceLines() {
 
       if ($GLOBALS['gbl_auto_create_rx']) {
         echo "  <td class='billcell' align='center'>&nbsp;</td>\n";
-      }    
+      }
 
       echo "  <td class='billcell' align='center'><input type='checkbox'" .
         " disabled /></td>\n";
@@ -240,7 +240,7 @@ function echoServiceLines() {
 
       if ($GLOBALS['gbl_auto_create_rx']) {
         echo "  <td class='billcell' align='center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
-      }    
+      }
 
       echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
         "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
@@ -342,7 +342,7 @@ function echoProductLines() {
       if ($GLOBALS['gbl_auto_create_rx']) {
         echo "  <td class='billcell' align='center'><input type='checkbox'" . // rx
           " disabled /></td>\n";
-      }    
+      }
       echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
         " disabled /></td>\n";
     }
@@ -381,7 +381,7 @@ function echoProductLines() {
         echo "  <td class='billcell' align='center'>" .
           "<input type='checkbox' name='prod[$lino][rx]' value='1'" .
           ($rx ? " checked" : "") . " /></td>\n";
-      }    
+      }
       echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[" . attr($lino) . "][del]' " .
         "value='1'" . ($del ? " checked" : "") . " /></td>\n";
     }
@@ -1030,7 +1030,7 @@ while ($srow = sqlFetchArray($sres)) {
   // ++$prod_lino;
   $prod_lino = count($fs->productitems);
   $pline = $_POST['prod']["$prod_lino"];
-  $rx    = !empty($srow['prescription_id']);  
+  $rx    = !empty($srow['prescription_id']);
   $del   = $pline['del']; // preserve Delete if checked
   $sale_id = $srow['sale_id'];
   $drug_id = $srow['drug_id'];
@@ -1039,7 +1039,7 @@ while ($srow = sqlFetchArray($sres)) {
   $units   = $srow['quantity'];
   $fee     = $srow['fee'];
   $billed  = $srow['billed'];
-  $warehouse_id  = $srow['warehouse_id'];  
+  $warehouse_id  = $srow['warehouse_id'];
   // Also preserve other items from the form, if present and unbilled.
   if ($pline['sale_id'] && !$srow['billed']) {
     $units = max(1, intval(trim($pline['units'])));

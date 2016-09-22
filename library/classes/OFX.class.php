@@ -40,11 +40,11 @@ class OFX {
 					//echo "\ned: $date_end < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
 					$date_end = date("YmdHis",strtotime($trns[$key]['date']));
 				}
-			}	
+			}
 		}
 		if (!empty($date_start) && !empty($date_end)) {
 			$string .= "<DTSTART>" . $date_start . "\n";
-			$string .= "<DTEND>" . $date_end . "\n";	
+			$string .= "<DTEND>" . $date_end . "\n";
 		}
 		foreach ($trns as $key => $trn) {
 			$string .= "<STMTTRN>\n";
@@ -60,7 +60,7 @@ class OFX {
 			$sum += $trn['amount'];
 		}
 		$string .= $this->_ofx_footer($sum);
-		return $string;	
+		return $string;
 	}
 	
 	function _ofx_header() {
@@ -94,7 +94,7 @@ class OFX {
 		$string .= "<INTU.BID>6526\n";
 		$string .= "<INTU.USERID>111111111\n";
 		//end intuit specific fields
-		
+
 		$string .= "</SONRS>\n";
 		$string .= "</SIGNONMSGSRSV1>\n";
 		
@@ -128,5 +128,5 @@ class OFX {
 		$string .= "</OFX>\n";
 		return $string;
 	}
-} 
+}
 ?>

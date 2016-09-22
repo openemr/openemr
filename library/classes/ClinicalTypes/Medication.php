@@ -48,13 +48,13 @@ class Medication extends ClinicalType
     
     public function getListId() {
         return "Clinical_Rules_Med_Types";
-    }   
+    }
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
+    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
     {
         $return = false;
         $listOptions = Codes::lookup( $this->getOptionId(), 'CVX' );
-        if ( count( $listOptions ) > 0 ) 
+        if ( count( $listOptions ) > 0 )
         {
             $sqlQueryBind= array();
             $query = "SELECT * " .
@@ -73,7 +73,7 @@ class Medication extends ClinicalType
             	}
                 array_push($sqlQueryBind,$option_id);
             }
-            $query.= " ) "; 
+            $query.= " ) ";
 
             $result = sqlStatement( $query, $sqlQueryBind );
             $rows = array();
@@ -81,9 +81,9 @@ class Medication extends ClinicalType
                     $rows[$iter] = $row;
             }
             
-            if ( isset( $options[self::OPTION_COUNT] ) && 
+            if ( isset( $options[self::OPTION_COUNT] ) &&
                 count( $rows ) >= $options[self::OPTION_COUNT] ) {
-                $return = true;    
+                $return = true;
             } else if ( !isset( $options[self::OPTION_COUNT] ) &&
                 count( $rows ) > 0 ) {
                 $return = true;

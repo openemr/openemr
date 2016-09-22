@@ -116,9 +116,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         $middleName = $partsName[1];
         $lastName = $partsName[2];
         $suffixName = $partsName[3];
-    } 
+    }
     $out .= "NM1" . // Loop 1000A Submitter
-    "*41" . 
+    "*41" .
     "*1" .
     "*" . $lastName .
     "*" . $firstName .
@@ -128,8 +128,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*46";
   } else {    //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
     $billingFacilityName = substr($claim->billingFacilityName(), 0, $CMS_5010 ? 60 : 35);
-    if ($billingFacilityName == '') $log .= "*** billing facility name in 1000A loop is empty\n";  
-    $out .= "NM1" .       
+    if ($billingFacilityName == '') $log .= "*** billing facility name in 1000A loop is empty\n";
+    $out .= "NM1" .
     "*41" .
     "*2" .
     "*" . $billingFacilityName .
@@ -217,7 +217,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         $middleName = $partsName[1];
         $lastName = $partsName[2];
         $suffixName = $partsName[3];
-    } 
+    }
   $out .= "NM1" .
   "*85" .
   "*1" .
@@ -229,7 +229,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   }
   else {
     $billingFacilityName = substr($claim->billingFacilityName(), 0, $CMS_5010 ? 60 : 35);
-    if ($billingFacilityName == '') $log .= "*** billing facility name in 2010A loop is empty\n";  
+    if ($billingFacilityName == '') $log .= "*** billing facility name in 2010A loop is empty\n";
     $out .= "NM1" . // Loop 2010AA Billing Provider
     "*85" .
     "*2" .
@@ -538,11 +538,11 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*"  . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
     "*Y" .
     ($CMS_5010 ? "" : "*C") .
-    "~\n"; 
+    "~\n";
 
-  if ($claim->onsetDate() && 
+  if ($claim->onsetDate() &&
       ($claim->onsetDate()!== $claim->serviceDate()) &&
-      ($claim->onsetDateValid()) 
+      ($claim->onsetDateValid())
      ) {
     ++$edicount;
     $out .= "DTP" .       // Date of Onset
@@ -720,8 +720,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   /* Per the implementation guide lines, only include this information if it is different 
    * than the Loop 2010AA information
    */
-  if(!$CMS_5010 || 
-          ($claim->providerNPIValid() && 
+  if(!$CMS_5010 ||
+          ($claim->providerNPIValid() &&
           $claim->billingFacilityNPI() !== $claim->providerNPI() ))
   {
     ++$edicount;

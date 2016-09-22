@@ -61,7 +61,7 @@ if($dbaction == 'add'){
 				echo xlt('Adding item to track failed') . ". ";
 				echo xlt("Please enter at least the item's name") . ".";
 				echo "</span><br><br>\n";
-			}			
+			}
 			if($the_type=='create') {
 				echo "<br><span class='failure'>\n";
 				echo xlt('Creating new track failed') . ". ";
@@ -116,8 +116,8 @@ if($dbaction == 'delete' && acl_check('admin', 'super')){
 $create_track = isset($_POST['create_track']) ? trim($_POST['create_track']) : '';
 if ($create_track){
 	echo "<table class='create'><tr><td>\n";
-	echo "<b>" . xlt('Create a new track')  . " </b><br>&nbsp;";	
-	echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+	echo "<b>" . xlt('Create a new track')  . " </b><br>&nbsp;";
+	echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 	echo "<table>\n";
 	echo "<tr>\n";
 	echo "<th class='add'>" . xlt('Name') . "</th>\n";
@@ -161,7 +161,7 @@ if($the_item){
 		$myrow = sqlQuery($spell, array($the_item));
 		echo "<br>&nbsp;&nbsp;";
 		echo xlt('Add item to track')  . " <b>" . text($myrow['name']) . "</b><br>&nbsp;\n";
-		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 		echo "<table>\n";
 		echo "<tr>\n";
 		echo "<th class='add'>" . xlt('Name') . "</th>\n";
@@ -192,13 +192,13 @@ if($the_item){
 		echo "<table class='edit'><tr><td>";
 		$spell  = "SELECT name, description, position FROM form_track_anything_type ";
 		$spell .= "WHERE track_anything_type_id = ?";
-		$myrow = sqlQuery($spell, array($the_item));		
-		$the_name 	= $myrow['name'];		
+		$myrow = sqlQuery($spell, array($the_item));
+		$the_name 	= $myrow['name'];
 		$the_descr 	= $myrow['description'];
 		$the_pos 	= $myrow['position'];
 		echo "<br>&nbsp;&nbsp;";
 		echo xlt('Edit')  . " <b>" . text($the_name) . "</b><br>&nbsp;";
-		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 		echo "<table>\n";
 		echo "<tr>\n";
 		echo "<th class='edit'>" . xlt('Name') . "</th>\n";
@@ -225,19 +225,19 @@ if($the_item){
 		echo "<table class='del'><tr><td>\n";
 		$spell  = "SELECT name FROM form_track_anything_type ";
 		$spell .= "WHERE track_anything_type_id = ?";
-		$myrow = sqlQuery($spell, array($the_item));		
-		$the_name 	= $myrow['name'];	
+		$myrow = sqlQuery($spell, array($the_item));
+		$the_name 	= $myrow['name'];
 
 		echo "<br>&nbsp;&nbsp;<span class='failure'>\n";
-		echo xlt('Are you sure you want to delete') . " <b>" . text($the_name) . "</b>?</span><br>\n";	
-		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+		echo xlt('Are you sure you want to delete') . " <b>" . text($the_name) . "</b>?</span><br>\n";
+		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 		echo "<input type='hidden' name='itemid' value='" . attr($the_item) . "'>\n";
 		echo "<input type='hidden' name='dbaction' value='delete'>\n";
 		echo "&nbsp;&nbsp;<input type='submit' class='delete_button' name='addsave' value='" . xla('Delete') . "'>\n";
 		echo "&nbsp;&nbsp;<input type='button' class='nodelete_button' name='stop' value='" . xla('Back') . "' ";
 		?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php 
 		echo " />\n";
-		echo "</form><br><br>\n";	
+		echo "</form><br><br>\n";
 		echo "</td></tr></table>\n";
 		}
 		
@@ -248,7 +248,7 @@ if($the_item){
 		$updatespell .= "SET active = '0' ";
 		$updatespell .= "WHERE track_anything_type_id = ? ";
 		sqlStatement($updatespell, array($the_item));
-	}	
+	}
 	
 	if ($activate){
 	// activate the item/track
@@ -256,7 +256,7 @@ if($the_item){
 		$updatespell .= "SET active = '1' ";
 		$updatespell .= "WHERE track_anything_type_id = ? ";
 		sqlStatement($updatespell, array($the_item));
-	}	
+	}
 	
 } //end user clicked button
 
@@ -280,13 +280,13 @@ $spell  = "SELECT * FROM form_track_anything_type ";
 $spell .= "WHERE parent = 0 ";
 $spell .= "ORDER BY position ASC, active DESC, name ASC";
 $result = sqlStatement($spell);
-while($myrow = sqlFetchArray($result)){ 
+while($myrow = sqlFetchArray($result)){
 	$type_id 		= $myrow['track_anything_type_id'];
 	$type_name 		= $myrow['name'];
 	$type_pos 		= $myrow['position'];
 	$type_descr 	= $myrow['description'];
 	$type_active 	= $myrow['active'];
-	echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+	echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 	
 	echo "<tr>\n";
 	if($type_active == '1'){
@@ -302,7 +302,7 @@ while($myrow = sqlFetchArray($result)){
 	echo "<td class='op'>";#[" . xlt('Edit') . "] [" . xlt('Add') . "]</td>";
 	echo "<input type='submit' class='ta_button' name='add' value='" . xla('Add') . "'>\n";
 	echo "<input type='submit' class='ta_button' name='edit' value='" . xla('Edit') . "'>\n";
-	if($type_active == '1'){ 
+	if($type_active == '1'){
 		echo "<input type='submit' class='ta_button' name='deact' value='" . xla('Disable') . "'>\n";
 	} elseif($type_active == '0'){
 		echo "<input type='submit' class='ta_button' name='act' value='" . xla('Enable') . "'>\n";
@@ -317,26 +317,26 @@ while($myrow = sqlFetchArray($result)){
 	$spell2 .= "WHERE parent = ? ";
 	$spell2 .= "ORDER BY position ASC, active DESC, name ASC";
 	$result2 = sqlStatement($spell2, array($type_id));
-	while($myrow2 = sqlFetchArray($result2)){ 
+	while($myrow2 = sqlFetchArray($result2)){
 		$item_id		= $myrow2['track_anything_type_id'];
 		$item_name		= $myrow2['name'];
 		$item_pos 		= $myrow2['position'];
 		$item_descr		= $myrow2['description'];
 		$item_active	= $myrow2['active'];
-		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+		echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 		echo "<tr>\n";
 		if($item_active == '1'){
 			echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
-			echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";	
+			echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
 			echo "<td class='child'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
 		}elseif($item_active == '0'){
 			echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_name) . "</td>\n";
-			echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";	
+			echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_descr) . "</td>\n";
 			echo "<td class='deactive'>&nbsp;&nbsp;&nbsp;&nbsp; | " . text($item_pos) . "</td>\n";
 		}
 		echo "<td class='op'>";
-		echo "<input type='submit' class='ta_button' name='edit' value='" . xla('Edit') . "'>\n";	
-		if($item_active == '1'){ 
+		echo "<input type='submit' class='ta_button' name='edit' value='" . xla('Edit') . "'>\n";
+		if($item_active == '1'){
 			echo "<input type='submit' class='ta_button' name='deact' value='" . xla('Disable') . "'>\n";
 		} elseif($item_active == '0'){
 			echo "<input type='submit' class='ta_button' name='act' value='" . xla('Enable') . "'>\n";
@@ -353,16 +353,16 @@ while($myrow = sqlFetchArray($result)){
 echo "</table>\n";
 
 echo "<p align='center'>\n";
-echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n"; 
+echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
 echo "<input type='submit' name='create_track' value='" . xla('Create new Track') . "' >\n";
 echo "<input type='button' name='stop' value='" . xla('Back') . "' ";
 // if in an encounter, go back to "select track"
-if ($encounter){ 
+if ($encounter){
 ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/new.php'"<?php 
 // if not in an encounter, go back to "demographics"
-} elseif(!$encounter AND $pid){ 
+} elseif(!$encounter AND $pid){
 ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/patient_file/summary/demographics.php'"<?php 
-} elseif(!$encounter AND !$pid){ 
+} elseif(!$encounter AND !$pid){
 ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/new/new.php'"<?php 
 }
 echo " />\n";

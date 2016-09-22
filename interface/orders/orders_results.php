@@ -63,7 +63,7 @@ function QuotedOrNull($fld) {
 
 $current_report_id = 0;
 
-if ($_POST['form_submit'] && !empty($_POST['form_line'])) { 
+if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
   foreach ($_POST['form_line'] as $lino => $line_value) {
     list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
@@ -83,7 +83,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
         "report_status = '" . oresData("form_report_status", $lino) . "'";
 
       // Set the review status to reviewed.
-      if ($form_review) 
+      if ($form_review)
         $sets .= ", review_status = 'reviewed'";
     
       if ($report_id) { // Report already exists.
@@ -435,7 +435,7 @@ while ($row = sqlFetchArray($res)) {
   $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
-  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
+  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status'];
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
@@ -659,7 +659,7 @@ while ($row = sqlFetchArray($res)) {
       "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
       " title='" . xla('Supplier facility name') . "'" .
       " style='width:100%' />" . htmlspecialchars($result_facility) .
-      "</textarea></td></tr>\n" .	  
+      "</textarea></td></tr>\n" .
       "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
       "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
       " title='" . xla('Comments for this result or recommendation') . "'" .

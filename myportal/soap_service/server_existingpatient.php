@@ -110,7 +110,7 @@ class existingpatient {
             $enc_set_array[]=$data[1][2];
             }
             $provider="";
-            $provider  =add_escape_custom($data[1][0]);  
+            $provider  =add_escape_custom($data[1][0]);
             $query="select fe.id,fe.pid,encounter,date_format(fe.date,'%Y-%m-%d') 
             as date,concat(pd.lname,' ',pd.fname) as patname,concat(u.lname,', ',u.fname) 
             as provname,".$provider." from form_encounter fe left outer join users u
@@ -231,7 +231,7 @@ class existingpatient {
             return array($query,array($pid));
             break;
             // Demo building from layout options.
-            
+
             case 'P7':
                 $query=" select * from layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
                 "ORDER BY group_name, seq";
@@ -258,12 +258,12 @@ class existingpatient {
             return array($query,$data[1]);
             break;
         
-            case 'P11':	
+            case 'P11':
             $query = "select code_text from codes WHERE  code = ? ";
             return array($query,$data[1]);
             break;
 			//Details of drug sales
-            case 'P12':	
+            case 'P12':
             array_push($data[1],$pid);
              $query = "select s.drug_id, s.sale_date, s.fee, s.quantity from drug_sales AS s " .
                 "WHERE  s.encounter = ? and s.pid = ? AND s.fee != 0 " .
@@ -271,7 +271,7 @@ class existingpatient {
             return array($query,$data[1]);
             break;
 			//Details of Payments
-            case 'P14':	
+            case 'P14':
             array_push($data[1],$pid);
                     $query = "Select a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
                 "a.post_time, a.session_id, a.sequence_no,a.follow_up, a.follow_up_note, " .
@@ -284,30 +284,30 @@ class existingpatient {
             return array($query,$data[1]);
             break;
 			//Address of Billing Facility
-            case 'P15':	
+            case 'P15':
             $query = "SELECT f.name,f.street,f.city,f.state,f.postal_code,f.phone from facility f " .
             " where  id=?";
             return array($query,$data[1]);
             break;
             //Encounter status primary,secondary Etc
-            case 'P16':	
+            case 'P16':
             array_push($data[1],$pid);
             $query = "select last_level_closed from form_encounter where encounter= ? and pid =? ";
             return array($query,$data[1]);
             break;
         
-            case 'P17':	
+            case 'P17':
             $query = "select COUNT( DISTINCT TYPE ) NumberOfInsurance from insurance_data where pid =? and provider>0 ";
             return array($query,array($pid));
             break;
         
-            case 'P19':	
+            case 'P19':
             $query = "select  date,encounter from form_encounter where pid =? ORDER BY encounter";
             return array($query,array($pid));
             break;
         
-            case 'P20':	
-            if($pid) 
+            case 'P20':
+            if($pid)
              {
               $string_query=" and pid !=?";
              }
@@ -324,8 +324,8 @@ class existingpatient {
             break;
         
 			//getting DOB and SSN for verifying the duplicate patient existance
-            case 'P21':	
-            if($pid) 
+            case 'P21':
+            if($pid)
              {
               $string_query=" and pid !=?";
              }
@@ -342,7 +342,7 @@ class existingpatient {
             break;
         
 			//master data for calendar from Globals
-            case 'B1':    
+            case 'B1':
             //patient appointment
             if($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end')
             {
@@ -524,7 +524,7 @@ class existingpatient {
                     AND dld_id IS NOT NULL AND (dld_signed = ? OR dlm_upload_type = '1') AND dld_pid=? ORDER BY dlm_effective_date DESC";
                             array_push($data[1],$pid);
                             return array($query,$data[1]);
-                            break;			
+                            break;
                         
             case 'F1':
             //Patient details .

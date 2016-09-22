@@ -75,13 +75,13 @@ $obj_bav = formFetch( "form_brief_aan_verwijzer", $vectAutosaveBAV['id'] );
 
 // Introductie - local
 // create the inroductie form
-if( $obj_bav['introductie'] != '' ) 
+if( $obj_bav['introductie'] != '' )
   $obj['introductie'] = $obj_bav['introductie'];
 else
   $obj['introductie'] = xl("Since","",""," ") . $m_strEventDate . xl("we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.",""," ");
 
 // Reden van aanmelding 
-if( $obj_bav['reden_van_aanmelding'] != '' ) 
+if( $obj_bav['reden_van_aanmelding'] != '' )
   $obj['reden_van_aanmelding'] = $obj_bav['reden_van_aanmelding'];
 elseif( $obj_iv['reden_van_aanmelding'] != '' )
   $obj['reden_van_aanmelding'] = $obj_iv['reden_van_aanmelding'];
@@ -89,7 +89,7 @@ else
   $obj['reden_van_aanmelding'] = '';
   
 // Anamnese
-if( $obj_bav['anamnese'] != '' ) 
+if( $obj_bav['anamnese'] != '' )
   $obj['anamnese'] = $obj_bav['anamnese'];
 elseif( $obj_iv['klachten_probleemgebieden'] != '' )
   $obj['anamnese'] = $obj_iv['klachten_probleemgebieden'];
@@ -97,7 +97,7 @@ else
   $obj['anamnese'] = '';
 
 // Psychiatrisch onderzoek 
-if( $obj_bav['psychiatrisch_onderzoek'] != '' ) 
+if( $obj_bav['psychiatrisch_onderzoek'] != '' )
   $obj['psychiatrisch_onderzoek'] = $obj_bav['psychiatrisch_onderzoek'];
 elseif( $obj_po['psychiatrisch_onderzoek'] != '' )
   $obj['psychiatrisch_onderzoek'] = $obj_po['psychiatrisch_onderzoek'];
@@ -105,7 +105,7 @@ else
   $obj['psychiatrisch_onderzoek'] = '';
 
 // Beschrijvend conclusie 
-if( $obj_bav['beschrijvend_conclusie'] != '' ) 
+if( $obj_bav['beschrijvend_conclusie'] != '' )
   $obj['beschrijvend_conclusie'] = $obj_bav['beschrijvend_conclusie'];
 elseif( $obj_po['beschrijvende_conclusie'] != '' )
   $obj['beschrijvend_conclusie'] = $obj_po['beschrijvende_conclusie'];
@@ -113,12 +113,12 @@ else
   $obj['beschrijvend_conclusie'] = '';
   
 // Advies/beleid
-if( $obj_bav['advies_beleid'] != '' ) 
+if( $obj_bav['advies_beleid'] != '' )
   $obj['advies_beleid'] = $obj_bav['advies_beleid'];
 elseif( $obj_po['behandelvoorstel'] != '' )
   $obj['advies_beleid'] = $obj_po['behandelvoorstel'];
 else
-  $obj['advies_beleid'] = ''; 
+  $obj['advies_beleid'] = '';
 
 
 ?>

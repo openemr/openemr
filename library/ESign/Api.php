@@ -34,11 +34,11 @@ require_once $GLOBALS['srcdir'].'/ESign/Encounter/Factory.php';
 require_once $GLOBALS['srcdir'].'/ESign/Encounter/Configuration.php';
 
 class Api
-{   
+{
     public function lockEncounters()
     {
         return $GLOBALS['lock_esign_all'];
-    } 
+    }
     
     public function formConfigToJson()
     {
@@ -46,7 +46,7 @@ class Api
         return $this->configToJson( $configuration );
     }
     
-    public function createFormESign( $formId, $formDir, $encounterId ) 
+    public function createFormESign( $formId, $formDir, $encounterId )
     {
         $factory = new Form_Factory( $formId, $formDir, $encounterId );
         $esign = $this->createESign( $factory );

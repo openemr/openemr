@@ -91,7 +91,7 @@ if ($result != null){
 if ( $has_disclosure == 0 ) //If there are no disclosures recorded
 { ?>
 	<span class='text'> <?php echo htmlspecialchars(xl("There are no disclosures recorded for this patient."),ENT_NOQUOTES);
-	echo " "; echo htmlspecialchars(xl("To record disclosures, please click"),ENT_NOQUOTES); echo " ";echo "<a href='disclosure_full.php'>"; echo htmlspecialchars(xl("here"),ENT_NOQUOTES);echo "</a>."; 
+	echo " "; echo htmlspecialchars(xl("To record disclosures, please click"),ENT_NOQUOTES); echo " ";echo "<a href='disclosure_full.php'>"; echo htmlspecialchars(xl("here"),ENT_NOQUOTES);echo "</a>.";
 ?>
 	</span> 
 <?php 
@@ -99,7 +99,7 @@ if ( $has_disclosure == 0 ) //If there are no disclosures recorded
 {
 ?> 
 	<br />
-	<span class='text'> <?php  
+	<span class='text'> <?php 
 	echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'),ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N,ENT_NOQUOTES);?></b><br>
 	<a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES);?></a>
 	</span><?php

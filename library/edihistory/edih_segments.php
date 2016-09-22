@@ -32,13 +32,13 @@
  * @param $lptest   the prospective loop value 
  * @param &$lpval    the present loop value -- reassigned here
  * @return integer  value from strcmp()
- */  
+ */
 function edih_change_loop($lptest, &$lpval) {
 	// strcmp($str1,$str2) Returns < 0 if str1 is less than str2; > 0 if str1 is greater than str2, and 0 if they are equal.
-	if ( strcmp($lptest, $lpval) > 0) { 
+	if ( strcmp($lptest, $lpval) > 0) {
 		//echo "$lptest greater than $lpval" .PHP_EOL;
 		$lpval = $lptest;
-	} 
+	}
 	return strcmp($lptest, $lpval);
 }
 
@@ -70,7 +70,7 @@ function edih_segments_text($segments, $delimiter) {
 		$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 	}
 	//
-	return $str_html;	
+	return $str_html;
 }
 
 /**
@@ -151,14 +151,14 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 			}
 			//
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
-			continue;	
+			continue;
 		}
 		//	
 		if ( strncmp('CLM'.$de, $seg, 4) === 0 ) {
 			$loopid = '2300'; $title = 'Claim';
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
-			continue;			
+			continue;
 		}
 		//		
 		if ( strncmp('SBR'.$de, $seg, 4) === 0 ) {
@@ -171,28 +171,28 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 				$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			}
 			$title = '';
-			continue;			
+			continue;
 		}
 		//		
 		if ( strncmp('LX'.$de, $seg, 3) === 0 ) {
 			$loopid = '2400'; $title = 'Svc Line Number';
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
-			continue;			
+			continue;
 		}
 		//		
 		if ( strncmp('LIN'.$de, $seg, 4) === 0 ) {
 			$loopid = '2410'; $title = 'Drug ID';
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
-			continue;			
+			continue;
 		}
 		//
 		if ( strncmp('SVD'.$de, $seg, 4) === 0 ) {
 			$loopid = '2430'; $title = 'Line Adjudication';
 			$str_html .= "<tr></tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
-			continue;			
+			continue;
 		}
 		//
 		if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
@@ -215,57 +215,57 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 					$loopid = '2010BB'; $title = 'Payer';
 				} elseif ($nm101 == 'QC') {
 					$loopid = '2010CA'; $title = 'Patient';
-				} elseif ($nm101 == 'DN') { 
+				} elseif ($nm101 == 'DN') {
 					$loopid = '2310A'; $title = 'Referring Provider';
 				} elseif ($nm101 == 'P3') {
 					$loopid = '2310A'; $title = 'Primary Care Provider';
 				} elseif ($nm101 == '82') {
 					$loopid = '2310B'; $title = 'Rendering Provider';
-				} elseif ($nm101 == '77') { 
+				} elseif ($nm101 == '77') {
 					$loopid = '2310C'; $title = 'Service Facility';
-				} elseif ($nm101 == 'DQ') { 
+				} elseif ($nm101 == 'DQ') {
 					$loopid = '2310D'; $title = 'Supervising Provider';
-				} elseif ($nm101 == 'PW') { 
+				} elseif ($nm101 == 'PW') {
 					$loopid = '2310E'; $title = 'Ambulance pickup';
-				} elseif ($nm101 == '45') { 
+				} elseif ($nm101 == '45') {
 					$loopid = '2310F'; $title = 'Ambulance dropoff';
-				} 
+				}
 			} elseif ( strcmp(substr($loopid,0,4), '2400')  < 0 ) {
-				if ($nm101 == 'IL') { 
+				if ($nm101 == 'IL') {
 					$loopid = '2330A'; $title = 'Other Subscriber';
-				} elseif ($nm101 == 'PR') { 
+				} elseif ($nm101 == 'PR') {
 					$loopid = '2330B'; $title = 'Other Payer';
-				} elseif ($nm101 == 'PR') { 
+				} elseif ($nm101 == 'PR') {
 					$loopid = '2330C'; $title = 'Other Referring Provider';
-				} elseif ($nm101 == '82') { 
+				} elseif ($nm101 == '82') {
 					$loopid = '2330D'; $title = 'Other Rendering Provider';
-				} elseif ($nm101 == '77') { 
+				} elseif ($nm101 == '77') {
 					$loopid = '2330E'; $title = 'Other Svc Facility';
-				} elseif ($nm101 == 'DQ') { 
+				} elseif ($nm101 == 'DQ') {
 					$loopid = '2330F'; $title = 'Other Supervising Provider';
-				} elseif ($nm101 == '85') { 
+				} elseif ($nm101 == '85') {
 					$loopid = '2330G'; $title = 'Other Billing Provider';
-				}	
+				}
 			} else {
 				if ($nm101 == '82') {
 					$loopid = '2420A'; $title = 'Rendering Provider';
 				} elseif ($nm101 == 'QB') {
 					$loopid = '2420B'; $title = 'Purchased Svc Provider';
-				} elseif ($nm101 == '77') { 
+				} elseif ($nm101 == '77') {
 					$loopid = '2420C'; $title = 'Service Facility';
-				} elseif ($nm101 == 'DQ') { 
+				} elseif ($nm101 == 'DQ') {
 					$loopid = '2420D'; $title = 'Supervising Provider';
-				} elseif ($nm101 == 'DK') { 
+				} elseif ($nm101 == 'DK') {
 					$loopid = '2420E'; $title = 'Ordering Provider';
-				} elseif ($nm101 == 'DN') { 
+				} elseif ($nm101 == 'DN') {
 					$loopid = '2420F'; $title = 'Referring Provider';
-				} elseif ($nm101 == 'P3') { 
+				} elseif ($nm101 == 'P3') {
 					$loopid = '2420F'; $title = 'Primary Care Provider';
-				} elseif ($nm101 == 'PW') { 
+				} elseif ($nm101 == 'PW') {
 					$loopid = '2420G'; $title = 'Ambulance pickup';
-				} elseif ($nm101 == '45') { 
+				} elseif ($nm101 == '45') {
 					$loopid = '2420H'; $title = 'Ambulance dropoff';
-				} 
+				}
 			}
 			//				
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
@@ -278,13 +278,13 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$title = '';
 			continue;
-		}						
+		}
 		// for all the segments that do not begin loops									
-		$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;	
+		$str_html .= "<tr><td class='btloop' title='$title'> -- </td><td class='btnum' title='$key'>$stsegct</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 		//
 	}
 	//
-	return $str_html;	
+	return $str_html;
 }
 
 /**
@@ -294,7 +294,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '') {
  * @param array  $segments 
  * @param string  $delimiter
  * return string
- */ 
+ */
 function edih_271_text($segments, $delimiter, $err_seg = '') {
 	//
 	$str_html = '';
@@ -304,7 +304,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 		csv_edihist_log('edih_271_text: invalid argument');
 		$str_html .= "Invalid arguments for view of x12 file text<br>";
 		return $str_html;
-	}	
+	}
 	//
 	$de = $delimiter;
 	$prevseg = '';
@@ -326,10 +326,10 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 	//
 	if ($err_seg) {
 		$er = edih_errseg_parse($err_seg);
-		if ( is_array($er) && count($er)) { 
+		if ( is_array($er) && count($er)) {
 			$err_ar = $er;
 		}
-	}	
+	}
 	//
 	foreach ($segments as $key=>$seg) {
 		$sar = array();
@@ -355,10 +355,10 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 		if ( strncmp('BHT'.$de, $seg, 4) === 0 ) {
 			$loopid = 'Begin';
 			// 2nd seg in transaction, ST may not be included if segments are transaction slice
-			if ( $stsegct < 2) { $stsegct = 2; } 
+			if ( $stsegct < 2) { $stsegct = 2; }
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			continue;
-		}		
+		}
 		//
 		if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
 			$sar = explode($de, $seg);
@@ -379,11 +379,11 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 			//
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'HL'.$de;
-			continue;	
+			continue;
 		}
 		//
 		if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
-			if (strncmp('NM1'.$de, $prevseg, 4) === 0 ) { 
+			if (strncmp('NM1'.$de, $prevseg, 4) === 0 ) {
 				$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 				continue;
 			}
@@ -396,8 +396,8 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 			}
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'NM1'.$de;
-			continue;	
-		}	
+			continue;
+		}
 		//
 		if ( strncmp('EB'.$de, $seg, 3) === 0 || strncmp('EQ'.$de, $seg, 3) === 0 ) {
 			// EB* segment is in 271 type, EQ* is corresponding segment in 270 type
@@ -406,11 +406,11 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 				$prevseg = substr($seg, 0, 3);
 				continue;
 			}
-			if ($loopid = '2100C' || $loopid = '2115C' || $loopid = '2120C') { 
-				$loopid = '2110C'; 
-			} elseif ($loopid = '2100D' || $loopid = '2115D' || $loopid = '2120D') { 
-				$loopid = '2110D'; 
-			}	
+			if ($loopid = '2100C' || $loopid = '2115C' || $loopid = '2120C') {
+				$loopid = '2110C';
+			} elseif ($loopid = '2100D' || $loopid = '2115D' || $loopid = '2120D') {
+				$loopid = '2110D';
+			}
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = substr($seg, 0, 3);
 			$has_eb = (strncmp('EB'.$de, $seg, 3) === 0);
@@ -418,10 +418,10 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 			continue;
 		}
 		//
-		if ( strncmp('III'.$de, $seg, 4) === 0 && $has_eb) { 
+		if ( strncmp('III'.$de, $seg, 4) === 0 && $has_eb) {
 			// the III segment begins a loop in 271 type, but not in 270
 			if ($loopid = '2110C') { $loopid = '2115C'; }
-			if ($loopid = '2100D') { $loopid = '2115D'; }					
+			if ($loopid = '2100D') { $loopid = '2115D'; }
 			if ($has_iii) {
 				$str_html .= "<tr><td class='btloop'></td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			} else {
@@ -448,8 +448,8 @@ function edih_271_text($segments, $delimiter, $err_seg = '') {
 			continue;
 		}
 		// for all the segments that do not begin loops	
-		$prevseg = substr($seg, 0, strpos($seg,$de)+1);									
-		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;	
+		$prevseg = substr($seg, 0, strpos($seg,$de)+1);
+		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 		//
 	}
 	//
@@ -526,23 +526,23 @@ function edih_835_text($segments, $delimiter, $err_seg='') {
 			continue;
 		}
 		//
-		if ( strncmp('PLB'.$de, $seg, 4) === 0 ) {							
+		if ( strncmp('PLB'.$de, $seg, 4) === 0 ) {
 			$loopid = 'Adjust';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'PLB'.$de;
 			continue;
 		}
 		//
-		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {							
+		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Trailer';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'SE'.$de;
 			continue;
-		}		
+		}
 		// for all the segments that do not begin loops	
 		$prevseg = substr($seg, 0, 3);
-		$prevseg .= $de;									
-		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;	
+		$prevseg .= $de;
+		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 		//
 	}
 	//
@@ -605,7 +605,7 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 			$loopid = 'Begin';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			continue;
-		}		
+		}
 		//
 		if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
 			$sar = explode($de, $seg);
@@ -626,12 +626,12 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 			//
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'HL'.$de;
-			continue;	
+			continue;
 		}
 		//	
 		//
 		if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
-			if (strncmp('NM1'.$de, $prevseg, 4) === 0 ) { 
+			if (strncmp('NM1'.$de, $prevseg, 4) === 0 ) {
 				$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 				continue;
 			}
@@ -644,11 +644,11 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 			}
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'NM1';
-			continue;	
-		}	
+			continue;
+		}
 		//
 		if ( strncmp('TRN'.$de, $seg, 4) === 0 ) {
-			if (strncmp('TRN'.$de, $prevseg, 4) === 0 ) { 
+			if (strncmp('TRN'.$de, $prevseg, 4) === 0 ) {
 				$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 				continue;
 			}
@@ -661,11 +661,11 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 			}
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'TRN';
-			continue;	
-		}	
+			continue;
+		}
 		//
 		if ( strncmp('SVC'.$de, $seg, 4) === 0 ) {
-			if (strncmp('SVC'.$de, $prevseg, 4) === 0 ) { 
+			if (strncmp('SVC'.$de, $prevseg, 4) === 0 ) {
 				$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 				continue;
 			}
@@ -675,19 +675,19 @@ function edih_277_text($segments, $delimiter, $stpos='') {
 			}
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'SVC';
-			continue;	
-		}	
+			continue;
+		}
 		//
-		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {							
+		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Trailer';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'SE';
 			continue;
-		}		
+		}
 		// for all the segments that do not begin loops	
 		$prevseg = substr($seg, 0, 3);
-		$prevseg .= $de;									
-		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;									
+		$prevseg .= $de;
+		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 	}
 	//
 	return $str_html;
@@ -700,7 +700,7 @@ function edih_277_text($segments, $delimiter, $stpos='') {
  * @param array  $segments 
  * @param string  $delimiter
  * return string
- */ 
+ */
 function edih_278_text($segments, $delimiter, $err_seg = '') {
 	//
 	$str_html = '';
@@ -710,7 +710,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 		csv_edihist_log('edih_278_text(): invalid argument');
 		$str_html .= "Invalid arguments for view of x12 file text<br>";
 		return $str_html;
-	}	
+	}
 	//
 	$de = $delimiter;
 	$prevseg = '';
@@ -729,7 +729,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 	} else {
 		$erstn = '';
 		$erseg = array();
-	}	
+	}
 	//
 	foreach ($segments as $key=>$seg) {
 		$idx++;
@@ -739,7 +739,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 		//
 		if ($erstn && ($erstn == $stn)) {
 			$bterr = (in_array($stsegct, $erseg)) ? 'bterr' : 'btseg';
-		}		
+		}
 		//
 		if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Header';
@@ -753,16 +753,16 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 		if ( strncmp('BHT'.$de, $seg, 4) === 0 ) {
 			$loopid = 'Begin';
 			// 2nd seg in transaction, ST may not be included if segments are transaction slice
-			if ( $stsegct < 2) { $stsegct = 2; } 
+			if ( $stsegct < 2) { $stsegct = 2; }
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			continue;
-		}		
+		}
 		//
 		if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
 			$sar = explode($de, $seg);
 			$hl = $sar[1];
 			$hlpc = $sar[2];							// parent code
-			$hllc = $sar[3];							
+			$hllc = $sar[3];
 			$hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
 			if ($sar[3] == '20') {						// level code
 				$loopid = '2000A';						// info source (payer)
@@ -790,7 +790,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 			$str_html .= "<tr><td class='btloop' title='$title'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'HL';
 			continue;
-		}		
+		}
 		//
 		if (strncmp($seg, 'NM1'.$de, 4) === 0 ) {
 			$sar = explode($de, $seg);
@@ -809,7 +809,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 				$loopid = ($nm101 == 'L5') ? '2010EC' : $loopid;
 			} elseif ( $loopid == '2000F' || strpos($loopid, '010F')  ) {   // Service
 				$loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010FA' : $loopid;
-			}			
+			}
 			//
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 			$prevseg = 'NM1';
@@ -823,8 +823,8 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
 			continue;
 		}
 		// for all the segments that do not begin loops	
-		$prevseg = substr($seg, 0, strpos($seg,$de));									
-		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;	
+		$prevseg = substr($seg, 0, strpos($seg,$de));
+		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
 		//
 	}
 	//
@@ -838,7 +838,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '') {
  * @param array  $segments 
  * @param string  $delimiter
  * return string
- */ 
+ */
 function edih_997_text($segments, $delimiter) {
 	//
 	$str_html = '';
@@ -862,7 +862,7 @@ function edih_997_text($segments, $delimiter) {
 			$rspicn = $sar[1];
 			$loopid = 'ACK';  // not official 
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
-			unset($sar); 
+			unset($sar);
 			$loopid = '';  // reset loop for subsequent segments
 			continue;
 		}
@@ -876,13 +876,13 @@ function edih_997_text($segments, $delimiter) {
 		if ( strncmp('AK1'.$de, $seg, 4) === 0 ) {
 			$sar = explode($de, $seg);
 			$rsptp = csv_file_type($sar[1]);
-			if ($rspicn && $rsptp) { 
+			if ($rspicn && $rsptp) {
 				$rspfile = csv_file_by_controlnum($rsptp, $rspicn);
 			}
-			$title = ($rspfile) ? 'response to '.$rspfile : '';	
+			$title = ($rspfile) ? 'response to '.$rspfile : '';
 			$loopid = '2000';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td title='$title' class='btseg'>$seg</td></tr>" .PHP_EOL;
-			unset($sar); 
+			unset($sar);
 			continue;
 		}
 		//			
@@ -902,7 +902,7 @@ function edih_997_text($segments, $delimiter) {
 			$loopid = '2110';
 			$str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 			continue;
-		}		
+		}
 		//
 		if ( strncmp('SE'.$de, $seg, 3) === 0 ) {
 			$loopid = 'Trailer';
@@ -910,7 +910,7 @@ function edih_997_text($segments, $delimiter) {
 			continue;
 		}
 		// for all the segments that do not begin loops	;									
-		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;									
+		$str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
 	}
 	//
 	return $str_html;
@@ -945,7 +945,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 		$ft = csv_file_type($ftype);
 		$delims = $x12obj->edih_delimiters();
 		$de = $delims['e'];
-		$fn = $x12obj->edih_filename(); 
+		$fn = $x12obj->edih_filename();
 		$segs_ar = $x12obj->edih_segments();
 		$env_ar = $x12obj->edih_envelopes();
 		if (!$de || strlen($de) != 1 ) {
@@ -959,8 +959,8 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 			// unknown error
 			$str_html = "<p>unknown error retrieving segments for $fn</p>".PHP_EOL;
 			$str_html .= $x12obj->edih_message().PHP_EOL;
-			return $str_html; 
-		}			
+			return $str_html;
+		}
 	} else {
 		//debug
 		csv_edihist_log('edih_transaction_text(): invalid path '.$filepath);
@@ -1002,7 +1002,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 					}
 					$bht03 = $claimid;
 					break;
-				} 			
+				}
 			}
 		}
 	} else {
@@ -1014,12 +1014,12 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 		if ($claimid) {
 			$str_html = "<p>error: transaction $claimid not found in $fn</p>".PHP_EOL;
 			$str_html .= $x12obj->edih_message().PHP_EOL;
-			return $str_html; 
+			return $str_html;
 		} else {
 			// unknown error
 			$str_html = "<p>unknown error retrieving segments for $fn</p>".PHP_EOL;
 			$str_html .= $x12obj->edih_message().PHP_EOL;
-			return $str_html; 
+			return $str_html;
 		}
 	}
 	// if the segments are from a slice or transaction
@@ -1036,7 +1036,7 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 			$trnsegs = array_merge($trnsegs, $segments[$i]);
 		}
 		$segments = $trnsegs;
-		unset($trnsegs);	
+		unset($trnsegs);
 	}
 	//
 	$capstr = '';
@@ -1055,31 +1055,31 @@ function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $
 		case 'HR':
 			$capstr = "Status Query ";  //$cls = "txt276";
 			$trn_html = edih_277_text($segments, $de, $errs);
-			break;				
-		case 'HN': 
+			break;
+		case 'HN':
 			$capstr = "Claim Status "; //$cls = "txt277"; 
 			$trn_html = edih_277_text($segments, $de, $stsegkey);
 			break;
-		case 'HS': 
+		case 'HS':
 			$capstr = "Eligibility Query "; //$cls = "txt270";
 			$trn_html = edih_271_text($segments, $de, $errs);
-			break;			
-		case 'HB': 
+			break;
+		case 'HB':
 			$capstr = "Eligibility Report "; //$cls = "txt271";
 			$trn_html = edih_271_text( $segments, $de);
-			break;			
-		case 'HI': 
+			break;
+		case 'HI':
 			$capstr = "Authorization "; //$cls = "txt278";
 			$trn_html = edih_278_text( $segments, $de, $errs);
 			break;
-		case 'FA': 
+		case 'FA':
 			$capstr = "Batch Acknowledgment "; //$cls = "txt997";
 			$trn_html = edih_997_text( $segments, $de);
 			break;
 		default:
 			$capstr = "x12 $ftype "; //$cls = "txt_x12";
 			$trn_html = edih_segments_text($segments, $de);
-			break;		
+			break;
 	}
 	//
 	$capstr .= ($claimid) ? " <em>ID:</em> $claimid" : "";

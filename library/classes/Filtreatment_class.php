@@ -75,7 +75,7 @@ function ft_integer($input) {
 
         // and then check if the value is between these values
         return (($input >= $mnval) && ($input <= $mxval)) ? $input_c : FALSE;
-    } else { 
+    } else {
         // only one value set
         if ( $mnval ) return (($input >= $mnval) ? $input_c : FALSE );
         if ( $mxval ) return (($input <= $mxval) ? $input_c : FALSE );
@@ -116,7 +116,7 @@ function ft_float($input) {
         if ( $gt === 1 || $gt === 0 ) $gt = TRUE; else $gt = FALSE;
   
         return (( $lt && $gt ) ? $input_c : FALSE);
-    } else { 
+    } else {
         // only one value set
         if ( $mnval ) {
             $gt = $this->ft_realcmp($input, $mnval); //1 or 0 for true
@@ -186,8 +186,8 @@ function ft_email($email) {
 
         for ($i = 0; $i < sizeof($domain_array); $i++) {
             if (!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/", $domain_array[$i])) {
-                return false; 
-            }	
+                return false;
+            }
         }
     } // if 
 
@@ -243,8 +243,8 @@ function ft_strregex($value, $regex, $cv = 1) {
     // function of $cv might be a clean up operation, or just verifying
     switch ($cv) {
         // verify the string
-        case '1': 
-            $s = ( preg_match($regexfull, $value) ? FALSE : TRUE ); 
+        case '1':
+            $s = ( preg_match($regexfull, $value) ? FALSE : TRUE );
         break;
 
         // cleanup the string
@@ -307,9 +307,9 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     * Note: Normally urldecode() would be easier but it removes plus signs
     *
-    */	
+    */
     $str = preg_replace("/%u0([a-z0-9]{3})/i", "&#x\\1;", $str);
-    $str = preg_replace("/%([a-z0-9]{2})/i", "&#x\\1;", $str);		
+    $str = preg_replace("/%([a-z0-9]{2})/i", "&#x\\1;", $str);
 				
     /*
     * Convert character entities to ASCII
@@ -319,7 +319,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * these are the ones that will pose security problems.
     *
     */
-    if (preg_match_all("/<(.+?)>/si", $str, $matches)) {		
+    if (preg_match_all("/<(.+?)>/si", $str, $matches)) {
         for ($i = 0; $i < count($matches['0']); $i++) {
             $str = str_replace($matches['1'][$i],
                 html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset), $str);
@@ -332,7 +332,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * This prevents strings like this: ja	vascript
     * Note: we deal with spaces between characters later.
     *
-    */		
+    */
     $str = preg_replace("#\t+#", " ", $str);
 	
     /*
@@ -344,7 +344,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     * But it doesn't seem to pose a problem.
     *
-    */		
+    */
     $str = str_replace(array('<?php', '<?PHP', '<?', '?>'),  array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
 	
     /*
@@ -353,7 +353,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * This corrects words like:  j a v a s c r i p t
     * These words are compacted back to their correct state.
     *
-    */		
+    */
     $words = array('javascript', 'vbscript', 'script', 'applet', 'alert', 'document', 'write', 'cookie', 'window');
     foreach ($words as $word) {
         $temp = '';
@@ -368,7 +368,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
 
     /*
     * Remove disallowed Javascript in links or img tags
-    */		
+    */
     $str = preg_replace("#<a.+?href=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>.*?</a>#si", "", $str);
             $str = preg_replace("#<img.+?src=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>#si","", $str);
     $str = preg_replace("#<(script|xss).*?\>#si", "", $str);
@@ -380,7 +380,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * the event handler and anything up to the closing >,
     * but it's unlikely to be a problem.
     *
-    */		
+    */
     $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU',"\\1>",$str);
     
     /*
@@ -392,7 +392,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * So this: <blink>
     * Becomes: &lt;blink&gt;
     *
-    */		
+    */
     $str = preg_replace('#<(/*\s*)(alert|applet|basefont|base|behavior|bgsound|blink|body|embed|expression|form|frameset|frame|head|html|ilayer|iframe|input|layer|link|meta|object|plaintext|style|script|textarea|title|xml|xss)([^>]*)>#is', "&lt;\\1\\2\\3&gt;", $str);
             
     /*
@@ -416,7 +416,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     * This adds a bit of extra precaution in case
     * something got through the above filters
     *
-    */	
+    */
 
     $bad = array(
             'document.cookie'	=> '',

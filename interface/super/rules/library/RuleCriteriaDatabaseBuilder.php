@@ -65,7 +65,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
             $value = $exploded[4];
             $frequencyComparator = $exploded[5];
             $frequency = $exploded[6];
-            return new RuleCriteriaDatabaseCustom( $table, $column, 
+            return new RuleCriteriaDatabaseCustom( $table, $column,
                     $valueComparator, $value,
                     $frequencyComparator, $frequency );
         }

@@ -34,13 +34,13 @@ $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo,$pcDir);
 
-function postcalendar_adminapi_buildHourSelect($args) 
+function postcalendar_adminapi_buildHourSelect($args)
 {
     extract($args);
     $time24hours = pnModGetVar(__POSTCALENDAR__,'time24hours');
     
     if(!isset($hour)){
-        $hour = $time24hours ? date('H') : date('h'); 
+        $hour = $time24hours ? date('H') : date('h');
     }
     
     $output = new pnHTML();
@@ -55,7 +55,7 @@ function postcalendar_adminapi_buildHourSelect($args)
             }
             $options[$i]['id']       = $i;
             $options[$i]['selected'] = $sel;
-            $options[$i]['name']     = $i < 10 ? '0'.$i : $i;  
+            $options[$i]['name']     = $i < 10 ? '0'.$i : $i;
         }
     } else {
         for($i = 0; $i < 12; $i++) {
@@ -65,14 +65,14 @@ function postcalendar_adminapi_buildHourSelect($args)
             }
             $options[$i]['id']       = $i+1;
             $options[$i]['selected'] = $sel;
-            $options[$i]['name']     = $i+1 < 10 ? '0'.$i+1 : $i+1;     
+            $options[$i]['name']     = $i+1 < 10 ? '0'.$i+1 : $i+1;
         }
     }
     
     $output->FormSelectMultiple('pc_hour',$options);
     return $output->GetOutput();
 }
-function postcalendar_adminapi_getAdminListEvents($args) 
+function postcalendar_adminapi_getAdminListEvents($args)
 {
 	extract($args);
 	list($dbconn) = pnDBGetConn();
@@ -99,7 +99,7 @@ function postcalendar_adminapi_getAdminListEvents($args)
     return $dbconn->Execute($sql);
 }
 
-function postcalendar_adminapi_buildAdminList($args) 
+function postcalendar_adminapi_buildAdminList($args)
 {
 	extract($args);
 	$output = new pnHTML();
@@ -114,7 +114,7 @@ function postcalendar_adminapi_buildAdminList($args)
     $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
     $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr><td>');
         $output->Text('<center><font size="4"><b>'.$title.'</b></font></center>');
-    $output->Text('</td></tr></table>');    
+    $output->Text('</td></tr></table>');
     $output->Text('</td></tr></table>');
     
     $output->Linebreak();
@@ -128,12 +128,12 @@ function postcalendar_adminapi_buildAdminList($args)
             $output->Text('<table border="0" cellpadding="2" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'">');
             
 			// build sorting urls
-            if(!isset($sdir)) { $sdir = 1; } 
+            if(!isset($sdir)) { $sdir = 1; }
 			else { $sdir = $sdir ? 0 : 1; }
 			
             $title_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'title','sdir'=>$sdir));
             $time_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'time','sdir'=>$sdir));
-            $output->Text('<tr><td>select</td><td><a href="'.$title_sort_url.'">title</a></td><td><a href="'.$time_sort_url.'">timestamp</a><td></tr>');   
+            $output->Text('<tr><td>select</td><td><a href="'.$title_sort_url.'">title</a></td><td><a href="'.$time_sort_url.'">timestamp</a><td></tr>');
             // output the queued events
             $count=0;
             for(; !$result->EOF; $result->MoveNext()) {
@@ -153,7 +153,7 @@ function postcalendar_adminapi_buildAdminList($args)
                 
                 $count++;
             }
-            $output->Text('</table>');     
+            $output->Text('</table>');
         }
     $output->Text('</td></tr></table>');
     if($result->NumRows()) {
@@ -184,7 +184,7 @@ function postcalendar_adminapi_buildAdminList($args)
             $output->FormHidden('thelist',$function);
             $output->FormSubmit(_PC_PERFORM_ACTION);
         $output->Text('</td>');
-    $output->Text('</tr></table>');    
+    $output->Text('</tr></table>');
     $output->Text('</td></tr></table>');
     $output->Linebreak();
     
@@ -207,8 +207,8 @@ function postcalendar_adminapi_buildAdminList($args)
     } else {
         $output->Text('<td align="right">'._PC_NEXT.' >></td>');
     }
-    $output->Text('</tr></table>');   
-    } 
+    $output->Text('</tr></table>');
+    }
     $output->Text('</td></tr></table>');
     // end previous next links
     $output->FormEnd();
@@ -216,12 +216,12 @@ function postcalendar_adminapi_buildAdminList($args)
 	return $output->GetOutput();
 }
 
-function postcalendar_adminapi_buildMinSelect($args) 
+function postcalendar_adminapi_buildMinSelect($args)
 {
     extract($args);
     
     if(!isset($min)){
-        $min = date('i'); 
+        $min = date('i');
     }
     
     $output = new pnHTML();
@@ -231,15 +231,15 @@ function postcalendar_adminapi_buildMinSelect($args)
     for ($i = 0; $i <= 45; $i+5) {
         $options[$i]['id']       = $i;
         $options[$i]['selected'] = false;
-        $options[$i]['name']     = $i < 10 ? '0'.$i+1 : $i+1;            
+        $options[$i]['name']     = $i < 10 ? '0'.$i+1 : $i+1;
     }
     
     $output->FormSelectMultiple('pc_min',$options);
     return $output->GetOutput();
 }
 
-function postcalendar_adminapi_buildAMPMSelect($args) 
-{   
+function postcalendar_adminapi_buildAMPMSelect($args)
+{
     extract($args);
     
     $output = new pnHTML();
@@ -261,13 +261,13 @@ function postcalendar_adminapi_buildAMPMSelect($args)
     return $output->GetOutput();
 }
 
-function postcalendar_adminapi_waiting($args) 
+function postcalendar_adminapi_waiting($args)
 {   $output = new pnHTML();
     $output = "waiting<br />";
     return $output->GetOutput();
 }
 
-function postcalendar_adminapi_updateCategories($args) 
+function postcalendar_adminapi_updateCategories($args)
 {
     extract($args);
     if(!isset($updates)) {
@@ -282,7 +282,7 @@ function postcalendar_adminapi_updateCategories($args)
     }
     return true;
 }
-function postcalendar_adminapi_deleteCategories($args) 
+function postcalendar_adminapi_deleteCategories($args)
 {
     extract($args);
     if(!isset($delete)) {
@@ -295,7 +295,7 @@ function postcalendar_adminapi_deleteCategories($args)
     }
     return true;
 }
-function postcalendar_adminapi_addCategories($args) 
+function postcalendar_adminapi_addCategories($args)
 {
     extract($args);
     if(!isset($name)) {
@@ -340,7 +340,7 @@ function postcalendar_adminapi_addCategories($args)
     return true;
 }
 
-function postcalendar_adminapi_updateCategoryLimit($args) 
+function postcalendar_adminapi_updateCategoryLimit($args)
 {
     extract($args);
     if(!isset($updates)) {
@@ -356,7 +356,7 @@ function postcalendar_adminapi_updateCategoryLimit($args)
     return true;
 }
 
-function postcalendar_adminapi_deleteCategoryLimit($args) 
+function postcalendar_adminapi_deleteCategoryLimit($args)
 {
     extract($args);
     if(!isset($delete)) {
@@ -369,7 +369,7 @@ function postcalendar_adminapi_deleteCategoryLimit($args)
     }
     return true;
 }
-function postcalendar_adminapi_addCategoryLimit($args) 
+function postcalendar_adminapi_addCategoryLimit($args)
 {
     extract($args);
     if(!isset($catid)) {

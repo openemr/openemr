@@ -33,7 +33,7 @@ class AMC_314g_1_2_20 extends AbstractAmcReport
         return "image_orders";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_314g_1_2_20_Denominator();
     }

@@ -31,7 +31,7 @@ class scatter
 	function set_default_dot_style( $style )
 	{
 		$tmp = 'dot-style';
-		$this->$tmp = $style;	
+		$this->$tmp = $style;
 	}
 	
 	/**

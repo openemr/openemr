@@ -129,7 +129,7 @@ $this->code835['AMT'] = array(
 "AU" => "Coverage Amount",
 "B6" => "Allowed - Actual",
 "CA" => "Covered - Actual Days",
-"CD" => "Co-insured - Actual", 
+"CD" => "Co-insured - Actual",
 "DY" => "Per Day Limit",
 "F5" => "Patient Amount Paid",
 "I" => "Interest",
@@ -156,7 +156,7 @@ $this->code835['AMT'] = array(
 
 
 // Provider Level Adjustment Codes
-$this->code835['PLB'] = array(	
+$this->code835['PLB'] = array(
 "50" => "Late Charge",
 "51" => "Interest Penalty Charge",
 "72" => "Authorized Rtrn Refunds--Manual Inv",
@@ -169,7 +169,7 @@ $this->code835['PLB'] = array(
 "B2" => "Rebate",
 "B3" => "Recovery Allowance",
 "BD" => "Bad Debt Adjustment",
-"BF" => "Balance Moved Forward", 
+"BF" => "Balance Moved Forward",
 "BN" => "Bonus",
 "CA" => "Manual Claim Adjustment",
 "C5" => "Temporary Allowance",

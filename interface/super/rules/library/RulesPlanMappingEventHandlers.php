@@ -25,12 +25,12 @@
  * @link    http://www.open-emr.org
  */
 
-function getNonCQMPlans() {	
+function getNonCQMPlans() {
 	$plans = array();
 	
 	$sql_st = "SELECT DISTINCT list_options.title, clin_plans_rules.plan_id, clin_plans.pid " .
-				"FROM `list_options` list_options " . 
-				"JOIN `clinical_plans` clin_plans ON clin_plans.id = list_options.option_id " .				
+				"FROM `list_options` list_options " .
+				"JOIN `clinical_plans` clin_plans ON clin_plans.id = list_options.option_id " .
 				"JOIN `clinical_plans_rules` clin_plans_rules ON clin_plans_rules.plan_id = list_options.option_id " .
 				"JOIN `clinical_rules` clin_rules ON clin_rules.id = clin_plans_rules.rule_id " .
 				"WHERE (clin_rules.cqm_flag = 0 or clin_rules.cqm_flag is NULL) and clin_plans.pid = 0 and list_options.list_id = ?;";
@@ -109,12 +109,12 @@ function addNewPlan($plan_name, $plan_rules) {
 	if ($row != NULL) {
 		//001 = plan name taken
 		throw new Exception("003");
-	}	
+	}
 	
 	//Add plan into clinical_plans table
-	$sql_st = "INSERT INTO `clinical_plans` (`id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group`) " . 
+	$sql_st = "INSERT INTO `clinical_plans` (`id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group`) " .
 				"VALUES (?, 0, 1, 0, '');";
-	$res = sqlStatement($sql_st, array($plan_id));	
+	$res = sqlStatement($sql_st, array($plan_id));
 	
 	
 	//Get sequence value
@@ -136,7 +136,7 @@ function addNewPlan($plan_name, $plan_rules) {
 	$sql_st = "INSERT INTO `list_options` " .
 				"(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) " .
 				"VALUES ('clinical_plans', ?, ?, ?, 0, 0, '', '', '');";
-	$res = sqlStatement($sql_st, array($plan_id, $plan_name, $max_seq));	
+	$res = sqlStatement($sql_st, array($plan_id, $plan_name, $max_seq));
 	
 	
 	//Add rules to plan
@@ -164,7 +164,7 @@ function togglePlanStatus($plan_id, $nm_flag) {
          if ($nm_flag = 0)
            {
              $nm_chk = 1;
-           } 
+           }
          if ($nm_flag = 1)
            {
              $nm_chk = 0;
@@ -197,7 +197,7 @@ function submitChanges($plan_id, $added_rules, $removed_rules) {
 	
 }
 
-function addRulesToPlan($plan_id, $list_of_rules) {	
+function addRulesToPlan($plan_id, $list_of_rules) {
 	//Insert
 	$sql_st = "INSERT INTO `clinical_plans_rules` (`plan_id`, `rule_id`) " .
 				"VALUES (?, ?);";
@@ -223,7 +223,7 @@ function removeRulesFromPlan($plan_id, $list_of_rules) {
 	}
 }
 
-function generatePlanID() {	
+function generatePlanID() {
 	$plan_id = 1;
 	$sql_st = "SELECT MAX(SUBSTR(clin_plans.id, 1, LOCATE('_plan', clin_plans.id)-1)) as max_planid " .
 			"FROM `clinical_plans` clin_plans " .
@@ -243,8 +243,8 @@ function generatePlanID() {
 }
 
 function isPlanActive($plan_id) {
-	$sql_st = "SELECT `normal_flag` " . 
-				"FROM `clinical_plans` " . 
+	$sql_st = "SELECT `normal_flag` " .
+				"FROM `clinical_plans` " .
 				"WHERE `id` = ? AND `pid` = 0;";
 
 	$res = sqlStatement($sql_st, array($plan_id));
@@ -252,7 +252,7 @@ function isPlanActive($plan_id) {
 	$row = sqlFetchArray($res);
 	if ($row['normal_flag'] == 1) {
 		return true;
-	} else {		
+	} else {
 		return false;
 	}
 }

@@ -1,16 +1,16 @@
 <?php
 
 include_once("../../globals.php");
-include_once("../../../library/sql.inc");	
+include_once("../../../library/sql.inc");
 include_once("../../../library/formdata.inc.php");
 
 function addAppt($days,$time) {
   $days = formDataCore($days);
   $time = formDataCore($time);
 
-  $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," . 
-    "pc_comments, pc_aid,pc_startTime) values (" . 
-    $_SESSION['pid'] . ", date_add(current_date(), interval " . $days . 
+  $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
+    "pc_comments, pc_aid,pc_startTime) values (" .
+    $_SESSION['pid'] . ", date_add(current_date(), interval " . $days .
     " day),'from CAMOS', " . $_SESSION['authId'] . ",'$time')";
   return sqlInsert($sql);
 }
@@ -38,7 +38,7 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   {
     //trim eahc entry
     foreach ($justify as $temp_justify) {
-      $justify_trimmed[] = trim($temp_justify);	
+      $justify_trimmed[] = trim($temp_justify);
     }
     //format it
     $justify_string = implode(":",$justify_trimmed).":";
@@ -91,7 +91,7 @@ function process_commands(&$string_to_process, &$camos_return_data) {
 
   //First, handle replace function as special case.  full depth of inserts should be evaluated prior
   //to evaluating other functions in final string assembly.
-  $replace_finished = FALSE; 
+  $replace_finished = FALSE;
   while (!$replace_finished) {
     if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//",$string_to_process, $matches)) {
       foreach($matches[0] as $val) {
@@ -116,18 +116,18 @@ function process_commands(&$string_to_process, &$camos_return_data) {
   if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
     $to_replace = $matches[0];
     $days = $matches[1];
-    $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter']; 
+    $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
     $statement = sqlStatement($query);
-    if ($result = sqlFetchArray($statement)){ 
+    if ($result = sqlFetchArray($statement)){
         $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
     }
   }
   if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
     $to_replace = $matches[0];
     $days = $matches[1];
-    $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter']; 
+    $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
     $statement = sqlStatement($query);
-    if ($result = sqlFetchArray($statement)){ 
+    if ($result = sqlFetchArray($statement)){
         $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
     }
   }
@@ -148,14 +148,14 @@ function process_commands(&$string_to_process, &$camos_return_data) {
     if (trim($comm_array[0])== 'billing') {
       array_shift($comm_array); //couldn't do it in 'if' or would lose element 0 for next if
       //insert data into the billing table, see, easy!
-      $type = trim(array_shift($comm_array));  
-      $code = trim(array_shift($comm_array));  
-      $text = trim(array_shift($comm_array));  
-      $modifier = trim(array_shift($comm_array));  
+      $type = trim(array_shift($comm_array));
+      $code = trim(array_shift($comm_array));
+      $text = trim(array_shift($comm_array));
+      $modifier = trim(array_shift($comm_array));
       $units = trim(array_shift($comm_array));
       //make default units 1 if left blank - bm
       if ($units == '') {
-        $units = 1;	  
+        $units = 1;
       }
       $fee = sprintf("%01.2f",trim(array_shift($comm_array)));
       //make default fee 0.00 if left blank
@@ -167,20 +167,20 @@ function process_commands(&$string_to_process, &$camos_return_data) {
     }
     if (trim($comm_array[0])== 'appt') {
       array_shift($comm_array);
-      $days = trim(array_shift($comm_array));  
-      $time = trim(array_shift($comm_array));  
+      $days = trim(array_shift($comm_array));
+      $time = trim(array_shift($comm_array));
       addAppt($days, $time);
-    } 
+    }
     if (trim($comm_array[0])== 'vitals') {
       array_shift($comm_array);
-      $weight = trim(array_shift($comm_array));  
-      $height = trim(array_shift($comm_array));  
-      $systolic = trim(array_shift($comm_array));  
-      $diastolic = trim(array_shift($comm_array));  
-      $pulse = trim(array_shift($comm_array));  
-      $temp = trim(array_shift($comm_array));  
+      $weight = trim(array_shift($comm_array));
+      $height = trim(array_shift($comm_array));
+      $systolic = trim(array_shift($comm_array));
+      $diastolic = trim(array_shift($comm_array));
+      $pulse = trim(array_shift($comm_array));
+      $temp = trim(array_shift($comm_array));
       addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp);
-    } 
+    }
     $command_count = 0;
     if (trim($comm_array[0]) == 'camos') {
       $command_count++;
@@ -188,16 +188,16 @@ function process_commands(&$string_to_process, &$camos_return_data) {
       //this is for embedded prescriptions, test orders etc... usually within a soap note or something  
       //data collected here will be returned so that save.php can give it special treatment and insert
       //into the database after the main form data is submitted so it will be in a sensible order 
-      array_push($camos_return_data, 
-        array("category" => trim($comm_array[1]), 
-        "subcategory" => trim($comm_array[2]), 
-        "item" => trim($comm_array[3]), 
-        "content" => trim($comm_array[4]))); 
+      array_push($camos_return_data,
+        array("category" => trim($comm_array[1]),
+        "subcategory" => trim($comm_array[2]),
+        "item" => trim($comm_array[3]),
+        "content" => trim($comm_array[4])));
     }
   }
   $string_to_process = remove_comments($string_to_process);
   return $return_value;
-} 
+}
 // I was using this for debugging.  touch logging, chmod 777 logging, then can use.
   //file_put_contents('./logging',$string_to_process."\n\n*************\n\n",FILE_APPEND);//DEBUG
 
@@ -217,7 +217,7 @@ function replace($pid, $enc, $content) { //replace placeholders with values
 		"t1.DOB, " .
 		"t2.date " .
 		"from patient_data as t1 join form_encounter as t2 on " .
-		"(t1.pid = t2.pid) " . 
+		"(t1.pid = t2.pid) " .
 		"where t2.pid = ".$pid." and t2.encounter = ".$enc);
 	if ($results = sqlFetchArray($query1)) {
 		$fname = $results['fname'];
@@ -227,7 +227,7 @@ function replace($pid, $enc, $content) { //replace placeholders with values
 		else {$name = $fname.' '.$lname;}
 		$dob = $results['DOB'];
 		$date = $results['date'];
-		$age = patient_age($dob, $date); 
+		$age = patient_age($dob, $date);
 		$gender = $results['gender'];
 	}
 	$query1 = sqlStatement("select t1.lname from users as t1 join forms as " .

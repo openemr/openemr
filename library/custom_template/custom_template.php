@@ -158,7 +158,7 @@ $(document).ready(function(){
                                 while($row=sqlFetchArray($res)){
                                 ?>
                                     <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short'];?>');" class="css_button" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES);?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES));?></span></a>
-                                <?php                   
+                                <?php 
                                 }
                                 ?>
                             </td>

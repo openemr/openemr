@@ -66,14 +66,14 @@ function edih_997_code_text ( $ak_seg_field, $ak_code ) {
 		   '8' => 'Invalid date',
 		   '9' => 'Invalid time',
 		   '10' => 'Exclusion condition violated - segment includes two values that should not occur together',
-		   '12' => 'Too many repetitions', 
+		   '12' => 'Too many repetitions',
 		   '13' => 'Too many components',
 		   'I10' => 'Implementation not used',
 		   'I11' => 'Implementation too few repetitions',
 		   'I12' => 'Implementation pattern match failure',
 		   'I13' => 'Implementation dependent not used data element present',
 		   'I6' => 'Code value not used in implimentation',
-		   'I9' => 'Implementation dependent data element missing'	
+		   'I9' => 'Implementation dependent data element missing'
 		   );
 
 	$aktext['ak501'] = array(
@@ -105,7 +105,7 @@ function edih_997_code_text ( $ak_seg_field, $ak_code ) {
          '19' => 'Functional Group Control Number not unique within Interchange',
          '23' => 'S3E Security End Segment missing for S3S Security Start Segment',
          '24' => 'S3S Security Start Segment missing for S3E Security End Segment',
-         '25' => 'S4E Security End Segment missing for S4S Security Start Segment', 
+         '25' => 'S4E Security End Segment missing for S4S Security Start Segment',
          '26' => 'S4S Security Start Segment missing for S4E Security End Segment',
          'I6' => 'Implementation dependent segment missing',
          );
@@ -127,7 +127,7 @@ function edih_997_code_text ( $ak_seg_field, $ak_code ) {
  */
 function edih_997_ta1_code($code) {
 	// codes in TA1 segment elements 4 and 5, since codes are distinct form, all values in one array
-		
+
 	$ta1code = array('A' => 'Interchange accepted with no errors.',
 		'R' => 'Interchange rejected because of errors. Sender must resubmit file.',
 		'E' => 'Interchange accepted, but errors are noted. Sender must not resubmit file.',

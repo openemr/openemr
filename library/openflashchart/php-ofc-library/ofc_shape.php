@@ -20,6 +20,6 @@ class shape
 	
 	function append_value( $p )
 	{
-		$this->values[] = $p;	
+		$this->values[] = $p;
 	}
 }

@@ -149,6 +149,7 @@ function postToGet($arin) {
     border-bottom: solid thin #6D6D6D;
     padding:0% 2% 0% 2.5%;
   }
+  img { max-width:700px; }
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
@@ -163,14 +164,18 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <?php  } ?>
 
 </head>
-<body class="body_top" style="padding-top:95px;">
+<?php 
+// remove blank header for printable version to conserve space
+// adjust this if you are printing to letterhead to appropriate height
+($printable) ? ($style = ''):($style='padding-top:95px;');
+?>
+<body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
 if (sizeof($_GET) > 0) { $ar = $_GET; }
 else { $ar = $_POST; }
-
 if ($printable) {
   /*******************************************************************
   $titleres = getPatientData($pid, "fname,lname,providerID");
@@ -199,7 +204,7 @@ if ($printable) {
    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
    if (file_exists($practice_logo)) {
         echo "<img src='$practice_logo' align='left'><br />\n";
-     } 
+     }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -212,7 +217,7 @@ if ($printable) {
 
 <?php
 
-} 
+}
 else { // not printable
 ?>
 
@@ -340,8 +345,8 @@ foreach ($ar as $key => $val) {
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
             print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);		
-            print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";	
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+            print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
@@ -570,7 +575,7 @@ foreach ($ar as $key => $val) {
             $pdf->writeHTML($content, false);
             $pagecount = $pdf->pdf->setSourceFile($from_file);
             for($i = 0; $i < $pagecount; ++$i){
-              $pdf->pdf->AddPage();  
+              $pdf->pdf->AddPage();
               $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
               $pdf->pdf->useTemplate($itpl);
             }

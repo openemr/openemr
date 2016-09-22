@@ -79,7 +79,7 @@ if (isset($_POST["mode"]))
 				<td width="55" colspan="2" style="padding-left:5px;" ><div  class="text" name="patient_name" id="patient_name"  
 				style="border:1px solid black; ; padding-left:5px; width:55px; height:17px;"><?php echo $Message=='' ? htmlspecialchars(formData('hidden_patient_code')) : '' ;?></div>
 				</td>
-				<td width="84" class="text">&nbsp;<input type="radio" name="RadioPaid" onClick="SearchOnceMore()" <?php echo $_REQUEST['RadioPaid']=='Non_Paid' 
+				<td width="84" class="text">&nbsp;<input type="radio" name="RadioPaid" onClick="SearchOnceMore()" <?php echo $_REQUEST['RadioPaid']=='Non_Paid'
 				|| $_REQUEST['RadioPaid']=='' ? 'checked' : '' ; ?>  value="Non_Paid" id="Non_Paid"  /><?php echo htmlspecialchars( xl('Non Paid'), ENT_QUOTES) ?></td>
 				<td width="168" class="text"><input type="radio" name="RadioPaid" onClick="SearchOnceMore()" 
 				<?php echo $_REQUEST['RadioPaid']=='Show_Primary_Complete' ? 'checked' : '' ; ?>  value="Show_Primary_Complete" 
@@ -142,7 +142,7 @@ if (isset($_POST["mode"]))
 				<td width="209" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
 			  </tr>
 			  <?php
-				do 
+				do
 				 {
 
 					$CountIndex++;
@@ -290,7 +290,7 @@ if (isset($_POST["mode"]))
 				 name="FollowUpReason<?php echo $CountIndex; ?>"  readonly=""  type="text"   style="width:209px;font-size:12px" /></td>
 			  </tr>
 			<?php
-					
+
 				 }while($RowSearch = sqlFetchArray($ResultSearchNew));
 			?>
 			 <tr class="text">

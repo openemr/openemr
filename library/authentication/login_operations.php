@@ -52,7 +52,7 @@ function validate_user_password($username,&$password,$provider)
         $valid=true;
     }
     else
-    {  
+    {
         if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
         {
             $getUserSQL="select username,id, password from users where BINARY username = ?";
@@ -96,7 +96,7 @@ function validate_user_password($username,&$password,$provider)
         newEvent( 'login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
         $password='';
         return false;
-    }  
+    }
     // Done with the cleartext password at this point!
     $password='';
     if($valid)

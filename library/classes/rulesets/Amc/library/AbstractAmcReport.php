@@ -105,7 +105,7 @@ abstract class AbstractAmcReport implements RsReportIF
         
         $numeratorObjects = 0;
         $denominatorObjects = 0;
-        foreach ( $this->_amcPopulation as $patient ) 
+        foreach ( $this->_amcPopulation as $patient )
         {
             // If begin measurement is empty, then make the begin
             //  measurement the patient dob.
@@ -286,7 +286,7 @@ abstract class AbstractAmcReport implements RsReportIF
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
 					  "WHERE pr.patient_id = ? ".
 					  "AND prc.procedure_order_title LIKE '%imaging%' ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+					  "AND (pr.date_ordered BETWEEN ? AND ?)";
 				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
 			
@@ -297,7 +297,7 @@ abstract class AbstractAmcReport implements RsReportIF
 					  "LEFT JOIN users u ON u.id = pp.lab_director ".
 					  "WHERE pr.patient_id = ? ".
 					  "AND prc.procedure_order_title LIKE '%laboratory_test%' ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+					  "AND (pr.date_ordered BETWEEN ? AND ?)";
 				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
 			
@@ -318,7 +318,7 @@ abstract class AbstractAmcReport implements RsReportIF
 					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
 					  "WHERE pr.patient_id = ? ".
 					  "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+					  "AND (pr.date_ordered BETWEEN ? AND ?)";
 				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
         }

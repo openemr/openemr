@@ -20,7 +20,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
     var $frequencyComparator;
     var $frequency;
 
-    function __construct( $table, $column, 
+    function __construct( $table, $column,
                     $valueComparator, $value,
                     $frequencyComparator, $frequency) {
         $this->table = $table;

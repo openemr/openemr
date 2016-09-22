@@ -14,7 +14,7 @@
     //landing page definition -- where to go if something goes wrong
 	$landingpage = "index.php?site=".$_SESSION['site_id'];
     //
-    
+
     //checking whether the request comes from index.php
         if (!isset($_SESSION['itsme'])) {
                 session_destroy();
@@ -65,7 +65,7 @@
 
     //Authentication (and language setting)
 	require_once('../interface/globals.php');
-    require_once("$srcdir/authentication/common_operations.php");        
+    require_once("$srcdir/authentication/common_operations.php");
     $password_update=isset($_SESSION['password_update']);
     unset($_SESSION['password_update']);
     $plain_code= $_POST['pass'];
@@ -94,7 +94,7 @@
                 {
                     session_destroy();
                     header('Location: '.$landingpage.'&w');
-                    exit;                        
+                    exit;
                 }
                 $new_salt=oemr_password_salt();
                 $new_hash=oemr_password_hash($plain_code,$new_salt);
@@ -102,14 +102,14 @@
                               ." SET " .COL_POR_PWD."=?, "
                               . COL_POR_SALT . "=? "
                               ." WHERE ".COL_ID."=?";
-                privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));   
+                privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));
             }
             else {
                 if(oemr_password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
                 {
                     session_destroy();
                     header('Location: '.$landingpage.'&w');
-                    exit;                        
+                    exit;
 
                 }
 

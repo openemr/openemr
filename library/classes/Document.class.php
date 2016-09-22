@@ -189,7 +189,7 @@ class Document extends ORDataObject{
 		$filename = preg_replace("|^(.*)://|","",$url);
 		
 		if (!file_exists($filename)) {
-			die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");	
+			die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
 		}
 		
 		$sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . add_escape_custom($url) ."'" ;
@@ -218,7 +218,7 @@ class Document extends ORDataObject{
 		  	$d->size = filesize($filename);
 		  	$d->type = $d->type_array['file_url'];
 		  	$d->persist();
-		  	$d->populate();	
+		  	$d->populate();
 		}
 
 		return $d;
@@ -281,7 +281,7 @@ class Document extends ORDataObject{
 	}
 	function get_size() {
 		return $this->size;
-	}	
+	}
 	function set_date($date) {
 		$this->date = $date;
 	}
@@ -643,7 +643,7 @@ class Document extends ORDataObject{
     $this->size  = strlen($data);
     $this->hash  = sha1($data);
     $this->type  = $this->type_array['file_url'];
-    $this->owner = $owner ? $owner : $_SESSION['authUserID'];			
+    $this->owner = $owner ? $owner : $_SESSION['authUserID'];
     $this->set_foreign_id($patient_id);
     $this->persist();
     $this->populate();

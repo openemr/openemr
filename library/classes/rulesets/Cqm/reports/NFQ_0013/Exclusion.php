@@ -23,7 +23,7 @@
 
 class NFQ_0013_Exclusion implements CqmFilterIF
 {
-    public function getTitle() 
+    public function getTitle()
     {
         return "Exclusion";
     }

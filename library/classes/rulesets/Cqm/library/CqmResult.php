@@ -57,7 +57,7 @@ class CqmResult implements RsResultIF
 		}
 	}
     	
-        $rowFormat = array( 
+        $rowFormat = array(
         	'is_main'=>TRUE, // TO DO: figure out way to do this when multiple groups.
             'population_label' => $this->populationLabel,
             'numerator_label' => $this->numeratorLabel,

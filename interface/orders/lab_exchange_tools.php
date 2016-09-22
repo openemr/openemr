@@ -41,7 +41,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
 //        if ($where != "") $where .= "AND ";
 //        $where .= "mname = '".add_escape_custom($middleName)."' " ;
 //    }
-    
+
     if (preg_replace("/[:space:]/", "", $dob) != ""){
         if ($where != "") $where .= "AND ";
         $where .= "DOB = DATE_FORMAT('".add_escape_custom($dob)."', '%Y-%m-%d') " ;

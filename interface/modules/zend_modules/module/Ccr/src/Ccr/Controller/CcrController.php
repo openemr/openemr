@@ -88,7 +88,7 @@ class CcrController extends AbstractActionController
     * @param    document_id     documents table ID to fetch the CCR XML file to import the data
     */
     public function importAction()
-    {   
+    {
         $request     = $this->getRequest();
         if($request->getQuery('document_id')) {
           $_REQUEST["document_id"] = $request->getQuery('document_id');
@@ -239,11 +239,11 @@ class CcrController extends AbstractActionController
             else{
                 //echo('Imported');
                 //exit;
-            }            
+            }
         }
         else{
             //exit('Could not read the file');
-        }        
+        }
     }
     
     /*
@@ -317,7 +317,7 @@ class CcrController extends AbstractActionController
     * @return type
     */
     public function getCcrTable()
-    {	
+    {
         if (!$this->ccrTable) {
             $sm = $this->getServiceLocator();
             $this->ccrTable = $sm->get('Ccr\Model\CcrTable');

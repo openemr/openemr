@@ -21,7 +21,7 @@ class sms
  	function sms( $strUser, $strPass )
  	{
  	  $this->username = $strUser;
-          $this->password = $strPass;	
+          $this->password = $strPass;
  	}
  	
  	/**
@@ -56,7 +56,7 @@ class sms
  		 
  		$response = $this->_send($request);
  		// larry :: debug
- 		echo "DEBUG :SMS ENGINE: sms sent with code =".$response." for req= ".$request."\n"; 
+ 		echo "DEBUG :SMS ENGINE: sms sent with code =".$response." for req= ".$request."\n";
  		
  		/**
  		 * Return the server response
@@ -78,7 +78,7 @@ class sms
  			/** 
  			 * cURL extension is installed 
  			 * call the method that sends the sms through cURL
- 			 */	 
+ 			 */
  			 
  			$response = $this->_send_curl($request);
  		}
@@ -117,14 +117,14 @@ class sms
  		$ch = curl_init();
  		
  		/* Set cURL variables */
- 		curl_setopt($ch, CURLOPT_URL, "https://www.tm4b.com/client/api/http.php"); 
- 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); 
- 		curl_setopt($ch, CURLOPT_POST, 1); 
- 		curl_setopt($ch, CURLOPT_POSTFIELDS, $request); 
+ 		curl_setopt($ch, CURLOPT_URL, "https://www.tm4b.com/client/api/http.php");
+ 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+ 		curl_setopt($ch, CURLOPT_POST, 1);
+ 		curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
  		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
  		
- 		/* Send the request through cURL */ 
- 		$response = curl_exec($ch); 
+ 		/* Send the request through cURL */
+ 		$response = curl_exec($ch);
  		
  		/* End the cURL session */
  		curl_close($ch);
@@ -144,7 +144,7 @@ class sms
  		$http_header = "POST /client/api/http.php HTTP/1.1\r\n";
  		$http_header .= "Host: tm4b.com\r\n";
  		$http_header .= "User-Agent: HTTP/1.1\r\n";
- 		$http_header .= "Content-Type: application/x-www-form-urlencoded\r\n"; 
+ 		$http_header .= "Content-Type: application/x-www-form-urlencoded\r\n";
  		$http_header .= "Content-Length: ".strlen($request)."\r\n";
  		$http_header .= "Connection: close\r\n\r\n";
  		$http_header .= $request."\r\n";

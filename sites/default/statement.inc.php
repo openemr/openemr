@@ -26,7 +26,7 @@
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
 
-$STMT_PRINT_CMD = $GLOBALS['print_command']; 
+$STMT_PRINT_CMD = $GLOBALS['print_command'];
 
 
 // This function builds a printable statement or collection letter from
@@ -118,7 +118,7 @@ function create_statement($stmt) {
   $row = sqlFetchArray($atres);
  
  // Facility (service location)
- 
+
  $clinic_name = "{$row['name']}";
  $clinic_addr = "{$row['street']}";
  $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
@@ -139,13 +139,13 @@ function create_statement($stmt) {
  $billing_phone = "{$row['phone']}";
 
  // dunning message setup
- 
+
  // insurance has paid something
  // $stmt['age'] how old is the invoice
  // $stmt['dun_count'] number of statements run 
  // $stmt['level_closed'] <= 3 insurance 4 = patient
- 
-if ($GLOBALS['use_dunning_message']) { 
+
+if ($GLOBALS['use_dunning_message']) {
 
    if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)  {
 
@@ -165,19 +165,19 @@ if ($GLOBALS['use_dunning_message']) {
 		  break;
        case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
 	      $dun_message = $GLOBALS['fifth_dun_msg_text'];
-          break;		  
-     }	
+          break;
+     }
     }
  }
  // Text only labels
- 
+
  $label_addressee = xl('ADDRESSEE');
  $label_remitto = xl('REMIT TO');
  $label_chartnum = xl('Chart Number');
  $label_insinfo = xl('Insurance information on file');
  $label_totaldue = xl('Total amount due');
  $label_payby = xl('If paying by');
- $label_cards = xl('VISA/MC/AMEX/Dis');  
+ $label_cards = xl('VISA/MC/AMEX/Dis');
  $label_cardnum = xl('Card');
  $label_expiry = xl('Exp');
  $label_sign = xl('Signature');
@@ -234,14 +234,14 @@ $out .= "\n";
  // This generates the detail lines.  Again, note that the values must
  // be specified in the order used.
  //
- 
+
 
  foreach ($stmt['lines'] as $line) {
- if ($GLOBALS['use_custom_statement']) {  
+ if ($GLOBALS['use_custom_statement']) {
    $description = substr($line['desc'],0,30);
    
 	}
-else {	
+else {
      $description = $line['desc'];
 	 
 	  }
@@ -320,7 +320,7 @@ else {
  if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
    $out .= sprintf("%-46s\n",$stmt['bill_note']);
 }
- if ($GLOBALS['use_dunning_message']) { 
+ if ($GLOBALS['use_dunning_message']) {
    $out .= sprintf("%-46s\n",$dun_message);
  }
  $out .= "\n";
@@ -334,7 +334,7 @@ else {
  $out .= sprintf("%-s\n",$billing_contact);
  $out .= sprintf("  %-s %-25s\n",$label_dept,$billing_phone);
 if($GLOBALS['statement_message_to_patient']) {
- $out .= "\n"; 
+ $out .= "\n";
  $statement_message = $GLOBALS['statement_msg_text'];
  $out .= sprintf("%-40s\n",$statement_message);
 }
@@ -345,7 +345,7 @@ if($GLOBALS['show_aging_on_custom_statement']) {
  $out .= "\n" . $ageline . "\n\n";
 
 }
- if($GLOBALS['number_appointments_on_statement']!=0) { 
+ if($GLOBALS['number_appointments_on_statement']!=0) {
   $out .= "\n";
   $num_appts = $GLOBALS['number_appointments_on_statement'];
   $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
@@ -359,7 +359,7 @@ if($GLOBALS['show_aging_on_custom_statement']) {
    $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
    $next_appoint_time = substr($events[$j]['pc_startTime'],0,5);
    if(strlen(umname) != 0 ) {
-      $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname']; 
+      $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
    }
    else
    {
@@ -369,11 +369,11 @@ if($GLOBALS['show_aging_on_custom_statement']) {
       $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
       $out .= sprintf("%-s\n",$label_plsnote[$j]);
    }
-   $j++;      
+   $j++;
   }
  }
  $out .= "\014"; // this is a form feed
- 
+
  return $out;
 }
 ?>

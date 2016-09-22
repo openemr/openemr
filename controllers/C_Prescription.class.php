@@ -203,7 +203,7 @@ class C_Prescription extends Controller {
     // are set as e-prescriptions)
     if (!(empty($_POST['escribe_flag']))) {
       // add the e-prescribe flag
-      processAmcCall('e_prescribe_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id); 
+      processAmcCall('e_prescribe_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
     }
     else {
       // remove the e-prescribe flag

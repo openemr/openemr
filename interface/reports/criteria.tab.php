@@ -52,7 +52,7 @@ $ThisPageSearchCriteriaDataType=explode(',',$ThisPageSearchCriteriaDataTypeMaste
 $NumberOfRadioThisPageSearchCriteria=0;
 $NumberOfQueryDropDownThisPageSearchCriteria=0;
 $NumberOfIncludeThisPageSearchCriteria=0;
-for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaDataType);$ThisPageSearchCriteriaIndex++) 
+for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaDataType);$ThisPageSearchCriteriaIndex++)
  {
     if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' || $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
      {
@@ -91,7 +91,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                     <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria" 
                     class="text" style="width:140px;"  onChange="CriteriaVisible()" size='8' >
                     <?php 
-                      for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++) 
+                      for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++)
                       {
                         $optionValue = $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex];
                         echo "<option value='".attr($optionValue)."'";
@@ -104,7 +104,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                     <td width="150"  valign="top">
                     <!-- Below section comes as per the defined criteria arrays.Initially all are hidden.As per the click the corresponding items gets visible. -->
                         <?php 
-                          for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++) 
+                          for ($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPageSearchCriteriaKey);$ThisPageSearchCriteriaIndex++)
                           {
                             if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='date' ||
                             $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='datetime')
@@ -117,8 +117,8 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                                     <td class='text criteria_class2' ><?php echo text($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]); ?></td>
                                   </tr>
                                   <tr>
-                                    <td width="150" class='text criteria_class2' ><?php echo generate_select_list("date_master_criteria_$DateNamePart", 
-                                    "date_master_criteria", $_REQUEST["date_master_criteria_$DateNamePart"], 
+                                    <td width="150" class='text criteria_class2' ><?php echo generate_select_list("date_master_criteria_$DateNamePart",
+                                    "date_master_criteria", $_REQUEST["date_master_criteria_$DateNamePart"],
                                     "Date Criteria","","text criteria_class1",
                                     'calendar_function(this.value,"master_from_date_'.$DateNamePart.'","master_to_date_'.$DateNamePart.'");
                                     appendOptionDateCriteria("'.attr($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]).'","'.
@@ -240,11 +240,11 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                               if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text')
                                {
                                 $TextSeperator=' = ';
-                               } 
+                               }
                               if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like')
                                {
                                 $TextSeperator=' like ';
-                               } 
+                               }
                         ?>
                             <table width="150" border="0" cellspacing="0" cellpadding="0" 
                                 id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -265,7 +265,7 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                             </table>
                         <?php }?>                
                         <?php 
-                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' || 
+                            if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
                                 $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
                              {
                         ?>
@@ -278,14 +278,14 @@ for($ThisPageSearchCriteriaIndex=0;$ThisPageSearchCriteriaIndex<sizeof($ThisPage
                                   if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio')
                                    {
                                        $RadioSeperator=' = ';
-                                   } 
+                                   }
                                   if($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like')
                                    {
                                        $RadioSeperator=' like ';
-                                   } 
+                                   }
                                   for ($ThisPageSearchCriteriaRadioIndex=0;
                                           $ThisPageSearchCriteriaRadioIndex<sizeof($ThisPageSearchCriteriaDisplayRadio[$ThisPageSearchCriteriaIndex]);
-                                            $ThisPageSearchCriteriaRadioIndex++) 
+                                            $ThisPageSearchCriteriaRadioIndex++)
                                   {
                                   $RadioNamePart=str_replace('.','_',$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                                   if($_REQUEST["radio_".$RadioNamePart]==

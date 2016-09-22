@@ -32,7 +32,7 @@ class C_DocumentCategory extends Controller {
 
 	function list_action() {
 	 	//$this->tree->rebuild_tree(1,1);
-		
+
 		$icon         = 'folder.gif';
 		$expandedIcon = 'folder-expanded.gif';
 		$menu  = new HTML_TreeMenu();
@@ -52,7 +52,7 @@ class C_DocumentCategory extends Controller {
 		$this->assign("parent_name",$this->tree->get_node_name($parent_is));
 		$this->assign("parent_is",$parent_is);
 		$this->assign("add_node",true);
-		return $this->list_action();	
+		return $this->list_action();
 	}
 	
 	function add_node_action_process() {
@@ -65,7 +65,7 @@ class C_DocumentCategory extends Controller {
 	        $trans_message = xl('Sub-category','','',' ') . "'" . xl_document_category($name) . "'" . xl('successfully added to category,','',' ',' ') . "'" . $parent_name . "'";
 		$this->assign("message",$trans_message);
 		$this->_state = false;
-		return $this->list_action();	
+		return $this->list_action();
 	}
 	
 	function delete_node_action_process($id) {
@@ -116,7 +116,7 @@ class C_DocumentCategory extends Controller {
 	
 	function &_array_recurse($array) {
 		if (!is_array($array)) {
-			$array = array();	
+			$array = array();
 		}
  		$node = &$this->_last_node;
  		$icon = 'folder.gif';
@@ -152,7 +152,7 @@ class C_DocumentCategory extends Controller {
  				  	  $node->addItem(new HTML_TreeNode(array('text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node",true) . "parent_id=" . ($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
  					}
  				}
- 			}	
+ 			}
  		}
  		return $node;
  	}

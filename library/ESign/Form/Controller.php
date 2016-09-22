@@ -30,7 +30,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Log.php';
 
 class Form_Controller extends Abstract_Controller
-{    
+{
     /**
      * 
      */
@@ -45,8 +45,8 @@ class Form_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Form_Signable( $form->formId, $form->formDir, $form->encounterId );
         $form->showLock = false;
-        if ( $signable->isLocked() === false && 
-            $GLOBALS['lock_esign_individual'] && 
+        if ( $signable->isLocked() === false &&
+            $GLOBALS['lock_esign_individual'] &&
             $GLOBALS['esign_lock_toggle'] ) {
             $form->showLock = true;
         }
@@ -59,8 +59,8 @@ class Form_Controller extends Abstract_Controller
     {
         $formId = $this->getRequest()->getParam( 'formId', '' );
         $formDir = $this->getRequest()->getParam( 'formDir', '' );
-        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );  
-        $factory = new Form_Factory( $formId, $formDir, $encounterId );      
+        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
+        $factory = new Form_Factory( $formId, $formDir, $encounterId );
         $signable = $factory->createSignable(); // Contains features that make object signable
         $log = $factory->createLog(); // Make the log behavior
         $html = $log->getHtml( $signable );

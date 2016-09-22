@@ -62,7 +62,7 @@ class IndexController extends AbstractActionController
      * @return type
      */
     public function getApplicationTable()
-    {	
+    {
       if (!$this->applicationTable) {
         $sm = $this->getServiceLocator();
         $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
@@ -97,7 +97,7 @@ class IndexController extends AbstractActionController
       $limit        = 20;
       $result       = $this->getApplicationTable()->listAutoSuggest($post, $limit);
       /** disable layout **/
-      $index        = new ViewModel(); 
+      $index        = new ViewModel();
       $index->setTerminal(true);
       $index->setVariables(array(
                                         'result'        => $result,

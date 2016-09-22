@@ -33,10 +33,10 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder {
      */
     function build( $ruleCriteriaType, $value, $methodDetail ) {
         $method = $ruleCriteriaType->method;
-        $criteria = new RuleCriteriaAge( 
-                $method == 'age_max' ? 'max' : 'min', 
-                $value, 
-                TimeUnit::from($methodDetail) 
+        $criteria = new RuleCriteriaAge(
+                $method == 'age_max' ? 'max' : 'min',
+                $value,
+                TimeUnit::from($methodDetail)
         );
         
         $criteria->value = $value;

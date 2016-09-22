@@ -133,7 +133,7 @@ while ($row = sqlFetchArray($result[0])) {
 
 $row1 = sqlFetchArray($result[1]);
 	//////// Actor Information Systems
-	
+
 	$e_Actor = $ccr->createElement('Actor');
 	$e_Actors->appendChild($e_Actor);
 

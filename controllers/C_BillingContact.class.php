@@ -61,7 +61,7 @@ class C_InsuranceCompany extends Controller {
   		parent::populate_object($this->icompanies[0]);
 		//print_r($this->pharmacies[0]);
 		//echo $this->pharmacies[0]->toString(true);
-		
+
 		$this->icompanies[0]->persist();
 		
 		//echo "action processeed";

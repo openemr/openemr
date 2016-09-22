@@ -26,7 +26,7 @@ namespace ESign;
 require_once $GLOBALS['srcdir'].'/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
-{    
+{
     public function hash( $data )
     {
         $string = "";
@@ -37,7 +37,7 @@ class Utils_Verification implements VerificationIF
         }
         $hash = sha1( $string );
         return $hash;
-    }    
+    }
 
     protected function stringifyArray( array $arr )
     {
@@ -48,7 +48,7 @@ class Utils_Verification implements VerificationIF
                 $string .= $this->stringifyArray( $part );
             } else {
                 $string .= $part;
-            }  
+            }
         }
         return $string;
     }

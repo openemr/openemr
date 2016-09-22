@@ -78,7 +78,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
     $userInfo=privQuery($userSQL,array($targetUser));
     
     // Verify the active user's password
-    $changingOwnPassword = $activeUser==$targetUser;  
+    $changingOwnPassword = $activeUser==$targetUser;
     // True if this is the current user changing their own password
     if($changingOwnPassword)
     {
@@ -92,7 +92,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         if(($hash_current!=$userInfo[COL_PWD]))
         {
             $errMsg=xl("Incorrect password!");
-            return false;            
+            return false;
         }
     }
     else {
@@ -116,7 +116,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         }
     }
     // End active user check
-    
+
     
     //Test password validity
     if(strlen($newPwd)==0)
@@ -129,7 +129,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         return false;
     }
     // End password validty checks
-    
+
     if($userInfo===false)
     {
         // No userInfo means either a new user, or an existing user who has not been migrated to blowfish yet
@@ -156,13 +156,13 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
                     return false;
                 }
                 initializePassword($unm[COL_UNM],$targetUser,$newPwd);
-                purgeCompatabilityPassword($unm[COL_UNM],$targetUser);            
+                purgeCompatabilityPassword($unm[COL_UNM],$targetUser);
                 
             }
     }
     else
     { // We are trying to update the password of an existing user
-        
+
         if($create)
         {
             $errMsg=xl("Trying to create user with existing username!");
@@ -176,8 +176,8 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
             $hash_current = oemr_password_hash($newPwd,$userInfo[COL_SALT]);
             $hash_history1 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H1]);
             $hash_history2 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H2]);
-            if(($hash_current==$userInfo[COL_PWD]) 
-                ||($hash_history1==$userInfo[COL_PWD_H1]) 
+            if(($hash_current==$userInfo[COL_PWD])
+                ||($hash_history1==$userInfo[COL_PWD_H1])
                 || ($hash_history2==$userInfo[COL_PWD_H2]))
             {
                 $errMsg=xl("Reuse of three previous passwords not allowed!");
@@ -191,7 +191,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         $updateParams=array();
         $updateSQL= "UPDATE ".TBL_USERS_SECURE;
         $updateSQL.=" SET ".COL_PWD."=?,".COL_SALT."=?"; array_push($updateParams,$newHash); array_push($updateParams,$newSalt);
-        if($forbid_reuse){ 
+        if($forbid_reuse){
             $updateSQL.=",".COL_PWD_H1."=?".",".COL_SALT_H1."=?"; array_push($updateParams,$userInfo[COL_PWD]); array_push($updateParams,$userInfo[COL_SALT]);
             $updateSQL.=",".COL_PWD_H2."=?".",".COL_SALT_H2."=?"; array_push($updateParams,$userInfo[COL_PWD_H1]); array_push($updateParams,$userInfo[COL_SALT_H1]);
 
@@ -210,7 +210,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
             $exp_days=$GLOBALS['password_expiration_days'];
             $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
             privStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$targetUser));
-    }    
+    }
     return true;
 }
 

@@ -91,7 +91,7 @@ abstract class AbstractCqmReport implements RsReportIF
                     $tmpNumerators = array();
                     $tmpNumerators[]= $numerators;
                     $numerators = $tmpNumerators;
-                } 
+                }
                 $exclusion = $populationCriteria->createExclusion();
                 if ( !$exclusion instanceof CqmFilterIF ) {
                     throw new Exception( "Exclusion must be an instance of CqmFilterIF" );
@@ -111,9 +111,9 @@ abstract class AbstractCqmReport implements RsReportIF
                 $patExclArr = array();
                 $patExceptArr = array();
                 $numeratorPatientPopulations = $this->initNumeratorPopulations( $numerators );
-                foreach ( $this->_cqmPopulation as $patient ) 
-                { 
-                    if ( !$initialPatientPopulationFilter->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) 
+                foreach ( $this->_cqmPopulation as $patient )
+                {
+                    if ( !$initialPatientPopulationFilter->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
                     {
                         continue;
                     }
@@ -125,8 +125,8 @@ abstract class AbstractCqmReport implements RsReportIF
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 3, $patient->id);
                     }
                     
-                    if ( !$denominator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) 
-                    { 
+                    if ( !$denominator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
+                    {
                         continue;
                     }
                             
@@ -196,7 +196,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
     private function testNumerator( $patient, $numerator, &$numeratorPatientPopulations )
     {
-        if ( $numerator instanceof CqmFilterIF  ) 
+        if ( $numerator instanceof CqmFilterIF  )
         {
             if ( $numerator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
 
@@ -204,19 +204,19 @@ abstract class AbstractCqmReport implements RsReportIF
 
                 // If itemization is turned on, then record the "passed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle()); 
+                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle());
                 }
  
             }
             else {
                 // If itemization is turned on, then record the "failed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());   
+                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());
                 }
 
             }
-        } 
-        else 
+        }
+        else
         {
             throw new Exception( "Numerator must be an instance of CqmFilterIF" );
         }

@@ -34,7 +34,7 @@ class MapperController extends AbstractActionController
     }
     
     public function indexAction()
-    {   
+    {
         $layout     = $this->layout();
         $layout->setTemplate('carecoordination/layout/mapper');
         
@@ -53,7 +53,7 @@ class MapperController extends AbstractActionController
             'database_tables'           => $table_list,
 	    'saved'			=> $ccda_saved,
             'folders'                   => $folders,
-	));        
+	));
 	return $index;
     }
     
@@ -67,7 +67,7 @@ class MapperController extends AbstractActionController
         $components = explode('|***|',$tosave);
         foreach($components as $key => $value){
             $sections 		= explode('|**|',$value);
-            $component_name 	= array_shift($sections);		
+            $component_name 	= array_shift($sections);
             
             foreach($sections as $key_1 => $value_1){
                 $forms 		= explode('|*|',$value_1);
@@ -89,7 +89,7 @@ class MapperController extends AbstractActionController
                         if(strpos($value_2, '|')){
                             $temp_1 	= explode('|',$value_2);
                             $form_table = $form_dir = $temp_1[0];
-                            $sub_id 	= $temp_1[1];				
+                            $sub_id 	= $temp_1[1];
                         }
                         else{
                             $form_dir = $value_2;
@@ -101,7 +101,7 @@ class MapperController extends AbstractActionController
                         if(strpos($value_2, '|')){
                             $temp_1 	= explode('|',$value_2);
                             $form_table = $form_dir = $temp_1[0];
-                            $sub_id 	= $temp_1[1];				
+                            $sub_id 	= $temp_1[1];
                         }
                         else{
                             $form_dir = $value_2;
@@ -130,7 +130,7 @@ class MapperController extends AbstractActionController
     * @return type
     */
     public function getMapperTable()
-    {	
+    {
         if (!$this->mapperTable) {
             $sm = $this->getServiceLocator();
             $this->mapperTable = $sm->get('Carecoordination\Model\MapperTable');

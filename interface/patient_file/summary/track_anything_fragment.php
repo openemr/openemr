@@ -38,16 +38,16 @@ require_once("../../globals.php");
 <?php
 //retrieve tracks.
 $spell = "SELECT form_name, MAX(form_track_anything_results.track_timestamp) as maxdate, form_id " .
-			"FROM forms " . 
-			"JOIN form_track_anything_results ON forms.form_id = form_track_anything_results.track_anything_id " . 
-			"WHERE forms.pid = ? " . 
+			"FROM forms " .
+			"JOIN form_track_anything_results ON forms.form_id = form_track_anything_results.track_anything_id " .
+			"WHERE forms.pid = ? " .
 			"AND formdir = ? " .
 			"GROUP BY form_name " .
 			"ORDER BY maxdate DESC ";
 $result = sqlQuery($spell, array($pid, 'track_anything'));
 if ( !$result ) //If there are no disclosures recorded
 { ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No tracks have been documented."),ENT_NOQUOTES); 
+  <span class='text'> <?php echo htmlspecialchars(xl("No tracks have been documented."),ENT_NOQUOTES);
 ?>
   </span> 
 <?php 

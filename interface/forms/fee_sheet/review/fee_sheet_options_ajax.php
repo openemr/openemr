@@ -27,8 +27,8 @@ require_once("fee_sheet_options_queries.php");
 
 if(!acl_check('acct', 'bill'))
 {
-    header("HTTP/1.0 403 Forbidden");    
-    echo "Not authorized for billing";   
+    header("HTTP/1.0 403 Forbidden");
+    echo "Not authorized for billing";
     return false;
 }
 if (isset($_REQUEST['pricelevel']))

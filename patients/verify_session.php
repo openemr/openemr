@@ -10,7 +10,7 @@
  // of the License, or (at your option) any later version.
  // 
  // 
- 
+
     // All of the common intialization steps for the get_* patient portal functions are now in this single include.
 
     //SANITIZE ALL ESCAPES
@@ -23,7 +23,7 @@
     session_start();
 
     //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=".$_SESSION['site_id'];	
+    $landingpage = "index.php?site=".$_SESSION['site_id'];
     //
 
     // kick out if patient not authenticated

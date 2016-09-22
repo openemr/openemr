@@ -8,13 +8,13 @@ if ($_POST['check'] || $_POST['synchronize']){
   
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
   if (!$disable_utf8_flag) {
-    $case_sensitive_collation = "COLLATE utf8_bin";   
+    $case_sensitive_collation = "COLLATE utf8_bin";
   }
   else {
     $case_sensitive_collation = "COLLATE latin_bin";
   }
   $difference = 0; //flag
-    
+
   //  
   // collect and display(synchronize) new custom languages
   //
@@ -33,7 +33,7 @@ if ($_POST['check'] || $_POST['synchronize']){
   $custom_languages = array_diff(array_unique($row_custom),array_unique($row_main));
   foreach ($custom_languages as $var) {
     if ($var=='') continue;
-    echo htmlspecialchars(xl('Following is a new custom language:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR>";   
+    echo htmlspecialchars(xl('Following is a new custom language:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR>";
     if (!$checkOnly) {
       // add the new language (first collect the language code)
       $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description=? ".$case_sensitive_collation." LIMIT 1";
@@ -140,7 +140,7 @@ if ($_POST['check'] || $_POST['synchronize']){
 	  " ".htmlspecialchars($row['definition'],ENT_NOQUOTES)."<BR><BR>";
       }
       $difference = 1;
-    } 
+    }
   }
   if (!$difference) {
     echo htmlspecialchars(xl('The translation tables are synchronized.'),ENT_NOQUOTES);

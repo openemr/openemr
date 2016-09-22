@@ -544,7 +544,7 @@ function validate(f) {
             echo oeFormatShortDate(substr($enrow['date'], 0, 10));
             echo ' (' . htmlspecialchars(xl('Current')) . ')';
         }
-        echo "&nbsp;</td>\n";        
+        echo "&nbsp;</td>\n";
         $hres = sqlStatement("SELECT f.form_id, fe.date " .
           "FROM forms AS f, form_encounter AS fe WHERE " .
           "f.pid = ? AND f.formdir = ? AND " .

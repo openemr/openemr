@@ -22,7 +22,7 @@
  */
 
 	// Functions for QRDA Category I (or) III 2014 XML format.
-	
+
 	//function for Stratification data getting for NQF# 0024 Rule
 	function getQRDAStratumInfo($patArr, $begin_date){
 		$startumArr = array();
@@ -100,11 +100,11 @@
 			while($patRow = sqlFetchArray($patRes)){
 				//Gender Collection
 				if($patRow['sex'] == "Male"){
-					$genderArr['Male']++; 
+					$genderArr['Male']++;
 				}else if($patRow['sex'] == "Female"){
-					$genderArr['Female']++; 
+					$genderArr['Female']++;
 				}else{
-					$genderArr['Unknown']++; 
+					$genderArr['Unknown']++;
 				}
 				
 				//Race Section

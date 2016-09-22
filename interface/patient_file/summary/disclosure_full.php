@@ -172,7 +172,7 @@ if ($offset > ($N-1) && $n!=0) {
 <?php 
 
 if ($n >= $N && $noOfRecordsLeft!=$N) {
-  echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active. 
+  echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
     "&offset=" . ($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
     xlt('Next') . "]</a>\n";
 }

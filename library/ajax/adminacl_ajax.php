@@ -59,13 +59,13 @@ if ($_POST["control"] == "membership") {
   echo user_group_listings_xml($_POST["name"], $error);
  }
     
- if ($_POST["action"] == "add") {     
-  if ($_POST["selection"][0] == "null") { 
+ if ($_POST["action"] == "add") {
+  if ($_POST["selection"][0] == "null") {
    //no selection, return soft error, and just return membership data
    array_push($error, (xl('No group was selected') . "!"));
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
-  }     
+  }
   //add the group, then return updated membership data
   add_user_aros($_POST["name"], $_POST["selection"]);
   echo user_group_listings_xml($_POST["name"], $error);
@@ -93,11 +93,11 @@ if ($_POST["control"] == "membership") {
    remove_user_aros($_POST["name"], $_POST["selection"]);
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
-  }   
+  }
   //remove the group(s), then return updated membership data
   remove_user_aros($_POST["name"], $_POST["selection"]);
   echo user_group_listings_xml($_POST["name"], $error);
- }   
+ }
 }
 
 
@@ -127,7 +127,7 @@ if ($_POST["control"] == "acl") {
    $form_error = true;
    array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
   }
-  else if (!ctype_alpha($_POST["identifier"])) {   
+  else if (!ctype_alpha($_POST["identifier"])) {
    $form_error = true;
    array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
   }
@@ -148,7 +148,7 @@ if ($_POST["control"] == "acl") {
    array_push($error, ("description_" . xl('Please only use alphabetic characters') . "!"));
   }
   //process if data is valid
-  if (!$form_error) {   
+  if (!$form_error) {
    acl_add($_POST["title"], $_POST["identifier"], $_POST["return_value"], $_POST["description"]);
    echo "<?xml version=\"1.0\"?>\n" .
     "<response>\n" .
@@ -195,7 +195,7 @@ if ($_POST["control"] == "acl") {
 if ($_POST["control"] == "aco") {
  if ($_POST["action"] == "list") {
   //send acl data
-  echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error); 
+  echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
  }
  
  if ($_POST["action"] == "add") {
@@ -238,7 +238,7 @@ if ($_POST["control"] == "aco") {
 //
 function username_listings_xml($err) {
  $message = "<?xml version=\"1.0\"?>\n" .
-  "<response>\n";  
+  "<response>\n";
  $res = sqlStatement("select * from users where username != '' and active = 1 order by username");
  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
@@ -271,7 +271,7 @@ function user_group_listings_xml($username, $err) {
  $list_acl_groups = acl_get_group_title_list();
  $username_acl_groups = acl_get_group_titles($username);
   //note acl_get_group_titles() returns a 0 if user in no groups
-    
+
  $message = "<?xml version=\"1.0\"?>\n" .
   "<response>\n" .
   "\t<inactive>\n";
@@ -301,7 +301,7 @@ function user_group_listings_xml($username, $err) {
  }
  $message .= "\t</active>\n";
  if (isset($err)) {
-  foreach ($err as $value) {   
+  foreach ($err as $value) {
    $message .= "\t<error>" . $value . "</error>\n";
   }
  }
@@ -313,13 +313,13 @@ function user_group_listings_xml($username, $err) {
 // Returns acl listings(including return value) via xml message.
 //   $err = error strings (array)
 //
-function acl_listings_xml($err) {    
+function acl_listings_xml($err) {
  global $phpgacl_location;
  include_once("$phpgacl_location/gacl_api.class.php");
  $gacl = new gacl_api();
  
  $message = "<?xml version=\"1.0\"?>\n" .
-  "<response>\n"; 
+  "<response>\n";
  foreach (acl_get_group_title_list() as $value) {
   $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $value, FALSE, FALSE, FALSE, FALSE);
   foreach ($acl_id as $value2) {
@@ -375,7 +375,7 @@ function aco_listings_xml($group, $return_value, $err) {
   "<response>\n" .
   "\t<inactive>\n";
  foreach ($list_aco_objects as $key => $value) {
-  $counter = 0;   
+  $counter = 0;
   foreach($list_aco_objects[$key] as $value2) {
    if (!array_key_exists($key,$active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
        
@@ -398,7 +398,7 @@ function aco_listings_xml($group, $return_value, $err) {
     $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
        
     $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
-    $message .= "\t\t\t</aco>\n";   
+    $message .= "\t\t\t</aco>\n";
    }
   }
   if ($counter != 0) {
@@ -406,7 +406,7 @@ function aco_listings_xml($group, $return_value, $err) {
   }
  }
  $message .= "\t</inactive>\n" .
-  "\t<active>\n";  
+  "\t<active>\n";
  foreach ($active_aco_objects as $key => $value) {
   $aco_section_data = $gacl->get_section_data($key, 'ACO');
   $aco_section_title = $aco_section_data[3];
@@ -428,8 +428,8 @@ function aco_listings_xml($group, $return_value, $err) {
    $message .= "\t\t\t</aco>\n";
   }
   $message .= "\t\t</section>\n";
- }    
- $message .= "\t</active>\n";    
+ }
+ $message .= "\t</active>\n";
  if (isset($err)) {
   foreach ($err as $value) {
    $message .= "\t<error>" . $value . "</error>\n";
@@ -461,7 +461,7 @@ function return_values_xml($err) {
      // Modified 6-2009 by BM - Translate return value	
      $message .= "\t<return>\n";
      $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
-     $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n"; 
+     $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n";
      $message .= "\t</return>\n";
 	
      array_push($returns, $ret);
@@ -489,9 +489,9 @@ function error_xml($err) {
    $message .= "\t<error>" . $value . "</error>\n";
   }
  }
- else {  
+ else {
  $message .= "\t<error>" . $err . "</error>\n";
- }  
+ }
  $message .= "</response>\n";
  return $message;
 }

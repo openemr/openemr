@@ -26,7 +26,7 @@ use Zend\Db\Adapter\AdapterInterface;
 use \Application\Model\ApplicationTable;
 
 class ModuleconfigForm extends Form
-{	
+{
     public function __construct(AdapterInterface $dbAdapter)
     {
 		$this->application 	= new ApplicationTable;
@@ -151,7 +151,7 @@ class ModuleconfigForm extends Form
 					'label' 	=> \Application\Listener\Listener::z_xlt('Custodian'),
 					'value_options' => $this->getFacilities(),
 				),
-			));	
+			));
 		
 		/*
 		* Legal Authenticator settings

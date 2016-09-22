@@ -31,7 +31,7 @@ class FormProsthesis extends ORDataObject {
 	var $involvement_right;
 	var $involvement_bilateral;
 	var $location;
-	var $location_array = array("office" => "Office", "home" => "Home", "skilled_nurse_fac" => "Skilled Nurs. Fac.", "acute_hospital" => "Acute Hosp.", 
+	var $location_array = array("office" => "Office", "home" => "Home", "skilled_nurse_fac" => "Skilled Nurs. Fac.", "acute_hospital" => "Acute Hosp.",
 						"nursing_home" => "Nursing Home", "rehab_hospital" => "Rehab. Hosp.", "other" => "Other");
 	var $diagnosis;
 	var $hx;
@@ -43,10 +43,10 @@ class FormProsthesis extends ORDataObject {
 	var $foam_impressions;
 	var $shoe_size;
 	var $calf;
-	var $ankle; 
+	var $ankle;
 	var $purpose;
-	var $purpose_array  = array("pain_reduction" => "Pain Reduction", "offload_involved_area" => "Offload invloved Area", "immobilize" => "Immobilize", 
-						"limit_motion" => "Limit Motion", "accomodation" => "Accomodation", "reduce_edema" => "Reduce Edema", 
+	var $purpose_array  = array("pain_reduction" => "Pain Reduction", "offload_involved_area" => "Offload invloved Area", "immobilize" => "Immobilize",
+						"limit_motion" => "Limit Motion", "accomodation" => "Accomodation", "reduce_edema" => "Reduce Edema",
 						"facilitate_healing" => "Facilitate Healing", "other" => "Other");
 	var $notes;
 	var $goals_discussed;
@@ -61,7 +61,7 @@ class FormProsthesis extends ORDataObject {
 	var $receiveded_product;
 	var $received_product_date;
 	var $given_instructions;
-	var $patient_understands;	
+	var $patient_understands;
 	
 	var $cpt_array = array( "L0500" => "L0500 LS corset", 			"L3010" => "L3010 Molded FO", 			"L3010" => "L3020 Molded FO + Met pad",
 							"L3221" => "L3221 Men's depth shoes", 	"L3216" => "L3216 Women's depth shoes", "L3332" => "L3332 In-shoe .5\" heel lift",
@@ -78,7 +78,7 @@ class FormProsthesis extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		$this->_table = "form_prosthesis";
 		$this->date = date("Y-m-d H:i:s");
@@ -130,7 +130,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_therapist() {
-		return $this->therapist;	
+		return $this->therapist;
 	}
 	
 	function set_involvement_left($tf) {
@@ -138,7 +138,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_involvement_left() {
-		return $this->involvement_left;	
+		return $this->involvement_left;
 	}
 	
 	function set_involvement_right($tf) {
@@ -146,7 +146,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_involvement_right() {
-		return $this->involvement_right;	
+		return $this->involvement_right;
 	}
 	
 	function set_involvement_bilateral($tf) {
@@ -154,7 +154,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_involvement_bilateral() {
-		return $this->involvement_bilateral;	
+		return $this->involvement_bilateral;
 	}
 	
 	function set_location($string) {
@@ -162,21 +162,21 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_location() {
-		return $this->location;	
+		return $this->location;
 	}
 	function set_diagnosis($string) {
 		$this->diagnosis = $string;
 	}
 	
 	function get_diagnosis() {
-		return $this->diagnosis;	
+		return $this->diagnosis;
 	}
 	function set_hx($string) {
 		$this->hx = $string;
 	}
 	
 	function get_hx() {
-		return $this->hx;	
+		return $this->hx;
 	}
 	
 	function set_worn_le_past_five($tf) {
@@ -184,7 +184,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_worn_le_past_five() {
-		return $this->worn_le_past_five;	
+		return $this->worn_le_past_five;
 	}
 	
 	function set_model($string) {
@@ -192,7 +192,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_model() {
-		return $this->model;	
+		return $this->model;
 	}
 	
 	function set_new($tf) {
@@ -200,7 +200,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_new() {
-		return $this->new;	
+		return $this->new;
 	}
 	
 	function set_size($string) {
@@ -208,7 +208,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_size() {
-		return $this->size;	
+		return $this->size;
 	}
 	
 	function set_replacement($tf) {
@@ -216,7 +216,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_replacement() {
-		return $this->replacement;	
+		return $this->replacement;
 	}
 	
 	function set_foam_impressions($tf) {
@@ -224,7 +224,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_foam_impressions() {
-		return $this->foam_impressions;	
+		return $this->foam_impressions;
 	}
 	
 	function set_shoe_size($string) {
@@ -232,21 +232,21 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_shoe_size() {
-		return $this->shoe_size;	
+		return $this->shoe_size;
 	}
 	function set_calf($string) {
 		$this->calf = $string;
 	}
 	
 	function get_calf() {
-		return $this->calf;	
+		return $this->calf;
 	}
 	function set_ankle($string) {
 		$this->ankle = $string;
 	}
 	
 	function get_ankle() {
-		return $this->ankle;	
+		return $this->ankle;
 	}
 	
 	function set_purpose($string) {
@@ -254,14 +254,14 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_purpose() {
-		return $this->purpose;	
+		return $this->purpose;
 	}
 	function set_purpose_other($string) {
 		$this->purpose_other = $string;
 	}
 	
 	function get_purpose_other() {
-		return $this->purpose_other;	
+		return $this->purpose_other;
 	}
 	
 	function set_notes($string) {
@@ -269,14 +269,14 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_notes() {
-		return $this->notes;	
+		return $this->notes;
 	}
 	function set_goals_discussed($tf) {
 		$this->goals_discussed = $tf;
 	}
 	
 	function get_goals_discussed() {
-		return $this->goals_discussed;	
+		return $this->goals_discussed;
 	}
 	
 	function set_use_reviewed($tf) {
@@ -284,7 +284,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_use_reviewed() {
-		return $this->use_reviewed;	
+		return $this->use_reviewed;
 	}
 	
 	function set_wear_reviewed($tf) {
@@ -292,7 +292,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_wear_reviewed() {
-		return $this->wear_reviewed;	
+		return $this->wear_reviewed;
 	}
 		
 	function get_date() {
@@ -304,28 +304,28 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_worn_years() {
-		return $this->worn_years;	
+		return $this->worn_years;
 	}
 	function set_age_months($string) {
 		$this->age_months = $string;
 	}
 	
 	function get_age_months() {
-		return $this->age_months;	
+		return $this->age_months;
 	}
 	function set_age_years($string) {
 		$this->age_years = $string;
 	}
 	
 	function get_age_years() {
-		return $this->age_years;	
+		return $this->age_years;
 	}
 	function set_wear_hours($string) {
 		$this->wear_hours = $string;
 	}
 	
 	function get_wear_hours() {
-		return $this->wear_hours;	
+		return $this->wear_hours;
 	}
 	
 	function set_plan_to_order($tf) {
@@ -333,7 +333,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_plan_to_order() {
-		return $this->plan_to_order;	
+		return $this->plan_to_order;
 	}
 	
 	function set_plan_to_order_date($string) {
@@ -341,7 +341,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_plan_to_order_date() {
-		return $this->plan_to_order_date;	
+		return $this->plan_to_order_date;
 	}
 	
 	function set_received_product($tf) {
@@ -349,14 +349,14 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_received_product() {
-		return $this->received_product;	
+		return $this->received_product;
 	}
 	function set_received_product_date($string) {
 		$this->received_product_date = $string;
 	}
 	
 	function get_received_product_date() {
-		return $this->received_product_date;	
+		return $this->received_product_date;
 	}
 	
 	function set_given_instructions($tf) {
@@ -364,7 +364,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_given_instructions() {
-		return $this->given_instructions;	
+		return $this->given_instructions;
 	}
 	
 	function set_patient_understands($tf) {
@@ -372,7 +372,7 @@ class FormProsthesis extends ORDataObject {
 	}
 	
 	function get_patient_understands() {
-		return $this->patient_understands;	
+		return $this->patient_understands;
 	}
 	
 }	// end of Form

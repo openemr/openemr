@@ -34,7 +34,7 @@ class AMC_302m_STG2 extends AbstractAmcReport
         return "patients";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_302m_STG2_Denominator();
     }

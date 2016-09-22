@@ -52,7 +52,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the ar_activity table
-  
+
   function loadPayerInfo(&$billrow) {
     global $sl_err;
     $encounter_date = substr($this->encounter['date'], 0, 10);
@@ -1089,7 +1089,7 @@ class Claim {
       // If no box qualifier specified use "454" indicating Initial Treatment
       return empty($this->billing_options['box_15_date_qual']) ? '454' :
               $this->billing_options['box_15_date_qual'];
-  }  
+  }
   // Returns an array of unique diagnoses.  Periods are stripped by default  
   // Option to keep periods is to support HCFA 1500 02/12 version
   function diagArray($strip_periods=true) {
@@ -1109,8 +1109,8 @@ class Claim {
             $this->diagtype=$code_data[0];
             
             //code is in the second part of the $code_data array. 
-            if($strip_periods==true) 
-                { 
+            if($strip_periods==true)
+                {
                     $diag = str_replace('.', '', $code_data[1]);
                     
                 }
@@ -1216,7 +1216,7 @@ class Claim {
       if($npi==='') return false;
       if(strlen($npi)!=10) return false;
       if(!preg_match("/[0-9]*/",$npi)) return false;
-      return true;      
+      return true;
       
   }
   function providerNPIValid($prockey=-1)

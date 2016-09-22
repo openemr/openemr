@@ -44,6 +44,6 @@ return array(
                \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
                return $adapter;
          	}
-        ),     
+        ),
     ),
 );

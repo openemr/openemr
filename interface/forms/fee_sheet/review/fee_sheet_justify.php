@@ -27,8 +27,8 @@ require_once("fee_sheet_queries.php");
 
 if(!acl_check('acct', 'bill'))
 {
-    header("HTTP/1.0 403 Forbidden");    
-    echo "Not authorized for billing";   
+    header("HTTP/1.0 403 Forbidden");
+    echo "Not authorized for billing";
     return false;
 }
 
@@ -53,7 +53,7 @@ if(isset($_REQUEST['billing_id']))
 if($task=='retrieve')
 {
     $retval=array();
-    $patient=issue_diagnoses($req_pid,$req_encounter);      
+    $patient=issue_diagnoses($req_pid,$req_encounter);
     $common=common_diagnoses();
     $retval['patient']=$patient;
     $retval['common']=$common;
@@ -94,7 +94,7 @@ if($task=='update')
     create_diags($req_pid,$req_encounter,$diags);
     if(!$skip_issues)
     {
-        update_issues($req_pid,$req_encounter,$diags);          
+        update_issues($req_pid,$req_encounter,$diags);
     }
     update_justify($req_pid,$req_encounter,$diags,$billing_id);
     $database->CompleteTrans();

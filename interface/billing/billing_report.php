@@ -29,7 +29,7 @@ $daysheet = false;
 $daysheet_total = false;
 $provider_run = false;
 
-if ($GLOBALS['use_custom_daysheet'] != 0) { 
+if ($GLOBALS['use_custom_daysheet'] != 0) {
   $daysheet = true;
   if ($GLOBALS['daysheet_provider_totals'] == 1) {
    $daysheet_total = true;
@@ -765,7 +765,7 @@ if(is_array($ret))
 
       $ptname = $name['fname'] . " " . $name['lname'];
       $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
-      $billing_note = $name['billing_note'];       
+      $billing_note = $name['billing_note'];
             //  Add Encounter Date to display with "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>". text($ptname) .
         "</font></span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" .
@@ -796,16 +796,16 @@ if(is_array($ret))
              }
          ?>
         </script>
-        <?php        
+        <?php 
                 
             //  Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
         "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . 
+        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " .
         xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
-                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . 
+                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] .
                  "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" .
         xlt('To Enctr') . " " . text(oeFormatShortDate($raw_encounter_date)) . "]</a>";
         
@@ -814,13 +814,13 @@ if(is_array($ret))
         "href=\"javascript:window.topatient(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . 
+        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " .
         xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
-                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . 
+                 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] .
                  "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" . xlt('To Dems') . "]</a>";
         $divnos=$divnos+1;
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a  onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos' href=\"JavaScript:void(0);".
-        "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars( xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';		
+        "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars( xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';
       if($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3){
       $lhtml .= '<span style="margin-left: 20px; font-weight bold; color: red">'.text($billing_note).'</span>';
       }

@@ -40,29 +40,29 @@ class Immunizations
     public static function checkMmr( CqmPatient $patient, $beginDate, $endDate )
     {
         $dobPlus1Year = date( 'Y-m-d 00:00:00', strtotime( '+1 year', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
-        $dateMinus2Years = date( 'Y-m-d 00:00:00', strtotime( '-2 year', strtotime( $endDate ) ) ); 
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
+        $dateMinus2Years = date( 'Y-m-d 00:00:00', strtotime( '-2 year', strtotime( $endDate ) ) );
         if ( Helper::checkMed( Medication::MMR, $patient, $dobPlus1Year, $dobPlus2Years ) ||
-             ( Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+             ( Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MUMPS_VAC, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MEASLES_VAC, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::RUBELLA_VAC, $patient, $patient->dob, $endDate ) ) ||
              ( Helper::checkDiagResolved( Diagnosis::MEASLES, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MUMPS_VAC, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::RUBELLA_VAC, $patient, $patient->dob, $endDate ) ) ||
              ( Helper::checkDiagResolved( Diagnosis::MUMPS, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MEASLES_VAC, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::RUBELLA_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::RUBELLA_VAC, $patient, $patient->dob, $endDate ) ) ||
              ( Helper::checkDiagResolved( Diagnosis::RUBELLA, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::MUMPS_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MUMPS_VAC, $patient, $patient->dob, $endDate ) &&
-               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) && 
+               Helper::checkMed( Medication::MEASLES_VAC, $patient, $patient->dob, $dobPlus2Years ) &&
                !Helper::checkAllergy( Allergy::MEASLES_VAC, $patient, $patient->dob, $endDate ) ) &&
               !( Helper::checkDiagActive( Diagnosis::CANCER_LYMPH_HIST, $patient, $beginDate, $endDate ) ||
                  Helper::checkDiagInactive( Diagnosis::CANCER_LYMPH_HIST, $patient, $beginDate, $endDate ) ||
@@ -81,7 +81,7 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::HIB, $patient, $dobPlus42Days, $dobPlus2Years, $options ) &&
             !Helper::checkAllergy( Allergy::HIB, $patient, $patient->dob, $endDate ) ) {
             return true;
@@ -92,7 +92,7 @@ class Immunizations
     public static function checkHepB( CqmPatient $patient, $beginDate, $endDate )
     {
         $options = array( Medication::OPTION_COUNT => 3 );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::HEP_B_VAC, $patient, $patient->dob, $dobPlus2Years, $options ) ||
             Helper::checkDiagResolved( Diagnosis::HEP_B, $patient, $patient->dob, $endDate ) &&
             !( Helper::checkAllergy( Allergy::HEP_B_VAC, $patient, $patient->dob, $endDate ) ||
@@ -106,7 +106,7 @@ class Immunizations
     public static function checkVzv( CqmPatient $patient, $beginDate, $endDate )
     {
         $options = array( Medication::OPTION_COUNT => 1 );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::VZV, $patient, $patient->dob, $dobPlus2Years, $options ) ||
              ( Helper::checkDiagResolved( Diagnosis::VZV, $patient, $patient->dob, $endDate ) &&
                !( Helper::checkDiagActive( Diagnosis::CANCER_LYMPH_HIST, $patient, $beginDate, $endDate ) ||
@@ -126,7 +126,7 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 4 );
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::PNEUMOCOCCAL_VAC, $patient, $dobPlus42Days, $dobPlus2Years, $options ) &&
             !Helper::checkAllergy( Allergy::PNEUM_VAC, $patient ) ) {
             return true;
@@ -139,7 +139,7 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::HEP_A_VAC, $patient, $dobPlus42Days, $dobPlus2Years, $options ) ||
             ( Helper::checkDiagResolved( Diagnosis::HEP_A, $patient, $patient->dob, $endDate ) &&
               !Helper::checkAllergy( Allergy::HEP_A_VAC, $patient, $patient->dob, $endDate ) ) ) {
@@ -153,7 +153,7 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 4 );
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::ROTAVIRUS_VAC, $patient, $dobPlus42Days, $dobPlus2Years, $options ) &&
             !Helper::checkAllergy( Allergy::ROTAVIRUS_VAC, $patient, $patient->dob, $endDate ) ) {
             return true;
@@ -165,9 +165,9 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus180Days = date( 'Y-m-d 00:00:00', strtotime( '+180 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::INFLUENZA_VAC, $patient, $dobPlus180Days, $dobPlus2Years, $options ) &&
-            !( Helper::checkAllergy( Allergy::INFLUENZA_VAC, $patient, $patient->dob, $endDate ) || 
+            !( Helper::checkAllergy( Allergy::INFLUENZA_VAC, $patient, $patient->dob, $endDate ) ||
                Helper::checkDiagActive( Diagnosis::CANCER_LYMPH_HIST, $patient, $patient->dob, $endDate ) ||
                Helper::checkDiagInactive( Diagnosis::CANCER_LYMPH_HIST, $patient, $patient->dob, $endDate ) ||
                Helper::checkDiagActive( Diagnosis::ASYMPTOMATIC_HIV, $patient, $patient->dob, $endDate ) ||
@@ -184,7 +184,7 @@ class Immunizations
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
-        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );
         if ( Helper::checkMed( Medication::ROTAVIRUS_VAC, $patient, $dobPlus42Days, $dobPlus2Years, $options ) &&
             !Helper::checkAllergy( Allergy::ROTAVIRUS_VAC, $patient, $patient->dob, $endDate ) ) {
             return true;

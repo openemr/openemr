@@ -53,7 +53,7 @@ class Module
                 },
             ),
         );
-    }   
+    }
 
     public function getConfig()
     {
@@ -70,7 +70,7 @@ class Module
             $controller->getEvent()->getViewModel()->setVariables(array(
                 'current_controller' => $route->getParam('controller'),
                 'current_action' => $route->getParam('action'),
-            )); 
+            ));
         }, 100);
     }
 }

@@ -13,7 +13,7 @@ class NFQ_0059_Numerator implements CqmFilterIF
         return "Numerator";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate ) 
+    public function test( CqmPatient $patient, $beginDate, $endDate )
     {
         $range = new Range( 8, Range::POS_INF );
         $options = array( LabResult::OPTION_RANGE => $range );

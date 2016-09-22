@@ -147,7 +147,7 @@ function createCCR($action,$raw="no",$requested_by=""){
 			echo $ccr->saveXml();
 			echo "</textarea>";
 			return;
-                }	
+                }
 
                 else if ($raw == "hybrid") {
 			// send a file that contains a hybrid file of the raw xml and the xsl stylesheet
@@ -164,7 +164,7 @@ function createCCR($action,$raw="no",$requested_by=""){
 			$zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
 			if (file_exists($zipName)) {
 				unlink($zipName);
-			}	
+			}
 			$zip = new ZipArchive();
 			if (!($zip)) {
 				displayError(xl("ERROR: Unable to Create Zip Archive."));
@@ -195,7 +195,7 @@ function createCCR($action,$raw="no",$requested_by=""){
 				displayError(xl("ERROR: Unable to Create Zip Archive."));
 				return;
 			}
-                } 
+                }
 
                 else if (substr($raw,0,4)=="send") {
                    $recipient = trim(stripslashes(substr($raw,5)));
@@ -266,7 +266,7 @@ function createCCR($action,$raw="no",$requested_by=""){
                                 if (file_exists($xmlName)) {
                                         unlink($xmlName);
                                 }
-				$e_styleSheet = $ccd->createProcessingInstruction('xml-stylesheet', 
+				$e_styleSheet = $ccd->createProcessingInstruction('xml-stylesheet',
 					'type="text/xsl" href="stylesheet/cda.xsl"');
 				$ccd->insertBefore($e_styleSheet,$ccd->firstChild);
                                 $ccd->save($xmlName);

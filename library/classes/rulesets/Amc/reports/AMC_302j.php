@@ -20,7 +20,7 @@ class AMC_302j extends AbstractAmcReport
         return "transitions-in";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_302j_Denominator();
     }

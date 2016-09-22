@@ -70,7 +70,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 	    <?php if ($_POST['embeddedScreen']) {
 		$widgetTitle = '';
 		$widgetTitle = xl('Current Medications');
-		$widgetLabel = "current_prescriptions";    
+		$widgetLabel = "current_prescriptions";
 		$widgetButtonLabel = '';
 		$widgetButtonLink = '';
 		$widgetAuth = false;
@@ -137,7 +137,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 	    echo "<tr><td>";
             // Issues expand collapse widget
             $widgetTitle = $arr[0];
-            $widgetLabel = $key;	    
+            $widgetLabel = $key;
 	    if(($key == "allergy" || $key == "medication") && $GLOBALS['erx_enable'])
 	    {
 		$widgetButtonLabel = xl("Add");
@@ -165,7 +165,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             </td>
             </tr>
         <?php }
-        echo "<table>";    
+        echo "<table>";
 	if (sqlNumRows($pres) == 0) {
           if ( getListTouch($pid,$key) ) {
             // Data entry has happened to this type, so can display an explicit None.
@@ -294,7 +294,7 @@ else { ?>
     echo " <table><tr>\n";
     echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td>\n";
     echo " </tr></table>\n";
-  }   
+  }
     
   while ($row=sqlFetchArray($result)){
     echo "&nbsp;&nbsp;";
@@ -336,7 +336,7 @@ else { ?>
 <?php if ($_POST['embeddedScreen']) {
     $widgetTitle = '';
     $widgetTitle = xl('Current Medications');
-    $widgetLabel = "current_prescriptions";    
+    $widgetLabel = "current_prescriptions";
     $widgetButtonLabel = '';
     $widgetButtonLink = '';
     $widgetAuth = false;
@@ -383,7 +383,7 @@ while($row_currentMed=sqlFetchArray($res))
     // Issues expand collapse widget
     $widgetLabel = "prescriptions";
     $linkMethod = "html";
-    if($GLOBALS['erx_enable'])    
+    if($GLOBALS['erx_enable'])
     {
 	$widgetTitle = xl('Prescription History');
 	$widgetButtonLabel = xl("Add/Edit eRx");
@@ -399,7 +399,7 @@ while($row_currentMed=sqlFetchArray($res))
     }
     $bodyClass = "summary_item small";
     $widgetAuth = true;
-    $fixedWidth = false;	
+    $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
 else { ?>

@@ -19,7 +19,7 @@ class CqmReportFactory extends RsReportFactoryAbstract
         }
     }
     
-    public function createReport( $className, $rowRule, $patientData, $dateTarget, $options ) 
+    public function createReport( $className, $rowRule, $patientData, $dateTarget, $options )
     {
         $reportObject = null;
         if ( class_exists( $className ) ) {

@@ -30,7 +30,7 @@ use Application\Listener\Listener;
 class AclController extends AbstractActionController
 {
     protected $aclTable;
-    protected $listenerObject;    
+    protected $listenerObject;
     
     public function __construct()
     {
@@ -48,7 +48,7 @@ class AclController extends AbstractActionController
 						$row['section_name'],"id" => $row['section_id']);
 				}
     
-        ob_start();                                      
+        ob_start();
         $this->createTreeView($arrayCategories,0);
         $sections = ob_get_clean();
     
@@ -85,7 +85,7 @@ class AclController extends AbstractActionController
     
     public function aclAction()
     {
-        $module_id = $this->params()->fromQuery('module_id');				
+        $module_id = $this->params()->fromQuery('module_id');
         $data = $this->getAclTable()->getGroups();
 				
         $user_groups = array();
@@ -93,7 +93,7 @@ class AclController extends AbstractActionController
 						$user_groups[$row['id']] = $row['name'];
 				}
 				
-        $data = $this->getAclTable()->aclSections($module_id);        
+        $data = $this->getAclTable()->aclSections($module_id);
         $module_data = array();
         $module_data['module_components'] = array();
 				foreach($data as $row){
@@ -104,7 +104,7 @@ class AclController extends AbstractActionController
 																						);
 						}else{
 								$module_data['module_components'][$row['section_id']] = $row['section_name'];
-						} 
+						}
 						
 				}
         
@@ -129,7 +129,7 @@ class AclController extends AbstractActionController
     }
     
     public function ajaxAction()
-    {        
+    {
         $ajax_mode  = $this->getRequest()->getPost('ajax_mode', null);
         if($ajax_mode == "save_acl"){
             $selected_componet = $this->getRequest()->getPost('selected_module', null);
@@ -151,7 +151,7 @@ class AclController extends AbstractActionController
                $id = str_replace("li_user_group_allowed_","",$allowed_user);
                $arr_id = explode("-",$id);
 							 
-               if($arr_id[1] == 0){ 
+               if($arr_id[1] == 0){
                     $data	= $this->getAclTable()->insertGroupACL($selected_componet_arr[0],$arr_id[0],$selected_componet_arr[1],1);
                }else{
 										$data	= $this->getAclTable()->insertUserACL($selected_componet_arr[0],$arr_id[1],$selected_componet_arr[1],1);
@@ -213,7 +213,7 @@ class AclController extends AbstractActionController
                 foreach($sections as $group_id){
 										$this->getAclTable()->deleteUserACL($module_id,$section_id);
 										$this->getAclTable()->insertGroupACL($module_id,$group_id,$section_id,1);
-                }  
+                }
             }
             
             foreach($ACL_DATA['denied'] as $section_id => $sections){
@@ -253,24 +253,24 @@ class AclController extends AbstractActionController
      * @param String $prevLevel Prev Depth of Tree
      * 
      **/
-    private function createTreeView($array, $currentParent, $currLevel = 0, $prevLevel = -1) 
+    private function createTreeView($array, $currentParent, $currLevel = 0, $prevLevel = -1)
     {
       /** Html Escape Function */
         $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
-        $escapeHtml         = $viewHelperManager->get('escapeHtml'); 
+        $escapeHtml         = $viewHelperManager->get('escapeHtml');
         
         foreach($array as $categoryId => $category) {
           if($category['name']=='') continue;
           if ($currentParent == $category['parent_id']) {
-            if ($currLevel > $prevLevel) echo " <ul> "; 
+            if ($currLevel > $prevLevel) echo " <ul> ";
             if ($currLevel == $prevLevel) echo " </li> ";
             $class="";
             echo '<li id="'.$category['parent_id']."-".$category['id'].'" value="'.$escapeHtml($category['name']).'" '.$escapeHtml($class).' ><div onclick="selectThis(\''.$escapeHtml($category['parent_id']).'-'.$escapeHtml($category['id']).'\');rebuild();" class="list">'.$escapeHtml($category['name'])."</div>";
             if ($currLevel > $prevLevel) { $prevLevel = $currLevel; }
-            $currLevel++; 
+            $currLevel++;
             $this->createTreeView ($array, $categoryId, $currLevel, $prevLevel);
             $currLevel--;
-          }  
+          }
         }
         if ($currLevel == $prevLevel) echo "</li></ul> ";
     }
@@ -285,10 +285,10 @@ class AclController extends AbstractActionController
      * 
      **/
     private function createUserGroups($id="user_group_",$visibility="",$dragabble="draggable",$li_class="")
-    { 
+    {
         /** Html Escape Function */
         $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
-        $escapeHtml         = $viewHelperManager->get('escapeHtml'); 
+        $escapeHtml         = $viewHelperManager->get('escapeHtml');
         
         $output_string = "";
         $res_users = $this->getAclTable()->aclUserGroupMapping();
@@ -300,11 +300,11 @@ class AclController extends AbstractActionController
 						$tempList[$row['group_id']]['items'][] = $row;
 				}
 
-        $output_string .='<ul>';   
+        $output_string .='<ul>';
         foreach ($tempList as $groupID => $tempListRow) {
             $output_string .='<li '.$li_class.' id="li_'.$id.$tempListRow['group_id'].'-0" style="'.$visibility.'"><div class="'.$escapeHtml($dragabble).'" id="'.$id.$tempListRow['group_id'].'-0" >' . $escapeHtml($tempListRow['group_name']).'</div>';
             if(!empty($tempListRow['items'])) {
-              $output_string .='<ul>';   
+              $output_string .='<ul>';
               foreach ($tempListRow['items'] as $key => $itemRow){
                  $output_string .='<li '.$li_class.' id="li_'.$id.$itemRow['group_id'].'-'.$itemRow['user_id'].'" style="'.$visibility.'"><div class="'.$escapeHtml($dragabble).'" id="'.$id.$itemRow['group_id'].'-'.$itemRow['user_id'].'">' . $escapeHtml($itemRow['display_name']) . '</div></li>';
               }
@@ -322,7 +322,7 @@ class AclController extends AbstractActionController
      * @return type
      */
     public function getAclTable()
-    {	
+    {
         if (!$this->aclTable) {
             $sm = $this->getServiceLocator();
             $this->aclTable = $sm->get('Acl\Model\AclTable');

@@ -5,7 +5,7 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
- 
+
 	require_once( $GLOBALS['fileroot'] . "/library/options.inc.php" );
 
     function getLabel( $value, $list_id ) {
@@ -40,7 +40,7 @@
             "SELECT option_id, title from list_options WHERE list_id = ?", array($list_id)
         );
         for($iter=0; $row=sqlFetchArray( $sql ); $iter++) {
-            $options[] = new Option( 
+            $options[] = new Option(
                     out( $row['option_id'] ),            // id
                     out( xl_list_label($row['title']) )  // label
             );

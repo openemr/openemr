@@ -44,7 +44,7 @@ class Encounter extends ClinicalType
         return $encounters;
     }
     
-    public function getListId() 
+    public function getListId()
     {
         return "rule_enc_types";
     }
@@ -56,11 +56,11 @@ class Encounter extends ClinicalType
      * 	@param $beginDate beginning of date range to search in, if specified
      * 	@param $endDate end of date range to search in, if specified
      */
-    public function fetchDates( RsPatient $patient, $beginDate = null, $endDate = null ) 
+    public function fetchDates( RsPatient $patient, $beginDate = null, $endDate = null )
     {
         $encounters = getEncounters( $patient->id, $beginDate, $endDate, $this->getOptionId() );
         $dates = array();
-        foreach ( $encounters as $encounter ) 
+        foreach ( $encounters as $encounter )
         {
             $dateRow = getEncounterDateByEncounter( $encounter['encounter'] );
             $dates []= $dateRow['date'];

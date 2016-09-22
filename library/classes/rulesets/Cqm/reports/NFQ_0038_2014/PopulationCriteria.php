@@ -22,7 +22,7 @@
  */
 
 class NFQ_0038_2014_PopulationCriteria implements CqmPopulationCrtiteriaFactory
-{    
+{
     public function getTitle()
     {
         return "Population Criteria";

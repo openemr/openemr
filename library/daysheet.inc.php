@@ -41,13 +41,13 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
     //    loop through the array
     foreach ($aryData as $aryRow)
         //    set up the value in the array
-        $arySort[$aryRow[$strIndex]] = $aryRow[$strSortBy];   
+        $arySort[$aryRow[$strIndex]] = $aryRow[$strSortBy];
     //    apply the natural sort
     natsort($arySort);
     //    if the sort type is descending
     if ($strSortType=="desc")
         //    reverse the array
-        arsort($arySort);    
+        arsort($arySort);
     //    loop through the sorted and original data
     foreach ($arySort as $arySortKey => $arySorted)
         foreach ($aryData as $aryOriginal)
@@ -187,7 +187,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
             "LEFT OUTER JOIN claims on claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter " .
             "LEFT OUTER JOIN insurance_data on insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' ".
 			"WHERE 1=1 $query_part AND billing.fee!=0 " . " $auth " ." $billstring " .
-            "ORDER BY  fulname ASC, date ASC, pid "; 
+            "ORDER BY  fulname ASC, date ASC, pid ";
 
         $res = sqlStatement($sql,array($code_type));
         $all = False;
@@ -200,7 +200,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
             "ar_activity.encounter AS encounter_ar, concat(lname, ' ', fname) as 'fulname', lname as 'last', fname as 'first', ar_activity.payer_type AS payer,".
             "ar_activity.session_id AS sesid, ar_activity.account_code AS paytype, ar_activity.post_user AS user, ar_activity.memo AS reason,".
             "ar_activity.adj_amount AS pat_adjust_dollar, providerid as 'provider_id' ".
-            "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " . 
+            "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " .
 			"where 1=1 $query_part_day AND payer_type=0 ORDER BY fulname ASC, date ASC, pid");
            
 			for($iter; $row=sqlFetchArray($query); $iter++)
@@ -212,7 +212,7 @@ function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false) {
             "ar_activity.encounter AS encounter_ar, concat(lname, ' ', fname) as 'fulname', lname as 'last', fname as 'first', ar_activity.payer_type AS payer,".
             "ar_activity.session_id AS sesid, ar_activity.account_code AS paytype, ar_activity.post_user AS user, ar_activity.memo AS reason,".
             "ar_activity.adj_amount AS ins_adjust_dollar, providerid as 'provider_id' ".
-            "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " . 
+            "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " .
 			"where 1=1 $query_part_day AND payer_type!=0 ORDER BY  fulname ASC, date ASC, pid");
 
         for($iter; $row=sqlFetchArray($query); $iter++)

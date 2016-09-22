@@ -95,7 +95,7 @@ switch ($action) {
 				$plan_id = addNewPlan($plan_name, $added_rules);
 			} catch (Exception $e) {
 				$status_mssg = $e->getMessage();
-				$status_code = '001';				
+				$status_code = '001';
 				
 				if ($e->getMessage() == "002") {
 					//Plan Name Taken
@@ -106,7 +106,7 @@ switch ($action) {
 					//Already in list options
 					$status_code = '003';
 					$status_mssg = xl('Plan Already in list_options');
-				} 
+				}
 
 				$status = array('status_code'=>$status_code, 'status_message'=>$status_mssg, 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
 				echo json_encode($status);

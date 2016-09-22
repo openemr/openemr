@@ -52,7 +52,7 @@
 	if($_POST['date_to'] != "")
 		$sql_date_to = $_POST['date_to'];
 	else
-		$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));	
+		$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
 
 	//echo "<pre>";print_r($_POST);
 	$patient_id = trim($_POST["patient_id"]);
@@ -207,7 +207,7 @@
 			<p>
 			<?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(date($sql_date_from, strtotime($sql_date_from))) .
 			  " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
-			<span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']); 
+			<span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
 			if($_POST['srch_option'] == "Communication" && $_POST['communication'] != ""){
 				if(isset($comarr[$_POST['communication']]))
 				echo "(".text($comarr[$_POST['communication']]).")";
@@ -321,8 +321,8 @@
 					break;
 				case "Communication":
 					$sqlstmt = $sqlstmt.",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-					break;	
-			}		
+					break;
+			}
 						
 			//from
 			$sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid";
@@ -344,8 +344,8 @@
 							left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id 
 							left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id 
 							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
-					break;			
-			}		
+					break;
+			}
 							
 			//WHERE Conditions started
 			$whr_stmt="where 1=1";
@@ -367,8 +367,8 @@
 					break;
 				case "Communication":
 					$whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
-					break;		
-			}	
+					break;
+			}
 					
 			if(strlen($patient_id) != 0) {
 				$whr_stmt = $whr_stmt."   and pd.pid = ?";
@@ -412,7 +412,7 @@
 				case "Lab results":
 					$sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
 					//$odrstmt = " procedure_result_result";
-					break;	
+					break;
 				case "Communication":
 					//$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
 					$sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
@@ -421,7 +421,7 @@
 					break;
 				case "Demographics":
 					$sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
-					break;		
+					break;
 			}
 				if($sortby == "") {
 					$sortby = $sort[0];
@@ -449,14 +449,14 @@
 					break;
 				case "Lab results":
 					$odrstmt = " ORDER BY procedure_result_date asc";
-					break;	
+					break;
 				case "Communication":
 					$odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
 					break;
 				case "Demographics":
 					$odrstmt = " ORDER BY patient_date asc";
 					//$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-					break;		
+					break;
 			}
 			if(!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])){
 				if($_REQUEST['sortby'] =="communications"){
@@ -485,17 +485,17 @@
 						$patInfoArr = array();
 						$patInfoArr['patient_id'] = $row['patient_id'];
 						//Diagnosis Check
-						if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){							
+						if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){
 							$patInfoArr['lists_date'] = $row['lists_date'];
 							$patInfoArr['lists_diagnosis'] = $row['lists_diagnosis'];
-							$patInfoArr['lists_title'] = $row['lists_title'];							
+							$patInfoArr['lists_title'] = $row['lists_title'];
 							$patInfoArr['patient_name'] = $row['patient_name'];
 							$patInfoArr['patient_age'] = $row['patient_age'];
 							$patInfoArr['patient_sex'] = $row['patient_sex'];
 							$patInfoArr['patient_race'] = $row['patient_race'];
 							$patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
 							$patInfoArr['users_provider'] = $row['users_provider'];
-						}elseif($srch_option == "Lab results"){ 
+						}elseif($srch_option == "Lab results"){
 							$patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
 							$patInfoArr['procedure_result_facility'] = $row['procedure_result_facility'];
 							$patInfoArr['procedure_result_units'] = $row['procedure_result_units'];
@@ -519,9 +519,9 @@
 							$patInfoArr['patient_race'] = $row['patient_race'];
 							$patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
 							$patInfoArr['users_provider'] = $row['users_provider'];
-						}	
+						}
 									
-							$patFinalDataArr[] = $patInfoArr;			
+							$patFinalDataArr[] = $patInfoArr;
 															
 				}
 				
@@ -612,7 +612,7 @@
 									<td ><?php echo text($patDetailVal['communications']);?></td>
 							   </tr>
 						<?php
-							}							
+							}
 					}elseif($srch_option == "Demographics"){ ?>
 						<tr style="font-size:15px;"> 
 							<td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
@@ -633,7 +633,7 @@
 									<td ><?php echo generate_display_field(array('data_type'=>'36','list_id'=>'race'), $patDetailVal['patient_race']); ?></td>
 									<td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>	
 								</tr>	
-						<?php	}	
+						<?php	}
 					} ?>			
 																		
 					</table>

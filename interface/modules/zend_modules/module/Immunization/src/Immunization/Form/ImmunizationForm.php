@@ -28,14 +28,14 @@ class ImmunizationForm extends Form
     {
 	global $pid,$encounter;
 	parent::__construct('immunization');
-	$this->setAttribute('method', 'post'); 
+	$this->setAttribute('method', 'post');
 		
 	 // Codes
         $this->add(array(
         		'name' 			=> 'codes',
         		'type'  		=> 'Zend\Form\Element\Select',
         		'attributes' 		=> array(
-                                        'multiple'      => 'multiple',  
+                                        'multiple'      => 'multiple',
                                         'size'          => '3',
         				'class' 	=> 'select',
         				'style' 	=> 'width:150px',
@@ -48,11 +48,11 @@ class ImmunizationForm extends Form
         				),),
         ));
         
-        $this->add(array( 
-                            'name' => 'from_date', 
-                            'type' => 'Zend\Form\Element\Text', 
-                            'attributes' => array( 
-                                            'id'          => 'from_date', 
+        $this->add(array(
+                            'name' => 'from_date',
+                            'type' => 'Zend\Form\Element\Text',
+                            'attributes' => array(
+                                            'id'          => 'from_date',
                                             'placeholder' => 'From Date',
                                             'value'       => date('Y-m-d',strtotime(date('Ymd')) - (86400*7)),
                                             'class'       => 'date_field',
@@ -60,11 +60,11 @@ class ImmunizationForm extends Form
                             ),
                           ));
        
-        $this->add(array( 
-                        'name' => 'to_date', 
-                        'type' => 'Date', 
-                        'attributes' => array( 
-                                        'id' 		=> 'to_date', 
+        $this->add(array(
+                        'name' => 'to_date',
+                        'type' => 'Date',
+                        'attributes' => array(
+                                        'id' 		=> 'to_date',
                                         'placeholder' 	=> 'To Date',
                                         'class'         => 'date_field',
                                         'value'         => date('Y-m-d'),
@@ -99,7 +99,7 @@ class ImmunizationForm extends Form
                                         'onclick'=> 'getHl7(this.value);',
                                         'style' => 'display:none;'
                                         ),
-                    ));       
+                    ));
     }
 }
 

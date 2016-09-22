@@ -1216,7 +1216,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     if ($form_content == 5) { // sales of contraceptive products
       $query = "SELECT " .
         "ds.pid, ds.encounter, ds.sale_date, ds.quantity, " .
-        "d.cyp_factor, d.related_code, " . 
+        "d.cyp_factor, d.related_code, " .
         "pd.regdate, pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
         "pd.contrastart, pd.referral_source$pd_fields, " .
         "fe.date AS encdate, fe.provider_id " .

@@ -69,7 +69,7 @@ if ($row = sqlFetchArray($res))
  *  1 - A De Identification process is currently in progress.
  *  2 - The De Identification process completed and xls file is ready to download
  *  3 - The De Identification process completed with error
- */  
+ */
 }
 
 if($deIdentificationStatus == 0)
@@ -249,7 +249,7 @@ if($deIdentificationStatus == 0)
 					}
 				}
 			}
-		}			
+		}
 	}
 	catch (Exception $e)
 	{

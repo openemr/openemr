@@ -17,7 +17,7 @@
         public function __construct($siteId, $token, $endpoint) {
             $this->SiteId = $siteId;
             $this->Token = $token;
-            $this->Endpoint = $endpoint;    
+            $this->Endpoint = $endpoint;
         
         }
         
@@ -38,7 +38,7 @@
         echo "Url: {$url}\n";
 
             // if GET and vars, append them
-            if($method == "GET") 
+            if($method == "GET")
                 $url .= (FALSE === strpos($path, '?')?"?":"&").$encoded;
 
             // initialize a new curl object            
@@ -62,7 +62,7 @@
                         $encoded);
                     curl_setopt($curl, CURLOPT_INFILE, $fp = fopen($tmpfile,
                         'r'));
-                    curl_setopt($curl, CURLOPT_INFILESIZE, 
+                    curl_setopt($curl, CURLOPT_INFILESIZE,
                         filesize($tmpfile));
                     break;
                 case "DELETE":

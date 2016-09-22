@@ -109,7 +109,7 @@ function postcalendar_init()
     if ($dbconn->ErrorNo() != 0) {
         pnSessionSetVar('errormsg', $dbconn->ErrorMsg());
         return false;
-    }		
+    }
 	
     // PostCalendar Default Settings
     pnModSetVar(__POSTCALENDAR__, 'pcTime24Hours',              '0');
@@ -562,7 +562,7 @@ function postcalendar_upgrade($oldversion)
 			// ading pcSafeMode
 			pnModSetVar(__POSTCALENDAR__, 'pcSafeMode','0');
 			return postcalendar_upgrade('3.9.3');
-			break;	
+			break;
 		
 		case '3.9.3' :
 		case '3.9.3.1' :
@@ -581,7 +581,7 @@ function postcalendar_upgrade($oldversion)
 			if ($dbconn->ErrorNo() != 0) {
         		die($dbconn->ErrorMsg());
         		return false;
-    		}  
+    		}
 			return postcalendar_upgrade('3.9.4');
 			break;
 			

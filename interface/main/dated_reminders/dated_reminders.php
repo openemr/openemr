@@ -31,7 +31,7 @@ require_once("$srcdir/dated_reminder_functions.php");
         $days_to_show = 5;
         $alerts_to_show = 5;
         $updateDelay = 60; // time is seconds 
-        
+
         
 // ----- get time stamp for start of today, this is used to check for due and overdue reminders
         $today = strtotime(date('Y/m/d'));
@@ -40,26 +40,26 @@ require_once("$srcdir/dated_reminder_functions.php");
         $hasAlerts = false;
 
 // mulitply $updateDelay by 1000 to get miliseconds             
-        $updateDelay = $updateDelay * 1000;  
+        $updateDelay = $updateDelay * 1000;
         
 //-----------------------------------------------------------------------------
 // HANDEL AJAX TO MARK REMINDERS AS READ
 // Javascript will send a post
 // ----------------------------------------------------------------------------         
-    if(isset($_POST['drR'])){ 
+    if(isset($_POST['drR'])){
         // set as processed
-          setReminderAsProcessed($_POST['drR']); 
+          setReminderAsProcessed($_POST['drR']);
         // ----- get updated data
-          $reminders = RemindersArray($days_to_show,$today,$alerts_to_show); 
+          $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
         // ----- echo for ajax to use        
-          echo getRemindersHTML($reminders,$today); 
+          echo getRemindersHTML($reminders,$today);
         // stop any other output  
           exit;
     }
 //-----------------------------------------------------------------------------
 // END HANDEL AJAX TO MARK REMINDERS AS READ 
 // ----------------------------------------------------------------------------       
-  
+
       $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
       
       ?> 
@@ -152,9 +152,9 @@ require_once("$srcdir/dated_reminder_functions.php");
             function goPid(pid) {
               top.restoreSession();
               <?php 
-                if ($GLOBALS['concurrent_layout']){ 
+                if ($GLOBALS['concurrent_layout']){
                   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-                  "+ '?set_pid=' + pid;\n"; 
+                  "+ '?set_pid=' + pid;\n";
                 } else{
                   echo "  top.location = '../../patient_file/patient_file.php' " .
                   "+ '?set_pid=' + pid + '&pid=' + pid;\n";
@@ -163,17 +163,17 @@ require_once("$srcdir/dated_reminder_functions.php");
 }
       </script>
       
-        <?php  
+        <?php 
           // initialize html string        
           $pdHTML = '<div class="dr_container"><table><tr><td valign="top">                         
                         <p><a class="hideDR css_button_small" href="#"><span>'.xlt('Hide Reminders').'</span></a><br /></p>
                         <div class="drHide">'.
                         '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button_small" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
                         .'<p><a onclick="openAddScreen(0)" class="css_button_small" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div> 
-                        </td><td class="drHide drTD">'; 
+                        </td><td class="drHide drTD">';
                         
           $pdHTML .= getRemindersHTML($reminders,$today);
           $pdHTML .= '</td></tr></table></div>';
           // print output
-          echo $pdHTML; 
+          echo $pdHTML;
         ?> 

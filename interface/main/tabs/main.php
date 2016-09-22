@@ -69,8 +69,7 @@ function isEncounterLocked( encounterId ) {
 var webroot_url="<?php echo $web_root; ?>";
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="css/tabs.css?v=<?php echo $v_js_includes; ?>"/>
-<link rel="stylesheet" type="text/css" href="css/menu.css?v=<?php echo $v_js_includes; ?>"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
@@ -84,7 +83,6 @@ var webroot_url="<?php echo $web_root; ?>";
 <script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<link rel='stylesheet' href='<?php echo $GLOBALS['assets_static_relative']; ?>/typicons-2-0-7/src/font/typicons.min.css' />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     
 <?php require_once("templates/tabs_template.php"); ?>

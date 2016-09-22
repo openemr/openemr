@@ -26,9 +26,9 @@
  */
 
 /* these lines for OpenEMR
- */  
-$sanitize_all_escapes=true; 
-$fake_register_globals=false; 
+ */
+$sanitize_all_escapes=true;
+$fake_register_globals=false;
 require_once(dirname(__FILE__) . "/../globals.php");
 
 /**
@@ -51,14 +51,14 @@ if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) define("ENCOUNTER_MIN_DIGIT_LENGTH",
 if (!defined("SEG_ELEM_DELIM")) define( "SEG_ELEM_DELIM" , "*");
 if (!defined("SEG_TERM_DELIM")) define( "SEG_TERM_DELIM" , "~");
 //clearinghouse practice
-if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|"); 
+if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
 //
 if (!defined("DS")) define("DS", DIRECTORY_SEPARATOR);
 // 
 // path will be "$srcdir/edihistory/filename.php"
 require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php"); 
 require_once("$srcdir/edihistory/edih_io.php");         //dirname(__FILE__) . "/edihist/ibr_io.php");
-require_once("$srcdir/edihistory/edih_x12file_class.php"); 
+require_once("$srcdir/edihistory/edih_x12file_class.php");
 require_once("$srcdir/edihistory/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php"); 
 require_once("$srcdir/edihistory/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php"); 
 require_once("$srcdir/edihistory/edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
@@ -66,7 +66,7 @@ require_once("$srcdir/edihistory/edih_997_error.php");
 require_once("$srcdir/edihistory/edih_segments.php");
 require_once("$srcdir/edihistory/edih_archive.php");        //dirname(__FILE__) . "/edihist/ibr_batch_read.php");
 require_once("$srcdir/edihistory/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");
-require_once("$srcdir/edihistory/edih_277_html.php");           
+require_once("$srcdir/edihistory/edih_277_html.php");
 require_once("$srcdir/edihistory/edih_278_html.php");
 require_once("$srcdir/edihistory/edih_835_html.php");			//dirname(__FILE__) . "/edihist/ibr_era_read.php");
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
@@ -167,7 +167,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
     //
 } elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
 	//
-	if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') { 
+	if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {
 		// initial ajax request
 		$html_str = edih_php_inivals();
 		
@@ -192,7 +192,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			$html_str = json_encode('error');
 			csv_edihist_log("GET error: missing parameter for csv archive list");
 			return $html_str;
-		}			
+		}
 		
 	} elseif ( isset($_GET['loglist']) ) {
 		// initial setup -- populate log file select { loglist: 'yes' }, 
@@ -300,7 +300,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =======================================		
 		$la = filter_input(INPUT_GET, 'getnotes', FILTER_SANITIZE_STRING);
-		$html_str = ($la) ? edih_user_notes() : "input parameter error<br />"; 
+		$html_str = ($la) ? edih_user_notes() : "input parameter error<br />";
 		
 	} elseif ( isset($_GET['archivereport']) ) {
 		// ========= log user access for user commands ===========          
@@ -328,7 +328,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 
 //
 $isclear = csv_clear_tmpdir();
-if (!$isclear) { 
+if (!$isclear) {
 	//echo "file contents remain in $edih_tmp_dir <br />".PHP_EOL; 
 	csv_edihist_log("file contents remain in $edih_tmp_dir");
 }

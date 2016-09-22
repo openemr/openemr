@@ -176,7 +176,7 @@ class FormROS extends ORDataObject {
 			$this->id = $id;
 		}
 		else {
-			$id = "";	
+			$id = "";
 		}
 		$this->date = date("Y-m-d H:i:s");
 		$this->date_of_onset = date("Y-m-d");
@@ -216,7 +216,7 @@ class FormROS extends ORDataObject {
 	function set_date($date) {
 		if(!empty($date)){
 			$this->date = $date;
-		}	
+		}
 	}
 	
 	function get_weight_change(){

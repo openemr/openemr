@@ -34,7 +34,7 @@ class AMC_304a_3 extends AbstractAmcReport
        	   return "med_orders";
     }
  
-    public function createDenominator() 
+    public function createDenominator()
     {
         return new AMC_304a_3_Denominator();
     }

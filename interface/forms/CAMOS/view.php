@@ -73,7 +73,7 @@ $query = "select t1.id, t1.content from ".mitigateSqlTableUpperCase("form_CAMOS"
   "and t2.encounter like $encounter and t2.pid = $pid";
 
 $statement = sqlStatement($query);
-while ($result = sqlFetchArray($statement)) { 
+while ($result = sqlFetchArray($statement)) {
     print "<input type=button value='" . xl('Edit') . "' onClick='show_edit(\"id_textarea_".$result['id']."\")'>";
     print "<input type=checkbox name='ch_".$result['id']."'> ".$result['content']."<br/>\n";
     print "<div id=id_textarea_".$result['id']." style='display:none'>\n";

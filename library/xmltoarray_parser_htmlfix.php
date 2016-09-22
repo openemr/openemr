@@ -36,18 +36,18 @@
  * }
  */
 class xmltoarray_parser_htmlfix{
-	var $values; 
-	var $index; 
-	var $thearray; 
+	var $values;
+	var $index;
+	var $thearray;
 	var $parser;
 	
 	/**
 	 * Default constructor for xmltoarray_parser_htmlfix.
 	 */
 	function xmltoarray_parser_htmlfix(){
-		$this->values = array(); 
-		$this->index  = array(); 
-		$this->thearray  = array(); 
+		$this->values = array();
+		$this->index  = array();
+		$this->thearray  = array();
 		$this->parser = xml_parser_create();
 	}
 	
@@ -86,13 +86,13 @@ class xmltoarray_parser_htmlfix{
 	 * @return The associative XML array.
 	 */
 	function createArray(){
-		$i = 0; 
-		$name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag']: ''; 
-		$this->thearray[$name] = isset($this->values[$i]['attributes']) ? $this->values[$i]['attributes'] : ''; 
-		$this->thearray[$name] = $this->_struct_to_array($this->values, $i); 
-		return $this->thearray; 
+		$i = 0;
+		$name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag']: '';
+		$this->thearray[$name] = isset($this->values[$i]['attributes']) ? $this->values[$i]['attributes'] : '';
+		$this->thearray[$name] = $this->_struct_to_array($this->values, $i);
+		return $this->thearray;
 	}//createArray
-	
+
 	/**
 	 * _struct_to_array is a recursive function that takes the values and creates the array.
 	 * @param $values - The values of the XML
@@ -100,39 +100,39 @@ class xmltoarray_parser_htmlfix{
 	 * @return The child
 	 */
 	function _struct_to_array($values, &$i){
-		$child = array(); 
-		if (isset($values[$i]['value'])) array_push($child, $values[$i]['value']); 
+		$child = array();
+		if (isset($values[$i]['value'])) array_push($child, $values[$i]['value']);
 		
-		while ($i++ < count($values)) { 
+		while ($i++ < count($values)) {
 			if(isset($values[$i])){
-				switch ($values[$i]['type']) { 
-					case 'cdata': 
-					array_push($child, $values[$i]['value']); 
-					break; 
-					
-					case 'complete': 
-						$name = $values[$i]['tag']; 
-						if(!empty($name)){
-						$child[$name]= (isset($values[$i]['value']))?($values[$i]['value']):''; 
-						if(isset($values[$i]['attributes'])) {					
-							$child[$name] = $values[$i]['attributes']; 
-						} 
-					}	
-					break; 
-					
-					case 'open': 
-						$name = $values[$i]['tag']; 
-						$size = isset($child[$name]) ? sizeof($child[$name]) : 0;
-						$child[$name][$size] = $this->_struct_to_array($values, $i); 
+				switch ($values[$i]['type']) {
+					case 'cdata':
+					array_push($child, $values[$i]['value']);
 					break;
 					
-					case 'close': 
-					return $child; 
-					break; 
+					case 'complete':
+						$name = $values[$i]['tag'];
+						if(!empty($name)){
+						$child[$name]= (isset($values[$i]['value']))?($values[$i]['value']):'';
+						if(isset($values[$i]['attributes'])) {
+							$child[$name] = $values[$i]['attributes'];
+						}
+					}
+					break;
+					
+					case 'open':
+						$name = $values[$i]['tag'];
+						$size = isset($child[$name]) ? sizeof($child[$name]) : 0;
+						$child[$name][$size] = $this->_struct_to_array($values, $i);
+					break;
+					
+					case 'close':
+					return $child;
+					break;
 				}
 			}
 		}
-		return $child; 
+		return $child;
 	}//_struct_to_array
 
 	/**

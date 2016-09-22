@@ -31,14 +31,14 @@ require_once $GLOBALS['srcdir'].'/ESign/Encounter/Signable.php';
 require_once $GLOBALS['srcdir'].'/ESign/Encounter/Log.php';
 
 class Encounter_Controller extends Abstract_Controller
-{   
+{
     public function esign_is_encounter_locked()
     {
         $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
         $signable = new Encounter_Signable( $encounterId );
         echo json_encode( $signable->isLocked() );
         exit;
-    } 
+    }
     
     public function esign_form_view()
     {
@@ -62,7 +62,7 @@ class Encounter_Controller extends Abstract_Controller
     
     public function esign_log_view()
     {
-        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );        
+        $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
         $signable = new Encounter_Signable( $encounterId ); // Contains features that make object signable
         $log = new Encounter_Log( $encounterId ); // Make the log behavior
         $html = $log->getHtml( $signable );

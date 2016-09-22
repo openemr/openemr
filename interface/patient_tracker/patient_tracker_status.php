@@ -24,7 +24,7 @@
  *  
  * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
  * 
- */ 
+ */
  
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
@@ -56,11 +56,11 @@ require_once("$srcdir/patient_tracker.inc.php");
  
     $tkpid = $trow['pid'];
     $appttime = $trow['appttime'];
-    $apptdate = $trow['apptdate']; 
+    $apptdate = $trow['apptdate'];
     $pceid = $trow['eid'];
     $theroom = '';
 	 
-  if ($_POST['statustype'] !='') { 
+  if ($_POST['statustype'] !='') {
     $status = $_POST['statustype'];
     if (strlen($_POST['roomnum']) != 0) {
        $theroom = $_POST['roomnum'];
@@ -68,8 +68,8 @@ require_once("$srcdir/patient_tracker.inc.php");
 
     # Manage tracker status. Also auto create encounter, if applicable.
     if (!empty($tkpid)) {
-     if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate,$appttime,$tkpid,$pceid))		 
-	 {		
+     if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate,$appttime,$tkpid,$pceid))
+	 {
         # Gather information for encounter fields
         $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
                            "from openemr_postcalendar_events where pc_eid =? " , array($pceid));
@@ -79,7 +79,7 @@ require_once("$srcdir/patient_tracker.inc.php");
         manage_tracker_status($apptdate,$appttime,$pceid,$tkpid,$_SESSION["authUser"],$status,$theroom,$encounter);
 	 }
       }
-      else 
+      else
       {
         # Capture the appt status and room number for patient tracker.
         if (!empty($pceid)) {
@@ -88,9 +88,9 @@ require_once("$srcdir/patient_tracker.inc.php");
       }
      }
     
-     echo "<html>\n<body>\n<script language='JavaScript'>\n";	
+     echo "<html>\n<body>\n<script language='JavaScript'>\n";
      echo " window.opener.pattrk.submit();\n";
-     echo " window.close();\n";    
+     echo " window.close();\n";
      echo "</script></body></html>\n";
      exit();
   }

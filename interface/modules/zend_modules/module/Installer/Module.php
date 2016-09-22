@@ -24,7 +24,7 @@
 namespace Installer;
 
 // Add these import statements:
-use Installer\Model\InstModule; 
+use Installer\Model\InstModule;
 use Zend\Session\Config\SessionConfig;
 use Zend\Session\SessionManager;
 use Zend\Session\Container;
@@ -75,11 +75,11 @@ class Module
     
     public function onBootstrap(\Zend\EventManager\EventInterface $e)
     {
-    	$config = $e->getApplication()->getServiceManager()->get('Configuration');   
+    	$config = $e->getApplication()->getServiceManager()->get('Configuration');
     	$sessionConfig = new SessionConfig();
     	$sessionConfig->setOptions($config['session']);
     	$sessionManager = new SessionManager($sessionConfig, null, null);
-    	Container::setDefaultManager($sessionManager);    
-    	$sessionManager->start();    
+    	Container::setDefaultManager($sessionManager);
+    	$sessionManager->start();
     }
 }?>

@@ -70,20 +70,20 @@ if ($_POST['form_action']=='Process') {
          $sql="select patient_data.*, cal_events.pc_eventDate as next_appt,cal_events.pc_startTime as appt_start_time,cal_date.last_appt,forms.last_visit from patient_data left outer join openemr_postcalendar_events as cal_events on patient_data.pid=cal_events.pc_pid and curdate() < cal_events.pc_eventDate left outer join (select pc_pid,max(pc_eventDate) as last_appt from openemr_postcalendar_events where curdate() >= pc_eventDate group by pc_pid ) as cal_date on cal_date.pc_pid=patient_data.pid left outer join (select pid,max(date) as last_visit from forms where curdate() >= date group by pid) as forms on forms.pid=patient_data.pid";
         //appointment dates
         if ($_POST['app_s']!=0 AND $_POST['app_s']!='') {
-            $and=where_or_and ($and);        
+            $and=where_or_and ($and);
             $sql_where_a=" $and cal_events.pc_eventDate > '".$_POST['app_s']."'";
-        } 
+        }
         if ($_POST['app_e']!=0 AND $_POST['app_e']!='') {
             $and=where_or_and ($and);
             $sql_where_a.=" $and cal_events.pc_endDate < '".$_POST['app_e']."'";
-        } 
+        }
         $sql.=$sql_where_a;
         
         // encounter dates
         if ($_POST['seen_since']!=0 AND $_POST['seen_since']!='') {
             $and=where_or_and ($and);
             $sql.=" $and forms.date > '".$_POST['seen_since']."' " ;
-        } 
+        }
         if ($_POST['seen_upto']!=0 AND $_POST['not_seen_since']!='') {
             $and=where_or_and ($and);
             $sql.=" $and forms.date > '".$_POST['seen_since']."' " ;
@@ -93,7 +93,7 @@ if ($_POST['form_action']=='Process') {
         if ($_POST['age_from']!=0 AND $_POST['age_from']!='') {
             $and=where_or_and ($and);
             $sql.=" $and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 >= '".$_POST['age_from']."' ";
-        } 
+        }
         if ($_POST['age_upto']!=0 AND $_POST['age_upto']!='') {
             $and=where_or_and ($and);
             $sql.=" $and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 <= '".$_POST['age_upto']."' ";
@@ -142,11 +142,11 @@ if ($_POST['form_action']=='Process') {
 	<span class="title"><?php xl('Batch Communication Tool','e')?></span>
 	<br><br>
 	<div class="text">
-        <?php    
+        <?php 
             echo (xl('No results found, please try again.','','<br>'));
         ?> </div></body></html> <?php
         //if results
-        } else { 
+        } else {
             switch ($_POST['process_type']):
                 case $choices[0]: // CSV File
                     require_once ('batchCSV.php');
@@ -162,7 +162,7 @@ if ($_POST['form_action']=='Process') {
         // end results
 
         exit ();
-    } 
+    }
 }
 
 //START OUT OUR PAGE....

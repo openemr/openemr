@@ -471,8 +471,8 @@ function pnUserGetTheme()
         // modification mouzaia .71
         if (!empty($usertheme)) {
 			if (@opendir(WHERE_IS_PERSO."themes/".pnVarPrepForOS($usertheme)))
-			    { return $usertheme; }		
-            if (@opendir("themes/" . pnVarPrepForOS($usertheme))) 
+			    { return $usertheme; }
+            if (@opendir("themes/" . pnVarPrepForOS($usertheme)))
 				{ return $usertheme; }
         }
     }

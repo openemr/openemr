@@ -35,7 +35,7 @@ function insert_language_log($lang_desc,$lang_code,$cons_name,$def) {
     if (!SqlFetchArray($res_test)) {
       $sql="INSERT INTO lang_custom SET lang_code=?, lang_description=?";
       SqlStatement($sql, array($lang_code, $lang_desc) );
-    }      
+    }
   }
   elseif ($lang_desc == '') {
     // NEW CONSTANT
@@ -45,7 +45,7 @@ function insert_language_log($lang_desc,$lang_code,$cons_name,$def) {
     if (!SqlFetchArray($res_test)) {
       $sql="INSERT INTO lang_custom SET constant_name=?";
       SqlStatement($sql, array($cons_name) );
-    }      
+    }
   }
   else {
     // FULL ENTRY

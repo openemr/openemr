@@ -122,8 +122,8 @@ if ($start_date && $end_date)
 {
 	if($start_date > $end_date){
 		echo "<table><tr class='alert'><td colspan=7>"; echo xlt('Start Date should not be greater than End Date');
-		echo "</td></tr></table>"; 
-		$err_message=1;	
+		echo "</td></tr></table>";
+		$err_message=1;
 	}
 }
 
@@ -208,14 +208,14 @@ $type_event = $_GET['type_event'];
 <input type=hidden name=event value=<?php echo attr($eventname)."-".attr($type_event) ?>>
 <?php
 $type_event = "update";
-$tevent=""; 
+$tevent="";
 $gev="";
 if($eventname != "" && $type_event != ""){
 	$getevent=$eventname."-".$type_event;
 }
       
-if(($eventname == "") && ($type_event != "")){	
-	$tevent=$type_event;   	
+if(($eventname == "") && ($type_event != "")){
+	$tevent=$type_event;
 }else if($type_event =="" && $eventname != ""){
 	$gev=$eventname;
 }else if ($eventname == ""){

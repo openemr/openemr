@@ -66,37 +66,37 @@ function edih_upload_reindex(array $_files, $top = true) {
  * @param int
  * @return string
  */
-function edih_upload_err_message($code) { 
+function edih_upload_err_message($code) {
 	//
-	switch ($code) { 
-		case UPLOAD_ERR_INI_SIZE: 
-			$message = "The uploaded file exceeds the upload_max_filesize directive in php.ini"; 
-			break; 
-		case UPLOAD_ERR_FORM_SIZE: 
-			$message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form"; 
-			break; 
-		case UPLOAD_ERR_PARTIAL: 
-			$message = "The uploaded file was only partially uploaded"; 
-			break; 
-		case UPLOAD_ERR_NO_FILE: 
-			$message = "No file was uploaded"; 
-			break; 
-		case UPLOAD_ERR_NO_TMP_DIR: 
-			$message = "Missing a temporary folder"; 
-			break; 
-		case UPLOAD_ERR_CANT_WRITE: 
-			$message = "Failed to write file to disk"; 
-			break; 
-		case UPLOAD_ERR_EXTENSION: 
-			$message = "File upload stopped by extension"; 
-			break; 
+	switch ($code) {
+		case UPLOAD_ERR_INI_SIZE:
+			$message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+			break;
+		case UPLOAD_ERR_FORM_SIZE:
+			$message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+			break;
+		case UPLOAD_ERR_PARTIAL:
+			$message = "The uploaded file was only partially uploaded";
+			break;
+		case UPLOAD_ERR_NO_FILE:
+			$message = "No file was uploaded";
+			break;
+		case UPLOAD_ERR_NO_TMP_DIR:
+			$message = "Missing a temporary folder";
+			break;
+		case UPLOAD_ERR_CANT_WRITE:
+			$message = "Failed to write file to disk";
+			break;
+		case UPLOAD_ERR_EXTENSION:
+			$message = "File upload stopped by extension";
+			break;
 
-		default: 
-			$message = "Unknown upload error"; 
-			break; 
-	} 
-	return $message; 
-} 
+		default:
+			$message = "Unknown upload error";
+			break;
+	}
+	return $message;
+}
 
 /**
  * Categorize and check uploaded files
@@ -171,10 +171,10 @@ function edih_upload_match_file($param_ar, $fidx) {
 			unlink($newname);
 			return false;
 		}
-	} else {				
+	} else {
 		csv_edihist_log( "edih_upload_match_file: unable to move $fn to uploads directory");
 		return false;
-	} 
+	}
 	//
 	return $ar_fn;
 }
@@ -313,7 +313,7 @@ function edih_upload_files() {
 	if (empty($_FILES) ) {
 		csv_edihist_log('Error: upload files indicated, but none received.');
 		return false;
-	}    
+	}
 	// only one $_FILES array key is expected
 	$uplkey = '';
 	$uplkey = array_key_exists("fileUplMulti", $_FILES) ? "fileUplMulti" : $uplkey;

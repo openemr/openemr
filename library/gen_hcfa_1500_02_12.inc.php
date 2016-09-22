@@ -93,7 +93,7 @@ function cmp_hcfa_info($first,$second)
     {
         return 0;
     }
-    return $first_value<$second_value ? -1 : 1; 
+    return $first_value<$second_value ? -1 : 1;
 }
 
 /**
@@ -140,7 +140,7 @@ function process_diagnoses_02_12(&$claim,&$log)
     $diags = $claim->diagArray(false);
     if($claim->diagtype=='ICD10')
     {
-        $icd_indicator='0';        
+        $icd_indicator='0';
     }
     else
     {
@@ -161,7 +161,7 @@ function process_diagnoses_02_12(&$claim,&$log)
     {
         if($diag_count<12)
         {
-            add_diagnosis($hcfa_entries,$diag_count,$diag);        
+            add_diagnosis($hcfa_entries,$diag_count,$diag);
         }
         else
         {

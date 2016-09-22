@@ -63,7 +63,7 @@ echo "\n<br>Total ".count($db_patient)." Records Found";
 
 // for every event found
 for( $p=0; $p<count($db_patient); $p++ )
-{  
+{
 	$prow =$db_patient[$p];
 
 	//echo "\n-----\nDEBUG :cron_sms: found patient = ".$prow['fname']." ".$prow['lname']."\n";
@@ -105,7 +105,7 @@ for( $p=0; $p<count($db_patient); $p++ )
 		// send sms to patinet - if not in test mode
 		if( $bTestRun == 0 )
 		{
-			cron_SendSMS( $prow['phone_cell'], $db_email_msg['email_subject'], 
+			cron_SendSMS( $prow['phone_cell'], $db_email_msg['email_subject'],
 				$db_email_msg['message'], $db_email_msg['email_sender'] );
 		}
 

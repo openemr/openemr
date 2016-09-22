@@ -9,7 +9,7 @@
 require_once( 'AbstractAmcReport.php' );
 
 class AMC_Unimplemented extends AbstractAmcReport implements RsUnimplementedIF
-{   
+{
     public function __construct()
     {
         parent::__construct( array(), array(), null );
@@ -20,7 +20,7 @@ class AMC_Unimplemented extends AbstractAmcReport implements RsUnimplementedIF
         return null;
     }
     
-    public function createDenominator() 
+    public function createDenominator()
     {
         return null;
     }

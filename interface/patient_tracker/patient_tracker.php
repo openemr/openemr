@@ -43,15 +43,66 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 
 #define variables, future enhancement allow changing the to_date and from_date 
 #to allow picking a date to review
- 
+
+if (!is_null($_POST['form_provider'])) {
+  $provider = $_POST['form_provider'];
+}
+else if ($_SESSION['userauthorized']) {
+  $provider = $_SESSION['authUserID'];
+}
+else {
+  $provider = null;
+}
+$facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
+$form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
+$form_apptcat=null;
+if(isset($_POST['form_apptcat']))
+{
+    if($form_apptcat!="ALL")
+    {
+        $form_apptcat=intval($_POST['form_apptcat']);
+    }
+}
+
 $appointments = array();
 $from_date = date("Y-m-d");
 $to_date = date("Y-m-d");
 $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date);
+$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
 $appointments = sortAppointments( $appointments, 'time' );
+
+//grouping of the count of every status
+$appointments_status = getApptStatus($appointments);
+
+// Below are new constants for the translation pipeline
+// xl('None')
+// xl('Reminder done')
+// xl('Chart pulled')
+// xl('Canceled')
+// xl('No show')
+// xl('Arrived')
+// xl('Arrived late')
+// xl('Left w/o visit')
+// xl('Ins/fin issue')
+// xl('In exam room')
+// xl('Checked out')
+// xl('Coding done')
+// xl('Canceled < 24h')
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
+while ( $lrow = sqlFetchArray ( $lres ) ) {
+    // if exists, remove the legend character
+    if($lrow['title'][1] == ' '){
+        $splitTitle = explode(' ', $lrow['title']);
+        array_shift($splitTitle);
+        $title = implode(' ', $splitTitle);
+    }else{
+        $title = $lrow['title'];
+    }
+
+    $statuses_list[$lrow['option_id']] = $title;
+}
 
 $chk_prov = array();  // list of providers with appointments
 
@@ -138,13 +189,87 @@ function openNewTopWindow(newpid,newencounterid) {
 
 </head>
 
-<body class="body_top" >
+<?php
+  if ($GLOBALS['pat_trkr_timer'] == '0') {
+    // if the screen is not set up for auto refresh, use standard page call
+    $action_page = "patient_tracker.php";
+  }
+  else {
+    // if the screen is set up for auto refresh, this will allow it to be closed by auto logoff
+    $action_page = "patient_tracker.php?skip_timeout_reset=1";
+  }
 
-<?php if ($GLOBALS['pat_trkr_timer'] == '0') { # if the screen is not set up for auto refresh it can be closed by auto log off ?>
-<form name='pattrk' id='pattrk' method='post' action='patient_tracker.php' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
-<?php } else { # if the screen is set up for auto refresh this will not allow it to be closed by auto logoff ?>
-<form name='pattrk' id='pattrk' method='post' action='patient_tracker.php?skip_timeout_reset=1' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
-<?php } ?>
+?>
+<span class="title"><?php echo xlt("Flow Board") ?></span>
+<body class="body_top" >
+<form method='post' name='theform' id='theform' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()'>
+    <div id="flow_board_parameters">
+        <table>
+            <tr class="text">
+                <td class='label'><?php echo xlt('Provider'); ?>:</td>
+                <td><?php
+
+                    # Build a drop-down list of providers.
+
+                    $query = "SELECT id, lname, fname FROM users WHERE ".
+                        "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
+
+                    $ures = sqlStatement($query);
+
+                    echo "   <select name='form_provider'>\n";
+                    echo "    <option value='ALL'>-- " . xlt('All') . " --\n";
+
+                    while ($urow = sqlFetchArray($ures)) {
+                        $provid = $urow['id'];
+                        echo "    <option value='" . attr($provid) . "'";
+                        if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
+                            echo " selected";
+                        } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
+                            echo " selected";
+                        }
+                        echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                    }
+
+                    echo "   </select>\n";
+
+                    ?>
+                </td>
+                <td class='label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+                <td><?php echo xlt('Category') #category drop down creation ?>:</td>
+                <td>
+                    <select id="form_apptcat" name="form_apptcat">
+                        <?php
+                        $categories=fetchAppointmentCategories();
+                        echo "<option value='ALL'>".xlt("All")."</option>";
+                        while($cat=sqlFetchArray($categories))
+                        {
+                            echo "<option value='".attr($cat['id'])."'";
+                            if($cat['id']==$_POST['form_apptcat'])
+                            {
+                                echo " selected='true' ";
+                            }
+                            echo    ">".text(xl_appt_category($cat['category']))."</option>";
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td style="border-left: 1px solid;">
+                    <div style='margin-left: 15px'>
+                        <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <span> <?php echo xlt('Submit'); ?> </span> </a>
+                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                            <a href='#' class='css_button' id='printbutton'>
+                                <span> <?php echo xlt('Print'); ?> </span> </a>
+                        <?php } ?>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+<form name='pattrk' id='pattrk' method='post' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
 
 <div>
   <?php if (count($chk_prov) == 1) {?>
@@ -172,7 +297,20 @@ function openNewTopWindow(newpid,newencounterid) {
 <?php } ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='100%'>
-
+ <tr>
+     <td colspan="12">
+         <b><small>
+             <?php
+             $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
+             unset($appointments_status['count_all']);
+             foreach($appointments_status as $status_symbol => $count){
+                 $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
+             }
+             echo $statuses_output;
+             ?>
+         </small></b>
+     </td>
+ </tr>
  <tr bgcolor="#cccff">
   <?php if ($GLOBALS['ptkr_show_pid']) { ?>
    <td class="dehead" align="center">
@@ -310,17 +448,17 @@ function openNewTopWindow(newpid,newencounterid) {
          </a>
 
 		 </td>
-        <?php		 
+        <?php	
 		 #time in current status
 		 $to_time = strtotime(date("Y-m-d H:i:s"));
-		 $yestime = '0'; 
+		 $yestime = '0';
 		 if (strtotime($newend) != '') {
  			$from_time = strtotime($newarrive);
 			$to_time = strtotime($newend);
 			$yestime = '0';
 		 }
          else
-        {	
+        {
 			$from_time = strtotime($appointment['start_datetime']);
 			$yestime = '1';
         }
@@ -333,8 +471,8 @@ function openNewTopWindow(newpid,newencounterid) {
         {
            echo "<td align='center' class='detail'> "; # and if not do not blink
         }
-        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) { 
-		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute'))); 
+        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
+		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
 		}
         #end time in current status
         ?>	
@@ -348,7 +486,7 @@ function openNewTopWindow(newpid,newencounterid) {
          </td>
          <?php } ?>
          <td class="detail" align="center"> 
-         <?php		 
+         <?php	
 		 
 		 # total time in practice
 		 if (strtotime($newend) != '') {
@@ -356,12 +494,12 @@ function openNewTopWindow(newpid,newencounterid) {
 			$to_time = strtotime($newend);
 		 }
          else
-         {	
+         {
 			$from_time = strtotime($newarrive);
  		    $to_time = strtotime(date("Y-m-d H:i:s"));
-         }	
-         $timecheck2 = round(abs($to_time - $from_time) / 60,0);	 
-         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {  		
+         }
+         $timecheck2 = round(abs($to_time - $from_time) / 60,0);
+         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
             echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
          }
          # end total time in practice
@@ -397,6 +535,22 @@ function openNewTopWindow(newpid,newencounterid) {
 		 </tr>
         <?php
 	} //end for
+?>
+
+<?php
+//saving the filter for auto refresh
+if(!is_null($_POST['form_provider']) ){
+    echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
+}
+if(!is_null($_POST['form_facility']) ){
+    echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
+}
+if(!is_null($_POST['form_apptstatus']) ){
+    echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
+}
+if(!is_null($_POST['form_apptcat']) ){
+    echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
+}
 ?>
 
 </table>
