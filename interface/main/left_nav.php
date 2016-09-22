@@ -422,11 +422,6 @@ function genFindBlock() {
    for (var i = 0, len = usrval.length; i < len; i++) {
        if (usrval[i] != "checked") toggleFrame(i+1);
    }
-   // Following block can be removed if and when drop_bottom is eliminated
-   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>   
-   $("input[name=cb_bot]").trigger('click');
-   toggleFrame(2);
-   <?php } ?>
  }) 
  // end of tajemo work dated reminders counter
  
