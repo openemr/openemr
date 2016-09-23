@@ -33,12 +33,20 @@ require_once("../globals.php");
 ?>
  <html>
   <head>
-  <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+  <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+  <link rel=stylesheet href="../themes/login.css" type="text/css">
+  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/base/jquery-ui.min.css" />
+  <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+
+  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
+  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+
  </head>
   <body class="body_top">
    <div style="text-align: center;">
     <span class="title"><?php  echo xlt('About OpenEMR'); ?> </span><br><br>
     <span class="text"><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
+    <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br><br>
     <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
      <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span><br><br>
     <?php } ?>
@@ -48,5 +56,49 @@ require_once("../globals.php");
     <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="css_button"><span><?php echo xlt('Online Support'); ?></span></a><br><br>
    <?php } ?>
    <a href="../../acknowledge_license_cert.html" target="_blank" class="css_button"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a>
+
+<script type="text/javascript">
+var registrationTranslations = <?php echo json_encode(array(
+  'title' => xla('OpenEMR Product Registration'),
+  'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
+  'success' => xla('Success'),
+  'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
+  'submit' => xla('Submit'),
+  'noThanks' => xla('No Thanks'),
+  'registeredEmail' => xla('Registered email'),
+  'registeredId' => xla('Registered id'),
+  'genericError' => xla('Error. Try again later')
+));
+?>;
+
+var registrationConstants = <?php echo json_encode(array(
+  'webroot' => $GLOBALS['webroot']
+))
+?>;
+</script>
+
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js"></script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        var productRegistrationController = new ProductRegistrationController();
+        productRegistrationController.getProductRegistrationStatus(function(err, data) {
+            if (err) { return; }
+
+            if (data.status === 'UNREGISTERED') {
+                productRegistrationController.showProductRegistrationModal();
+            } else if (data.status === 'REGISTERED') {
+                productRegistrationController.displayRegistrationInformationIfDivExists(data);
+            }
+        });
+    });
+</script>
+
+  <div class="product-registration-modal" style="display: none">
+    <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
+    <input placeholder="email" type="email" class="email" style="width: 100%" />
+    <p class="message" style="font-style: italic"></p>
+  </div>
   </body>
 </html>

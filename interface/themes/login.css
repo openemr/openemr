@@ -1,5 +1,5 @@
 /*=============================================================
-*	
+*
 * Login Page
 *
 *============================================================*/
@@ -9,19 +9,19 @@ tr, td, th {
 
 }
 
-html { 
-	background-image: url('../pic/banner.jpg'); 
-    background-repeat: no-repeat; 
+html {
+	background-image: url('../pic/banner.jpg');
+    background-repeat: no-repeat;
     background-size: 100% 100%;
 }
 .login-box {
     margin: 0 auto;
 	padding: 20px 20px 25px 25px;
 	text-align: center;
-	border: solid 1px #bebebe; 
-	border-radius: 8px; 
-	-webkit-border-radius: 8px; 
-	-moz-border-radius: 8px; 
+	border: solid 1px #bebebe;
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
 	box-shadow: 0px 1px 2px #f3f3f3;
 	-webkit-box-shadow: 0px 1px 2px #f3f3f3;
 	-moz-box-shadow: 0px 1px 2px #f3f3f3;
@@ -29,7 +29,7 @@ html {
 	background-color: white;
 }
 
-.logo-left{ 
+.logo-left{
 	float: left;
 }
 
@@ -44,7 +44,7 @@ html {
 	border: 1px solid #aaa;
 	padding: 6px;
 	font-color: #666;
-	-webkit-border-radius: 5px; 
+	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
@@ -55,7 +55,7 @@ html {
 	border: 1px solid #aaa;
 	padding: 4px;
 	font-color: #666;
-	-webkit-border-radius: 5px; 
+	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
@@ -165,11 +165,11 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
 }
 
 .extra_small {
-	font-size: 10px; 
+	font-size: 10px;
 	padding: .2em 1em .275em;
 }
 
-.rounded { 
+.rounded {
 	-webkit-border-radius: 1em !important;
 	-moz-border-radius: 1em !important;
 	border-radius: 1em !important;
@@ -220,4 +220,9 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
        left:0;
        width:296;
        height:72;
+}
+
+/* :..[ Registration Popup ]..: */
+.ui-widget > .ui-dialog-buttonpane button {
+  background: #2672ec;
 }

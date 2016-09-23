@@ -494,4 +494,6 @@ if ($fake_register_globals) {
   extract($_POST,EXTR_SKIP);
 }
 
+// Remote OpenEMR server for registration service (https://github.com/openemr/product_registration)
+$GLOBALS['remote_openemr_server'] = 'http://product-registration-dev2.us-east-1.elasticbeanstalk.com/api/registration';
 ?>
