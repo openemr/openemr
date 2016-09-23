@@ -91,6 +91,13 @@ use ESign\Api;
  require_once($GLOBALS['fileroot']."/library/patient.inc");
  require_once($GLOBALS['fileroot']."/library/lists.inc");
  require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+ require_once $GLOBALS['srcdir'].'/user.inc';
+ 
+ // Fetch user preferences saved from prior session
+ $uspfx = substr(__FILE__, strlen($GLOBALS['fileroot']."/")) . '.';
+ $cb_top_chk = prevSetting($uspfx, 'cb_top', 'frame0_chk', 'checked');
+ $cb_bot_chk = prevSetting($uspfx, 'cb_bot', 'frame1_chk', 'checked');
+ $usrval = json_encode( array ( $cb_top_chk, $cb_bot_chk ) );
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -388,6 +395,8 @@ function genFindBlock() {
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language='JavaScript'>
+ // User settings
+ var usrval = jQuery.parseJSON('<?php echo $usrval ?>');
  
  // tajemo work by CB 2012/01/31 12:32:57 PM dated reminders counter
  function getReminderCount(){ 
@@ -410,10 +419,9 @@ function genFindBlock() {
  $(document).ready(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
-   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>   
-   $("input[name=cb_bot]").trigger('click');
-   toggleFrame(2);
-   <?php } ?>
+   for (var i = 0, len = usrval.length; i < len; i++) {
+       if (usrval[i] != "checked") toggleFrame(i+1);
+   }
  }) 
  // end of tajemo work dated reminders counter
  
@@ -438,7 +446,7 @@ function genFindBlock() {
   var rows = f.cb_top.checked ? '*' :  '0';
   rows += f.cb_bot.checked ? ',*' : ',0';
   fset.rows = rows;
-  fset.rows = rows;
+  save_setting ([(f.cb_top.checked ? 'checked' : '&nbsp;'), (f.cb_bot.checked ? 'checked' : '&nbsp;')]);
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
@@ -1065,12 +1073,12 @@ $(document).ready(function(){
 <table cellpadding='0' cellspacing='0' border='0' width='100%'>
  <tr>
   <td class='smalltext' nowrap>
-   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked />
+   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' <?php echo $cb_top_chk ?> />
    <b><?php xl('Top','e') ?></b>
   </td>
   <td class='smalltext' align='right' nowrap>
    <b><?php xl('Bot','e') ?></b>
-   <input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+   <input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' <?php echo $cb_bot_chk ?> />
   </td>
  </tr>
 </table>
@@ -1474,10 +1482,10 @@ if (!empty($reg)) {
    <table cellpadding='0' cellspacing='0' border='0' width='100%'>
     <tr>
      <td class='smalltext' nowrap>
-      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php xl('Top','e') ?></b>
+      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' <?php echo $cb_top_chk ?> /><b><?php xl('Top','e') ?></b>
      </td>
      <td class='smalltext' align='right' nowrap>
-      <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+      <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' <?php echo $cb_bot_chk ?> />
      </td>
     </tr>
    </table>
@@ -1534,6 +1542,28 @@ if (!empty($reg)) {
 
 <script language='JavaScript'>
 syncRadios();
+
+function save_setting (cb_frames) {
+    for (var i = 0, len = cb_frames.length; i < len; i++) {
+	    try {
+	        var fref = '<?php echo $uspfx ?>frame' + i + '_chk';
+	        var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", 
+                    { lab: fref, val: cb_frames[i] })
+	        .done(function(data) {
+	            // alert( "Data Loaded: " + data );
+	        })
+	        .fail(function(xhr, textStatus, errorThrown) {
+	            alert("Error:"+xhr.responseText+"\n"+textStatus+"\n"+errorThrown);
+	        })
+	        .always(function() {
+	            // alert( "finished" );
+	        });
+	
+	    } catch (err) {
+	        alert (err.message);
+	    }
+    }
+}
 </script>
 
 </body>

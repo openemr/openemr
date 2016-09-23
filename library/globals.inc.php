@@ -104,7 +104,6 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'css_header',
                                'gbl_pt_list_page_size',
                                'gbl_pt_list_new_window',
-                               'drop_bottom',
                                'units_of_measurement',
                                'us_weight_format',
                                'date_display_format',
@@ -302,13 +301,6 @@ $GLOBALS_METADATA = array(
       xl('Phone Number for Vendor Support that Appears on the About Page.')
     ),
 
-   'drop_bottom' => array(
-      xl('Remove Bottom Pane'),
-      'bool',                           // data type
-      '0',                              // default = false
-      xl('Removes the bottom pane by default on start up.')
-    ),
-	
     'encounter_page_size' => array(
       xl('Encounter Page Size'),
       array(
