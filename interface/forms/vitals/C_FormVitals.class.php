@@ -7,7 +7,8 @@ require_once("FormVitals.class.php");
 
 class C_FormVitals extends Controller {
 
-	var $template_dir;
+    var $template_dir;
+    var $form_id;
 
     function __construct($template_mod = "general") {
     	parent::__construct();
@@ -32,7 +33,13 @@ class C_FormVitals extends Controller {
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
 
-    function default_action($form_id) {
+    function setFormId($form_id){
+        $this->form_id = $form_id;
+    }
+
+    function default_action() {
+
+        $form_id = $this->form_id;
 
         if (is_numeric($form_id)) {
     		$vitals = new FormVitals($form_id);
