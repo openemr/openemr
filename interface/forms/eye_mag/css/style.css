@@ -288,6 +288,7 @@ input[type=text] {
     vertical-align: text-middle;
     text-decoration: none;
     padding: 2px;
+    white-space: nowrap;
 }
 .refraction th {
     height:0.17in;
@@ -1712,8 +1713,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     box-shadow: 1px 1px 3px #888888;
     border-radius: 8 8 8 8;
     position:relative; 
-    margin-right: 4px; 
-    margin-bottom:4px;
+    margin: 4px; 
     padding-bottom:4px;
     border: 1.00pt solid #000000; 
     &:last-of-type {
@@ -1723,9 +1723,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
 
      }
   }
-.IMPPLAN_class {
-    width:95%;
- }
+.IMPPLAN_class { margin:1em;}
 .ICD_CODE{
     min-width: 0.8in;
     text-align: left;
