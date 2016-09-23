@@ -7,7 +7,8 @@ require_once("FormVitals.class.php");
 
 class C_FormVitals extends Controller {
 
-	var $template_dir;
+    var $template_dir;
+    var $form_id;
 
     function __construct($template_mod = "general") {
     	parent::__construct();
