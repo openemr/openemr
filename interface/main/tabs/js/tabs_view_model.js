@@ -240,8 +240,9 @@ function clearPatient()
     tabCloseByName('enc');
     tabCloseByName('rev');
     tabCloseByName('pop');
-    navigateTab(webroot_url+'/interface/main/messages/messages.php?form_active=1','pat');
-    activateTabByName('lst',true);    
+    tabCloseByName('pat');
+    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin');
+    activateTabByName('fin',true);
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",
