@@ -44,6 +44,22 @@ function allFramesLoaded() {
  return true;
 }
 
+function goRepeaterServices(){
+    top.restoreSession();
+    // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
+    //  timing out mechanism in OpenEMR.
+
+    // TODO: placeholder for checking the messages and displaying them
+
+    // run background-services
+    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
+        { skip_timeout_reset: "1", ajax: "1" }
+    );
+
+    // auto run this function every 60 seconds
+    var repeater = setTimeout("goRepeaterServices()", 60000);
+}
+
 function isEncounterLocked( encounterId ) {
     <?php if ( $esignApi->lockEncounters() ) { ?>
 	// If encounter locking is enabled, make a syncronous call (async=false) to check the
@@ -127,6 +143,7 @@ var webroot_url="<?php echo $web_root; ?>";
     ko.applyBindings(app_view_model);
 
     $(document).ready(function() {
+        goRepeaterServices();
         $('#patient_caret').click(function() {
            $('#patientData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
