@@ -129,7 +129,7 @@ a:active {
 textarea.ACT { 
     border: none; 
     outline: none;
-    font-size:9px;
+    font-size:1em;
     text-align: center;
     height:38px;
     width:38px;
@@ -1105,6 +1105,7 @@ height: 18px;
     .narrow_textarea th {
         font-size:0.9em;
         text-align:center;
+        min-width: 63px;
     }
     .narrow_textarea {
         position:absolute;
@@ -1537,7 +1538,7 @@ a:hover, a:focus {
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
   display: none;
-  height: 20px; /*same height as header*/
+  height: 1px; 
   margin-top: -20px; /*same height as header*/
   visibility: hidden;
 }
@@ -1730,6 +1731,7 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     text-align: left;
     padding:5px;
     padding-left:10px;
+    height:21px;
 }
   .custom-combobox {
     position: relative;
@@ -1833,7 +1835,7 @@ View.php
 #LayerTension { width: 1.9in; height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 
 
-#DA_EXAM_sections { margin:0px 100px;text-align: center;display:inline-table;max-width: 95%;}
+#DA_EXAM_sections { text-align: center;display:inline-table;max-width: 95%;}
 #DA_EXAM_sections input[type="text"] { margin:1px; }
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}
@@ -1931,10 +1933,11 @@ textarea[name=COMMENTS_W] { width:100%;height:3.0em;}
 #IOP_dil { font-size:0.7em;}
 #ALL_keyboard_left {  color:#0C0C0C;size:0.6em;height: 6em;width:85%;margin:15px;z-index:100;}
 div[name=QP_11] { float:left;width:40px;text-align:left;}
+div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #NEURO_11 { font-size:0.8em;position:relative;float:right;text-align:center;width:238px;height:250px;z-index:1;margin:2px 0px 2px 2px;}
-#NEURO_P_1 { position:absolute;top:0.05in;right:0.241in;}
-#NEURO_P_2 { float:right;top:1.0in;right:0.0in;margin: 0px; text-align: center; }
-#NEURO_P_3 { position:left;top:0in;left:0.10in;margin: auto; }
+#NEURO_P_1,#IP_P_1 { position:absolute;top:0.05in;right:0.241in;}
+#NEURO_P_2 { float: right;padding-top: 4em;margin: 0em 1.5em;text-align: center; }
+#NEURO_P_3 { top:0in;padding-left:2.5em;margin: 0.5em auto; }
 .NEURO_P_21 { text-align:center;border:1pt solid black;
     padding:4px 10px 4px 10px;margin:20px 4px 4px 4px;
     font-weight:600;
@@ -1950,20 +1953,27 @@ div[name=QP_11] { float:left;width:40px;text-align:left;}
 #EXT_left_text {
     height: 2.5in;text-align:left; 
 }
-#EXT_left_1,#ANTSEG_left_1,#RETINA_left_1,#NEURO_left_1 {
+#EXT_left_1,#ANTSEG_left_1,#RETINA_left_1,#NEURO_left_1,
+#PRIORS_EXT_left_1,#PRIORS_ANTSEG_left_1,#PRIORS_RETINA_left_1,#PRIORS_NEURO_left_1 {
     position:relative;float:right;top:0.2in;text-align:right;
 }
 #EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
-#RETINA_left_1 table:nth-of-type(1), {
+#RETINA_left_1 table:nth-of-type(1), 
+#PRIORS_EXT_left_1 table:nth-of-type(1),
+#PRIORS_ANTSEG_left_1 table:nth-of-type(1),
+#PRIORS_RETINA_left_1 table:nth-of-type(1), {
     position:relative;float:right;text-align:right;font-size:0.7em;
 }
 #NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2 2;font-size:0.8em;font-weight:bold;}
 #NEURO_MOTILITY { float:left;font-size:0.9em;margin:2 2;padding:0px 15px;font-weight:bold;width:195px;}
 #NEURO_MOTILITY table { width:100%;}
-#EXT_left_1 table:nth-of-type(2),
+#EXT_left_1, table:nth-of-type(2),
+#PRIORS_EXT_left_1 table:nth-of-type(2),
 #ANTSEG_left_1 table:nth-of-type(2),
-#RETINA_left_1 table:nth-of-type(2) {
+#PRIORS_ANTSEG_left_1 table:nth-of-type(2),
+#RETINA_left_1 table:nth-of-type(2), 
+#PRIORS_RETINA_left_1 table:nth-of-type(2) {
     text-align:center;font-size:1.0em;
     width:175px;padding-left:2px;
 }
@@ -1971,7 +1981,7 @@ div[name=QP_11] { float:left;width:40px;text-align:left;}
 #EXT_keyboard_left {
      color:#0C0C0C;size:0.8em;height: 3em;
 }
-#PRIORS_EXT_left_text{
+.PRIORS_class{
     height: 2.5in;text-align:left;
 }
 .QP_class {
@@ -1981,13 +1991,13 @@ div[name=QP_11] { float:left;width:40px;text-align:left;}
 .QP_class2 {
     max-height:100%;padding-right:20px;padding-left:20px;text-align:left;
 }
-#dil_box {
+#dil_box,#PRIORS_dil_box {
     text-align:left;bottom:0px;width:75px;
 }
-#dil_listbox {
+#dil_listbox,#PRIORS_dil_box {
     font-size:0.8em;padding:4px 4px 4px 0px;
 }
-#dil_listbox_title {
+#dil_listbox_title,#PRIORS_dil_listbox_title {
     text-decoration:underline;font-size: 1.1em;
 }
 .dil_drug {
@@ -2002,9 +2012,24 @@ div[name=QP_11] { float:left;width:40px;text-align:left;}
     font-size:0.8em;overflow:auto;
     background-color: rgb(255, 248, 220); 
     box-shadow:2px 2px 3px #C0C0C0;
-    border:0.6pt solid black;
-    border-radius:6px; 
+    border:1pt solid black;
+    border-radius:3px; 
+    width:160px;
 }
- .PMSFH_table td {
-        min-height:24px;min-width:1.5in;padding:5px;
+.oldies_prefix {
+    position:relative;
+    font-size:0.72em;
+    padding:1px 0px 0px 10px;
+    margin:0px 0px 5px 0px;
+    z-index:10;
+    display: nowrap; 
 }
+.PMSFH_table td {
+        min-height:24px;min-width:1.6in;padding:5px;
+}
+.PMSFH_header {  width:1.9in;}
+#ACTTRIGGER {  text-decoration: underline;padding-left: 2px;text-align:left;font-weight: 600;}
+#ACTMAIN {  position:relative;z-index:1;margin: 0px auto;}
+#ACTNORMAL_CHECK { margin:0em 2em;width:125px;}
+#ACTTABLE { position:relative;text-align:center;font-size:1.0em;margin: 7 5 10 5;border-collapse: separate;}
+#IMPPLAN_1 { text-align: left;}

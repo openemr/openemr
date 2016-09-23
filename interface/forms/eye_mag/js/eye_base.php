@@ -36,7 +36,6 @@
     $providerID = $_REQUEST['providerID'];
     
     ?>
-
 var prior_field;
 var prior_text;
 var response = [];
@@ -57,6 +56,9 @@ var digit_5="4"; //Level 4
 var visit_code;
 var Code_new_est;
 var config_byday;
+var $root = $('html, body');
+var scroll;
+
 
 
 
@@ -187,7 +189,6 @@ function check_lock(modify) {
         var locked_date = parseDate($("#LOCKEDDATE").val());
     } else{
         var locked_date= new Date('2000-01-01');
-        
     }
     var uniqueID = $('#uniqueID').val();
     
@@ -224,16 +225,16 @@ function check_lock(modify) {
                            clearInterval(update_chart);
                            });
         }
-    }else if (locked =='1' && (interval < now_time)) { //it was locked more than an hour ago, take ownership quietly
+    } else if (locked =='1' && (interval < now_time)) { //it was locked more than an hour ago, take ownership quietly
         top.restoreSession();
         $.ajax({
                type   : 'POST',
                url    : url,
-               data     : {
-               'acquire_lock'  : '1',
-               'uniqueID'      : uniqueID, //this user is becoming the new owner
-               'locked_by'     : locked_by, //this is the old owner
-               'form_id'       : $("#form_id").val()
+               data   : {
+                 'acquire_lock'  : '1',
+                 'uniqueID'      : uniqueID, //this user is becoming the new owner
+                 'locked_by'     : locked_by, //this is the old owner
+                 'form_id'       : $("#form_id").val()
                }
                }).done(function(d) {
                        $("#LOCKEDBY").val(uniqueID);
@@ -435,7 +436,7 @@ function alter_issue2(issue_number,issue_type,index) {
         }
     }
     var location = $("#PMH_left").offset().top -55;
-    $(document).scrollTop( location );
+    $root.animate({scrollTop: location }, "slow");
 }
 function showArray(arr) {
     var tS = new String();
@@ -852,7 +853,13 @@ function show_TEXT() {
         $("#PREFS_CLINICAL").val('1');
     }
     $("#PREFS_EXAM").val('TEXT');
-    show_QP_section('IMPPLAN');
+    $("#IMPPLAN_right").addClass('canvas').removeClass('nodisplay');
+    $("#QP_IMPPLAN").removeClass('nodisplay');
+    $("#DRAW_"+zone).addClass('nodisplay');
+    $("#IMPPLAN_1").removeClass('nodisplay');
+    $("#IMPPLAN_left").removeClass('nodisplay');
+    $("#PREFS_IMPPLAN_RIGHT").val('QP');
+    if (!scroll) scrollTo("HPI_left");
     update_PREFS();
 }
 /*
@@ -878,7 +885,7 @@ function show_PRIORS() {
         //ui is not recognized here...
         //var location1 = parseInt( ui.offset.top );
     var location2 = $("#clinical_anchor").offset().top +100;
-    $(document).scrollTop( location2 );
+    //$root.animate({scrollTop: location2 }, "slow");
     if ($("#PREFS_CLINICAL").val() !='1') {
             // we want to show text_only which are found on left half now that PRIORS are visible.
         $("#PREFS_CLINICAL").val('1');
@@ -904,9 +911,11 @@ function show_QP() {
     $("#NEURO_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
     $(".QP_class").removeClass('nodisplay');
+    $(".QP_class2").removeClass('nodisplay');
+    
     $("#PREFS_EXAM").val('QP');
-    var location = $("#clinical_anchor").offset().top +100;
-    $(document).scrollTop( location );
+    //var location = $("#clinical_anchor").offset().top +100;
+   // $root.animate({scrollTop: location }, "slow");
     update_PREFS();
 }
 /*
@@ -948,16 +957,15 @@ function show_PRIORS_section(section,newValue) {
 /*
  * Function to show one of the Quick Picks section on the right side of its section.
  */
-function show_QP_section(zone) {
+function show_QP_section(zone,scroll) {
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
     $("#QP_"+zone).removeClass('nodisplay');
     $("#DRAW_"+zone).addClass('nodisplay');
     $("#"+zone+"_1").removeClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#PREFS_"+zone+"_RIGHT").val('QP');
-    $("#"+zone+"_anchor").trigger("click");
-//    $(document).scrollTop( $("#"+zone+"_anchor").offset().top -55);
-}
+    if (!scroll) scrollTo(zone+"_left");
+   }
 /*
  * Function to hide all the DRAW panels of every section.
  */
@@ -978,6 +986,7 @@ function hide_DRAW() {
  */
 function hide_QP() {
     $(".QP_class").addClass('nodisplay');
+    $(".QP_class2").addClass('nodisplay');
     $("[name$='_right']").removeClass('canvas');
 }
 /*
@@ -1054,13 +1063,19 @@ function menu_select(zone,che) {
     if (zone =='KB') show_KB();
     if (zone =='DRAW') show_DRAW();
     if (zone =='TEXT') show_TEXT();
-    if (zone =='PMH') $(window).scrollTop( $("#PMH_anchor").offset().top -55);
-    if (zone =='EXT') $(window).scrollTop( $("#EXT_anchor").offset().top -55);
-    if (zone =='ANTSEG') $(document).scrollTop( $("#ANTSEG_anchor").offset().top -55);
-    if (zone =='RETINA') $(window).scrollTop( $("#RETINA_anchor").offset().top -55);
-    if (zone =='NEURO') $(window).scrollTop( $("#NEURO_anchor").offset().top -55);
+/*
+    if (zone =='PMH')     $("html,body").animate({scrollTop: $("#PMH_anchor").offset().top -55}, "slow");
+    if (zone =='EXT')     $("html,body").animate({scrollTop: $("#EXT_anchor").offset().top -55}, "slow");
+    if (zone =='ANTSEG')  $("html,body").animate({scrollTop: $("#ANTSEG_anchor").offset().top-55}, "slow");
+    if (zone =='POSTSEG') $("html,body").animate({scrollTop: $("#RETINA_anchor").offset().top-55}, "slow");
+    if (zone =='NEURO')   $("html,body").animate({scrollTop: $("#NEURO_anchor").offset().top -55}, "slow");
     if (zone =='Right_Panel') $("#right-panel-link").trigger("click");
-    if (zone =='IOP_graph') { $("#LayerVision_IOP").removeClass('nodisplay'); $(window).scrollTop( $("#REFRACTION_anchor").offset().top -55); }
+    if (zone =='IOP_graph') { 
+      $("#LayerVision_IOP").removeClass('nodisplay'); 
+      $("html,body").animate({scrollTop: $("#REFRACTION_anchor").offset().top -55}, "slow");
+    }
+    */
+   // alert(zone);
 }
 /*
  * Function for the Track Anything stuff.
@@ -1109,7 +1124,6 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                                      "iopgraph", "650", "200", "9.0.0","",flashvars);
                   },
                   error: function (XMLHttpRequest, textStatus, errorThrown) {
-                  // alert(XMLHttpRequest.responseText);
                   alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
                   }
                   
@@ -1397,7 +1411,7 @@ function build_IMPPLAN(items) {
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];
                                                  obj.IMPPLAN_items.splice(item,1);
                                                  build_IMPPLAN(obj.IMPPLAN_items);
-                                                 store_IMPPLAN(obj.IMPPLAN_items);
+                                                 store_IMPPLAN(obj.IMPPLAN_items,'1');
                                                  });
                $('#PLAN_'+index).css("background-color","#F0F8FF");
                
@@ -1476,7 +1490,7 @@ function set_related(codetype, code, selector, codedesc) {
             update_PMSFH_code(obj.PMSFH[data[1]][data[2]].issue,codetype + ':' +code);
         }
     }
-    store_IMPPLAN(obj.IMPPLAN_items);
+    store_IMPPLAN(obj.IMPPLAN_items,'1');
 }
 /*
  * This functions updates a PMSFH item's code on the server via its issue number
@@ -1561,16 +1575,10 @@ function CODING_to_feesheet(CODING_items) {
                }
                }).done(function(result) {
                        if (result == "Code 400") {
-                       code_400(); //the user does not have write privileges!
-                       return;
+                        code_400(); //the user does not have write privileges!
+                        return;
                        } else {
-                       //ok to delete instead of translate...
-                       $("#goto_fee_sheet").removeClass('nodisplay');
-//                       if (confirm("\tVoila! \t\n\tSelect OK to open the Fee Sheet to finish processing today's charges\t\n\t or CANCEL to remain on this page.\t")) {
-                       //open the Fee Sheet
-  //                     top.restoreSession();
-    //                   dopopup('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');
-      //                 }
+                        $("#goto_fee_sheet").removeClass('nodisplay');
                        }
                        });
     }
@@ -1622,7 +1630,7 @@ function dragto_IMPPLAN_zone(event, ui) {
                                
                                });
     }
-    store_IMPPLAN(obj.IMPPLAN_items);
+    store_IMPPLAN(obj.IMPPLAN_items,'1');
 }
 /*
  * This function allows the user to drag a DX from the IMPRESSION list directly into the New Dx field $('#IMP') <-- New Dx textarea
@@ -1862,7 +1870,7 @@ shortcut.add("Ctrl+T",function() {
 shortcut.add("Meta+T",function() {
              show_TEXT();
              });
-shortcut.add("Control+D",function() {
+shortcut.add("Ctrl+D",function() {
              show_DRAW();
              });
 shortcut.add("Meta+D",function() {
@@ -1875,13 +1883,13 @@ shortcut.add("Meta+P",function() {
              show_PRIORS();
              $("#PRIOR_ALL").val($('#form_id').val()).trigger("change");
              });
-shortcut.add("Control+B",function() {
+shortcut.add("Ctrl+B",function() {
              show_QP();
              });
 shortcut.add("Meta+B",function() {
              show_QP();
              });
-shortcut.add("Control+K",function() {
+shortcut.add("Ctrl+K",function() {
              show_KB();
              });
 shortcut.add("Meta+K",function() {
@@ -1889,7 +1897,7 @@ shortcut.add("Meta+K",function() {
              });
 $(function(){
   /*
-   * this swallows backspace keys on any non-input element.
+   * this swallows backspace keys on the "rx" elements.
    * stops backspace -> back a page in the browser, a very annoying thing indeed.
    */
   var rx = /INPUT|SELECT|TEXTAREA|SPAN|DIV/i;
@@ -2015,10 +2023,20 @@ function reverse_cylinder(target) {
         $('#'+prefix+'OSCYL'+suffix).trigger('blur');
     }
 }
+function scrollTo(target) {
+  if (scroll !== '1') return;
+    var offset;
+    var scrollSpeed = 1200;
+    var wheight = $(window).height();
+    offset = $("#"+target).offset().top - ($(window).height() / 2)+200;
+    //alert(offset+" -- "+window.pageYOffset);
+    if (offset > (window.pageYOffset +150)||offset < (window.pageYOffset -150)) {
+    $('html, body').animate({scrollTop:offset}, scrollSpeed);
+}
+}
 
 $(document).ready(function() {
                   check_lock();
-                  
                   $('[title]').qtip({
                                     position: {
                                     my: 'top Right',  // Position my top left...
@@ -3401,26 +3419,27 @@ $(document).ready(function() {
                   $("[id^='BUTTON_TEXTD_']").click(function() {
                                                    var zone = this.id.match(/BUTTON_TEXTD_(.*)/)[1];
                                                    if (zone != "menu") {
-                                                   if ((zone =="PMH") || (zone == "HPI")) {
-                                                   $("#PMH_right").addClass('nodisplay');
-                                                   $("#PREFS_PMH_RIGHT").val(1);
-                                                   $("#HPI_right").addClass('nodisplay');
-                                                   $("#PREFS_HPI_RIGHT").val(1);
-                                                   var reset = $("#HPI_1").height();
-                                                   $("#PMH_1").height(reset);
-                                                   $("#PMH_left").height(reset-40);
-                                                   $("#LayerTechnical_sections_1").css("clear","both");
-                                                   if (zone == "PMH") {
-                                                   $.scrollTop( $("#"+zone+"_anchor").offset().top - 25);
-                                                   }
-                                                   } else {
-                                                   $("#"+zone+"_right").addClass('nodisplay');
-                                                   //$("#"+zone+"_COMMENTS_DIV").removeClass('QP_lengthen');
-                                                   //$("#"+zone+"_keyboard_left").removeClass('nodisplay');
-                                                   $("#PREFS_"+zone+"_RIGHT").val(1);
-                                                   }
-                                                   update_PREFS();
-                                                   
+                                                     if ((zone =="PMH") || (zone == "HPI")) {
+                                                       $("#PMH_right").addClass('nodisplay');
+                                                       $("#PREFS_PMH_RIGHT").val(1);
+                                                       $("#HPI_right").addClass('nodisplay');
+                                                       $("#PREFS_HPI_RIGHT").val(1);
+                                                       var reset = $("#HPI_1").height();
+                                                       $("#PMH_1").height(reset);
+                                                       $("#PMH_left").height(reset-40);
+                                                       $("#LayerTechnical_sections_1").css("clear","both");
+                                                       if (zone == "PMH") {
+                                                        //    $("html,body").animate({scrollTop: $("#"+zone+"_anchor").offset().top -55}, "slow");
+                                                       }
+                                                     } else {
+                                                       $("#"+zone+"_right").addClass('nodisplay');
+                                                       $("#PREFS_"+zone+"_RIGHT").val(1);
+                                                     }
+                                                     //var location = $("#"+zone+"_left").offset().top -100;
+                                                     //$root.animate({scrollTop: location }, "slow");
+                                                     scrollTo(zone+"_left");
+                                                     update_PREFS();
+                                                     
                                                    }
                                                    });
                   
@@ -3636,7 +3655,8 @@ $(document).ready(function() {
                                                   if (zone =="ALL") {
                                                   } else {
                                                   if ($('#PREFS_'+zone+'_RIGHT').val() =="DRAW") {
-                                                  $('#BUTTON_TEXTD_'+zone).trigger("click");
+                                                  $('#BUTTON_TEXTD_'+zone).trigger("click");//closes draw
+                                                  //maybe this should revert to last right panel state (qp,text)
                                                   return;
                                                   }
                                                   $("#"+zone+"_1").removeClass('nodisplay');
@@ -3645,18 +3665,20 @@ $(document).ready(function() {
                                                   $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                   $("#Draw_"+zone).removeClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val('DRAW');
+                                                  scrollTo(zone+"_left");
+                                                  //alert("ok?");
                                                   update_PREFS();
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").click(function() {
                                                 var zone = this.id.match(/BUTTON_QP_(.*)$/)[1].replace(/_\d*/,'');
                                                 if (zone =='IMPPLAN2') {
-                                                $('#IMP_start_acc').slideDown();
-                                                zone='IMPPLAN';
+                                                  $('#IMP_start_acc').slideDown();
+                                                  zone='IMPPLAN';
                                                 }
                                                 if ($("#PREFS_"+zone+"_RIGHT").val() =='QP') {
-                                                $('#BUTTON_TEXTD_'+zone).trigger("click");
-                                                return;
+                                                  $('#BUTTON_TEXTD_'+zone).trigger("click");
+                                                  return;
                                                 }
                                                 $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                 $("#Draw_"+zone).addClass('nodisplay');
@@ -3670,7 +3692,7 @@ $(document).ready(function() {
                                                 $("#Draw_HPI").addClass('nodisplay');
                                                 show_QP_section('HPI');
                                                 $("#PREFS_HPI_RIGHT").val('QP');
-                                                $(document).scrollTop('400');
+                                                //$("html,body").animate({scrollTop: '400'}, "slow");
                                                 }
                                                 if ($('#PMH_right').height() > $('#PMH_left').height()) {
                                                 $('#PMH_left').height($('#PMH_right').height());
@@ -3796,7 +3818,7 @@ $(document).ready(function() {
                                                   }
                                                   });
                                            build_IMPPLAN(obj.IMPPLAN_items);
-                                           store_IMPPLAN(obj.IMPPLAN_items);
+                                           store_IMPPLAN(obj.IMPPLAN_items,'1');
                                            });
                   
                   
@@ -3867,7 +3889,7 @@ $(document).ready(function() {
                                                         PMSFH_link: ''
                                                         });
                                  build_IMPPLAN(obj.IMPPLAN_items);
-                                 store_IMPPLAN(obj.IMPPLAN_items);
+                                 store_IMPPLAN(obj.IMPPLAN_items,'1');
                                  $('#IMP').val('');//clear the box
                                  submit_form('1');//tell the server where we stand
                                  });
@@ -3890,29 +3912,25 @@ $(document).ready(function() {
                                           event.preventDefault();
                                           build_CODING_list();
                                           });
-                  $( "button" )
-                  .button()
-                  .click(function( event ) {
+                  $( ".widget a" ).button();
+                  
+                  $('#goto_fee_sheet2').click(function(event) {
+                    goto_url('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');
+
+                                            });
+                  $( "button" ).button().click(function( event ) {
                          event.preventDefault();
                          });
                   //this gets the page to slow scroll to where we need it in our view.
                   var hashTagActive = "";
                   $(".anchor").click(function (event) {
-                                                        if(hashTagActive != $("#"+this.id).offset().top) { //this will prevent if the user click several times the same link to freeze the scroll.
-                                                            event.preventDefault();
-                                                            //calculate destination place
-                                                            var dest = 0;
-                                                        /*    alert($("#"+this.id).offset().top+' '+$(document).height()+' '+ $(window).height());
-                                                            if ($("#"+this.id).offset().top > $(document).height() - $(window).height()) {
-                                                                dest = $(document).height() - $(window).height();
-                                                            } else {
-                                                        */        dest = $("#"+this.id).offset().top -200;
-                                                         //   }
-                                                            //go to destination
-                                                          //  $("body,html,document").scrollTop( dest );
-                                                            
-                                                            hashTagActive = $("#"+this.id);
-                                                        }
+                           //   if(hashTagActive !== $("#"+this.id).offset().top) { //this will prevent if the user click several times the same link to freeze the scroll.
+                                  event.preventDefault();
+                            //      $root.animate({scrollTop: $("#"+this.id).offset().top -55}, "slow");
+                               //   hashTagActive = $("#"+this.id).offset().top;
+                               //   alert(hashTagActive+"  "+$("#"+this.id).offset().top);
+                             // }
+                              
                   });
                   refresh_page();
                   // AUTO- CODING FEATURES
@@ -3931,8 +3949,9 @@ $(document).ready(function() {
                                            visit_type = data[1];
                                            });
                   
-                  show_QP_section('IMPPLAN');
+                  show_QP_section('IMPPLAN','1');
                   build_IMPPLAN(obj.IMPPLAN_items);
+                  scroll='1';
                   //
                   /*alert($(document).tab_mode);
                   if (tab_mode==true) {
@@ -3945,5 +3964,6 @@ $(document).ready(function() {
                                  if ($('#chart_status').val()=="on") {
                                  unlock(); }
                                  });
+                  //$('html,body').scrollTop( 0 );
                   
                   });

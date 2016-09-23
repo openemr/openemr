@@ -46,16 +46,8 @@ function priors_select($zone,$orig_id,$id_to_show,$pid,$type='text') {
     global $priors;
     global $form_id;
     global $earlier;
-    $Form_Name = "Eye Exam";
-    $output_return ="<span style='right:0.241in;
-                                font-size:0.72em;
-                                padding:1 0 0 10;
-                                margin:0 0 5 0;
-                                z-index:10;
-                                display: nowrap;' 
-                                id='".attr($zone)."_prefix_oldies' 
-                                name='".attr($zone)."_prefix_oldies'  
-                                class='' >";
+    $Form_Name = "Eye Exam"; 
+    $output_return ="<span id='".attr($zone)."_prefix_oldies' name='".attr($zone)."_prefix_oldies' class='oldies_prefix'>";
     $selected='';
     $current='';
     if (!$priors) {
@@ -73,7 +65,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid,$type='text') {
                     //Say there were 100 visits and we have a 200 variables(?) in form_eye_mag, we 
                     //are probably going to be fine...  It'd be a big select list though... 
                     //Think Mister Geppetto. What would an AI do with this data for an end-user? 
-                    //We already use it for the Orders placed on  the prior visit.
+                    //We already use it for the Orders placed on the prior visit.
                     //If we passed this "priors" variable via JSON, 
                     // then we could do the following client side (wicked fast):
                     //      Carry forward function
@@ -217,24 +209,25 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         ?> 
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
-            <div style="position:absolute;top:0.083in;right:0.241in;">
+            <div name="prior_selector">
                  <?php
-                 echo $output;//already sanitized
+                 echo $output;//prior visit selector - already sanitized
                   ?>
             </div>
                 <b> 
                     <?php 
                         if ($report =='0') { echo xlt('Prior Exam'); } else { echo xlt($zone);}
                      ?>: </b><br />
-                <div style="position:relative;float:right;top:0.2in;">
-                    <table style="text-align:center;font-weight:600;font-size:0.8em;width:166px;">
+                <div id="PRIORS_EXT_left_1">
+                    <table>
                         <?php 
                             list($imaging,$episode) = display($pid,$encounter, "EXT");
                             echo $episode;
                         ?>
                     </table>
-                    <table style="text-align:center;font-size:1.0em;">
-                        <tr><td></td><td><?php echo xlt('OD{{right eye}}'); ?></td><td><?php echo xlt('OS{{left eye}}'); ?></td>
+                    <table>
+                        <tr>
+                            <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L'); ?></td>
                         </tr>
                         <tr>
                             <td class="right"><?php echo xlt('Lev Fn{{Levator Function}}'); ?></td>
@@ -271,15 +264,15 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                             <td><input disabled type="text" size="1" name="PRIOR_RCNVII" id="PRIOR_RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
                             <td><input disabled type="text" size="1" name="PRIOR_LCNVII" id="PRIOR_LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                         </tr>
-                        <tr><td colspan=3 style="padding-top:0.05in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
-                        <tr style="text-align:center;">
+                        <tr><td colspan=3 class="underline"><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
+                        <tr class="center">
                             <td>
                                 <input disabled type=text size=1 id="PRIOR_ODHERTEL" name="PRIOR_ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
-                                <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+                                <i class="fa fa-minus"></i>
                             </td>
                             <td>
                                 <input disabled type=text size=3  id="PRIOR_HERTELBASE" name="PRIOR_HERTELBASE" value="<?php echo attr($HERTELBASE); ?>">
-                                <span style="width:400px;-moz-text-decoration-line: line-through;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+                                <i class="fa fa-minus"></i>
                             </td>
                             <td>
                                 <input disabled type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
@@ -298,34 +291,34 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         <th><?php echo xlt('Right'); ?></th><td style="width:100px;"></td><th><?php echo xlt('Left'); ?> </th>
                     </tr>
                     <tr>
-                        <td><textarea disabled name="PRIOR_RBROW" id="PRIOR_RBROW" class="right "><?php echo text($RBROW); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Brow'); ?></td>
+                        <td><textarea disabled name="PRIOR_RBROW" id="PRIOR_RBROW" class="right EXT"><?php echo text($RBROW); ?></textarea></td>
+                        <td class="ident"><?php echo xlt('Brow'); ?></td>
                         <td><textarea disabled name="PRIOR_LBROW" id="PRIOR_LBROW" class=""><?php echo text($LBROW); ?></textarea></td>
                     </tr> 
                     <tr>
                         <td><textarea disabled name="PRIOR_RUL" id="PRIOR_RUL" class="right"><?php echo text($RUL); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Upper Lids'); ?></td>
+                        <td class="ident"><?php echo xlt('Upper Lids'); ?></td>
                         <td><textarea disabled name="PRIOR_LUL" id="PRIOR_LUL" class=""><?php echo text($LUL); ?></textarea></td>
                     </tr> 
                     <tr>
                         <td><textarea disabled name="PRIOR_RLL" id="PRIOR_RLL" class="right"><?php echo text($RLL); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Lower Lids'); ?></td>
+                        <td class="ident"><?php echo xlt('Lower Lids'); ?></td>
                         <td><textarea disabled name="PRIOR_LLL" id="PRIOR_LLL" class=""><?php echo text($LLL); ?></textarea></td>
                     </tr>
                     <tr>
                         <td><textarea disabled name="PRIOR_RMCT" id="PRIOR_RMCT" class="right"><?php echo text($RMCT); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Medial Canthi'); ?></td>
+                        <td class="ident"><?php echo xlt('Medial Canthi'); ?></td>
                         <td><textarea disabled name="PRIOR_LMCT" id="PRIOR_LMCT" class=""><?php echo text($LMCT); ?></textarea></td>
                     </tr>
                      <tr>
                         <td><textarea disabled name="PRIOR_RADNEXA" id="PRIOR_RADNEXA" class="right"><?php echo text($RADNEXA); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Adnexa'); ?></td>
+                        <td class="ident"><?php echo xlt('Adnexa'); ?></td>
                         <td><textarea disabled name="PRIOR_LADNEXA" id="PRIOR_LADNEXA" class=""><?php echo text($LADNEXA); ?></textarea></td>
                     </tr>
                 </table>
             </div>  <br />
             <div class="QP_lengthen"> <b><?php echo xlt('Comments'); ?>:</b><br />
-                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" style="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
+                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" Xstyle="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>  
 
             <?php
@@ -334,130 +327,130 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         ?> 
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
-        <div style="position:absolute;top:0.083in;right:0.241in;">
+        <div name="prior_selector">
              <?php
              echo $output;
               ?>
         </div>
 
         <b> <?php echo xlt('Prior Exam'); ?>:</b><br />
-        <div class="text_clinical" style="position:relative;float:right;top:0.2in;">
-            <table style="text-align:center;font-weight:600;font-size:0.8em;">
+        <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
+            <table>
                 <?php 
                     list($imaging,$episode) = display($pid,$encounter, "ANTSEG");
                     echo $episode;
                 ?>
             </table>
-            <table style="text-align:center;font-size:1.0em;width:170px;padding-left:5px;"> 
+            <table> 
                 <tr >
-                    <td></td><td><?php echo xlt('OD{{right eye}}'); ?></td><td><?php echo xlt('OS{{left eye}}'); ?></td>
+                    <td></td><td><?php echo xlt('R{{right}}'); ?></td><td><?php echo xlt('L{{left}}'); ?></td>
                 </tr>
                 <tr>
-                    <td class="right" ><?php echo xlt('Gonioscopy'); ?></td>
+                    <td class="right" ><?php echo xlt('Gonio{{Gonioscopy abbreviation}}'); ?></td>
                     <td><input disabled  type="text" name="PRIOR_ODGONIO" id="PRIOR_ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
                     <td><input disabled  type="text" name="PRIOR_OSGONIO" id="PRIOR_OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" ><?php echo xlt('Pachymetry'); ?></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_ODKTHICKNESS" id="PRIOR_ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_OSKTHICKNESS" id="PRIOR_OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_ODKTHICKNESS" id="PRIOR_ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSKTHICKNESS" id="PRIOR_OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmer I'); ?></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_ODSCHIRMER1" id="PRIOR_ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_ODSCHIRMER1" id="PRIOR_ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirmer II'); ?></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_ODSCHIRMER2" id="PRIOR_ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_ODSCHIRMER2" id="PRIOR_ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
                 </tr>
                 <tr>
                     <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT{{tear break-up time}}'); ?></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_ODTBUT" id="PRIOR_ODTBUT" value="<?php echo attr($ODTBUT); ?>"></td>
-                    <td><input disabled type="text" size="1" name="PRIOR_OSTBUT" id="PRIOR_OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_ODTBUT" id="PRIOR_ODTBUT" value="<?php echo attr($ODTBUT); ?>"></td>
+                    <td><input disabled type="text" name="PRIOR_OSTBUT" id="PRIOR_OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
                 </tr>
-                <tr style="text-align:center;" >
-                                      <td colspan="3" rowspan="4" style="text-align:left;bottom:0px;width:75px;">
-                                        <br />
-                                        <?php 
-                                        // This is going to be based off a list in the near future
-                                        // to allow for end-user customization
-                                         ?>
-                                        <span style="width:70px;text-decoration:underline;font-size: 1.1em;"><?php echo xlt('Dilated with'); ?>:</span><br />
-                                        <table style="font-size:0.9em;padding:4px;">
-                                          <tr>
-                                            <td>
-                                                  <input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') echo "checked='checked'"; ?> />
-                                                  <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
-                                            </td>
-                                            <td>        
-                                                  <input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') echo "checked='checked'"; ?> />
-                                                  <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>        
-                                                <input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') echo "checked='checked'"; ?> />
-                                                <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo text('Neo 2.5%'); ?></label>
-                                            </td>
-                                            <td>        
-                                                <input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') echo "checked='checked'"; ?> />
-                                                <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>        
-                                                <input type="checkbox" class="dil_drug" id="Cyclogyl" style="left:150px;" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') echo "checked='checked'"; ?> />
-                                                <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo text('Cyclo 1%'); ?></label>
-                                            </td>
-                                            <td>      
-                                                <input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') echo "checked='checked'"; ?> />
-                                                <label for="Atropine" class="input-helper input-helper--checkbox"><?php echo text('Atropine 1%'); ?></label>
-                                            </td>
-                                          </tr>
-                                        </table>
-                                      </td>
-                                    </tr>
+                <tr>
+                  <td colspan="3" rowspan="4" id="PRIORS_dil_box">
+                    <br />
+                    <?php 
+                    // This is going to be based off a list in the near future
+                    // to allow for end-user customization
+                     ?>
+                    <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilated with'); ?>:</span><br />
+                    <table id="PRIORS_dil_listbox">
+                      <tr>
+                        <td>
+                              <input disabled type="checkbox" class="dil_drug" id="PRIORS_CycloMydril" name="PRIORS_CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') echo "checked='checked'"; ?> />
+                              <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
+                        </td>
+                        <td>        
+                              <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') echo "checked='checked'"; ?> />
+                              <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>        
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo25" name="PRIORS_NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') echo "checked='checked'"; ?> />
+                            <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo text('Neo 2.5%'); ?></label>
+                        </td>
+                        <td>        
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') echo "checked='checked'"; ?> />
+                            <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>        
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Cyclogyl" style="left:150px;" name="PRIORS_CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') echo "checked='checked'"; ?> />
+                            <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo text('Cyclo 1%'); ?></label>
+                        </td>
+                        <td>      
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Atropine" name="PRIORS_ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') echo "checked='checked'"; ?> />
+                            <label for="Atropine" class="input-helper input-helper--checkbox"><?php echo text('Atropine 1%'); ?></label>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
             </table>
         </div>
         <?php ($ANTSEG_VIEW =='1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view= "narrow_textarea");?>
         <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_ANTSEG_text_view" id="PRIOR_ANTSEG_text_view"></span>
-                <table class="" style="" cellspacing="0" cellpadding="0">
+                <table>
                     <tr>
-                        <th><?php echo xlt('OD{{right eye}}'); ?></th><td style="width:100px;"></td><th><?php echo xlt('OS{{left eye}}'); ?></th></td>
+                        <th><?php echo xlt('OD{{right eye}}'); ?></th><th></th><th><?php echo xlt('OS{{left eye}}'); ?></th></td>
                     </tr>
                     <tr>
                         <td><textarea disabled name="PRIOR_ODCONJ" id="PRIOR_ODCONJ" class="right"><?php echo text($ODCONJ); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Conj{{Conjunctiva}}'); ?> / <?php echo xlt('Sclera'); ?></td>
+                        <td class="ident"><?php echo xlt('Conj{{Conjunctiva}}'); ?> / <?php echo xlt('Sclera'); ?></td>
                         <td><textarea disabled name="PRIOR_OSCONJ" id="PRIOR_OSCONJ" class=""><?php echo text($OSCONJ); ?></textarea></td>
                     </tr> 
                     <tr>
                         <td><textarea disabled name="PRIOR_ODCORNEA" id="PRIOR_ODCORNEA" class="right"><?php echo text($ODCORNEA); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Cornea'); ?></td>
+                        <td class="ident"><?php echo xlt('Cornea'); ?></td>
                         <td><textarea disabled name="PRIOR_OSCORNEA" id="PRIOR_OSCORNEA" class=""><?php echo text($OSCORNEA); ?></textarea></td>
                     </tr> 
                     <tr>
                         <td><textarea disabled name="PRIOR_ODAC" id="PRIOR_ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;"><?php echo xlt('A/C{{Anterior Chamber}}'); ?></td>
+                        <td class="ident"><?php echo xlt('A/C{{Anterior Chamber}}'); ?></td>
                         <td><textarea disabled name="PRIOR_OSAC" id="PRIOR_OSAC" class=""><?php echo text($OSAC); ?></textarea></td>
                     </tr>
                     <tr>
                         <td><textarea disabled name="PRIOR_ODLENS" id="PRIOR_ODLENS" class=" right"><?php echo text($ODLENS); ?></textarea></td>
-                        <td style="text-align:center;font-size:0.9em;font-size:0.9em;" class="dropShadow"><?php echo xlt('Lens'); ?></td>
+                        <td class="ident" ><?php echo xlt('Lens'); ?></td>
                         <td><textarea disabled name="PRIOR_OSLENS" id="PRIOR_OSLENS" class=""><?php echo text($OSLENS); ?></textarea></td>
                     </tr>
                     <tr>
                         <td><textarea disabled name="PRIOR_ODIRIS" id="PRIOR_ODIRIS" class="right"><?php echo text($ODIRIS); ?></textarea></td>
-                        <td style="text-align:center;"><?php echo xlt('Iris'); ?></td>
+                        <td class="ident"><?php echo xlt('Iris'); ?></td>
                         <td><textarea disabled name="PRIOR_OSIRIS" id="PRIOR_OSIRIS" class=""><?php echo text($OSIRIS); ?></textarea></td>
                     </tr>
                 </table>
         </div>  <br />
         <div class="QP_lengthen"> <b><?php echo xlt('Comments'); ?>:</b><br />
-            <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
+            <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>   
        
         <?php 
@@ -466,7 +459,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         ?> 
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
-        <div style="position:absolute;top:0.083in;right:0.241in;">                              
+        <div name="prior_selector">                              
              <?php
              echo $output;
               ?>
@@ -554,7 +547,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
-        <div style="position:absolute;top:0.083in;right:0.241in;">
+        <div name="prior_selector">
              <?php
              echo $output;
               ?>
@@ -1400,7 +1393,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         ?> 
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
-        <div style="position:absolute;top:0.083in;right:0.241in;" class="PRIORS">
+        <div name="prior_selector" class="PRIORS">
              <?php
              echo $output;
               ?>
@@ -1870,8 +1863,7 @@ function display_PMSFH($rows,$view="pending",$min_height="min-height:344px;") {
     $counter = "0";
     $column_max = round($total_PMSFH/$rows);
     if ($column_max < "18") $column_max ='18';
-    $open_table = "<table style='margin-bottom:10px;border:1pt solid black;
-    background-color: rgb(255, 248, 220); font-size:0.8em;overflow:auto;'><tr><td style='min-height:24px;min-width:1.5in;padding:5px;'>";
+    $open_table = "<table class='PMSFH_table'><tr><td>";
     $close_table = "</td></tr></table>";
     // $div is used when $counter reaches $column_max and a new row is needed.
     // It is used only if $row_count <= $rows, ie. $rows -1 times.
@@ -1890,7 +1882,7 @@ function display_PMSFH($rows,$view="pending",$min_height="min-height:344px;") {
         }
         $table='';
         $header='';
-        $header .='    <table style="width:1.6in;">
+        $header .='    <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
                         <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt($key).'</span>
@@ -3212,42 +3204,6 @@ function display($pid,$encounter,$category_value) {
         $i++;
     }
     return array($documents,$episode);
-}
-/**
- *   This is an attempt to redirect new menu items which point to old OpenEMR forms in other frames, to display
- *   inside of this page instead.  Not working yet...
- *
- *   @param string $url is the page to get
- *   @return nothing, outputs directly to screen
- */
-function redirector($url) {
-    global $form_folder;
-    
-     ?>
-    <html>
-    <head>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-    <?php  $input_echo = menu_overhaul_top($pid,$encounter); ?>
-    <object data="<?php echo $GLOBALS['webroot'].$url; ?>" width="600" height="400"> 
-    <embed src="<?php echo $GLOBALS['webroot'].$url; ?>" width="600" height="400"> </embed> 
-    <?php xlt('Error: Embedded data could not be displayed'); ?>. </object>
-    <?php $output = menu_overhaul_bottom($pid,$encounter);
-    exit(0);
 }
 
 /**

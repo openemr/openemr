@@ -225,7 +225,6 @@ if ($_REQUEST['AJAX_PREFS']) {
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
     sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_TOOLTIPS']));
 }
-
 /**
   * ADD ANY NEW PREFERENCES above, and as a hidden field in the body.  
   */
@@ -297,7 +296,8 @@ if ($_REQUEST['unlock'] == '1') {
   }
   if (!$_REQUEST['LOCKEDBY'])  $_REQUEST['LOCKEDBY'] = rand();
 }
-if ($_REQUEST["mode"] == "new")             {
+
+if ($_REQUEST["mode"] == "new")             { 
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
 } elseif ($_REQUEST["mode"] == "update")    {
@@ -876,9 +876,10 @@ if ($_REQUEST["mode"] == "new")             {
 /**  
  * Save the canvas drawings  
  */
+
 if ($_REQUEST['canvas']) {
   if (!$pid||!$encounter||!$zone||!$_POST["imgBase64"]) exit;
- 
+
   $side = "OU";
   $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
   $filename = $base_name.".jpg";
@@ -888,12 +889,11 @@ if ($_REQUEST['canvas']) {
   $data = substr($data, strpos($data, ",")+1);
   $data = base64_decode($data);
   $size = strlen($data);
-  
   $query = "select id from categories where name = 'Drawings'";
   $result = sqlStatement($query);
   $ID = sqlFetchArray($result);
   $category_id = $ID['id'];
-
+  
   // We want to overwrite so only one image is stored per zone per form/encounter
   // I do not believe this function exists in the current library, ie "UpdateDocument" function, so...
   //  we need to delete the previous file from the documents and categories to documents tables and the actual file
@@ -910,7 +910,6 @@ if ($_REQUEST['canvas']) {
   $sql ="DELETE from documents where documents.url like '%".$filename."'";
   sqlQuery($sql);
   $return = addNewDocument($filename,$type,$_POST["imgBase64"],0,$size,$_SESSION['authUserID'],$pid,$category_id);
-  echo "New Document added ".var_dump($return);
   $doc_id = $return['doc_id'];
   $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
   sqlQuery($sql,array($encounter,$doc_id));
