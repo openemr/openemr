@@ -3177,7 +3177,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     </div>
                     <div id="QP_IMPPLAN" name="QP_IMPPLAN" class="QP_class2">
                       <span id="iPLAN_BUILD" name="iPLAN_BUILD" class="bold"><?php echo xlt('Impression/Plan'); ?></span> 
-                      <div id="IP_P_1"">
+                      <div id="IP_P_1">
                         <?php echo $selector = priors_select("IMPPLAN",$id,$id,$pid); ?>
                       </div>
                       <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
@@ -3306,7 +3306,6 @@ if ($refresh and $refresh != 'fullscreen') {
                               </tr>
                               <tr>
                               <td colspan="3" style="padding-top:5px;padding-left:15px;">
- 
                                 <div class="ui-widget">
                                   <select id="visit_codes">
                                     <?php
@@ -3354,7 +3353,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 
                             <tr id="neurosens_code" name="neurosens_code" class="nodisplay">
                               <td colspan="3" style="padding-top:5px;padding-left:15px;"><input type="hidden" id="neurosens" style="width:50px;" value="92060" class="">
-                               <i class="fa fa-check"></i> <?php echo xlt('92060 Sensorimotor Exam - no modifier required'); ?>.
+                                <i class="fa fa-check"></i> <?php echo xlt('92060 Sensorimotor Exam - no modifier required'); ?>.
                               </td>
                             </tr>
                           
@@ -3545,8 +3544,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td></td>
-                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?></td>
-                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?></td>
+                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) echo ", ".text($pcp_data['suffix']); ?></td>
+                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) echo ", ".text($ref_data['suffix']); ?></td>
                             </tr>
                             <tr>
                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>

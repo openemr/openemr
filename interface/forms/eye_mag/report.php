@@ -1825,21 +1825,21 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
     <!-- start of IMPPLAN exam -->
     <table class="report_exam_group">
       <tr>
-        <td style="text-align:left;padding:1px;vertical-align:top;width:680px;">
+        <td style="text-align:left;padding:1px;vertical-align:top;width:480px;">
           <b><u><?php echo xlt('Impression/Plan'); ?>:</u></b>
           <table style="">
             <tr>
-              <td style="padding:5px;text-align: left;text-align:justify;width:680px;">
-                <?php 
-                /*  
-                 *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
-                 */
+              <td style="padding:5px;text-align: left;text-align:justify;width:475px;">
+                <?php        
+                  /**  
+                   *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
+                   */
                   $query = "select * from form_".$form_folder."_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
                   $result =  sqlStatement($query,array($form_id,$pid));
                   $i='0';
                   $order   = array("\r\n", "\n", "\r","\v","\f","\x85","\u2028","\u2029");
                   $replace = "<br />";
-                 // echo '<ol>';
+                  // echo '<ol>';
                   while ($ip_list = sqlFetchArray($result))   {
                     $newdata =  array (
                       'form_id'       => $ip_list['form_id'],
@@ -1872,48 +1872,41 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     }
                     echo  $item['plan']."</div><br />";
                   }
-                  ?>
+                  if ($PLAN && $PLAN != '0') { ?>
+                    <b>Orders/Next Visit:</b>
+                    <br />
+                    <div style="padding-left:15px;padding-bottom:10px;width:400px;">
+                      <?php 
+                      $PLAN_items = explode('|',$PLAN);
+                      foreach ($PLAN_items as $item) {
+                        echo  $item."<br />";
+                      }  
+                      if ($PLAN2) {
+                        echo $PLAN2."<br />";
+                      }
+                      ?>
+                    </div>
+                    <?php 
+                  } 
+                ?>
               </td>
             </tr>
           </table>
         </td>
-        <td style="text-align:left;vertical-align:bottom;padding:5 5 10 5;">
+        <td style="text-align:center;vertical-align:bottom;padding:1px;">
           <?php 
-            display_draw_image ("IMPPLAN",$encounter,$pid);
-          ?>
-        </td>
-      </tr>
-      <tr>
-        <td style="text-align:left;padding:1px;vertical-align:top;width:680px;">
-          <?php 
-          if ($PLAN && $PLAN != '0') { ?>
-            <b>Orders/Next Visit:</b>
-            <br />
-            <div style="padding-left:15px;padding-bottom:10px;">
-              <?php 
-              $PLAN_items = explode('|',$PLAN);
-              foreach ($PLAN_items as $item) {
-                echo  $item."<br />";
-              }
-              if ($PLAN2) {
-                echo $PLAN2."<br />";
-              }
-              ?>
-            </div>
-            <?php 
-          } ?>
-
-          <div style="width:220px;position:relative;left:0.in;padding-left:5 2;">
-            <?php 
+            display_draw_image ("IMPPLAN",$encounter,$pid); 
+          
             if ($PDF_OUTPUT) {
               //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
-                  $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
-                  if (file_exists($from_file)) {
-                    echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />".
-                    $providerNAME."<br />
-                    <i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
-                  }
-                  ?><br />
+              $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+              if (file_exists($from_file)) {
+                echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />".
+                $providerNAME."<br />
+                <i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
+              }
+              ?>
+              <br />
               <span style="border-top:1pt solid black;padding-left:50px;"><?php echo text($providerNAME); ?></span>
               <?php
             } else {
@@ -1923,9 +1916,10 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               }
             }
             ?> 
-          </div>
+          
+        
         </td>
-      </tr>  
+      </tr>
     </table>
   </div>
   <?php

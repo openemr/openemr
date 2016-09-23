@@ -25,7 +25,7 @@
  *   
  */
 
-//error_reporting(0);
+error_reporting(0);
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;

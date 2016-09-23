@@ -25,24 +25,6 @@
  * @link http://www.open-emr.org 
  */
 
-/**
- *  What does the table form_taskman look like?
- *
- *	tasktableid = unique entry utoincrement
- *	TASK_ID
- *	ORDER option 0,1 1= an order, 0=part of the log for a given taskid
- *	REQ_DATE is date task was requested or created
- *	FROM_ID is the FROM providerID sending it. 
- *	TO_ID is the eceiver id
- *	PAT_ID is the id of the patient we are dealing with
- *	DOC_TYPE is the type of document we are sending.  In the first iteration this is a "report" of the visit.
- *		This should matter as a given type might have a different cover page or maybe we just send a cover page with Imp/Plan 
- *	DOC_ID is the item to send.  This can be multiple items, separated by '|'
- *	ENC_ID is the encounter in question.  If there is no doc_id, you need to create it from the encounter_id
- *   METHOD is the delivery method
- *	COMPLETED = 0,1 flag when done, so we can ignore it
- *	COMPLETED_DATE date flagged as done
- */
 
 /**
  *	This function creates a task as a record in the form_taskman DB_table.
@@ -56,19 +38,34 @@ function make_task($ajax_req) {
 	$doc_id 	= $ajax_req['doc_id'];
 	$enc 	 	= $ajax_req['enc'];
 
-	//what if the document was deleted, cause we want to redo it...
-	//this checks form_taskman.  Maybe we need to check Documents...
+	$query 		= "SELECT * FROM users WHERE id=?";
+  	$to_data 	=  sqlQuery($query,array($to_id));
+	$filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf"; 
+		
+	$query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like '%".$filename."%'";
+    $doc = sqlQuery($query,array($encounter,$pid));
+                                    
+
 	$sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
 	$task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
-
+	
+	if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) { 
+		// The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
+		// but the document was deleted (to redo it)...
+		// Delete the task, recreate the task, and send the newly made PDF.
+		$sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
+		$task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
+	}
 	if ($task['ID'] && $task['COMPLETED'] =='2') {
-		$send['comments'] = xlt('This fax has already been sent. Consider printing the Fax Report and sending it manually.');
+		$send['comments'] = xlt('This fax has already been sent.')." ".
+							xlt('If you made changes and want to re-send it, delete the original (in Communications) and try again.')." ".
+							xlt('Filename').": ".$filename;
 		echo json_encode($send);
 		exit;
 	} else if ($task['ID'] && $task['COMPLETED'] =='1') {
 		if ($task['DOC_TYPE'] == 'Fax') {
 			$send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
-								target='_blank' title='".xla('View the Summay Report sent to Fax Server.')."''>
+								target='_blank' title='".xla('View the Summay Report sent to Fax Server.')."'>
 								<i class='fa fa-file-pdf-o fa-fw'></i></a>
 								<i class='fa fa-repeat fa-fw' 
 									onclick=\"top.restoreSession(); create_task('".attr($pat_data['ref_providerID'])."','Fax-resend','ref'); return false;\">
@@ -78,21 +75,14 @@ function make_task($ajax_req) {
 			$send['comments'] = xlt('This fax has already been sent.');
 			echo json_encode($send);
 			exit;
-		} else if ($task['doc_type'] == "Fax-resend") {
+		} else if ($task['DOC_TYPE'] == "Fax-resend") {
 			//we need to resend this fax????
 			//You can only resend from here once.
-			//If you are that messed up, print the report and fax it manually.
-			$send['comments'] = xlt('OK, we want to resend it. We just do not know how to do this yet automatically, so you have do it manually...');
+			$send['comments'] = xlt('To resend, delete the file from Communications and try again.');
 			echo json_encode($send);
 			update_taskman($task,'refaxed', '2');
 			exit;
 		} else { //DOC_TYPE is a Fax or Report
-			/*
-			$send['comments'] =  xlt("The ".$task['DOC_TYPE']." was not recreated - it is already stored as a Document.");
-			echo json_encode($send);
-			exit;
-			*/
-			//or we can recreate it.  That is what they are asking for really so do that instead of above!
 			$send['comments'] = xlt('Currently working on making this document')."...\n";
 		}
 	} else if (!$task['ID']) {
@@ -168,7 +158,6 @@ function update_taskman($task,$action,$value) {
  */
 function deliver_document($task) {
 	//use PHPMAILER
-
  	$query 			= "SELECT * FROM users WHERE id=?";
   	$to_data 		=  sqlQuery($query,array($task['TO_ID']));
   	$from_data 		=  sqlQuery($query,array($task['FROM_ID']));
