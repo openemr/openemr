@@ -205,6 +205,7 @@ function loadCurrentPatient()
     
 }
 
+// note the xl_strings_tabs_view_model variable is required for the alert messages and translations
 function menuActionClick(data,evt)
 {
     if(data.enabled())
@@ -214,7 +215,7 @@ function menuActionClick(data,evt)
             var encounterID=app_view_model.application_data.patient().selectedEncounterID();
             if(isEncounterLocked(encounterID))
             {
-                alert("This encounter is locked. No new forms can be added.");
+                alert(xl_strings_tabs_view_model.encounter_locked);
                 return;
             }
         }        
@@ -225,11 +226,11 @@ function menuActionClick(data,evt)
     {
         if(data.requirement===1)
         {
-            alert('You must first select or add a patient.');        
+            alert(xl_strings_tabs_view_model.must_select_patient);
         }
         else if((data.requirement===2)||data.requirement===3)
         {
-            alert('You must first select or create an encounter.');                    
+            alert(xl_strings_tabs_view_model.must_select_encounter);
         }
     }    
        
