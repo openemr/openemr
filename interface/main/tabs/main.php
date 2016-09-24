@@ -108,7 +108,7 @@ var webroot_url="<?php echo $web_root; ?>";
 <?php require_once("templates/patient_data_template.php"); ?>
 <?php require_once("templates/user_data_template.php"); ?>
 <?php require_once("menu/menu_json.php"); ?>
-<?php $userQuery = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"); ?>
+<?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
     <?php if(isset($_REQUEST['url']))
         {
