@@ -87,18 +87,13 @@ else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
   $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
   if (isset($_GET['date'])) $frame1url .= "&date=" . attr($_GET['date']);
 }
-else if ($GLOBALS['concurrent_layout']) {
-  // new layout
+else {
+  // standard layout
   if ($GLOBALS['default_top_pane']) {
     $frame1url=attr($GLOBALS['default_top_pane']);
   } else {
     $frame1url = "main_info.php";
   }
-}
-else {
-  // old layout
-  $frame1url = "main.php?mode=" . attr($_GET['mode']);
-}
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
@@ -161,8 +156,6 @@ $main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
 // same thing. use both.
 // frameborder specifies a 3d look, not whether there are borders.
 
-if ($GLOBALS['concurrent_layout']) {
-  // start new layout
   if (empty($GLOBALS['gbl_tall_nav_area'])) {
     // not tall nav area ?>
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
@@ -204,21 +197,5 @@ if ($GLOBALS['concurrent_layout']) {
 </frameset>
 
 <?php } // end tall nav area ?>
-
-<?php } else { // start old layout ?>
-
-</head>
-<frameset rows="<?php echo attr($GLOBALS[navBarHeight]).",".attr($GLOBALS[titleBarHeight]) ?>,*"
-  cols="*" frameborder="no" border="0" framespacing="0"
-  onunload="imclosing()">
-  <frame src="main_navigation.php" name="Navigation" scrolling="no" noresize frameborder="no">
-  <frame src="main_title.php" name="Title" scrolling="no" noresize frameborder="no">
-  <frame src='<?php echo $frame1url ?>' name='Main' scrolling='auto' noresize frameborder='no'>
-</frameset>
-<noframes><body bgcolor="#FFFFFF">
-<?php echo xlt('Frame support required'); ?>
-</body></noframes>
-
-<?php } // end old layout ?>
 
 </html>

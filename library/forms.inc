@@ -2,9 +2,7 @@
 
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-$GLOBALS['form_exit_url'] = $GLOBALS['concurrent_layout'] ?
-	"$rootdir/patient_file/encounter/encounter_top.php" :
-	"$rootdir/patient_file/encounter/patient_encounter.php";
+$GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
 function getFormById ($id, $cols = "*")
 {

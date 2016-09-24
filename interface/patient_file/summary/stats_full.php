@@ -85,13 +85,8 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
  var f = document.forms[0];
  top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
  parent.left_nav.setRadio(window.name, 'nen');
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
-<?php } else { ?>
- top.Title.location.href='../encounter/encounter_title.php';
- top.Main.location.href='../encounter/patient_encounter.php?mode=new';
-<?php } ?>
 }
 
 </script>
@@ -278,22 +273,14 @@ $(document).ready(function(){
 
 var GotoHistory = function() {
     top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']): ?>
     parent.left_nav.setRadio(window.name,'his');
     location.href='../history/history_full.php';
-<?php else: ?>
-    location.href='../history/history_full.php';
-<?php endif; ?>
 }
 
 var GoBack = function () {
     top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']): ?>
     parent.left_nav.setRadio(window.name,'dem');
     location.href='demographics.php';
-<?php else: ?>
-    location.href="patient_summary.php";
-<?php endif; ?>
 }
 
 </script>

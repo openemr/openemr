@@ -197,7 +197,6 @@ if(!$printable){
 	echo "<td>";
 
     echo "<a href='../summary/demographics.php' ";
-    if (!$GLOBALS['concurrent_layout']){ echo "target='Main'"; }
     echo " class='css_button' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a>";
 
@@ -463,7 +462,6 @@ if(!$printable){
 		echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
 		echo "</form>";
   	    echo "<br><a href='../summary/demographics.php' ";
-		if (!$GLOBALS['concurrent_layout']){ echo "target='Main'"; }
 		echo " class='css_button' onclick='top.restoreSession()'>";
 		echo "<span>" . xlt('Back to Patient') . "</span></a>";
 	}

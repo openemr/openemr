@@ -40,14 +40,9 @@ if (!($auth_notes_a || $auth_notes || $auth_relaxed)) {
 
  function toencounter(enc, datestr) {
   top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.parent.left_nav.setEncounter(datestr, enc, parent.window.name);
   parent.parent.left_nav.setRadio(parent.window.name, 'enc');
   parent.location.href  = '../encounter/encounter_top.php?set_encounter=' + enc;
-<?php } else { ?>
-  top.Title.location.href = '../encounter/encounter_title.php?set_encounter='   + enc;
-  top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
-<?php } ?>
  }
 
 </script>

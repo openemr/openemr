@@ -186,12 +186,8 @@ newInsuranceData(
 if ($alertmsg) {
   echo "alert('$alertmsg');\n";
 }
-if ($GLOBALS['concurrent_layout']) {
   echo "window.location='$rootdir/patient_file/summary/demographics.php?" .
     "set_pid=$pid&is_new=1';\n";
-} else {
-  echo "window.location='$rootdir/patient_file/patient_file.php?set_pid=$pid';\n";
-}
 ?>
 </script>
 

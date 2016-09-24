@@ -35,7 +35,7 @@ require_once($GLOBALS['srcdir'].'/classes/Document.class.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
     setpid($_GET['set_pid']);
 }
@@ -246,7 +246,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
     </div>
     <div>
         <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button iframe" onclick='top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-        <a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+        <a href="demographics.php" class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars( xl('View Patient'), ENT_NOQUOTES);?></span>
         </a>
     </div>
@@ -649,7 +649,7 @@ if ($result_sent_count == $M) {
 <script language='JavaScript'>
 
 <?php
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
   $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," .

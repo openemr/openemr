@@ -45,14 +45,9 @@ function toencounter(rawdata) {
     if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
 
     top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
     parent.left_nav.setEncounter(datestr, enc, frame);
     parent.left_nav.setRadio(frame, 'enc');
     top.frames[frame].location.href  = '../patient_file/encounter/encounter_top.php?set_encounter=' + enc;
-<?php } else { ?>
-    top.Title.location.href = '../patient_file/encounter/encounter_title.php?set_encounter='   + enc;
-    top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?set_encounter=' + enc;
-<?php } ?>
 }
 
 function bpopup() {
@@ -82,7 +77,6 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td align="left">
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
@@ -100,9 +94,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 	<tr><td valign="baseline"><B>
 		<a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
 	</td></tr></table>
-<?php } else { ?>
-&nbsp;
-<?php } ?>
+
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">

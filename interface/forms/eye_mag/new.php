@@ -35,7 +35,7 @@ $table_name = "form_eye_mag";
 $form_folder = "eye_mag";
 include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 formHeader("Form: ".$form_name);
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 
 $pid = $_REQUEST['pid'];
 

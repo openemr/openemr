@@ -252,7 +252,7 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
     <div>
         <input class="css_btn"  type="submit" value="<?php xl('Save','e'); ?>">
 
-        <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+        <a href="history.php" class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
     </div>

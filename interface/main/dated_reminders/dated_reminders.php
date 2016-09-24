@@ -152,13 +152,8 @@ require_once("$srcdir/dated_reminder_functions.php");
             function goPid(pid) {
               top.restoreSession();
               <?php 
-                if ($GLOBALS['concurrent_layout']){
                   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
                   "+ '?set_pid=' + pid;\n";
-                } else{
-                  echo "  top.location = '../../patient_file/patient_file.php' " .
-                  "+ '?set_pid=' + pid + '&pid=' + pid;\n";
-                }
               ?>
 }
       </script>

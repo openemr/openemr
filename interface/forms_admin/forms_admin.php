@@ -26,7 +26,7 @@ elseif ($_GET['method'] == "register"){
 }
 $bigdata = getRegistered("%") or $bigdata = false;
 
-$formtarget = $GLOBALS['concurrent_layout'] ? "" : " target='Main'";
+$formtarget = "";
 
 //START OUT OUR PAGE....
 ?>

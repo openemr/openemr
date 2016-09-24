@@ -50,7 +50,7 @@ $submiturl = $GLOBALS['rootdir'].'/forms/'.$form_folder.'/save.php?mode=new&amp;
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[
 /* no get logic here */
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ]]></xsl:text>
 <!-- FIXME: this needs to work for layout based fields, as well. ideas? -->
 <!-- no call to split_timeofday, no data from the db in the new form. -->

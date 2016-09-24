@@ -6,7 +6,7 @@ $sanitize_all_escapes=true;
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: note");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 $provider_results = sqlQuery("select fname, lname from users where username=?",array($_SESSION{"authUser"}));
 
 /* name of this form */

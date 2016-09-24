@@ -10,7 +10,7 @@ class C_FormPriorAuth extends Controller {
 	
     function __construct($template_mod = "general") {
     	parent::__construct();
-    	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+    	$returnurl = 'encounter_top.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/prior_auth/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);

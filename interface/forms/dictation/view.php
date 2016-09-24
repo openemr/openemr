@@ -5,7 +5,7 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ?>
 <html><head>
 <?php html_header_show();?>

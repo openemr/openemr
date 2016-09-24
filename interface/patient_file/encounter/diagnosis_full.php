@@ -3,7 +3,7 @@ require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/formdata.inc.php");
 
-$targparm = $GLOBALS['concurrent_layout'] ? "" : "target='Main'";
+$targparm = "";
 
 if (isset($mode)) {
 	if ($mode == "add") {
@@ -25,11 +25,7 @@ if (isset($mode)) {
 
 <body class="body_top">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
-<?php } else { ?>
-<a href="patient_encounter.php" target="Main" onclick="top.restoreSession()">
-<?php } ?>
 
 <span class=title><?php xl('Billing','e'); ?></span>
 <font class=more><?php echo $tback;?></font></a>

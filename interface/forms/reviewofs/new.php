@@ -3,7 +3,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: reviewofs");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ?>
 <html><head>
 <?php html_header_show();?>

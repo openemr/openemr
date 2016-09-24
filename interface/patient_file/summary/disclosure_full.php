@@ -84,7 +84,7 @@ deleteDisclosure($deletelid);
 	<a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo xlt('Record'); ?></span></a>
 </div>
 <div>
-	<a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
+	<a href="demographics.php"
 	class="css_button" onclick="top.restoreSession()"> <span><?php echo xlt('View Patient') ?></span></a>
 </div>
 <br>

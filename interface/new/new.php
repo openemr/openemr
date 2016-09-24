@@ -74,16 +74,9 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 
 <body class="body_top" onload="javascript:document.new_patient.fname.focus();">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
 <span class='title'><?php xl('Add Patient Record','e');?></span>
-<?php } else { ?>
-<form name='new_patient' method='post' action="new_patient_save.php"
- target='_top' onsubmit='return validate()'>
-<a class="title" href="../main/main_screen.php" target="_top" onclick="top.restoreSession()">
-<?php xl('Add Patient Record','e');?></a>
-<?php } ?>
 
 <br><br>
 

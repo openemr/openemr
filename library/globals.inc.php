@@ -100,7 +100,6 @@ $USER_SPECIFIC_TABS = array('Appearance',
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'new_tabs_layout',
                                'theme_tabs_layout',
-                               'concurrent_layout',
                                'css_header',
                                'gbl_pt_list_page_size',
                                'gbl_pt_list_new_window',
@@ -136,13 +135,13 @@ $GLOBALS_METADATA = array(
     ),
 
     'new_tabs_layout' => array(
-      xl('Tabs Layout (need to logout/login after change this setting)'),
+      xl('Layout (need to logout/login after change this setting)'),
       array(
-        '0' => xl('Off'),
-        '1' => xl('On'),
+        '0' => xl('Frame'),
+        '1' => xl('Tabs'),
       ),
       '1',                              // default = off
-      xl('Use the tabs layout (need to logout and then login to see this new setting).')
+      xl('Choose the layout (need to logout and then login to see this new setting).')
     ),
 
     'theme_tabs_layout' => array(
@@ -152,18 +151,13 @@ $GLOBALS_METADATA = array(
       xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
     ),
 
-    'concurrent_layout' => array(
-      xl('Layout Style'),               // descriptive name
-      array(
-        '0' => xl('Old style layout with no left menu'),
-        '1' => xl('Navigation menu consists of pairs of radio buttons'),
-        '2' => xl('Navigation menu is a tree view'),
-        '3' => xl('Navigation uses a sliding menu'),
-      ),
-      '3',                              // default = tree menu
-      xl('Type of screen layout')
+    'css_header' => array(
+      xl('General Theme (need to logout/login after change this setting)'),
+      'css',
+      'style_light.css',
+      xl('Pick a general theme (need to logout/login after change this setting).')
     ),
-      
+
     'default_encounter_view' => array(
       xl('Default Encounter View'),               // descriptive name
       array(
@@ -172,13 +166,6 @@ $GLOBALS_METADATA = array(
       ),
       '0',                              // default = tree menu
       xl('Choose your default encounter view')
-    ),
-
-    'css_header' => array(
-      xl('Theme'),
-      'css',
-      'style_light.css',
-      xl('Pick a CSS theme.')
     ),
 
     'gbl_nav_area_width' => array(

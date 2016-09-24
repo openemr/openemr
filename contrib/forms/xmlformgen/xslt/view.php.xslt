@@ -56,7 +56,7 @@ if ($_GET['mode']) {
 }
 else
 {
- $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+ $returnurl = 'encounter_top.php';
 }
 
 ]]></xsl:text>

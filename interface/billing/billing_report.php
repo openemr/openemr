@@ -149,7 +149,6 @@ function set_button_states() {
 // Process a click to go to an encounter.
 function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.left_nav.setEncounter(datestr, enc, othername);
@@ -157,22 +156,14 @@ function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
  parent.frames[othername].location.href =
   '../patient_file/encounter/encounter_top.php?set_encounter='
   + enc + '&pid=' + pid;
-<?php } else { ?>
- location.href = '../patient_file/encounter/patient_encounter.php?set_encounter='
-  + enc + '&pid=' + pid;
-<?php } ?>
 }
 // Process a click to go to an patient.
 function topatient(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.frames[othername].location.href =
   '../patient_file/summary/demographics_full.php?pid=' + pid;
-<?php } else { ?>
- location.href = '../patient_file/summary/demographics_full.php?pid=' + pid;
-<?php } ?>
 }
 </script>
 <script language="javascript" type="text/javascript">
@@ -352,13 +343,7 @@ document.onclick=TakeActionOnHide;
 
 <p style='margin-top:5px;margin-bottom:5px;margin-left:5px'>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <font class='title'><?php echo xlt('Billing Manager') ?></font>
-<?php } else if ($userauthorized) { ?>
-<a href="../main/main.php" target='Main' onclick='top.restoreSession()'><font class=title><?php echo xlt('Billing Manager') ?></font><font class=more> <?php echo $tback; ?></font></a>
-<?php } else { ?>
-<a href="../main/onotes/office_comments.php" target='Main' onclick='top.restoreSession()'><font class=title><?php echo xlt('Billing Manager') ?></font><font class=more><?php echo $tback; ?></font></a>
-<?php } ?>
 
 </p>
 

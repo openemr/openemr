@@ -43,7 +43,7 @@ $fake_register_globals=false;
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
  
-  if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) {
+  if (isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
@@ -208,12 +208,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.clearPatient();
-<?php } else { ?>
-  top.restoreSession();
-  top.location.href = '../main/main_screen.php';
-<?php } ?>
  }
 
  function newEvt() {
@@ -416,7 +411,6 @@ $(document).ready(function(){
 // JavaScript stuff to do when a new patient is set.
 //
 function setMyPatient() {
-<?php if ($GLOBALS['concurrent_layout']) { ?>
  // Avoid race conditions with loading of the left_nav or Title frame.
  if (!parent.allFramesLoaded()) {
   setTimeout("setMyPatient()", 500);
@@ -458,7 +452,6 @@ function setMyPatient() {
  parent.left_nav.setRadio(othername, 'enc');
  parent.frames[othername].location.href = '../encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
 <?php } // end setting new encounter id (only if new pid is also set) ?>
-<?php } // end concurrent layout ?>
 }
 
 $(window).load(function() {

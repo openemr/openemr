@@ -331,13 +331,6 @@ foreach ($code_types as $key => $value) {
 </head>
 <body class="body_top" >
 
-<?php if ($GLOBALS['concurrent_layout']) {
-} else { ?>
-<a href='patient_encounter.php?codefrom=superbill' target='Main'>
-<span class='title'><?php echo xlt('Superbill Codes'); ?></span>
-<font class='more'><?php echo text($tback);?></font></a>
-<?php } ?>
-
 <form method='post' action='superbill_custom_full.php' name='theform'>
 
 <input type='hidden' name='mode' value=''>

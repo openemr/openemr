@@ -27,7 +27,7 @@ $fake_register_globals = false;
 require_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 if(!$formid){
 	$formid = $_POST['formid']; // call from track_anything encounter
 	$fromencounter = 1;
@@ -176,7 +176,6 @@ if($fromencounter == 1) {
 	}
 if($fromencounter == 0) {
 	echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    if (!$GLOBALS['concurrent_layout']){ echo "target='Main'"; }
     echo " class='css_button' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 	}
@@ -407,7 +406,6 @@ if($fromencounter == 1) {
 	}
 if($fromencounter == 0) {
 	echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    if (!$GLOBALS['concurrent_layout']){ echo "target='Main'"; }
     echo " class='css_button' onclick='top.restoreSession()'>";
     echo "<span>" . htmlspecialchars(xl('Back to Patient'),ENT_NOQUOTES) . "</span></a></td>";
 	}
