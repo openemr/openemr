@@ -83,8 +83,8 @@ function List_Look($thisData, $thisList) {
     if(!$thisData || $thisData == '') return xl('Unknown or N/A');
   }
   if($thisData == '') return '';
-  $fres=sqlStatement("SELECT title FROM list_options WHERE list_id=? ".
-        "AND option_id=?", array($thisList, $thisData));
+  $fres=sqlStatement("SELECT title FROM list_options WHERE list_id = ? ".
+        "AND option_id = ? AND activity = 1", array($thisList, $thisData));
   if($fres) {
     $rret=sqlFetchArray($fres);
     $dispValue= xl_list_label($rret{'title'});

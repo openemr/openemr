@@ -124,7 +124,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     "s.toggle_setting_1, s.toggle_setting_2, s.option_id, ";
     $tracker_joins = "LEFT OUTER JOIN patient_tracker AS t ON t.pid = e.pc_pid AND t.apptdate = e.pc_eventDate AND t.appttime = e.pc_starttime AND t.eid = e.pc_eid " .
     "LEFT OUTER JOIN patient_tracker_element AS q ON q.pt_tracker_id = t.id AND q.seq = t.lastseq " .
-    "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status " ;
+    "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status AND s.activity = 1 " ;
     }
 
     $query = "SELECT " .

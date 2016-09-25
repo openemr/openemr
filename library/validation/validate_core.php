@@ -26,9 +26,11 @@
  */
 function collectValidationPageRules($title,$active=true){
 
+    // Note from Rod: Not sure what the purpose is of $active because nothing calls it with a false value.
+
     if($active){
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title=?",array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?",array('page_validation',1,$title));
     }
     else {
         $sql = sqlStatement("SELECT * " .

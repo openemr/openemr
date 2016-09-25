@@ -1128,7 +1128,7 @@ $(document).ready(function(){
 //
 
 $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 if (sqlNumRows($lres)) {
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
@@ -1432,7 +1432,7 @@ if (!empty($reg)) {
           <?php genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php'); ?>
 <?php
   $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];

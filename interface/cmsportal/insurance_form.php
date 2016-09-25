@@ -312,7 +312,7 @@ foreach ($insurance_layout as $lorow) {
   if ($newvalue !== '') {
     if ($list_id) {
       $tmp = sqlQuery("SELECT option_id FROM list_options WHERE " .
-        "list_id = ? AND title = ? ORDER BY option_id LIMIT 1",
+        "list_id = ? AND title = ? AND activity = 1 ORDER BY option_id LIMIT 1",
         array($list_id, $newvalue));
       if (isset($tmp['option_id'])) $newvalue = $tmp['option_id'];
     }
