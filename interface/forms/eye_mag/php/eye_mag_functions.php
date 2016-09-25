@@ -3258,16 +3258,16 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                                 onclick="top.restoreSession(); create_task('<?php echo attr($providerID); ?>','Report','menu'); return false;">
                                 <?php echo xlt("Save Report as PDF"); ?></a></li>
                             <li class="divider tabHide"></li>
-                            <li id="menu_HPI" name="menu_HPI" class="tabHide <?php echo $frame_disable; ?>"><a href="#" onclick='window.close();'><?php echo xlt("Quit"); ?></a></li>
+                            <li id="menu_QUIT" name="menu_QUIT" class="tabHide <?php echo $frame_disable; ?>"><a href="#" onclick='window.close();'><?php echo xlt("Quit"); ?></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_edit" role="button" aria-expanded="true"><?php echo xlt("Edit"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li id="menu_Undo" name="menu_Undo"> <a  id="BUTTON_Undo_menu" href="#"> <?php echo xlt("Undo"); ?> <span class="menu_icon">Ctl-Z</span></a></li>
-                            <li id="menu_Redo" name="menu_Redo"> <a  id="BUTTON_Redo_menu" href="#"> <?php echo xlt("Redo"); ?> <span class="menu_icon">Ctl-Shift-Z</span></a></li>
-                            <li class="divider"></li>
-                            <li id="menu_Defaults" name="menu_Defaults"> <a  id="BUTTON_Defaults_menu" 
+                            <li id="menu_Undo" name="menu_Undo"> <a id="BUTTON_Undo_menu" href="#"> <?php echo xlt("Undo"); ?> <span class="menu_icon">Ctl-Z</span></a></li>
+                            <li id="menu_Redo" name="menu_Redo"> <a id="BUTTON_Redo_menu" href="#"> <?php echo xlt("Redo"); ?> <span class="menu_icon">Ctl-Shift-Z</span></a></li>
+                            <li class="divider tabHide"></li>
+                            <li id="menu_Defaults" name="menu_Defaults" class="tabHide"> <a  id="BUTTON_Defaults_menu" 
                                 href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_defaults_<?php echo attr($providerID); ?>" 
                                 target="RTop" 
                                 title="<?php echo xla('Click here to Edit this Provider\'s Exam Default values'); ?>" 
@@ -3287,8 +3287,8 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                             <li id="menu_PRIORS" name="menu_PRIORS"><a><?php echo xlt("Prior Visits"); ?><span class="menu_icon">Ctl-P</span></a></li>
                             <li id="menu_KB" name="menu_KB"><a><?php echo xlt("Shorthand"); ?><span class="menu_icon">Ctl-K</span></a></li>
                             <li class="divider"></li>
-                            <li ><a onclick='$(window).scrollTop( $("#HPI_anchor").offset().top -55);'><?php echo xlt("HPI"); ?></a></li>
-                            <li id="menu_PMH" name="menu_PMH" ><a><?php echo xlt("PMH"); ?></a></li>
+                            <li id="menu_HPI" name="menu_HPI"><a><?php echo xlt("HPI"); ?></a></li>
+                            <li id="menu_PMH" name="menu_PMH"><a><?php echo xlt("PMH"); ?></a></li>
                             <li id="menu_EXT" name="menu_EXT" ><a><?php echo xlt("External"); ?></a></li>
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a><?php echo xlt("Anterior Segment"); ?></a></li>
                             <li id="menu_POSTSEG" name="menu_POSTSEG" ><a><?php echo xlt("Posterior Segment"); ?></a></li>
@@ -3408,7 +3408,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                            id="menu_dropdown_library" role="button" 
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation" class=" tabHide"><a role="menuitem" tabindex="-1" target="RTop"  
+                            <li role="presentation" class="tabHide"><a role="menuitem" tabindex="-1" target="RTop"  
                             href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view&framewidth=1020">
                             <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>&nbsp;<?php echo xlt("Calendar"); ?><span class="menu_icon"><i class="fa fa-calendar"></i>  </span></a></li>
                             <li role="presentation" class="divider tabHide"></li>

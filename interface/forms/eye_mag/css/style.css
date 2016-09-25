@@ -1082,8 +1082,8 @@ height: 18px;
         top:0.4in;
         left:0.1in;
         text-align:center;
-        margin:auto;
-        padding: 15px;
+        margin:0px auto;
+        padding: 10px;
     }
     .wide_textarea textarea{
         width:1.9in;
@@ -1775,6 +1775,7 @@ li .handle { display: inline-block; padding: 0.4em; }
     vertical-align: top;
 }
 .tabHide {
+    display: none;
 }
 .issues {
     margin-top:2px;
@@ -1966,7 +1967,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #NEURO_color { border:1pt solid black;float:left;width:195px;padding: 5px 5px 5px 15px;text-align:center;margin:2 2;font-size:0.8em;font-weight:bold;}
 #NEURO_MOTILITY { float:left;font-size:0.9em;margin:2 2;padding:0px 15px;font-weight:bold;width:195px;}
 #NEURO_MOTILITY table { width:100%;}
-#EXT_left_1, table:nth-of-type(2),
+#EXT_left_1 table:nth-of-type(2),
 #PRIORS_EXT_left_1 table:nth-of-type(2),
 #ANTSEG_left_1 table:nth-of-type(2),
 #PRIORS_ANTSEG_left_1 table:nth-of-type(2),
@@ -2020,7 +2021,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     padding:1px 0px 0px 10px;
     margin:0px 0px 5px 0px;
     z-index:10;
-    display: nowrap; 
+    white-space: nowrap; 
 }
 .PMSFH_table td {
         min-height:24px;min-width:1.6in;padding:5px;

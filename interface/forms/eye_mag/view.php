@@ -150,7 +150,6 @@ if ($refresh and $refresh != 'fullscreen') {
   }
   exit;
 }
-
 ?><!DOCTYPE html>
 <html>
   <head>
@@ -327,7 +326,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <?php ($CLINICAL =='1') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
                 <?php ($CLINICAL =='0') ? ($display_Visibility = "display") : ($display_Visibility = "nodisplay"); ?>
                 <!-- start    HPI_PMH row -->
-                <div id="HPIPMH_sections"class="nodisplay">
+                <div id="HPIPMH_sections" class="nodisplay">
                   <!-- start    HPI_section -->
                   <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
                     <span class="anchor" id="HPI_anchor"></span>

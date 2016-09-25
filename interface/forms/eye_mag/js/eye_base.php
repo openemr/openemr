@@ -882,10 +882,6 @@ function show_PRIORS() {
     $("#RETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
     $(".PRIORS_class").removeClass('nodisplay');
-        //ui is not recognized here...
-        //var location1 = parseInt( ui.offset.top );
-    var location2 = $("#clinical_anchor").offset().top +100;
-    //$root.animate({scrollTop: location2 }, "slow");
     if ($("#PREFS_CLINICAL").val() !='1') {
             // we want to show text_only which are found on left half now that PRIORS are visible.
         $("#PREFS_CLINICAL").val('1');
@@ -911,11 +907,8 @@ function show_QP() {
     $("#NEURO_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
     $(".QP_class").removeClass('nodisplay');
-    $(".QP_class2").removeClass('nodisplay');
-    
+    $(".QP_class2").removeClass('nodisplay');  
     $("#PREFS_EXAM").val('QP');
-    //var location = $("#clinical_anchor").offset().top +100;
-   // $root.animate({scrollTop: location }, "slow");
     update_PREFS();
 }
 /*
@@ -1063,72 +1056,16 @@ function menu_select(zone,che) {
     if (zone =='KB') show_KB();
     if (zone =='DRAW') show_DRAW();
     if (zone =='TEXT') show_TEXT();
-/*
-    if (zone =='PMH')     $("html,body").animate({scrollTop: $("#PMH_anchor").offset().top -55}, "slow");
-    if (zone =='EXT')     $("html,body").animate({scrollTop: $("#EXT_anchor").offset().top -55}, "slow");
-    if (zone =='ANTSEG')  $("html,body").animate({scrollTop: $("#ANTSEG_anchor").offset().top-55}, "slow");
-    if (zone =='POSTSEG') $("html,body").animate({scrollTop: $("#RETINA_anchor").offset().top-55}, "slow");
-    if (zone =='NEURO')   $("html,body").animate({scrollTop: $("#NEURO_anchor").offset().top -55}, "slow");
-    if (zone =='Right_Panel') $("#right-panel-link").trigger("click");
-    if (zone =='IOP_graph') { 
-      $("#LayerVision_IOP").removeClass('nodisplay'); 
-      $("html,body").animate({scrollTop: $("#REFRACTION_anchor").offset().top -55}, "slow");
-    }
-    */
-   // alert(zone);
-}
-/*
- * Function for the Track Anything stuff.
- * Not sure yet how to use this but I believe I will use it to display IOP_graph, so keep it.
- *   // plot the current graph
- *   //------------------------------------------------------
- */
-function plot_IOPs() {
-        // swfobject.embedSWF(base+'/library/openflashchart/open-flash-chart.swf',"iopgraph", "650", "200", "9.0.0","",{"data-file":" ../../forms/eye_mag/php/iopdata.php?pid=1 "});
-    
-    return;
-    /*
-     var thedates = '["2012-04-20+18:12:15","2013-04-20+18:12:08","2014-04-20+18:12:00","2015-04-20+18:11:47"]';
-     var thevalues = '[["15","14","13","12"],["18","16","14","13"]]';
-     var thetrack = 'IOP Graphing Thingamajig';
-     var checkedBoxes = '["0","1"]';
-     var theitems = '["IOP OD","IOP OS"]';
-     var trackCount = 2;
-     $("#LayerVision_IOP").removeClass('nodisplay');
-     plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount);
-     */
+    if (zone =='IOP_graph') $("#LayerVision_IOP_lightswitch").trigger('click');
+    if (zone == "HPI") scrollTo("HPI_left");
+    if (zone == "PMH") scrollTo("PMH_left");
+    if (zone == "EXT") scrollTo("EXT_left");
+    if (zone == "ANTSEG") scrollTo("ANTSEG_left");
+    if (zone == "POSTSEG") scrollTo("RETINA_left");
+    if (zone == "NEURO") scrollTo("NEURO_left");
 }
 
-function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
-    var flashvars =[];
-    top.restoreSession();
-    return $.ajax({ url: base+'/library/openflashchart/graph_track_anything.php',
-                  type: 'POST',
-                  data: {
-                  dates:  thedates,   //$the_date_array
-                  values: thevalues,  //$the_value_array
-                  items:  theitems,   //$the_item_names
-                  track:  thetrack,   //$titleGraph
-                  thecheckboxes: checkedBoxes //$the_checked_cols
-                  },
-                  dataType: "json",
-                  success: function(returnData){
-                  // ofc will look after a variable named "ofc"
-                  // inside of the flashvar
-                  // However, we need to set both
-                  // data and flashvars.ofc
-                  data=returnData;
-                  flashvars.ofc = returnData;
-                  // call ofc with proper falshchart
-                  swfobject.embedSWF(base+'/library/openflashchart/open-flash-chart.swf',
-                                     "iopgraph", "650", "200", "9.0.0","",flashvars);
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                  alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
-                  }
-                  
-                  }); // end ajax query
-}
+
 /*
  * Function to test blowing up any section to fullscren - towards tablet functionality?
  * Currently not used.
@@ -2024,15 +1961,14 @@ function reverse_cylinder(target) {
     }
 }
 function scrollTo(target) {
-  if (scroll !== '1') return;
-    var offset;
-    var scrollSpeed = 1200;
-    var wheight = $(window).height();
-    offset = $("#"+target).offset().top - ($(window).height() / 2)+200;
-    //alert(offset+" -- "+window.pageYOffset);
-    if (offset > (window.pageYOffset +150)||offset < (window.pageYOffset -150)) {
+  //if (scroll !== '1') return;
+  var offset;
+  var scrollSpeed = 2000;
+  var wheight = $(window).height();
+  offset = $("#"+target).offset().top - (wheight / 2)+200;
+  if (offset > (window.pageYOffset +150)||offset < (window.pageYOffset -150)) {
     $('html, body').animate({scrollTop:offset}, scrollSpeed);
-}
+  }
 }
 
 $(document).ready(function() {
@@ -3428,15 +3364,10 @@ $(document).ready(function() {
                                                        $("#PMH_1").height(reset);
                                                        $("#PMH_left").height(reset-40);
                                                        $("#LayerTechnical_sections_1").css("clear","both");
-                                                       if (zone == "PMH") {
-                                                        //    $("html,body").animate({scrollTop: $("#"+zone+"_anchor").offset().top -55}, "slow");
-                                                       }
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
                                                      }
-                                                     //var location = $("#"+zone+"_left").offset().top -100;
-                                                     //$root.animate({scrollTop: location }, "slow");
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
                                                      
@@ -3703,7 +3634,7 @@ $(document).ready(function() {
                                                 if($('#PMH_right').css('display') == 'none') {
                                                 $("#PRIORS_PMH_left_text").addClass('nodisplay');
                                                 $("#Draw_PMH").addClass('nodisplay');
-                                                show_QP_section('PMH');
+                                                show_QP_section('PMH','1');
                                                 $("#PREFS_PMH_RIGHT").val('QP');
                                                 }
                                                 if ($('#PMH_right').height() > $('#PMH_left').height()) {
@@ -3921,17 +3852,6 @@ $(document).ready(function() {
                   $( "button" ).button().click(function( event ) {
                          event.preventDefault();
                          });
-                  //this gets the page to slow scroll to where we need it in our view.
-                  var hashTagActive = "";
-                  $(".anchor").click(function (event) {
-                           //   if(hashTagActive !== $("#"+this.id).offset().top) { //this will prevent if the user click several times the same link to freeze the scroll.
-                                  event.preventDefault();
-                            //      $root.animate({scrollTop: $("#"+this.id).offset().top -55}, "slow");
-                               //   hashTagActive = $("#"+this.id).offset().top;
-                               //   alert(hashTagActive+"  "+$("#"+this.id).offset().top);
-                             // }
-                              
-                  });
                   refresh_page();
                   // AUTO- CODING FEATURES
                   check_CPT_92060();
@@ -3948,15 +3868,10 @@ $(document).ready(function() {
                                            visit_code = data[2];
                                            visit_type = data[1];
                                            });
-                  
                   show_QP_section('IMPPLAN','1');
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
-                  //
-                  /*alert($(document).tab_mode);
-                  if (tab_mode==true) {
-                    $("[class='tabHide']").css("display","none");
-                  }*/
+                  <?php if ($GLOBALS['new_tabs_layout'] !=='1') { ?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });
@@ -3964,6 +3879,4 @@ $(document).ready(function() {
                                  if ($('#chart_status').val()=="on") {
                                  unlock(); }
                                  });
-                  //$('html,body').scrollTop( 0 );
-                  
                   });
