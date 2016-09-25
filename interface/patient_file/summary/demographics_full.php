@@ -759,7 +759,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php if ($set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) . "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
- parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 
 <?php echo $date_init; ?>

@@ -79,7 +79,6 @@ if ($createvisit) {
   // Logic cloned from encounters.php.
 ?>
 top.left_nav.setEncounter('<?php echo $today; ?>', enc, 'RBot');
-top.left_nav.setRadio('RBot', 'enc');
 top.left_nav.loadFrame2('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
 <?php
 }

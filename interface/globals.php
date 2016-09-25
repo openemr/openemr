@@ -269,10 +269,9 @@ if (!empty($glrow)) {
     $GLOBALS['language_menu_login'] = true;
   }
 
-  // Add this $GLOBALS['concurrent_layout'] == 3 in order to support legacy forms
-  // that may use this. Note this global is no longer uses in the standard codebase
+  // Added this $GLOBALS['concurrent_layout'] set to 3 in order to support legacy forms
+  // that may use this; note this global has been removed from the standard codebase.
   $GLOBALS['concurrent_layout'] = 3;
-
 
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.

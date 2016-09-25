@@ -410,7 +410,6 @@ $(document).ready(function() {
   // the top frame is more appropriate.
   topframe.left_nav.forceDual();
   topframe.left_nav.setEncounter(datestr, enc, '');
-  topframe.left_nav.setRadio('RBot', 'enc');
   topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
   window.close();
  }

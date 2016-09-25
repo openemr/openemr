@@ -140,7 +140,7 @@ $GLOBALS_METADATA = array(
         '0' => xl('Frame'),
         '1' => xl('Tabs'),
       ),
-      '1',                              // default = off
+      '1',
       xl('Choose the layout (need to logout and then login to see this new setting).')
     ),
 
@@ -156,6 +156,16 @@ $GLOBALS_METADATA = array(
       'css',
       'style_light.css',
       xl('Pick a general theme (need to logout/login after change this setting).')
+    ),
+
+    'menu_styling_vertical' => array(
+      xl('Vertical Menu Style'),
+      array(
+        '0' => xl('Tree'),
+        '1' => xl('Sliding'),
+      ),
+      '1',
+      xl('Vertical Menu Style')
     ),
 
     'default_encounter_view' => array(

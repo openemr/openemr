@@ -188,14 +188,12 @@ function toencounter(rawdata) {
 
     top.restoreSession();
     parent.left_nav.setEncounter(datestr, enc, window.name);
-    parent.left_nav.setRadio(window.name, 'enc');
     parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
 }
 
 function todocument(docid) {
   h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo $pid ?>&doc_id=' + docid;
   top.restoreSession();
-  parent.left_nav.setRadio(window.name, 'doc');
   location.href = h;
 }
 

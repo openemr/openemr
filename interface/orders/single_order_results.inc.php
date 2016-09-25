@@ -352,7 +352,6 @@ function showpnotes(orderid) {
  }
  var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
  w.parent.left_nav.forceDual();
- w.parent.left_nav.setRadio(othername, 'pno');
  w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
  return false;
 }

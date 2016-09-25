@@ -152,7 +152,6 @@ function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.left_nav.setEncounter(datestr, enc, othername);
- parent.left_nav.setRadio(othername, 'enc');
  parent.frames[othername].location.href =
   '../patient_file/encounter/encounter_top.php?set_encounter='
   + enc + '&pid=' + pid;

@@ -94,6 +94,7 @@ else {
   } else {
     $frame1url = "main_info.php";
   }
+}
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];

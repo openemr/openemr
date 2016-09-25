@@ -46,7 +46,6 @@ function toencounter(rawdata) {
 
     top.restoreSession();
     parent.left_nav.setEncounter(datestr, enc, frame);
-    parent.left_nav.setRadio(frame, 'enc');
     top.frames[frame].location.href  = '../patient_file/encounter/encounter_top.php?set_encounter=' + enc;
 }
 

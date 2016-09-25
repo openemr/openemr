@@ -74,10 +74,6 @@ left_nav.loadFrame=function(id,name,url)
     activateTabByName(name,true);
 }
 
-left_nav.setRadio = function(raname, rbid)
-{
-};
-
 left_nav.syncRadios = function()
 {
     

@@ -73,7 +73,7 @@ use ESign\Api;
  // with the set_pid parameter, which establishes the new session pid and also
  // calls the setPatient() function (below).  In this case demographics.php
  // will also load the summary frameset into the bottom frame, invoking our
- // loadFrame() and setRadio() functions.
+ // loadFrame() function.
  //
  // Similarly, we have the concept of selecting an encounter from the
  // Encounters list, and then having that "stick" until some other encounter
@@ -160,6 +160,9 @@ use ESign\Api;
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
+ if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
+  $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
+ }
 
  $esignApi = new Api();
  // This section decides which navigation items will not appear.
@@ -552,14 +555,6 @@ function genFindBlock() {
   return false;
  }
 
- // Select a designated radio button. raname may be either the radio button
- // array name (rb_top or rb_bot), or the frame name (RTop or RBot).
- // You should call this if you directly load a document that does not
- // correspond to the current radio button setting.
- function setRadio(raname, rbid) {
-  return false;
- }
-
  // Set disabled/enabled state of radio buttons and associated labels
  // depending on whether there is an active patient or encounter.
  function syncRadios() {
@@ -576,7 +571,11 @@ function genFindBlock() {
     if (active_encounter == 0 && usage > '1') da = true;
     if (encounter_locked && usage > '1') da = true;
     <?php
+    if ($GLOBALS['menu_styling_vertical'] == 0){
+      $color = "'#0000ff'";
+    }else{ // ($GLOBALS['menu_styling_vertical'] == 1)
       $color = "'#000000'";
+    }
     ?>
     lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
    }
@@ -632,7 +631,6 @@ function clearactive() {
    toggleFrame(1);
   }
   f.findBy.value = findby;
-  setRadio('rb_top', 'dem');
   top.restoreSession();
   document.find_patient.submit();
  }
@@ -665,11 +663,9 @@ function clearactive() {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '0' && frname != 'RTop') {
    loadFrame('cal0','RTop', '<?php echo $primary_docs['cal'][2]; ?>');
-   setRadio('rb_top', 'cal');
   }
   if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
    loadFrame('ens0','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
-   setRadio('rb_bot', 'ens');
   }
  }
 
@@ -680,11 +676,9 @@ function clearactive() {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '1' && frname != 'RTop') {
    loadFrame('dem1','RTop', '<?php echo $primary_docs['dem'][2]; ?>');
-   setRadio('rb_top', 'dem');
   }
   if (botName.length > 3 && botName.substring(3) > '1' && frname != 'RBot') {
    loadFrame('ens1','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
-   setRadio('rb_bot', 'ens');
   }
  }
  
@@ -771,7 +765,6 @@ function clearactive() {
       var encounter_frame = getEncounterTargetFrame('enc');
       if ( encounter_frame != undefined )  {
           loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
-          setRadio(encounter_frame, 'ens');
       }
   }
 
@@ -957,6 +950,7 @@ function removeOptionSelected(EncounterId)
  }
 // Treeview activation stuff:
 $(document).ready(function(){
+  if(1 == <?php echo $GLOBALS['menu_styling_vertical'] ?>){
     $("#navigation-slide > li > a.collapsed + ul").slideToggle("medium");
     $("#navigation-slide > li > ul > li > a.collapsed_lv2 + ul").slideToggle("medium");
     $("#navigation-slide > li > a.expanded").click(function() {
@@ -993,6 +987,24 @@ $(document).ready(function(){
         $(" > a", this).addClass("collapsed");
       }
     });
+  } else { // $GLOBALS['menu_styling_vertical'] == 0
+
+    //Remove the links (used by the sliding menu) that will break treeview
+    $('a.collapsed').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+    $('a.collapsed_lv2').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+    $('a.expanded').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+    $('a.expanded_lv2').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
+
+    // Initiate treeview
+    $("#navigation").treeview({
+     animated: "fast",
+     collapsed: true,
+     unique: true,
+     toggle: function() {
+      window.console && console.log("%o was toggled", this);
+     }
+    });
+  }
 });
 
 </script>
@@ -1025,7 +1037,11 @@ $(document).ready(function(){
  </tr>
 </table>
 
+<?php if ( $GLOBALS['menu_styling_vertical'] == 1) { ?>
   <ul id="navigation-slide">
+<?php } else { // ($GLOBALS['menu_styling_vertical'] == 0) ?>
+  <ul id="navigation">
+<?php } ?>
 
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','pfb',xl('Flow Board')); ?>

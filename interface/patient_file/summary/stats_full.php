@@ -85,7 +85,6 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
  var f = document.forms[0];
  top.restoreSession();
- parent.left_nav.setRadio(window.name, 'nen');
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
 }
 
@@ -273,13 +272,11 @@ $(document).ready(function(){
 
 var GotoHistory = function() {
     top.restoreSession();
-    parent.left_nav.setRadio(window.name,'his');
     location.href='../history/history_full.php';
 }
 
 var GoBack = function () {
     top.restoreSession();
-    parent.left_nav.setRadio(window.name,'dem');
     location.href='demographics.php';
 }
 
