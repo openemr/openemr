@@ -62,11 +62,7 @@ if ($userauthorized) { $backurl="office_comments.php"; }
 else { $backurl="../main_info.php"; }
 ?>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="office_comments.php" onclick='top.restoreSession()'>
-<?php } else { ?>
-<a href="<?php echo $backurl; ?>" target="Main">
-<?php } ?>
 
 <span class="title"><?php echo xlt('Office Notes'); ?></span>
 <span class="back"><?php echo text($tback); ?></span></a>

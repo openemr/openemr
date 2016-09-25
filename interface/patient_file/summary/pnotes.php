@@ -78,11 +78,7 @@ $fake_register_globals=false;
 
 <?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
-<?php } else { ?>
-<a href="pnotes_full.php?<?php echo $urlparms; ?>" target="Main" onclick="top.restoreSession()">
-<?php } ?>
 
 <span class="title"><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
 <?php
@@ -151,7 +147,6 @@ if ($result != null) {
       echo " <tr>\n";
       echo "  <td colspan='3' align='center'>\n";
       echo "   <a ";
-      if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
       echo "href='pnotes_full.php?active=1&$urlparms" .
       "' class='alert' onclick='top.restoreSession()'>";
       echo htmlspecialchars( xl('Some notes were not displayed.','','',' '), ENT_NOQUOTES) .
@@ -202,11 +197,7 @@ $(document).ready(function(){
 var EditNote = function(note) {
 <?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
     top.restoreSession();
-    <?php if (!$GLOBALS['concurrent_layout']): ?>
-    top.Main.location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
-    <?php else: ?>
     location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
-    <?php endif; ?>
 <?php else: ?>
     // no-op
     alert("<?php echo htmlspecialchars( xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");

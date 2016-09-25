@@ -41,9 +41,5 @@ while ($frow = sqlFetchArray($fres)) {
 }
 updateHistoryData($pid, $newdata);
 
-if ($GLOBALS['concurrent_layout']) {
  include_once("history.php");
-} else {
- include_once("patient_history.php");
-}
 ?>

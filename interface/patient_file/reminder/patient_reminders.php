@@ -89,7 +89,7 @@ if ($mode == "simple") {
     </span>
   </div>
   <div>
-    <a href="../summary/demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+    <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
       <span><?php echo htmlspecialchars( xl('Back To Patient'), ENT_NOQUOTES);?></span>
     </a>
   </div>

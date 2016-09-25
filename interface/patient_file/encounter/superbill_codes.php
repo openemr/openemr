@@ -49,11 +49,7 @@ if (isset($mode)) {
 <span class=title><?php xl('Superbill','e'); ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
-<?php } else { ?>
-<a href="patient_encounter.php?codefrom=superbill" onclick="top.restoreSession()">
-<?php } ?>
 
 <font class=more><?php echo $tback;?></font></a>
 
@@ -95,7 +91,6 @@ while ($index < $numlines) {
 		if(!empty($value[$index])) {
 			$code = $value[$index];
 			echo "   <dd><a class='text' ";
-			if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
 			echo "href='superbill_codes.php?back=1&mode=add" .
 				"&type="     . urlencode($key) .
 				"&modifier=" . urlencode($code{"modifier"}) .

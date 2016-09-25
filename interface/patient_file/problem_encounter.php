@@ -359,9 +359,6 @@ function doclick(pfx, id) {
   <td colspan='2' align='center'>
    <input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
    <input type='button' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
-<?php if (!$GLOBALS['concurrent_layout']) { ?>
-   <input type='button' value='<?php echo xla('Add Encounter'); ?>' onclick='newEncounter()' />
-<?php } ?>
    <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
   </td>
  </tr>

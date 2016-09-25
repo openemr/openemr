@@ -10,7 +10,7 @@ function submit_documents()
 </head>
 {/literal}
 
-<a href="controller.php?practice_settings&{$TOP_ACTION}document_category&action=list" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
+<a href="controller.php?practice_settings&{$TOP_ACTION}document_category&action=list" onclick="top.restoreSession()" class="css_button" >
 <span>{xl t='Edit Categories'}</span></a><a href="#" onclick="submit_documents();" class="css_button" target="_self" ><span>{xl t='Update files'}</span></a>
 <input type="hidden" name="process" value="{$PROCESS}" /><br><br>
 

@@ -127,7 +127,6 @@ function openResults(orderid) {
  // var w = window;
  // var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
  // w.parent.left_nav.forceDual();
- // w.parent.left_nav.setRadio(othername, 'ore');
  // w.parent.left_nav.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
 }
 

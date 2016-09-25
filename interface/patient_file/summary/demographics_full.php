@@ -392,11 +392,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <table cellpadding='0' cellspacing='0' border='0'>
 	<tr>
 		<td>
-			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a href="demographics.php" onclick="top.restoreSession()">
-			<?php } else { ?>
-			<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-			<?php } ?>
 			<font class=title><?php xl('Current Patient','e'); ?></font>
 			</a>
 			&nbsp;&nbsp;
@@ -405,11 +401,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
             <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
-			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
-			<?php } else { ?>
-			<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-			<?php } ?>
 			<span><?php xl('Cancel','e'); ?></span>
 			</a>
 		</td>
@@ -765,9 +757,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php }?>
 
-<?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
+<?php if ($set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) . "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
- parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 
 <?php echo $date_init; ?>

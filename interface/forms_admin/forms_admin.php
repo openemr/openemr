@@ -26,7 +26,6 @@ elseif ($_GET['method'] == "register"){
 }
 $bigdata = getRegistered("%") or $bigdata = false;
 
-$formtarget = $GLOBALS['concurrent_layout'] ? "" : " target='Main'";
 
 //START OUT OUR PAGE....
 ?>
@@ -64,7 +63,7 @@ if ($err)
 
 <?php //REGISTERED SECTION ?>
 <span class=bold><?php xl('Registered','e');?></span><br>
-<form method=POST action ='./forms_admin.php'<?php echo $formtarget; ?>>
+<form method=POST action ='./forms_admin.php'>
 <i><?php xl('click here to update priority, category and nickname settings','e'); ?></i>
 <input type=submit name=update value='<?php xl('update','e'); ?>'><br> 
 <table border=0 cellpadding=1 cellspacing=2 width="500">
@@ -96,9 +95,9 @@ foreach($bigdata as $registry)
 			if ($registry['sql_run'] == 0)
 				echo "<td bgcolor='$color' width='10%'><span class='text'>".xl('registered')."</span>";
 			elseif ($registry['state'] == "0")
-				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable'$formtarget>".xl('disabled')."</a>";
+				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable'>".xl('disabled')."</a>";
 			else
-				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable'$formtarget>".xl('enabled')."</a>";
+				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable'>".xl('enabled')."</a>";
 		?></td>
 		<td bgcolor="<?php $color?>" width="10%">
 			<span class=text><?php
@@ -115,7 +114,7 @@ foreach($bigdata as $registry)
 			if ($registry['sql_run'])
 				echo "<span class=text>".xl('DB installed')."</span>";
 			else
-				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db'$formtarget>".xl('install DB')."</a>";
+				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db'>".xl('install DB')."</a>";
 			?> 
 		</td>
 		<?php
@@ -185,7 +184,7 @@ foreach ( $inDir as $fname )
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%"><?php
 			if ($phpState == "PHP extracted")
-				echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register"' . $formtarget . '>' . xl('register') . '</a>';
+				echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register">' . xl('register') . '</a>';
 			else
 				echo '<span class=text>' . xl('n/a') . '</span>';
 		?></td>

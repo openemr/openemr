@@ -118,7 +118,7 @@ my $new_php =<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">

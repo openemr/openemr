@@ -59,7 +59,7 @@ $pres = "prescription";
 <dt><span href="coding.php" class="title"><?php xl('Coding','e'); ?></span></dt>
 
 <dd><a class="text" href="superbill_codes.php"
- target="<?php echo $GLOBALS['concurrent_layout'] ? '_parent' : 'Main'; ?>"
+ target="_parent"
  onclick="top.restoreSession()">
 <?php xl('Superbill','e'); ?></a></dd>
 

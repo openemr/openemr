@@ -21,7 +21,7 @@ $text              = $_REQUEST['text'];
 $payment_method    = $_REQUEST['payment_method'];
 $insurance_company = $_REQUEST['insurance_company'];
 
-$target = $GLOBALS['concurrent_layout'] ? '_parent' : 'Main';
+$target = '_parent';
 
 // Possible units of measure for NDC drug quantities.
 $ndc_uom_choices = array(

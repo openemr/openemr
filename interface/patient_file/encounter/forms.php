@@ -228,11 +228,7 @@ jQuery(document).ready( function($) {
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");
         top.restoreSession();
-        <?php if ($GLOBALS['concurrent_layout']): ?>
         parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
-        <?php else: ?>
-        top.Main.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
-        <?php endif; ?>
     }
 
 <?php
@@ -267,14 +263,8 @@ jQuery(document).ready( function($) {
 
  // Called by the deleter.php window on a successful delete.
  function imdeleted(EncounterId) {
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   top.window.parent.left_nav.removeOptionSelected(EncounterId);
   top.window.parent.left_nav.clearEncounter();
-<?php } else { ?>
-  top.restoreSession();
-  top.Title.location.href = '../patient_file/encounter/encounter_title.php';
-  top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?mode=new';
-<?php } ?>
  }
 
 </script>
@@ -596,7 +586,7 @@ if ( $esign->isButtonViewable() ) {
             echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
         } else {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
-                    ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
+                    "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
                     "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) .
                     "' onclick='top.restoreSession()'>";
@@ -610,9 +600,8 @@ if ( $esign->isButtonViewable() ) {
         if (acl_check('admin', 'super') ) {
             if ( $formdir != 'newpatient') {
                 // a link to delete the form from the encounter
-                echo "<a target='".
-                    ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
-                    "' href='$rootdir/patient_file/encounter/delete_form.php?" .
+                echo "<a target='_parent'" .
+                    " href='$rootdir/patient_file/encounter/delete_form.php?" .
                     "formname=" . $formdir .
                     "&id=" . $iter['id'] .
                     "&encounter=". $encounter.

@@ -226,8 +226,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script language="JavaScript">
       function openNewForm(sel) {
           top.restoreSession();
-          <?php 
-          if ($GLOBALS['concurrent_layout']) { ?>
+          <?php
             FormNameValueArray = sel.split('formname=');
             if(FormNameValueArray[1] == 'newpatient' || (!parent.Forms))
             {
@@ -236,11 +235,7 @@ if ($refresh and $refresh != 'fullscreen') {
             else
             {
               parent.Forms.location.href = sel;
-            }
-            <?php }
-          else { ?>
-              top.frames['Main'].location.href = sel;
-              <?php } ?>
+            } ?>
       }
     </script>
   </head>

@@ -405,18 +405,12 @@ $(document).ready(function() {
  // This also closes the popup window.
  function toencounter(enc, datestr, topframe) {
   topframe.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   // Hard-coding of RBot for this purpose is awkward, but since this is a
   // pop-up and our openemr is left_nav, we have no good clue as to whether
   // the top frame is more appropriate.
   topframe.left_nav.forceDual();
   topframe.left_nav.setEncounter(datestr, enc, '');
-  topframe.left_nav.setRadio('RBot', 'enc');
   topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
-<?php } else { ?>
-  topframe.Title.location.href = 'encounter/encounter_title.php?set_encounter='   + enc;
-  topframe.Main.location.href  = 'encounter/patient_encounter.php?set_encounter=' + enc;
-<?php } ?>
   window.close();
  }
 

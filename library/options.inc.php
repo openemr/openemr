@@ -3031,9 +3031,6 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         echo " onclick='top.restoreSession()'";
       }
     }
-    if (!$GLOBALS['concurrent_layout']) {
-      echo " target='Main'";
-    }
     echo "><span>" .
       htmlspecialchars( $buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
   }
