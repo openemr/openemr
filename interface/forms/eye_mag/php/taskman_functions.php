@@ -40,7 +40,7 @@ function make_task($ajax_req) {
 
 	$query 		= "SELECT * FROM users WHERE id=?";
   	$to_data 	=  sqlQuery($query,array($to_id));
-	$filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf"; 
+	$filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf";
 		
 	$query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
     $doc = sqlQuery($query,array($encounter,$pid,'%'.$filename.'%' ));
@@ -49,7 +49,7 @@ function make_task($ajax_req) {
 	$sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
 	$task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
 	
-	if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) { 
+	if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) {
 		// The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
 		// but the document was deleted (to redo it)...
 		// Delete the task, recreate the task, and send the newly made PDF.

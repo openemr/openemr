@@ -46,7 +46,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid,$type='text') {
     global $priors;
     global $form_id;
     global $earlier;
-    $Form_Name = "Eye Exam"; 
+    $Form_Name = "Eye Exam";
     $output_return ="<span id='".attr($zone)."_prefix_oldies' name='".attr($zone)."_prefix_oldies' class='oldies_prefix'>";
     $selected='';
     $current='';

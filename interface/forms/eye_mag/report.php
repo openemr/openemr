@@ -1830,7 +1830,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
           <table style="">
             <tr>
               <td style="padding:5px;text-align: left;text-align:justify;width:475px;">
-                <?php        
+                <?php
                   /**  
                    *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
                    */
@@ -1880,14 +1880,14 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                       $PLAN_items = explode('|',$PLAN);
                       foreach ($PLAN_items as $item) {
                         echo  $item."<br />";
-                      }  
+                      }
                       if ($PLAN2) {
                         echo $PLAN2."<br />";
                       }
                       ?>
                     </div>
                     <?php 
-                  } 
+                  }
                 ?>
               </td>
             </tr>
@@ -1895,7 +1895,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
         </td>
         <td style="text-align:center;vertical-align:bottom;padding:1px;">
           <?php 
-            display_draw_image ("IMPPLAN",$encounter,$pid); 
+            display_draw_image ("IMPPLAN",$encounter,$pid);
           
             if ($PDF_OUTPUT) {
               //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech

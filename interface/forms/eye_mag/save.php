@@ -297,7 +297,7 @@ if ($_REQUEST['unlock'] == '1') {
   if (!$_REQUEST['LOCKEDBY'])  $_REQUEST['LOCKEDBY'] = rand();
 }
 
-if ($_REQUEST["mode"] == "new")             { 
+if ($_REQUEST["mode"] == "new")             {
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
 } elseif ($_REQUEST["mode"] == "update")    {
