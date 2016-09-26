@@ -42,8 +42,8 @@ function make_task($ajax_req) {
   	$to_data 	=  sqlQuery($query,array($to_id));
 	$filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf"; 
 		
-	$query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like '%".$filename."%'";
-    $doc = sqlQuery($query,array($encounter,$pid));
+	$query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
+    $doc = sqlQuery($query,array($encounter,$pid,'%'.$filename.'%' ));
                                     
 
 	$sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
@@ -291,10 +291,10 @@ function make_document($task) {
     	  	unlink($file); //maybe shorten to just unlink($filepath.'/'.$filename); - well this does test to see if it is there
     	}
     	
-    	$sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-	    sqlQuery($sql,array("%".$filename));
-	    $sql = "DELETE from documents where documents.url like ?";
-	    sqlQuery($sql,array("%".$filename));
+    	$sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%".$filename."')";
+	    sqlQuery($sql);
+	    $sql = "DELETE from documents where documents.url like '%".$filename."'";
+	    sqlQuery($sql);
 	}
 	
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],

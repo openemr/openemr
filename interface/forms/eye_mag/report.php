@@ -1873,7 +1873,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     echo  $item['plan']."</div><br />";
                   }
                   if ($PLAN && $PLAN != '0') { ?>
-                    <b>Orders/Next Visit:</b>
+                    <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                       <?php 
@@ -1902,7 +1902,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
               if (file_exists($from_file)) {
                 echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />".
-                $providerNAME."<br />
+                text($providerNAME)."<br />
                 <i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
               }
               ?>
@@ -2002,49 +2002,6 @@ function display_draw_image($zone,$encounter,$pid){
    
  return;
 
-}
-
-/**
- *  This is the original base report function.  Keep it for others to use
- *  when testing output for their forms.  We are not using it.
- */
-function full_report( $pid, $encounter, $cols='2', $id) {
-
-  return;
-
-  /** CHANGE THIS - name of the database table we are reporting on **/
-  $table_name = "form_eye_mag";
-
-  $count = 0;
-  $data = formFetch($table_name, $id);
-
-  if ($data) {
-
-    print "<table><tr>";
-
-    foreach($data as $key => $value) {
-      if ($key == "id" || $key == "pid" || $key == "user" ||
-        $key == "groupname" || $key == "authorized" ||
-        $key == "activity" || $key == "date" ||
-        $value == "" || $value == "0000-00-00 00:00:00" ||
-        $value == "n")
-      {
-      // skip certain fields and blank data
-        continue;
-      }
-
-      $key=ucwords(str_replace("_"," ",$key));
-      print("<tr>\n");
-      print("<tr>\n");
-      print "<td><span class=bold>".xlt($key)." </span><span class=text>".text($value)."</span></td>";
-      $count++;
-      if ($count == $cols) {
-        $count = 0;
-        print "</tr><tr>\n";
-      }
-    }
-  }
-  print "</tr></table>";
 }
 
 function report_ACT($term) {

@@ -3348,7 +3348,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 
                             <tr id="neurosens_code" name="neurosens_code" class="nodisplay">
                               <td colspan="3" style="padding-top:5px;padding-left:15px;"><input type="hidden" id="neurosens" style="width:50px;" value="92060" class="">
-                                <i class="fa fa-check"></i> <?php echo xlt('92060 Sensorimotor Exam - no modifier required'); ?>.
+                                <i class="fa fa-check"></i> 92060 Sensorimotor Exam - no modifier required.
                               </td>
                             </tr>
                           
