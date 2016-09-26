@@ -290,11 +290,11 @@ function make_document($task) {
 		foreach (glob($filepath.'/'.$filename) as $file) {
     	  	unlink($file); //maybe shorten to just unlink($filepath.'/'.$filename); - well this does test to see if it is there
     	}
-    	
-    	$sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%".$filename."')";
-	    sqlQuery($sql);
-	    $sql = "DELETE from documents where documents.url like '%".$filename."'";
-	    sqlQuery($sql);
+
+	    $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
+	    sqlQuery($sql,array("%".$filename));
+	    $sql = "DELETE from documents where documents.url like ?";
+	    sqlQuery($sql,array("%".$filename));
 	}
 	
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
