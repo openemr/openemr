@@ -329,7 +329,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                       }
                       ?>
                     </div>
-                    <?
+                    <?php
                   }
                   if ($CC3) {
                     ?>

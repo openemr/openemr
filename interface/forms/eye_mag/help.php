@@ -849,7 +849,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 		</div>
 	</body>
 </html>
-	<?
+	<?php
 exit;
 
 
