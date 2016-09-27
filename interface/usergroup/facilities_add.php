@@ -55,9 +55,12 @@ parent.$.fn.fancybox.close();
 var collectvalidation = <?php echo($collectthis); ?>;
 
 function submitform() {
+    // new validation
+    if(typeof  collectvalidation != 'undefined') {
+        var valid = submitme(1, undefined, 'facility-add', collectvalidation);
+        if (!valid) return;
+    }
 
-    var valid = submitme(1, undefined, 'facility-add', collectvalidation);
-    if (!valid) return;
 
 	<?php if($GLOBALS['erx_enable']){ ?>
 	alertMsg='';
@@ -92,9 +95,28 @@ function submitform() {
 		return false;
 	}
 	<?php } ?>
+    //old validation
+    if(typeof  collectvalidation == 'undefined'){
 
-    document.forms[0].submit();
-    top.restoreSession();
+        if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
+            top.restoreSession();
+            document.forms[0].submit();
+        } else {
+            if(document.forms[0].facility.value.length<=0){
+                document.forms[0].facility.style.backgroundColor="red";
+                document.forms[0].facility.focus();
+            }
+        else if(document.forms[0].ncolor.value == ''){
+            document.forms[0].ncolor.style.backgroundColor="red";
+               document.forms[0].ncolor.focus();
+            }
+        }
+    }
+
+    if(typeof  collectvalidation != 'undefined') {
+        document.forms[0].submit();
+        top.restoreSession();
+    }
 }
 
 function toggle( target, div ) {
