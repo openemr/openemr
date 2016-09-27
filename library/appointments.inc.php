@@ -624,6 +624,16 @@ function interpretRecurrence($recurr_freq, $recurr_type){
 		$interpreted .= " " . $REPEAT_ON_NUM[$recurr_freq['event_repeat_on_num']];
 		$interpreted .= " " . $REPEAT_ON_DAY[$recurr_freq['event_repeat_on_day']];
 	}
+	elseif ($recurr_type == 3){
+		$interpreted = $REPEAT_FREQ[1];
+		$comma = "";
+		$day_arr = explode(",", $recurr_freq['event_repeat_freq']);
+		foreach ($day_arr as $day){
+			$interpreted .= $comma . " " . $REPEAT_ON_DAY[$day - 1];
+			$comma = ",";
+		}
+
+	}
 
 	return $interpreted;
 }
