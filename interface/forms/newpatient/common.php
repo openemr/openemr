@@ -63,6 +63,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/vendors/validate/validate_modified.js"></script>
 
 <!-- validation library -->
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
@@ -103,6 +104,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  var collectvalidation = <?php echo($collectthis); ?>;
  $(document).ready(function(){
    window.saveClicked = function(event) {
+       debugger
      var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
      if (submit) {
        top.restoreSession();
