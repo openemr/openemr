@@ -23,15 +23,19 @@
  * @link    http://www.open-emr.org
  */
 
- // Tell auth.inc that this is the daemon script; this is so that
- // inactivity timeouts will still work, and to avoid logging an
- // event every time we run.
- $GLOBALS['DAEMON_FLAG'] = true;
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
- require_once(dirname(__FILE__)) . "/../../globals.php";
+// Tell auth.inc that this is the daemon script; this is so that
+// inactivity timeouts will still work, and to avoid logging an
+// event every time we run.
+$GLOBALS['DAEMON_FLAG'] = true;
 
- $daemon_interval = 120; // Interval in seconds between reloads.
+require_once(dirname(__FILE__)) . "/../../globals.php";
+
+$daemon_interval = 120; // Interval in seconds between reloads.
 ?>
+
 <html>
 <body>
 <script type="text/javascript">
