@@ -99,7 +99,10 @@ if (!isset($_SESSION["last_update"])) {
     authLoginScreen();
 } else {
      //if page has not been updated in a given period of time, we call login screen
-    if ((time() - $_SESSION["last_update"]) > $timeout) {
+     //--Note can't perform nice logout if skip_timeout_reset is set since these are called
+     //via ajax scripts where this output is not getting sent to browser.
+     //--Note DAEMON_FLAG is ok because it is run from a frame in the browser.
+    if ( ((time() - $_SESSION["last_update"]) > $timeout) && empty($_REQUEST['skip_timeout_reset']) ) {
         newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
         authCloseSession();
         authLoginScreen(true);

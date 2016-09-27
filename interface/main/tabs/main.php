@@ -38,6 +38,11 @@ $esignApi = new Api();
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+// This flag indicates if another window or frame is trying to reload the login
+// page to this top-level window.  It is set by javascript returned by auth.inc
+// and is checked by handlers of beforeunload events.
+var timed_out = false;
+
 //  Include this variable for backward compatibility 
 var loadedFrameCount = 0;
 var tab_mode=true;
