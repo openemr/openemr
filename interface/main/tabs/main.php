@@ -43,7 +43,7 @@ $esignApi = new Api();
 // and is checked by handlers of beforeunload events.
 var timed_out = false;
 
-//  Include this variable for backward compatibility 
+//  Include this variable for backward compatibility
 var loadedFrameCount = 0;
 var tab_mode=true;
 function allFramesLoaded() {
@@ -82,7 +82,7 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});	    
+	});
 	return encounter_locked;
 	<?php } else { ?>
 	// If encounter locking isn't enabled then always return false
@@ -118,7 +118,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
 <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    
+
 <?php require_once("templates/tabs_template.php"); ?>
 <?php require_once("templates/menu_template.php"); ?>
 <?php require_once("templates/patient_data_template.php"); ?>
@@ -130,7 +130,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
         {
         ?>
             app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".urldecode($_REQUEST['url'])); ?>);
-        <?php 
+        <?php
         }
     ?>
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
@@ -141,6 +141,8 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
 
 </head>
 <body>
+<!-- Below iframe is to support auto logout when timeout is reached -->
+<iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <div id="mainBox">
     <div id="dialogDiv"></div>
     <div class="body_top">
