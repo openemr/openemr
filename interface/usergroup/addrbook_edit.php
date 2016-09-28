@@ -22,7 +22,7 @@
 
  // Collect user id if editing entry
  $userid = $_REQUEST['userid'];
- 
+
  // Collect type if creating a new entry
  $type = $_REQUEST['type'];
 
@@ -120,6 +120,7 @@ td { font-size:10pt; }
   $form_fname = invalue('form_director_fname');
   $form_lname = invalue('form_director_lname');
   $form_mname = invalue('form_director_mname');
+  $form_suffix = invalue('form_director_suffix');
  }
  else {
   // Person centric
@@ -337,6 +338,8 @@ td { font-size:10pt; }
      maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;
    <b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_director_mname' class='inputtext'
      maxlength='50' value='<?php echo attr($row['mname']); ?>' />
+   <b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_director_suffix' class='inputtext'
+     maxlength='50' value='<?php echo attr($row['suffix']); ?>' />
   </td>
  </tr>
 
