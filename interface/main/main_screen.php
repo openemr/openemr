@@ -70,29 +70,42 @@ if($GLOBALS['password_expiration_days'] != 0){
 if ($is_expired) {
   //display the php file containing the password expiration message.
   $frame1url = "pwd_expires_alert.php";
+  $frame1target = "adm";
 }
 else if (!empty($_POST['patientID'])) {
   $patientID = 0 + $_POST['patientID'];
   if (empty($_POST['encounterID'])) {
     // Open patient summary screen (without a specific encounter)
     $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+    $frame1target = "pat";
   }
   else {
     // Open patient summary screen with a specific encounter
     $encounterID = 0 + $_POST['encounterID'];
     $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
+    $frame1target = "pat";
   }
 }
 else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
   $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
   if (isset($_GET['date'])) $frame1url .= "&date=" . attr($_GET['date']);
+  $frame1target = "cal";
 }
 else {
   // standard layout
   if ($GLOBALS['default_top_pane']) {
     $frame1url=attr($GLOBALS['default_top_pane']);
+    $map_paths_to_targets = array(
+      'main_info.php' => ('cal'),
+      '../new/new.php' => ('pat'),
+      '../../interface/main/finder/dynamic_finder.php' => ('pat'),
+      '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb')
+    );
+    $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
+    if (empty($frame1target)) $frame1target = "msc";
   } else {
     $frame1url = "main_info.php";
+    $frame1target = "cal";
   }
 }
 
@@ -100,10 +113,16 @@ $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
 
 // This is where will decide whether to use tabs layout or non-tabs layout
+// Will also set Session variables to communicate settings to tab layout
+$_SESSION['frame1url'] = $frame1url;
+$_SESSION['frame1target'] = $frame1target;
 if (!$GLOBALS['new_tabs_layout']) {
   $_REQUEST['tabs'] = "false";
 }
 require_once("tabs/redirect.php");
+// unset the Session variables that were only meant for the tab layout
+unset($_SESSION['frame1url']);
+unset($_SESSION['frame1target']);
 
 ?>
 <html>

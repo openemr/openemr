@@ -126,17 +126,19 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-    <?php if(isset($_REQUEST['url']))
-        {
-        ?>
-            app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".urldecode($_REQUEST['url'])); ?>);
-        <?php
-        }
-    ?>
+
+    <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
+        app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
+        app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
+    <?php } ?>
+    <?php unset($_SESSION['frame1url']); ?>
+    <?php unset($_SESSION['frame1target']); ?>
+
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
-                                                                  .',' . json_encode($userQuery['fname'])
-                                                                  .',' . json_encode($userQuery['lname'])
-                                                                  .',' . json_encode($_SESSION['authGroup']); ?>));
+        .',' . json_encode($userQuery['fname'])
+        .',' . json_encode($userQuery['lname'])
+        .',' . json_encode($_SESSION['authGroup']); ?>));
+
 </script>
 
 </head>
