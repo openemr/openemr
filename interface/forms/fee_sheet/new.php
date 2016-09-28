@@ -44,7 +44,7 @@ $add_more_items = (empty($_GET['addmore']) && empty($_POST['bn_addmore'])) ? 0 :
 $alertmsg = '';
 
 // Determine if more than one price level is in use.
-$tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel'");
+$tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
 
 // Format a money amount with decimals but no other decoration.
@@ -731,7 +731,7 @@ endFSCategory();
 
 // Create drop-lists based on categories defined within the codes.
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'superbill' ORDER BY seq");
+  "WHERE list_id = 'superbill' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
   global $code_types;
   ++$i;
@@ -1198,7 +1198,7 @@ if ($fs->contraception_code && !$isBilled) {
 
 // Allow the patient price level to be fixed here.
 $plres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'pricelevel' ORDER BY seq");
+  "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
 if (true) {
   $pricelevel = $fs->getPriceLevel();
   echo "   <span class='billcell'><b>" . xlt('Default Price Level') . ":</b></span>\n";

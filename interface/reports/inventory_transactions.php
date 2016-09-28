@@ -373,9 +373,9 @@ if ($form_action) { // if submit or export
     "LEFT JOIN patient_data AS p ON p.pid = s.pid " .
     "LEFT JOIN users AS u ON u.id = s.distributor_id " .
     "LEFT JOIN list_options AS lo1 ON lo1.list_id = 'warehouse' AND " .
-    "lo1.option_id = i1.warehouse_id " .
+    "lo1.option_id = i1.warehouse_id AND lo1.activity = 1 " .
     "LEFT JOIN list_options AS lo2 ON lo2.list_id = 'warehouse' AND " .
-    "lo2.option_id = i2.warehouse_id " .
+    "lo2.option_id = i2.warehouse_id AND lo2.activity = 1 " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
     "WHERE s.sale_date >= ? AND s.sale_date <= ? ";
   if ($form_trans_type == 2) { // purchase/return

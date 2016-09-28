@@ -44,9 +44,9 @@ $orderby = $ORDERHASH[$form_orderby];
   "LEFT JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
   "AND di.destroy_date IS NULL " .
   "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
-  "lo.option_id = di.warehouse_id " .
+  "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
   "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
-  "lof.option_id = d.form " .
+  "lof.option_id = d.form AND lof.activity = 1 " .
   "ORDER BY $orderby");
 ?>
 <html>

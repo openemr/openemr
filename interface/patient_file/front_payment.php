@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -100,7 +100,7 @@ function calcTaxes($row, $amount) {
   foreach ($arates as $value) {
     if (empty($value)) continue;
     $trow = sqlQuery("SELECT option_value FROM list_options WHERE " .
-      "list_id = 'taxrate' AND option_id = ? LIMIT 1", array($value) );
+      "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1", array($value) );
     if (empty($trow['option_value'])) {
       echo "<!-- Missing tax rate '".text($value)."'! -->\n";
       continue;

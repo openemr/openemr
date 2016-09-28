@@ -32,7 +32,7 @@
  *     show invoice number
  * </pre>
  *
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -367,7 +367,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
 // (description, rate, accumulated total).
 $taxes = array();
 $pres = sqlStatement("SELECT option_id, title, option_value " .
-  "FROM list_options WHERE list_id = 'taxrate' ORDER BY seq");
+  "FROM list_options WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq, title, option_id");
 while ($prow = sqlFetchArray($pres)) {
   $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
 }
@@ -980,7 +980,7 @@ else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
 if ($gcac_related_visit && !$gcac_service_provided) {
   // Skip this warning if the GCAC visit form is not allowed.
   $grow = sqlQuery("SELECT COUNT(*) AS count FROM list_options " .
-    "WHERE list_id = 'lbfnames' AND option_id = 'LBFgcac'");
+    "WHERE list_id = 'lbfnames' AND option_id = 'LBFgcac' AND activity = 1");
   if (!empty($grow['count'])) { // if gcac is used
     // Skip this warning if referral or abortion in TS.
     $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .

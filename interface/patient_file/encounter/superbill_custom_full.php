@@ -461,7 +461,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'sup
 $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
   "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
   "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-  "WHERE list_id = 'pricelevel' ORDER BY lo.seq", array($code_id) );
+  "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id) );
 for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
   if ($i) echo "&nbsp;&nbsp;";
   echo text(xl_list_label($prow['title'])) . " ";
@@ -475,7 +475,7 @@ for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
 <?php
 $taxline = '';
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'taxrate' ORDER BY seq");
+  "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
   if ($taxline) $taxline .= "&nbsp;&nbsp;";
   $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
@@ -570,7 +570,7 @@ foreach ($code_types as $key => $value) {
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
-  "WHERE list_id = 'pricelevel' ORDER BY seq");
+  "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
 while ($prow = sqlFetchArray($pres)) {
   echo "  <td class='bold' align='right' nowrap>" . text(xl_list_label($prow['title'])) . "</td>\n";
 }
@@ -631,7 +631,7 @@ if (!empty($all)) {
     $pres = sqlStatement("SELECT p.pr_price " .
       "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
       "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-      "WHERE list_id = 'pricelevel' ORDER BY lo.seq", array($iter['id']) );
+      "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
     while ($prow = sqlFetchArray($pres)) {
       echo "<td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
     }

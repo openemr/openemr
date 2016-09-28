@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2014 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
@@ -218,7 +218,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		
 		$got_selected_backup = FALSE;
 		if (!empty($backup_list)) {
-			$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
+			$lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
 			while ( $lrow_backup = sqlFetchArray ( $lres_backup ) ) {
 				$selectedValues = explode ( "|", $currvalue );
 			
@@ -696,7 +696,7 @@ function generate_form_field($frow, $currvalue) {
     $cols = max(1, $frow['fld_length']);
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0' width='100%'>";
     $tdpct = (int) (100 / $cols);
     for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -738,7 +738,7 @@ function generate_form_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -779,7 +779,7 @@ function generate_form_field($frow, $currvalue) {
     if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     echo "<tr><td>&nbsp;</td><td class='bold'>" .
       htmlspecialchars( xl('N/A'), ENT_NOQUOTES) .
@@ -850,7 +850,7 @@ function generate_form_field($frow, $currvalue) {
     if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -903,7 +903,7 @@ function generate_form_field($frow, $currvalue) {
     // In this special case, fld_length is the number of columns generated.
     $cols = max(1, $frow['fld_length']);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0' width='100%'>";
     $tdpct = (int) (100 / $cols);
     $got_selected = FALSE;
@@ -1165,7 +1165,7 @@ function generate_print_field($frow, $currvalue) {
     $tmp = '';
     if ($currvalue) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue));
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
       $tmp = xl_list_label($lrow['title']);
       if ($lrow == 0 && !empty($backup_list)) {
         // since primary list did not map, try to map to backup list
@@ -1384,7 +1384,7 @@ function generate_print_field($frow, $currvalue) {
     $cols = max(1, $fld_length);
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0' width='100%'>";
     $tdpct = (int) (100 / $cols);
     for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -1420,7 +1420,7 @@ function generate_print_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1448,7 +1448,7 @@ function generate_print_field($frow, $currvalue) {
     }
     $fldlength = empty($fld_length) ?  20 : $fld_length;
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     echo "<tr><td>&nbsp;</td><td class='bold'>" .
       htmlspecialchars( xl('N/A'), ENT_NOQUOTES) .
@@ -1504,7 +1504,7 @@ function generate_print_field($frow, $currvalue) {
     }
     $fldlength = empty($fld_length) ?  20 : $fld_length;
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1531,7 +1531,7 @@ function generate_print_field($frow, $currvalue) {
     // In this special case, fld_length is the number of columns generated.
     $cols = max(1, $frow['fld_length']);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     echo "<table cellpadding='0' cellspacing='0' width='100%'>";
     $tdpct = (int) (100 / $cols);
     for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -1681,12 +1681,12 @@ function generate_print_field($frow, $currvalue) {
   	foreach($values_array as $value) {
   		if ($value) {
   			$lrow = sqlQuery("SELECT title FROM list_options " .
-  					"WHERE list_id = ? AND option_id = ?", array($list_id,$value));
+  					"WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
   			$tmp = xl_list_label($lrow['title']);
 			if ($lrow == 0 && !empty($backup_list)) {
 				// since primary list did not map, try to map to backup list
 				$lrow = sqlQuery("SELECT title FROM list_options " .
-					"WHERE list_id = ? AND option_id = ?", array($backup_list,$currvalue));
+					"WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
 				$tmp = xl_list_label($lrow['title']);
 			}
   			if (empty($tmp)) $tmp = "($value)";
@@ -1726,13 +1726,13 @@ function generate_display_field($frow, $currvalue) {
   //  Supports backup lists for datatypes 1,26,33
   if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
-      "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+      "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue) );
       $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
     //if there is no matching value in the corresponding lists check backup list
     // only supported in data types 1,26,33
     if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ?", array($backup_list,$currvalue) );
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue) );
       $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
     }
   }
@@ -1849,7 +1849,7 @@ function generate_display_field($frow, $currvalue) {
   else if ($data_type == 21) {
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     $count = 0;
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1873,7 +1873,7 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1897,7 +1897,7 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1943,7 +1943,7 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -2050,11 +2050,11 @@ function generate_display_field($frow, $currvalue) {
     $i = 0;
     foreach($values_array as $value) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ?", array($list_id,$value) );
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value) );
       if ($lrow == 0 && !empty($backup_list)) {
         //use back up list
         $lrow = sqlQuery("SELECT title FROM list_options " .
-          "WHERE list_id = ? AND option_id = ?", array($backup_list,$value) );
+          "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value) );
       }
       if ($i > 0) {
         $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
@@ -2091,13 +2091,13 @@ function generate_plaintext_field($frow, $currvalue) {
   //  Supports backup lists (for datatypes 1,26,33)
   if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
-      "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+      "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue) );
     $s = xl_list_label($lrow['title']);
     //if there is no matching value in the corresponding lists check backup list
     // only supported in data types 1,26,33
     if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 33)) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-        "WHERE list_id = ? AND option_id = ?", array($backup_list,$currvalue) );
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue) );
       $s = xl_list_label($lrow['title']);
     }
   }
@@ -2176,7 +2176,7 @@ function generate_plaintext_field($frow, $currvalue) {
   else if ($data_type == 21) {
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     $count = 0;
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -2197,7 +2197,7 @@ function generate_plaintext_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       if (empty($avalue[$option_id])) continue;
@@ -2218,7 +2218,7 @@ function generate_plaintext_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       $restype = substr($avalue[$option_id], 0, 1);
@@ -2255,7 +2255,7 @@ function generate_plaintext_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = ? ORDER BY seq, title", array($list_id));
+      "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       $restype = substr($avalue[$option_id], 0, 1);
@@ -2309,12 +2309,12 @@ function generate_plaintext_field($frow, $currvalue) {
     $i = 0;
     foreach($values_array as $value) {
       $lrow = sqlQuery("SELECT title FROM list_options " .
-          "WHERE list_id = ? AND option_id = ?", array($list_id,$value) );
+        "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value) );
 
       if ($lrow == 0 && !empty($backup_list)) {
         //use back up list
         $lrow = sqlQuery("SELECT title FROM list_options " .
-                        "WHERE list_id = ? AND option_id = ?", array($backup_list,$value) );
+          "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value) );
       }
 
       if ($i > 0) {
@@ -3095,7 +3095,7 @@ function billing_facility($name,$select){
 //
 function getListItemTitle($list, $option) {
   $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = ? AND option_id = ?", array($list, $option));
+    "list_id = ? AND option_id = ? AND activity = 1", array($list, $option));
   if (empty($row['title'])) return $option;
   return xl_list_label($row['title']);
 }
@@ -3103,7 +3103,7 @@ function getListItemTitle($list, $option) {
 function getSmokeCodes()
 {
      $smoking_codes_arr = array();
-     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status'");
+     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
      while($codes_row = sqlFetchArray($smoking_codes))
       {
           $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];

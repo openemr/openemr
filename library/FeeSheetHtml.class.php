@@ -98,7 +98,7 @@ class FeeSheetHtml extends FeeSheet {
       $s .= ">";
       $s .= "<option value=''>" . text($toptext) . "</option>";
       $lres = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = 'warehouse' ORDER BY seq, title");
+        "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
       while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option value='" . attr($lrow['option_id']) . "'";
         if ($disabled) {
@@ -137,7 +137,7 @@ class FeeSheetHtml extends FeeSheet {
     $lres = sqlStatement("SELECT lo.*, p.pr_price " .
       "FROM list_options AS lo " .
       "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
-      "WHERE lo.list_id = 'pricelevel' ORDER BY lo.seq, lo.title",
+      "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
       array($pr_id, $pr_selector));
     while ($lrow = sqlFetchArray($lres)) {
       $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
@@ -194,7 +194,7 @@ class FeeSheetHtml extends FeeSheet {
     $s .= ">";
     $pricelevel = $this->getPriceLevel();
     $plres = sqlStatement("SELECT option_id, title FROM list_options " .
-      "WHERE list_id = 'pricelevel' ORDER BY seq");
+      "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
     while ($plrow = sqlFetchArray($plres)) {
       $key = $plrow['option_id'];
       $val = $plrow['title'];

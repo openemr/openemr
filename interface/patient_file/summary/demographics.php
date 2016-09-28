@@ -349,7 +349,7 @@ $(document).ready(function(){
 <?php
   // Initialize for each applicable LBF form.
   $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+    "list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
   while($gfrow = sqlFetchArray($gfres)) {
 ?>
     $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");
@@ -1147,7 +1147,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   // supports charting.  The form ID is used as the "widget label".
   //
   $gfres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+    "list_id = 'lbfnames' AND " .
+    "option_value > 0 AND activity = 1 " .
+    "ORDER BY seq, title");
   while($gfrow = sqlFetchArray($gfres)) {
 ?>
     <tr>
@@ -1307,7 +1309,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  }
 	  echo "   <br />&nbsp;<br />\n";
 	}
-
 
      // Show Clinical Reminders for any user that has rules that are permitted.
      $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);

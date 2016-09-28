@@ -37,7 +37,7 @@
     function getListOptions( $list_id ) {
         $options = array();
         $sql = sqlStatement(
-            "SELECT option_id, title from list_options WHERE list_id = ?", array($list_id)
+            "SELECT option_id, title from list_options WHERE list_id = ? AND activity = 1", array($list_id)
         );
         for($iter=0; $row=sqlFetchArray( $sql ); $iter++) {
             $options[] = new Option(

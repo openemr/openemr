@@ -214,7 +214,7 @@ if($StringEcho){
 //
 if ( $encounterLocked === false ) {
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+      "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
     if (sqlNumRows($lres)) {
       if(!$StringEcho){
         $StringEcho= '<ul id="sddm">';

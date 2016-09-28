@@ -60,7 +60,7 @@ function update_visit_forms(&$menu_list)
     $baseURL="/interface/patient_file/encounter/load_form.php?formname=";
     $menu_list->children=array();
 $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 if (sqlNumRows($lres)) {
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF

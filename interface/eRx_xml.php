@@ -693,11 +693,11 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT_WS(fname,' ',mname,' ',lname) AS docname,p.quantity
             FROM prescriptions AS p
             LEFT JOIN users AS u ON p.provider_id=u.id
-            LEFT JOIN list_options AS l1 ON l1.list_id='drug_form' AND l1.option_id=p.form
-            LEFT JOIN list_options AS l2 ON l2.list_id='drug_route' AND l2.option_id=p.route
-            LEFT JOIN list_options AS l3 ON l3.list_id='drug_interval' AND l3.option_id=p.interval
-            LEFT JOIN list_options AS l4 ON l4.list_id='drug_units' AND l4.option_id=p.unit
-            WHERE p.drug<>'' and p.id=?",array($prescid));
+            LEFT JOIN list_options AS l1 ON l1.list_id = 'drug_form'     AND l1.option_id = p.form     AND l1.activity = 1
+            LEFT JOIN list_options AS l2 ON l2.list_id = 'drug_route'    AND l2.option_id = p.route    AND l2.activity = 1
+            LEFT JOIN list_options AS l3 ON l3.list_id = 'drug_interval' AND l3.option_id = p.interval AND l3.activity = 1
+            LEFT JOIN list_options AS l4 ON l4.list_id = 'drug_units'    AND l4.option_id = p.unit     AND l4.activity = 1
+            WHERE p.drug <> '' and p.id = ?",array($prescid));
         $b = $doc->createElement( "OutsidePrescription" );
             $externalId = $doc->createElement( "externalId" );
             $externalId->appendChild(
@@ -811,7 +811,7 @@ function PatientMedication($doc,$r,$pid,$med_limit)
 function PatientFreeformAllergy($doc,$r,$pid)
 {
     $res=sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
-    LEFT JOIN list_options AS lo ON l.outcome=lo.option_id AND lo.list_id='outcome'
+    LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
 	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')",array($pid));
 	$allergyId=array();
     while($row=sqlFetchArray($res))

@@ -97,9 +97,9 @@ $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 $formid   = isset($_GET['id']      ) ? intval($_GET['id']) : 0;
 $portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
 
-// Get title and number of history columns for this form.
-$tmp = sqlQuery("SELECT title, option_value FROM list_options WHERE " .
-  "list_id = 'lbfnames' AND option_id = ?", array($formname) );
+// Get some info about this form.
+$tmp = sqlQuery("SELECT title, option_value, notes FROM list_options WHERE " .
+  "list_id = 'lbfnames' AND option_id = ? AND activity = 1", array($formname));
 $formtitle = $tmp['title'];
 $formhistory = 0 + $tmp['option_value'];
 

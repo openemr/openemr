@@ -97,7 +97,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
    <select name='title'>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'titles' ORDER BY seq");
+  "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_title) echo " selected";
@@ -145,7 +145,7 @@ while ($orow = sqlFetchArray($ores)) {
     <option value=''>Unassigned</option>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'sex' ORDER BY seq");
+  "WHERE list_id = 'sex' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_sex) echo " selected";
@@ -166,7 +166,7 @@ while ($orow = sqlFetchArray($ores)) {
     <option value=''>Unassigned</option>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'refsource' ORDER BY seq");
+  "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_refsource) echo " selected";
