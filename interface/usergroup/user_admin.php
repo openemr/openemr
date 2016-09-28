@@ -200,13 +200,42 @@ var collectvalidation = <?php echo($collectthis); ?>;
   alert("<?php echo addslashes(xl('If you change e-RX Role for ePrescription, it may affect the ePrescription workflow. If you face any difficulty, contact your ePrescription vendor.'));?>");
 }
 function submitform() {
-
-    var valid = submitme(1, undefined, 'user_form', collectvalidation);
-    if (!valid) return;
+    //old validation
+    if(typeof  collectvalidation != 'undefined') {
+        var valid = submitme(1, undefined, 'user_form', collectvalidation);
+        if (!valid) return;
+    }
 
 	top.restoreSession();
 	var flag=0;
 
+    //old validation
+    if(typeof  collectvalidation == 'undefined'){
+        function trimAll(sString)
+        {
+            while (sString.substring(0,1) == ' ')
+                {
+                    sString = sString.substring(1, sString.length);
+            }
+            while (sString.substring(sString.length-1, sString.length) == ' ')
+                {
+                    sString = sString.substring(0,sString.length-1);
+            }
+            return sString;
+        }
+        if(trimAll(document.getElementById('fname').value) == ""){
+            alert("<?php xl('Required field missing: Please enter the First name','e');?>");
+            document.getElementById('fname').style.backgroundColor="red";
+            document.getElementById('fname').focus();
+            return false;
+        }
+        if(trimAll(document.getElementById('lname').value) == ""){
+            alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
+            document.getElementById('lname').style.backgroundColor="red";
+            document.getElementById('lname').focus();
+            return false;
+        }
+    }
 	if(document.forms[0].clearPass.value!="")
 	{
 		//Checking for the strong password if the 'secure password' feature is enabled

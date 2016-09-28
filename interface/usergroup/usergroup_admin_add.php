@@ -59,71 +59,107 @@ function trimAll(sString)
 
 function submitform() {
 
-    var valid = submitme(1, undefined, 'new_user', collectvalidation);
-    if (!valid) return;
-
+    var valid = false;
+    if(typeof  collectvalidation != 'undefined') {
+         valid = submitme(1, undefined, 'new_user', collectvalidation);
+        if (!valid) return;
+    } else {
+        //old validation
+        if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0 && document.getElementById('fname').value.length >0 && document.getElementById('lname').value.length >0) {
+            valid = true;
+        }
+    }
    top.restoreSession();
+    if(valid) {
 
-   //Checking if secure password is enabled or disabled.
-   //If it is enabled and entered password is a weak password, alert the user to enter strong password.
-   if(document.new_user.secure_pwd.value == 1){
-      var password = trim(document.new_user.stiltskin.value);
-      if(password != "") {
-         var pwdresult = passwordvalidate(password);
-         if(pwdresult == 0){
-            alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+        //Checking if secure password is enabled or disabled.
+        //If it is enabled and entered password is a weak password, alert the user to enter strong password.
+        if(document.new_user.secure_pwd.value == 1){
+            var password = trim(document.new_user.stiltskin.value);
+            if(password != "") {
+                var pwdresult = passwordvalidate(password);
+                if(pwdresult == 0){
+                    alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+                    return false;
+                }
+            }
+        } //secure_pwd if ends here
+
+        <?php if($GLOBALS['erx_enable']){ ?>
+        alertMsg='';
+        f=document.forms[0];
+        for(i=0;i<f.length;i++){
+            if(f[i].type=='text' && f[i].value)
+            {
+                if(f[i].name == 'rumple')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,35);
+                    alertMsg += checkUsername(f[i].name,f[i].value);
+                }
+                else if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,35);
+                    alertMsg += checkUsername(f[i].name,f[i].value);
+                }
+                else if(f[i].name == 'federaltaxid')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,10);
+                    alertMsg += checkFederalEin(f[i].name,f[i].value);
+                }
+                else if(f[i].name == 'state_license_number')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,10);
+                    alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
+                }
+                else if(f[i].name == 'npi')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,35);
+                    alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+                }
+                else if(f[i].name == 'federaldrugid')
+                {
+                    alertMsg += checkLength(f[i].name,f[i].value,30);
+                    alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+                }
+            }
+        }
+        if(alertMsg)
+        {
+            alert(alertMsg);
             return false;
-         }
-      }
-   } //secure_pwd if ends here
+        }
+        <?php } // End erx_enable only include block?>
 
-   <?php if($GLOBALS['erx_enable']){ ?>
-   alertMsg='';
-   f=document.forms[0];
-   for(i=0;i<f.length;i++){
-      if(f[i].type=='text' && f[i].value)
-      {
-         if(f[i].name == 'rumple')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,35);
-            alertMsg += checkUsername(f[i].name,f[i].value);
-         }
-         else if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,35);
-            alertMsg += checkUsername(f[i].name,f[i].value);
-         }
-         else if(f[i].name == 'federaltaxid')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,10);
-            alertMsg += checkFederalEin(f[i].name,f[i].value);
-         }
-         else if(f[i].name == 'state_license_number')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,10);
-            alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
-         }
-         else if(f[i].name == 'npi')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,35);
-            alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
-         }
-         else if(f[i].name == 'federaldrugid')
-         {
-            alertMsg += checkLength(f[i].name,f[i].value,30);
-            alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
-         }
-      }
-   }
-   if(alertMsg)
-   {
-      alert(alertMsg);
-      return false;
-   }
-   <?php } // End erx_enable only include block?>
+        document.forms[0].submit();
+        parent.$.fn.fancybox.close();
 
-    document.forms[0].submit();
-    parent.$.fn.fancybox.close();
+    } else {
+        if (document.forms[0].rumple.value.length<=0) {
+             document.forms[0].rumple.style.backgroundColor="red";
+         alert("<?php xl('Required field missing: Please enter the User Name','e');?>");
+          document.forms[0].rumple.focus();
+          return false;
+        }
+        if (document.forms[0].stiltskin.value.length<=0)
+           {
+              document.forms[0].stiltskin.style.backgroundColor="red";
+          alert("<?php echo xl('Please enter the password'); ?>");
+          document.forms[0].stiltskin.focus();
+          return false;
+        }
+        if(trimAll(document.getElementById('fname').value) == ""){
+              document.getElementById('fname').style.backgroundColor="red";
+              alert("<?php xl('Required field missing: Please enter the First name','e');?>");
+              document.getElementById('fname').focus();
+              return false;
+        }
+        if(trimAll(document.getElementById('lname').value) == ""){
+              document.getElementById('lname').style.backgroundColor="red";
+              alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
+              document.getElementById('lname').focus();
+              return false;
+        }
+    }
 
 }
 function authorized_clicked() {

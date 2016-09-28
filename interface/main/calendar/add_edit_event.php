@@ -1771,35 +1771,63 @@ function validateform(valu){
         return false;
     }
 
-    //add rule if choose repeating event
-    if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
-        collectvalidation.form_enddate = {
-            datetime: {
-                dateOnly: true,
-                earliest: $('#form_date').val(),
-                message: "An end date later than the start date is required for repeated events!"
-            },
-            presence: true
+    // old validation
+    if(typeof collectvalidation == 'undefined') {
+
+        var f = document.getElementById('theform');
+        if (f.form_repeat.checked &&
+            (! f.form_enddate.value || f.form_enddate.value < f.form_date.value))
+        {
+            alert('<?php echo addslashes(xl("An end date later than the start date is required for repeated events!")); ?>');
+            return false;
         }
+
+        <?php
+        if($_GET['prov']!=true){
+        ?>
+            if(f.form_pid.value == ''){
+                alert('<?php echo addslashes(xl('Patient Name Required'));?>');
+                return false;
+            }
+
+        <?php
+        }
+        ?>
+
+    // exist new validation in the pageValidation list
     } else {
-        if(collectvalidation.form_enddate != undefined){
-            delete collectvalidation.form_enddate;
+
+        //add rule if choose repeating event
+        if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
+            collectvalidation.form_enddate = {
+                datetime: {
+                    dateOnly: true,
+                    earliest: $('#form_date').val(),
+                    message: "An end date later than the start date is required for repeated events!"
+                },
+                presence: true
+            }
+        } else {
+            if(collectvalidation.form_enddate != undefined){
+                delete collectvalidation.form_enddate;
+            }
         }
-    }
 
-    <?php
-    if($_GET['prov']==true){
-    ?>
-    //remove rule if it's provider event
-    if(collectvalidation.form_patient != undefined){
-        delete collectvalidation.form_patient;
-    }
-    <?php
-    }
-    ?>
+        <?php
+        if($_GET['prov']==true){
+        ?>
+            //remove rule if it's provider event
+            if(collectvalidation.form_patient != undefined){
+                delete collectvalidation.form_patient;
+            }
 
-    var submit = submitme(1, undefined, 'theform', collectvalidation);
-    if(!submit)return;
+        <?php
+        }
+        ?>
+
+        var submit = submitme(1, undefined, 'theform', collectvalidation);
+        if (!submit)return;
+    }
 
     $('#form_action').val(valu);
 
@@ -1813,7 +1841,7 @@ function validateform(valu){
     }
     <?php endif; ?>
 
-    SubmitForm();
+    return SubmitForm();
 
 }
 
