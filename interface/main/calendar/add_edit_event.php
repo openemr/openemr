@@ -1784,7 +1784,7 @@ function validateform(valu){
             presence: true
         }
     } else {
-        if(collectvalidation.form_enddate != undefined){
+        if(typeof (collectvalidation) != 'undefined'){
             delete collectvalidation.form_enddate;
         }
     }
