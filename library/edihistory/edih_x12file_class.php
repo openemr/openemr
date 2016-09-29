@@ -658,7 +658,7 @@ class edih_x12_file {
 				if ($chk_trn && strncmp($sn, 'TRN'.$de, 4) == 0) {
 					$seg_ar = explode($de, $seg_text);
 					if (isset($seg_ar[1]) && $seg_ar[1] == $trncd) {
-						$env_ar['ST'][$st_ct]['acct'][] = (isset($seg_ar[2])) ? $seg_ar[2] : '';;
+						$env_ar['ST'][$st_ct]['acct'][] = (isset($seg_ar[2])) ? $seg_ar[2] : '';
 						$chk_trn = false;
 					} else {
 						$this->message[] = 'edih_x12_envelopes: missing TRN02 type identifier element';
@@ -845,7 +845,7 @@ class edih_x12_file {
 			$seg_pos = $seg_end + 1;
 			$moresegs = strpos($f_str, $dt, $seg_pos);
 			$seg_ct++;
-			// we trim in case there are line or carriage returns$seg_ct
+			// we trim in case there are line or carriage returns
 			$ar_seg[$seg_ct] = trim($seg_text);
 		}
 		//
