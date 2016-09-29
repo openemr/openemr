@@ -296,6 +296,9 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
 
 <?php /*Include the validation script and rules for this form*/
 $form_id="HIS";
+//LBF forms use the new validation depending on the global value
+$use_validate_js=$GLOBALS['new_validate'];
+
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>
