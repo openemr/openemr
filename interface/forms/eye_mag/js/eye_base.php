@@ -1357,7 +1357,8 @@ function build_IMPPLAN(items) {
         
             // The IMPRESSION DXs are "contenteditable" spans.
             // If the user changes the words in an IMPRESSION Diagnosis area, store it.
-        $('[id^=IMPRESSION_]').blur(function() {
+        $('[id^=IMPRESSION_]').blur(function(e) {
+                                    e.preventDefault();
                                     var item = this.id.match(/IMPRESSION_(.*)/)[1];
                                     var content = this.innerText || this.innerHTML;
                                     obj.IMPPLAN_items[item].title = content;

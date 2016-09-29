@@ -3657,11 +3657,10 @@ if ($refresh and $refresh != 'fullscreen') {
       echo $output;
    }
     ?>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-panelslider-0-1-1/jquery.panelslider.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>   
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider-0-1-1/jquery.panelslider.js"></script>
     <!-- Undo code -->
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/undone.js-0-0-1/undone.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/undone.js-0-0-1/jquery.undone.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
     <script>
         $.undone();
 
@@ -3702,6 +3701,7 @@ if ($refresh and $refresh != 'fullscreen') {
         var base = '<?php echo $GLOBALS['webroot']; ?>';
     </script>
   
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
