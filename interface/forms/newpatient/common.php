@@ -66,7 +66,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <!-- validation library -->
 <?php
-//LBF forms use the new validation depending on the global value
+//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
