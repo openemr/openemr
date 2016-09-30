@@ -90,6 +90,18 @@ function isEncounterLocked( encounterId ) {
 	<?php } ?>
 }
 var webroot_url="<?php echo $web_root; ?>";
+
+// TODO: This needs to be in a <script src= ... file so that the big string doesn't make
+// the source file so wide. Not a huge deal, but would be nice.
+function xlj(key) {
+  var _translations=<?php require_once($GLOBALS['fileroot'] . "/interface/main/translations/javascript_translations_provider_controller.php"); ?>;
+
+  if (_translations && _translations[key]) {
+    return _translations[key];
+  }
+
+  return key;
+}
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
