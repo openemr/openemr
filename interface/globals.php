@@ -1,5 +1,16 @@
 <?php
 
+// Default values for optional variables that are allowed to be set by callers.
+
+// Unless specified explicitly, apply Auth functions
+if (!isset($ignoreAuth)) $ignoreAuth = false;
+// Unless specified explicitly, caller is not offsite_portal and Auth is required
+if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Unless specified explicitly, do not reverse magic quotes
+if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
+// Unless specified explicitly, "fake" register_globals.
+if (!isset($fake_register_globals)) $fake_register_globals = true;
+
 // Is this windows or non-windows? Create a boolean definition.
 if (!defined('IS_WINDOWS'))
  define('IS_WINDOWS', (stripos(PHP_OS,'WIN') === 0));
@@ -11,7 +22,7 @@ ini_set('session.gc_maxlifetime', '14400');
 
 // This is for sanitization of all escapes.
 //  (ie. reversing magic quotes if it's set)
-if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
+if ($sanitize_all_escapes) {
   if (get_magic_quotes_gpc()) {
     function undoMagicQuotes($array, $topLevel=true) {
       $newArray = array();
@@ -419,7 +430,7 @@ $GLOBALS['include_de_identification']=0;
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
 }
-if (!isset($ignoreAuth) || !$ignoreAuth) {
+if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
 
@@ -469,11 +480,6 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 ini_set("session.bug_compat_warn","off");
 
 //////////////////////////////////////////////////////////////////
-
-/* If the includer didn't specify, assume they want us to "fake" register_globals. */
-if (!isset($fake_register_globals)) {
-	$fake_register_globals = TRUE;
-}
 
 /* Pages with "myadmin" in the URL don't need register_globals. */
 $fake_register_globals =
