@@ -82,6 +82,8 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 
 <!-- validation library -->
+<!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
+<?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
@@ -1782,7 +1784,7 @@ function validateform(valu){
             presence: true
         }
     } else {
-        if(collectvalidation.form_enddate != undefined){
+        if(typeof (collectvalidation) != 'undefined'){
             delete collectvalidation.form_enddate;
         }
     }
