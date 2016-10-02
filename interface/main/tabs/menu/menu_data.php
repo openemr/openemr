@@ -45,7 +45,7 @@ $menu_json='[
     {"label":"Fee Sheet","menu_id":"cod2","target":"enc","url":"/interface/patient_file/encounter/load_form.php?formname=fee_sheet","children":[],"requirement":2},
     {"label":"Payment","menu_id":"pay1","target":"enc","url":"/interface/patient_file/front_payment.php","children":[],"requirement":1},
     {"label":"Checkout","menu_id":"bil1","target":"enc","url":"/interface/patient_file/pos_checkout.php?framed=1","children":[],"requirement":1},
-    {"label":"Billing","menu_id":"bil0","target":"pat","url":"/interface/billing/billing_report.php","children":[],"requirement":0},
+    {"label":"Billing","menu_id":"bil0","target":"bil","url":"/interface/billing/billing_report.php","children":[],"requirement":0},
     {"label":"Batch Payments","menu_id":"npa0","target":"pat","url":"/interface/billing/new_payment.php","children":[],"requirement":0},
     {"label":"Posting","menu_id":"eob","target":"pat","url":"/interface/billing/sl_eob_search.php","children":[],"requirement":0,"acl_req":["acct","eob"]},
     {"label":"EDI History","menu_id":"edi0","target":"pat","url":"/interface/billing/edih_view.php","children":[],"requirement":0,"acl_req":["acct","eob"],"global_req":"enable_edihistory_in_left_menu"}],"requirement":0},
