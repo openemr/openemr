@@ -446,9 +446,17 @@ function setMyPatient() {
  $encounter = intval($_GET['set_encounterid']);
  $_SESSION['encounter'] = $encounter;
  $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
- var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
- parent.frames[othername].location.href = '../encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
+ encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
+ <?php if ($GLOBALS['new_tabs_layout']) { ?>
+  parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', 'enc');
+  top.restoreSession();
+  parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
+ <?php } else  { ?>
+  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+  parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
+  top.restoreSession();
+  parent.frames[othername].location.href = '../' + encurl;
+ <?php } ?>
 <?php } // end setting new encounter id (only if new pid is also set) ?>
 }
 
