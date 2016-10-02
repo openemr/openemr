@@ -165,7 +165,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
  top.restoreSession();
 <?php if ($mode == 'new') { ?>
- parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', " . attr($encounter) . ", window.name"; ?>);
+ parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
 <?php } // end if new encounter ?>
  parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
 </script>
