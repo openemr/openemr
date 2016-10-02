@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +17,7 @@
  * @package OpenEMR
  * @author  Robert Down <robertdown@live.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 ?>
@@ -44,52 +46,51 @@
                     <span data-bind="text:patient().str_dob()"></span>
                 <!-- /ko -->
             </div>
-            </span>
-            <span class="patientDataColumn">
-                &nbsp;
-                 <!-- ko if: patient -->
-                <!-- ko with: patient -->
-                <div>
-                    <span>Selected Encounter:</span>
-                    <!-- ko if:selectedEncounter() -->
-                        <span data-bind="text:selectedEncounter().date()"></span>
-                        (<span data-bind="text:selectedEncounter().id()"></span>)
-                    <!-- /ko -->
-                    <!-- ko if:!selectedEncounter() -->
-                        <?php echo xlt("None") ?>
-                    <!-- /ko -->
+        </span>
+        <span class="patientDataColumn">
+            &nbsp;
+            <!-- ko if: patient -->
+            <!-- ko with: patient -->
+            <div>
+                <span><?php echo xlt("Selected Encounter"); ?>:</span>
+                <!-- ko if:selectedEncounter() -->
+                    <span data-bind="text:selectedEncounter().date()"></span>
+                    (<span data-bind="text:selectedEncounter().id()"></span>)
+                <!-- /ko -->
+                <!-- ko if:!selectedEncounter() -->
+                    <?php echo xlt("None") ?>
+                <!-- /ko -->
+            </div>
+            <!-- /ko -->
+            <!-- /ko -->
+        </span>
+        <span class="patientDataColumn patientEncountersColumn">
+            <!-- ko if: patient -->
+            <!-- ko with: patient -->
+            <span class="patientEncounterList" >
+                <div data-bind="click: clickNewEncounter"><?php echo xlt("New Encounter");?></div>
+                <div data-bind="click: clickEncounterList"><?php echo xlt("Past Encounter List");?>
+                    (<span data-bind="text:encounterArray().length"></span>)
                 </div>
-                <!-- /ko -->
-                <!-- /ko -->
+                <table class="encounters">
+                    <tbody>
+                    <!-- ko  foreach:encounterArray -->
+                        <tr >
+                            <td data-bind="click: chooseEncounterEvent">
+                                <span data-bind="text:date"></span>
+                                <span data-bind="text:category"></span>
+                            </td>
+                            <td class="review" data-bind="click: reviewEncounterEvent">
+                                <?php echo xlt("Review"); ?>
+                            </td>
+                        </tr>
+                    <!-- /ko -->
+                    </tbody>
+                </table>
             </span>
-            <span class="patientDataColumn patientEncountersColumn">
-                <!-- ko if: patient -->
-                <!-- ko with: patient -->
-
-                <span class="patientEncounterList" >
-                    <div data-bind="click: clickNewEncounter"><?php echo xlt("New Encounter");?></div>
-                    <div data-bind="click: clickEncounterList"><?php echo xlt("Past Encounter List");?>
-                        (<span data-bind="text:encounterArray().length"></span>)
-                    </div>
-                    <table class="encounters">
-                        <tbody>
-                        <!-- ko  foreach:encounterArray -->
-                            <tr >
-                                <td data-bind="click: chooseEncounterEvent">
-                                    <span data-bind="text:date"></span>
-                                    <span data-bind="text:category"></span>
-                                </td>
-                                <td class="review" data-bind="click: reviewEncounterEvent">Review
-                                </td>
-                            </tr>
-                        <!-- /ko -->
-                        </tbody>
-                    </table>
-                </span>
-                <!-- /ko -->
-                <!-- /ko -->
-
-            </span>
-        </div>
+            <!-- /ko -->
+            <!-- /ko -->
+        </span>
+    </div>
     <!-- /ko -->
 </script>
