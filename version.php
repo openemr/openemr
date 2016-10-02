@@ -34,5 +34,5 @@ $v_offsite_portal='1.47';
 // Also whenever you change a .js file, make sure that all URLs referencing it
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
-$v_js_includes = 6;
+$v_js_includes = 7;
 ?>

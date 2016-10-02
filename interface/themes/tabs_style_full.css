@@ -360,7 +360,6 @@ div.closeDlgIframe:before {
 .menuLabel
 {
     color: #333;
-    display:inline-block;
     padding: 15px 10px;
     font-weight: 600;
 }
