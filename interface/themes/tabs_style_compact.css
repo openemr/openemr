@@ -135,7 +135,7 @@ body
 
     width: 99%;
     height:99%;
-    
+
     background-color: gray;
     z-index:1000;
     opacity: 0.5;
@@ -284,7 +284,7 @@ div.closeDlgIframe {
     padding:0px 0px;
     white-space: nowrap;
 }
-.appMenu > span:hover 
+.appMenu > span:hover
 {
     color: #fff;
     text-decoration: none;
@@ -309,7 +309,7 @@ div.closeDlgIframe {
     text-shadow: none;
 }
 .appMenu li:hover > .menuDisabled
- {   
+ {
     background-color: transparent;
 }
 .menuSection{
@@ -365,7 +365,7 @@ div.closeDlgIframe {
     right:10px;
 }
 .body_top {
-    background-color: #C9DBF2;   
+    background-color: #C9DBF2;
     padding:0px;
     border-bottom:0.1pt solid black;
     -moz-box-shadow:    0 0 10px #000;

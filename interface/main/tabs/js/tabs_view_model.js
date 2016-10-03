@@ -58,7 +58,7 @@ function activateTab(data)
         {
             curTab.visible(true);
         }
-    }    
+    }
 }
 
 function activateTabByName(name,hideOthers)
@@ -106,7 +106,7 @@ function tabCloseByName(name)
         {
             tabClose(curTab);
         }
-    }    
+    }
 }
 
 function navigateTab(url,name)
@@ -114,8 +114,8 @@ function navigateTab(url,name)
     top.restoreSession();
     var curTab;
     if($("iframe[name='"+name+"']").length>0)
-    {            
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url; 
+    {
+       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
     }
     else
     {
@@ -142,6 +142,10 @@ function refreshPatient(data,evt)
     loadCurrentPatient();
 }
 
+function refreshEncounter(data,evt)
+{
+    loadCurrentEncounter();
+}
 
 function setEncounter(id)
 {
@@ -181,7 +185,7 @@ function newEncounter()
 {
     var url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc='
     navigateTab(url,"enc");
-    activateTabByName("enc",true);    
+    activateTabByName("enc",true);
 
 }
 
@@ -193,16 +197,24 @@ function encounterList()
 {
     var url=webroot_url+'/interface/patient_file/history/encounters.php'
     navigateTab(url,"enc");
-    activateTabByName("enc",true);    
-    
+    activateTabByName("enc",true);
+
 }
 
 function loadCurrentPatient()
 {
     var url=webroot_url+'/interface/patient_file/summary/demographics.php'
     navigateTab(url,"pat");
-    activateTabByName("pat",true);    
-    
+    activateTabByName("pat",true);
+
+}
+
+function loadCurrentEncounter()
+{
+    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php';
+    navigateTab(url,"enc");
+    activateTabByName("enc",true);
+
 }
 
 // note the xl_strings_tabs_view_model variable is required for the alert messages and translations
@@ -218,9 +230,9 @@ function menuActionClick(data,evt)
                 alert(xl_strings_tabs_view_model.encounter_locked);
                 return;
             }
-        }        
+        }
         navigateTab(webroot_url+data.url(),data.target);
-        activateTabByName(data.target,true);        
+        activateTabByName(data.target,true);
     }
     else
     {
@@ -232,13 +244,13 @@ function menuActionClick(data,evt)
         {
             alert(xl_strings_tabs_view_model.must_select_encounter);
         }
-    }    
-       
+    }
+
 }
 
 function clearPatient()
 {
-    top.restoreSession();    
+    top.restoreSession();
     app_view_model.application_data.patient(null);
     tabCloseByName('enc');
     tabCloseByName('rev');
@@ -253,7 +265,7 @@ function clearPatient()
 	  data: { func: "unset_pid"},
 	  success:function( msg ) {
 
-    
+
 	  }
 	});
 }
