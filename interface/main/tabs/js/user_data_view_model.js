@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +15,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -25,13 +27,13 @@ function user_data_view_model(username,fname,lname,authGrp)
     self.lname=ko.observable(lname);
     self.authorization_group=ko.observable(authGrp);
     return this;
-    
+
 }
 
 function editSettings()
 {
-    navigateTab(webroot_url+"/interface/super/edit_globals.php?mode=user","prf0");
-    activateTabByName("prf0",true);
+    navigateTab(webroot_url+"/interface/super/edit_globals.php?mode=user","msc");
+    activateTabByName("msc",true);
 }
 
 function changePassword()
