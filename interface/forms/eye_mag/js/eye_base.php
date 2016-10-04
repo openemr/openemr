@@ -59,9 +59,6 @@ var config_byday;
 var $root = $('html, body');
 var scroll;
 
-
-
-
 /*
  * Functions to add a quick pick selection to the correct fields on the form.
  */
