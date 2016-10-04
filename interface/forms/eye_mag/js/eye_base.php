@@ -32,6 +32,7 @@
     include_once("$srcdir/api.inc");
     include_once("$srcdir/forms.inc");
     include_once("$srcdir/patient.inc");
+//    include_once($GLOBALS['assets_static_relative']."/manual-added-packages/shortcut.js-2-01-B/shortcut.js");
     
     $providerID = $_REQUEST['providerID'];
     
@@ -1799,13 +1800,13 @@ function openImage() {
  *  Keyboard shortcut commands.
  */
 
-shortcut.add("Ctrl+T",function() {
+shortcut.add("Control+T",function() {
              show_TEXT();
              });
 shortcut.add("Meta+T",function() {
              show_TEXT();
              });
-shortcut.add("Ctrl+D",function() {
+shortcut.add("Control+D",function() {
              show_DRAW();
              });
 shortcut.add("Meta+D",function() {
@@ -1818,13 +1819,13 @@ shortcut.add("Meta+P",function() {
              show_PRIORS();
              $("#PRIOR_ALL").val($('#form_id').val()).trigger("change");
              });
-shortcut.add("Ctrl+B",function() {
+shortcut.add("Control+B",function() {
              show_QP();
              });
 shortcut.add("Meta+B",function() {
              show_QP();
              });
-shortcut.add("Ctrl+K",function() {
+shortcut.add("Control+K",function() {
              show_KB();
              });
 shortcut.add("Meta+K",function() {
@@ -3320,6 +3321,7 @@ $(document).ready(function() {
                                                 update_PREFS();
                                                 }
                                                 show_QP();
+                                                scrollTo("EXT_left");
                                                 });
                   
                   $("#EXAM_TEXT,#PANEL_TEXT").click(function() {
@@ -3338,6 +3340,7 @@ $(document).ready(function() {
                                                     $("#EXAM_DRAW").removeClass('button_selected');
                                                     $("#EXAM_QP").removeClass('button_selected');
                                                     $("#EXAM_TEXT").addClass('button_selected');
+                                                    scrollTo("EXT_left");
                                                     });
                   $("[id^='BUTTON_TEXT_']").click(function() {
                                                   var zone = this.id.match(/BUTTON_TEXT_(.*)/)[1];
@@ -3349,6 +3352,7 @@ $(document).ready(function() {
                                                   update_PREFS();
                                                   }
                                                   show_TEXT();
+                                                  scrollTo("EXT_left");
                                                   });
                   $("[id^='BUTTON_TEXTD_']").click(function() {
                                                    var zone = this.id.match(/BUTTON_TEXTD_(.*)/)[1];
