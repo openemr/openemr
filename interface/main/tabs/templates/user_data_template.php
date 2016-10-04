@@ -1,6 +1,7 @@
 <?php
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +16,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 ?>
@@ -30,7 +32,7 @@
                 <ul class="userfunctions menuEntries">
                     <li class="menuLabel" data-bind="click: editSettings"><?php echo xlt("Settings");?></li>
                     <li class="menuLabel" data-bind="click: changePassword"><?php echo xlt("Change Password");?></li>
-                    <li class="menuLabel" data-bind="click: logout"><?php echo xlt("Logout");?></li>                
+                    <li class="menuLabel" data-bind="click: logout"><?php echo xlt("Logout");?></li>
                 </ul>
             </div>
         </div>

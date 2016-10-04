@@ -51,16 +51,18 @@
             &nbsp;
             <!-- ko if: patient -->
             <!-- ko with: patient -->
-            <div>
-                <span><?php echo xlt("Selected Encounter"); ?>:</span>
-                <!-- ko if:selectedEncounter() -->
-                    <span data-bind="text:selectedEncounter().date()"></span>
-                    (<span data-bind="text:selectedEncounter().id()"></span>)
-                <!-- /ko -->
-                <!-- ko if:!selectedEncounter() -->
-                    <?php echo xlt("None") ?>
-                <!-- /ko -->
-            </div>
+                <div class="patientCurrentEncounter">
+                    <span><?php echo xlt("Selected Encounter"); ?>:</span>
+                    <!-- ko if:selectedEncounter() -->
+                        <a data-bind="click: refreshEncounter" href="#">
+                            <span data-bind="text:selectedEncounter().date()"></span>
+                            (<span data-bind="text:selectedEncounter().id()"></span>)
+                        </a>
+                    <!-- /ko -->
+                    <!-- ko if:!selectedEncounter() -->
+                        <?php echo xlt("None") ?>
+                    <!-- /ko -->
+                </div>
             <!-- /ko -->
             <!-- /ko -->
         </span>
