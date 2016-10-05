@@ -1309,7 +1309,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('_PC_COLOR_PICK_TITLE',_PC_COLOR_PICK_TITLE);
     $tpl->assign("_PC_ACTIVE",_PC_ACTIVE);
     $tpl->assign("_PC_SEQ",_PC_SEQ);
-    
+	$tpl->assign('css_header',$GLOBALS['css_header']);
     //=================================================================
     //  Repeating Information
     //=================================================================
