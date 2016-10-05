@@ -77,6 +77,7 @@ deleteDisclosure($deletelid);
 <div>
 	<span class="title"><?php echo xlt('Disclosures'); ?></span>
 </div>
+<div class="disclosure_wrap">
 <div style='float: left; margin-right: 10px'><?php echo xlt('for'); ?>&nbsp;
 	<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php $pname = getPatientName($pid); echo text($pname); ?></a></span>
 </div>
@@ -86,6 +87,7 @@ deleteDisclosure($deletelid);
 <div>
 	<a href="demographics.php"
 	class="css_button" onclick="top.restoreSession()"> <span><?php echo xlt('View Patient') ?></span></a>
+</div>
 </div>
 <br>
 <br>
