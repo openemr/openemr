@@ -48,7 +48,7 @@ if($_GET['download_file']==1) {
         header("Pragma: no-cache");
         header("Expires: 0");
         header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename='holiday.csv'");
+        header("Content-Disposition: attachment; filename=holiday.csv");
         readfile($target_file);
         exit;
     }
