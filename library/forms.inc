@@ -34,14 +34,22 @@ function getFormsByPid ($pid, $cols = "*")
 function getFormByEncounter($pid,$encounter, $cols="form_id, form_name", $name="")
 {
  	$arraySqlBind = array();
-	$sql = "select $cols from forms where encounter = ? and pid=? ";
+
+  // mdsupport - incorporate ACO and order from formACL list
+  $sql = "SELECT lo.title AS ACO, $cols from forms LEFT JOIN list_options lo " .
+         "ON (lo.list_id='formACL') and (forms.formdir = lo.option_id) ".
+         "WHERE encounter = ? and pid = ? ";
+
 	array_push($arraySqlBind,$encounter,$pid);
 	if(!empty($name)){
 		$sql .= "and form_name=? ";
 		array_push($arraySqlBind,$name);
 	}
-  // This puts vitals first in the list, and newpatient last:
-  $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
+  
+  // Order encounter forms by formACL seq (if present), then 
+  // Original order - vitals first in the list, and newpatient last:
+  $sql .= "ORDER BY IF((lo.option_id IS NULL),0,1) DESC, lo.seq ASC, " .
+          "FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
 	$res = sqlStatement($sql,$arraySqlBind);
 

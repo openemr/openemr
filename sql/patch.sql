@@ -47,3 +47,15 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotRow2D list_options list_id lists option_id formACL
+	INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','formACL','Encounter Forms Display Order');
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','newpatient','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','ros','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','vitals','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','reviewofs','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','physical_exam','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','soap','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','scanned_notes','-',10);
+--  INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('formACL','procedure_order','-',10);
+#EndIf
