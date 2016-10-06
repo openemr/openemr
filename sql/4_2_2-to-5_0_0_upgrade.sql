@@ -2120,3 +2120,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn users suffix
 ALTER TABLE `users` ADD `suffix` varchar(255) default NULL;
 #EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id addrbook_edit#theform
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
+#EndIf
+
