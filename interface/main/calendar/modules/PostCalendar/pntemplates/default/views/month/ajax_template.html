@@ -440,7 +440,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_reserved";
                     break;
                 case 6:  // HOLIDAY
-                    $evtClass = "event_holiday";
+                    $evtClass = "event_holiday hiddenevent";
                     break;
                 case 8:  // LUNCH
                     $evtClass = "event_reserved";
@@ -537,7 +537,9 @@ foreach ($providers as $provider) {
                      }
                     }
             }
-            $divTitle .= "\n(" . xl('double click to edit') . ")";
+            if ( $catid != 6){
+                     $divTitle .= "\n(" . xl('double click to edit') . ")";
+                }
             if($_SESSION['pc_facility'] == 0){
                     echo "<div class='".$evtClass." month_event' style='background-color:".$color.
                             "' title='".$divTitle."'".
@@ -609,6 +611,9 @@ foreach ($providers as $provider) {
     
     /* edit an existing event */
     var EditEvent = function(eObj) {
+        // if have hiddenevent class do nothing
+        if (eObj.classList.contains('hiddenevent'))
+            return true;
         //alert ('editing '+eObj.id);
         // split the object ID into date and event ID
         objID = eObj.id;

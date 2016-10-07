@@ -76,7 +76,6 @@ function validateUsingPageRules($fileNamePath)
         //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
         $use_validate_js = 1;
         require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
-        $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
         echo("\r\n");
         print '<script type="text/javascript">';
         echo ("$(document).ready(function(){");
