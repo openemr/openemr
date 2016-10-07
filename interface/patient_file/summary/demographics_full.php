@@ -782,6 +782,9 @@ $use_validate_js=$GLOBALS['new_validate'];
 
 </body>
 <script language='JavaScript'>
+	var duplicateFieldsArray=[];
+
+
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>
@@ -832,19 +835,43 @@ $use_validate_js=$GLOBALS['new_validate'];
 
 			var flds = new Array(<?php echo $mflist; ?>);
 			var separator = '?';
+			var valueIsChanged=false;
 			for (var i = 0; i < flds.length; ++i) {
 				var fval = $('#form_' + flds[i]).val();
+				if(duplicateFieldsArray['#form_' + flds[i]]!=fval) {
+					valueIsChanged = true;
+
+				}
+
 				if (fval && fval != '') {
 					url += separator;
 					separator = '&';
 					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
 				}
 			}
+
+
+			//Only if check for duplicates values are changed open the popup hook screen
+			if(valueIsChanged) {
+				//("value has changed for duplicate check inputs");
 			url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
 			dlgopen(url, '_blank', 700, 500);
+			}
+			else {//other wise submit me is a success just submit the form
+				$('#DEM').submit();
+			}
 		});
 
 	<?php endif;?>
+
+	$(document).ready(function(){
+		//When document is ready collect all the values Marked with D (check duplicate) stored in the db into array duplicateFieldsArray.
+		var flds = new Array(<?php echo $mflist; ?>);
+		for (var i = 0; i < flds.length; ++i) {
+			var fval = $('#form_' + flds[i]).val();
+			duplicateFieldsArray['#form_' + flds[i]] = fval;
+		}
+	})
 </script>
 
 
