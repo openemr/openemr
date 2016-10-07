@@ -99,7 +99,7 @@ function validateUsingPageRules($fileNamePath)
             echo("\r\n");
 
             echo("\r\n");
-            echo ('var submitvalue = submitme(' . $new_validate . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ');');
+            echo ('var submitvalue = submitme(' . $use_validate_js . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ');');
             echo("\r\n");
             echo(' if(submitvalue){');
             echo("\r\n");
