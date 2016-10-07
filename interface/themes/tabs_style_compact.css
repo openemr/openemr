@@ -192,6 +192,12 @@ div.closeDlgIframe {
     display: block;
 }
 
+.messagesColumn
+{
+    float: right;
+    padding-right: 20px;
+}
+
 .patientEncountersColumn
 {
 }

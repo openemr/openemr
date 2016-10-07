@@ -36,63 +36,83 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <strong><a href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
-                        <i class="fa fa-times"></i>
-                    </a></strong>
+                    <a class="css_button_small" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
+                        <i style="font-size:150%;" class="fa fa-times"></i>
+                    </a>
                 <!-- /ko -->
             </div>
             <div class="patientInfo">
-                <!-- ko if: patient -->
-                    <span data-bind="text:patient().str_dob()"></span>
-                <!-- /ko -->
+            <!-- ko if: patient -->
+                <span data-bind="text:patient().str_dob()"></span>
+            <!-- /ko -->
             </div>
         </span>
         <span class="patientDataColumn">
-            &nbsp;
-            <!-- ko if: patient -->
-            <!-- ko with: patient -->
-                <div class="patientCurrentEncounter">
-                    <span><?php echo xlt("Selected Encounter"); ?>:</span>
-                    <!-- ko if:selectedEncounter() -->
-                        <a data-bind="click: refreshEncounter" href="#">
-                            <span data-bind="text:selectedEncounter().date()"></span>
-                            (<span data-bind="text:selectedEncounter().id()"></span>)
-                        </a>
-                    <!-- /ko -->
-                    <!-- ko if:!selectedEncounter() -->
-                        <?php echo xlt("None") ?>
-                    <!-- /ko -->
+        <!-- ko if: patient -->
+        <!-- ko with: patient -->
+            <div data-bind="click: clickNewEncounter">
+                <a class="css_button_small" href="#" title="<?php echo xlt("New Encounter");?>">
+                    <i style="font-size:150%;" class="fa fa-plus"></i>
+                </a>
+            </div>
+            <div class="patientCurrentEncounter">
+                <span><?php echo xlt("Open Encounter"); ?>:</span>
+                <!-- ko if:selectedEncounter() -->
+                    <a data-bind="click: refreshEncounter" href="#">
+                        <span data-bind="text:selectedEncounter().date()"></span>
+                        (<span data-bind="text:selectedEncounter().id()"></span>)
+                    </a>
+                <!-- /ko -->
+                <!-- ko if:!selectedEncounter() -->
+                    <?php echo xlt("None") ?>
+                <!-- /ko -->
+            </div>
+            <!-- ko if: encounterArray().length > 0 -->
+                <div class="patientInfo">
+                    <span class="patientDataColumn patientEncountersColumn">
+                        <span class="patientEncounterList" >
+                            <div data-bind="click: clickEncounterList">
+                            <!-- ko if: encounterArray().length == 1 -->
+                                <?php echo xlt("View Past Encounter");?>
+                            <!-- /ko -->
+                            <!-- ko if: encounterArray().length > 1 -->
+                                <?php echo xlt("View Past Encounters");?>
+                            <!-- /ko -->
+                                (<span data-bind="text:encounterArray().length"></span>)
+                            </div>
+                            <table class="encounters">
+                                <tbody>
+                                <!-- ko  foreach:encounterArray -->
+                                    <tr >
+                                        <td data-bind="click: chooseEncounterEvent">
+                                            <span data-bind="text:date"></span>
+                                            <span data-bind="text:category"></span>
+                                        </td>
+                                        <td class="review" data-bind="click: reviewEncounterEvent">
+                                            <?php echo xlt("Review"); ?>
+                                        </td>
+                                    </tr>
+                                <!-- /ko -->
+                                </tbody>
+                            </table>
+                        </span>
+                    </span>
                 </div>
             <!-- /ko -->
-            <!-- /ko -->
+        <!-- /ko -->
+        <!-- /ko -->
         </span>
-        <span class="patientDataColumn patientEncountersColumn">
-            <!-- ko if: patient -->
-            <!-- ko with: patient -->
-            <span class="patientEncounterList" >
-                <div data-bind="click: clickNewEncounter"><?php echo xlt("New Encounter");?></div>
-                <div data-bind="click: clickEncounterList"><?php echo xlt("Past Encounter List");?>
-                    (<span data-bind="text:encounterArray().length"></span>)
-                </div>
-                <table class="encounters">
-                    <tbody>
-                    <!-- ko  foreach:encounterArray -->
-                        <tr >
-                            <td data-bind="click: chooseEncounterEvent">
-                                <span data-bind="text:date"></span>
-                                <span data-bind="text:category"></span>
-                            </td>
-                            <td class="review" data-bind="click: reviewEncounterEvent">
-                                <?php echo xlt("Review"); ?>
-                            </td>
-                        </tr>
-                    <!-- /ko -->
-                    </tbody>
-                </table>
+        <!-- ko if: user -->
+        <!-- ko with: user -->
+        <!-- ko if:messages() -->
+            <span class="messagesColumn">
+                <a style="font-size:150%;" class="css_button_small" href="#" data-bind="click: viewMessages" title="<?php echo xlt("View Messages");?>">
+                    <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
+                </a>
             </span>
-            <!-- /ko -->
-            <!-- /ko -->
-        </span>
+        <!-- /ko -->
+        <!-- /ko -->
+        <!-- /ko -->
     </div>
     <!-- /ko -->
 </script>
