@@ -101,6 +101,7 @@ body
     display: flex;
     flex-direction: row;
     background: #f4f4f4;
+    overflow: auto;
 }
 
 .tabSpan
