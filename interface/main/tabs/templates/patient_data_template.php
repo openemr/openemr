@@ -29,7 +29,8 @@
                 <?php echo xlt("Patient"); ?>:
                 <!-- ko if: patient -->
                     <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
-                        <span data-bind="text: pname()"></span>(<span data-bind="text: pubpid"></span>)
+                        <span data-bind="text: pname()"></span>
+                        (<span data-bind="text: pubpid"></span>)
                     </a>
                 <!-- /ko -->
                 <!-- ko ifnot: patient -->
@@ -50,12 +51,10 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <div data-bind="click: clickNewEncounter">
-                <a class="css_button_small" href="#" title="<?php echo xlt("New Encounter");?>">
-                    <i style="font-size:150%;" class="fa fa-plus"></i>
-                </a>
-            </div>
-            <div class="patientCurrentEncounter">
+            <a class="css_button_small" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
+                <i style="font-size:150%;" class="fa fa-plus"></i>
+            </a>
+            <div style="display:inline" class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
                 <!-- ko if:selectedEncounter() -->
                     <a data-bind="click: refreshEncounter" href="#">
