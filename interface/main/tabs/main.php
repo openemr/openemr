@@ -119,6 +119,25 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
 
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 
+<?php
+// Below code block is to prepare certain elements for deciding what links to show on the menu
+//
+// prepare newcrop globals that are used in creating the menu
+if ($GLOBALS['erx_enable']) {
+    $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
+    $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
+    if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
+        $GLOBALS['newcrop_user_role_erxadmin'] = 1;
+    }
+}
+// prepare track anything to be used in creating the menu
+$track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
+$GLOBALS['track_anything_state'] = $track_anything_sql['state'];
+// prepare Issues popup link global that is used in creating the menu
+$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write') || acl_check('encounters','notes_a','','write')) &&
+  acl_check('patients','med','','write'));
+?>
+
 <?php require_once("templates/tabs_template.php"); ?>
 <?php require_once("templates/menu_template.php"); ?>
 <?php require_once("templates/patient_data_template.php"); ?>
