@@ -34,6 +34,7 @@ body
     display: flex;
     flex-direction: column;
     margin: 0px;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -183,6 +184,10 @@ div.closeDlgIframe {
 #patientData
 {
     min-height: 4em;
+}
+
+.patientCurrentEncounter {
+    display: inline;
 }
 
 .patientDataColumn

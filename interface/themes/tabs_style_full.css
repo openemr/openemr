@@ -37,6 +37,7 @@ body
     flex-direction: column;
     margin: 0px;
     background-color: #f4f4f4;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -223,6 +224,10 @@ div.closeDlgIframe:before {
 }
 .patientInfo a {
     color: #333 !important;
+}
+
+.patientCurrentEncounter {
+    display: inline;
 }
 
 .patientCurrentEncounter a {

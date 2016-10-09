@@ -54,7 +54,7 @@
             <a class="css_button_small" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
                 <i style="font-size:150%;" class="fa fa-plus"></i>
             </a>
-            <div style="display:inline" class="patientCurrentEncounter">
+            <div class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
                 <!-- ko if:selectedEncounter() -->
                     <a data-bind="click: refreshEncounter" href="#">
