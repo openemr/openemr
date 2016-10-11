@@ -85,7 +85,7 @@ $json = json_decode($data, true);
 if(!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])){
   foreach($json['fullInteractionTypeGroup'][0]['fullInteractionType'] as $item){
 	
-	print xlt('Comment: ').$item['comment']."</br>";
+	print xlt('Comment').":".text($item['comment'])."</br>";
 	print xlt('Drug1 Name{{Drug1 Interaction}}').":".text($item['minConcept'][0]['name'])."</br>";
 	print xlt('Drug2 Name{{Drug2 Interaction}}').":".text($item['minConcept'][1]['name'])."</br>";
 	print xlt('Severity').":". text($item['interactionPair'][0]['severity'])."</br>";
