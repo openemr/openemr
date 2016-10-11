@@ -54,7 +54,7 @@ $timeslotHeightUnit="px";
   top.restoreSession();
 [-php-]
          echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-           "+ '?set_pid=' + pid;\n"; 
+           "+ '?set_pid=' + pid;\n";
 [-/php-]
  }
 
@@ -79,7 +79,7 @@ $timeslotHeightUnit="px";
  $DOWlist = array();
  $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
  // bound check and auto-correction
- if ($tmpDOW <0 || $tmpDOW >6) { 
+ if ($tmpDOW <0 || $tmpDOW >6) {
     pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
     $tmpDOW = 0;
  }
@@ -139,29 +139,32 @@ if ( $_SESSION['pc_facility'] ) {
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
-echo "   <a href='#' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)'  class='css_button'/><span>".xl("Add")."</span></a>\n";
-echo "   <a href='#' value='" . xl ("Search") .
-    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"'  class='css_button'/><span>".xl("Search")."</span></a>\n";
+echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'>
+            <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xl("Search Appointment") . "'
+            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
+            <i class='fa fa-search' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
 
 <div id="dateNAV"">
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
-<a href='[-php-]echo $PREV_MONTH_URL[-/php-]' onclick='top.restoreSession()'>
-<img id="prevmonth" src="[-$TPL_IMAGE_PATH-]/leftbtn.gif" border="0" title="[-php-]echo xl("Previous Month")[-/php-]" alt="[-php-]echo xl ("Previous Month")[-/php-]" style="padding-top:5px"/></a>
-<a href='[-php-]echo $NEXT_MONTH_URL[-/php-]' onclick='top.restoreSession()'>
-<img id="nextmonth" src="[-$TPL_IMAGE_PATH-]/rightbtn.gif" border="0" title="[-php-]echo xl("Next Month")[-/php-]" alt="[-php-]echo xl ("Next Month")[-/php-]" /></a>
-&nbsp;
 [-php-]
+echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Previous Month") . "'>
+            <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
 echo xl(date('F', strtotime($Date))) . " " . date('Y', strtotime($Date));
+echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Next Month") . "'>
+            <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
 <div id="viewPicker">
 [-php-]
-echo "   <a href='#' type='button' id='printview' title='" .xl ("Print View"). "' class='css_button'/><span>" . xlt("View Printable Version") . "</span></a>\n";
-echo "   <a href='#' type='button' value='" .xl ("Refresh"). "' onclick='javascript:refreshme()' class='css_button'/><span>".xl("Refresh")."</span></a>\n";
+echo "   <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button'>
+            <i class='fa fa-print' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
+            <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES)."</span></a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
 echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
@@ -180,7 +183,7 @@ echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl
 
     include_once($GLOBALS['webserver_root'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 [-/php-]
-    
+
 <table border="0" cellpadding="0" cellspacing="0">
 <tr>
 [-php-]
@@ -257,7 +260,7 @@ foreach ($atmp as $currdate) {
     $td .= "title=\"" . xl('Go to') . " ".date('F', $currdate)."\" ";
     $td .= "> ".date('d', $currdate)."</td>\n";
     echo $td;
-   
+
     // end of week row
     if (date('w', $currdate) == $DOWlist[6]) echo "</tr>\n";
 }
@@ -344,7 +347,7 @@ foreach ($A_EVENTS as $date => $events) {
     echo "<hr width=100%>";
 }
 */
-    
+
 
 // This loops once for each provider to be displayed.
 //
@@ -374,7 +377,7 @@ foreach ($providers as $provider) {
 
     // For each day...
     // output a TD with an inner containing DIV positioned 'relative'
-    
+
     foreach ($A_EVENTS as $date => $events) {
         $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
@@ -408,7 +411,7 @@ foreach ($providers as $provider) {
 
             // Omit IN and OUT events to reduce clutter in this month view
             if (($event['catid'] == 2) || ($event['catid'] == 3)) { continue; }
-            
+
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
                 $tmpTime = $times[0];
@@ -452,7 +455,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // now, output the event DIV
 
             $eventid = $event['eid'];
@@ -481,7 +484,7 @@ foreach ($providers as $provider) {
             }
 
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
-            
+
             // the divTitle is what appears when the user hovers the mouse over the DIV
                 $divTitle = dateformat (strtotime($date),true);
             $result = sqlStatement("SELECT name,id,color FROM facility WHERE id=(SELECT pc_facility FROM openemr_postcalendar_events WHERE pc_eid=".$eventid.")");
@@ -603,12 +606,12 @@ foreach ($providers as $provider) {
         $(".month_event").mouseout(function() { $(this).toggleClass("event_highlight"); });
 
         $(".tdMonthName-small").click(function() {
-            
-            dpCal=$("#datePicker>table"); 
+
+            dpCal=$("#datePicker>table");
             mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
 
     });
-    
+
     /* edit an existing event */
     var EditEvent = function(eObj) {
         // if have hiddenevent class do nothing
@@ -623,7 +626,7 @@ foreach ($providers as $provider) {
         oldEvt(parts[0], parts[1], parts[2]);
         return true;
     }
-    
+
     /* pop up a window to print the current view
      */
     var PrintView = function (eventObject) {
@@ -639,7 +642,7 @@ foreach ($providers as $provider) {
         return false;
     }
 
-    /* change the current date based upon what the user clicked in 
+    /* change the current date based upon what the user clicked in
      * the datepicker DIV
      */
     var ChangeDate = function(eObj) {
