@@ -2457,6 +2457,12 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Rx Show State Lic. #')
     ),
+    'rx_show_drug-drug' => array(
+      xl('Rx NLM Drug-Drug'),
+      'bool',                           // data type
+      '0',
+      xl('Rx NLM Drug-Drug')
+    ),	
     'rx_paper_size' => array(
       xl('Rx Paper Size'),               // descriptive name
       array(

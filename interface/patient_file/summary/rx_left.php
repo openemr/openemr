@@ -39,8 +39,10 @@ include_once("../../globals.php");
 </tr>
 <tr>
 <td>
+<?php if($GLOBALS['rx_show_drug-drug']){ ?>
 <a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="css_button" onclick="top.restoreSession()">
 <span><?php xl('Drug-Drug', 'e');?></span></a>
+<?php } ?>
 </td>
 </tr>
 </table>
