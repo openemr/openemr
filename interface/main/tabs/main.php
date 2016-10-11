@@ -56,7 +56,15 @@ function goRepeaterServices(){
     // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
     //  timing out mechanism in OpenEMR.
 
-    // TODO: placeholder for checking the messages and displaying them
+    // Send the skip_timeout_reset parameter to not count this as a manual entry in the
+    //  timing out mechanism in OpenEMR.
+    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
+        { skip_timeout_reset: "1" },
+        function(data) {
+            // Go knockout.js
+            app_view_model.application_data.user().messages(data);
+        }
+    );
 
     // run background-services
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
@@ -93,10 +101,11 @@ var webroot_url="<?php echo $web_root; ?>";
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
-
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -116,8 +125,6 @@ var xl_strings_tabs_view_model = <?php echo json_encode( array(
 <script type="text/javascript" src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 
 <?php
 // Below code block is to prepare certain elements for deciding what links to show on the menu

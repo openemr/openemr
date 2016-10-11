@@ -37,6 +37,7 @@ body
     flex-direction: column;
     margin: 0px;
     background-color: #f4f4f4;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -225,6 +226,10 @@ div.closeDlgIframe:before {
     color: #333 !important;
 }
 
+.patientCurrentEncounter {
+    display: inline;
+}
+
 .patientCurrentEncounter a {
     color: #333 !important;
 }
@@ -234,6 +239,12 @@ div.closeDlgIframe:before {
     width: 33%;
     float: left;
     display: block;
+}
+
+.messagesColumn
+{
+    float: right;
+    padding-right: 20px;
 }
 
 .patientEncountersColumn

@@ -26,8 +26,15 @@ function user_data_view_model(username,fname,lname,authGrp)
     self.fname=ko.observable(fname);
     self.lname=ko.observable(lname);
     self.authorization_group=ko.observable(authGrp);
+    self.messages=ko.observable("");
     return this;
 
+}
+
+function viewMessages()
+{
+    navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg");
+    activateTabByName("msg",true);
 }
 
 function editSettings()

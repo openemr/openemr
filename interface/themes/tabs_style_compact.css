@@ -34,6 +34,7 @@ body
     display: flex;
     flex-direction: column;
     margin: 0px;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -185,11 +186,21 @@ div.closeDlgIframe {
     min-height: 4em;
 }
 
+.patientCurrentEncounter {
+    display: inline;
+}
+
 .patientDataColumn
 {
     width: 33%;
     float: left;
     display: block;
+}
+
+.messagesColumn
+{
+    float: right;
+    padding-right: 20px;
 }
 
 .patientEncountersColumn
