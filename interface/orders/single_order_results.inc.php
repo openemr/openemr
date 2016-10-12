@@ -220,6 +220,18 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
         echo "</a>";
       }
       echo "</td>\n";
+      $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?",array($result_document_id));
+      if(!empty($narrative_notes)){
+      	$nnotes = explode("\n",$narrative_notes['notes']);
+      	$narrative_note_list = '';
+      	foreach($nnotes as $nnote){
+      		if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
+      		$narrative_note_list .= $nnote;
+      	}
+      	
+      	if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', '; $result_noteid .= 1 + storeNote($narrative_note_list);}
+      }
+      
     }
     else {
       echo "  <td>";
