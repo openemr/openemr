@@ -2125,3 +2125,15 @@ ALTER TABLE `users` ADD `suffix` varchar(255) default NULL;
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
 #EndIf
 
+#IfMissingColumn log category
+ALTER TABLE `log` ADD `category` varchar(255) default NULL;
+#EndIf
+
+-- Table to copy log contents for audit log tamper resistance check
+#IfNotTable log_validator
+CREATE TABLE `log_validator` (
+  `log_id` bigint(20) NOT NULL,
+  `log_checksum` longtext DEFAULT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
+#EndIf

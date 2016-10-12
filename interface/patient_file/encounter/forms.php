@@ -532,7 +532,10 @@ if ( $esign->isButtonViewable() ) {
 		}
 ?>
 	<br>
-	<a title="<?php echo attr($note);?>" href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
+	<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
+	<?php if($note != '') {?> 
+			<a href="javascript:void(0);" title="<?php echo $note?>"><img src="../../../images/info.png"/></a>
+	<?php }?>
 <?php } ?>
 </div>
 <?php } ?>

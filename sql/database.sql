@@ -4687,6 +4687,7 @@ CREATE TABLE `log` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `event` varchar(255) default NULL,
+  `category` varchar(255) default NULL,
   `user` varchar(255) default NULL,
   `groupname` varchar(255) default NULL,
   `comments` longtext,
@@ -9571,3 +9572,11 @@ CREATE TABLE `form_taskman` (
 
 -- End of Eye Module tables
 -- ----------------------------------------------------
+
+-- Table to copy log contents for audit log tamper resistance check.
+DROP TABLE IF EXISTS `log_validator`;
+CREATE TABLE `log_validator` (
+  `log_id` bigint(20) NOT NULL,
+  `log_checksum` longtext DEFAULT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
