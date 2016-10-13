@@ -27,21 +27,21 @@ include_once("../../globals.php");
 </head>
 <body class="body_top">
 
-<span class="title"><?php xl('Prescriptions','e'); ?></span>
+<span class="title"><?php xlt('Prescriptions'); ?></span>
 <table>
 <tr height="20px">
 <td>
-<a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
-<span><?php xl('List', 'e');?></span></a>
-<a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
-<span><?php xl('Add','e');?></span></a>
+    <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+    <span><?php xlt('List');?></span></a>
+    <a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+    <span><?php xlt('Add');?></span></a>
 </td>
 </tr>
 <tr>
 <td>
-<?php if($GLOBALS['rx_show_drug-drug']){ ?>
-<a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="css_button" onclick="top.restoreSession()">
-<span><?php xl('Drug-Drug', 'e');?></span></a>
+<?php if ($GLOBALS['rx_show_drug-drug']){ ?>
+    <a href="<?php echo $GLOBALS['webroot']?>/interface/weno/drug-drug.php"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+    <span><?php xlt('Drug-Drug');?></span></a>
 <?php } ?>
 </td>
 </tr>

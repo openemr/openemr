@@ -49,7 +49,7 @@ $n = count($nameList);
 if (count($nameList) < 2) {
     echo xlt("Need more than one drug.");
     exit;
-
+}
 
 /*
 *  If there are drugs to compare, build the URL 
