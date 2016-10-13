@@ -255,7 +255,7 @@ $check_sum = formData('check_sum','G');
 </td>
 <td>
 <div id='valid_button'>
-<input type=button id='validate_log' onclick='validatelog();' value='Validate Log'></input>
+<input type=button id='validate_log' onclick='validatelog();' value='<?php echo xla('Validate Log'); ?>'></input>
 </div>
 <div id='log_loading' style="display: none">
 <img src='../../images/loading.gif'/>
@@ -360,7 +360,7 @@ foreach ($ret as $iter) {
 <TR class="oneresult">
   <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10),ENT_NOQUOTES); ?></TD>
   <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]),ENT_NOQUOTES);?></TD>
-  <TD class="text"><?php echo htmlspecialchars($iter["category"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars(xl($iter["category"]),ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["crt_user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["groupname"],ENT_NOQUOTES);?></TD>
@@ -441,7 +441,7 @@ function validatelog(){
 	                        img.style.display="none";
 	                        if(btn){btn.style.display="block";}
 	                }
-	                alert("Audit Log Validation Failed");
+	                alert('<?php echo xls("Audit Log Validation Failed"); ?>');
 	        }
 	 });
 		 

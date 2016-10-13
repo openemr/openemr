@@ -1,5 +1,4 @@
 <?php
-use Zend\Validator\InArray;
 #require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once(dirname(__FILE__). "/sql.inc");
 require_once(dirname(__FILE__). "/formdata.inc.php");
@@ -940,12 +939,8 @@ function logCommentEncryptData($log_id){
  */
 function eventCategoryFinder($sql,$event,$table){
 	if($event == 'delete'){
-		$f = fopen("/tmp/t.txt",'a');
-		fwrite($f, $sql);
 		if(strpos($sql, "lists:") === 0){
 			$fieldValues	= explode("'",$sql);
-			fwrite($f, "come");
-			fwrite($f, $fieldValues);
 			if(in_array('medical_problem',$fieldValues) === TRUE) return 'Problem List';
 			else if(in_array('medication',$fieldValues) === TRUE) return 'Medication';
 			else if(in_array('allergy', $fieldValues) === TRUE) return 'Allergy';

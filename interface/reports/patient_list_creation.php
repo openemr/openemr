@@ -191,7 +191,8 @@
 			});		
 
 			function printForm(){
-				window.print();
+				 var win = top.printLogPrint ? top : opener.top;
+				 win.printLogPrint(window);
 			}
 		</script>
 	</head>
