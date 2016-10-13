@@ -25,7 +25,7 @@ require_once("../globals.php");
 /*
 *   check to see if RxNorm installed
 */ 
-	$rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = '" . mitigateSqlTableUpperCase('RXNCONSO');
+	$rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO'");
 if($rxn == false){
 	
 	die(xlt("Could not find RxNorm Table! Please install."));
@@ -34,11 +34,11 @@ if($rxn == false){
 *   Grab medication list from prescriptions list
 *   load into array
 */
- $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", array($pid));
- $nameList = array();
+$medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", array($pid));
+$nameList = array();
 while($name = sqlFetchArray($medList)){
 	$drug = explode(" ", $name['drug']);
-	$rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", array("%" . $drug[0] . "%"));
+	$rXn = sqlQuery("SELECT `rxcui` FROM `rxnconso` WHERE `str` LIKE ?", array("%" . $drug[0] . "%"));
 	$nameList[] = $rXn['rxcui'];
 }
 /*
@@ -55,11 +55,9 @@ if (count($nameList) < 2) {
 *  If there are drugs to compare, build the URL 
 *
 */ 
- foreach($nameList as $number){
-	 $seq .= $number."+";
- }
- 
-$data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=".$seq);
+
+implode("+",$nameList); 
+$data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=".$nameList);
 
 /*
 *   Content from NLM returned
@@ -89,7 +87,7 @@ if(!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])){
 	print xlt('Drug1 Name{{Drug1 Interaction}}').":".text($item['minConcept'][0]['name'])."</br>";
 	print xlt('Drug2 Name{{Drug2 Interaction}}').":".text($item['minConcept'][1]['name'])."</br>";
 	print xlt('Severity').":". text($item['interactionPair'][0]['severity'])."</br>";
-	print xlt('Discription').":". text($item['interactionPair'][0]['description'])."</br></br>";
+	print xlt('Description').":". text($item['interactionPair'][0]['description'])."</br></br>";
   }
 }else{
 	echo xlt('No interactions found'); 
