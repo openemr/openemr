@@ -1,32 +1,32 @@
 <?php
-/** 
+/**
  *  Patient Tracker (Patient Flow Board)
  *
- *  This program displays the information entered in the Calendar program , 
+ *  This program displays the information entered in the Calendar program ,
  *  allowing the user to change status and view those changed here and in the Calendar
  *  Will allow the collection of length of time spent in each status
- * 
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com> 
- * 
- * LICENSE: This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 3 
- * of the License, or (at your option) any later version. 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU General Public License for more details. 
- * You should have received a copy of the GNU General Public License 
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
- * 
- * @package OpenEMR 
- * @author Terry Hill <terry@lilysystems.com> 
- * @link http://www.open-emr.org 
- *  
+ *
+ * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Terry Hill <terry@lilysystems.com>
+ * @link http://www.open-emr.org
+ *
  * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
- * 
+ *
  */
- 
+
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
@@ -41,7 +41,7 @@ require_once("$srcdir/user.inc");
 $uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
 $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window', ' ');
 
-#define variables, future enhancement allow changing the to_date and from_date 
+#define variables, future enhancement allow changing the to_date and from_date
 #to allow picking a date to review
 
 if (!is_null($_POST['form_provider'])) {
@@ -128,17 +128,17 @@ function refreshme() {
   top.restoreSession();
   document.pattrk.submit();
 }
-// popup for patient tracker status 
+// popup for patient tracker status
 function bpopup(tkid) {
- top.restoreSession()	
- window.open('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid ,'_blank', 'width=500,height=250,resizable=1');
+ top.restoreSession()
+ dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid, '_blank', 500, 250);
  return false;
 }
 
-// popup for calendar add edit 
+// popup for calendar add edit
 function calendarpopup(eid,date_squash) {
- top.restoreSession()   
- window.open('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash,'_blank', 'width=775,height=500,resizable=1');
+ top.restoreSession()
+ dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
  return false;
 }
 
@@ -155,7 +155,7 @@ function refreshbegin(first){
   <?php } else { ?>
     return;
  <?php } ?>
-} 
+}
 
 // used to display the patient demographic and encounter screens
 function topatient(newpid, enc) {
@@ -164,12 +164,12 @@ function topatient(newpid, enc) {
  }
  else {
    top.restoreSession();
-     if (enc > 0) {
-       top.RTop.location= "../patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
-     }
-     else {
-       top.RTop.location = "../patient_file/summary/demographics.php?set_pid=" + newpid; 
-     }
+   if (enc > 0) {
+     top.RTop.location= "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
+   }
+   else {
+     top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
+   }
  }
 }
 
@@ -180,7 +180,7 @@ function openNewTopWindow(newpid,newencounterid) {
  top.restoreSession();
  document.fnew.submit();
  }
- 
+
 </script>
 
 </head>
@@ -358,7 +358,7 @@ function openNewTopWindow(newpid,newencounterid) {
    <td class="dehead" align="center">
    <?php  echo xlt('Updated By'); ?>
   </td>
- <?php if ($GLOBALS['drug_screen']) { ?> 
+ <?php if ($GLOBALS['drug_screen']) { ?>
   <td class="dehead" align="center">
    <?php  echo xlt('Random Drug Screen'); ?>
   </td>
@@ -434,7 +434,7 @@ function openNewTopWindow(newpid,newencounterid) {
          <td class="detail" align="center">
         <?php echo ($newarrive ? oeFormatTime($newarrive) : '&nbsp;') ?>
          </td>
-         <td class="detail" align="center"> 
+         <td class="detail" align="center">
          <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
            <a href=""  onclick="return calendarpopup(<?php echo attr($appt_eid).",".attr($date_squash); # calls popup for add edit calendar event?>)">
          <?php } else { ?>
@@ -444,7 +444,7 @@ function openNewTopWindow(newpid,newencounterid) {
          </a>
 
 		 </td>
-        <?php	
+        <?php
 		 #time in current status
 		 $to_time = strtotime(date("Y-m-d H:i:s"));
 		 $yestime = '0';
@@ -471,7 +471,7 @@ function openNewTopWindow(newpid,newencounterid) {
 		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
 		}
         #end time in current status
-        ?>	
+        ?>
 		 </td>
          <td class="detail" align="center">
          <?php echo text(xl_appt_category($appointment['pc_title'])) ?>
@@ -481,9 +481,9 @@ function openNewTopWindow(newpid,newencounterid) {
          <?php echo text($docname); ?>
          </td>
          <?php } ?>
-         <td class="detail" align="center"> 
-         <?php	
-		 
+         <td class="detail" align="center">
+         <?php
+
 		 # total time in practice
 		 if (strtotime($newend) != '') {
  			$from_time = strtotime($newarrive);
@@ -499,11 +499,11 @@ function openNewTopWindow(newpid,newencounterid) {
             echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
          }
          # end total time in practice
-        ?>		 
+        ?>
 		<?php echo text($appointment['pc_time']); ?>
          </td>
         <td class="detail" align="center">
-         <?php 
+         <?php
 		 if (strtotime($newend) != '') {
 		    echo oeFormatTime($newend) ;
 		 }
@@ -512,13 +512,13 @@ function openNewTopWindow(newpid,newencounterid) {
          <td class="detail" align="center">
          <?php echo text($appointment['user']) ?>
          </td>
-         <?php if ($GLOBALS['drug_screen']) { ?> 
-         <?php if (strtotime($newarrive) != '') { ?> 
+         <?php if ($GLOBALS['drug_screen']) { ?>
+         <?php if (strtotime($newarrive) != '') { ?>
          <td class="detail" align="center">
          <?php if (text($appointment['random_drug_test']) == '1') {  echo xl('Yes'); }  else { echo xl('No'); }?>
          </td>
          <?php } else {  echo "  <td>"; }?>
-         <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?> 
+         <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
          <td class="detail" align="center">
 		 <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
 		     <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
@@ -553,7 +553,7 @@ if(!is_null($_POST['form_apptcat']) ){
 </form>
 
 <script type="text/javascript">
-  $(document).ready(function() { 
+  $(document).ready(function() {
 	  $('#settings').css("display","none");
 	  refreshbegin('1');
 	  $('.js-blink-infinite').modernBlink();
@@ -571,7 +571,7 @@ if(!is_null($_POST['form_apptcat']) ){
         testcomplete: testcomplete_toggle
       });
     });
-  });	
+  });
 
   // mdsupport - Immediately post changes to form_new_window
   $('#form_new_window').click(function () {
