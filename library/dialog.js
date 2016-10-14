@@ -38,7 +38,7 @@ retval=window.open(url, winname, options +
  ",width="   + width + ",height="  + height +
  ",left="    + newx  + ",top="     + newy   +
  ",screenX=" + newx  + ",screenY=" + newy);
-  
+
 return retval;
 }
 // recursive window focus-event grabber
@@ -59,7 +59,7 @@ function grabfocus(w) {
 
 // call this when a "modal" dialog is desired
 
- 
+
  function dlgopen(url, winname, width, height) {
  if (top.modaldialog && ! top.modaldialog.closed) {
   if (window.focus) top.modaldialog.focus();
@@ -96,8 +96,8 @@ if(top.tab_mode)
         {
             return dlgOpenWindow(url,winname,width,height);
         }
-        width=width+80;
-        height=height+80;
+        width=width+20;
+        height=height+20;
         var fullURL;
         if(url[0]==="/")
         {
@@ -121,7 +121,7 @@ if(top.tab_mode)
 
         dlgIframe=top.$("<iframe></iframe>");
         dlgIframe.attr("name",winname);
-                   
+
         var dlgDivContainer=top.$("<div class='dialogIframe'></div>");
         var closeDlg=top.$("<div class='closeDlgIframe'></div>");
         dlgDivContainer.append(closeDlg);
@@ -131,9 +131,9 @@ if(top.tab_mode)
             var closeItems=body.find("[name='"+winname+"']");
             closeItems.remove();
             if(body.children("div.dialogIframe").length===0)
-            {   
+            {
                 dialogDiv.hide();
-            };            
+            };
         })
         dlgDivContainer.attr("name",winname);
         dlgDivContainer.append(dlgIframe);
@@ -141,7 +141,7 @@ if(top.tab_mode)
                        ,"top": "5em"
                        ,"height":height
                        ,"width":width});
-        
+
         top.$("body").append(dlgDivContainer);
         top.set_opener(winname,window);
         dlgIframe.get(0).src=fullURL;
