@@ -94,7 +94,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
  <?php
  //Gets validation rules from Page Validation list.
- //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
  if (empty($collectthis)) {
    $collectthis = "undefined";
@@ -323,7 +323,7 @@ if ($fres) {
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
        title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -334,18 +334,21 @@ if ($fres) {
 	<tr>
      <td class='text' colspan='2' style='padding-top:1em'>
 	 </td>
-    </tr> 
+    </tr>
    </table>
 
   </td>
+
 
   <td class='bold' width='33%' nowrap>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
-       onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php if (acl_check('patients','med','','write')) { ?>
+       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+        onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php } ?>
     </div>
   </td>
  </tr>
@@ -407,7 +410,7 @@ if (!$viewmode) { ?>
             return;
         }
         // otherwise just continue normally
-    }    
+    }
 <?php
 
   // Search for an encounter from today
