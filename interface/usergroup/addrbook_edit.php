@@ -1,4 +1,4 @@
-<?php
+﻿<?php
  // Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -240,7 +240,7 @@ td { font-size:10pt; }
     }
     else
     {
-      echo '<script type="text/javascript">alert("Atleast one field should be entered to save");window.location.href="addrbook_edit.php";</script>'; 
+      echo '<script type="text/javascript">alert("The name should be filled to save a new Address");window.location.href="addrbook_edit.php";</script>'; 
         
     }
 
