@@ -253,6 +253,14 @@ $check_sum = formData('check_sum','G');
 <input type=hidden name="event" value=<?php echo $event ; ?>>
 <a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh','e'); ?>]</a>
 </td>
+<td>
+<div id='valid_button'>
+<input type=button id='validate_log' onclick='validatelog();' value='<?php echo xla('Validate Log'); ?>'></input>
+</div>
+<div id='log_loading' style="display: none">
+<img src='../../images/loading.gif'/>
+</div>
+</td>
 </tr>
 </table>
 </FORM>
@@ -265,6 +273,7 @@ $check_sum = formData('check_sum','G');
   <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
   <th id="sortby_date" class="text" title="<?php xl('Sort by date/time','e'); ?>"><?php xl('Date','e'); ?></th>
   <th id="sortby_event" class="text" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></th>
+  <th id="sortby_category" class="text" title="<?php xl('Sort by Category','e'); ?>"><?php  xl('Category','e'); ?></th>
   <th id="sortby_user" class="text" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></th>
   <th id="sortby_cuser" class="text" title="<?php xl('Sort by Crt User','e'); ?>"><?php  xl('Certificate User','e'); ?></th>
   <th id="sortby_group" class="text" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></th>
@@ -325,6 +334,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
  <TR class="oneresult">
   <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
   <TD class="text"><?php echo preg_replace('/select$/','Query',$iter["event"]); //Convert select term to Query for MU2 requirements ?></TD>
+  <TD class="text"><?php echo $iter["category"]?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
   <TD class="text"><?php echo $iter["crt_user"]?></TD>
   <TD class="text"><?php echo $iter["groupname"]?></TD>
@@ -350,6 +360,7 @@ foreach ($ret as $iter) {
 <TR class="oneresult">
   <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10),ENT_NOQUOTES); ?></TD>
   <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]),ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars(xl($iter["category"]),ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["crt_user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["groupname"],ENT_NOQUOTES);?></TD>
@@ -389,6 +400,7 @@ $(document).ready(function(){
     // click-able column headers to sort the list
     $("#sortby_date").click(function() { $("#sortby").val("date"); $("#theform").submit(); });
     $("#sortby_event").click(function() { $("#sortby").val("event"); $("#theform").submit(); });
+    $("#sortby_category").click(function() { $("#sortby").val("category"); $("#theform").submit(); });
     $("#sortby_user").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
     $("#sortby_cuser").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
     $("#sortby_group").click(function() { $("#sortby").val("groupname"); $("#theform").submit(); });
@@ -403,6 +415,37 @@ $(document).ready(function(){
 Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:true});
 Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:true});
 
+function validatelog(){
+	 var img = document.getElementById('log_loading');
+	 var btn = document.getElementById('valid_button');
+	 if(img){
+		 if(img.style.display == "block"){
+			 return false;
+		 }
+		 img.style.display = "block";
+	 	if(btn){btn.style.display = "none"}
+	 }
+	 $.ajax({
+		 	url:"../../library/log_validation.php",
+	        asynchronous : true,
+	        method: "post",
+	        success :function(response){
+	                if(img){
+	                        img.style.display="none";
+	                        if(btn){btn.style.display="block";}
+	                }
+	                alert(response);
+	                },
+	        failure :function(){
+	                if(img){
+	                        img.style.display="none";
+	                        if(btn){btn.style.display="block";}
+	                }
+	                alert('<?php echo xls("Audit Log Validation Failed"); ?>');
+	        }
+	 });
+		 
+}
 </script>
 
 </html>

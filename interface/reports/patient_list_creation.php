@@ -189,7 +189,11 @@
 						$('#com_pref').show();
 				<?php } ?>
 			});		
-			
+
+			function printForm(){
+				 var win = top.printLogPrint ? top : opener.top;
+				 win.printLogPrint(window);
+			}
 		</script>
 	</head>
 	
@@ -273,6 +277,13 @@
 											</span> </a>
 									</div>
 								</td>
+								<?php if(isset($_POST['form_refresh'])){?>
+								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick="printForm()"> <span>
+											<?php echo xlt('Print'); ?>
+											</span> </a>
+									</div>
+								</td>
+								<?php }?>
 								<td>
 									<div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div>
 								</td>
