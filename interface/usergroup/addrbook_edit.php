@@ -107,157 +107,174 @@ td { font-size:10pt; }
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
+ if ($_POST['form_save']) 
+ {
+    
 
- // Collect the form_abook_type option value
- //  (ie. patient vs company centric)
- $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
- $option_abook_type = $type_sql_row['option_value'];
- // Set up any abook_type specific settings
- if ($option_abook_type == 3) {
-  // Company centric
-  $form_title = invalue('form_director_title');
-  $form_fname = invalue('form_director_fname');
-  $form_lname = invalue('form_director_lname');
-  $form_mname = invalue('form_director_mname');
-  $form_suffix = invalue('form_director_suffix');
- }
- else {
-  // Person centric
-  $form_title = invalue('form_title');
-  $form_fname = invalue('form_fname');
-  $form_lname = invalue('form_lname');
-  $form_mname = invalue('form_mname');
-  $form_suffix = invalue('form_suffix');
- }
+    if(!empty($_POST['form_organization']) || !empty($_POST['form_fname']) || !empty($_POST['form_lname']) || !empty($_POST['form_specialty']) || !empty($_POST['form_abook_type']))
+    {
 
-  if ($userid) {
+          
+      // Collect the form_abook_type option value
+      //  (ie. patient vs company centric)
+      $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
+      $option_abook_type = $type_sql_row['option_value'];
+      // Set up any abook_type specific settings
+      if ($option_abook_type == 3)
+      {
+        // Company centric
+        $form_title = invalue('form_director_title');
+        $form_fname = invalue('form_director_fname');
+        $form_lname = invalue('form_director_lname');
+        $form_mname = invalue('form_director_mname');
+        $form_suffix = invalue('form_director_suffix');
+      }
+      else 
+      {
+        // Person centric
+        $form_title = invalue('form_title');
+        $form_fname = invalue('form_fname');
+        $form_lname = invalue('form_lname');
+        $form_mname = invalue('form_mname');
+        $form_suffix = invalue('form_suffix');
+      }
 
-   $query = "UPDATE users SET " .
-    "abook_type = "   . invalue('form_abook_type')   . ", " .
-    "title = "        . $form_title                  . ", " .
-    "fname = "        . $form_fname                  . ", " .
-    "lname = "        . $form_lname                  . ", " .
-    "mname = "        . $form_mname                  . ", " .
-    "suffix = "       . $form_suffix                 . ", " .
-    "specialty = "    . invalue('form_specialty')    . ", " .
-    "organization = " . invalue('form_organization') . ", " .
-    "valedictory = "  . invalue('form_valedictory')  . ", " .
-    "assistant = "    . invalue('form_assistant')    . ", " .
-    "federaltaxid = " . invalue('form_federaltaxid') . ", " .
-    "upin = "         . invalue('form_upin')         . ", " .
-    "npi = "          . invalue('form_npi')          . ", " .
-    "taxonomy = "     . invalue('form_taxonomy')     . ", " .
-	  "cpoe = "         . invalue('form_cpoe')         . ", " .
-    "email = "        . invalue('form_email')        . ", " .
-    "email_direct = " . invalue('form_email_direct') . ", " .
-    "url = "          . invalue('form_url')          . ", " .
-    "street = "       . invalue('form_street')       . ", " .
-    "streetb = "      . invalue('form_streetb')      . ", " .
-    "city = "         . invalue('form_city')         . ", " .
-    "state = "        . invalue('form_state')        . ", " .
-    "zip = "          . invalue('form_zip')          . ", " .
-    "street2 = "      . invalue('form_street2')      . ", " .
-    "streetb2 = "     . invalue('form_streetb2')     . ", " .
-    "city2 = "        . invalue('form_city2')        . ", " .
-    "state2 = "       . invalue('form_state2')       . ", " .
-    "zip2 = "         . invalue('form_zip2')         . ", " .
-    "phone = "        . invalue('form_phone')        . ", " .
-    "phonew1 = "      . invalue('form_phonew1')      . ", " .
-    "phonew2 = "      . invalue('form_phonew2')      . ", " .
-    "phonecell = "    . invalue('form_phonecell')    . ", " .
-    "fax = "          . invalue('form_fax')          . ", " .
-    "notes = "        . invalue('form_notes')        . " "  .
-    "WHERE id = '" . add_escape_custom($userid) . "'";
-    sqlStatement($query);
+      if($userid) 
+      {
+        $query = "UPDATE users SET " .
+        "abook_type = "   . invalue('form_abook_type')   . ", " .
+        "title = "        . $form_title                  . ", " .
+        "fname = "        . $form_fname                  . ", " .
+        "lname = "        . $form_lname                  . ", " .
+        "mname = "        . $form_mname                  . ", " .
+        "suffix = "       . $form_suffix                 . ", " .
+        "specialty = "    . invalue('form_specialty')    . ", " .
+        "organization = " . invalue('form_organization') . ", " .
+        "valedictory = "  . invalue('form_valedictory')  . ", " .
+        "assistant = "    . invalue('form_assistant')    . ", " .
+        "federaltaxid = " . invalue('form_federaltaxid') . ", " .
+        "upin = "         . invalue('form_upin')         . ", " .
+        "npi = "          . invalue('form_npi')          . ", " .
+        "taxonomy = "     . invalue('form_taxonomy')     . ", " .
+	      "cpoe = "         . invalue('form_cpoe')         . ", " .
+        "email = "        . invalue('form_email')        . ", " .
+        "email_direct = " . invalue('form_email_direct') . ", " .
+        "url = "          . invalue('form_url')          . ", " .
+        "street = "       . invalue('form_street')       . ", " .
+        "streetb = "      . invalue('form_streetb')      . ", " .
+        "city = "         . invalue('form_city')         . ", " .
+        "state = "        . invalue('form_state')        . ", " .
+        "zip = "          . invalue('form_zip')          . ", " .
+        "street2 = "      . invalue('form_street2')      . ", " .
+        "streetb2 = "     . invalue('form_streetb2')     . ", " .
+        "city2 = "        . invalue('form_city2')        . ", " .
+        "state2 = "       . invalue('form_state2')       . ", " .
+        "zip2 = "         . invalue('form_zip2')         . ", " .
+        "phone = "        . invalue('form_phone')        . ", " .
+        "phonew1 = "      . invalue('form_phonew1')      . ", " .
+        "phonew2 = "      . invalue('form_phonew2')      . ", " .
+        "phonecell = "    . invalue('form_phonecell')    . ", " .
+        "fax = "          . invalue('form_fax')          . ", " .
+        "notes = "        . invalue('form_notes')        . " "  .
+        "WHERE id = '" . add_escape_custom($userid) . "'";
+        sqlStatement($query);
 
-  } else {
+      }
+       else 
+       {
+          $userid = sqlInsert("INSERT INTO users ( " .
+          "username, password, authorized, info, source, " .
+          "title, fname, lname, mname, suffix, " .
+          "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, " .
+          "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
+          "street, streetb, city, state, zip, " .
+          "street2, streetb2, city2, state2, zip2, " .
+          "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
+          ") VALUES ( "                        .
+          "'', "                               . // username
+          "'', "                               . // password
+          "0, "                                . // authorized
+          "'', "                               . // info
+          "NULL, "                             . // source
+          $form_title                   . ", " .
+          $form_fname                   . ", " .
+          $form_lname                   . ", " .
+          $form_mname                   . ", " .
+          $form_suffix                  . ", " .
+          invalue('form_federaltaxid')  . ", " .
+          "'', "                               . // federaldrugid
+          invalue('form_upin')          . ", " .
+          "'', "                               . // facility
+          "0, "                                . // see_auth
+          "1, "                                . // active
+          invalue('form_npi')           . ", " .
+          invalue('form_taxonomy')      . ", " .
+	        invalue('form_cpoe')          . ", " .
+          invalue('form_specialty')     . ", " .
+          invalue('form_organization')  . ", " .
+          invalue('form_valedictory')   . ", " .
+          invalue('form_assistant')     . ", " .
+          "'', "                               . // billname
+          invalue('form_email')         . ", " .
+          invalue('form_email_direct')  . ", " .
+          invalue('form_url')           . ", " .
+          invalue('form_street')        . ", " .
+          invalue('form_streetb')       . ", " .
+          invalue('form_city')          . ", " .
+          invalue('form_state')         . ", " .
+          invalue('form_zip')           . ", " .
+          invalue('form_street2')       . ", " .
+          invalue('form_streetb2')      . ", " .
+          invalue('form_city2')         . ", " .
+          invalue('form_state2')        . ", " .
+          invalue('form_zip2')          . ", " .
+          invalue('form_phone')         . ", " .
+          invalue('form_phonew1')       . ", " .
+          invalue('form_phonew2')       . ", " .
+          invalue('form_phonecell')     . ", " .
+          invalue('form_fax')           . ", " .
+          invalue('form_notes')         . ", " .
+          invalue('form_abook_type')    . " "  .
+          ")");
+        } 
+    }
+    else
+    {
+      echo '<script type="text/javascript">alert("Atleast one field should be entered to save");window.location.href="addrbook_edit.php";</script>'; 
+        
+    }
 
-   $userid = sqlInsert("INSERT INTO users ( " .
-    "username, password, authorized, info, source, " .
-    "title, fname, lname, mname, suffix, " .
-    "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, " .
-    "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
-    "street, streetb, city, state, zip, " .
-    "street2, streetb2, city2, state2, zip2, " .
-    "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
-    ") VALUES ( "                        .
-    "'', "                               . // username
-    "'', "                               . // password
-    "0, "                                . // authorized
-    "'', "                               . // info
-    "NULL, "                             . // source
-    $form_title                   . ", " .
-    $form_fname                   . ", " .
-    $form_lname                   . ", " .
-    $form_mname                   . ", " .
-    $form_suffix                  . ", " .
-    invalue('form_federaltaxid')  . ", " .
-    "'', "                               . // federaldrugid
-    invalue('form_upin')          . ", " .
-    "'', "                               . // facility
-    "0, "                                . // see_auth
-    "1, "                                . // active
-    invalue('form_npi')           . ", " .
-    invalue('form_taxonomy')      . ", " .
-	  invalue('form_cpoe')          . ", " .
-    invalue('form_specialty')     . ", " .
-    invalue('form_organization')  . ", " .
-    invalue('form_valedictory')   . ", " .
-    invalue('form_assistant')     . ", " .
-    "'', "                               . // billname
-    invalue('form_email')         . ", " .
-    invalue('form_email_direct')  . ", " .
-    invalue('form_url')           . ", " .
-    invalue('form_street')        . ", " .
-    invalue('form_streetb')       . ", " .
-    invalue('form_city')          . ", " .
-    invalue('form_state')         . ", " .
-    invalue('form_zip')           . ", " .
-    invalue('form_street2')       . ", " .
-    invalue('form_streetb2')      . ", " .
-    invalue('form_city2')         . ", " .
-    invalue('form_state2')        . ", " .
-    invalue('form_zip2')          . ", " .
-    invalue('form_phone')         . ", " .
-    invalue('form_phonew1')       . ", " .
-    invalue('form_phonew2')       . ", " .
-    invalue('form_phonecell')     . ", " .
-    invalue('form_fax')           . ", " .
-    invalue('form_notes')         . ", " .
-    invalue('form_abook_type')    . " "  .
-   ")");
+ } 
 
-  }
- }
+ else  if ($_POST['form_delete'])
+       {
 
- else  if ($_POST['form_delete']) {
+          if ($userid)
+           {
+              // Be careful not to delete internal users.
+              sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
+            }
+        }
 
-  if ($userid) {
-   // Be careful not to delete internal users.
-   sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
-  }
-
- }
-
- if ($_POST['form_save'] || $_POST['form_delete']) {
-  // Close this window and redisplay the updated list.
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
-  echo " window.close();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
-  echo "</script></body></html>\n";
-  exit();
- }
-
- if ($userid) {
-  $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
- }
-
- if ($type) { // note this only happens when its new
-  // Set up type
-  $row['abook_type'] = $type;
- }
+      if ($_POST['form_save'] || $_POST['form_delete']) 
+        {
+            // Close this window and redisplay the updated list.
+            echo "<script language='JavaScript'>\n";
+            if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+            echo " window.close();\n";
+            echo " if (opener.refreshme) opener.refreshme();\n";
+            echo "</script></body></html>\n";
+          exit();
+        }
+       if ($userid) 
+       {
+          $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
+        }
+         if ($type)
+         { // note this only happens when its new
+            // Set up type
+            $row['abook_type'] = $type;
+          }
 
 ?>
 
