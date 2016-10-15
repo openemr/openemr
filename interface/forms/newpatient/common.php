@@ -340,16 +340,6 @@ if ($fres) {
   </td>
 
 
-  <!--<td class='bold' width='33%' nowrap>
-    <div style='float:left'>
-   <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
-    </div>
-    <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
-       onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
-    </div>
-  </td>
--->
 <td class='bold' width='33%' nowrap>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
