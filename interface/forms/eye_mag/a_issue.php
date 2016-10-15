@@ -41,7 +41,8 @@ $pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
 // A nonempty thisenc means we are to link the issue to the encounter.
-// ie. we are going to use this as a billing issue? What?
+// ie. we are going to use this as a billing issue? 
+// The Coding Engine does not look at encounters and issue linkage, yet.  It could and perhaps should.
 $encounter = 0 + (empty($_REQUEST['encounter']) ? $_SESSION['encounter'] : $_REQUEST['encounter']);
 
 $issue = $_REQUEST['issue'];
@@ -56,6 +57,8 @@ if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not aut
 if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
+$providerID   = findProvider($pid,$encounter);
+if (!$_SESSION['providerID'] && $providerID)  ($_SESSION['providerID'] = $providerID);
 
 $irow = array();
 if ($issue) {
@@ -83,6 +86,7 @@ foreach (explode(',',$given) as $item) {
 <script language="JavaScript">    
                 <?php       require_once("$srcdir/restoreSession.php");  ?>
 </script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
@@ -111,40 +115,41 @@ foreach (explode(',',$given) as $item) {
     if ($key =="PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['authProvider']));
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['providerID']));
+  
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medical_problem_issue_list"));
       }
     } elseif ($key =="Medication") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['authProvider']));
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medication_issue_list"));
       }
     } elseif ($key =="Surgery") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['authProvider']));
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("surgery_issue_list"));
       }
     } elseif ($key =="Allergy") {
       $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
         subtype = '' and pid in (select pid from form_encounter where provider_id =? 
-        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['authProvider']));
+        and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("allergy_issue_list"));
       }
     } elseif ($key == "POH") { // POH medical group 
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-      $qry = sqlStatement($query,array($_SESSION['authProvider']));
+      $qry = sqlStatement($query,array($_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
       }
     } elseif ($key == "POS") { // POS surgery group 
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-      $qry = sqlStatement($query,array($_SESSION['authProvider']));
+      $qry = sqlStatement($query,array($_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
       }
@@ -159,7 +164,7 @@ foreach (explode(',',$given) as $item) {
       $qry = "";
     }
     if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
-      while($res = sqlFetchArray($qry)){
+      while($res = sqlFetchArray($qry)){ //Should we take the top 10 and display alphabetically?
         echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
         if ($res['codes']) {
           echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
@@ -601,11 +606,10 @@ function negate_radio(section) {
 
 </style>
 
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
+    <link rel="shortcut icon" href="<?php echo $GLOBALS['webroot']; ?>/sites/default/favicon.ico" />
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-1/index.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
   
 
@@ -646,7 +650,7 @@ function negate_radio(section) {
         <tr id='row_quick_picks'>
           <td valign='top' nowrap>&nbsp;</td>
           <td valign='top'  colspan="2">
-            <select name='form_titles' size='<?php echo $GLOBALS['athletic_team'] ? 10 : 5; ?>' onchange='set_text()'>
+            <select name='form_titles' size='5' onchange='top.restoreSession();set_text();'>
             </select> 
           </td>
           <td>

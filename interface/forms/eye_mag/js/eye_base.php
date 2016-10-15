@@ -1,5 +1,5 @@
 <?php
-
+    
 /**
  * forms/eye_mag/js/eye_base.php
  *
@@ -32,7 +32,6 @@
     include_once("$srcdir/api.inc");
     include_once("$srcdir/forms.inc");
     include_once("$srcdir/patient.inc");
-//    include_once($GLOBALS['assets_static_relative']."/manual-added-packages/shortcut.js-2-01-B/shortcut.js");
     
     $providerID = $_REQUEST['providerID'];
     
@@ -502,16 +501,6 @@ function submit_PMSFH() {
                    populate_form(result);
                    });}
 
-/* If a clickoption title is selected, copy it to the title field.
- * We also want to copy any other fields present in object.PMSFH_options
- * We need to build this object first.  The base install options will need ICD-10 codes attached
- * to make this work.
- */
-function set_text() {
-    var f = document.forms[0];
-    f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
-    f.form_titles.selectedIndex = -1;
-}
 /*
  *  END OF PMSFH FUNCTIONS
  */
@@ -1390,44 +1379,7 @@ function build_IMPPLAN(items) {
     }
 }
 
-/**
- * Function to add a CODE to an IMPRESSION/PLAN item
- * This is for callback by the find-code popup in IMPPLAN area.
- * Appends to or erases the current list of diagnoses.
- */
-function set_related(codetype, code, selector, codedesc) {
-        //target is the index of IMPRESSION[index].code we are searching for.
-    var span = document.getElementById('CODE_'+IMP_target);
-    if ('textContent' in span) {
-        span.textContent = code;
-    } else {
-        span.innerText = code;
-    }
-    $('#CODE_'+IMP_target).attr('title',codetype + ':' + code + ' ('+codedesc+')');
-    
-    obj.IMPPLAN_items[IMP_target].code = code;
-    obj.IMPPLAN_items[IMP_target].codetype = codetype;
-    obj.IMPPLAN_items[IMP_target].codedesc = codedesc;
-    obj.IMPPLAN_items[IMP_target].codetext = codetype + ':' + code + ' ('+codedesc+')';
-        // This lists the text for the CODE at the top of the PLAN_
-        // It is already there on mouseover the code itself and is printed in reports//faxes, so it was removed here
-        //  obj.IMPPLAN_items[IMP_target].plan = codedesc+"\r"+obj.IMPPLAN_items[IMP_target].plan;
-    
-    if (obj.IMPPLAN_items[IMP_target].PMSFH_link > '') {
-        var data = obj.IMPPLAN_items[IMP_target].PMSFH_link.match(/(.*)_(.*)/);
-        if ((data[1] == "POH")||(data[1] == "PMH")) {
-            obj.PMSFH[data[1]][data[2]].code= code;
-            obj.PMSFH[data[1]][data[2]].codetype = codetype;
-            obj.PMSFH[data[1]][data[2]].codedesc = codedesc;
-            obj.PMSFH[data[1]][data[2]].description = codedesc;
-            obj.PMSFH[data[1]][data[2]].diagnosis = codetype + ':' + code;
-            obj.PMSFH[data[1]][data[2]].codetext = codetype + ':' + code + ' ('+codedesc+')';
-            build_DX_list(obj);
-            update_PMSFH_code(obj.PMSFH[data[1]][data[2]].issue,codetype + ':' +code);
-        }
-    }
-    store_IMPPLAN(obj.IMPPLAN_items,'1');
-}
+
 /*
  * This functions updates a PMSFH item's code on the server via its issue number
  */

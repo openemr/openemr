@@ -195,6 +195,7 @@ if ($refresh and $refresh != 'fullscreen') {
       }
       ?>
     }
+
     var obj =[];
     <?php 
       //also add in any obj.Clinical data if the form was already opened
@@ -235,6 +236,44 @@ if ($refresh and $refresh != 'fullscreen') {
               parent.Forms.location.href = sel;
             }
       }
+      /**
+       * Function to add a CODE to an IMPRESSION/PLAN item
+       * This is for callback by the find-code popup in IMPPLAN area.
+       * Appends to or erases the current list of diagnoses.
+       */
+      function set_related(codetype, code, selector, codedesc) {
+              //target is the index of IMPRESSION[index].code we are searching for.
+          var span = document.getElementById('CODE_'+IMP_target);
+          if ('textContent' in span) {
+              span.textContent = code;
+          } else {
+              span.innerText = code;
+          }
+          $('#CODE_'+IMP_target).attr('title',codetype + ':' + code + ' ('+codedesc+')');
+          
+          obj.IMPPLAN_items[IMP_target].code = code;
+          obj.IMPPLAN_items[IMP_target].codetype = codetype;
+          obj.IMPPLAN_items[IMP_target].codedesc = codedesc;
+          obj.IMPPLAN_items[IMP_target].codetext = codetype + ':' + code + ' ('+codedesc+')';
+              // This lists the text for the CODE at the top of the PLAN_
+              // It is already there on mouseover the code itself and is printed in reports//faxes, so it was removed here
+              //  obj.IMPPLAN_items[IMP_target].plan = codedesc+"\r"+obj.IMPPLAN_items[IMP_target].plan;
+          
+          if (obj.IMPPLAN_items[IMP_target].PMSFH_link > '') {
+              var data = obj.IMPPLAN_items[IMP_target].PMSFH_link.match(/(.*)_(.*)/);
+              if ((data[1] == "POH")||(data[1] == "PMH")) {
+                  obj.PMSFH[data[1]][data[2]].code= code;
+                  obj.PMSFH[data[1]][data[2]].codetype = codetype;
+                  obj.PMSFH[data[1]][data[2]].codedesc = codedesc;
+                  obj.PMSFH[data[1]][data[2]].description = codedesc;
+                  obj.PMSFH[data[1]][data[2]].diagnosis = codetype + ':' + code;
+                  obj.PMSFH[data[1]][data[2]].codetext = codetype + ':' + code + ' ('+codedesc+')';
+                  build_DX_list(obj);
+                  update_PMSFH_code(obj.PMSFH[data[1]][data[2]].issue,codetype + ':' +code);
+              }
+          }
+          store_IMPPLAN(obj.IMPPLAN_items,'1');
+       }
     </script>
   </head>
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=0 bottommargin=0 marginwidth=0 marginheight=0>
@@ -705,7 +744,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <center>
                               <iframe id="iframe" name="iframe" 
                                 src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo $uniqueID; ?>&form_type=POH&pid=<?php echo $pid; ?>&encounter=<?php echo $encounter; ?>&form_id=<?php echo $form_id; ?>" 
-                                width="480" height="340" scrolling = "yes" frameBorder = "0" >
+                                width="480" height="340" scrolling= "yes" frameBorder= "0" >
                               </iframe>
                             </center>
                           </div>
@@ -3446,9 +3485,9 @@ if ($refresh and $refresh != 'fullscreen') {
                       if (sqlNumRows($TODO_data) < '1') {
                         // Provider list is not created yet, or was deleted.
                         // Create it fom defaults...
-                        $query = "INSERT INTO `openemr`.`list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
+                        $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
                         sqlStatement($query,array('Eye_todo_done_'.$providerID,'Eye Orders '.$prov_data['lname']));
-                        $SQL_INSERT = "INSERT INTO `openemr`.`list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
+                        $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
                         $number_rows=0;
                         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
                         $TODO_data = sqlStatement($query,array("Eye_todo_done_defaults"));

@@ -14,9 +14,7 @@
  *    I envision a user definable image they can upload to draw on and name such as 
  *    A face image to draw injectable location/dosage for fillers or botulinum toxins. 
  *    Ideally this concept when it comes to fruition will serve as a basis for any specialty image form
- *    to be used.  Upload image, drop widget and save it...  Imagine the dermatologists and neurologists with
- *    a drawable form they made themselves within openEMR.  They'll smile and say it's about time we get to work...
- *    We need to get back to work first and make it happen...
+ *    to be used.  Upload image, drop widget and save it... 
  *
  * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
  * 
@@ -965,6 +963,9 @@ function issueTypeIndex($tstr) {
   return $i;
 }
 
+/**
+ *    The following 2 functions can be removed from the production environment
+ */
 
 function merge($filename_x, $filename_y, $filename_result) {
   /**
@@ -1012,6 +1013,8 @@ function merge($filename_x, $filename_y, $filename_result) {
   imagedestroy($image_y);
 }
 
+//  this function is here to understand the core openEMR function addBilling, so we can improve the Billing Engine in Eye Form
+//  We still need to add modifiers and justify capabilities to the Coding Engine...
 function addBilling2($encounter_id, $code_type, $code, $code_text, $pid, $authorized="0", $provider, $modifier="", $units="", $fee="0.00",
   $ndc_info='', $justify='', $billed=0, $notecodes='')
 {
