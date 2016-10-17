@@ -276,7 +276,7 @@ $ip=$_SERVER['REMOTE_ADDR'];
 
 <div class="product-registration-modal" style="display: none">
     <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
-  <input placeholder="email" type="email" class="email" style="width: 100%" />
+  <input placeholder="email" type="email" class="email" style="width: 100%; color: black" />
   <p class="message" style="font-style: italic"></p>
 </div>
 
