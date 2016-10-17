@@ -94,7 +94,12 @@ function tabRefresh(data,evt)
 
 function tabClose(data,evt)
 {
-        app_view_model.application_data.tabs.tabsList.remove(data);
+    //remove the tab
+    app_view_model.application_data.tabs.tabsList.remove(data);
+    //activate the next tab
+    if(data.visible()) {
+        activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+    }
 }
 
 function tabCloseByName(name)
