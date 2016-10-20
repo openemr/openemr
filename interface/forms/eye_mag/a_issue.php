@@ -1,12 +1,12 @@
 <?php
 /**
- * This file presents the PMSFH control panel.  
+ * This file presents the PMSFH control panel.
  * It uses ajax/javascript to add, delete or edit an issue.
- *  
- * Originally culled from /interface/patient_file/summary and adapted... 
+ *
+ * Originally culled from /interface/patient_file/summary and adapted...
  *
  * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2015-6 Ray Magauran <magauran@MedFetch.com> 
+ * Copyright (C) 2015-6 Ray Magauran <magauran@MedFetch.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author Ray Magauran <magauran@MedFetch.com> 
+ * @author Ray Magauran <magauran@MedFetch.com>
  * @link    http://www.open-emr.org
  */
 
@@ -41,7 +41,7 @@ $pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
 // A nonempty thisenc means we are to link the issue to the encounter.
-// ie. we are going to use this as a billing issue? 
+// ie. we are going to use this as a billing issue?
 // The Coding Engine does not look at encounters and issue linkage, yet.  It could and perhaps should.
 $encounter = 0 + (empty($_REQUEST['encounter']) ? $_SESSION['encounter'] : $_REQUEST['encounter']);
 
@@ -83,7 +83,7 @@ foreach (explode(',',$given) as $item) {
 ?><html>
 <head>
 <title><?php echo xlt('Add New Issue'); ?></title>
-<script language="JavaScript">    
+<script language="JavaScript">
                 <?php       require_once("$srcdir/restoreSession.php");  ?>
 </script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js"></script>
@@ -98,7 +98,7 @@ foreach (explode(',',$given) as $item) {
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 
 <script language="JavaScript">
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>'; 
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
     <?php
@@ -107,47 +107,47 @@ foreach (explode(',',$given) as $item) {
     // and ranked by frequency, sort alphabetically and <=10 are listed.
     // If not, we use the defaults from list_options/
   $i='0';
-  
+
   foreach ($PMSFH[0] as $key => $value) {
     echo " aopts['" . attr($key) . "'] = [];\n";
     $local ='1';
     echo " aitypes['" . attr($key). "'] = '0';\n";
     if ($key =="PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
-      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
-        subtype = '' and pid in (select pid from form_encounter where provider_id =? 
+      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+        subtype = '' and pid in (select pid from form_encounter where provider_id =?
         and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['providerID']));
-  
+
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medical_problem_issue_list"));
       }
     } elseif ($key =="Medication") {
-      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
-        subtype = '' and pid in (select pid from form_encounter where provider_id =? 
+      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+        subtype = '' and pid in (select pid from form_encounter where provider_id =?
         and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medication_issue_list"));
       }
     } elseif ($key =="Surgery") {
-      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
-        subtype = '' and pid in (select pid from form_encounter where provider_id =? 
+      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+        subtype = '' and pid in (select pid from form_encounter where provider_id =?
         and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("surgery_issue_list"));
       }
     } elseif ($key =="Allergy") {
-      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and 
-        subtype = '' and pid in (select pid from form_encounter where provider_id =? 
+      $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
+        subtype = '' and pid in (select pid from form_encounter where provider_id =?
         and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("allergy_issue_list"));
       }
-    } elseif ($key == "POH") { // POH medical group 
+    } elseif ($key == "POH") { // POH medical group
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
       $qry = sqlStatement($query,array($_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
         $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
       }
-    } elseif ($key == "POS") { // POS surgery group 
+    } elseif ($key == "POS") { // POS surgery group
       $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
       $qry = sqlStatement($query,array($_SESSION['providerID']));
       if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -188,10 +188,10 @@ function newtype(index) {
       theopts[i] = aopts[index][i];
     }
   }
-  
+
    f.form_type.value = index;
    f.form_occur.options[0].selected = true;
-    
+
   document.getElementById('row_quick_picks'     ).style.display = i ? '' : 'none'; //select list of things
   document.getElementById('row_title'           ).style.display = '';
   document.getElementById('row_diagnosis'       ).style.display = 'none';
@@ -212,7 +212,7 @@ function newtype(index) {
   document.getElementById('row_eye_med'         ).style.display = 'none';
 
 
-  if (index == 'PMH') { 
+  if (index == 'PMH') {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('PMH Dx').":"; ?>";
     document.getElementById('row_diagnosis'     ).style.display = '';
     document.getElementById('row_begindate'     ).style.display = '';
@@ -220,14 +220,14 @@ function newtype(index) {
     document.getElementById('row_occurrence'    ).style.display = '';
     f.form_occur.options[2].selected = true;
     document.getElementById('row_comments'      ).style.display = '';
-  
-  } else if (index == 'Allergy') { 
+
+  } else if (index == 'Allergy') {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Allergic to').":"; ?>";
     document.getElementById('row_reaction'      ).style.display = '';
     document.getElementById('row_begindate'     ).style.display = '';
     document.getElementById('row_comments'      ).style.display = '';
-    
-  } else if (index == 'Medication') { 
+
+  } else if (index == 'Medication') {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Medication').":"; ?>";
     document.getElementById('row_begindate'     ).style.display = '';
     document.getElementById('row_enddate'       ).style.display = '';
@@ -238,8 +238,8 @@ function newtype(index) {
     //change resolved to Completed
     document.getElementById('onset'             ).textContent = "<?php echo xlt('Start').':'; ?>";
     document.getElementById('resolved'          ).textContent = "<?php echo xlt('Finish').':'; ?>";
-    
-  } else if ((index == 'Surgery')||(index =='POS')) { 
+
+  } else if ((index == 'Surgery')||(index =='POS')) {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Procedure').':'; ?>";
     document.getElementById('row_diagnosis'     ).style.display = '';
 
@@ -247,42 +247,42 @@ function newtype(index) {
     document.getElementById('row_referredby'    ).style.display = '';
     document.getElementById('form_referredby'   ).title="<?php echo xla('Name of the Surgeon'); ?>";
     document.getElementById('by_whom'           ).textContent = "<?php echo xlt('Surgeon').':'; ?>";
-    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').':'; ?>";  
-    document.getElementById('row_outcome'       ).style.display = ''; 
+    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').':'; ?>";
+    document.getElementById('row_outcome'       ).style.display = '';
     document.getElementById('row_comments'      ).style.display = '';
 
   } else if (index == 4) { //Dental so skip it
-  } else if (index == 'POH') { 
+  } else if (index == 'POH') {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Eye Dx{{eye diagnosis}}').":"; ?>";
     document.getElementById('row_diagnosis'     ).style.display = '';
     document.getElementById('row_begindate'     ).style.display = '';
     document.getElementById('row_referredby'    ).style.display = '';
     document.getElementById('by_whom'           ).textContent ="<?php echo xlt('Collaborator').":"; ?>";
     document.getElementById('form_referredby'   ).title="<?php echo xla('Co-managing/referring provider'); ?>";
-    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').":"; ?>";   
+    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').":"; ?>";
     document.getElementById('row_comments'      ).style.display = '';
 
-  } else if (index == 'FH') { 
+  } else if (index == 'FH') {
     document.getElementById('row_title'         ).style.display = 'none';
     document.getElementById('row_FH'            ).style.display = '';
-  
-  } else if (index == 'SOCH') { 
+
+  } else if (index == 'SOCH') {
     document.getElementById('row_title'         ).style.display = 'none';
     document.getElementById('row_social'        ).style.display = '';
     document.getElementById('cancel_button'       ).style.display = '';
-  
-  } else if (index == 'ROS') { 
+
+  } else if (index == 'ROS') {
     document.getElementById('row_title'         ).style.display = 'none';
     document.getElementById('row_ROS'           ).style.display = '';
-  
-  } else { 
+
+  } else {
     document.getElementById('title_diagnosis'   ).textContent ="<?php echo xlt('Eye Dx{{eye diagnosis}}').":"; ?>";
     document.getElementById('row_diagnosis'     ).style.display = '';
     document.getElementById('row_begindate'     ).style.display = '';
     document.getElementById('row_referredby'    ).style.display = '';
     document.getElementById('form_referredby'   ).title="<?php echo xla('Referring provider'); ?>";
     document.getElementById('by_whom'           ).textContent ="<?php echo xlt('Collaborator').":"; ?>";
-    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').":"; ?>";   
+    document.getElementById('onset'             ).textContent = "<?php echo xlt('Date').":"; ?>";
     document.getElementById('row_comments'      ).style.display = '';
     document.getElementById('row_PLACEHOLDER'   ).style.display = '';
   }
@@ -331,14 +331,14 @@ function deleteme() {
   var f = document.forms[0];
   top.restoreSession();
   $.ajax({
-           type    : 'POST',   
-           data    : { 
+           type    : 'POST',
+           data    : {
                         pid    : <?php echo attr($pid); ?>,
                         issue  : f.issue.value,
                         deletion : '1',
-                        PMSFH  : '1'   
+                        PMSFH  : '1'
                       },
-            url    : url     
+            url    : url
            }).done(function (result){
             // CLEAR THE FORM TOO...
             f.form_title.value = '';
@@ -360,7 +360,7 @@ function imdeleted() { closeme(); }
 function clearme() {
   negate_radio('radio_tobacco');
   var f = document.forms[0];
- 
+
  // f.radio_tobacco.value = '';
   f.form_diagnosis.value = '';
   f.form_begin.value ='';
@@ -459,7 +459,7 @@ function divclick(cb, divid) {
  }
  return true;}
 //function for selecting the smoking status in drop down list based on the selection in radio button.
-function smoking_statusClicked(cb) { 
+function smoking_statusClicked(cb) {
   if (cb.value == 'currenttobacco')
   {
   document.getElementById('form_tobacco').selectedIndex = 1;
@@ -507,10 +507,10 @@ function radioChange(rbutton){
          if(code_options_js[rbutton]!="")
             $("#smoke_code").html(" ( "+code_options_js[rbutton]+" )");
          else
-             $("#smoke_code").html(""); 
+             $("#smoke_code").html("");
      }
      else
-        $("#smoke_code").html(""); 
+        $("#smoke_code").html("");
   }
 
 function setSelectBoxByText(eid, etxt) {
@@ -537,10 +537,10 @@ function negate_radio(section) {
   } }
   //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
- 
+
  <?php
  $smoke_codes = getSmokeCodes();
-  
+
  foreach ($smoke_codes as $val => $code) {
             echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
       }
@@ -549,7 +549,7 @@ function negate_radio(section) {
 </script>
 <!-- Add Font stuff for the look and feel.  -->
 
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css"> 
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -562,8 +562,8 @@ function negate_radio(section) {
   td, select, textarea, input  {
  font-family: Fontawesome, Arial, Helvetica, sans-serif;
  font-size: 8pt;
- } 
- 
+ }
+
  input[type="text"],textarea{
     text-align:left;
     background-color: cornsilk !important;
@@ -576,7 +576,7 @@ function negate_radio(section) {
     box-sizing: border-box;
     width:100%;
    }
- 
+
   div.section {
    border: solid;
    border-width: 1px;
@@ -586,7 +586,7 @@ function negate_radio(section) {
   }
   .ROS_class input[type="text"] {
     width:100px;
-  }    
+  }
   .label {
     color:black;
   }
@@ -608,10 +608,10 @@ function negate_radio(section) {
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['webroot']; ?>/sites/default/favicon.ico" />
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
+<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
-  
+
 
 
 </head>
@@ -641,7 +641,7 @@ function negate_radio(section) {
           $HELLO[attr($key)] = '<input type="radio" name="form_type" id="PMSFH_'.attr($key).'" value="'.attr($key).'" '.$checked.' onclick="top.restoreSession();newtype(\''.attr($key).'\');" /><span>'.
                           '<label class="input-helper input-helper--checkbox" for="PMSFH_'.attr($key).'" title="'.xla($title).'">' . xlt($key_short_title) . '</label></span>&nbsp;';
         }
-        //put them in the desired display order  
+        //put them in the desired display order
         echo $HELLO['POH'].$HELLO['POS'].$HELLO['PMH'].$HELLO['Medication'].$HELLO['Surgery'].$HELLO['Allergy'].$HELLO['FH'].$HELLO['SOCH'].$HELLO['ROS'];
         ?>
       </div>
@@ -651,7 +651,7 @@ function negate_radio(section) {
           <td valign='top' nowrap>&nbsp;</td>
           <td valign='top'  colspan="2">
             <select name='form_titles' size='5' onchange='top.restoreSession();set_text();'>
-            </select> 
+            </select>
           </td>
           <td>
         </tr>
@@ -691,7 +691,7 @@ function negate_radio(section) {
             title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
            <img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif' align='absbottom' width='15' height='15'
             id='img_end' border='0' alt='[?]' style='cursor:pointer'
-            title='<?php echo xla('Click here to choose a date'); ?>' />            
+            title='<?php echo xla('Click here to choose a date'); ?>' />
           </td>
          </tr>
 
@@ -701,7 +701,7 @@ function negate_radio(section) {
            <?php
             // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
             generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-           ?><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" 
+           ?><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop"
               title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>" style="color:black;"><i class="fa fa-pencil fa-fw"></i></a>
           </td>
          </tr>
@@ -737,12 +737,12 @@ function negate_radio(section) {
         <tr id='row_eye_med'>
           <td class="right" nowrap><b id="by_whom"><?php echo xlt('Eye Med'); ?>:</b></td>
           <td  colspan="3"><?php echo $irow['subtype']; ?>
-            <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1' 
+            <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1'
             <?php if ($irow['subtype'] =='eye') echo "checked"; ?> style="margin:3px 3px 3px 5px;"
             title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />
           </td>
         </tr>
-        
+
         <tr id='row_comments'>
           <td valign='top' class="right" nowrap><b><?php echo xlt('Comments'); ?>:</b></td>
           <td colspan="3">
@@ -772,8 +772,8 @@ function negate_radio(section) {
           </td>
         </tr>
       </table>
-      <table id="row_social" width="100%">      
-            <?php 
+      <table id="row_social" width="100%">
+            <?php
               $given ="*";
               $dateStart=$_POST['dateState'];
               $dateEnd=$_POST['dateEnd'];
@@ -848,7 +848,7 @@ function negate_radio(section) {
                 width:90px;
               }
             </style>
-            
+
             <tbody>
                 <tr>
                   <td class="right" nowrap><?php echo xlt('Marital'); ?>:</td>
@@ -886,15 +886,15 @@ function negate_radio(section) {
                           <input type="radio" name="radio_tobacco" id="radio_tobacco[current]" value="currenttobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='currenttobacco') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
                         <td class="text"><input type="radio" name="radio_tobacco" id="radio_tobacco[quit]" value="quittobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='quittobacco') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
                         <td class="text" onclick='top.restoreSession();resolvedClicked(this);'>
-                          <input type="text" size="6" 
-                          name="date_tobacco" id="date_tobacco" 
-                          value="<?php echo attr($result2['tobacco']['resdate']); ?>" 
-                          title="<?php echo xla('Tobacco use'); ?>" 
-                          onkeyup="datekeyup(this,mypcc)" 
-                          onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" 
-                          width="15" height="15" 
-                          id="img_tobacco" 
-                          border="0" alt="[?]" style="cursor:pointer" 
+                          <input type="text" size="6"
+                          name="date_tobacco" id="date_tobacco"
+                          value="<?php echo attr($result2['tobacco']['resdate']); ?>"
+                          title="<?php echo xla('Tobacco use'); ?>"
+                          onkeyup="datekeyup(this,mypcc)"
+                          onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom"
+                          width="15" height="15"
+                          id="img_tobacco"
+                          border="0" alt="[?]" style="cursor:pointer"
                           title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;
                         </td>
                         <td class="text">
@@ -940,7 +940,7 @@ function negate_radio(section) {
                           <td class="text"><input type="radio" name="radio_alcohol" id="radio_alcohol[never]" value="neveralcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='neveralcohol') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
                           <td><input name="radio_alcohol" type="radio" id="radio_alcohol[not_applicable]" value="not_applicablealcohol" <?php if ($PMSFH[0]['SOCH']['alcohol']['restype'] =='not_applicable') echo "checked"; ?>>
                         <label class="fa fa-history input-helper nodisplay" for="radio_alcohol[not_applicable]"></label>
-                        
+
                         </td>
                         </tr>
                       </tbody>
@@ -957,7 +957,7 @@ function negate_radio(section) {
                           <td><input type="text" name="form_recreational_drugs" id="form_box" size="20" value="<?php echo attr($result2['recreational_drugs']['resnote']); ?>">&nbsp;</td><td class="bold">&nbsp;&nbsp;</td>
                           <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[current]" value="currentrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='currentrecreational_drugs') echo "checked"; ?>><?php echo xlt('Current'); ?>&nbsp;</td>
                           <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[quit]" value="quitrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='quitrecreational_drugs') echo "checked"; ?>><?php echo xlt('Quit'); ?>&nbsp;</td>
-                          <td class="text"><input type="text" size="6" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_recreational_drugs" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td> 
+                          <td class="text"><input type="text" size="6" name="date_recreational_drugs" id="date_recreational_drugs" value="" title="<?php echo xla('Recreational drug use'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)"><img src="<?php echo $GLOBALS['webroot']; ?>/interface/pic/show_calendar.gif" align="absbottom" width="15" height="15" id="img_recreational_drugs" border="0" alt="[?]" style="cursor:pointer" title="<?php echo xla('Click here to choose a date'); ?>">&nbsp;</td>
                           <td class="text"><input type="radio" name="radio_recreational_drugs" id="radio_recreational_drugs[never]" value="neverrecreational_drugs" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='neverrecreational_drugs') echo "checked"; ?>><?php echo xlt('Never'); ?>&nbsp;</td>
                           <td><input name="radio_recreational_drugs" type="radio" id="radio_recreational_drugs[not_applicable]" <?php if ($PMSFH[0]['SOCH']['recreational_drugs']['restype'] =='not_applicable') echo "checked"; ?> value="not_applicablerecreational_drugs">
                         <label class="fa fa-history input-helper nodisplay" for="radio_recreational_drugs[not_applicable]"></label>
@@ -967,7 +967,7 @@ function negate_radio(section) {
                     </table>
                   </td>
                 </tr>
-               
+
                 <tr class="nodisplay" >
                   <td class="right"  nowrap><?php echo xlt('Counseling'); ?>:</td>
                   <td class="text data" colspan="4">
@@ -979,7 +979,7 @@ function negate_radio(section) {
                     <label class="fa fa-history input-helper nodisplay" for="radio_counseling[not_applicable]"></label>
                   </td>
                 </tr></tbody></table></td></tr>
-            
+
                 <tr>
                   <td class="right" nowrap>
                   <?php echo xlt('Exercise'); ?>:</td>
@@ -996,7 +996,7 @@ function negate_radio(section) {
                     </table>
                   </td>
                 </tr>
-                    
+
                 <tr class="nodisplay">
                   <td class="right"  nowrap><?php echo xlt('Hazardous Activities'); ?>:</td>
                   <td class="text data" colspan="4">
@@ -1118,7 +1118,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSHEENT" name="radio_ROSHEENT"<?php if (!$ROSHEENT) echo "checked='checked'"; ?>>
             <input type="text" name="ROSHEENT" id="ROSHEENT" onclick='clear_option(this)' value="<?php echo attr($ROSHEENT); ?>"></td>
-        </tr>  
+        </tr>
         <tr>
           <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{cardiovascular}}'); ?>:</td>
           <td>
@@ -1128,7 +1128,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSPULM" name="radio_ROSPULM"<?php if (!$ROSPULM) echo "checked='checked'"; ?>>
             <input type="text" name="ROSPULM" id="ROSPULM" onclick='clear_option(this)' value="<?php echo attr($ROSPULM); ?>"></td>
-          </tr>  
+          </tr>
         <tr>
           <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{gastroenterology}}'); ?>:</td>
           <td>
@@ -1138,7 +1138,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU"<?php if (!$ROSGU) echo "checked='checked'"; ?>>
             <input type="text" name="ROSGU" id="ROSGU" onclick='clear_option(this)' value="<?php echo attr($ROSGU); ?>"></td>
-        </tr>  
+        </tr>
         <tr>
           <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dematologic}}'); ?>:</td>
           <td>
@@ -1148,7 +1148,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSNEURO" name="radio_ROSNEURO"<?php if (!$ROSNEURO) echo "checked='checked'"; ?>>
             <input type="text" name="ROSNEURO" id="ROSNEURO" onclick='clear_option(this)' value="<?php echo attr($ROSNEURO); ?>"></td>
-        </tr> 
+        </tr>
         <tr>
           <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Psych{{psychiatric}}'); ?>:</td>
           <td>
@@ -1158,7 +1158,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSMUSCULO" name="radio_ROSMUSCULO"<?php if (!$ROSMUSCULO) echo "checked='checked'"; ?>>
             <input type="text" name="ROSMUSCULO" id="ROSMUSCULO" onclick='clear_option(this)' value="<?php echo attr($ROSMUSCULO); ?>"></td>
-          </tr>   
+          </tr>
         <tr>
           <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Immuno{{immunologic}}'); ?>:</td>
           <td>
@@ -1168,7 +1168,7 @@ function negate_radio(section) {
           <td>
             <input type="radio" onclick='negate_radio(this);' id="radio_ROSENDOCRINE" name="radio_ROSENDOCRINE"<?php if (!$ROSENDOCRINE) echo "checked='checked'"; ?>>
             <input type="text" name="ROSENDOCRINE" id="ROSENDOCRINE" onclick='clear_option(this)' value="<?php echo attr($ROSENDOCRINE); ?>"></td>
-          </tr>  
+          </tr>
         <tr><td></td></tr>
       </table>
       <table id="row_PLACEHOLDER" name="row_PLACEHOLDER" width="90%">
@@ -1182,18 +1182,18 @@ function negate_radio(section) {
       <p style="margin-top:10px;">
         <input type="hidden" type="text" id="issue_js" name="issue_js" value="test">
         <input type="hidden" type="text" id="pid" name="pid" value="<?php echo $pid; ?>">
-        <input type='button' id='form_save' name='form_save' 
+        <input type='button' id='form_save' name='form_save'
         class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
         onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />
         <?php
             $display_delete = "nodisplay";
           ?>
         &nbsp;
-        <input type='button' name='delete_button' id='delete_button' 
+        <input type='button' name='delete_button' id='delete_button'
         class="<?php echo $display_delete; ?> ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
         onclick='top.restoreSession();deleteme();' value='<?php echo xla('Delete'); ?>' />
         &nbsp;
-        <input type='button' name='cancel_button' id='cancel_button' 
+        <input type='button' name='cancel_button' id='cancel_button'
         class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
         value='<?php echo xla('Cancel'); ?>' onclick='clearme();' />
         </p>
@@ -1204,7 +1204,7 @@ function negate_radio(section) {
      newtype('<?php if (!$form_index) { echo "POH"; } else { echo $type_index; } ?>');
      Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
      Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
-     <?php 
+     <?php
      $has_cal ="tobacco,coffee,alcohol,recreational_drugs,exercise_patterns";
      foreach (explode(',',$has_cal) as $item) {
       echo 'Calendar.setup({inputField:"date_'.$item.'", ifFormat:"%Y-%m-%d", button:"img_'.$item.'"});';
@@ -1219,7 +1219,7 @@ function negate_radio(section) {
                     }
                   });
       $("input,textarea,text").css("background-color","#FFF8DC");
-                  
+
     });
   </script>
 </body>
