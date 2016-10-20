@@ -71,13 +71,13 @@ class ProductRegistrationService {
                 return $responseBodyParsed->productId;
                 break;
             case 400:
-                throw new InvalidEmailException(xl($email . ' ' . xl("is not a valid email address")));
+                throw new InvalidEmailException($email . ' ' . xl("is not a valid email address"));
                 break;
             case 409:
                 throw new DuplicateRegistrationException(xl("Already registered"));
                 break;
             default:
-                throw new GenericProductRegistrationException(xl("Server error") . ': ' . xl("try again later"));
+                throw new GenericProductRegistrationException(xl("Server error: try again later"));
         }
     }
 

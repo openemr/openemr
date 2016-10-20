@@ -18,8 +18,6 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
 
 class HttpResponseHelper {
     public static function send($statusCode, $payload, $serializationStrategy) {

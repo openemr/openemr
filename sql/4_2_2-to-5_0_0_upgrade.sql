@@ -2127,7 +2127,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 
 #IfNotTable product_registration
 CREATE TABLE `product_registration` (
-  `registration_id` char(36) NULL DEFAULT '',
+  `registration_id` char(36) NOT NULL DEFAULT '',
   `email` varchar(255) NULL,
   `opt_out` TINYINT(1) NULL,
   PRIMARY KEY (`registration_id`)

@@ -222,7 +222,3 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
        height:72;
 }
 
-/* :..[ Registration Popup ]..: */
-.ui-widget > .ui-dialog-buttonpane button {
-  background: #2672ec;
-}

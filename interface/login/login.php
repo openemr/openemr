@@ -37,9 +37,9 @@ include_once("$srcdir/sql.inc");
 <?php html_header_show();?>
 <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/base/jquery-ui.min.css" />
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>

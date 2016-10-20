@@ -51,7 +51,7 @@ function toencounter(rawdata) {
 
 function bpopup() {
  top.restoreSession();
- window.open('../main/about_page.php','_blank', 'width=350,height=250,resizable=1');
+ window.open('../main/about_page.php','_blank', 'width=420,height=350,resizable=1');
  return false;
 }
 
@@ -105,7 +105,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<div style='margin-left:5px; float:left; display:none' id="past_encounter_block">
 			<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span>
 		</div></td></tr>
-	<tr><td valign="baseline" align="center">	
+	<tr><td valign="baseline" align="center">
         <div style='display:none' class='text' id="current_encounter_block" >
             <span class='text'><?php xl('Selected Encounter','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
         </div></td></tr></table>
