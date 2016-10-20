@@ -2088,7 +2088,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION4', '0', 410, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION5', '0', 420, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'RADNEXA', 'normal lacrimal gland and orbit', 90, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
-('Eye_Defaults_for_GENERAL', ‘LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'RBROW', 'no brow ptosis', 50, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'RLF', '17', 130, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
 ('Eye_Defaults_for_GENERAL', 'RLL', 'good tone', 30, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
