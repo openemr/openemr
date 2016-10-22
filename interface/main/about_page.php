@@ -33,13 +33,47 @@ require_once("../globals.php");
 ?>
  <html>
   <head>
-  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
-  <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
-  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
-  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+   <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
+   <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+   <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
- </head>
+   <style>
+    .donations-needed {
+     margin-top: 25px;
+     margin-bottom: 25px;
+     color: #c9302c;
+    }
+    .donations-needed a, .donations-needed a:visited,
+    .donations-needed a:active {
+     color: #c9302c;
+    }
+    .donations-needed a.btn {
+     color: #c9302c;
+     text-align: center;
+     font-size: 1.5em;
+     font-weight: bold;
+     animation: all 2s;
+    }
+    .donations-needed a.btn:hover {
+     background-color: #c9302c;
+     color: #fff;
+    }
+    .donations-needed .btn {
+     border-radius: 8px;
+     border: 2px solid #c9302c;
+     color: #c9302c;
+     background-color: transparent;
+    }
+   </style>
+
+   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
+   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+
+  </head>
+
   <body class="body_top">
    <div style="text-align: center;">
     <span class="title"><?php  echo xlt('About OpenEMR'); ?> </span><br><br>
@@ -53,7 +87,11 @@ require_once("../globals.php");
    <?php if (!empty($GLOBALS['online_support_link'])) { ?>
     <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="css_button"><span><?php echo xlt('Online Support'); ?></span></a><br><br>
    <?php } ?>
-   <a href="../../acknowledge_license_cert.html" target="_blank" class="css_button"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a>
+   <a href="../../acknowledge_license_cert.html" target="_blank" class="css_button"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a><br>
+   <div class="donations-needed">
+    <span class="text"><?php echo xlt("Please consider sending in a donation to OpenEMR"); ?>:</span><br>
+    <a href="http://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V6EVVTYYK264C" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
+   </div>
 
 <script type="text/javascript">
 var registrationTranslations = <?php echo json_encode(array(
@@ -95,8 +133,9 @@ var registrationConstants = <?php echo json_encode(array(
 
   <div class="product-registration-modal" style="display: none">
     <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
-    <input placeholder="email" type="email" class="email" style="width: 100%" />
+    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
     <p class="message" style="font-style: italic"></p>
   </div>
+
   </body>
 </html>
