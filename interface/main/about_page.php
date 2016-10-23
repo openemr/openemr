@@ -93,8 +93,8 @@ require_once("../globals.php");
         ?>;
     </script>
 
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js"></script>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
