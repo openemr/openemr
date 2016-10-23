@@ -72,6 +72,44 @@ require_once("../globals.php");
    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 
+    <script type="text/javascript">
+        var registrationTranslations = <?php echo json_encode(array(
+            'title' => xla('OpenEMR Product Registration'),
+            'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
+            'success' => xla('Success'),
+            'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
+            'submit' => xla('Submit'),
+            'noThanks' => xla('No Thanks'),
+            'registeredEmail' => xla('Registered email'),
+            'registeredId' => xla('Registered id'),
+            'genericError' => xla('Error. Try again later')
+        ));
+        ?>;
+
+        var registrationConstants = <?php echo json_encode(array(
+        'webroot' => $GLOBALS['webroot']
+        ))
+        ?>;
+    </script>
+
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            var productRegistrationController = new ProductRegistrationController();
+            productRegistrationController.getProductRegistrationStatus(function(err, data) {
+                if (err) { return; }
+
+                if (data.status === 'UNREGISTERED') {
+                    productRegistrationController.showProductRegistrationModal();
+                } else if (data.status === 'REGISTERED') {
+                    productRegistrationController.displayRegistrationInformationIfDivExists(data);
+                }
+            });
+        });
+    </script>
+
   </head>
 
   <body class="body_top">
@@ -93,49 +131,11 @@ require_once("../globals.php");
     <a href="http://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V6EVVTYYK264C" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
    </div>
 
-<script type="text/javascript">
-var registrationTranslations = <?php echo json_encode(array(
-  'title' => xla('OpenEMR Product Registration'),
-  'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
-  'success' => xla('Success'),
-  'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
-  'submit' => xla('Submit'),
-  'noThanks' => xla('No Thanks'),
-  'registeredEmail' => xla('Registered email'),
-  'registeredId' => xla('Registered id'),
-  'genericError' => xla('Error. Try again later')
-));
-?>;
-
-var registrationConstants = <?php echo json_encode(array(
-  'webroot' => $GLOBALS['webroot']
-))
-?>;
-</script>
-
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js"></script>
-
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        var productRegistrationController = new ProductRegistrationController();
-        productRegistrationController.getProductRegistrationStatus(function(err, data) {
-            if (err) { return; }
-
-            if (data.status === 'UNREGISTERED') {
-                productRegistrationController.showProductRegistrationModal();
-            } else if (data.status === 'REGISTERED') {
-                productRegistrationController.displayRegistrationInformationIfDivExists(data);
-            }
-        });
-    });
-</script>
-
-  <div class="product-registration-modal" style="display: none">
+   <div class="product-registration-modal" style="display: none">
     <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
     <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
     <p class="message" style="font-style: italic"></p>
-  </div>
+   </div>
 
   </body>
 </html>
