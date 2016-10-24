@@ -53,7 +53,7 @@ class ProductRegistrationService {
     }
 
     private function optInStrategy($email) {
-        $curl = curl_init($GLOBALS['remote_openemr_server']);
+        $curl = curl_init('https://reg.open-emr.org/api/registration');
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query(array('email' => $email)));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
