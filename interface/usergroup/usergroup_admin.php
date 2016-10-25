@@ -37,19 +37,19 @@ $show_message=0;
 $bg_count=count($access_group);
 $mail_id = explode(".",$SMTP_HOST);
 for($i=0;$i<$bg_count;$i++){
-if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on') && ($_GET['pre_active'] == 0)){
-  if(($_GET['get_admin_id'] == 1) && ($_GET['admin_id'] != "")){
-	$res = sqlStatement("select username from users where id= ? ", array($_GET["id"]));
-	$row = sqlFetchArray($res);
-	$uname=$row['username'];
-	$mail = new MyMailer();
-        $mail->From = "admin@".$mail_id[1].".".$mail_id[2];
+if(($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)){
+  if(($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")){
+    $res = sqlStatement("select username from users where id= ? ", array($_POST["id"]));
+    $row = sqlFetchArray($res);
+    $uname=$row['username'];
+    $mail = new MyMailer();
+        $mail->From = $GLOBALS["practice_return_email_path"];
         $mail->FromName = "Administrator OpenEMR";
         $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
                                                 " was activated at ".date('l jS \of F Y h:i:s A')." \n\nThanks,\nAdmin OpenEMR.";
         $mail->Body = $text_body;
         $mail->Subject = "Emergency Login User Activated";
-        $mail->AddAddress($_GET['admin_id']);
+        $mail->AddAddress($_POST['admin_id']);
         $mail->Send();
 }
 }
@@ -166,11 +166,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       $tqvar  = $_POST["authorized"] ? 1 : 0;
       $actvar = $_POST["active"]     ? 1 : 0;
       $calvar = $_POST["calendar"]   ? 1 : 0;
-  
+
       sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
         "calendar = $calvar, see_auth = ? WHERE " .
         "id = ? ", array($_POST['see_auth'], $_POST["id"]));
-      //Display message when Emergency Login user was activated 
+      //Display message when Emergency Login user was activated
       $bg_count=count($_POST['access_group']);
       for($i=0;$i<$bg_count;$i++){
         if(($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)){
@@ -195,7 +195,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 		$physician_type = formData('physician_type');
 		sqlStatement("update users set physician_type = '$physician_type' where id = ? ", array($_POST["id"]));
 	  }
-	  
+
       if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
@@ -231,7 +231,7 @@ if (isset($_POST["mode"])) {
     $exp_days = $GLOBALS['password_expiration_days'];
     $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
     }
-    
+
     $insertUserSQL=
             "insert into users set " .
             "username = '"         . trim(formData('rumple'       )) .
@@ -258,7 +258,7 @@ if (isset($_POST["mode"])) {
             "', calendar = '"      . $calvar                         .
             "', pwd_expiration_date = '" . trim("$exp_date") .
             "'";
-    
+
     $clearAdminPass=$_POST['adminPass'];
     $clearUserPass=$_POST['stiltskin'];
     $password_err_msg="";
@@ -282,7 +282,7 @@ if (isset($_POST["mode"])) {
       }
     }
 
-        
+
 
     } else {
       $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
@@ -388,7 +388,7 @@ $(document).ready(function(){
 		'frameHeight' : 450,
 		'frameWidth' : 660
 	});
-	
+
 	$(function(){
 		// add drag and drop functionality to fancybox
 		$("#fancy_outer").easydrag();

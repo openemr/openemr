@@ -277,7 +277,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Enable Fees In Left Menu')
     ),
-    // EDI history  2012-09-13 
+    // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
       xl('Enable EDI History In Left Menu'),
       'bool',                           // data type
@@ -342,7 +342,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('Special treatment for the Vitals form')
     ),
-    
+
     'insurance_information' => array(
       xl('Show Additional Insurance Information'),               // descriptive name
       array(
@@ -414,7 +414,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Allow all available languages as choices on menu at login.')
     ),
-			
+
     'language_menu_other' => array(
       xl('Allowed Languages'),
       'm_lang',                         // data type
@@ -482,7 +482,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = Both/US
       xl('Applies to the Vitals form and Growth Chart')
     ),
-    
+
     'us_weight_format' => array(
         xl('Display Format for US Weights'),
         array(
@@ -517,7 +517,7 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Format used to display most dates.')
     ),
-    
+
     'time_display_format' => array(
       xl('Time Display Format'),
       array(
@@ -714,7 +714,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('Set a facility cookie to remember the selected facility between logins.')
     ),
-    
+
     'receipts_by_provider' => array(
       xl('Print Receipts by Provider'),
       'bool',
@@ -777,7 +777,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
     ),
-    
+
     'hide_document_encryption' => array(
       xl('Hide Encryption/Decryption Options In Document Management'),
       'bool',                           // data type
@@ -791,7 +791,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default = true
       xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
     ),
-    
+
       'cms_1500' => array(
       xl('CMS 1500 Paper Form Format'),
       array(
@@ -801,7 +801,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default
       xl('This specifies which revision of the form the billing module should generate')
     ),
-     
+
       'cms_1500_box_31_format' => array(
       xl('CMS 1500: Box 31 Format'),
       array(
@@ -823,7 +823,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
-	  
+
 	'amendments' => array (
 		xl('Amendments'),
 		'bool',                           // data type
@@ -834,23 +834,23 @@ $GLOBALS_METADATA = array(
     'allow_pat_delete' => array(
        xl('Allow Administrators to Delete Patients'),
 	   'bool',                           // data type
-	   '0',                              // default = false 
+	   '0',                              // default = false
 	   xl('Allow Administrators to Delete Patients')
 
     ),
-         
+
     'observation_results_immunization' => array(
       xl('Immunization Observation Results'),
       'bool',                           // data type
       '1',                              // default
       xl('Observation Results in Immunization')
     ),
-	
+
    ),
     // Report Tab
     //
     'Report' => array(
-	
+
     'use_custom_daysheet' => array(
       xl('Use Custom End of Day Report'),
       array(
@@ -862,7 +862,7 @@ $GLOBALS_METADATA = array(
       '1',                     // default = Print End of Day Report 1
       xl('This will allow the use of the custom End of Day report and indicate which report to use.')
     ),
-     
+
     'daysheet_provider_totals' => array(
       xl('End of Day by Provider or allow Totals Only'),
       array(
@@ -886,14 +886,14 @@ $GLOBALS_METADATA = array(
       'Y1',                     // default = One Year
       xl('This is the Beginning date for the Ledger Report.')
     ),
-	
+
     'print_next_appointment_on_ledger' => array(
        xl('Print the Next Appointment on the Bottom of the Ledger'),
 	   'bool',                           // data type
 	   '1',                              // default = true
 	   xl('This Will Print the Next Appointment on the Bottom of the Patient Ledger')
     ),
-    
+
     'sales_report_invoice' => array(
       xl('Display Invoice Number or Patient Name or Both in the Sales Report'),
       array(
@@ -904,7 +904,7 @@ $GLOBALS_METADATA = array(
       '2',                              // default = 2
       xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
     ),
-	
+
     'cash_receipts_report_invoice' => array(
       xl('Display Invoice Number or Patient Name in the Cash Receipt Report'),
       array(
@@ -914,9 +914,9 @@ $GLOBALS_METADATA = array(
       '0',                              // default = 0
       xl('Display Invoice Number or Patient Name in the Cash Receipt Report')
     ),
-	
+
   ),
-    
+
   // Billing Tab
 
   'Billing' => array(
@@ -927,7 +927,7 @@ $GLOBALS_METADATA = array(
       'ICD10',                 // default
       xl('The default code type to search for in the Fee Sheet.')
     ),
-    
+
     'support_fee_sheet_line_item_provider' => array(
        xl('Support provider in line item in fee sheet'),
 	   'bool',                           // data type
@@ -941,21 +941,21 @@ $GLOBALS_METADATA = array(
 	   '0',                              // default = false
 	   xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
     ),
- 
+
     'replicate_justification' => array(
       xl('Automatically replicate justification codes in Fee Sheet'),
       'bool',                           // data type
       '0',                              // default = false
       xl('Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).')
     ),
- 
+
     'display_units_in_billing' => array(
       xl('Display the Units Column on the Billing Screen'),
 	   'bool',                           // data type
 	   '0',                              // default = false
       xl('Display the Units Column on the Billing Screen')
     ),
-    
+
     'notes_to_display_in_Billing' => array(
       xl('Which notes are to be displayed in the Billing Screen'),
       array(
@@ -995,21 +995,21 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will enable the Ability to Exclude Selected Patient Statements from Printing.')
     ),
-    
+
     'minimum_amount_to_print' => array(
       xl('Total Minimum Amount of Statement to Allow Printing'),
       'num',                           // data type
       '1.00',
       xl('Total Minimum Dollar Amount of Statement to Allow Printing.(only applicable if Allow Statement Exclusions from Printing is enabled)')
     ),
-	 
+
   	'statement_bill_note_print' => array(
       xl('Print Patient Billing Note'),
       'bool',                           // data type
       '0',                              // default = false
       xl('This will allow printing of the Patient Billing Note on the statements.')
     ),
-	
+
     'number_appointments_on_statement' => array(
       xl('Number of Appointments on Statement'),
       'num',                           // data type
@@ -1023,21 +1023,21 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will allow printing of a custom Message on the statements.')
     ),
-    
+
     'statement_msg_text' => array(
       xl('Custom Statement message'),
       'text',                           // data type
       '',
       xl('Text for Custom statement message.')
     ),
-	
+
   	'use_dunning_message' => array(
       xl('Use Custom Dunning Messages'),
       'bool',                           // data type
       '0',                              // default = false
       xl('This will allow use of the custom Dunning Messages on the statements.')
     ),
-	
+
     'first_dun_msg_set' => array(
       xl('Number of days before showing first account message'),
       'num',                           // data type
@@ -1051,7 +1051,7 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for first account message.')
     ),
-    
+
     'second_dun_msg_set' => array(
       xl('Number of days before showing second account message'),
       'num',                           // data type
@@ -1079,7 +1079,7 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for third account message.')
     ),
-    
+
     'fourth_dun_msg_set' => array(
       xl('Number of days before showing fourth account message'),
       'num',                           // data type
@@ -1108,11 +1108,11 @@ $GLOBALS_METADATA = array(
       xl('Text for fifth account message.')
     ),
   ),
-  
+
     // E-Sign Tab
     //
     'E-Sign' => array(
-            
+
     'esign_all' => array(
       xl('Allows E-Sign on the entire encounter'),
       'bool',                           // data type
@@ -1126,7 +1126,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will disable the Edit button on all forms whose parent encounter is e-signed')
     ),
-            
+
     'esign_individual' => array(
       xl('Allows E-Signing Individual Forms'),
       'bool',                           // data type
@@ -1140,7 +1140,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = false
       xl('This will disable the Edit button on any form that is e-signed')
     ),
-            
+
     'esign_lock_toggle' => array(
       xl('Enable lock toggle'),
       'bool',                           // data type
@@ -1333,7 +1333,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default
       xl('This determines which color schema used for appointment')
     ),
-	
+
     'number_of_appts_to_show' => array(
       xl('Appointments - Patient Summary - Number to Display'),
       'num',
@@ -1397,7 +1397,7 @@ $GLOBALS_METADATA = array(
       '0',                             // default = false
       xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
     ),
-	
+
     'docs_see_entire_calendar' => array(
       xl('Providers See Entire Calendar'),
       'bool',                           // data type
@@ -1411,7 +1411,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default
       xl('Automatically create a new encounter when an appointment check in status is selected.')
     ),
-    
+
     'disable_pat_trkr' => array(
       xl('Disable Patient Flow Board'),
       'bool',                           // data type
@@ -1432,14 +1432,14 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('When Checked, Patient ID Will Show in Patient Flow Board.')
     ),
-	
+
     'ptkr_show_encounter' => array(
       xl('Show Patient Encounter Number in Patient Flow Board'),
       'bool',                           // data type
       '1',                              // default = true
       xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
     ),
-	
+
     'pat_trkr_timer' => array(
       xl('Patient Flow Board Timer Interval'),
       array(
@@ -1454,28 +1454,28 @@ $GLOBALS_METADATA = array(
       '0:20',                              // default
       xl('The screen refresh time in Seconds for the Patient Flow Board Screen.')
     ),
-	
+
     'checkout_roll_off' => array(
       xl('Number of Minutes to display completed checkouts'),
       'num',
       '0',                       // default
       xl('Number of Minutes to display completed checkouts. Zero is continuous display')
     ),
-    
+
     'drug_screen' => array(
       xl('Enable Random Drug Testing'),
      'bool',                           // data type
       '0',                              // default
       xl('Allow Patient Flow Board to Select Patients for Drug Testing.')
     ),
-	
+
     'drug_testing_percentage' => array(
       xl('Percentage of Patients to Drug Test'),
       'num',
       '33',                       // default
       xl('Percentage of Patients to select for Random Drug Testing.')
     ),
-	
+
     'maximum_drug_test_yearly' => array(
       xl('Maximum number of times a Patient can be tested in a year'),
       'num',
@@ -1515,7 +1515,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default
       xl('After migration from the old password mechanisms where passwords are stored in the users table without salt is complete, this flag should be set to false so that only authentication by the new method is possible')
     ),
-      
+
     'password_expiration_days' => array(
       xl('Default Password Expiration Days'),
       'num',                            // data type
@@ -1583,14 +1583,14 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Name of the sender for patient reminders.')
     ),
-    
+
     'patient_reminder_sender_email' => array(
       xl('Patient Reminder Sender Email'),
       'text',                           // data type
       '',                               // default
       xl('Email address of the sender for patient reminders. Replies to patient reminders will be directed to this address. It is important to use an address from your clinic\'s domain to avoid help prevent patient reminders from going to junk mail folders.')
     ),
-    
+
     'practice_return_email_path' => array(
       xl('Notification Email Address'),
       'text',                           // data type
@@ -1647,7 +1647,7 @@ $GLOBALS_METADATA = array(
       '',
       xl('SMTP security protocol to connect with. Required by some servers such as gmail.')
     ),
-	
+
     'EMAIL_NOTIFICATION_HOUR' => array(
       xl('Email Notification Hours'),
       'num',                            // data type
@@ -1689,21 +1689,21 @@ $GLOBALS_METADATA = array(
       '50',                             // default
       xl('Number of hours in advance to send Phone notification.')
     ),
-    
+
     'phone_gateway_username' => array(
       xl('Phone Gateway Username'),
       'text',                           // data type
       '',                               // default
       xl('Username for Phone Gateway.')
     ),
-    
+
     'phone_gateway_password' => array(
       xl('Phone Gateway Password'),
       'text',                           // data type
       '',                               // default
       xl('Password for Phone Gateway.')
     ),
-    
+
     'phone_gateway_url' => array(
       xl('Phone Gateway URL'),
       'text',                           // data type
@@ -1712,7 +1712,7 @@ $GLOBALS_METADATA = array(
     ),
 
   ),
-  
+
   // CDR (Clinical Decision Rules)
   //
   'CDR' => array(
@@ -1854,7 +1854,7 @@ $GLOBALS_METADATA = array(
       '1',                               // default
       xl('Enable Itemization of AMC Reports')
     ),
- 
+
   ),
 
   // Logging
@@ -1958,7 +1958,7 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
     ),
-	
+
 	//July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
 	'enable_auditlog_encryption' => array(
       xl('Enable Audit Log Encryption'),
@@ -2167,7 +2167,7 @@ $GLOBALS_METADATA = array(
       '1',
       xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
     ),
-    
+
     'portal_offsite_enable' => array(
       xl('Enable Offsite Patient Portal'),
       'bool',                           // data type
@@ -2419,7 +2419,7 @@ $GLOBALS_METADATA = array(
       xl('phiMail Allow CCR Send')
     )
   ),
-  
+
   'Rx' => array(
     'rx_enable_DEA' => array(
       xl('Rx Enable DEA #'),
@@ -2456,6 +2456,12 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',
       xl('Rx Show State Lic. #')
+    ),
+    'rx_show_drug-drug' => array(
+      xl('Rx NLM Drug-Drug'),
+      'bool',                           // data type
+      '0',
+      xl('Rx NLM Drug-Drug')
     ),
     'rx_paper_size' => array(
       xl('Rx Paper Size'),               // descriptive name
@@ -2538,7 +2544,7 @@ $GLOBALS_METADATA = array(
       xl('Rx Bottom Margin (px)')
     ),
   ),
-    
+
   'PDF' => array (
    'pdf_layout' => array (
        xl('Layout'),
@@ -2828,7 +2834,7 @@ $GLOBALS_METADATA = array(
        'D', //defaut
        xl("Choose Download or Display Inline"),
     ),
-   	
+
     'chart_label_type' => array(
         xl('Patient Label Type'),
         array(
@@ -2837,7 +2843,7 @@ $GLOBALS_METADATA = array(
             '2' => '5161',
             '3' => '5162'
         ),
-        '1', // default	
+        '1', // default
         xl('Avery Label type for printing patient labels from popups in left nav screen'),
     ),
 
@@ -2861,17 +2867,17 @@ $GLOBALS_METADATA = array(
         '9',                              // default = None
         xl('Barcode type for printing barcode labels from popups in left nav screen.')
     ),
-	
+
     'addr_label_type' => array(
         xl('Print Patient Address Label'),
         'bool',                           // data type
         '1',                              // default = false
         xl('Select to print patient address labels from popups in left nav screen.')
     ),
-	
-   ),
-   
 
-   
+   ),
+
+
+
 );
 ?>

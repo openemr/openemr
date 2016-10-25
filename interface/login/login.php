@@ -37,11 +37,50 @@ include_once("$srcdir/sql.inc");
 <?php html_header_show();?>
 <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
 <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
-<script language='JavaScript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-4-3/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+
+<script type="text/javascript">
+var registrationTranslations = <?php echo json_encode(array(
+  'title' => xla('OpenEMR Product Registration'),
+  'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
+  'success' => xla('Success'),
+  'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
+  'submit' => xla('Submit'),
+  'noThanks' => xla('No Thanks'),
+  'registeredEmail' => xla('Registered email'),
+  'registeredId' => xla('Registered id'),
+  'genericError' => xla('Error. Try again later')
+));
+?>;
+
+var registrationConstants = <?php echo json_encode(array(
+  'webroot' => $GLOBALS['webroot']
+))
+?>;
+</script>
+
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        var productRegistrationController = new ProductRegistrationController();
+        productRegistrationController.getProductRegistrationStatus(function(err, data) {
+            if (err) { return; }
+
+            if (data.status === 'UNREGISTERED') {
+                productRegistrationController.showProductRegistrationModal();
+            }
+        });
+    });
+</script>
+
 <script language='JavaScript'>
 function transmit_form()
 {
@@ -55,7 +94,7 @@ function imsubmitted() {
  olddate.setFullYear(olddate.getFullYear() - 1);
  document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
 <?php } ?>
-    return false; //Currently the submit action is handled by the encrypt_form(). 
+    return false; //Currently the submit action is handled by the encrypt_form().
 }
 </script>
 
@@ -96,7 +135,7 @@ else {
 $_SESSION['language_choice'] = $defaultLangID;
 // collect languages if showing language menu
 if ($GLOBALS['language_menu_login']) {
-    
+
         // sorting order of language titles depends on language translation options.
         $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
         if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
@@ -116,7 +155,7 @@ if ($GLOBALS['language_menu_login']) {
             "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
           $res3=SqlStatement($sql, array($mainLangID));
 	}
-    
+
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
                $result3[$iter] = $row;
         if (count($result3) == 1) {
@@ -146,8 +185,8 @@ else {
 <?php } ?>
 </div>
 
-<?php if ($GLOBALS['extra_logo_login']) { ?>  
-        <div class="logo-left"><?php echo $logocode;?></div> 
+<?php if ($GLOBALS['extra_logo_login']) { ?>
+        <div class="logo-left"><?php echo $logocode;?></div>
 <?php } ?>
 
 <div class="table-right" <?php if ($GLOBALS['extra_logo_login']) echo "style='padding: 20px 20px;'"; //make room for the extra logo ?> >
@@ -201,11 +240,11 @@ if (count($result3) != 1) { ?>
         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" . xlt('Default') . " - " . xlt($defaultLangName) . "</option>\n";
         foreach ($result3 as $iter) {
 	        if ($GLOBALS['language_menu_showall']) {
-                    if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
+                    if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
                     echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
 		}
 	        else {
-		    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
+		    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                         if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
 		        echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
 		    }
@@ -218,6 +257,7 @@ if (count($result3) != 1) { ?>
 
 <tr><td>&nbsp;</td><td>
 <input class="button large" type="submit" onClick="transmit_form()" value="<?php echo xla('Login');?>">
+
 </td></tr>
 <tr><td colspan='2' class='text' style='color:red'>
 <?php
@@ -233,6 +273,13 @@ $ip=$_SERVER['REMOTE_ADDR'];
 <a  href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
 </div>
 </div>
+
+<div class="product-registration-modal" style="display: none">
+    <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
+  <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
+  <p class="message" style="font-style: italic"></p>
+</div>
+
 <div class="demo">
 		<!-- Uncomment this for the OpenEMR demo installation
 		<p><center>login = admin
