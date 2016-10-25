@@ -3577,6 +3577,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Lab Results' ,'Lab Results', 15,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','New Orders' ,'New Orders', 20,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Patient Reminders' ,'Patient Reminders', 25,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Image Results' ,'Image Results', 30,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'irnpool','Invoice Reference Number Pools', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('irnpool','main','Main',1,1,'000001');
@@ -5524,6 +5525,7 @@ CREATE TABLE `pnotes` (
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
   `portal_relation` VARCHAR(100) NULL,
   `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  `document_id` int(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -9574,13 +9576,6 @@ CREATE TABLE `form_taskman` (
 -- End of Eye Module tables
 -- ----------------------------------------------------
 
--- Table to copy log contents for audit log tamper resistance check.
-DROP TABLE IF EXISTS `log_validator`;
-CREATE TABLE `log_validator` (
-  `log_id` bigint(20) NOT NULL,
-  `log_checksum` longtext DEFAULT NULL,
-  PRIMARY KEY (`log_id`)
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table 'product_registration'
@@ -9592,3 +9587,10 @@ CREATE TABLE `product_registration` (
   PRIMARY KEY (`registration_id`)
 ) ENGINE=InnoDB;
 
+-- Table to copy log contents for audit log tamper resistance check.
+DROP TABLE IF EXISTS `log_validator`;
+CREATE TABLE `log_validator` (
+  `log_id` bigint(20) NOT NULL,
+  `log_checksum` longtext DEFAULT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;

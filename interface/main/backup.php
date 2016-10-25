@@ -536,6 +536,7 @@ $res=sqlStatement("create table if not exists log_comment_encrypt_new like log_c
 $res=sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
 $res=sqlStatement("create table if not exists log_new like log");
 $res=sqlStatement("rename table log to log_backup,log_new to log");
+$res=sqlStatement("truncate log_validator"); # Truncating log validator (Audit report tamper resistance) table while backup
 echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .

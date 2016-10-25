@@ -7,6 +7,11 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
+    $category = $event;
+    // Special case delete for lists table
+    if($event == 'delete')
+    	$category = eventCategoryFinder($comments, $event, '');
+
     // deal with comments encryption, if turned on
     $encrypt_comment = 'No';
     if (!empty($comments)) {
@@ -29,10 +34,6 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
                 log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?,'Patient Portal', ?, ?, ?, ?, ?, ?, ?,?, ?)";
         $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
     } else {
-    $category = $event;
-    // Special case delete for lists table
-    if($event == 'delete')
-    	$category = eventCategoryFinder($comments, $event, '');
     
     /* More details added to the log */
     $sql = "insert into log ( date, event,category, user, groupname, success, comments, crt_user, patient_id) " .
@@ -108,6 +109,9 @@ function getEvents($params)
      $tevent = "";
     if (isset($params['tevent']) && $params['tevent'] != "") $tevent = $params['tevent'];
 
+    $direction = 'asc';
+    if (isset($params['direction']) && $params['direction'] != "") $direction = $params['direction'];
+
      $event = "";
     if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
     if ($event!=""){
@@ -121,7 +125,7 @@ function getEvents($params)
     if ($user != "") $sql .= " AND user LIKE '$user'";
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
-    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC"; // descending order
     $sql .= " LIMIT 5000";
     }
     else
@@ -132,7 +136,7 @@ function getEvents($params)
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
     if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
-    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby."  ".$direction; // descending order
     $sql .= " LIMIT 5000";
     }
     $res = sqlStatement($sql);

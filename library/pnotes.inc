@@ -352,7 +352,7 @@ function getPnotesByPid ($pid, $activity = "1", $cols = "*", $limit=10, $start=0
  */
 function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
   $title= 'Unassigned', $assigned_to = '', $datetime = '',
-  $message_status = 'New', $background_user="")
+  $message_status = 'New', $background_user="",$doc_id = NULL)
 {
   if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
@@ -365,9 +365,9 @@ function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
   $body = $body . ') ' . $newtext;
 
   return sqlInsert('INSERT INTO pnotes (date, body, pid, user, groupname, ' .
-    'authorized, activity, title, assigned_to, message_status) VALUES ' .
-    '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
+    'authorized, activity, title, assigned_to, message_status,document_id) VALUES ' .
+    '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
+    array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status,$doc_id) );
 }
 
 function addMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1',

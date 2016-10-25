@@ -235,7 +235,7 @@ echo "
  <?php
   }
  if ($reply_to) {
-  $prow = sqlQuery("SELECT lname, fname " .
+  $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
    "FROM patient_data WHERE pid = ?", array($reply_to) );
   $patientname = $prow['lname'] . ", " . $prow['fname'];
  }
@@ -255,6 +255,23 @@ echo "
        $form_message_status = 'New';
    }
     generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
+    <?php
+	if($noteid){
+		$doc = sqlQuery('select document_id from pnotes where id = ?',array($noteid));
+		if(!empty($doc['document_id'])){
+			$d = new Document($doc['document_id']);
+			$enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($prow['pid']));
+			$str_dob = "DOB:".$prow['DOB']." Age:".getPatientAge($prow['DOB']);
+			$pname = $prow['fname']." ".$prow['lname'];
+			echo xlt('Linked Image Report') . ":</b>\n";
+			echo "<a href='javascript:void(0);' "; 
+			echo "onClick=\"gotoReport(".$d->get_id().",'".$pname."',".$prow['pid'].",".$prow['pubpid'].",'".$str_dob."');\">";
+			echo text($d->get_url_file());
+			echo "</a>";
+		}
+	}
+    ?>
   </td>
 </tr>
 <tr>
@@ -409,6 +426,35 @@ $(document).ready(function(){
         $("#new_note").submit();
     }
 });
+ function gotoReport(doc_id,pname,pid,pubpid,str_dob){
+		EncounterDateArray=new Array;
+        CalendarCategoryArray=new Array;
+        EncounterIdArray=new Array;
+        Count = 0;
+	<?php
+		if(isset($enc_list) && sqlNumRows($enc_list) >0 ){
+			while($row = sqlFetchArray($enc_list)){
+	?>
+				        EncounterIdArray[Count]='<?php echo attr($row['encounter']); ?>';
+                                        EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
+                                        CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
+                                        Count++;
+	<?php
+			}
+		}
+	?>
+	$.ajax({
+		type:'post',
+		url:'<?php echo $GLOBALS['webroot']."/library/ajax/set_session_ajax.php";?>',
+		data:{set_pid: pid},
+		async: false
+	});
+	parent.left_nav.setPatient(pname,pid,pubpid,window.name,str_dob);
+	parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+	var baseurl  = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>';
+	var params   = "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+	location.href = baseurl + params;
+ }
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
   var f = document.forms[0];
