@@ -48,7 +48,8 @@ function ProductRegistrationController() {
             draggable: false,
             title: registrationTranslations.title,
             modal: true,
-            buttons: buttonObject
+            buttons: buttonObject,
+            closeText: registrationTranslations.closeTooltip
         });
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually

@@ -83,7 +83,8 @@ require_once("../globals.php");
             'noThanks' => xla('No Thanks'),
             'registeredEmail' => xla('Registered email'),
             'registeredId' => xla('Registered id'),
-            'genericError' => xla('Error. Try again later')
+            'genericError' => xla('Error. Try again later'),
+            'closeTooltip' => xla('Close')
         ));
         ?>;
 
