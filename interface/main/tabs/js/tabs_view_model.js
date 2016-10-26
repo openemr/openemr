@@ -93,8 +93,18 @@ function tabRefresh(data,evt)
 }
 
 function tabClose(data,evt)
-{
-        app_view_model.application_data.tabs.tabsList.remove(data);
+{   
+    //Confirm message on Closing the Tab
+    var r = confirm("Are you sure you want to close this tab?");
+    if (r) {
+         app_view_model.application_data.tabs.tabsList.remove(data);
+        if(data.visible()) {
+             activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+        }
+    } else {
+        return false;
+    }
+       
 }
 
 function tabCloseByName(name)
