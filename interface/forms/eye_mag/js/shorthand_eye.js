@@ -389,7 +389,7 @@ function process_kb_1(field,text,appendix) {
             response['field'] = 'BLL';
             response['prior_text'] = text;
             return response;
-        } else if ((field == '4XL')||(field == 'Lx4')||(field=='LL')) {
+        } else if ((field == '4XL')||(field == 'Lx4')) {
             field = "RLL";
             (appendix == ".a") ? ($('#'+field).val($('#'+field).val() +', '+text)) : $('#'+field).val(text);
             field = "RUL";

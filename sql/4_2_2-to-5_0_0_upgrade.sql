@@ -110,14 +110,14 @@ ALTER TABLE `claims` MODIFY `version` int(10) UNSIGNED NOT NULL COMMENT 'Version
 ALTER TABLE `claims` ENGINE="InnoDB";
 #EndIf
 
--- 3. procedure_answers 
+-- 3. procedure_answers
 --
 #IfTableEngine procedure_answers MyISAM
 ALTER TABLE `procedure_answers` MODIFY `answer_seq` int(11) NOT NULL COMMENT 'Supports multiple-choice questions. Answer_seq, incremented in code';
 ALTER TABLE `procedure_answers` ENGINE="InnoDB";
 #EndIf
 
--- 4. procedure_order_code 
+-- 4. procedure_order_code
 --
 #IfTableEngine procedure_order_code MyISAM
 -- Modify the table for InnoDB
@@ -131,7 +131,7 @@ ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 -- Other tables do not need special treatment before conversion to InnoDB.
 -- Warning: running this query can take a long time.
 #IfInnoDBMigrationNeeded
--- Modifies all remaining MyISAM tables to InnoDB 
+-- Modifies all remaining MyISAM tables to InnoDB
 #EndIf
 
 #IfNotTable valueset
@@ -724,7 +724,7 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 
 #IfNotRow clinical_rules id cpoe_med_stage1_amc_alternative
 	INSERT INTO `clinical_rules`(`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES ('cpoe_med_stage1_amc_alternative', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0, 0, 1, '170.314(g)(1)/(2)–7', 0, 0, 1, 0);
-	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);	
+	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES('clinical_rules', 'cpoe_med_stage1_amc_alternative', 'Use CPOE for medication orders.(Alternative)', 48, 0, 0, '', '', '', 0, 0);
 #EndIf
 
 #IfNotRow2D clinical_rules id cpoe_med_stage2_amc amc_2014_stage1_flag 0
@@ -739,7 +739,7 @@ ALTER TABLE procedure_order ADD COLUMN history_order enum('0','1') DEFAULT '0';
 UPDATE `globals` SET `gl_value` = 'style_tan.css' WHERE `gl_name` = 'css_header';
 #EndIf
 
-#IfColumn users ssi_relayhealth 
+#IfColumn users ssi_relayhealth
 ALTER TABLE `users` DROP COLUMN `ssi_relayhealth`;
 #EndIf
 
@@ -1383,18 +1383,18 @@ CREATE TABLE `form_eye_mag_wearing` (
 
 
 #IfNotTable form_taskman
-CREATE TABLE `form_taskman` ( 
-    `ID` bigint(20) NOT NULL AUTO_INCREMENT, 
-    `REQ_DATE` datetime NOT NULL, 
-    `FROM_ID` bigint(20) NOT NULL, 
-    `TO_ID` bigint(20) NOT NULL, 
-    `PATIENT_ID` bigint(20) NOT NULL, `DOC_TYPE` varchar(20) DEFAULT NULL, 
-    `DOC_ID` bigint(20) DEFAULT NULL, 
-    `ENC_ID` bigint(20) DEFAULT NULL, 
-    `METHOD` varchar(20) NOT NULL, `COMPLETED` varchar(1) DEFAULT NULL COMMENT '1 = completed', 
-    `COMPLETED_DATE` datetime DEFAULT NULL, 
-    `COMMENT` varchar(50) DEFAULT NULL, 
-    `USERFIELD_1` varchar(50) DEFAULT NULL, 
+CREATE TABLE `form_taskman` (
+    `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+    `REQ_DATE` datetime NOT NULL,
+    `FROM_ID` bigint(20) NOT NULL,
+    `TO_ID` bigint(20) NOT NULL,
+    `PATIENT_ID` bigint(20) NOT NULL, `DOC_TYPE` varchar(20) DEFAULT NULL,
+    `DOC_ID` bigint(20) DEFAULT NULL,
+    `ENC_ID` bigint(20) DEFAULT NULL,
+    `METHOD` varchar(20) NOT NULL, `COMPLETED` varchar(1) DEFAULT NULL COMMENT '1 = completed',
+    `COMPLETED_DATE` datetime DEFAULT NULL,
+    `COMMENT` varchar(50) DEFAULT NULL,
+    `USERFIELD_1` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`ID`)
 ) ENGINE=INNODB;
 #EndIf
@@ -2125,3 +2125,15 @@ ALTER TABLE `users` ADD `suffix` varchar(255) default NULL;
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
 #EndIf
 
+#IfNotTable product_registration
+CREATE TABLE `product_registration` (
+  `registration_id` char(36) NOT NULL DEFAULT '',
+  `email` varchar(255) NULL,
+  `opt_out` TINYINT(1) NULL,
+  PRIMARY KEY (`registration_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow2D list_options list_id Eye_Defaults_for_GENERAL option_id LADNEXA
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Eye_Defaults_for_GENERAL', 'LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 0, '');
+#EndIf

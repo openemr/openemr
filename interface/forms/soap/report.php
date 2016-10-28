@@ -16,7 +16,8 @@ function soap_report( $pid, $encounter, $cols, $id) {
     $value = "yes";
    }
    $key=ucwords(str_replace("_"," ",$key));
-   print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+                                                                              //Updated by Sherwin 10/24/2016
+   print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . nl2br(text($value)) . "</span></td>";
    $count++;
    if ($count == $cols) {
     $count = 0;

@@ -93,7 +93,7 @@ function tabRefresh(data,evt)
 }
 
 function tabClose(data,evt)
-{   
+{
     //Confirm message on Closing the Tab
     var r = confirm("Are you sure you want to close this tab?");
     if (r) {
@@ -104,7 +104,6 @@ function tabClose(data,evt)
     } else {
         return false;
     }
-       
 }
 
 function tabCloseByName(name)
