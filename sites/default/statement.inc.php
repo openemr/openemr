@@ -22,21 +22,22 @@
 //////////////////////////////////////////////////////////////////////
 
 // The location/name of a temporary file to hold printable statements.
-//
+// May want to alter these names to allow multi-site installs out-of-the-box
 
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-
 $STMT_PRINT_CMD = $GLOBALS['print_command'];
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF
- *      Altering this statement is labor intensive, but capable of altering output any way desired
- *  2.  Branded Statement, whose core is the original statement, using HTML2PDF.
+ *      Altering this statement is labor intensive, but capable of being altered any way desired...
  *
- *      To customize 2., add your '/openemr/sites/default/images/practice_logo.gif',
- *      adjusting directory paths per your installation.
- *      You can alter 2. manually in functions report_2 and create_HTML_statement, below.
+ *  2.  Branded Statement, whose core is build from 1., the original statement, using HTML2PDF.
+ *
+ *      To customize 2., add your practice location/images/practice_logo.gif 
+ *      In the base/default install this is located at '/openemr/sites/default/images/practice_logo.gif',
+ *      Adjust directory paths per your installation.
+ *      Further customize 2. manually in functions report_2() and create_HTML_statement(), below.
  *
  */
 function make_statement($stmt) {
@@ -198,9 +199,7 @@ function create_HTML_statement($stmt) {
   // Note that "\n" is a line feed (new line) character.
   // reformatted to handle i8n by tony
 
-
-  $out = "<div style='margin-left:60px;margin-top:20px;'><pre>";
-
+  $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
   $out .= "\n";
   $out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
   $out .= "\n";
@@ -209,7 +208,7 @@ function create_HTML_statement($stmt) {
 
   // This must be set to the number of lines generated above.
   //
-  $count = 5;
+  $count = 6;
   $num_ages = 4;
   $aging = array();
   for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
@@ -217,19 +216,12 @@ function create_HTML_statement($stmt) {
   }
   $todays_time = strtotime(date('Y-m-d'));
 
-  // This generates the detail lines.  Again, note that the values must
-  // be specified in the order used.
-  //
-
-
+  // This generates the detail lines.  Again, note that the values must be specified in the order used.
   foreach ($stmt['lines'] as $line) {
     if ($GLOBALS['use_custom_statement']) {
       $description = substr($line['desc'],0,30);
-
-    }
-    else {
+    } else {
       $description = $line['desc'];
-
     }
 
     $tmp = substr($description, 0, 14);
@@ -240,7 +232,6 @@ function create_HTML_statement($stmt) {
     $dos = $line['dos'];
     ksort($line['detail']);
       # Compute the aging bucket index and accumulate into that bucket.
-      #
     $age_in_days = (int) (($todays_time - strtotime($dos)) / (60 * 60 * 24));
     $age_index = (int) (($age_in_days - 1) / 30);
     $age_index = max(0, min($num_ages - 1, $age_index));
@@ -279,16 +270,17 @@ function create_HTML_statement($stmt) {
   }
 
   // This generates blank lines until we are at line 20.
-  //
-  while ($count++ < 18) $out .= "\n";
+  //  At line 20 we start middle third.
+
+  while ($count++ < 16) $out .= "\n";
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
     #
-  $ageline = xl('Current') .' ' . sprintf("%.2f", $aging[0]);
+  $ageline = xl('Current') .': ' . sprintf("%.2f", $aging[0]);
   for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-    $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
-    sprintf(" %.2f", $aging[$age_index]);
+    $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' . 
+                sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
   }
 
   // Fixed text labels
@@ -306,9 +298,11 @@ function create_HTML_statement($stmt) {
   $out .= "\n\n\n";
   if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
     $out .= sprintf("%-46s\n",$stmt['bill_note']);
+    $count++;
   }
   if ($GLOBALS['use_dunning_message']) {
       $out .= sprintf("%-46s\n",$dun_message);
+      $count++;
   }
   $out .= "\n";
   $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
@@ -324,13 +318,14 @@ function create_HTML_statement($stmt) {
     $out .= "\n";
     $statement_message = $GLOBALS['statement_msg_text'];
     $out .= sprintf("%-40s\n",$statement_message);
+    $count++;
   }
   if($GLOBALS['show_aging_on_custom_statement']) {
     # code for ageing
-    $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
+    $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) .':'.
     sprintf(" %.2f", $aging[$age_index]);
     $out .= "\n" . $ageline . "\n\n";
-
+    $count++;
   }
   if($GLOBALS['number_appointments_on_statement']!=0) {
     $out .= "\n";
@@ -357,13 +352,14 @@ function create_HTML_statement($stmt) {
         $out .= sprintf("%-s\n",$label_plsnote[$j]);
       }
       $j++;
+      $count++;
     }
   }
-  $provider = "Raymond Magauran, MD";
-  while ($count++ < 26) $out .= "\n";
+  //$provider = "Raymond Magauran, MD";//make this the correct provider
+  while ($count++ < 27) $out .= "\n";
   $out .= sprintf("%-10s %s\n",null,$label_retpay);
   $out .= '</pre></div>';
-  $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />';
+  $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br />';
   $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
   $out .= '<td style="width:3.0in;"><b>'
       .$label_addressee.'</b><br />'
@@ -398,10 +394,10 @@ function create_HTML_statement($stmt) {
 
   $out .="</td></tr></table>
         </div></div>";
-  $out .= "\014"; // this is a form feed
+  $out .= "\014
+  <br /><br />"; // this is a form feed
   echo $out;
-  $output = ob_get_contents();
-  ob_end_clean();
+  $output = ob_get_clean();
   return $output;
 }
 
