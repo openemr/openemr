@@ -20,12 +20,12 @@
 ?>
 
 <script type="text/html" id="tabs-controls">
-    <div class="tabControls" data-bind="with: tabs">
+    <div class="tabControls sorting" data-bind="with: tabs">
         <span class="tabNotchosen" style="width:2%">
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </span>
         <!-- ko  foreach: tabsList -->
-            <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
+            <div class="tabSpan bgcolor2 sortable" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->

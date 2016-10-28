@@ -106,6 +106,12 @@ var webroot_url="<?php echo $web_root; ?>";
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+
+<!-- Added New Jquery-ui.js for making Drap and Drop -->
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/Jquery-ui.js"></script>
+<!-- Newly file added -->
+
+
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -196,6 +202,11 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
            $('#patientData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
         });
+        
+        //Javascript for the tab drag and drop
+        $('.sorting').sortable({
+        items: '.sortable'
+    });
     });
 </script>
 </body>
