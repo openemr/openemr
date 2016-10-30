@@ -215,7 +215,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
+    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

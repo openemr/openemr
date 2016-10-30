@@ -133,7 +133,7 @@ unset($_SESSION['frame1target']);
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

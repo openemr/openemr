@@ -41,7 +41,8 @@ require_once("../globals.php");
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+
+    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>

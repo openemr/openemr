@@ -102,7 +102,8 @@ var webroot_url="<?php echo $web_root; ?>";
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
@@ -174,7 +175,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <div id="mainBox">
     <div id="dialogDiv"></div>
     <div class="body_top">
-        <a href="http://www.open-emr.org" title="<?php echo xla("OpenEMR Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $webroot; ?>/interface/pic/favicon.ico"></a>
+        <a href="http://www.open-emr.org" title="<?php echo xla("OpenEMR Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>
