@@ -470,7 +470,7 @@ class Document extends ORDataObject{
       // Have to retrieve the entire document, update the necessary value and save again
       list ($db, $docid, $revid, $patient_id, $encounter, $type, $json) = $data;
       $data = array($db, $couch_docid, $couch_revid, $new_patient_id, $couchresp->encounter,
-        $couchresp->mimetype, json_encode($couchresp->data));
+        $couchresp->mimetype, json_encode($couchresp->data), json_encode($couchresp->th_data));
       $resp = $couch->update_doc($data);
       // Sometimes the response from CouchDB is not available, still it would
       // have saved in the DB. Hence check one more time.
