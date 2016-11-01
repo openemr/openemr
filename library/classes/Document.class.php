@@ -310,7 +310,7 @@ class Document extends ORDataObject{
 	* this returns the url stripped down to basename
 	*/
 	function get_url_web() {
-		return basename($this->url);
+		return basename_international($this->url);
 	}
 	/**
 	* get the url without the protocol handler
@@ -322,7 +322,7 @@ class Document extends ORDataObject{
 	* get the url filename only
 	*/
 	function get_url_file() {
-		return basename(preg_replace("|^(.*)://|","",$this->url));
+		return basename_international(preg_replace("|^(.*)://|","",$this->url));
 	}
 	/**
 	* get the url path only

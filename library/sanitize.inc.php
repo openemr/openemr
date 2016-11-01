@@ -19,6 +19,7 @@
 * @package OpenEMR
 * @author Brady Miller <brady@sparmy.com>
 * @author Roberto Vasquez <robertogagliotta@gmail.com>
+* @author Shachar Zilbershlag <shaharzi@matrix.co.il>
 * @link http://www.open-emr.org
 */
 // If the label contains any illegal characters, then the script will die.
@@ -30,6 +31,20 @@ function check_file_dir_name($label) {
 // Convert all illegal characters to _
 function convert_safe_file_dir_name($label) {
   return preg_replace('/[^A-Za-z0-9_.-]/','_',$label);
+}
+
+//Basename functionality for nonenglish languages (without this, basename function ommits nonenglish characters).
+function basename_international($path){
+  $parts = preg_split('~[\\\\/]~', $path);
+  foreach ($parts as $key => $value){
+    $encoded = urlencode($value);
+    $parts[$key] = $encoded;
+  }
+  $encoded_path = implode("/", $parts);
+  $encoded_file_name = basename($encoded_path);
+  $decoded_file_name = urldecode($encoded_file_name);
+
+  return $decoded_file_name;
 }
 
 ?>
