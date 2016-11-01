@@ -545,7 +545,7 @@ foreach ($providers as $provider) {
 
              //fix bug 456 and 455
              //check to see if the event is in the clinic hours range, if not it will not be displayed
-             if  ( (int)$starth < (int)$openhour || (int)$starth >= (int)$closehour ){ continue; }
+             if  ( (int)$starth < (int)$openhour || (int)$starth > (int)$closehour ){ continue; }
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
