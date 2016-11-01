@@ -176,6 +176,16 @@ class Controller extends Smarty {
                return  $link;
        }
 
+    /**
+     * Basename functionality for nonenglish languages (without this, basename function ommits nonenglish characters).
+     * @param $path
+     * @return $string
+     */
+       function basename_nonenglish($path){
+           $new_path = rawurldecode(basename(rawurlencode($path)));
+           return $new_path;
+       }
+
 }
 
 ?>
