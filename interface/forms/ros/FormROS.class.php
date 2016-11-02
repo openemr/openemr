@@ -1,5 +1,22 @@
 <?php
-
+/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+ 
 require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 
@@ -25,158 +42,158 @@ class FormROS extends ORDataObject {
 	 * @access private
 	 */
 
-	var $id;
-	var $date;
-	var $pid;
-	var $weight_change = "N/A";
-	var $weakness = "N/A";
-	var $fatigue = "N/A";
-	var $anorexia = "N/A";
-	var $fever = "N/A";
-	var $chills = "N/A";
-	var $night_sweats = "N/A";
-	var $insomnia = "N/A";
-	var $irritability = "N/A";
-	var $heat_or_cold = "N/A";
-	var $intolerance = "N/A";
-	var $change_in_vision = "N/A";
-	var $glaucoma_history = "N/A";
-	var $eye_pain = "N/A";
-	var $irritation = "N/A";
-	var $redness = "N/A";
-	var $excessive_tearing = "N/A";
-	var $double_vision = "N/A";
-	var $blind_spots = "N/A";
-	var $photophobia = "N/A";
-	var $hearing_loss = "N/A";
-    var $discharge = "N/A";
-    var $pain = "N/A";
-    var $vertigo = "N/A";
-    var $tinnitus = "N/A";
-    var $frequent_colds = "N/A";
-    var $sore_throat = "N/A";
-    var $sinus_problems = "N/A";
-    var $post_nasal_drip = "N/A";
-    var $nosebleed = "N/A";
-    var $snoring = "N/A";
-    var $apnea = "N/A";
-    var $breast_mass = "N/A";
-	var $breast_discharge = "N/A";
-	var $biopsy = "N/A";
-	var $abnormal_mammogram = "N/A";
-	var $cough = "N/A";
-	var $sputum = "N/A";
-	var $shortness_of_breath = "N/A";
-	var $wheezing = "N/A";
-	var $hemoptsyis = "N/A";
-	var $asthma = "N/A";
-	var $copd = "N/A";
-	var $chest_pain = "N/A";
-    var $palpitation = "N/A";
-    var $syncope = "N/A";
-    var $pnd = "N/A";
-    var $doe = "N/A";
-    var $orthopnea = "N/A";
-    var $peripheal = "N/A";
-    var $edema = "N/A";
-    var $legpain_cramping = "N/A";
-    var $history_murmur = "N/A";
-    var $arryhmia = "N/A";
-    var $heart_problem = "N/A";
-    var $dysphagia = "N/A";
-	var $heartburn = "N/A";
-	var $bloating = "N/A";
-	var $belching = "N/A";
-	var $flatulence = "N/A";
-	var $nausea = "N/A";
-	var $vomiting = "N/A";
-	var $hematemesis = "N/A";
-	var $gastro_pain = "N/A";
-	var $food_intolerance = "N/A";
-	var $hepatitis = "N/A";
-	var $jaundice = "N/A";
-	var $hematochezia = "N/A";
-	var $changed_bowel = "N/A";
-	var $diarrhea = "N/A";
-	var $constipation = "N/A";
-	var $polyuria = "N/A";
-	var $polydypsia = "N/A";
-	var $dysuria = "N/A";
-	var $hematuria = "N/A";
-	var $frequency = "N/A";
-	var $urgency = "N/A";
-	var $incontinence = "N/A";
-	var $renal_stones = "N/A";
-	var $utis = "N/A";
-	var $hesitancy = "N/A";
-	var $dribbling = "N/A";
-	var $stream = "N/A";
-	var $nocturia = "N/A";
-	var $erections = "N/A";
-	var $ejaculations = "N/A";
-	var $g = "N/A";
-	var $p = "N/A";
-	var $ap = "N/A";
-	var $lc = "N/A";
-	var $mearche = "N/A";
-	var $menopause = "N/A";
-	var $lmp = "N/A";
-	var $f_frequency = "N/A";
-	var $f_flow = "N/A";
-	var $f_symptoms = "N/A";
-	var $abnormal_hair_growth = "N/A";
-	var $f_hirsutism = "N/A";
-	var $joint_pain = "N/A";
-	var $swelling = "N/A";
-	var $m_redness = "N/A";
-	var $m_warm = "N/A";
-	var $m_stiffness = "N/A";
-	var $muscle = "N/A";
-	var $m_aches = "N/A";
-	var $fms = "N/A";
-	var $arthritis = "N/A";
-	var $loc = "N/A";
-	var $seizures = "N/A";
-	var $stroke = "N/A";
-	var $tia = "N/A";
-	var $n_numbness = "N/A";
-	var $n_weakness = "N/A";
-	var $paralysis = "N/A";
-	var $intellectual_decline = "N/A";
-	var $memory_problems = "N/A";
-	var $dementia = "N/A";
-	var $n_headache = "N/A";
-	var $s_cancer = "N/A";
-	var $psoriasis = "N/A";
-	var $s_acne = "N/A";
-	var $s_other = "N/A";
-	var $s_disease = "N/A";
-	var $p_diagnosis = "N/A";
-	var $p_medication = "N/A";
-	var $depression = "N/A";
-	var $anxiety = "N/A";
-	var $social_difficulties = "N/A";
-	var $thyroid_problems = "N/A";
-	var $diabetes = "N/A";
-	var $abnormal_blood = "N/A";
-	var $anemia = "N/A";
-	var $fh_blood_problems = "N/A";
-	var $bleeding_problems = "N/A";
-	var $allergies = "N/A";
-	var $frequent_illness = "N/A";
-	var $hiv = "N/A";
-	var $hai_status = "N/A";
+	public $id;
+	public $date;
+	public $pid;
+	public $weight_change = "N/A";
+	public $weakness = "N/A";
+	public $fatigue = "N/A";
+	public $anorexia = "N/A";
+	public $fever = "N/A";
+	public $chills = "N/A";
+	public $night_sweats = "N/A";
+	public $insomnia = "N/A";
+	public $irritability = "N/A";
+	public $heat_or_cold = "N/A";
+	public $intolerance = "N/A";
+	public $change_in_vision = "N/A";
+	public $glaucoma_history = "N/A";
+	public $eye_pain = "N/A";
+	public $irritation = "N/A";
+	public $redness = "N/A";
+	public $excessive_tearing = "N/A";
+	public $double_vision = "N/A";
+	public $blind_spots = "N/A";
+	public $photophobia = "N/A";
+	public $hearing_loss = "N/A";
+    public $discharge = "N/A";
+    public $pain = "N/A";
+    public $vertigo = "N/A";
+    public $tinnitus = "N/A";
+    public $frequent_colds = "N/A";
+    public $sore_throat = "N/A";
+    public $sinus_problems = "N/A";
+    public $post_nasal_drip = "N/A";
+    public $nosebleed = "N/A";
+    public $snoring = "N/A";
+    public $apnea = "N/A";
+    public $breast_mass = "N/A";
+	public $breast_discharge = "N/A";
+	public $biopsy = "N/A";
+	public $abnormal_mammogram = "N/A";
+	public $cough = "N/A";
+	public $sputum = "N/A";
+	public $shortness_of_breath = "N/A";
+	public $wheezing = "N/A";
+	public $hemoptsyis = "N/A";
+	public $asthma = "N/A";
+	public $copd = "N/A";
+	public $chest_pain = "N/A";
+    public $palpitation = "N/A";
+    public $syncope = "N/A";
+    public $pnd = "N/A";
+    public $doe = "N/A";
+    public $orthopnea = "N/A";
+    public $peripheal = "N/A";
+    public $edema = "N/A";
+    public $legpain_cramping = "N/A";
+    public $history_murmur = "N/A";
+    public $arryhmia = "N/A";
+    public $heart_problem = "N/A";
+    public $dysphagia = "N/A";
+	public $heartburn = "N/A";
+	public $bloating = "N/A";
+	public $belching = "N/A";
+	public $flatulence = "N/A";
+	public $nausea = "N/A";
+	public $vomiting = "N/A";
+	public $hematemesis = "N/A";
+	public $gastro_pain = "N/A";
+	public $food_intolerance = "N/A";
+	public $hepatitis = "N/A";
+	public $jaundice = "N/A";
+	public $hematochezia = "N/A";
+	public $changed_bowel = "N/A";
+	public $diarrhea = "N/A";
+	public $constipation = "N/A";
+	public $polyuria = "N/A";
+	public $polydypsia = "N/A";
+	public $dysuria = "N/A";
+	public $hematuria = "N/A";
+	public $frequency = "N/A";
+	public $urgency = "N/A";
+	public $incontinence = "N/A";
+	public $renal_stones = "N/A";
+	public $utis = "N/A";
+	public $hesitancy = "N/A";
+	public $dribbling = "N/A";
+	public $stream = "N/A";
+	public $nocturia = "N/A";
+	public $erections = "N/A";
+	public $ejaculations = "N/A";
+	public $g = "N/A";
+	public $p = "N/A";
+	public $ap = "N/A";
+	public $lc = "N/A";
+	public $mearche = "N/A";
+	public $menopause = "N/A";
+	public $lmp = "N/A";
+	public $f_frequency = "N/A";
+	public $f_flow = "N/A";
+	public $f_symptoms = "N/A";
+	public $abnormal_hair_growth = "N/A";
+	public $f_hirsutism = "N/A";
+	public $joint_pain = "N/A";
+	public $swelling = "N/A";
+	public $m_redness = "N/A";
+	public $m_warm = "N/A";
+	public $m_stiffness = "N/A";
+	public $muscle = "N/A";
+	public $m_aches = "N/A";
+	public $fms = "N/A";
+	public $arthritis = "N/A";
+	public $loc = "N/A";
+	public $seizures = "N/A";
+	public $stroke = "N/A";
+	public $tia = "N/A";
+	public $n_numbness = "N/A";
+	public $n_weakness = "N/A";
+	public $paralysis = "N/A";
+	public $intellectual_decline = "N/A";
+	public $memory_problems = "N/A";
+	public $dementia = "N/A";
+	public $n_headache = "N/A";
+	public $s_cancer = "N/A";
+	public $psoriasis = "N/A";
+	public $s_acne = "N/A";
+	public $s_other = "N/A";
+	public $s_disease = "N/A";
+	public $p_diagnosis = "N/A";
+	public $p_medication = "N/A";
+	public $depression = "N/A";
+	public $anxiety = "N/A";
+	public $social_difficulties = "N/A";
+	public $thyroid_problems = "N/A";
+	public $diabetes = "N/A";
+	public $abnormal_blood = "N/A";
+	public $anemia = "N/A";
+	public $fh_blood_problems = "N/A";
+	public $bleeding_problems = "N/A";
+	public $allergies = "N/A";
+	public $frequent_illness = "N/A";
+	public $hiv = "N/A";
+	public $hai_status = "N/A";
 	
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
 
-	function __construct($id= "", $_prefix = "")	{
+	public function __construct($id= "", $_prefix = "")	{
 		if (is_numeric($id)) {
 			$this->id = $id;
 		}
 		else {
-			$id = "";
+			$id = "";	
 		}
 		$this->date = date("Y-m-d H:i:s");
 		$this->date_of_onset = date("Y-m-d");
@@ -188,1170 +205,1170 @@ class FormROS extends ORDataObject {
 			$this->populate();
 		}
 	}
-	function populate() {
+	public function populate() {
 		parent::populate();
 	}
 
-	function set_id($id) {
+	public function set_id($id) {
 		if (!empty($id) && is_numeric($id)) {
 			$this->id = $id;
 		}
 	}
-	function get_id() {
+	public function get_id() {
 		return $this->id;
 	}
-	function set_pid($pid) {
+	public function set_pid($pid) {
 		if (!empty($pid) && is_numeric($pid)) {
 			$this->pid = $pid;
 		}
 	}
-	function get_pid() {
+	public function get_pid() {
 		return $this->pid;
 	}
 
-	function get_date() {
+	public function get_date() {
 		return $this->date;
 	}
 	
-	function set_date($date) {
+	public function set_date($date) {
 		if(!empty($date)){
 			$this->date = $date;
-		}
+		}	
 	}
 	
-	function get_weight_change(){
+	public function get_weight_change(){
 		return $this->weight_change;
 	}
-	function set_weight_change($data){
+	public function set_weight_change($data){
 		if(!empty($data)){
 			$this->weight_change = $data;
 		}
 	}
 	
-	function get_weakness(){
+	public function get_weakness(){
 		return $this->weakness;
 	}
-	function set_weakness($data){
+	public function set_weakness($data){
 		if(!empty($data)){
 			$this->weakness = $data;
 		}
 	}
 	
-	function get_fatigue(){
+	public function get_fatigue(){
 		return $this->fatigue;
 	}
-	function set_fatigue($data){
+	public function set_fatigue($data){
 		if(!empty($data)){
 			$this->fatigue = $data;
 		}
 	}
 	
-	function get_anorexia(){
+	public function get_anorexia(){
 		return $this->anorexia;
 	}
-	function set_anorexia($data){
+	public function set_anorexia($data){
 		if(!empty($data)){
 			$this->anorexia = $data;
 		}
 	}
 	
-	function get_fever(){
+	public function get_fever(){
 		return $this->fever;
 	}
-	function set_fever($data){
+	public function set_fever($data){
 		if(!empty($data)){
 			$this->fever = $data;
 		}
 	}
 	
-	function get_chills(){
+	public function get_chills(){
 		return $this->chills;
 	}
-	function set_chills($data){
+	public function set_chills($data){
 		if(!empty($data)){
 			$this->chills = $data;
 		}
 	}
 	
-	function get_night_sweats(){
+	public function get_night_sweats(){
 		return $this->night_sweats;
 	}
-	function set_night_sweats($data){
+	public function set_night_sweats($data){
 		if(!empty($data)){
 			$this->night_sweats = $data;
 		}
 	}
 	
-	function get_insomnia(){
+	public function get_insomnia(){
 		return $this->insomnia;
 	}
-	function set_insomnia($data){
+	public function set_insomnia($data){
 		if(!empty($data)){
 			$this->insomnia = $data;
 		}
 	}
 	
-	function get_irritability(){
+	public function get_irritability(){
 		return $this->irritability;
 	}
-	function set_irritability($data){
+	public function set_irritability($data){
 		if(!empty($data)){
 			$this->irritability = $data;
 		}
 	}
 	
-	function get_heat_or_cold(){
+	public function get_heat_or_cold(){
 		return $this->heat_or_cold;
 	}
-	function set_heat_or_cold($data){
+	public function set_heat_or_cold($data){
 		if(!empty($data)){
 			$this->heat_or_cold = $data;
 		}
 	}
 	
-	function get_intolerance(){
+	public function get_intolerance(){
 		return $this->intolerance;
 	}
-	function set_intolerance($data){
+	public function set_intolerance($data){
 		if(!empty($data)){
 			$this->intolerance = $data;
 		}
 	}
 	
-	function get_change_in_vision(){
+	public function get_change_in_vision(){
 		return $this->change_in_vision;
 	}
-	function set_change_in_vision($data){
+	public function set_change_in_vision($data){
 		if(!empty($data)){
 			$this->change_in_vision = $data;
 		}
 	}
-	function get_glaucoma_history(){
+	public function get_glaucoma_history(){
 		return $this->glaucoma_history;
 	}
-	function set_glaucoma_history($data){
+	public function set_glaucoma_history($data){
 		if(!empty($data)){
 			$this->glaucoma_history = $data;
 		}
 	}
-	function get_eye_pain(){
+	public function get_eye_pain(){
 		return $this->eye_pain;
 	}
-	function set_eye_pain($data){
+	public function set_eye_pain($data){
 		if(!empty($data)){
 			$this->eye_pain = $data;
 		}
 	}
-	function get_irritation(){
+	public function get_irritation(){
 		return $this->irritation;
 	}
-	function set_irritation($data){
+	public function set_irritation($data){
 		if(!empty($data)){
 			$this->irritation = $data;
 		}
 	}
-	function get_redness(){
+	public function get_redness(){
 		return $this->redness;
 	}
-	function set_redness($data){
+	public function set_redness($data){
 		if(!empty($data)){
 			$this->redness = $data;
 		}
 	}
-	function get_excessive_tearing(){
+	public function get_excessive_tearing(){
 		return $this->excessive_tearing;
 	}
-	function set_excessive_tearing($data){
+	public function set_excessive_tearing($data){
 		if(!empty($data)){
 			$this->excessive_tearing = $data;
 		}
 	}
-	function get_double_vision(){
+	public function get_double_vision(){
 		return $this->double_vision;
 	}
-	function set_double_vision($data){
+	public function set_double_vision($data){
 		if(!empty($data)){
 			$this->double_vision = $data;
 		}
 	}
-	function get_blind_spots(){
+	public function get_blind_spots(){
 		return $this->blind_spots;
 	}
-	function set_blind_spots($data){
+	public function set_blind_spots($data){
 		if(!empty($data)){
 			$this->blind_spots = $data;
 		}
 	}
-	function get_photophobia(){
+	public function get_photophobia(){
 		return $this->photophobia;
 	}
-	function set_photophobia($data){
+	public function set_photophobia($data){
 		if(!empty($data)){
 			$this->photophobia = $data;
 		}
 	}
 	
-	function get_hearing_loss(){
+	public function get_hearing_loss(){
 		return $this->hearing_loss;
 	}
-	function set_hearing_loss($data){
+	public function set_hearing_loss($data){
 		if(!empty($data)){
 			$this->hearing_loss = $data;
 		}
 	}
-	function get_discharge(){
+	public function get_discharge(){
 		return $this->discharge;
 	}
-	function set_discharge($data){
+	public function set_discharge($data){
 		if(!empty($data)){
 			$this->discharge = $data;
 		}
 	}
-	function get_pain(){
+	public function get_pain(){
 		return $this->pain;
 	}
-	function set_pain($data){
+	public function set_pain($data){
 		if(!empty($data)){
 			$this->pain = $data;
 		}
 	}
-	function get_vertigo(){
+	public function get_vertigo(){
 		return $this->vertigo;
 	}
-	function set_vertigo($data){
+	public function set_vertigo($data){
 		if(!empty($data)){
 			$this->vertigo = $data;
 		}
 	}
-	function get_tinnitus(){
+	public function get_tinnitus(){
 		return $this->tinnitus;
 	}
-	function set_tinnitus($data){
+	public function set_tinnitus($data){
 		if(!empty($data)){
 			$this->tinnitus = $data;
 		}
 	}
-	function get_frequent_colds(){
+	public function get_frequent_colds(){
 		return $this->frequent_colds;
 	}
-	function set_frequent_colds($data){
+	public function set_frequent_colds($data){
 		if(!empty($data)){
 			$this->frequent_colds = $data;
 		}
 	}
-	function get_sore_throat(){
+	public function get_sore_throat(){
 		return $this->sore_throat;
 	}
-	function set_sore_throat($data){
+	public function set_sore_throat($data){
 		if(!empty($data)){
 			$this->sore_throat = $data;
 		}
 	}
-	function get_sinus_problems(){
+	public function get_sinus_problems(){
 		return $this->sinus_problems;
 	}
-	function set_sinus_problems($data){
+	public function set_sinus_problems($data){
 		if(!empty($data)){
 			$this->sinus_problems = $data;
 		}
 	}
-	function get_post_nasal_drip(){
+	public function get_post_nasal_drip(){
 		return $this->post_nasal_drip;
 	}
-	function set_post_nasal_drip($data){
+	public function set_post_nasal_drip($data){
 		if(!empty($data)){
 			$this->post_nasal_drip = $data;
 		}
 	}
-	function get_nosebleed(){
+	public function get_nosebleed(){
 		return $this->nosebleed;
 	}
-	function set_nosebleed($data){
+	public function set_nosebleed($data){
 		if(!empty($data)){
 			$this->nosebleed = $data;
 		}
 	}
-	function get_snoring(){
+	public function get_snoring(){
 		return $this->snoring;
 	}
-	function set_snoring($data){
+	public function set_snoring($data){
 		if(!empty($data)){
 			$this->snoring = $data;
 		}
 	}
-	function get_apnea(){
+	public function get_apnea(){
 		return $this->apnea;
 	}
-	function set_apnea($data){
+	public function set_apnea($data){
 		if(!empty($data)){
 			$this->apnea = $data;
 		}
 	}
-	function get_breast_mass(){
+	public function get_breast_mass(){
 		return $this->breast_mass;
 	}
-	function set_breast_mass($data){
+	public function set_breast_mass($data){
 		if(!empty($data)){
 			$this->breast_mass = $data;
 		}
 	}
-	function get_breast_discharge(){
+	public function get_breast_discharge(){
 		return $this->breast_discharge;
 	}
-	function set_breast_discharge($data){
+	public function set_breast_discharge($data){
 		if(!empty($data)){
 			$this->breast_discharge = $data;
 		}
 	}
-	function get_biopsy(){
+	public function get_biopsy(){
 		return $this->breast_discharge;
 	}
-	function set_biopsy($data){
+	public function set_biopsy($data){
 		if(!empty($data)){
 			$this->biopsy = $data;
 		}
 	}
-	function get_abnormal_mammogram(){
+	public function get_abnormal_mammogram(){
 		return $this->abnormal_mammogram;
 	}
-	function set_abnormal_mammogram($data){
+	public function set_abnormal_mammogram($data){
 		if(!empty($data)){
 			$this->abnormal_mammogram = $data;
 		}
 	}
-	function get_cough(){
+	public function get_cough(){
 		return $this->cough;
 	}
-	function set_cough($data){
+	public function set_cough($data){
 		if(!empty($data)){
 			$this->cough = $data;
 		}
 	}
-	function set_sputum($data){
+	public function set_sputum($data){
 		if(!empty($data)){
 			$this->sputum = $data;
 		}
 	}
-	function get_sputum(){
+	public function get_sputum(){
 		return $this->sputum;
 	}
-	function get_shortness_of_breath(){
+	public function get_shortness_of_breath(){
 		return $this->shortness_of_breath;
 	}
-	function set_shortness_of_breath($data){
+	public function set_shortness_of_breath($data){
 		if(!empty($data)){
 			$this->shortness_of_breath = $data;
 		}
 	}
-	function get_wheezing(){
+	public function get_wheezing(){
 		return $this->wheezing;
 	}
-	function set_wheezing($data){
+	public function set_wheezing($data){
 		if(!empty($data)){
 			$this->wheezing = $data;
 		}
 	}
-	function get_hemoptsyis(){
+	public function get_hemoptsyis(){
 		return $this->hemoptsyis;
 	}
-	function set_hemoptsyis($data){
+	public function set_hemoptsyis($data){
 		if(!empty($data)){
 			$this->hemoptsyis = $data;
 		}
 	}
-	function get_asthma(){
+	public function get_asthma(){
 		return $this->asthma;
 	}
-	function set_asthma($data){
+	public function set_asthma($data){
 		if(!empty($data)){
 			$this->asthma = $data;
 		}
 	}
-	function get_copd(){
+	public function get_copd(){
 		return $this->copd;
 	}
-	function set_copd($data){
+	public function set_copd($data){
 		if(!empty($data)){
 			$this->copd = $data;
 		}
 	}
 		  
-    function get_chest_pain(){
+    public function get_chest_pain(){
 		return $this->chest_pain;
 	}
-	function set_chest_pain($data){
+	public function set_chest_pain($data){
 		if(!empty($data)){
 			$this->chest_pain = $data;
 		}
 	}
-	function get_palpitation(){
+	public function get_palpitation(){
 		return $this->palpitation;
 	}
-	function set_palpitation($data){
+	public function set_palpitation($data){
 		if(!empty($data)){
 			$this->palpitation = $data;
 		}
 	}
-	function get_syncope(){
+	public function get_syncope(){
 		return $this->syncope;
 	}
-	function set_syncope($data){
+	public function set_syncope($data){
 		if(!empty($data)){
 			$this->syncope = $data;
 		}
 	}
-	function get_pnd(){
+	public function get_pnd(){
 		return $this->pnd;
 	}
-	function set_pnd($data){
+	public function set_pnd($data){
 		if(!empty($data)){
 			$this->pnd = $data;
 		}
 	}
-	function get_doe(){
+	public function get_doe(){
 		return $this->doe;
 	}
-	function set_doe($data){
+	public function set_doe($data){
 		if(!empty($data)){
 			$this->doe = $data;
 		}
 	}
-	function get_orthopnea(){
+	public function get_orthopnea(){
 		return $this->orthopnea;
 	}
-	function set_orthopnea($data){
+	public function set_orthopnea($data){
 		if(!empty($data)){
 			$this->orthopnea = $data;
 		}
 	}
-	function get_peripheal(){
+	public function get_peripheal(){
 		return $this->peripheal;
 	}
-	function set_peripheal($data){
+	public function set_peripheal($data){
 		if(!empty($data)){
 			$this->peripheal = $data;
 		}
 	}
-	function get_edema(){
+	public function get_edema(){
 		return $this->edema;
 	}
-	function set_edema($data){
+	public function set_edema($data){
 		if(!empty($data)){
 			$this->edema = $data;
 		}
 	}
-	function get_legpain_cramping(){
+	public function get_legpain_cramping(){
 		return $this->legpain_cramping;
 	}
-	function set_legpain_cramping($data){
+	public function set_legpain_cramping($data){
 		if(!empty($data)){
 			$this->legpain_cramping = $data;
 		}
 	}
-	function get_history_murmur(){
+	public function get_history_murmur(){
 		return $this->history_murmur;
 	}
-	function set_history_murmur($data){
+	public function set_history_murmur($data){
 		if(!empty($data)){
 			$this->history_murmur = $data;
 		}
 	}
-	function get_arrythmia(){
+	public function get_arrythmia(){
 		return $this->arrythmia;
 	}
-	function set_arrythmia($data){
+	public function set_arrythmia($data){
 		if(!empty($data)){
 			$this->arrythmia = $data;
 		}
 	}
-	function get_heart_problem(){
+	public function get_heart_problem(){
 		return $this->heart_problem;
 	}
-	function set_heart_problem($data){
+	public function set_heart_problem($data){
 		if(!empty($data)){
 			$this->heart_problem = $data;
 		}
 	}
 	
-	function get_polyuria(){
+	public function get_polyuria(){
 		return $this->polyuria;
 	}
-	function set_polyuria($data){
+	public function set_polyuria($data){
 		if(!empty($data)){
 			$this->polyuria = $data;
 		}
 	}
-	function get_polydypsia(){
+	public function get_polydypsia(){
 		return $this->polydypsia;
 	}
-	function set_polydypsia($data){
+	public function set_polydypsia($data){
 		if(!empty($data)){
 			$this->polydypsia = $data;
 		}
 	}
-	function get_dysuria(){
+	public function get_dysuria(){
 		return $this->dysuria;
 	}
-	function set_dysuria($data){
+	public function set_dysuria($data){
 		if(!empty($data)){
 			$this->dysuria = $data;
 		}
 	}
-	function get_hematuria(){
+	public function get_hematuria(){
 		return $this->hematuria;
 	}
-	function set_hematuria($data){
+	public function set_hematuria($data){
 		if(!empty($data)){
 			$this->hematuria = $data;
 		}
 	}
-	function get_frequency(){
+	public function get_frequency(){
 		return $this->frequency;
 	}
-	function set_frequency($data){
+	public function set_frequency($data){
 		if(!empty($data)){
 			$this->frequency = $data;
 		}
 	}
-	function get_urgency(){
+	public function get_urgency(){
 		return $this->urgency;
 	}
-	function set_urgency($data){
+	public function set_urgency($data){
 		if(!empty($data)){
 			$this->urgency = $data;
 		}
 	}
-	function get_incontinence(){
+	public function get_incontinence(){
 		return $this->incontinence;
 	}
-	function set_incontinence($data){
+	public function set_incontinence($data){
 		if(!empty($data)){
 			$this->incontinence = $data;
 		}
 	}
-	function get_renal_stones(){
+	public function get_renal_stones(){
 		return $this->renal_stones;
 	}
-	function set_renal_stones($data){
+	public function set_renal_stones($data){
 		if(!empty($data)){
 			$this->renal_stones = $data;
 		}
 	}
-	function get_utis(){
+	public function get_utis(){
 		return $this->utis;
 	}
-	function set_utis($data){
+	public function set_utis($data){
 		if(!empty($data)){
 			$this->utis = $data;
 		}
 	}
 	
-	function get_hesitancy(){
+	public function get_hesitancy(){
 		return $this->hesitancy;
 	}
-	function set_hesitancy($data){
+	public function set_hesitancy($data){
 		if(!empty($data)){
 			$this->hesitancy = $data;
 		}
 	}
-	function get_dribbling(){
+	public function get_dribbling(){
 		return $this->dribbling;
 	}
-	function set_dribbling($data){
+	public function set_dribbling($data){
 		if(!empty($data)){
 			$this->dribbling = $data;
 		}
 	}
-	function get_stream(){
+	public function get_stream(){
 		return $this->stream;
 	}
-	function set_stream($data){
+	public function set_stream($data){
 		if(!empty($data)){
 			$this->stream = $data;
 		}
 	}
-	function get_nocturia(){
+	public function get_nocturia(){
 		return $this->nocturia;
 	}
-	function set_nocturia($data){
+	public function set_nocturia($data){
 		if(!empty($data)){
 			$this->nocturia = $data;
 		}
 	}
-	function get_erections(){
+	public function get_erections(){
 		return $this->erections;
 	}
-	function set_erections($data){
+	public function set_erections($data){
 		if(!empty($data)){
 			$this->erections = $data;
 		}
 	}
-	function get_ejaculations(){
+	public function get_ejaculations(){
 		return $this->ejaculations;
 	}
-	function set_ejaculations($data){
+	public function set_ejaculations($data){
 		if(!empty($data)){
 			$this->ejaculations = $data;
 		}
 	}
 		
-	function get_g(){
+	public function get_g(){
 		return $this->g;
 	}
-	function set_g($data){
+	public function set_g($data){
 		if(!empty($data)){
 			$this->g = $data;
 		}
 	}
-	function get_p(){
+	public function get_p(){
 		return $this->p;
 	}
-	function set_p($data){
+	public function set_p($data){
 		if(!empty($data)){
 			$this->p = $data;
 		}
 	}
-	function get_ap(){
+	public function get_ap(){
 		return $this->ap;
 	}
-	function set_ap($data){
+	public function set_ap($data){
 		if(!empty($data)){
 			$this->ap = $data;
 		}
 	}
-	function get_lc(){
+	public function get_lc(){
 		return $this->lc;
 	}
-	function set_lc($data){
+	public function set_lc($data){
 		if(!empty($data)){
 			$this->lc = $data;
 		}
 	}
-	function get_mearche(){
+	public function get_mearche(){
 		return $this->mearche;
 	}
-	function set_mearche($data){
+	public function set_mearche($data){
 		if(!empty($data)){
 			$this->mearche = $data;
 		}
 	}
-	function get_menopause(){
+	public function get_menopause(){
 		return $this->menopause;
 	}
-	function set_menopause($data){
+	public function set_menopause($data){
 		if(!empty($data)){
 			$this->menopause = $data;
 		}
 	}
-	function get_lmp(){
+	public function get_lmp(){
 		return $this->lmp;
 	}
-	function set_lmp($data){
+	public function set_lmp($data){
 		if(!empty($data)){
 			$this->lmp = $data;
 		}
 	}
-	function get_f_frequency(){
+	public function get_f_frequency(){
 		return $this->f_frequency;
 	}
-	function set_f_frequency($data){
+	public function set_f_frequency($data){
 		if(!empty($data)){
 			$this->f_frequency = $data;
 		}
 	}
-	function get_f_flow(){
+	public function get_f_flow(){
 		return $this->f_flow;
 	}
-	function set_f_flow($data){
+	public function set_f_flow($data){
 		if(!empty($data)){
 			$this->f_flow = $data;
 		}
 	}
-	function get_f_symptoms(){
+	public function get_f_symptoms(){
 		return $this->f_symptoms;
 	}
-	function set_f_symptoms($data){
+	public function set_f_symptoms($data){
 		if(!empty($data)){
 			$this->f_symptoms = $data;
 		}
 	}
-	function get_abnormal_hair_growth(){
+	public function get_abnormal_hair_growth(){
 		return $this->abnormal_hair_growth;
 	}
-	function set_abnormal_hair_growth($data){
+	public function set_abnormal_hair_growth($data){
 		if(!empty($data)){
 			$this->abnormal_hair_growth = $data;
 		}
 	}
-	function get_f_hirsutism(){
+	public function get_f_hirsutism(){
 		return $this->f_hirsutism;
 	}
-	function set_f_hirsutism($data){
+	public function set_f_hirsutism($data){
 		if(!empty($data)){
 			$this->f_hirsutism = $data;
 		}
 	}
 	
-	function get_joint_pain(){
+	public function get_joint_pain(){
 		return $this->joint_pain;
 	}
-	function set_joint_pain($data){
+	public function set_joint_pain($data){
 		if(!empty($data)){
 			$this->joint_pain = $data;
 		}
 	}
-	function get_swelling(){
+	public function get_swelling(){
 		return $this->swelling;
 	}
-	function set_swelling($data){
+	public function set_swelling($data){
 		if(!empty($data)){
 			$this->swelling = $data;
 		}
 	}
-	function get_m_redness(){
+	public function get_m_redness(){
 		return $this->m_redness;
 	}
-	function set_m_redness($data){
+	public function set_m_redness($data){
 		if(!empty($data)){
 			$this->m_redness = $data;
 		}
 	}
-	function get_m_warm(){
+	public function get_m_warm(){
 		return $this->m_warm;
 	}
-	function set_m_warm($data){
+	public function set_m_warm($data){
 		if(!empty($data)){
 			$this->m_warm = $data;
 		}
 	}
-	function get_m_stiffness(){
+	public function get_m_stiffness(){
 		return $this->m_stiffness;
 	}
-	function set_m_stiffness($data){
+	public function set_m_stiffness($data){
 		if(!empty($data)){
 			$this->m_stiffness = $data;
 		}
 	}
-	function get_muscle(){
+	public function get_muscle(){
 		return $this->muscle;
 	}
-	function set_muscle($data){
+	public function set_muscle($data){
 		if(!empty($data)){
 			$this->muscle = $data;
 		}
 	}
-	function get_m_aches(){
+	public function get_m_aches(){
 		return $this->m_aches;
 	}
-	function set_m_aches($data){
+	public function set_m_aches($data){
 		if(!empty($data)){
 			$this->m_aches = $data;
 		}
 	}
-	function get_fms(){
+	public function get_fms(){
 		return $this->fms;
 	}
-	function set_fms($data){
+	public function set_fms($data){
 		if(!empty($data)){
 			$this->fms = $data;
 		}
 	}
-	function get_arthritis(){
+	public function get_arthritis(){
 		return $this->arthritis;
 	}
-	function set_arthritis($data){
+	public function set_arthritis($data){
 		if(!empty($data)){
 			$this->arthritis = $data;
 		}
 	}
 	
-	function get_loc(){
+	public function get_loc(){
 		return $this->loc;
 	}
-	function set_loc($data){
+	public function set_loc($data){
 		if(!empty($data)){
 			$this->loc = $data;
 		}
 	}
-	function get_seizures(){
+	public function get_seizures(){
 		return $this->seizures;
 	}
-	function set_seizures($data){
+	public function set_seizures($data){
 		if(!empty($data)){
 			$this->seizures = $data;
 		}
 	}
-	function get_stroke(){
+	public function get_stroke(){
 		return $this->stroke;
 	}
-	function set_stroke($data){
+	public function set_stroke($data){
 		if(!empty($data)){
 			$this->stroke = $data;
 		}
 	}
-	function get_tia(){
+	public function get_tia(){
 		return $this->tia;
 	}
-	function set_tia($data){
+	public function set_tia($data){
 		if(!empty($data)){
 			$this->tia = $data;
 		}
 	}
-	function get_n_numbness(){
+	public function get_n_numbness(){
 		return $this->n_numbness;
 	}
-	function set_n_numbness($data){
+	public function set_n_numbness($data){
 		if(!empty($data)){
 			$this->n_numbness = $data;
 		}
 	}
-	function get_n_weakness(){
+	public function get_n_weakness(){
 		return $this->n_weakness;
 	}
-	function set_n_weakness($data){
+	public function set_n_weakness($data){
 		if(!empty($data)){
 			$this->n_weakness = $data;
 		}
 	}
-	function get_paralysis(){
+	public function get_paralysis(){
 		return $this->paralysis;
 	}
-	function set_paralysis($data){
+	public function set_paralysis($data){
 		if(!empty($data)){
 			$this->paralysis = $data;
 		}
 	}
-	function get_intellectual_decline(){
+	public function get_intellectual_decline(){
 		return $this->intellectual_decline;
 	}
-	function set_intellectual_decline($data){
+	public function set_intellectual_decline($data){
 		if(!empty($data)){
 			$this->intellectual_decline = $data;
 		}
 	}
-	function get_memory_problems(){
+	public function get_memory_problems(){
 		return $this->memory_problems;
 	}
-	function set_memory_problems($data){
+	public function set_memory_problems($data){
 		if(!empty($data)){
 			$this->memory_problems = $data;
 		}
 	}
-	function get_dementia(){
+	public function get_dementia(){
 		return $this->dementia;
 	}
-	function set_dementia($data){
+	public function set_dementia($data){
 		if(!empty($data)){
 			$this->dementia = $data;
 		}
 	}
-	function get_n_headache(){
+	public function get_n_headache(){
 		return $this->n_headache;
 	}
-	function set_n_headache($data){
+	public function set_n_headache($data){
 		if(!empty($data)){
 			$this->n_headache = $data;
 		}
 	}
 	
-	function get_s_cancer(){
+	public function get_s_cancer(){
 		return $this->s_cancer;
 	}
-	function set_s_cancer($data){
+	public function set_s_cancer($data){
 		if(!empty($data)){
 			$this->s_cancer = $data;
 		}
 	}
-	function get_psoriasis(){
+	public function get_psoriasis(){
 		return $this->psoriasis;
 	}
-	function set_psoriasis($data){
+	public function set_psoriasis($data){
 		if(!empty($data)){
 			$this->psoriasis = $data;
 		}
 	}
-	function get_s_acne(){
+	public function get_s_acne(){
 		return $this->s_acne;
 	}
-	function set_s_acne($data){
+	public function set_s_acne($data){
 		if(!empty($data)){
 			$this->s_acne = $data;
 		}
 	}
-	function get_s_other(){
+	public function get_s_other(){
 		return $this->s_other;
 	}
-	function set_s_other($data){
+	public function set_s_other($data){
 		if(!empty($data)){
 			$this->s_other = $data;
 		}
 	}
-	function get_s_disease(){
+	public function get_s_disease(){
 		return $this->s_disease;
 	}
-	function set_s_disease($data){
+	public function set_s_disease($data){
 		if(!empty($data)){
 			$this->s_disease = $data;
 		}
 	}
 	
-	function get_p_diagnosis(){
+	public function get_p_diagnosis(){
 		return $this->p_diagnosis;
 	}
-	function set_p_diagnosis($data){
+	public function set_p_diagnosis($data){
 		if(!empty($data)){
 			$this->p_diagnosis = $data;
 		}
 	}
-	function get_p_medication(){
+	public function get_p_medication(){
 		return $this->p_medication;
 	}
-	function set_p_medication($data){
+	public function set_p_medication($data){
 		if(!empty($data)){
 			$this->p_medication = $data;
 		}
 	}
-	function get_depression(){
+	public function get_depression(){
 		return $this->depression;
 	}
-	function set_depression($data){
+	public function set_depression($data){
 		if(!empty($data)){
 			$this->depression = $data;
 		}
 	}
-	function get_anxiety(){
+	public function get_anxiety(){
 		return $this->anxiety;
 	}
-	function set_anxiety($data){
+	public function set_anxiety($data){
 		if(!empty($data)){
 			$this->anxiety = $data;
 		}
 	}
-	function get_social_difficulties(){
+	public function get_social_difficulties(){
 		return $this->social_difficulties;
 	}
-	function set_social_difficulties($data){
+	public function set_social_difficulties($data){
 		if(!empty($data)){
 			$this->social_difficulties = $data;
 		}
 	}
 	
-	function get_thyroid_problems(){
+	public function get_thyroid_problems(){
 		return $this->thyroid_problems;
 	}
-	function set_thyroid_problems($data){
+	public function set_thyroid_problems($data){
 		if(!empty($data)){
 			$this->thyroid_problems = $data;
 		}
 	}
-	function get_diabetes(){
+	public function get_diabetes(){
 		return $this->diabetes;
 	}
-	function set_diabetes($data){
+	public function set_diabetes($data){
 		if(!empty($data)){
 			$this->diabetes = $data;
 		}
 	}
-	function get_abnormal_blood(){
+	public function get_abnormal_blood(){
 		return $this->abnormal_blood;
 	}
-	function set_abnormal_blood($data){
+	public function set_abnormal_blood($data){
 		if(!empty($data)){
 			$this->abnormal_blood = $data;
 		}
 	}
 	
-	function get_anemia(){
+	public function get_anemia(){
 		return $this->anemia;
 	}
-	function set_anemia($data){
+	public function set_anemia($data){
 		if(!empty($data)){
 			$this->anemia = $data;
 		}
 	}
-	function get_fh_blood_problems(){
+	public function get_fh_blood_problems(){
 		return $this->fh_blood_problems;
 	}
-	function set_fh_blood_problems($data){
+	public function set_fh_blood_problems($data){
 		if(!empty($data)){
 			$this->fh_blood_problems = $data;
 		}
 	}
-	function get_bleeding_problems(){
+	public function get_bleeding_problems(){
 		return $this->bleeding_problems;
 	}
-	function set_bleeding_problems($data){
+	public function set_bleeding_problems($data){
 		if(!empty($data)){
 			$this->bleeding_problems = $data;
 		}
 	}
-	function get_allergies(){
+	public function get_allergies(){
 		return $this->allergies;
 	}
-	function set_allergies($data){
+	public function set_allergies($data){
 		if(!empty($data)){
 			$this->allergies = $data;
 		}
 	}
-	function get_frequent_illness(){
+	public function get_frequent_illness(){
 		return $this->frequent_illness;
 	}
-	function set_frequent_illness($data){
+	public function set_frequent_illness($data){
 		if(!empty($data)){
 			$this->frequent_illness = $data;
 		}
 	}
-	function get_hiv(){
+	public function get_hiv(){
 		return $this->hiv;
 	}
-	function set_hiv($data){
+	public function set_hiv($data){
 		if(!empty($data)){
 			$this->hiv = $data;
 		}
 	}
-	function get_hai_status(){
+	public function get_hai_status(){
 		return $this->hai_status;
 	}
-	function set_hai_status($data){
+	public function set_hai_status($data){
 		if(!empty($data)){
 			$this->hai_status = $data;
 		}
 	}
 	
-	function get_options(){
+	public function get_options(){
 		$ret = array("N/A" => xl('N/A'),"YES" => xl('YES'),"NO" => xl('NO'));
 		return $ret;
 	}
 		
-	function get_dysphagia(){
+	public function get_dysphagia(){
 		return $this->dysphagia;
 	}
-	function set_dysphagia($data){
+	public function set_dysphagia($data){
 		if(!empty($data)){
 			$this->dysphagia = $data;
 		}
 	}
-	function get_heartburn(){
+	public function get_heartburn(){
 		return $this->heartburn;
 	}
-	function set_heartburn($data){
+	public function set_heartburn($data){
 		if(!empty($data)){
 			$this->heartburn = $data;
 		}
 	}
-	function get_bloating(){
+	public function get_bloating(){
 		return $this->bloating;
 	}
-	function set_bloating($data){
+	public function set_bloating($data){
 		if(!empty($data)){
 			$this->bloating = $data;
 		}
 	}
-	function get_belching(){
+	public function get_belching(){
 		return $this->belching;
 	}
-	function set_belching($data){
+	public function set_belching($data){
 		if(!empty($data)){
 			$this->belching = $data;
 		}
 	}
-	function get_flatulence(){
+	public function get_flatulence(){
 		return $this->flatulence;
 	}
-	function set_flatulence($data){
+	public function set_flatulence($data){
 		if(!empty($data)){
 			$this->flatulence = $data;
 		}
 	}
-	function get_nausea(){
+	public function get_nausea(){
 		return $this->nausea;
 	}
-	function set_nausea($data){
+	public function set_nausea($data){
 		if(!empty($data)){
 			$this->nausea = $data;
 		}
 	}
-	function get_vomiting(){
+	public function get_vomiting(){
 		return $this->vomiting;
 	}
-	function set_vomiting($data){
+	public function set_vomiting($data){
 		if(!empty($data)){
 			$this->vomiting = $data;
 		}
 	}
-	function get_hematemesis(){
+	public function get_hematemesis(){
 		return $this->hematemesis;
 	}
-	function set_hematemesis($data){
+	public function set_hematemesis($data){
 		if(!empty($data)){
 			$this->hematemesis = $data;
 		}
 	}
-	function get_gastro_pain(){
+	public function get_gastro_pain(){
 		return $this->gastro_pain;
 	}
-	function set_gastro_pain($data){
+	public function set_gastro_pain($data){
 		if(!empty($data)){
 			$this->gastro_pain = $data;
 		}
 	}
-	function get_food_intolerance(){
+	public function get_food_intolerance(){
 		return $this->food_intolerance;
 	}
-	function set_food_intolerance($data){
+	public function set_food_intolerance($data){
 		if(!empty($data)){
 			$this->food_intolerance = $data;
 		}
 	}
-	function get_hepatitis(){
+	public function get_hepatitis(){
 		return $this->hepatitis;
 	}
-	function set_hepatitis($data){
+	public function set_hepatitis($data){
 		if(!empty($data)){
 			$this->hepatitis = $data;
 		}
 	}
-	function get_jaundice(){
+	public function get_jaundice(){
 		return $this->jaundice;
 	}
-	function set_jaundice($data){
+	public function set_jaundice($data){
 		if(!empty($data)){
 			$this->jaundice = $data;
 		}
 	}
-	function get_hematochezia(){
+	public function get_hematochezia(){
 		return $this->hematochezia;
 	}
-	function set_hematochezia($data){
+	public function set_hematochezia($data){
 		if(!empty($data)){
 			$this->hematochezia = $data;
 		}
 	}
-	function get_changed_bowel(){
+	public function get_changed_bowel(){
 		return $this->changed_bowel;
 	}
-	function set_changed_bowel($data){
+	public function set_changed_bowel($data){
 		if(!empty($data)){
 			$this->changed_bowel = $data;
 		}
 	}
-	function get_diarrhea(){
+	public function get_diarrhea(){
 		return $this->diarrhea;
 	}
-	function set_diarrhea($data){
+	public function set_diarrhea($data){
 		if(!empty($data)){
 			$this->diarrhea = $data;
 		}
 	}
-	function get_constipation(){
+	public function get_constipation(){
 		return $this->constipation;
 	}
-	function set_constipation($data){
+	public function set_constipation($data){
 		if(!empty($data)){
 			$this->constipation = $data;
 		}
 	}
-	function toString($html = false) {
+	public function toString($html = false) {
 		$string .= "\n"
 			."ID: " . $this->id . "\n";
 
@@ -1362,7 +1379,7 @@ class FormROS extends ORDataObject {
 			return $string;
 		}
 	}
-	function persist() {
+	public function persist() {
 		parent::persist();
 	}
 	
