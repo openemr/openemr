@@ -136,7 +136,7 @@ function getEvents($params)
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
     if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
-    if ($sortby != "") $sql .= " ORDER BY ".$sortby."  ".$direction; // descending order
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby."  ".escape_sort_order($direction); // descending order
     $sql .= " LIMIT 5000";
     }
     $res = sqlStatement($sql);

@@ -5525,7 +5525,6 @@ CREATE TABLE `pnotes` (
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
   `portal_relation` VARCHAR(100) NULL,
   `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
-  `document_id` int(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -9591,6 +9590,6 @@ CREATE TABLE `product_registration` (
 DROP TABLE IF EXISTS `log_validator`;
 CREATE TABLE `log_validator` (
   `log_id` bigint(20) NOT NULL,
-  `log_checksum` longtext DEFAULT NULL,
+  `log_checksum` longtext NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;

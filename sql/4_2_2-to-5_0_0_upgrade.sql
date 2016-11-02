@@ -2125,10 +2125,6 @@ ALTER TABLE `users` ADD `suffix` varchar(255) default NULL;
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
 #EndIf
 
-#IfMissingColumn log category
-ALTER TABLE `log` ADD `category` varchar(255) default NULL;
-#EndIf
-
 #IfNotTable product_registration
 CREATE TABLE `product_registration` (
   `registration_id` char(36) NOT NULL DEFAULT '',
@@ -2142,20 +2138,19 @@ CREATE TABLE `product_registration` (
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Eye_Defaults_for_GENERAL', 'LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 0, '');
 #EndIf
 
+#IfMissingColumn log category
+ALTER TABLE `log` ADD `category` varchar(255) default NULL;
+#EndIf
+
 -- Table to copy log contents for audit log tamper resistance check
 #IfNotTable log_validator
 CREATE TABLE `log_validator` (
   `log_id` bigint(20) NOT NULL,
-  `log_checksum` longtext DEFAULT NULL,
+  `log_checksum` longtext,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
 
 -- Add Image Result note type for electronic indication - a12
 #IfNotRow2D list_options list_id note_type option_id Image Results
-	SET @seq = (SELECT MAX(seq) FROM  list_options where list_id = 'note_type');
-	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`) VALUES ('note_type', 'Image Results', 'Image Results', @seq+5, 0);
-#EndIf
-
-#IfMissingColumn pnotes document_id
-	ALTER TABLE `pnotes` ADD `document_id` int(11) DEFAULT NULL;
+	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`) VALUES ('note_type', 'Image Results', 'Image Results', 30, 0);
 #EndIf

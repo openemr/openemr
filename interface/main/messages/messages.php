@@ -255,23 +255,6 @@ echo "
        $form_message_status = 'New';
    }
     generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
-    <?php
-	if($noteid){
-		$doc = sqlQuery('select document_id from pnotes where id = ?',array($noteid));
-		if(!empty($doc['document_id'])){
-			$d = new Document($doc['document_id']);
-			$enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
-        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($prow['pid']));
-			$str_dob = "DOB:".$prow['DOB']." Age:".getPatientAge($prow['DOB']);
-			$pname = $prow['fname']." ".$prow['lname'];
-			echo xlt('Linked Image Report') . ":</b>\n";
-			echo "<a href='javascript:void(0);' "; 
-			echo "onClick=\"gotoReport(".$d->get_id().",'".$pname."',".$prow['pid'].",".$prow['pubpid'].",'".$str_dob."');\">";
-			echo text($d->get_url_file());
-			echo "</a>";
-		}
-	}
-    ?>
   </td>
 </tr>
 <tr>
@@ -315,11 +298,12 @@ if ($noteid) {
     echo xlt('Linked document') . ":</b>\n";
     while ($gprow = sqlFetchArray($tmp)) {
       $d = new Document($gprow['id1']);
-      echo "   <a href='";
-      echo $GLOBALS['webroot'] . "/controller.php?document&retrieve";
-      echo "&patient_id="  . $d->get_foreign_id();
-      echo "&document_id=" . $d->get_id();
-      echo "&as_file=true' target='_blank' onclick='top.restoreSession()'>";
+      $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($prow['pid']));
+      $str_dob = htmlspecialchars(Xl("DOB:".$prow['DOB']." Age:".getPatientAge($prow['DOB'])));
+      $pname = $prow['fname']." ".$prow['lname'];
+      echo "<a href='javascript:void(0);' "; 
+      echo "onClick=\"gotoReport(".addslashes(attr($d->get_id())).",'".addslashes(attr($pname))."',".addslashes(attr($prow['pid'])).",".addslashes(attr($prow['pubpid'])).",'".addslashes(attr($str_dob))."');\">";
       echo text($d->get_url_file());
       echo "</a>\n";
     }
@@ -444,8 +428,8 @@ $(document).ready(function(){
 		}
 	?>
 	$.ajax({
-		type:'post',
-		url:'<?php echo $GLOBALS['webroot']."/library/ajax/set_session_ajax.php";?>',
+		type:'get',
+		url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
 		data:{set_pid: pid},
 		async: false
 	});

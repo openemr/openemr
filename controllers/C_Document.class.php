@@ -1302,7 +1302,8 @@ function image_result_indication($doc_id,$encounter,$image_procedure_id = 0){
 	}
 	
 	$encounter_provider = isset($ep['assigned_to']) ? $ep['assigned_to'] : $_SESSION['authUser'];
-	$noteid = addPnote($_SESSION['pid'],'New Image Report received '.$narration,0,1,'Image Results',$encounter_provider,'','New','',$doc_id);
+	$noteid = addPnote($_SESSION['pid'],'New Image Report received '.$narration,0,1,'Image Results',$encounter_provider,'','New','');
+	setGpRelation(1, $doc_id, 6, $noteid);
 }
 
 }
