@@ -72,7 +72,7 @@ function showhideMenu() {
 <?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
-
+<div id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td align="left">
@@ -116,7 +116,6 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
-		<td id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></td>
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
