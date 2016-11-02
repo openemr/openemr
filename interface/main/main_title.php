@@ -80,11 +80,11 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
 <tr><td style="vertical-align:text-bottom;">
-		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
+		<a href='' class="css_button_small no_border" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
     <td style="vertical-align:text-bottom;">
-            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
+            <a href='' class="css_button_small no_border" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
 </tr>
@@ -117,7 +117,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
 		<td id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></td>
-		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
+		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small no_border" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
 		<td colspan='2' valign="baseline" align='right'><B>
