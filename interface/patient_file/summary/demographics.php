@@ -657,7 +657,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			?>
 			|
 			<a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-			<?php echo htmlspecialchars($nickname,ENT_NOQUOTES); ?></a>
+			<?php echo xlt($nickname); ?></a>
 		<?php	
 		}
 	}
