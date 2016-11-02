@@ -558,7 +558,7 @@ foreach ($providers as $provider) {
 
             //fix bug 456 and 455
             //check to see if the event is in the clinic hours range, if not it will not be displayed
-            if  ( (int)$starth < (int)$openhour || (int)$starth >= (int)$closehour ) { continue; }
+            if  ( (int)$starth < (int)$openhour || (int)$starth > (int)$closehour ) { continue; }
 
             switch ($event['catid']) {
                 case 1:  // NO-SHOW appt
