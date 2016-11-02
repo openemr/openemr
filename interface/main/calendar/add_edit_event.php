@@ -1580,8 +1580,8 @@ if  ($GLOBALS['select_multi_providers']) {
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
-        foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('M{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('W{{Wednesday}}'),
-                     5 => xl('Th{{Thursday}}'), 6 => xl('F{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
+        foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
+                     5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
         {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
