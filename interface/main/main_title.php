@@ -69,7 +69,7 @@ function showhideMenu() {
 
 function prepareLogosStyle(){
 	var left_cell = document.getElementsByClassName("left_cell")[0];
-	left_cell.style.cssText = 'padding: 0 8% !important';
+	left_cell.style.cssText = 'padding-left: 110px !important';
 	document.getElementById("tinylogocontainer").style.position = "absolute";
 }
 
