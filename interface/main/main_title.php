@@ -66,6 +66,16 @@ function showhideMenu() {
 		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 	}
 }
+
+function prepareLogosStyle(){
+	document.getElementsByClassName("body_title")[0].style.marginTop = "5px";
+	var table = document.getElementById("main-title");
+	table.style.width = "92%";
+	table.style.display = "inline-block";
+	document.getElementsByClassName("place_right")[0].style.width = "95%";
+	document.getElementById("tinylogocontainer").style.width = "5%";
+}
+
 </script>
 </head>
 <body class="body_title">
@@ -111,7 +121,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         </div></td></tr></table>
 </td>
 
-<td align="right">
+<td class="place_right" align="right">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
@@ -128,6 +138,12 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <script type="text/javascript" language="javascript">
 parent.loadedFrameCount += 1;
+
+//If 'tiny logos' are turned on in globals, go to function that displays them.
+<?php if($GLOBALS['tiny_logo_1'] || ($GLOBALS['tiny_logo_2'])) : ?>
+	prepareLogosStyle();
+<?php endif; ?>
+
 </script>
 
 </body>
