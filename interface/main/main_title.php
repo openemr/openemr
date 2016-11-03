@@ -68,12 +68,9 @@ function showhideMenu() {
 }
 
 function prepareLogosStyle(){
-	document.getElementsByClassName("body_title")[0].style.marginTop = "5px";
-	var table = document.getElementById("main-title");
-	table.style.width = "92%";
-	table.style.display = "inline-block";
-	document.getElementsByClassName("place_right")[0].style.width = "95%";
-	document.getElementById("tinylogocontainer").style.width = "5%";
+	var left_cell = document.getElementsByClassName("left_cell")[0];
+	left_cell.style.cssText = 'padding: 0 8% !important';
+	document.getElementById("tinylogocontainer").style.position = "absolute";
 }
 
 </script>
@@ -85,7 +82,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <div id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
-<td align="left">
+<td class="left_cell" align="left">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
@@ -121,7 +118,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         </div></td></tr></table>
 </td>
 
-<td class="place_right" align="right">
+<td align="right">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
