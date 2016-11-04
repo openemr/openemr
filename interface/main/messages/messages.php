@@ -427,15 +427,15 @@ $(document).ready(function(){
 			}
 		}
 	?>
-       $.ajax({
-               type:'get',
-               url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
-               data:{set_pid: pid},
-               async: false
-       });
+  top.restoreSession();
+  $.ajax({
+    type:'get',
+    url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
+    data:{set_pid: pid},
+    async: false
+  });
 	parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
 	parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
-  top.restoreSession();
   <?php if ($GLOBALS['new_tabs_layout']) { ?>
     var docurl  = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
     var paturl = 'patient_file/summary/demographics.php?pid=' + pid;
