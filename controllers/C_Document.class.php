@@ -1225,13 +1225,15 @@ function tag_action_process($patient_id="", $document_id) {
 			$formID = sqlInsert($query,$bindArray);
 			addForm($encounter, "New Patient Encounter",$formID,"newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username );
 			$d->set_encounter_id($encounter);
+			$this->image_result_indication($d->id, $encounter);
 			
 		} else {
 			$d->set_encounter_id($encounter_id);
+			$this->image_result_indication($d->id, $encounter_id);
 		}
 		$d->set_encounter_check($encounter_check);
 		$d->persist();
-
+		
 		$messages .= xlt('Document tagged to Encounter successfully') . "<br>";
 	}
 
@@ -1247,7 +1249,7 @@ function image_procedure_action($patient_id="",$document_id){
 	$proc_code = $_POST['procedure_code'];
 	
 	if(is_numeric($document_id)){
-				
+		
 		$img_order  = sqlQuery("select * from procedure_order_code where procedure_order_id = ? and procedure_code = ? ",array($img_procedure_id,$proc_code));
 		$img_report = sqlQuery("select * from procedure_report where procedure_order_id = ? and procedure_order_seq = ? ",array($img_procedure_id,$img_order['procedure_order_seq']));
 		$img_report_id = !empty($img_report['procedure_report_id']) ? $img_report['procedure_report_id'] : 0;
@@ -1260,6 +1262,8 @@ function image_procedure_action($patient_id="",$document_id){
 		if(empty($img_result)){
 			sqlInsert("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')",array($img_report_id,date('Y-m-d H:i:s'),$document_id));
 		}
+		
+		$this->image_result_indication($document_id, 0,$img_procedure_id);
 	}
 	return $this->view_action($patient_id, $document_id);
 }
@@ -1281,6 +1285,25 @@ function get_mapped_procedure($document_id){
 						   where pres.document_id = ?",array($document_id));
 	}
 	return $map;
+}
+
+function image_result_indication($doc_id,$encounter,$image_procedure_id = 0){
+	$doc_notes = sqlQuery("select note from notes where foreign_id = ?",array($doc_id));
+	$narration = isset($doc_notes['note']) ? 'With Narration': 'Without Narration';
+	
+	if($encounter != 0) {
+		$ep = sqlQuery("select u.username as assigned_to from form_encounter inner join users u on u.id = provider_id where encounter = ?",array($encounter));
+	}
+	else if($image_procedure_id != 0){
+		$ep = sqlQuery("select u.username as assigned_to from procedure_order inner join users u on u.id = provider_id where procedure_order_id = ?",array($image_procedure_id));
+	}
+	else{
+		$ep = array('assigned_to' => $_SESSION['authUser']);
+	}
+	
+	$encounter_provider = isset($ep['assigned_to']) ? $ep['assigned_to'] : $_SESSION['authUser'];
+	$noteid = addPnote($_SESSION['pid'],'New Image Report received '.$narration,0,1,'Image Results',$encounter_provider,'','New','');
+	setGpRelation(1, $doc_id, 6, $noteid);
 }
 
 }

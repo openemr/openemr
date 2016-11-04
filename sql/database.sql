@@ -3577,6 +3577,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Lab Results' ,'Lab Results', 15,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','New Orders' ,'New Orders', 20,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Patient Reminders' ,'Patient Reminders', 25,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Image Results' ,'Image Results', 30,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'irnpool','Invoice Reference Number Pools', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('irnpool','main','Main',1,1,'000001');
@@ -4687,6 +4688,7 @@ CREATE TABLE `log` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `event` varchar(255) default NULL,
+  `category` varchar(255) default NULL,
   `user` varchar(255) default NULL,
   `groupname` varchar(255) default NULL,
   `comments` longtext,
@@ -9572,6 +9574,8 @@ CREATE TABLE `form_taskman` (
 
 -- End of Eye Module tables
 -- ----------------------------------------------------
+
+
 --
 -- Table structure for table 'product_registration'
 --
@@ -9582,3 +9586,10 @@ CREATE TABLE `product_registration` (
   PRIMARY KEY (`registration_id`)
 ) ENGINE=InnoDB;
 
+-- Table to copy log contents for audit log tamper resistance check.
+DROP TABLE IF EXISTS `log_validator`;
+CREATE TABLE `log_validator` (
+  `log_id` bigint(20) NOT NULL,
+  `log_checksum` longtext NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
