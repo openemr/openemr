@@ -30,7 +30,7 @@ require_once("$srcdir/formatting.inc.php");
 
 
 	$valid  = true;
-	$errors = array(); 
+	$errors = array();
 	catch_logs();
 	$sql = sqlStatement("select * from log_validator");
 	while($row = sqlFetchArray($sql)){
@@ -46,13 +46,13 @@ require_once("$srcdir/formatting.inc.php");
 		if(!$valid) break;
 	}
 	if($valid){
-		echo "Audit Log Validated Successfully";
+		echo xl("Audit Log Validated Successfully");
 	}
-	else 
+	else
 	{
-		echo "Audit Log validation failed(ERROR:: $errors[0])";
+		echo xl("Audit Log validation failed") . "(ERROR:: $errors[0])";
 	}
-	
+
 	function catch_logs(){
 		$sql  = sqlStatement("select * from log where id not in(select log_id from log_validator) and checksum is NOT null and checksum != ''");
 		while($row = sqlFetchArray($sql)){

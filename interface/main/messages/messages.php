@@ -8,15 +8,15 @@
  *
  * Copyright (c) 2010 OpenEMR Support LLC
  *
- * LICENSE: This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 3 
- * of the License, or (at your option) any later version. 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU General Public License for more details. 
- * You should have received a copy of the GNU General Public License 
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
@@ -24,7 +24,7 @@
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady@sparmy.com>
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
  */
 
 //SANITIZE ALL ESCAPES
@@ -60,12 +60,12 @@ require_once("$srcdir/formatting.inc.php");
 <br /><br />
 <span class="title"><?php echo xlt('Reminders'); ?></span>
 
-<?php 
-        
+<?php
+
         // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
         // I am asuming that at this point security checks have been performed
         require_once '../dated_reminders/dated_reminders.php';
-        
+
 // Check to see if the user has Admin rights, and if so, allow access to See All.
 $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "" ;
 if ($showall == "yes") {
@@ -300,9 +300,9 @@ if ($noteid) {
       $d = new Document($gprow['id1']);
       $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
         " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($prow['pid']));
-      $str_dob = htmlspecialchars(Xl("DOB:".$prow['DOB']." Age:".getPatientAge($prow['DOB'])));
+      $str_dob = htmlspecialchars(xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']));
       $pname = $prow['fname']." ".$prow['lname'];
-      echo "<a href='javascript:void(0);' "; 
+      echo "<a href='javascript:void(0);' ";
       echo "onClick=\"gotoReport(".addslashes(attr($d->get_id())).",'".addslashes(attr($pname))."',".addslashes(attr($prow['pid'])).",".addslashes(attr($prow['pubpid'])).",'".addslashes(attr($str_dob))."');\">";
       echo text($d->get_url_file());
       echo "</a>\n";
@@ -427,17 +427,28 @@ $(document).ready(function(){
 			}
 		}
 	?>
-	$.ajax({
-		type:'get',
-		url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
-		data:{set_pid: pid},
-		async: false
-	});
-	parent.left_nav.setPatient(pname,pid,pubpid,window.name,str_dob);
+       $.ajax({
+               type:'get',
+               url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
+               data:{set_pid: pid},
+               async: false
+       });
+	parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
 	parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
-	var baseurl  = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>';
-	var params   = "&patient_id=" + pid + "&document_id=" + doc_id + "&";
-	location.href = baseurl + params;
+  top.restoreSession();
+  <?php if ($GLOBALS['new_tabs_layout']) { ?>
+    var docurl  = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+    var paturl = 'patient_file/summary/demographics.php?pid=' + pid;
+    parent.left_nav.loadFrame('dem1', 'pat', paturl);
+    parent.left_nav.loadFrame('doc0', 'enc', docurl);
+    top.activateTabByName('enc',true);
+  <?php } else  { ?>
+    var docurl  = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+    var paturl  = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + pid;
+    var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+    parent.frames[othername].location.href = paturl;
+    location.href = docurl;
+  <?php } ?>
  }
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
@@ -457,7 +468,7 @@ $(document).ready(function(){
  function sel_patient() {
   dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
  }
- 
+
   function addtolist(sel){
     var itemtext = document.getElementById('assigned_to_text');
     var item = document.getElementById('assigned_to');
@@ -473,7 +484,7 @@ $(document).ready(function(){
       }
     }
   }
- 
+
 </script><?php
 }
 else {

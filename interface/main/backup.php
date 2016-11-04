@@ -542,7 +542,7 @@ echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
-    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup";
+    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
 $eventlog=1;
 // 301 If ends here.

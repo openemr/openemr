@@ -9588,6 +9588,6 @@ CREATE TABLE `product_registration` (
 DROP TABLE IF EXISTS `log_validator`;
 CREATE TABLE `log_validator` (
   `log_id` bigint(20) NOT NULL,
-  `log_checksum` longtext NULL,
+  `log_checksum` longtext,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
