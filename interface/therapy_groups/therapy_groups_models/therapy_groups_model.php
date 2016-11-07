@@ -5,7 +5,7 @@
  * Date: 07/11/16
  * Time: 14:07
  */
-class Group{
+class Therapy_Groups{
 
 
 }

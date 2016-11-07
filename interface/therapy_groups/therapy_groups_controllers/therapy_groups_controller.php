@@ -11,7 +11,7 @@ class TherapyGroupsController extends BaseController{
 
     public function  add(){
 
-        $groupModel = $this->loadModel('Group');
+        $groupModel = $this->loadModel('Therapy_Groups');
         $data = array('form' => 'yyy');
         $this->loadView('addGroup', $data);
 
