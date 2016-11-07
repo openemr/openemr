@@ -13,7 +13,7 @@ class TherapyGroupsController extends BaseController{
 
         $groupModel = $this->loadModel('Group');
         $data = array('form' => 'yyy');
-        $this->loadView('add', $data);
+        $this->loadView('addGroup', $data);
 
     }
 

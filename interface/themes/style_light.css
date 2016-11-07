@@ -1287,3 +1287,16 @@ body.admin-layout input[type="button"] {
   width: 100%;
   border-collapse: collapse;
 }
+
+.attach-input{
+  text-align: right;
+}
+.full-width{
+  width: 100%;
+}
+.radio-pos{
+  margin-left: 10px;
+}
+.group-row{
+  margin-top: 15px;
+}

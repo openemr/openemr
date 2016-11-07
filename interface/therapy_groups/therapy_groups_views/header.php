@@ -4,15 +4,13 @@
 <head>
     <meta charset="utf-8">
 
-    <title>The HTML5 Herald</title>
-    <meta name="description" content="The HTML5 Herald">
-    <meta name="author" content="SitePoint">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/themes/base/jquery.ui.datepicker.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header'];?>" type="text/css">
 
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-    <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-    <![endif]-->
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.core.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.datepicker.js"></script>
 </head>
 
 <body>
