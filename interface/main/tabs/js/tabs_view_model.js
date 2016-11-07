@@ -94,16 +94,45 @@ function tabRefresh(data,evt)
 
 function tabClose(data,evt)
 {
-    //Confirm message on Closing the Tab
-    var r = confirm("Are you sure you want to close this tab?");
-    if (r) {
-         app_view_model.application_data.tabs.tabsList.remove(data);
-        if(data.visible()) {
-             activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
-        }
-    } else {
-        return false;
-    }
+    
+        $(function() {
+        $("#dialog-confirm").dialog({
+                resizable: false,
+                height: "auto",
+                closeOnEscape: false,
+                width: 400,
+                draggable: false,
+                modal: true,
+                create: function () {
+                var me = $(this)
+                        me.dialog("widget").find('.ui-dialog-titlebar-close').remove()
+                        
+                },
+                buttons: {
+
+                "Close This tab": function() {
+                        app_view_model.application_data.tabs.tabsList.remove(data);
+                        activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length - 1]);
+                        $(this).dialog("close");
+                },
+                 Cancel: function() {
+                        $(this).dialog("close");
+                        }
+                }
+                
+        });
+        }); 
+//        $('#btnCancel').addClass('cancelButton');  
+   //Confirm message on Closing the Tab
+//    var r = confirm("Are you sure you want to close this tab?");
+//    if (r) {
+//         app_view_model.application_data.tabs.tabsList.remove(data);
+//        if(data.visible()) {
+//             activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+//        }
+//    } else {
+//        return false;
+//    }
 }
 
 function tabCloseByName(name)

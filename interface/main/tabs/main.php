@@ -107,8 +107,12 @@ var webroot_url="<?php echo $web_root; ?>";
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
 
+
+
 <!-- Added New Jquery-ui.js for making Drap and Drop -->
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/Jquery-ui.js"></script>
+
+<link href="../../../public/assets/Jquery-UI.css" rel="stylesheet" type="text/css"/>
 <!-- Newly file added -->
 
 

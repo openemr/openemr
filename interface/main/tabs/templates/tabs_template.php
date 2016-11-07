@@ -18,6 +18,13 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<div id="dialog-confirm" title="Close this tab?" style="display: none">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left;"></span>
+        Are You Really want to close thos Tab?
+    </p>
+</div>
+
 
 <script type="text/html" id="tabs-controls">
     <div class="tabControls sorting" data-bind="with: tabs">
@@ -37,8 +44,11 @@
 
                 <!-- ko if:closable-->
                     <span class="fa fa-fw fa-times" data-bind="click: tabClose"></span>
+                    
                 <!-- /ko -->
             </div>
+       
+       
         <!-- /ko -->
     </div>
 </script>
