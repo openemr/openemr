@@ -165,7 +165,7 @@ use ESign\Api;
  }
 
 if($GLOBALS['enable_group_therapy']){
-    $primary_docs['gng'] = array(xl('New Group')    , 0, /*url*/);
+    $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
     $primary_docs['gdg'] = array(xl('Group')   , 1,  /*url*/);
     $primary_docs['gcv'] = array(xl('Create Visit'), 1, /*url*/);
     $primary_docs['gce'] = array(xl('Current') , 2, /*url*/);
@@ -981,7 +981,7 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt"></i>&nbsp;');
     $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o"></i>&nbsp;');
     $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
-    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-users"></i>&nbsp;');
     $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart"></i>&nbsp;');
     $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar"></i>&nbsp;');
     $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
@@ -1127,7 +1127,7 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php if($GLOBALS['enable_group_therapy']) : ?>
-      <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-user"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
+      <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
           <ul>
               <?php genMiscLink('RTop','gfn','0',xl('Groups'),'main/finder/dynamic_finder.php'); ?>
               <?php genTreeLink('RTop','gng',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>

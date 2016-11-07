@@ -13,7 +13,7 @@ require_once dirname(__FILE__) . '/therapy_groups_controllers/therapy_groups_con
 $method = $_GET['method'];
 
 switch($method){
-    case 'add':
+    case 'addGroup':
         $a = new TherapyGroupsController();
         $a->add();
         break;
