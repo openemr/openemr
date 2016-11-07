@@ -164,6 +164,14 @@ use ESign\Api;
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
+if($GLOBALS['enable_group_therapy']){
+    $primary_docs['gng'] = array(xl('New Group')    , 0, /*url*/);
+    $primary_docs['gdg'] = array(xl('Group')   , 1,  /*url*/);
+    $primary_docs['gcv'] = array(xl('Create Visit'), 1, /*url*/);
+    $primary_docs['gce'] = array(xl('Current') , 2, /*url*/);
+    $primary_docs['gvh'] = array(xl('Visit History'), 1, /*url*/);
+}
+
  $esignApi = new Api();
  // This section decides which navigation items will not appear.
 
@@ -1118,6 +1126,23 @@ if (!empty($reg)) {
 
     </ul>
   </li>
+  <?php if($GLOBALS['enable_group_therapy']) : ?>
+      <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-user"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
+          <ul>
+              <?php genMiscLink('RTop','gfn','0',xl('Groups'),'main/finder/dynamic_finder.php'); ?>
+              <?php genTreeLink('RTop','gng',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
+              <?php genTreeLink('RTop','gdg',xl('Summary')); ?>
+              <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
+                  <ul>
+                      <?php genTreeLink('RBot','gcv',xl('Create Visit')); ?>
+                      <?php genTreeLink('RBot','gce',xl('Current')); ?>
+                      <?php genTreeLink('RBot','gvh',xl('Visit History')); ?>
+                  </ul>
+              </li>
+
+          </ul>
+      </li>
+  <?php endif ?>
   <?php // TajEmo Work by CB 2012/06/21 10:41:15 AM hides fees if disabled in globals ?>
   <?php if(!isset($GLOBALS['enable_fees_in_left_menu']) || $GLOBALS['enable_fees_in_left_menu'] == 1){ ?>
   <li><a class="collapsed" id="feeimg" ><span><?php xl('Fees','e') ?></span></a>

@@ -193,6 +193,13 @@ $GLOBALS_METADATA = array(
       xl('Application name for login page and main window title.')
     ),
 
+    'enable_group_therapy' => array(
+      xl('Enable Group Therapy'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Enables groups module in system.')
+    ),
+
     'full_new_patient_form' => array(
       xl('New Patient Form'),
 
