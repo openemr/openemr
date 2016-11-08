@@ -1,7 +1,7 @@
 <?php require 'header.php'; ?>
 <main id="add-group">
     <div class="container container-group">
-        <form>
+        <form method="post" name="addGroup">
             <div class="row group-row">
                 <div class="col-md-10">
                     <span class="title"><?php echo xlt('Add group') ?> </span>
@@ -33,22 +33,22 @@
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" name="group_type" checked><?php echo xlt('Closed'); ?>
+                        <input type="radio" value="closed" name="group_type" checked><?php echo xlt('Closed'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" name="group_type"><?php echo xlt('Open'); ?>
+                        <input type="radio" value="open" name="group_type"><?php echo xlt('Open'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" name="group_type"><?php echo xlt('Train'); ?>
+                        <input type="radio" value="train" name="group_type"><?php echo xlt('Train'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Obligatory participation'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" name="group_participation" checked><?php echo xlt('Mandatory'); ?>
+                        <input type="radio" value="mandatory" name="group_participation" checked><?php echo xlt('Mandatory'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" name="group_participation"><?php echo xlt('Optional'); ?>
+                        <input type="radio" value="optional" name="group_participation"><?php echo xlt('Optional'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
@@ -88,7 +88,6 @@
                         </div>
                         <div class="col-md-9 col-sm-7">
                             <textarea name="notes" class="full-width" style="height: 70px">
-
                             </textarea>
                         </div>
                     </div>
@@ -107,7 +106,7 @@
                 </div>
             </div>
             <div class="row group-row">
-                <input type="button" name="save" value="<?php echo xlt('Add group');?>">
+                <input type="submit" name="save" value="<?php echo xlt('Add group');?>">
             <div>
         </form>
     </div>
@@ -119,5 +118,7 @@
        });
     });
 </script>
+<?php    $use_validate_js = 1;?>
+<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=addGroup');?>
 <?php require 'footer.php'; ?>
 
