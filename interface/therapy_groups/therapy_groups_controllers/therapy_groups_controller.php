@@ -16,8 +16,10 @@ class TherapyGroupsController extends BaseController{
     public function  add($groupId = null){
 
         $data = array();
-        if(isset($_POST['save'])){
+        $therapyGroupModel = $this->loadModel('therapy_group');
 
+        if(isset($_POST['save'])){
+            //print_r($_POST);
             $filters = array(
                 'group_name' => FILTER_SANITIZE_STRING,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
@@ -35,7 +37,7 @@ class TherapyGroupsController extends BaseController{
                 $data['status'] = 'failed';
             } else {
 
-                if(is_null($groupId)){
+                if(empty( $data['groupData']['id'])){
                     // save new group
                     $id = $this->saveGroup($data['groupData']);
                     $data['groupData']['id'] = $id;
@@ -46,16 +48,23 @@ class TherapyGroupsController extends BaseController{
                 }
 
             }
+        // before saving
         } else {
-            //for new form
-            $data['groupData'] = array('group_name' => null,
-                'group_start_date' => null,
-                'group_type' => null,
-                'group_participation' => null,
-                'notes' => null,
-                'guest_counselors' => null,
-                'group_status' => null
-            );
+
+            if(is_null($groupId)){
+                //for new form
+                $data['groupData'] = array('group_name' => null,
+                    'group_start_date' => null,
+                    'group_type' => null,
+                    'group_participation' => null,
+                    'notes' => null,
+                    'guest_counselors' => null,
+                    'group_status' => null
+                );
+            } else {
+                $data['groupData'] = $therapyGroupModel->getGroup($groupId);
+            }
+
         }
 
         $userModel = $this->loadModel('Users');

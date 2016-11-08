@@ -34,22 +34,22 @@
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="closed" name="group_type" checked><?php echo xlt('Closed'); ?>
+                        <input type="radio" value="closed" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == 'closed' ? 'checked' : '';?>><?php echo xlt('Closed'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="open" name="group_type"><?php echo xlt('Open'); ?>
+                        <input type="radio" value="open" name="group_type"  <?php echo $groupData['group_type'] == 'open' ? 'checked' : '';?>><?php echo xlt('Open'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="train" name="group_type"><?php echo xlt('Train'); ?>
+                        <input type="radio" value="train" name="group_type"  <?php echo  $groupData['group_type'] == 'train' ? 'checked' : '';?>><?php echo xlt('Train'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Obligatory participation'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="mandatory" name="group_participation" checked><?php echo xlt('Mandatory'); ?>
+                        <input type="radio" value="mandatory" name="group_participation" <?php echo is_null($groupData['group_participation']) || $groupData['group_participation'] == 'mandatory' ? 'checked' : '';?>><?php echo xlt('Mandatory'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="optional" name="group_participation"><?php echo xlt('Optional'); ?>
+                        <input type="radio" value="optional" name="group_participation" <?php echo $groupData['group_participation'] == 'optional' ? 'checked' : '';?>><?php echo xlt('Optional'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
@@ -74,7 +74,7 @@
                             <span class="bold"><?php echo xlt('Main counselors'); ?>:</span>
                         </div>
                         <div class="col-md-8 col-sm-7">
-                            <select name="counselors" multiple class="full-width">
+                            <select name="counselors[]" multiple class="full-width">
                                 <?php foreach($users as $user): ?>
                                 <option value="<?php echo $user['id'];?>"><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
                                 <?php endforeach; ?>
