@@ -1129,8 +1129,8 @@ if (!empty($reg)) {
   <?php if($GLOBALS['enable_group_therapy']) : ?>
       <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
           <ul>
-              <?php genMiscLink('RTop','gfn','0',xl('Groups'),'main/finder/dynamic_finder.php'); ?>
-              <?php genTreeLink('RTop','gng',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
+              <?php genMiscLink('RTop','gfn','0',xl('Groups'),'therapy_groups/index.php?method=listGroups'); ?>
+              <?php genTreeLink('RTop','gng', xl('New')); ?>
               <?php genTreeLink('RTop','gdg',xl('Summary')); ?>
               <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
                   <ul>
