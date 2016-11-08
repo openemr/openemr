@@ -72,29 +72,44 @@ class TherapyGroupsController extends BaseController{
         return false;
     }
 
+    /**
+     * Controller for loading the therapy groups to be listed in 'listTherapyGroups' view.
+     */
     public function listTherapyGroups(){
 
+        //Load therapy groups from DB.
         $therapy_groups_model = $this->loadModel('Therapy_Groups');
         $therapy_groups = $therapy_groups_model->getAllTherapyGroups();
 
+        //Load counselors from DB.
         $counselors_model = $this->loadModel('Therapy_Groups_Counselors');
         $counselors = $counselors_model->getAllCounselors();
 
+        //Merge counselors with matching groups and prepare array for view.
         $data = $this->prepareTherapyGroups($therapy_groups, $counselors);
 
+        //Send groups array to view.
         $this->loadView('listTherapyGroups', $data);
     }
 
+    /**
+     * Prepares the therapy group list that will be sent to view.
+     * @param $therapy_groups
+     * @param $counselors
+     * @return array
+     */
     private function prepareTherapyGroups($therapy_groups, $counselors){
 
         $new_array = array();
 
+        //Insert groups into a new array.
         foreach ($therapy_groups as $therapy_group) {
             $gid = $therapy_group['group_id'];
             $new_array[$gid] = $therapy_group;
             $new_array[$gid]['counselors'] = array();
         }
 
+        //Insert the counselors into their groups in new array.
         foreach ($counselors as $counselor){
            $counselor_of_group = $counselor['group_id'];
            array_push($new_array[$counselor_of_group]['counselors'],$counselor['user_id']);

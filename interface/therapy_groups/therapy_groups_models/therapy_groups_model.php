@@ -12,7 +12,7 @@ class Therapy_Groups{
 
     public function getAllTherapyGroups(){
 
-        $sql = 'SELECT * FROM ' . SELf::TABLE . ' ORDER BY ' . SELf::TABLE . '.group_start_date DESC;';
+        $sql = 'SELECT * FROM ' . SELF::TABLE . ' ORDER BY ' . SELF::TABLE . '.group_start_date DESC;';
 
         $therapy_groups = array();
         $result = sqlStatement($sql);
