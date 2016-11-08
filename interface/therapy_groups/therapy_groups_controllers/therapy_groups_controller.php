@@ -18,7 +18,6 @@ class TherapyGroupsController extends BaseController{
         $data = array();
         if(isset($_POST['save'])){
 
-
             $filters = array(
                 'group_name' => FILTER_SANITIZE_STRING,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
@@ -31,14 +30,33 @@ class TherapyGroupsController extends BaseController{
 
             $data['groupData'] = filter_var_array($_POST, $filters);
 
-            if($this->alredyExist($data['groupData'])){
-                $data['message'] = xlt('Failed - already has group with the same name.');
+            if($this->alreadyExist($data['groupData'])){
+                $data['message'] = xlt('Failed - already has group with the same name') . '.';
                 $data['status'] = 'failed';
             } else {
-                $this->saveGroup($data['groupData']);
-            }
-        }
 
+                if(is_null($groupId)){
+                    // save new group
+                    $id = $this->saveGroup($data['groupData']);
+                    $data['groupData']['id'] = $id;
+                    $data['message'] = xlt('New group was saved successfully') . '.';
+                    $data['status'] = 'success';
+                } else {
+                    //update group
+                }
+
+            }
+        } else {
+            //for new form
+            $data['groupData'] = array('group_name' => null,
+                'group_start_date' => null,
+                'group_type' => null,
+                'group_participation' => null,
+                'notes' => null,
+                'guest_counselors' => null,
+                'group_status' => null
+            );
+        }
 
         $userModel = $this->loadModel('Users');
         $users = $userModel->getAllUsers();
@@ -64,6 +82,11 @@ class TherapyGroupsController extends BaseController{
 
     private function prepareTherapyGroups($therapy_groups){
 
+    }
+
+    private function alreadyExist($groupData){
+
+        return false;
     }
 
 

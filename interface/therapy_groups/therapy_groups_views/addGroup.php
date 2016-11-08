@@ -2,6 +2,7 @@
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
+            <input type="hidden" value="<?php echo isset($groupData['id']) ? $groupData['id'] : '';?>">
             <div class="row group-row">
                 <div class="col-md-10">
                     <span class="title"><?php echo xlt('Add group') ?> </span>
@@ -14,7 +15,7 @@
                             <span class="bold"><?php echo xlt('Group’s name') ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
-                            <input type="text" name="group_name" class="full-width">
+                            <input type="text" name="group_name" class="full-width" value="<?php echo $groupData['group_name'];?>">
                         </div>
                     </div>
                 </div>
@@ -24,7 +25,7 @@
                             <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <input type="text" name="group_start_date" class="full-width datepicker">
+                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo $groupData['group_start_date'];?>">
                         </div>
                     </div>
                 </div>
@@ -57,7 +58,7 @@
                             <span class="bold"><?php echo xlt('Status'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <select name="group_status" class="full-width">
+                            <select name="group_status" class="full-width"  value="<?php echo $groupData['group_status'];?>">
                                 <?php foreach($statuses as $key => $status): ?>
                                 <option value="<?php echo $key;?>"><?php echo xlt($status); ?></option>
                                 <?php endforeach; ?>
@@ -87,7 +88,7 @@
                             <span class="bold"><?php echo xlt('Notes'); ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
-                            <textarea name="notes" class="full-width" style="height: 70px">
+                            <textarea name="notes" class="full-width" style="height: 70px"  value="<?php echo $groupData['notes'];?>">
                             </textarea>
                         </div>
                     </div>
@@ -100,7 +101,7 @@
                             <span class="bold"><?php echo xlt('Guest counselors'); ?>:</span>
                         </div>
                         <div class="col-md-8 col-sm-7">
-                           <input type="text" name="guest_counselors" class="full-width">
+                           <input type="text" name="guest_counselors" class="full-width"  value="<?php echo $groupData['guest_counselors'];?>">
                         </div>
                     </div>
                 </div>
