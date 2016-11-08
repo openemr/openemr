@@ -1,6 +1,6 @@
 <?php require 'header.php'; ?>
 <main id="add-group">
-    <div class="container">
+    <div class="container container-group">
         <form>
             <div class="row group-row">
                 <div class="col-md-10">
@@ -58,7 +58,9 @@
                         </div>
                         <div class="col-md-6 col-sm-6">
                             <select name="group_status" class="full-width">
-                                <option><?php echo xlt('Active'); ?></option>
+                                <?php foreach($statuses as $key => $status): ?>
+                                <option value="<?php echo $key;?>"><?php echo xlt($status); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -67,29 +69,48 @@
             <div class="row group-row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-5">
+                        <div class="col-md-4 col-sm-5">
                             <span class="bold"><?php echo xlt('Main counselors'); ?>:</span>
                         </div>
-                        <div class="col-md-7">
-                            <select multiple class="full-width">
-                                <option>Admin</option>
+                        <div class="col-md-8 col-sm-7">
+                            <select name="counselors" multiple class="full-width">
+                                <?php foreach($users as $user): ?>
+                                <option value="<?php echo $user['id'];?>"><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-5">
-
+                        <div class="col-md-3 col-sm-5">
+                            <span class="bold"><?php echo xlt('Notes'); ?>:</span>
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-9 col-sm-7">
+                            <textarea name="notes" class="full-width" style="height: 70px">
 
+                            </textarea>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="row group-row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-5">
+                            <span class="bold"><?php echo xlt('Guest counselors'); ?>:</span>
+                        </div>
+                        <div class="col-md-8 col-sm-7">
+                           <input type="text" name="guest_counselors" class="full-width">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row group-row">
+                <input type="button" name="save" value="<?php echo xlt('Add group');?>">
+            <div>
         </form>
-    </div>l
+    </div>
 </main>
 <script>
     $(document).ready(function(){

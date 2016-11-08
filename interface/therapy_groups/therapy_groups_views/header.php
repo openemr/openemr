@@ -5,7 +5,8 @@
     <meta charset="utf-8">
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/themes/base/jquery.ui.datepicker.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-11-4/themes/base/theme.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-11-4/themes/base/datepicker.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header'];?>" type="text/css">
 
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
