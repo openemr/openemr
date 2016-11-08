@@ -9584,3 +9584,58 @@ CREATE TABLE `product_registration` (
   PRIMARY KEY (`registration_id`)
 ) ENGINE=InnoDB;
 
+-- -------------------------------------------------------
+--
+-- Tables for therapy groups
+--
+DROP TABLE IF EXISTS `therapy_groups`;
+CREATE TABLE `therapy_groups` (
+  `group_id` int(11) NOT NULL auto_increment,
+  `group_name` varchar(255) NOT NULL ,
+  `group_start_date` date NOT NULL ,
+  `group_end_date` date NOT NULL,
+  `group_type` tinyint,
+  `group_participation` tinyint,
+  `group_status` int(11),
+  `group_notes` text,
+  PRIMARY KEY  (`group_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_participants`;
+CREATE TABLE `therapy_groups_participants` (
+  `group_id` int(11) NOT NULL,
+  `pid` int(11) NOT NULL ,
+  `group_patient_status` int(11),
+  `group_patient_start` date NOT NULL ,
+  `group_patient_end` date NOT NULL ,
+  `group_patient_comment` text,
+  PRIMARY KEY  (`group_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
+CREATE TABLE `form_therapy_groups_attendance` (
+  `id` int(11) NOT NULL auto_increment,
+  `date` date NOT NULL ,
+  `group_id` int(11),
+  `group_name` int(11) NOT NULL ,
+  `authorized` tinyint NOT NULL ,
+  `encounter_id` int(11),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
+CREATE TABLE `therapy_groups_participant_attendance` (
+  `form_id` int(11) NOT NULL auto_increment,
+  `pid` int(11) NOT NULL ,
+  `meeting_status` tinyint,
+  `meeting_patient_comment` text ,
+  `meeting_patient_status` tinyint,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_counselors`;
+CREATE TABLE `therapy_groups_counselors`(
+	`group_id` int(11) NOT NULL,
+	`user_id` int(11) NOT NULL
+) ENGINE=InnoDB;
+

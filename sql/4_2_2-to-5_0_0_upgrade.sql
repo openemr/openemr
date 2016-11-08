@@ -2141,3 +2141,54 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id page_validation option_id therapy_groups_add#addGroup
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
 #EndIf
+
+#IfNotTable therapy_groups
+CREATE TABLE `therapy_groups` (
+  `group_id` int(11) NOT NULL auto_increment,
+  `group_name` varchar(255) NOT NULL ,
+  `group_start_date` date NOT NULL ,
+  `group_end_date` date NOT NULL,
+  `group_type` tinyint,
+  `group_participation` tinyint,
+  `group_status` int(11),
+  `group_notes` text,
+  PRIMARY KEY  (`group_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable therapy_groups_participants
+CREATE TABLE `therapy_groups_participants` (
+  `group_id` int(11) NOT NULL,
+  `pid` int(11) NOT NULL ,
+  `group_patient_status` int(11),
+  `group_patient_start` date NOT NULL ,
+  `group_patient_end` date NOT NULL ,
+  `group_patient_comment` text,
+  PRIMARY KEY  (`group_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable form_therapy_groups_attendance
+CREATE TABLE `form_therapy_groups_attendance` (
+  `id` int(11) NOT NULL auto_increment,
+  `date` date NOT NULL ,
+  `group_id` int(11),
+  `group_name` int(11) NOT NULL ,
+  `authorized` tinyint NOT NULL ,
+  `encounter_id` int(11),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable therapy_groups_participant_attendance
+CREATE TABLE `therapy_groups_participant_attendance` (
+  `form_id` int(11) NOT NULL auto_increment,
+  `pid` int(11) NOT NULL ,
+  `meeting_status` tinyint,
+  `meeting_patient_comment` text ,
+  `meeting_patient_status` tinyint,
+  PRIMARY KEY (`form_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable therapy_groups_counselors
