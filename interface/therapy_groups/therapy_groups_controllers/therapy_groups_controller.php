@@ -67,7 +67,12 @@ class TherapyGroupsController extends BaseController{
 
     }
 
-    public function listGroups(){
+    private function alreadyExist($groupData){
+
+        return false;
+    }
+
+    public function listTherapyGroups(){
 
         $therapy_groups_model = $this->loadModel('Therapy_Groups');
         $therapy_groups = $therapy_groups_model->getAllTherapyGroups();
@@ -77,17 +82,28 @@ class TherapyGroupsController extends BaseController{
 
         $data = $this->prepareTherapyGroups($therapy_groups, $counselors);
 
-        $this->loadView('listGroups', $data);
+        $this->loadView('listTherapyGroups', $data);
     }
 
-    private function prepareTherapyGroups($therapy_groups){
+    private function prepareTherapyGroups($therapy_groups, $counselors){
+
+        $new_array = array();
+
+        foreach ($therapy_groups as $therapy_group) {
+            $gid = $therapy_group['group_id'];
+            $new_array[$gid] = $therapy_group;
+            $new_array[$gid]['counselors'] = array();
+        }
+
+        foreach ($counselors as $counselor){
+           $counselor_of_group = $counselor['group_id'];
+           array_push($new_array[$counselor_of_group]['counselors'],$counselor['user_id']);
+        }
+
+        return $new_array;
 
     }
 
-    private function alreadyExist($groupData){
-
-        return false;
-    }
 
 
 }
