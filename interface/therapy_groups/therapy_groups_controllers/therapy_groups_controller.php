@@ -25,5 +25,22 @@ class TherapyGroupsController extends BaseController{
 
     }
 
+    public function listGroups(){
+
+        $therapy_groups_model = $this->loadModel('Therapy_Groups');
+        $therapy_groups = $therapy_groups_model->getAllTherapyGroups();
+
+        $counselors_model = $this->loadModel('Therapy_Groups_Counselors');
+        $counselors = $counselors_model->getAllCounselors();
+
+        $data = $this->prepareTherapyGroups($therapy_groups, $counselors);
+
+        $this->loadView('listGroups', $data);
+    }
+
+    private function prepareTherapyGroups($therapy_groups){
+
+    }
+
 
 }

@@ -7,5 +7,18 @@
  */
 class Therapy_Groups{
 
+    const TABLE = 'therapy_groups';
+
+    public function getAllTherapyGroups(){
+
+        $sql = 'SELECT * FROM ' . SELf::TABLE . ' ORDER BY ' . SELf::TABLE . '.group_start_date DESC;';
+
+        $therapy_groups = array();
+        $result = sqlStatement($sql);
+        while($tg = sqlFetchArray($result)){
+            $therapy_groups[] = $tg;
+        }
+        return $therapy_groups;
+    }
 
 }
