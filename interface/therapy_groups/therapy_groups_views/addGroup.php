@@ -2,7 +2,7 @@
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
-            <input type="hidden" value="<?php echo isset($groupData['id']) ? $groupData['id'] : '';?>">
+            <input type="hidden" value="<?php echo isset($groupData['group_id']) ? $groupData['group_id'] : '';?>">
             <div class="row group-row">
                 <div class="col-md-10">
                     <span class="title"><?php echo xlt('Add group') ?> </span>
@@ -34,22 +34,22 @@
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="closed" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == 'closed' ? 'checked' : '';?>><?php echo xlt('Closed'); ?>
+                        <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?>><?php echo xlt('Closed'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="open" name="group_type"  <?php echo $groupData['group_type'] == 'open' ? 'checked' : '';?>><?php echo xlt('Open'); ?>
+                        <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?>><?php echo xlt('Open'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="train" name="group_type"  <?php echo  $groupData['group_type'] == 'train' ? 'checked' : '';?>><?php echo xlt('Train'); ?>
+                        <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?>><?php echo xlt('Train'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Obligatory participation'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="mandatory" name="group_participation" <?php echo is_null($groupData['group_participation']) || $groupData['group_participation'] == 'mandatory' ? 'checked' : '';?>><?php echo xlt('Mandatory'); ?>
+                        <input type="radio" value="1" name="group_participation" <?php echo is_null($groupData['group_participation']) || $groupData['group_participation'] == '1' ? 'checked' : '';?>><?php echo xlt('Mandatory'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="optional" name="group_participation" <?php echo $groupData['group_participation'] == 'optional' ? 'checked' : '';?>><?php echo xlt('Optional'); ?>
+                        <input type="radio" value="2" name="group_participation" <?php echo $groupData['group_participation'] == '2' ? 'checked' : '';?>><?php echo xlt('Optional'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
@@ -88,8 +88,7 @@
                             <span class="bold"><?php echo xlt('Notes'); ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
-                            <textarea name="notes" class="full-width" style="height: 70px"  value="<?php echo $groupData['notes'];?>">
-                            </textarea>
+                            <textarea name="group_notes" class="full-width" style="height: 70px"><?php echo $groupData['group_notes'];?></textarea>
                         </div>
                     </div>
                 </div>
@@ -101,7 +100,7 @@
                             <span class="bold"><?php echo xlt('Guest counselors'); ?>:</span>
                         </div>
                         <div class="col-md-8 col-sm-7">
-                           <input type="text" name="guest_counselors" class="full-width"  value="<?php echo $groupData['guest_counselors'];?>">
+                           <input type="text" name="group_guest_counselors" class="full-width"  value="<?php echo $groupData['group_guest_counselors'];?>">
                         </div>
                     </div>
                 </div>

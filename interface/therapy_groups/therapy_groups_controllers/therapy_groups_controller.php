@@ -9,25 +9,40 @@ require dirname(__FILE__) . '/base_controller.php';
 
 class TherapyGroupsController extends BaseController{
 
-    public $statuses = array(
+    public $therapyGroupModel;
+
+    public static $statuses = array(
       '10' =>   'active'
     );
+
+    public static $group_types = array(
+        '1' => 'closed',
+        '2' => 'open',
+        '3' => 'train'
+    );
+
+    public static $group_participation = array(
+      '1' => 'mandatory',
+      '2' => 'optional'
+    );
+
+
 
     public function  add($groupId = null){
 
         $data = array();
-        $therapyGroupModel = $this->loadModel('therapy_group');
+        $this->therapyGroupModel = $this->loadModel('therapy_groups');
 
         if(isset($_POST['save'])){
-            //print_r($_POST);
+            print_r($_POST);
             $filters = array(
                 'group_name' => FILTER_SANITIZE_STRING,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
-                'group_type' => FILTER_SANITIZE_STRING,
-                'group_participation' => FILTER_SANITIZE_STRING,
-                'notes' => FILTER_SANITIZE_STRING,
-                'guest_counselors' => FILTER_SANITIZE_STRING,
-                'group_status' => FILTER_VALIDATE_INT
+                'group_type' => FILTER_VALIDATE_INT,
+                'group_participation' => FILTER_VALIDATE_INT,
+                'group_status' => FILTER_VALIDATE_INT,
+                'group_notes' => FILTER_SANITIZE_STRING,
+                'group_guest_counselors' => FILTER_SANITIZE_STRING,
             );
 
             $data['groupData'] = filter_var_array($_POST, $filters);
@@ -37,10 +52,10 @@ class TherapyGroupsController extends BaseController{
                 $data['status'] = 'failed';
             } else {
 
-                if(empty( $data['groupData']['id'])){
+                if(empty( $data['groupData']['group_id'])){
                     // save new group
-                    $id = $this->saveGroup($data['groupData']);
-                    $data['groupData']['id'] = $id;
+                    $id = $this->saveNewGroup($data['groupData']);
+                    $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['status'] = 'success';
                 } else {
@@ -54,15 +69,15 @@ class TherapyGroupsController extends BaseController{
             if(is_null($groupId)){
                 //for new form
                 $data['groupData'] = array('group_name' => null,
-                    'group_start_date' => null,
+                    'group_start_date' => date('Y-m-d'),
                     'group_type' => null,
                     'group_participation' => null,
-                    'notes' => null,
-                    'guest_counselors' => null,
+                    'group_notes' => null,
+                    'group_guest_counselors' => null,
                     'group_status' => null
                 );
             } else {
-                $data['groupData'] = $therapyGroupModel->getGroup($groupId);
+                $data['groupData'] = $this->therapyGroupModel->getGroup($groupId);
             }
 
         }
@@ -70,7 +85,7 @@ class TherapyGroupsController extends BaseController{
         $userModel = $this->loadModel('Users');
         $users = $userModel->getAllUsers();
         $data['users'] = $users;
-        $data['statuses'] = $this->statuses;
+        $data['statuses'] = self::$statuses;
 
         $this->loadView('addGroup', $data);
 
@@ -96,6 +111,18 @@ class TherapyGroupsController extends BaseController{
     private function alreadyExist($groupData){
 
         return false;
+    }
+
+    private function saveNewGroup($groupData){
+
+        $counselors = $groupData['counselors'];
+        unset($groupData['groupId'], $groupData['save'], $groupData['counselors']);
+
+        $groupId = $this->therapyGroupModel->saveNewGroup($groupData);
+        foreach($counselors as $counselorId){
+
+        }
+
     }
 
 
