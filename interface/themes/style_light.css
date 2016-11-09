@@ -1297,6 +1297,8 @@ body.admin-layout input[type="button"] {
 .radio-pos{
   margin-left: 10px;
 }
+
+/* ------- Therapy groups styling --------- */
 .group-row{
   margin-top: 15px;
 }
@@ -1309,3 +1311,4 @@ body.admin-layout input[type="button"] {
 .group-success-msg{
   color: #4c8029;
 }
+

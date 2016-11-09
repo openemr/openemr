@@ -135,6 +135,7 @@ class TherapyGroupsController extends BaseController{
         $data['statuses'] = SELF::$statuses;
         $data['group_types'] = SELF::$group_types;
         $data['group_participation'] = SELF::$group_participation;
+        $data['counselors'] = $this->prepareCounselorsList($counselors);
 
         //Send groups array to view.
         $this->loadView('listTherapyGroups', $data);
@@ -168,6 +169,25 @@ class TherapyGroupsController extends BaseController{
 
         return $new_array;
 
+    }
+
+    /**
+     * Returns a list of counselors without duplicates.
+     * @param $counselors
+     * @return array
+     */
+    private function prepareCounselorsList($counselors){
+
+        $new_array = array();
+        $users_model = $this->loadModel('Users');
+
+        foreach ($counselors as $counselor){
+            $counselor_id = $counselor['user_id'];
+            $counselor_name = $users_model->getUserNameById($counselor_id);
+            $new_array[$counselor_id] = $counselor_name;
+        }
+
+        return $new_array;
     }
 
     /**
