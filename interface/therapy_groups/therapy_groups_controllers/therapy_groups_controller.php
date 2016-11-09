@@ -13,7 +13,8 @@ class TherapyGroupsController extends BaseController{
 
     //list of group statuses
     public static $statuses = array(
-        '10' =>   'active'
+        '10' =>   'active',
+        '20' => 'deleted',
     );
     //list of group types
     public static $group_types = array(

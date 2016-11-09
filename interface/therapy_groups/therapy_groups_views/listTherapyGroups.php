@@ -29,10 +29,13 @@
             <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xl('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value="active"><?php echo xl('active');?></option>
+                    <option value="<?php echo $statuses[10]; ?>"><?php echo xl($statuses[10]);?></option>
                     <?php foreach ($statuses as $status):?>
-                        <option value="<?php echo $status;?>"><?php echo xl($status) ;?></option>
+                        <?php if($status != $statuses[10]): ?>
+                            <option value="<?php echo $status;?>"><?php echo xl($status) ;?></option>
+                        <?php endif; ?>
                     <?php endforeach; ?>
+                    <option value="all"><?php echo xl("all");?></option>
                 </select>
             </div>
             <div class=" form-group col-md-2">
@@ -112,6 +115,99 @@
 </div>
 
 <script>
+
+
+    /* ========= Initialise Data Table & Filters ========= */
+    $(document).ready(function() {
+
+        var lang = '<?php echo $lang ?>';//get language support for filters
+
+        /* Initialise Datetime Pickers */
+        $('#group_from_start_date_filter').datetimepicker();
+        $('#group_to_start_date_filter').datetimepicker();
+
+        $('#group_from_end_date_filter').datetimepicker();
+        $('#group_to_end_date_filter').datetimepicker();
+
+
+        /* Initialise Datatable */
+        var table = $('#therapy_groups_list').DataTable({
+            language: {
+//                url: BASE_PATH + JS_BASE_PATH + '/lib/datatables/i18n/' + lang + '.lang'
+            },
+            initComplete: function () {
+                $('#therapy_groups_list_filter').hide(); //hide searchbar
+            }
+        });
+
+        /* Hide/Show filters */
+        $("#show_filters").click(function () {
+            $('#filters').show();
+            $("#hide_filters").show();
+            $("#show_filters").hide();
+
+        });
+        $("#hide_filters").click(function () {
+            $('#filters').hide();
+            $("#hide_filters").hide();
+            $("#show_filters").show();
+        });
+
+        /* ------------ Toggle filter functions on keyup/change ----------- */
+
+        /*
+        * Note: where there is an explicit extension made for the filter, just table.draw() was used.
+        * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
+        */
+
+
+        /* ---- Datetimepickers ---- */
+        $('#group_from_start_date_filter').change( function() {
+            table.draw();
+        } );
+        $('#group_to_start_date_filter').change( function() {
+            table.draw();
+        } );
+
+        $('#group_from_end_date_filter').change( function() {
+            table.draw();
+        } );
+        $('#group_to_end_date_filter').change( function() {
+            table.draw();
+        } );
+
+        /* --- Text inputs --- */
+        $('#group_name_filter').keyup( function() {
+            table.draw();
+        } );
+        $('#group_id_filter').keyup( function() {
+            table.draw();
+        } );
+
+        /* ---- Select Boxes ---- */
+        $('#group_type_filter').change(function () {
+            table.columns( 2 ).search( this.value ).draw();
+        } );
+
+        $('#group_status_filter').change( function() {
+            table.draw();
+        } );
+
+        $('#counselors_filter').change( function() {
+            table.columns( 6 ).search( this.value ).draw();
+        } );
+
+        /* ----------------- End of filter toggles -------------------- */
+
+
+        /* --------- Reset Filters ------ */
+        $('#clear_filters').click(function(){
+            location.reload();
+        });
+    });
+
+    /* ========= End Of Data Table & Filters Initialisation ========= */
+
     /* ======= DATATABLE FILTER EXTENSIONS ======== */
 
     /* Extension for distribution date */
@@ -237,12 +333,12 @@
     );
 
     /* Extension for group status */
-    $.fn.dataTable.ext.search.push(
+    $.fn.dataTableExt.afnFiltering.push(
         function( settings, data, dataIndex ) {
-            var status_selected = $("#group_status_filter option:selected").html()||'';
+            var status_selected = $("#group_status_filter").val()||'';
             var status = data[3] || '';
-            if(status_selected==''){
-                    return true;
+            if(status_selected=='' || status_selected == 'all'){
+                return true;
             }
             if(status==status_selected)
                 return true;
@@ -252,92 +348,6 @@
 
 
     /* ========= END OF EXTENSIONS ============= */
-
-
-    /* ========= Initialise Data Table & Filters ========= */
-    $(document).ready(function() {
-
-        var lang = '<?php echo $lang ?>';//get language support for filters
-
-        /* Initialise Datetime Pickers */
-        $('#group_from_start_date_filter').datetimepicker();
-        $('#group_to_start_date_filter').datetimepicker();
-
-        $('#group_from_end_date_filter').datetimepicker();
-        $('#group_to_end_date_filter').datetimepicker();
-
-
-        /* Initialise Datatable */
-        var table = $('#therapy_groups_list').DataTable({
-            language: {
-//                url: BASE_PATH + JS_BASE_PATH + '/lib/datatables/i18n/' + lang + '.lang'
-            },
-            initComplete: function () {
-                $('#therapy_groups_list_filter').hide(); //hide searchbar
-            }
-        });
-
-        /* Hide/Show filters */
-        $("#show_filters").click(function () {
-            $('#filters').show();
-            $("#hide_filters").show();
-            $("#show_filters").hide();
-
-        });
-        $("#hide_filters").click(function () {
-            $('#filters').hide();
-            $("#hide_filters").hide();
-            $("#show_filters").show();
-        });
-
-        /* ------------ Toggle filter functions on keyup/change ----------- */
-
-        /* ---- Datetimepickers ---- */
-        $('#group_from_start_date_filter').change( function() {
-            table.draw();
-        } );
-        $('#group_to_start_date_filter').change( function() {
-            table.draw();
-        } );
-
-        $('#group_from_end_date_filter').change( function() {
-            table.draw();
-        } );
-        $('#group_to_end_date_filter').change( function() {
-            table.draw();
-        } );
-
-        /* --- Text inputs --- */
-        $('#group_name_filter').keyup( function() {
-            table.draw();
-        } );
-        $('#group_id_filter').keyup( function() {
-            table.draw();
-        } );
-
-        /* ---- Select Boxes ---- */
-        $('#group_type_filter').change(function () {
-            table.columns( 2 ).search( this.value ).draw();
-        } );
-
-        $('#group_status_filter').change( function() {
-            table.columns( 3 ).search( this.value ).draw();
-        } );
-
-        $('#counselors_filter').change( function() {
-            table.columns( 6 ).search( this.value ).draw();
-        } );
-
-        /* ----------------- End of filter toggles -------------------- */
-
-
-        /* --------- Reset Filters ------ */
-        $('#clear_filters').click(function(){
-            location.reload();
-        });
-    });
-
-    /* ========= End Of Data Table & Filters Initialisation ========= */
 
 
 </script>
