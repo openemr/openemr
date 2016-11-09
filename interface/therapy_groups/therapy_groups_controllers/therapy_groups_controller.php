@@ -100,6 +100,8 @@ class TherapyGroupsController extends BaseController{
             } else {
                 //for exist group screen
                 $data['groupData'] = $this->therapyGroupModel->getGroup($groupId);
+                $data['readonly'] = isset($_GET['editGroup']) ? '' : 'disabled';
+
                 $this->loadView('groupDetailsGeneralData', $data);
             }
 

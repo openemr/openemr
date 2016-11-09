@@ -1169,3 +1169,18 @@ height: 300px !important;
 .group-success-msg{
     color: #4c8029;
 }
+#component-border{
+    margin-bottom: 20px;
+    border: 1px solid #2672ec;
+    width: 100%;
+    min-height: 150px;
+    padding: 10px;
+}
+#main-component ul{
+}
+.float-right{
+    float: right;
+}
+.rtl .float-right{
+    float: left;
+}

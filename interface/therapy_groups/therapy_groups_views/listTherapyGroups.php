@@ -71,7 +71,7 @@
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
-                    <td><a href=""><?php echo $group['group_name'];?></a></td>
+                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $group['group_id']; ?>"><?php echo $group['group_name'];?></a></td>
                     <td><?php echo $group['group_id'];?></td>
                     <td><?php echo $group_types[$group['group_type']];?></td>
                     <td><?php echo $statuses[$group['group_status']];?></td>
