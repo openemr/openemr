@@ -86,7 +86,7 @@ class TherapyGroupsController extends BaseController{
         $counselors = $counselors_model->getAllCounselors();
 
         //Merge counselors with matching groups and prepare array for view.
-        $data = $this->prepareTherapyGroups($therapy_groups, $counselors);
+        $data['therapyGroups'] = $this->prepareTherapyGroups($therapy_groups, $counselors);
 
         //Send groups array to view.
         $this->loadView('listTherapyGroups', $data);
