@@ -18,8 +18,8 @@ switch($method){
         $a->add();
         break;
 
-    case 'listGroups':
-        $a = new TherapyGroupsController();
-        $a->listGroups();
+    case 'listTherapyGroups':
+        $controller = new TherapyGroupsController();
+        $controller->listTherapyGroups();
         break;
 }
