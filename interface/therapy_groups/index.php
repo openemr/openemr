@@ -14,12 +14,19 @@ $method = $_GET['method'];
 
 switch($method){
     case 'addGroup':
-        $a = new TherapyGroupsController();
-        $a->add();
+        $controller = new TherapyGroupsController();
+        $controller->index();
         break;
 
     case 'listTherapyGroups':
         $controller = new TherapyGroupsController();
         $controller->listTherapyGroups();
+        break;
+    case 'groupDetails':
+        if(!isset($_GET['group_id'])){
+            die('Missing group ID');
+        }
+        $controller = new TherapyGroupsController();
+        $controller->index($_GET['group_id']);
         break;
 }
