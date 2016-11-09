@@ -555,4 +555,9 @@ form#pattrk #inanewwindow>span{
     float: left !important;
 }
 
+/* Therapy Groups */
+#therapy_groups_list_container #clear_filters{
+    float: right;
+}
+
 
