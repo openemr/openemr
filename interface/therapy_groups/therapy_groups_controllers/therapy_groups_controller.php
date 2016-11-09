@@ -12,18 +12,18 @@ class TherapyGroupsController extends BaseController{
     public $therapyGroupModel;
 
     public static $statuses = array(
-      '10' =>   'active'
+        '10' =>   'active'
     );
 
     public static $group_types = array(
         '1' => 'closed',
         '2' => 'open',
-        '3' => 'train'
+        '3' => 'training'
     );
 
     public static $group_participation = array(
-      '1' => 'mandatory',
-      '2' => 'optional'
+        '1' => 'mandatory',
+        '2' => 'optional'
     );
 
 
@@ -113,6 +113,11 @@ class TherapyGroupsController extends BaseController{
 
         //Merge counselors with matching groups and prepare array for view.
         $data['therapyGroups'] = $this->prepareTherapyGroups($therapy_groups, $counselors);
+
+        //Insert static arrays to send to view.
+        $data['statuses'] = SELF::$statuses;
+        $data['group_types'] = SELF::$group_types;
+        $data['group_participation'] = SELF::$group_participation;
 
         //Send groups array to view.
         $this->loadView('listTherapyGroups', $data);
