@@ -22,4 +22,10 @@ class Therapy_Groups_Counselors{
         return $counselors;
 
     }
+
+    public function save($groupId, $userId){
+
+        $sql = "INSERT INTO " . self::TABLE . " (group_id, user_id) VALUES(?,?)";
+        sqlStatement($sql, array($groupId, $userId));
+    }
 }

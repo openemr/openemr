@@ -2148,10 +2148,11 @@ CREATE TABLE `therapy_groups` (
   `group_name` varchar(255) NOT NULL ,
   `group_start_date` date NOT NULL ,
   `group_end_date` date NOT NULL,
-  `group_type` tinyint,
-  `group_participation` tinyint,
-  `group_status` int(11),
+  `group_type` tinyint NOT NULL,
+  `group_participation` tinyint NOT NULL,
+  `group_status` int(11) NOT NULL,
   `group_notes` text,
+  `group_guest_counselors` varchar(255),
   PRIMARY KEY  (`group_id`)
 ) ENGINE=InnoDB;
 #EndIf
