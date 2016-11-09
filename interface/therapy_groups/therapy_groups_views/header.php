@@ -16,4 +16,4 @@
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
 </head>
 
-<body>
+<body class="body_top therapy_group">

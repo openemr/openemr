@@ -30,4 +30,13 @@ class Therapy_Groups{
         return $groupId;
     }
 
+    public function existGroup($name, $startDate){
+
+        $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
+
+        $result = sqlStatement($sql, array($name, $startDate));
+        $count = sqlFetchArray($result);
+        return($count['count'] > 0) ? true : false;
+    }
+
 }
