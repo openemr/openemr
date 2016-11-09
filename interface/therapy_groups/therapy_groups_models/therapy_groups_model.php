@@ -22,6 +22,16 @@ class Therapy_Groups{
         return $therapy_groups;
     }
 
+    public function getGroup($groupId){
+
+        $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ?";
+
+        $result = sqlStatement($sql, array($groupId));
+        $group = sqlFetchArray($result);
+
+        return $group;
+    }
+
     public function saveNewGroup(array $groupData){
 
         $sql = "INSERT INTO " . self::TABLE . " (group_name, group_start_date,group_type,group_participation,group_status,group_notes,group_guest_counselors) VALUES(?,?,?,?,?,?,?)";

@@ -33,7 +33,7 @@ class TherapyGroupsController extends BaseController{
      * making validation and saving in the match tables.
      * @param null $groupId - must pass when edit group
      */
-    public function  add($groupId = null){
+    public function index($groupId = null){
 
         $data = array();
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
@@ -95,12 +95,16 @@ class TherapyGroupsController extends BaseController{
                     'group_guest_counselors' => null,
                     'group_status' => null
                 );
+                $this->loadView('addGroup', $data);
+
             } else {
+                //for exist group screen
                 $data['groupData'] = $this->therapyGroupModel->getGroup($groupId);
+                $this->loadView('groupDetailsGeneralData', $data);
             }
 
         }
-        $this->loadView('addGroup', $data);
+
     }
 
     /**
