@@ -1327,3 +1327,18 @@ body.admin-layout input[type="button"] {
 .rtl .float-right{
   float: left;
 }
+
+table.dataTable#therapy_groups_list tbody td{
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 15px;
+}
+
+.therapy_group #therapy_groups_list_container{
+  margin-top: initial;
+  width: initial;
+}
+
+.therapy_group #therapy_groups_list_container input[type = "text"]{
+  border-color: #ccc;
+}

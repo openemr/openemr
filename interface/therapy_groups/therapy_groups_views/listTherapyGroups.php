@@ -29,7 +29,7 @@
             <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xl('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value=""><?php echo xl('choose');?></option>
+                    <option value="active"><?php echo xl('active');?></option>
                     <?php foreach ($statuses as $status):?>
                         <option value="<?php echo $status;?>"><?php echo xl($status) ;?></option>
                     <?php endforeach; ?>
@@ -206,8 +206,8 @@
     $.fn.dataTableExt.afnFiltering.push(
         function( oSettings, aData, iDataIndex ) {
             var iColumn = 0;
-            var iVal = document.getElementById('group_name_filter').value*1 ;
-            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+            var iVal = document.getElementById('group_name_filter').value;
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn];
 
             if(iVal === "" || iVal == 0){
                 return true;
@@ -235,6 +235,21 @@
             return false;
         }
     );
+
+    /* Extension for group status */
+    $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+            var status_selected = $("#group_status_filter option:selected").html()||'';
+            var status = data[3] || '';
+            if(status_selected==''){
+                    return true;
+            }
+            if(status==status_selected)
+                return true;
+            return false;
+        });
+
+
 
     /* ========= END OF EXTENSIONS ============= */
 
