@@ -1,6 +1,6 @@
 <?php require 'header.php'; ?>
 
-<div id="medicine_history_container" class="container">
+<div id="therapy_groups_list_container" class="container">
 
     <!---------- FILTERS SECTION ------------->
     <a id="show_filters" class="btn btn-alert"><?php echo xl("Show Filters")?></a>
@@ -13,36 +13,56 @@
                 <label class="" for="group_name_filter"><?php echo xl('Group Name');?>:</label>
                 <input type="text" class="form-control" id="group_name_filter" placeholder="" >
             </div>
-            <div class=" form-group col-md-1">
+            <div class=" form-group col-md-2">
                 <label class="" for="group_id_filter"><?php echo xl('Group Id');?>:</label>
                 <input type="number" class="form-control" id="group_id_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_type_filter"><?php echo xl('Group type');?>:</label>
+                <label class="" for="group_type_filter"><?php echo xl('Group Type');?>:</label>
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xl('choose');?></option>
-                    <?php foreach ($group_types as $key => $type):?>
-                        <option value="<?php echo $key;?>"><?php echo $type ;?></option>
+                    <?php foreach ($group_types as $type):?>
+                        <option value="<?php echo $type;?>"><?php echo xl($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xl('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value=""><?php echo xl('choose');?></option>
-                    <?php foreach ($statuses as $key => $status):?>
-                        <option value="<?php echo $key;?>"><?php echo $status ;?></option>
+                    <option value="<?php echo $statuses[10]; ?>"><?php echo xl($statuses[10]);?></option>
+                    <?php foreach ($statuses as $status):?>
+                        <?php if($status != $statuses[10]): ?>
+                            <option value="<?php echo $status;?>"><?php echo xl($status) ;?></option>
+                        <?php endif; ?>
                     <?php endforeach; ?>
+                    <option value="all"><?php echo xl("all");?></option>
                 </select>
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_from_start_date_filter"><?php echo xl('Starting Date');?>:</label>
+                <label class="" for="counselors_filter"><?php echo xl('Main Counselors');?>:</label>
+                <select type="text" class="form-control" id="counselors_filter" placeholder="" >
+                    <option value=""><?php echo xl('choose');?></option>
+                    <?php foreach ($counselors as $counselor):?>
+                        <option value="<?php echo $counselor;?>"><?php echo $counselor ;?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class=" form-group col-md-2">
+                <label class="" for="group_from_start_date_filter"><?php echo xl('Starting Date From');?>:</label>
                 <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="<?php echo xl('from');?>" >
+            </div>
+            <div class=" form-group col-md-2">
+                <label class="" for="group_to_start_date_filter"><?php echo xl('Starting Date To');?>:</label>
                 <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="<?php echo xl("to");?>" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_from_end_date_filter"><?php echo xl('End Date');?>:</label>
+                <label class="" for="group_from_end_date_filter"><?php echo xl('End Date From');?>:</label>
                 <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="<?php echo xl('from');?>" >
+            </div>
+            <div class=" form-group col-md-2">
+                <label class="" for="group_to_end_date_filter"><?php echo xl('End Date To');?>:</label>
                 <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="<?php echo xl("to");?>" >
             </div>
 
@@ -95,6 +115,8 @@
 </div>
 
 <script>
+
+
     /* ========= Initialise Data Table & Filters ========= */
     $(document).ready(function() {
 
@@ -130,7 +152,203 @@
             $("#hide_filters").hide();
             $("#show_filters").show();
         });
+
+        /* ------------ Toggle filter functions on keyup/change ----------- */
+
+        /*
+        * Note: where there is an explicit extension made for the filter, just table.draw() was used.
+        * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
+        */
+
+
+        /* ---- Datetimepickers ---- */
+        $('#group_from_start_date_filter').change( function() {
+            table.draw();
+        } );
+        $('#group_to_start_date_filter').change( function() {
+            table.draw();
+        } );
+
+        $('#group_from_end_date_filter').change( function() {
+            table.draw();
+        } );
+        $('#group_to_end_date_filter').change( function() {
+            table.draw();
+        } );
+
+        /* --- Text inputs --- */
+        $('#group_name_filter').keyup( function() {
+            table.draw();
+        } );
+        $('#group_id_filter').keyup( function() {
+            table.draw();
+        } );
+
+        /* ---- Select Boxes ---- */
+        $('#group_type_filter').change(function () {
+            table.columns( 2 ).search( this.value ).draw();
+        } );
+
+        $('#group_status_filter').change( function() {
+            table.draw();
+        } );
+
+        $('#counselors_filter').change( function() {
+            table.columns( 6 ).search( this.value ).draw();
+        } );
+
+        /* ----------------- End of filter toggles -------------------- */
+
+
+        /* --------- Reset Filters ------ */
+        $('#clear_filters').click(function(){
+            location.reload();
+        });
     });
+
+    /* ========= End Of Data Table & Filters Initialisation ========= */
+
+    /* ======= DATATABLE FILTER EXTENSIONS ======== */
+
+    /* Extension for distribution date */
+    $.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+
+            if(document.getElementById('group_from_start_date_filter').value === ""){
+                var iFini = document.getElementById('group_from_start_date_filter').value;
+            }
+            else{
+                var iFini = new Date(document.getElementById('group_from_start_date_filter').value);
+            }
+
+            if(document.getElementById('group_to_start_date_filter').value === ""){
+                var iFfin = document.getElementById('group_to_start_date_filter').value;
+            }
+            else{
+                var iFfin = new Date(document.getElementById('group_to_start_date_filter').value);
+            }
+
+            var iStartDateCol = 4;
+            var iEndDateCol = 4;
+            var datofini = new Date(aData[iStartDateCol]);
+            var datoffin = new Date(aData[iEndDateCol]);
+
+
+            if ( iFini === "" && iFfin === "" )
+            {
+                return true;
+            }
+            else if ( iFini <= datofini && iFfin === "")
+            {
+                return true;
+            }
+            else if ( iFfin >= datoffin && iFini === "")
+            {
+                return true;
+            }
+            else if (iFini <= datofini && iFfin >= datoffin)
+            {
+                return true;
+            }
+            return false;
+        }
+    );
+
+    /* Extension for Irregular approval date */
+    $.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+
+            if(document.getElementById('group_from_end_date_filter').value === ""){
+                var iFini = document.getElementById('group_from_end_date_filter').value;
+            }
+            else{
+                var iFini = new Date(document.getElementById('group_from_end_date_filter').value);
+            }
+
+            if(document.getElementById('group_to_end_date_filter').value === ""){
+                var iFfin = document.getElementById('group_to_end_date_filter').value;
+            }
+            else{
+                var iFfin = new Date(document.getElementById('group_to_end_date_filter').value);
+            }
+
+            var iStartDateCol = 5;
+            var iEndDateCol = 5;
+            var datofini = new Date(aData[iStartDateCol]);
+            var datoffin = new Date(aData[iEndDateCol]);
+
+
+            if ( iFini === "" && iFfin === "" )
+            {
+                return true;
+            }
+            else if ( iFini <= datofini && iFfin === "")
+            {
+                return true;
+            }
+            else if ( iFfin >= datoffin && iFini === "")
+            {
+                return true;
+            }
+            else if (iFini <= datofini && iFfin >= datoffin)
+            {
+                return true;
+            }
+            return false;
+        }
+    );
+
+    /* Extension for group name */
+    $.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+            var iColumn = 0;
+            var iVal = document.getElementById('group_name_filter').value;
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn];
+
+            if(iVal === "" || iVal == 0){
+                return true;
+            }
+            else if(iVal == iVersion){
+                return true;
+            }
+            return false;
+        }
+    );
+
+    /* Extension for group id */
+    $.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+            var iColumn = 1;
+            var iVal = document.getElementById('group_id_filter').value*1 ;
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+
+            if(iVal === "" || iVal == 0){
+                return true;
+            }
+            else if(iVal == iVersion){
+                return true;
+            }
+            return false;
+        }
+    );
+
+    /* Extension for group status */
+    $.fn.dataTableExt.afnFiltering.push(
+        function( settings, data, dataIndex ) {
+            var status_selected = $("#group_status_filter").val()||'';
+            var status = data[3] || '';
+            if(status_selected=='' || status_selected == 'all'){
+                return true;
+            }
+            if(status==status_selected)
+                return true;
+            return false;
+        });
+
+
+
+    /* ========= END OF EXTENSIONS ============= */
+
 
 </script>
 
