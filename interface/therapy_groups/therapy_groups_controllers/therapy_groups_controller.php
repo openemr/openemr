@@ -13,18 +13,18 @@ class TherapyGroupsController extends BaseController{
 
     //list of group statuses
     public static $statuses = array(
-      '10' =>   'active'
+        '10' =>   'active'
     );
     //list of group types
     public static $group_types = array(
         '1' => 'closed',
         '2' => 'open',
-        '3' => 'train'
+        '3' => 'training'
     );
     //list of participation types
     public static $group_participation = array(
-      '1' => 'mandatory',
-      '2' => 'optional'
+        '1' => 'mandatory',
+        '2' => 'optional'
     );
 
 
@@ -133,7 +133,12 @@ class TherapyGroupsController extends BaseController{
         $counselors = $counselors_model->getAllCounselors();
 
         //Merge counselors with matching groups and prepare array for view.
-        $data = $this->prepareTherapyGroups($therapy_groups, $counselors);
+        $data['therapyGroups'] = $this->prepareTherapyGroups($therapy_groups, $counselors);
+
+        //Insert static arrays to send to view.
+        $data['statuses'] = SELF::$statuses;
+        $data['group_types'] = SELF::$group_types;
+        $data['group_participation'] = SELF::$group_participation;
 
         //Send groups array to view.
         $this->loadView('listTherapyGroups', $data);
@@ -148,6 +153,7 @@ class TherapyGroupsController extends BaseController{
     private function prepareTherapyGroups($therapy_groups, $counselors){
 
         $new_array = array();
+        $users_model = $this->loadModel('Users');
 
         //Insert groups into a new array.
         foreach ($therapy_groups as $therapy_group) {
@@ -158,8 +164,10 @@ class TherapyGroupsController extends BaseController{
 
         //Insert the counselors into their groups in new array.
         foreach ($counselors as $counselor){
-           $counselor_of_group = $counselor['group_id'];
-           array_push($new_array[$counselor_of_group]['counselors'],$counselor['user_id']);
+            $counselor_of_group = $counselor['group_id'];
+            $counselor_id = $counselor['user_id'];
+            $counselor_name = $users_model->getUserNameById($counselor_id);
+            array_push($new_array[$counselor_of_group]['counselors'],$counselor_name);
         }
 
         return $new_array;

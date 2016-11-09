@@ -10,6 +10,10 @@ class Users{
 
     const TABLE = 'users';
 
+    /**
+     * Get all users' ids and full names from users table.
+     * @return array
+     */
     public function getAllUsers(){
 
         $sql = 'SELECT id, fname, lname FROM ' . self::TABLE . ' WHERE active = 1';
@@ -21,5 +25,24 @@ class Users{
         }
 
         return $users;
+    }
+
+    /**
+     * Get user name by user id from users table.
+     * @param $uid
+     * @return string
+     */
+    public function getUserNameById($uid){
+        $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
+
+        $result = sqlStatement($sql, array($uid));
+        while($u = sqlFetchArray($result)){
+            $user_name[] = $u;
+        }
+
+        $user_full_name = $user_name[0]['fname'] . "    " . $user_name[0]['lname'];
+
+        return $user_full_name;
+
     }
 }
