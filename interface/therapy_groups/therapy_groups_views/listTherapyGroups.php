@@ -1,12 +1,12 @@
 <?php require 'header.php'; ?>
 
 <div id="medicine_history_container" class="container">
-    <h2><?php echo xl("Therapy Groups List"); ?></h2>
 
     <!---------- FILTERS SECTION ------------->
     <a id="show_filters" class="btn btn-alert"><?php echo xl("Show Filters")?></a>
     <a id="hide_filters" class="btn btn-alert" style="display: none;"><?php echo xl("Hide Filters")?></a>
     <button id="clear_filters" class="btn"><?php echo xl("Clear Filters")?></button>
+    </br></br>
     <div id="filters" style="display: none;">
         <div class="row">
             <div class=" form-group col-md-2">
@@ -17,7 +17,7 @@
                 <label class="" for="group_id_filter"><?php echo xl('Group Id');?>:</label>
                 <input type="number" class="form-control" id="group_id_filter" placeholder="" >
             </div>
-            <div class=" form-group col-md-1">
+            <div class=" form-group col-md-2">
                 <label class="" for="group_type_filter"><?php echo xl('Group type');?>:</label>
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xl('choose');?></option>
@@ -26,7 +26,7 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class=" form-group col-md-1">
+            <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xl('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
                     <option value=""><?php echo xl('choose');?></option>
@@ -50,6 +50,8 @@
     </div>
     <!---------- END OF FILTERS SECTION ------------->
 
+    </br></br>
+
     <!---------- TABLE SECTION -------------->
     <div class="row">
         <table  id="therapy_groups_list" class="dataTable display">
@@ -69,7 +71,7 @@
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
-                    <td><?php echo $group['group_name'];?></td>
+                    <td><a href=""><?php echo $group['group_name'];?></a></td>
                     <td><?php echo $group['group_id'];?></td>
                     <td><?php echo $group_types[$group['group_type']];?></td>
                     <td><?php echo $statuses[$group['group_status']];?></td>
@@ -77,7 +79,7 @@
                     <td><?php echo $group['group_end_date'];?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
-                            echo $counselor . "   ";
+                            echo $counselor . " </br> ";
                         } ;?>
                     </td>
                     <td><?php echo $group['group_notes'];?></td>
@@ -91,5 +93,45 @@
     <!---------- END OF TABLE SECTION -------------->
 
 </div>
+
+<script>
+    /* ========= Initialise Data Table & Filters ========= */
+    $(document).ready(function() {
+
+        var lang = '<?php echo $lang ?>';//get language support for filters
+
+        /* Initialise Datetime Pickers */
+        $('#group_from_start_date_filter').datetimepicker();
+        $('#group_to_start_date_filter').datetimepicker();
+
+        $('#group_from_end_date_filter').datetimepicker();
+        $('#group_to_end_date_filter').datetimepicker();
+
+
+        /* Initialise Datatable */
+        var table = $('#therapy_groups_list').DataTable({
+            language: {
+//                url: BASE_PATH + JS_BASE_PATH + '/lib/datatables/i18n/' + lang + '.lang'
+            },
+            initComplete: function () {
+                $('#therapy_groups_list_filter').hide(); //hide searchbar
+            }
+        });
+
+        /* Hide/Show filters */
+        $("#show_filters").click(function () {
+            $('#filters').show();
+            $("#hide_filters").show();
+            $("#show_filters").hide();
+
+        });
+        $("#hide_filters").click(function () {
+            $('#filters').hide();
+            $("#hide_filters").hide();
+            $("#show_filters").show();
+        });
+    });
+
+</script>
 
 <?php require  'footer.php'; ?>

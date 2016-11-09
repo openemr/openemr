@@ -149,6 +149,7 @@ class TherapyGroupsController extends BaseController{
     private function prepareTherapyGroups($therapy_groups, $counselors){
 
         $new_array = array();
+        $users_model = $this->loadModel('Users');
 
         //Insert groups into a new array.
         foreach ($therapy_groups as $therapy_group) {
@@ -159,8 +160,10 @@ class TherapyGroupsController extends BaseController{
 
         //Insert the counselors into their groups in new array.
         foreach ($counselors as $counselor){
-           $counselor_of_group = $counselor['group_id'];
-           array_push($new_array[$counselor_of_group]['counselors'],$counselor['user_id']);
+            $counselor_of_group = $counselor['group_id'];
+            $counselor_id = $counselor['user_id'];
+            $counselor_name = $users_model->getUserNameById($counselor_id);
+            array_push($new_array[$counselor_of_group]['counselors'],$counselor_name);
         }
 
         return $new_array;
