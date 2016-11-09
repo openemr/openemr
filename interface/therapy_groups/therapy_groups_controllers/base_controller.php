@@ -25,6 +25,7 @@ class BaseController{
         ob_start();
         require($template);
         echo ob_get_clean();
+        exit();
     }
 
 

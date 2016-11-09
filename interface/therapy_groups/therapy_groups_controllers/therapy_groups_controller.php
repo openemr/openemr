@@ -11,29 +11,46 @@ class TherapyGroupsController extends BaseController{
 
     public $therapyGroupModel;
 
+    //list of group statuses
     public static $statuses = array(
       '10' =>   'active'
     );
-
+    //list of group types
     public static $group_types = array(
         '1' => 'closed',
         '2' => 'open',
         '3' => 'train'
     );
-
+    //list of participation types
     public static $group_participation = array(
       '1' => 'mandatory',
       '2' => 'optional'
     );
 
 
-
+    /**
+     * add / edit therapy group
+     * making validation and saving in the match tables.
+     * @param null $groupId - must pass when edit group
+     */
     public function  add($groupId = null){
 
         $data = array();
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
-
+        $userModel = $this->loadModel('Users');
+        $users = $userModel->getAllUsers();
+        $data['users'] = $users;
+        $data['statuses'] = self::$statuses;
+       //print_r($_POST);die;
         if(isset($_POST['save'])){
+
+            // for new group - checking if already exist same name
+            if(empty( $_POST['group_id']) && $_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST)){
+                $data['message'] = xlt('Failed - already has group with the same name') . '.';
+                $data['savingStatus'] = 'exist';
+                $data['groupData'] = $_POST;
+                $this->loadView('addGroup', $data);
+            }
 
             $filters = array(
                 'group_name' => FILTER_SANITIZE_STRING,
@@ -46,20 +63,20 @@ class TherapyGroupsController extends BaseController{
                 'counselors' => array('filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY)
             );
-
+            //filter and sanitize all post data.
             $data['groupData'] = filter_var_array($_POST, $filters);
-
-            if($this->alreadyExist($data['groupData'])){
-                $data['message'] = xlt('Failed - already has group with the same name') . '.';
-                $data['status'] = 'failed';
-            } else {
+            if(!$data['groupData']){
+                $data['message'] = xlt('Failed to create new group') . '.';
+                $data['savingStatus'] = 'failed';
+            }
+            else {
 
                 if(empty( $data['groupData']['group_id'])){
                     // save new group
                     $id = $this->saveNewGroup($data['groupData']);
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
-                    $data['status'] = 'success';
+                    $data['savingStatus'] = 'success';
                 } else {
                     //update group
                 }
@@ -83,19 +100,19 @@ class TherapyGroupsController extends BaseController{
             }
 
         }
-
-        $userModel = $this->loadModel('Users');
-        $users = $userModel->getAllUsers();
-        $data['users'] = $users;
-        $data['statuses'] = self::$statuses;
-
         $this->loadView('addGroup', $data);
-
     }
 
+    /**
+     * check if exist group with the same name and same start date
+     * @param $groupData
+     * @return bool
+     */
     private function alreadyExist($groupData){
 
-        return false;
+        $isExistGroup = $this->therapyGroupModel->existGroup($groupData['group_name'], $groupData['group_start_date']);
+        //true / false
+        return $isExistGroup;
     }
 
     /**
@@ -145,6 +162,11 @@ class TherapyGroupsController extends BaseController{
 
     }
 
+    /**
+     * insert a new group to therapy_group table and connect between user-counselor to group at therapy_Groups_Counselors table
+     * @param $groupData
+     * @return int $groupId
+     */
     private function saveNewGroup($groupData){
 
         $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
@@ -156,6 +178,8 @@ class TherapyGroupsController extends BaseController{
         foreach($counselors as $counselorId){
             $counselors_model->save($groupId, $counselorId);
         }
+
+        return $groupId;
     }
 
 

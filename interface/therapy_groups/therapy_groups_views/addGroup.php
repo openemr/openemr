@@ -106,7 +106,21 @@
                 </div>
             </div>
             <div class="row group-row">
-                <input type="submit" name="save" value="<?php echo xlt('Add group');?>">
+                <div class="col-md-3">
+                    <button type="submit" name="save" value="save" <?php echo $savingStatus == 'success' ? 'disabled' : '';?>><?php echo xlt('Add group');?></button>
+                </div>
+                <div class="col-md-9 col-sm 12">
+
+                    <?php if($savingStatus == 'exist'): ?>
+                        <div id="exist-group"><h4 class="group-error-msg"><?php echo $message ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
+                    <?php endif ?>
+                    <?php if($savingStatus == 'success'): ?>
+                        <h4 class="group-success-msg"><?php echo $message ?></h4>
+                    <?php endif ?>
+                    <?php if($savingStatus == 'failed'): ?>
+                        <h4 class="group-serror-msg"><?php echo $message ?></h4>
+                    <?php endif ?>
+                </div>
             <div>
         </form>
     </div>
@@ -116,6 +130,10 @@
        $('.datepicker').datepicker({
            dateFormat: "yy-mm-dd"
        });
+    });
+    $('#cancel-save').on('click', function(e){
+        e.preventDefault();
+        $('#exist-group').hide();
     });
 </script>
 <?php    $use_validate_js = 1;?>
