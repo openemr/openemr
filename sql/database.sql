@@ -9588,6 +9588,7 @@ CREATE TABLE `product_registration` (
 --
 -- Tables for therapy groups
 --
+DROP TABLE IF EXISTS `therapy_groups`;
 CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
   `group_name` varchar(255) NOT NULL ,

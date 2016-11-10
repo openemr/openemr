@@ -40,13 +40,33 @@ class Therapy_Groups{
         return $groupId;
     }
 
-    public function existGroup($name, $startDate){
+    public function updateGroup(array $groupData){
+
+        $sql = "UPDATE " . self::TABLE . " SET ";
+        foreach($groupData as $key => $value){
+            $sql .= $key . '=?,';
+        }
+        $sql = substr($sql,0, -1);
+        $sql .= ' WHERE group_id = ' . $groupData['group_id'];
+        $result = sqlStatement($sql, $groupData);
+        return !$result ? false :true;
+    }
+
+    public function existGroup($name, $startDate, $groupId = null){
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
+        $conditions = array($name, $startDate);
 
-        $result = sqlStatement($sql, array($name, $startDate));
+        if(!is_null($groupId)){
+            $sql .= " AND group_id <> ?";
+            $conditions[] = $groupId;
+        }
+
+        $result = sqlStatement($sql, $conditions);
         $count = sqlFetchArray($result);
         return($count['count'] > 0) ? true : false;
     }
+
+
 
 }
