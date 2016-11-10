@@ -5,7 +5,7 @@
  * Date: 07/11/16
  * Time: 12:16
  */
-require dirname(__FILE__) . '/base_controller.php';
+require_once dirname(__FILE__) . '/base_controller.php';
 
 class TherapyGroupsController extends BaseController{
 
@@ -38,6 +38,7 @@ class TherapyGroupsController extends BaseController{
 
         $data = array();
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
+        $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
         $userModel = $this->loadModel('Users');
         $users = $userModel->getAllUsers();
         $data['users'] = $users;
@@ -45,12 +46,18 @@ class TherapyGroupsController extends BaseController{
        //print_r($_POST);die;
         if(isset($_POST['save'])){
 
+            $isEdit = empty( $_POST['group_id']) ? false : true;
+
             // for new group - checking if already exist same name
-            if(empty( $_POST['group_id']) && $_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST)){
+            if($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)){
                 $data['message'] = xlt('Failed - already has group with the same name') . '.';
                 $data['savingStatus'] = 'exist';
                 $data['groupData'] = $_POST;
-                $this->loadView('addGroup', $data);
+                if($isEdit){
+                    $this->loadView('groupDetailsGeneralData', $data);
+                } else {
+                    $this->loadView('addGroup', $data);
+                }
             }
 
             $filters = array(
@@ -64,6 +71,10 @@ class TherapyGroupsController extends BaseController{
                 'counselors' => array('filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY)
             );
+            if($isEdit){
+                $filters['group_end_date'] = FILTER_SANITIZE_SPECIAL_CHARS;
+                $filters['group_id'] = FILTER_VALIDATE_INT;
+            }
             //filter and sanitize all post data.
             $data['groupData'] = filter_var_array($_POST, $filters);
             if(!$data['groupData']){
@@ -72,14 +83,20 @@ class TherapyGroupsController extends BaseController{
             }
             else {
 
-                if(empty( $data['groupData']['group_id'])){
+                if(!$isEdit){
                     // save new group
                     $id = $this->saveNewGroup($data['groupData']);
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['savingStatus'] = 'success';
+                    $this->loadView('addGroup', $data);
                 } else {
                     //update group
+                    $this->updateGroup($data['groupData']);
+                    $data['message'] = xlt("Detail's group was saved successfully") . '.';
+                    $data['savingStatus'] = 'success';
+                    $data['readonly'] = 'disabled';
+                    $this->loadView('groupDetailsGeneralData', $data);
                 }
 
             }
@@ -101,6 +118,7 @@ class TherapyGroupsController extends BaseController{
             } else {
                 //for exist group screen
                 $data['groupData'] = $this->therapyGroupModel->getGroup($groupId);
+                $data['groupData']['counselors'] = $this->counselorsModel->getCounselors($groupId);
                 $data['readonly'] = isset($_GET['editGroup']) ? '' : 'disabled';
 
                 $this->loadView('groupDetailsGeneralData', $data);
@@ -113,11 +131,20 @@ class TherapyGroupsController extends BaseController{
     /**
      * check if exist group with the same name and same start date
      * @param $groupData
+     * @param $isEdit type of testing
      * @return bool
      */
-    private function alreadyExist($groupData){
+    private function alreadyExist($groupData, $isEdit = false){
 
-        $isExistGroup = $this->therapyGroupModel->existGroup($groupData['group_name'], $groupData['group_start_date']);
+        if($isEdit){
+            //return false if not touched on name and date
+            $databaseData = $this->therapyGroupModel->getGroup($groupData['group_id']);
+            if($databaseData['group_name'] == $groupData['group_name'] && $databaseData['group_start_date'] == $groupData['group_start_date']){
+                return false;
+            }
+        }
+
+        $isExistGroup = $this->therapyGroupModel->existGroup($groupData['group_name'], $groupData['group_start_date'], $isEdit ? $groupData['group_id'] : null);
         //true / false
         return $isExistGroup;
     }
@@ -248,13 +275,30 @@ class TherapyGroupsController extends BaseController{
         unset($groupData['groupId'], $groupData['save'], $groupData['counselors']);
 
         $groupId = $this->therapyGroupModel->saveNewGroup($groupData);
-        $counselors_model = $this->loadModel('Therapy_Groups_Counselors');
 
         foreach($counselors as $counselorId){
-            $counselors_model->save($groupId, $counselorId);
+            $this->counselorsModel->save($groupId, $counselorId);
         }
 
         return $groupId;
+    }
+
+    /**
+     * update group in therapy_group table and the connection between user-counselor to group at therapy_Groups_Counselors table
+     * @param $groupData
+     * @return int $groupId
+     */
+    private function updateGroup($groupData){
+
+        $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
+        unset($groupData['save'], $groupData['counselors']);
+
+        $this->therapyGroupModel->updateGroup($groupData);
+
+        $this->counselorsModel->remove($groupData['group_id']);
+        foreach($counselors as $counselorId){
+            $this->counselorsModel->save($groupData['group_id'], $counselorId);
+        }
     }
 
 

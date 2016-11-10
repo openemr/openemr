@@ -6,14 +6,14 @@
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li  class="current"><a><?php echo xlt('General data');?></a></li>
-                            <li><a><?php echo xlt('Participants ');?></a></li>
+                            <li  class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>"><?php echo xlt('General data');?></a></li>
+                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . $group['group_id']; ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Cancel');?></button>
-                            <button id="saveUpdates" class="float-right"><?php echo xlt('Saving');?></button>
+                            <button type="submit" form="editGroup" id="saveUpdates" name="save" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
@@ -23,7 +23,7 @@
                     <div class="col-md-12">
                         <div id="component-border">
                             <form method="post" id='editGroup' name="editGroup">
-                                <input type="hidden" value="<?php echo isset($groupData['group_id']) ? $groupData['group_id'] : '';?>">
+                                <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? $groupData['group_id'] : '';?>">
                                 <div class="row group-row">
                                     <div class="col-md-6 col-sm-7">
                                         <div class="row">
@@ -47,7 +47,7 @@
                                             <div class="col-md-6 col-sm-6">
                                                 <select name="group_status" class="full-width"  value="<?php echo $groupData['group_status'];?>" <?php echo $readonly; ?>>
                                                     <?php foreach($statuses as $key => $status): ?>
-                                                        <option value="<?php echo $key;?>"><?php echo xlt($status); ?></option>
+                                                        <option value="<?php echo $key;?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -94,7 +94,7 @@
                                                 <span class="bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_start_date'];?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : $groupData['group_end_date'] ;?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -108,7 +108,7 @@
                                             <div class="col-md-8 col-sm-7">
                                                 <select name="counselors[]" multiple class="full-width" <?php echo $readonly; ?>>
                                                     <?php foreach($users as $user): ?>
-                                                        <option value="<?php echo $user['id'];?>"><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
+                                                        <option value="<?php echo $user['id'];?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -177,8 +177,10 @@
         e.preventDefault();
         $('#exist-group').hide();
     });
+
+
 </script>
 <?php    $use_validate_js = 1;?>
-<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=editGroup');?>
+<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
 <?php require 'footer.php'; ?>
 
