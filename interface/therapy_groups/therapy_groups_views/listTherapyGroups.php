@@ -134,7 +134,7 @@
     /* ========= Initialise Data Table & Filters ========= */
     $(document).ready(function() {
 
-        var lang = '<?php echo $lang ?>';//get language support for filters
+//        var lang = '<?php //echo $lang ?>//';//get language support for filters
 
         /* Initialise Datetime Pickers */
         $('#group_from_start_date_filter').datetimepicker();
@@ -153,6 +153,9 @@
                 $('#therapy_groups_list_filter').hide(); //hide searchbar
             }
         });
+
+        /* Order by Start Date column (descending) */
+        table.order( [ 4, 'desc' ] ).draw();
 
         /* Hide/Show filters */
         $("#show_filters").click(function () {

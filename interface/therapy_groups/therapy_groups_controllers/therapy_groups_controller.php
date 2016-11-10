@@ -203,10 +203,12 @@ class TherapyGroupsController extends BaseController{
 
         //Insert the counselors into their groups in new array.
         foreach ($counselors as $counselor){
-            $counselor_of_group = $counselor['group_id'];
+            $group_id_of_counselor = $counselor['group_id'];
             $counselor_id = $counselor['user_id'];
             $counselor_name = $users_model->getUserNameById($counselor_id);
-            array_push($new_array[$counselor_of_group]['counselors'],$counselor_name);
+            if(is_array($new_array[$group_id_of_counselor])) {
+                array_push($new_array[$group_id_of_counselor]['counselors'], $counselor_name);
+            }
         }
 
         return $new_array;
