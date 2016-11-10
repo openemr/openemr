@@ -5,7 +5,7 @@
  * Date: 07/11/16
  * Time: 12:16
  */
-require dirname(__FILE__) . '/base_controller.php';
+require_once dirname(__FILE__) . '/base_controller.php';
 
 class TherapyGroupsController extends BaseController{
 
