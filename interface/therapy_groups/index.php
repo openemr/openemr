@@ -22,6 +22,7 @@ switch($method){
         $controller = new TherapyGroupsController();
         $controller->listTherapyGroups();
         break;
+
     case 'groupDetails':
         if(!isset($_GET['group_id'])){
             die('Missing group ID');

@@ -12,7 +12,7 @@ class Therapy_Groups{
 
     public function getAllTherapyGroups(){
 
-        $sql = 'SELECT * FROM ' . SELF::TABLE . ' ORDER BY ' . SELF::TABLE . '.group_start_date DESC;';
+        $sql = 'SELECT * FROM ' . self::TABLE . ' ORDER BY ' . self::TABLE . '.group_start_date DESC;';
 
         $therapy_groups = array();
         $result = sqlStatement($sql);
@@ -47,6 +47,18 @@ class Therapy_Groups{
         $result = sqlStatement($sql, array($name, $startDate));
         $count = sqlFetchArray($result);
         return($count['count'] > 0) ? true : false;
+    }
+
+    /**
+     *
+     * @param $group_id
+     * @param $status
+     */
+    public function changeGroupStatus($group_id, $status){
+
+        $sql = "UPDATE " . self::TABLE . " SET `group_status` = ? WHERE group_id = ?";
+
+        sqlStatement($sql, array($status, $group_id));
     }
 
 }
