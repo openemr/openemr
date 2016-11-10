@@ -1348,3 +1348,7 @@ table.dataTable#therapy_groups_list tbody td{
   font-size: 15px;
   padding: 2px 10px;
 }
+
+.therapy_group #therapy_groups_list_container .failed_message{
+  font-size: 15px;
+}

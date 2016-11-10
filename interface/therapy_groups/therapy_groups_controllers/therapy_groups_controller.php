@@ -131,6 +131,7 @@ class TherapyGroupsController extends BaseController{
         if($_GET['deleteGroup'] == 1){
             $group_id = $_GET['group_id'];
             $deletion_response = $this->deleteTherapyGroup($group_id);
+            $data['deletion_try'] = 1;
             $data['deletion_response'] = $deletion_response;
         }
 
@@ -217,7 +218,7 @@ class TherapyGroupsController extends BaseController{
         $group_has_encounters = $this->checkIfHasEncounters($group_id);
         if($group_has_encounters){
             $response['success'] = 0;
-            $response['message'] = xl("Deletion failed because group has encounters.");
+            $response['message'] = xl("Deletion failed because group has encounters");
         }
         else{
             //Change group status to 'deleted'.
@@ -229,6 +230,7 @@ class TherapyGroupsController extends BaseController{
         return $response;
     }
 
+    //todo: add checking
     private function checkIfHasEncounters($group_id){
         return false;
     }

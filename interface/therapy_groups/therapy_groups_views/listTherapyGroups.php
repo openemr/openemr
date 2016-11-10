@@ -2,6 +2,17 @@
 
 <div id="therapy_groups_list_container" class="container">
 
+    <!--------- ERRORS ----------->
+    <?php if($deletion_try == 1 && $deletion_response['success'] == 0) :?>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="alert alert-danger text-center">
+                    <p class="failed_message"><?php echo $deletion_response['message'];?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif ?>
+
     <!---------- FILTERS SECTION ------------->
     <a id="show_filters" class="btn btn-alert"><?php echo xl("Show Filters")?></a>
     <a id="hide_filters" class="btn btn-alert" style="display: none;"><?php echo xl("Hide Filters")?></a>

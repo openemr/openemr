@@ -50,7 +50,7 @@ class Therapy_Groups{
     }
 
     /**
-     *
+     * Changes group status in DB.
      * @param $group_id
      * @param $status
      */
