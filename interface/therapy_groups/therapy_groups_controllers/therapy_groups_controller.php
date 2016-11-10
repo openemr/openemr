@@ -13,7 +13,7 @@ class TherapyGroupsController extends BaseController{
 
     //list of group statuses
     public static $statuses = array(
-        '10' =>   'active',
+        '10' => 'active',
         '20' => 'deleted',
     );
     //list of group types
@@ -154,6 +154,13 @@ class TherapyGroupsController extends BaseController{
      */
     public function listTherapyGroups(){
 
+        //If deleting a group
+        if($_GET['deleteGroup'] == 1){
+            $group_id = $_GET['group_id'];
+            $deletion_response = $this->deleteTherapyGroup($group_id);
+            $data['deletion_response'] = $deletion_response;
+        }
+
         //Load therapy groups from DB.
         $therapy_groups_model = $this->loadModel('Therapy_Groups');
         $therapy_groups = $therapy_groups_model->getAllTherapyGroups();
@@ -225,6 +232,37 @@ class TherapyGroupsController extends BaseController{
     }
 
     /**
+     * Change group status to 'deleted'. Can be done only if group has no encounters.
+     * @param $group_id
+     * @return array
+     */
+    private function deleteTherapyGroup($group_id){
+
+        $response = array();
+
+        //If group has encounters cannot delete the group.
+        $group_has_encounters = $this->checkIfHasEncounters($group_id);
+        if($group_has_encounters){
+            $response['success'] = 0;
+            $response['message'] = xl("Deletion failed because group has encounters.");
+        }
+        else{
+            //Change group status to 'deleted'.
+            $therapy_groups_model = $this->loadModel('Therapy_Groups');
+            $therapy_groups_model->changeGroupStatus($group_id, 20);
+            $response['success'] = 1;
+        }
+
+        return $response;
+    }
+
+    private function checkIfHasEncounters($group_id){
+        return false;
+    }
+
+
+
+    /**
      * insert a new group to therapy_group table and connect between user-counselor to group at therapy_Groups_Counselors table
      * @param $groupData
      * @return int $groupId
@@ -260,6 +298,7 @@ class TherapyGroupsController extends BaseController{
             $this->counselorsModel->save($groupData['group_id'], $counselorId);
         }
     }
+
 
 
 

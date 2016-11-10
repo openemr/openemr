@@ -67,6 +67,16 @@ class Therapy_Groups{
         return($count['count'] > 0) ? true : false;
     }
 
+    /**
+     *
+     * @param $group_id
+     * @param $status
+     */
+    public function changeGroupStatus($group_id, $status){
 
+        $sql = "UPDATE " . self::TABLE . " SET `group_status` = ? WHERE group_id = ?";
+
+        sqlStatement($sql, array($status, $group_id));
+    }
 
 }

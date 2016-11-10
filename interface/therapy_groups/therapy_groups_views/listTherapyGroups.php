@@ -103,8 +103,11 @@
                         } ;?>
                     </td>
                     <td><?php echo $group['group_notes'];?></td>
-                    <td>Delete</td>
-
+                    <td class="delete_btn">
+                        <?php if($group['group_status'] != 20): ?>
+                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listTherapyGroups&deleteGroup=1&group_id=' . $group['group_id']; ?>"><button>X</button></a></td>
+                        <?php endif; ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
