@@ -73,11 +73,23 @@ if (!empty($_POST['form_submit'])) {
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
       list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-      if (substr($fldtype, 0, 2) !== 'm_') {
-        $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-        if (empty($row['count'])) {
-          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-            "VALUES ( '$fldid', '0', '$flddef' )");
+      if(is_array($fldtype)) {
+        foreach ($fldtype as $fldtype_part) {
+          if (substr($fldtype_part, 0, 2) !== 'm_') {
+            $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+            if (empty($row['count'])) {
+              sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+              "VALUES ( '$fldid', '0', '$flddef' )");
+            }
+          }
+        }  
+      } else {
+        if (substr($fldtype, 0, 2) !== 'm_') {
+          $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+            if (empty($row['count'])) {
+              sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+              "VALUES ( '$fldid', '0', '$flddef' )");
+            }
         }
       }
     }
