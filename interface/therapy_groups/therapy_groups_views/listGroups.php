@@ -62,19 +62,19 @@
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_start_date_filter"><?php echo xl('Starting Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="<?php echo xl('from');?>" >
+                <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_start_date_filter"><?php echo xl('Starting Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="<?php echo xl("to");?>" >
+                <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_end_date_filter"><?php echo xl('End Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="<?php echo xl('from');?>" >
+                <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_end_date_filter"><?php echo xl('End Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="<?php echo xl("to");?>" >
+                <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="" >
             </div>
 
         </div>
