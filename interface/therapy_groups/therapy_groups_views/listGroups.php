@@ -54,7 +54,7 @@
                 <select type="text" class="form-control" id="counselors_filter" placeholder="" >
                     <option value=""><?php echo xl('choose');?></option>
                     <?php foreach ($counselors as $counselor):?>
-                        <option value="<?php echo $counselor;?>"><?php echo $counselor ;?></option>
+                        <option value="<?php echo $counselor;?>"><?php echo xlt($counselor) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -62,19 +62,19 @@
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_start_date_filter"><?php echo xl('Starting Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="<?php echo xl('from');?>" >
+                <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_start_date_filter"><?php echo xl('Starting Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="<?php echo xl("to");?>" >
+                <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_end_date_filter"><?php echo xl('End Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="<?php echo xl('from');?>" >
+                <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_end_date_filter"><?php echo xl('End Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="<?php echo xl("to");?>" >
+                <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="" >
             </div>
 
         </div>
@@ -110,13 +110,15 @@
                     <td><?php echo $group['group_end_date'];?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
-                            echo $counselor . " </br> ";
+                            echo xlt($counselor) . " </br> ";
                         } ;?>
                     </td>
                     <td><?php echo $group['group_notes'];?></td>
                     <td class="delete_btn">
-                        <?php if($group['group_status'] != 20): ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listTherapyGroups&deleteGroup=1&group_id=' . $group['group_id']; ?>"><button>X</button></a></td>
+                        <?php
+                        //Enable deletion only for groups that weren't yet deleted.
+                        if($group['group_status'] != 20): ?>
+                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . $group['group_id']; ?>"><button>X</button></a></td>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -325,7 +327,7 @@
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVal == iVersion){
+            else if(iVersion.includes(iVal)){
                 return true;
             }
             return false;
@@ -336,13 +338,13 @@
     $.fn.dataTableExt.afnFiltering.push(
         function( oSettings, aData, iDataIndex ) {
             var iColumn = 1;
-            var iVal = document.getElementById('group_id_filter').value*1 ;
-            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+            var iVal = document.getElementById('group_id_filter').value;
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn];
 
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVal == iVersion){
+            else if(iVersion.includes(iVal)){
                 return true;
             }
             return false;

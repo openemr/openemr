@@ -19,9 +19,9 @@ switch($method){
         $controller->index();
         break;
 
-    case 'listTherapyGroups':
+    case 'listGroups':
         $controller = new TherapyGroupsController();
-        $controller->listTherapyGroups();
+        $controller->listGroups();
         break;
 
     case 'groupDetails':
