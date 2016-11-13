@@ -54,7 +54,7 @@
                 <select type="text" class="form-control" id="counselors_filter" placeholder="" >
                     <option value=""><?php echo xl('choose');?></option>
                     <?php foreach ($counselors as $counselor):?>
-                        <option value="<?php echo $counselor;?>"><?php echo $counselor ;?></option>
+                        <option value="<?php echo $counselor;?>"><?php echo xlt($counselor) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -110,13 +110,15 @@
                     <td><?php echo $group['group_end_date'];?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
-                            echo $counselor . " </br> ";
+                            echo xlt($counselor) . " </br> ";
                         } ;?>
                     </td>
                     <td><?php echo $group['group_notes'];?></td>
                     <td class="delete_btn">
-                        <?php if($group['group_status'] != 20): ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listTherapyGroups&deleteGroup=1&group_id=' . $group['group_id']; ?>"><button>X</button></a></td>
+                        <?php
+                        //Enable deletion only for groups that weren't yet deleted.
+                        if($group['group_status'] != 20): ?>
+                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . $group['group_id']; ?>"><button>X</button></a></td>
                         <?php endif; ?>
                     </td>
                 </tr>

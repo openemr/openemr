@@ -150,28 +150,28 @@ class TherapyGroupsController extends BaseController{
     }
 
     /**
-     * Controller for loading the therapy groups to be listed in 'listTherapyGroups' view.
+     * Controller for loading the therapy groups to be listed in 'listGroups' view.
      */
-    public function listTherapyGroups(){
+    public function listGroups(){
 
         //If deleting a group
         if($_GET['deleteGroup'] == 1){
             $group_id = $_GET['group_id'];
-            $deletion_response = $this->deleteTherapyGroup($group_id);
+            $deletion_response = $this->deleteGroup($group_id);
             $data['deletion_try'] = 1;
             $data['deletion_response'] = $deletion_response;
         }
 
         //Load therapy groups from DB.
         $therapy_groups_model = $this->loadModel('Therapy_Groups');
-        $therapy_groups = $therapy_groups_model->getAllTherapyGroups();
+        $therapy_groups = $therapy_groups_model->getAllGroups();
 
         //Load counselors from DB.
         $counselors_model = $this->loadModel('Therapy_Groups_Counselors');
         $counselors = $counselors_model->getAllCounselors();
 
         //Merge counselors with matching groups and prepare array for view.
-        $data['therapyGroups'] = $this->prepareTherapyGroups($therapy_groups, $counselors);
+        $data['therapyGroups'] = $this->prepareGroups($therapy_groups, $counselors);
 
         //Insert static arrays to send to view.
         $data['statuses'] = SELF::$statuses;
@@ -180,7 +180,7 @@ class TherapyGroupsController extends BaseController{
         $data['counselors'] = $this->prepareCounselorsList($counselors);
 
         //Send groups array to view.
-        $this->loadView('listTherapyGroups', $data);
+        $this->loadView('listGroups', $data);
     }
 
     /**
@@ -189,7 +189,7 @@ class TherapyGroupsController extends BaseController{
      * @param $counselors
      * @return array
      */
-    private function prepareTherapyGroups($therapy_groups, $counselors){
+    private function prepareGroups($therapy_groups, $counselors){
 
         $new_array = array();
         $users_model = $this->loadModel('Users');
@@ -239,7 +239,7 @@ class TherapyGroupsController extends BaseController{
      * @param $group_id
      * @return array
      */
-    private function deleteTherapyGroup($group_id){
+    private function deleteGroup($group_id){
 
         $response = array();
 

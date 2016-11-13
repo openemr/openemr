@@ -10,7 +10,7 @@ class Therapy_Groups{
 
     const TABLE = 'therapy_groups';
 
-    public function getAllTherapyGroups(){
+    public function getAllGroups(){
 
         $sql = 'SELECT * FROM ' . SELF::TABLE . ' ORDER BY ' . SELF::TABLE . '.group_start_date DESC;';
 
