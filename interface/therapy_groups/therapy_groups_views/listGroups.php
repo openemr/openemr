@@ -327,7 +327,7 @@
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVal == iVersion){
+            else if(iVersion.includes(iVal)){
                 return true;
             }
             return false;
@@ -338,13 +338,13 @@
     $.fn.dataTableExt.afnFiltering.push(
         function( oSettings, aData, iDataIndex ) {
             var iColumn = 1;
-            var iVal = document.getElementById('group_id_filter').value*1 ;
-            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn]*1;
+            var iVal = document.getElementById('group_id_filter').value;
+            var iVersion = aData[iColumn] == "-" ? 0 : aData[iColumn];
 
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVal == iVersion){
+            else if(iVersion.includes(iVal)){
                 return true;
             }
             return false;
