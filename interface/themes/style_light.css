@@ -1343,7 +1343,7 @@ table.dataTable#therapy_groups_list tbody td{
   border-color: #ccc;
 }
 
-.therapy_group #therapy_groups_list_container .delete_btn button{
+.therapy_group .delete_btn button{
   background-color: #ef3935;
   font-size: 15px;
   padding: 2px 10px;

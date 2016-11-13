@@ -2147,7 +2147,7 @@ CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
   `group_name` varchar(255) NOT NULL ,
   `group_start_date` date NOT NULL ,
-  `group_end_date` date NOT NULL,
+  `group_end_date` date,
   `group_type` tinyint NOT NULL,
   `group_participation` tinyint NOT NULL,
   `group_status` int(11) NOT NULL,
@@ -2163,9 +2163,9 @@ CREATE TABLE `therapy_groups_participants` (
   `pid` int(11) NOT NULL ,
   `group_patient_status` int(11),
   `group_patient_start` date NOT NULL ,
-  `group_patient_end` date NOT NULL ,
+  `group_patient_end` date,
   `group_patient_comment` text,
-  PRIMARY KEY  (`group_id`)
+  PRIMARY KEY (`group_id`,`pid`)
 ) ENGINE=InnoDB;
 #EndIf
 
@@ -2193,3 +2193,9 @@ CREATE TABLE `therapy_groups_participant_attendance` (
 #EndIf
 
 #IfNotTable therapy_groups_counselors
+CREATE TABLE `therapy_groups_counselors`(
+	`group_id` int(11) NOT NULL,
+	`user_id` int(11) NOT NULL,
+	PRIMARY KEY (`group_id`,`user_id`)
+) ENGINE=InnoDB;
+#EndIf

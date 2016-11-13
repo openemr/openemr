@@ -7,11 +7,11 @@ class Therapy_groups_participants{
 
     public function getParticipants($groupId){
 
-        $sql = "SELECT gd.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
+        $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
         $sql .= "JOIN " . self::PATIENT_TABLE . " AS p ON gp.pid = p.id ";
         $sql .= "WHERE gp.group_id = ?";
 
-        $result = sqlStatement($sql, $groupId);
+        $result = sqlStatement($sql, array($groupId));
         while($gp = sqlFetchArray($result)){
             $groupParticipants[] = $gp;
         }

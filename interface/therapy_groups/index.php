@@ -32,7 +32,10 @@ switch($method){
         $controller->index($_GET['group_id']);
         break;
     case 'groupParticipants':
+        if(!isset($_GET['group_id'])){
+            die('Missing group ID');
+        }
         $controller = new ParticipantsController();
-        $controller->index();
+        $controller->index($_GET['group_id']);
         break;
 }
