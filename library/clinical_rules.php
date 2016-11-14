@@ -771,7 +771,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     if ( (count($targetGroups) == 1) || ($mode == "report") ) {
 
       // If report itemization is turned on, then iterate the rule id iterator
-      if (isset($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+      if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
         $GLOBALS['report_itemized_test_id_iterator']++;
       }
 
@@ -792,7 +792,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
         $dateCounter = 1; // for reminder mode to keep track of which date checking
         // If report itemization is turned on, reset flag.
-        if (isset($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
           $temp_track_pass = 1;
         }
         foreach ( $target_dates as $dateFocus ) {
@@ -877,7 +877,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           $dateCounter++;
         }
         // If report itemization is turned on, then record the "failed" item if it did not pass
-        if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
+        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
           insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
         }
       }
