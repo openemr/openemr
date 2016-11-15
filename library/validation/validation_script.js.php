@@ -82,8 +82,8 @@ function submitme(new_validate,e,form_id, constraints) {
                     element = $('[name="'+ key + '"]');
                     if(!$(element).is('select[multiple]')) {
 
-                        if($(element).parent().prop('style') != undefined && $(element).parent().prop('style').visibility == 'hidden'){
-                            $(element).val("");
+                        if($(element).parent().prop('style') != undefined && ($(element).parent().prop('style').visibility == 'hidden'|| element.parent().parent().css('display')== 'none')){
+                            $(element).val("");                        }
                         }
                     }
                 }
