@@ -87,7 +87,6 @@ function submitme(new_validate,e,form_id, constraints) {
                             }
 
                     }
-                    }
                 }
 
             //get the input value after romoving hide fields
