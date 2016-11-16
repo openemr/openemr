@@ -23,6 +23,7 @@
                     <div class="col-md-12">
                         <div id="component-border">
                             <form id="updateParticipants" method="post">
+                                <input type="hidden" name="group_id" value="<?php echo htmlspecialchars($groupId,ENT_QUOTES); ?>" />
                                 <table  id="participants_table" class="dataTable display">
                                     <thead>
                                         <tr>
@@ -46,7 +47,7 @@
                                             </td>
                                             <td><span><?php echo htmlspecialchars($participant['pid'],ENT_QUOTES); ?></span></td>
                                             <td>
-                                                <select name="status[]" <?php echo $readonly; ?>>
+                                                <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                                     <?php foreach ($statuses as $key => $status): ?>
                                                         <option value="<?php echo $key;?>"><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
@@ -54,16 +55,19 @@
                                             </td>
                                             <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo $participant['group_patient_start'];?>" <?php echo $readonly; ?>></td>
                                             <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker"  value="<?php echo $participant['group_patient_end'];?>" <?php echo $readonly; ?>></td>
-                                            <td><input type="text" name="comment[]" class="full-width"/></td>
+                                            <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo $participant['group_patient_comment'];?>" <?php echo $readonly; ?> /></td>
                                             <?php if($readonly == ''): ?>
                                             <td class="delete_btn">
-                                                <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. $groupId .'&deleteParticipant=1&pid=' . $participant['pid']; ?>"><button>X</button></a>
+                                                <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. $groupId .'&deleteParticipant=1&pid=' . $participant['pid']; ?>"><span>X</span></a>
                                             </td>
                                             <?php endif; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                            </form>
+                            <form id="addParticipant" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . $groupId?>" method="post">
+                            <!--<input type="submit" value="add">-->
                             </form>
                         </div>
                     </div>
@@ -89,20 +93,41 @@
         var table = $('#participants_table').DataTable({
             "columnDefs": [
                 { "width": "35%", "targets": 5 }
-            ]
+            ],
+            "pageLength":6
         });
-        $('#updateParticipants').on('submit', function(){
+        var countRows =table.rows().count();
+        console.log(countRows);
 
-            for(var i = 1; i <= table.rows().count(); i++ ){
+        // validation on submit -
+        // 1. start date not empty
+        // 2. end date not smaller than start date
+        $('#updateParticipants').on('submit', function(e){
+
+            for(var i = 1; i <= countRows; i++ ){
 
                 if($('#start-date'+i).val() == ''){
 
+                   $('#start-date'+i).addClass('error-border').after('<p class="error-message" id="error-start-date' + i + '" ><?php echo xlt('is not valid');?></p>');
+                   $('#start-date'+i).on('focus', function(){
+                        $(this).removeClass('error-border');
+                        $('#error-start-date' + i).hide();
+                   });
+                   return  e.preventDefault();
+                }
+                if(typeof $('#end-date'+i).val() == 'string'){
+                    if(moment($('#end-date'+i).val()).isBefore($('#start-date'+i).val())){
+                        $('#end-date'+i).addClass('error-border').after('<p class="error-message" id="error-end-date' + i + '" ><?php echo xlt('End date must be equal or bigger than start date');?></p>');
+                        $('#end-date'+i).on('focus', function(){
+                            $(this).removeClass('error-border');
+                            $('#error-end-date' + i).hide();
+                        });
+                        return  e.preventDefault();
+                    }
                 }
             }
         });
     });
 </script>
-
-<?php require_once 'library/validation/validation_script.js.php'?>
 <?php require 'footer.php'; ?>
 
