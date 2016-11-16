@@ -46,6 +46,15 @@ if($use_validate_js){
 
 function submitme(new_validate,e,form_id, constraints) {
 
+        //Loops through inputs in form and removes constraints for elements that don't exist in the form.
+        //This is necessary for the 'Page Validation' mechanism when there are two forms in one url.
+        $.each(constraints, function(element){debugger
+                var input = $('#' + form_id + ' input[name=' + element + ']');
+                if(!input.length){
+                delete constraints[element];
+            }
+        });
+
         //Use the old validation script if no parameter sent (backward compatibility)
         //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
         // was on code up to today (the validate library was not loaded ( look at the top of this file)

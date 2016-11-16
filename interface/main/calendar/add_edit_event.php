@@ -1829,8 +1829,6 @@ function validateform(valu){
         }
     }
     
-    removeIrrelevantConstraints(collectvalidation,'theform');
-
     var submit = submitme(1, undefined, 'theform', collectvalidation);
     if(!submit)return;
 
@@ -1879,19 +1877,6 @@ function deleteEvent() {
         return SubmitForm();
     }
     return false;
-}
-
-//Loops through inputs in form and removes constraints for elements that don't exist in the form.
-//This is necessary for the 'Page Validation' mechanism when there are two forms in one url.
-function removeIrrelevantConstraints(constraints ,form_id){
-
-    $.each(constraints, function(element){
-        var input = $('#' + form_id + ' input[name=' + element + ']');
-        if(!input.length){
-            delete constraints[element];
-        }
-    });
-
 }
 
 function SubmitForm() {
