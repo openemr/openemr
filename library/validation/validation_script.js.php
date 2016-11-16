@@ -48,7 +48,7 @@ function submitme(new_validate,e,form_id, constraints) {
 
         //Loops through inputs in form and removes constraints for elements that don't exist in the form.
         //This is necessary for the 'Page Validation' mechanism when there are two forms in one url.
-        $.each(constraints, function(element){debugger
+        $.each(constraints, function(element){
                 var input = $('#' + form_id + ' input[name=' + element + ']');
                 if(!input.length){
                 delete constraints[element];
