@@ -35,7 +35,8 @@ class Thumbnail
         //validate that GD extension was enabled
         if (!extension_loaded('gd'))
         {
-            die('Abort '.basename(__FILE__).' : Missing DG extensions');
+            error_log('Thumbnail generator error: Missing DG extensions');
+            die('Abort. Thumbnail generator error : Missing DG extensions');
         }
 
         if(!is_null($max_size)) {
