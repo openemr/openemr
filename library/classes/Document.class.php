@@ -5,6 +5,7 @@ require_once(dirname(__FILE__) . "/CouchDB.class.php");
 require_once(dirname(__FILE__) . "/thumbnail/Thumbnail.class.php");
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
+require_once(dirname(__FILE__) . "/../nonenglish_helpers.php"  );
 
 /**
  * class Document
@@ -310,7 +311,7 @@ class Document extends ORDataObject{
 	* this returns the url stripped down to basename
 	*/
 	function get_url_web() {
-		return basename($this->url);
+		return basename_nonenglish($this->url);
 	}
 	/**
 	* get the url without the protocol handler
@@ -322,7 +323,7 @@ class Document extends ORDataObject{
 	* get the url filename only
 	*/
 	function get_url_file() {
-		return basename(preg_replace("|^(.*)://|","",$this->url));
+		return basename_nonenglish(preg_replace("|^(.*)://|","",$this->url));
 	}
 	/**
 	* get the url path only

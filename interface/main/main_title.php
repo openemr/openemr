@@ -66,16 +66,23 @@ function showhideMenu() {
 		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 	}
 }
+
+function prepareLogosStyle(){
+	var left_cell = document.getElementsByClassName("left_cell")[0];
+	left_cell.style.cssText = 'padding-left: 110px !important';
+	document.getElementById("tinylogocontainer").style.position = "absolute";
+}
+
 </script>
 </head>
 <body class="body_title">
 <?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
-
+<div id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
-<td align="left">
+<td class="left_cell" align="left">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
@@ -116,7 +123,6 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
-		<td id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></td>
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
@@ -129,6 +135,12 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <script type="text/javascript" language="javascript">
 parent.loadedFrameCount += 1;
+
+//If 'tiny logos' are turned on in globals, go to function that displays them.
+<?php if($GLOBALS['tiny_logo_1'] || ($GLOBALS['tiny_logo_2'])) : ?>
+	prepareLogosStyle();
+<?php endif; ?>
+
 </script>
 
 </body>
