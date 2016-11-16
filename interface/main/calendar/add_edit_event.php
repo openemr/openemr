@@ -782,6 +782,7 @@ if ($_POST['form_action'] == "save") {
  $hometext = "";
  $row = array();
  $informant = "";
+ if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
 
  // If we are editing an existing event, then get its data.
  if ($eid) {
@@ -799,6 +800,7 @@ if ($_POST['form_action'] == "save") {
   $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
   $userid = $row['pc_aid'];
   $patientid = $row['pc_pid'];
+  $groupid = $row['pc_gid'];
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
   $starttimem = substr($row['pc_startTime'], 3, 2);
   $repeats = $row['pc_recurrtype'];
@@ -867,6 +869,13 @@ if ($_POST['form_action'] == "save") {
   $patientname = $prow['lname'] . ", " . $prow['fname'];
   if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
   if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
+ }
+
+ // If we have a group id, get the name
+ if ($groupid){
+  $prow = sqlQuery("SELECT group_name " .
+   "FROM therapy_groups WHERE group_id = ?", array($groupid));
+  $groupname = $prow['group_name'];
  }
 
  // Get the providers list.
@@ -1213,10 +1222,14 @@ $classpati='';
 <table border='0' >
 <?php
 	$provider_class='';
+    $group_class='';
 	$normal='';
 	if($_GET['prov']==true){
 	$provider_class="class='current'";
 	}
+	elseif($_GET['group']==true){
+    $group_class="class='current'";
+    }
 	else{
 	$normal="class='current'";
 	}
@@ -1239,6 +1252,12 @@ $classpati='';
 		 <a href='add_edit_event.php?prov=true&eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Provider');?></a>
 		 </li>
+         <?php if($GLOBALS['enable_group_therapy']) :?>
+         <li <?php echo $group_class ;?>>
+            <a href='add_edit_event.php?group=true&eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+            <?php echo xlt('Groups');?></a>
+         </li>
+         <?php endif ?>
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
@@ -1282,7 +1301,7 @@ $classpati='';
             <?php echo xlt('Time'); ?>
         </td>
         <td width='1%' nowrap id='tdallday3'>
-            <span>   
+            <span>
                 <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
                  title='<?php echo xla('Event start time'); ?>' /> :
                 <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
@@ -1364,7 +1383,7 @@ $classpati='';
 		</td>
 	</tr>
  <?php
- if($_GET['prov']!=true){
+ if($_GET['prov']!=true && $_GET['group']!=true){
  ?>
  <tr id="patient_details">
   <td nowrap>
@@ -1373,6 +1392,27 @@ $classpati='';
   <td nowrap>
    <input type='text' size='10' name='form_patient' id="form_patient" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
+  </td>
+  <td colspan='3' nowrap style='font-size:8pt'>
+   &nbsp;
+   <span class="infobox">
+   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+   </span>
+  </td>
+ </tr>
+ <?php
+ }
+ ?>
+<?php
+ if($_GET['group']==true){
+ ?>
+ <tr id="group_details">
+  <td nowrap>
+   <b><?php echo xlt('Group'); ?>:</b>
+  </td>
+  <td nowrap>
+   <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($groupname) ? '' : attr($groupname); ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+   <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    &nbsp;
@@ -1788,18 +1828,7 @@ function validateform(valu){
             delete collectvalidation.form_enddate;
         }
     }
-
-    <?php
-    if($_GET['prov']==true){
-    ?>
-    //remove rule if it's provider event
-    if(collectvalidation.form_patient != undefined){
-        delete collectvalidation.form_patient;
-    }
-    <?php
-    }
-    ?>
-
+    
     var submit = submitme(1, undefined, 'theform', collectvalidation);
     if(!submit)return;
 

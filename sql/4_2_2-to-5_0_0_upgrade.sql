@@ -2199,3 +2199,7 @@ CREATE TABLE `therapy_groups_counselors`(
 	PRIMARY KEY (`group_id`,`user_id`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_gid
+ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
+#EndIf
