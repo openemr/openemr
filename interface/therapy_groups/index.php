@@ -38,4 +38,8 @@ switch($method){
         $controller = new ParticipantsController();
         $controller->index($_GET['group_id']);
         break;
+    case 'addParticipant':
+        $controller = new ParticipantsController();
+        $controller->add($_GET['group_id']);
+        break;
 }

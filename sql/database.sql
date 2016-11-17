@@ -7930,6 +7930,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, participant_date:{presence: true}}', 1);
+
 
 
 -- list_options for `form_eye_mag`
@@ -9606,7 +9608,7 @@ DROP TABLE IF EXISTS `therapy_groups_participants`;
 CREATE TABLE `therapy_groups_participants` (
   `group_id` int(11) NOT NULL,
   `pid` int(11) NOT NULL ,
-  `group_patient_status` int(11),
+  `group_patient_status` int(11) NOT NULL,
   `group_patient_start` date NOT NULL ,
   `group_patient_end` date,
   `group_patient_comment` text,

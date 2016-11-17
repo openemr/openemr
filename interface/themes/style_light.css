@@ -1343,12 +1343,34 @@ table.dataTable#therapy_groups_list tbody td{
   border-color: #ccc;
 }
 
-.therapy_group .delete_btn button{
+.therapy_group .delete_btn button, .therapy_group .delete_btn span{
   background-color: #ef3935;
   font-size: 15px;
   padding: 2px 10px;
 }
 
+.therapy_group .delete_btn a{
+  text-decoration: none;
+  color: white;
+}
+
 .therapy_group #therapy_groups_list_container .failed_message{
   font-size: 15px;
+}
+#updateParticipants{
+  position: relative;
+
+}
+#addParticipant{
+    position: absolute;
+    right: 0px;
+   z-index: 100;
+}
+#add-participant-form{
+  transition: max-height 1s ease-out;
+  max-height: 0;
+  overflow: hidden;
+}
+.showAddForm{
+  max-height: 250px !important;
 }
