@@ -1357,3 +1357,20 @@ table.dataTable#therapy_groups_list tbody td{
 .therapy_group #therapy_groups_list_container .failed_message{
   font-size: 15px;
 }
+#updateParticipants{
+  position: relative;
+
+}
+#addParticipant{
+    position: absolute;
+    right: 0px;
+   z-index: 100;
+}
+#add-participant-form{
+  transition: max-height 1s ease-out;
+  max-height: 0;
+  overflow: hidden;
+}
+.showAddForm{
+  max-height: 250px !important;
+}

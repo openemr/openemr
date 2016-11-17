@@ -43,4 +43,13 @@ class Therapy_groups_participants{
         $result = sqlStatement($sql, array($groupId, $pid));
         return !$result ? false :true;
     }
+
+    public function isAlreadyRegistered($pid, $groupId){
+
+        $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE pid = ? AND group_id = ?";
+
+        $result = sqlStatement($sql, array($pid, $groupId));
+        $count = sqlFetchArray($result);
+        return($count['count'] > 0) ? true : false;
+    }
 }

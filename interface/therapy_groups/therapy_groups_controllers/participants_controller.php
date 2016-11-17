@@ -5,9 +5,11 @@ require_once dirname(__FILE__) . '/therapy_groups_controller.php';
 
 class ParticipantsController extends BaseController{
 
-    public function index($groupId){
-
+    public function __construct(){
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
+    }
+
+    public function index($groupId ,$data = array()){
 
         if(isset($_POST['save'])){
 
@@ -37,7 +39,6 @@ class ParticipantsController extends BaseController{
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'],$_GET['pid']);
         }
 
-        $data = array();
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
         $data['statuses'] = TherapyGroupsController::$statuses;
@@ -52,6 +53,21 @@ class ParticipantsController extends BaseController{
 
 
     public function add($groupId){
+
+        if(isset($_POST['save'])){
+
+            $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);
+            if($alreadyRegistered){
+                $this->index($groupId, array('addStatus' => 'failed','message' => xlt('The patient already registered to the group')));
+            }
+
+            $filters = array(
+                'participant_name' => FILTER_SANITIZE_STRING,
+                'participant_start' => FILTER_SANITIZE_STRING,
+                'group_patient_end' => FILTER_SANITIZE_SPECIAL_CHARS,
+                'group_patient_comment' => FILTER_SANITIZE_SPECIAL_CHARS,
+            );
+        }
 
         $this->index($groupId);
     }

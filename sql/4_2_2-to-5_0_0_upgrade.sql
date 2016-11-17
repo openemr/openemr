@@ -2142,6 +2142,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
 #EndIf
 
+#IfNotRow2D list_options list_id page_validation option_id tg_add#add-participant-form
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, participant_date:{presence: true}}', 1);
+#EndIf
+
 #IfNotTable therapy_groups
 CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
