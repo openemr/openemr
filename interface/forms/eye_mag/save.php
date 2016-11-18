@@ -615,7 +615,7 @@ if ($_REQUEST["mode"] == "new")             {
 
   if ($_REQUEST['action'] == 'code_visit'){
     $CODING = json_decode($_REQUEST['parameter'],true);
-    $query = "delete from billing where encounter =?";
+    $query  = "delete from billing where encounter =?";
     sqlStatement($query,array($encounter));
     foreach ($CODING as $item) //need toremove duplicate codes
     {
