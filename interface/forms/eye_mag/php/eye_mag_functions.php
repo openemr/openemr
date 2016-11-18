@@ -577,34 +577,34 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                             <span title="<?php echo xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desat{{Red Desaturation}}'); ?>:</span>
                         </td>
                         <td>
-                            <input disabled type="text" size="6" name="PRIOR_ODREDDESAT" id="PRIOR_ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/> 
+                            <input disabled type="text" size="6" name="PRIOR_ODREDDESAT" id="PRIOR_ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/>
                         </td>
                         <td>
                             <input disabled type="text" size="6" name="PRIOR_OSREDDESAT" id="PRIOR_OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
                         </td>
                         <td>&nbsp;
                             <span id="" class="fa fa-share-square-o fa-flip-horizontal" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
-                        </td>  
+                        </td>
                     </tr>
                     <tr>
                         <td class="right" style="white-space: nowrap;font-size:0.9em;">
                             <span title="<?php echo xla('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)'); ?>"><?php echo xlt('Coins'); ?>:</span>
                         </td>
                         <td>
-                            <input disabled type="text" size="6" name="PRIOR_ODCOINS" id="PRIOR_ODCOINS" value="<?php echo attr($ODCOINS); ?>"/> 
+                            <input disabled type="text" size="6" name="PRIOR_ODCOINS" id="PRIOR_ODCOINS" value="<?php echo attr($ODCOINS); ?>"/>
                         </td>
                         <td>
                             <input disabled type="text" size="6" name="PRIOR_OSCOINS" id="PRIOR_OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
                         </td>
                         <td>&nbsp;
                             <span id="" class="fa fa-share-square-o fa-flip-horizontal" name="" title="<?php echo xla('Insert normals - 100/100'); ?>"></span>
-                         </td>  
-                    </tr>                  
+                         </td>
+                    </tr>
                 </table>
-            </div>          
-            <div class="borderShadow" style="position:relative;float:right;text-align:center;width:238px;height:242px;z-index:1;margin:2 0 2 2;">
+            </div>
+            <div class="borderShadow" style="position:relative;float:right;text-align:center;width:238px;height:250px;z-index:1;margin:2 0 2 2;">
                 <span class="closeButton fa fa-th" id="PRIOR_Close_ACTMAIN" name="PRIOR_Close_ACTMAIN"></span>
-                <table style="position:relative;float:left;font-size:1.1em;width:210px;font-weight:600;"> 
+                <table style="position:relative;float:left;font-size:0.9em;width:210px;font-weight:600;">
                     <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                         <td >
                             <span id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
@@ -616,7 +616,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" style="text-align:center;"> 
+                        <td colspan="2" style="text-align:center;">
                             <div id="PRIOR_ACTMAIN" name="PRIOR_ACTMAIN" class="ACT_TEXT nodisplay" style="position:relative;z-index:1;margin 10 auto;">
                                <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 19 5;border-collapse: separate;">
                                     <tr>
@@ -629,28 +629,28 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                                         <td colspan="4" style="text-align:center;font-size:0.8em;">
                                             <div id="PRIOR_ACT_SCDIST" name="PRIOR_ACT_SCDIST" class="ACT_box">
                                                 <br />
-                                                <table> 
-                                                    <tr> 
-                                                        <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>   
+                                                <table>
+                                                    <tr>
+                                                        <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT1SCDIST" name="PRIOR_ACT1SCDIST" class="ACT"><?php echo text($ACT1SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT2SCDIST"  name="PRIOR_ACT2SCDIST"class="ACT"><?php echo text($ACT2SCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT3SCDIST"  name="PRIOR_ACT3SCDIST" class="ACT"><?php echo text($ACT3SCDIST); ?></textarea></td>
-                                                        <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td> 
+                                                        <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td>
                                                     </tr>
-                                                    <tr>    
-                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left right"></i></td> 
+                                                    <tr>
+                                                        <td style="text-align:right;"><i class="fa fa-reply rotate-left right"></i></td>
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                         <textarea disabled id="PRIOR_ACT4SCDIST" name="PRIOR_ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
                                                         <textarea disabled id="PRIOR_ACT5SCDIST" name="PRIOR_ACT5SCDIST" class="ACT"><?php echo text($ACT5SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
                                                         <textarea disabled id="PRIOR_ACT6SCDIST" name="PRIOR_ACT6SCDIST" class="ACT"><?php echo text($ACT6SCDIST); ?></textarea></td>
-                                                        <td><i class="fa fa-share rotate-right"></i></td> 
-                                                    </tr> 
-                                                    <tr> 
+                                                        <td><i class="fa fa-share rotate-right"></i></td>
+                                                    </tr>
+                                                    <tr>
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
                                                             <textarea disabled id="PRIOR_ACT10SCDIST" name="PRIOR_ACT10SCDIST" class="ACT"><?php echo text($ACT10SCDIST); ?></textarea></td>
                                                         <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
@@ -814,7 +814,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="font-weight:bold;"><br /><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
+                            <td colspan="3" style="font-weight:bold;"><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
                             </td>
                         </tr>
                         <tr><td ></td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>

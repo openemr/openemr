@@ -42,6 +42,7 @@ $form_name = "eye_mag";
 $form_folder = "eye_mag";
 $Form_Name = "Eye Exam";
 
+//since we come through the controller
 include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
 $form_id    = $_REQUEST['id'];
@@ -3379,6 +3380,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                     }
                                     ?>
                                   </select>
+                                  <span class="modifier" id="visit_mod_22" title="<?php echo xla('Modifier 22: Unrelated evaluation and management service by the same physician during postoperative period.') ?>">22</span>
+                                  <span class="modifier" id="visit_mod_25" title="<?php echo xla('Modifier 25: Significant, separately identifiable evaluation and management (E/M) service by the same physician* on the day of a procedure') ?>">25</span>
+                                  <span class="modifier" id="visit_mod_57" title="<?php echo xla('Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.'); ?>">57</span>
                                 </div>
                               </td>
                             </tr>
@@ -3390,7 +3394,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
 
                             <tr>
-                              <td style="padding-top:5px;" colspan="3"><b><?php echo xlt('Tests Performed'); echo " / ".xlt('Codes'); ?>:</b>&nbsp;
+                              <td style="padding-top:5px;" colspan="3"><b><?php echo xlt('Tests Performed'); echo " / ".xlt('Modifiers'); ?>:</b>&nbsp;
                                 <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($providerID); ?>" target="RTop"
                               title="<?php echo xla('Click here to Edit this Doctor\'s Plan options').". \n". xlt('Only entries with a Code are billable').". "; ?>"
                               name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil fa-fw"></i> </a>
@@ -3433,6 +3437,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                        *  echo "<i class='fa fa-file-word-o'></i>";
                                        */
                                       echo "<input type='checkbox' class='TESTS' id='TEST_$counter' codetext='".attr($codetext)."' title='".attr($codedesc)."' name='TEST[]' $checked value='". attr($row['codes']) ."'> ";
+                                      echo '<input type="text" title="'.xla('Modifier').'" style="width:20px;" id="TEST_'.$counter.'_modifier" value="'.$row['modifier'].'">';
+                                  
                                       $label = text(substr($codedesc,0,25));
                                       echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                       echo $label."</label>";

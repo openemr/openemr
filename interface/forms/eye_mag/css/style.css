@@ -418,7 +418,6 @@ background-color: red;
 .borderShadow {
     position:relative; 
     box-shadow: 5px 5px 9px #888888;
-    border-radius: 8 8 8 8;
     margin: 1px 2px 1px 2px; 
     position:relative; 
     border: 1.00pt solid #000000; 
@@ -1389,7 +1388,7 @@ input[type=text].fullscreen {
     text-align:left;
     font-size: 1.0em;
     margin:3 auto;
-    z-index:1;border:1pt solid black;
+    border:1pt solid black;
 }
 
 .QP_block {
@@ -2033,3 +2032,15 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 #ACTNORMAL_CHECK { margin:0em 2em;width:125px;}
 #ACTTABLE { position:relative;text-align:center;font-size:1.0em;margin: 7 5 10 5;border-collapse: separate;}
 #IMPPLAN_1 { text-align: left;}
+.modifier {
+    border: 1pt solid black;
+    padding: 3px;
+    border-radius: 12px;
+    background-color: navy;
+    color: white;
+    box-shadow: 5px 5px 9px #888888;
+}
+.status_on {
+    background-color: red;
+    box-shadow: 0 0 0px 0px #C0C0C0;
+}

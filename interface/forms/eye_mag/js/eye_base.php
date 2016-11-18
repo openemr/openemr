@@ -1433,7 +1433,7 @@ function store_IMPPLAN(storage,nodisplay) {
                        return;
                        }
                        obj.IMPPLAN_items = result;
-                       if (typeof display === "undefined") {
+                       if (typeof nodisplay === "undefined") {
                           build_IMPPLAN(obj.IMPPLAN_items);
                        }
                        });
@@ -1518,7 +1518,7 @@ function dragto_IMPPLAN_zone(event, ui) {
 
                                });
     }
-    store_IMPPLAN(obj.IMPPLAN_items,'1');
+    store_IMPPLAN(obj.IMPPLAN_items); //redisplay the items
 }
 /*
  * This function allows the user to drag a DX from the IMPRESSION list directly into the New Dx field $('#IMP') <-- New Dx textarea
@@ -1587,12 +1587,15 @@ function build_CODING_list() {
                      if  ($(this).is(':checked')) {
                      var codetype = obj.value.match(/(.*):(.*)/)[1];
                      var code = obj.value.match(/(.*):(.*)/)[2];
+                     var modifier = $('#'+obj.id+'_modifier').val();
+                     alert(modifier);
                      CODING_items.push({
                                        'code':     code,
                                        codedesc: obj.title,
                                        codetext: obj.codetext,
                                        codetype: codetype,
-                                       title:    obj.title
+                                       title:    obj.title,
+                                       'modifier': modifier
                                        });
                      }
                      });
@@ -1914,7 +1917,7 @@ function reverse_cylinder(target) {
 function scrollTo(target) {
   //if (scroll !== '1') return;
   var offset;
-  var scrollSpeed = 2000;
+  var scrollSpeed = 500;
   var wheight = $(window).height();
   offset = $("#"+target).offset().top - (wheight / 2)+200;
   if (offset > (window.pageYOffset +150)||offset < (window.pageYOffset -150)) {
@@ -2549,12 +2552,17 @@ $(document).ready(function() {
                                var newValue = this.value;
                                if (newValue == $("#form_id").val()) {
                                if (new_section[1] =="ALL") {
-                               //click updates prefs too
-                               $('#EXAM_QP').trigger("click");
-                               } else {
-                               $('#BUTTON_QP_'+new_section[1]).trigger("click");
-                               }
-                               return;
+                                 //click updates prefs too
+                                 $('#EXAM_QP').trigger("click");
+                                    if ($('#PMH_right').height() > $('#PMH_left').height()) {
+                                      $('#PMH_left').height($('#PMH_right').height());
+                                      $('#PMH_1').height($('#PMH_right').height()+20);
+                                    } else { $('#PMH_1').height($('#HPI_1').height()); }
+                                 } else {
+                                  $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                 }
+                                 $("#LayerTechnical_sections_1").css("clear","both");
+                                 return;
                                }
                                //now go get the prior page via ajax
                                var newValue = this.value;
@@ -2570,6 +2578,7 @@ $(document).ready(function() {
                                show_PRIORS_section("RETINA",newValue);
                                show_PRIORS_section("NEURO",newValue);
                                show_PRIORS_section("IMPPLAN",newValue);
+                               scrollTo("EXT_left");
                                } else {
                                show_PRIORS_section(new_section[1],newValue);
                                }
@@ -3823,6 +3832,15 @@ $(document).ready(function() {
                                            visit_type = data[1];
                                            });
                   show_QP_section('IMPPLAN','1');
+                  $('.modifier').on('click', function () {
+                    if ($(this).hasClass('status_on')) {
+                        $(this).css("background-color","navy");
+                        $(this).removeClass('status_on');
+                      } else {
+                        $(this).css("background-color","red");
+                        $(this).addClass('status_on');
+                      } 
+                  });
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                   <?php if ($GLOBALS['new_tabs_layout'] !=='1') { ?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>

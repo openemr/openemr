@@ -633,7 +633,7 @@ if ($_REQUEST["mode"] == "new")             {
       $result = sqlStatement($sql,array($item['code']));
       while ($res = sqlFetchArray($result)) {
           $item["codedesc"] = $res["code_text"];// = "NP EYE intermediate exam"
-          $item["modifier"] = $res["modifier"];
+          if (!$item["modifier"]) $item["modifier"] = $res["modifier"];
           $item["units"] = $res["units"];
           $item["fee"] = $res["pr_price"];
       }
