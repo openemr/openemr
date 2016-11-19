@@ -792,6 +792,27 @@ $GLOBALS_METADATA = array(
       xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
     ),
 
+    'preprinted_cms_1500' => array(
+      xl('Prints the CMS 1500 on the Preprinted form.'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Prints the CMS 1500 on the Preprinted form.')
+    ),
+
+    'cms_top_margin_default' => array(
+      xl('Default top print margin for CMS 1500'),
+      'num', // data type
+      '24', // default
+      xl('This is the default top print margin for CMS 1500. It will adjust the final printed output up or down.')
+    ),
+
+    'cms_left_margin_default' => array(
+      xl('Default left print margin for CMS 1500'),
+      'num', // data type
+      '20', // default
+      xl('his is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
+    ),
+
       'cms_1500' => array(
       xl('CMS 1500 Paper Form Format'),
       array(
