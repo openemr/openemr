@@ -183,7 +183,14 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
   $HLBillingPayToProvider = $HLcount++;
 
-  // Situational PRV segment (for provider taxonomy code) omitted here.
+  // Situational PRV segment for provider taxonomy code for Medicaid.
+    if ($claim->claimType() == 'MC') {
+        ++$edicount;
+        $out .= "PRV*BI*ZZ" .
+        "*" . $claim->providerTaxonomy() .
+        "~\n";
+    }
+
   // Situational CUR segment (foreign currency information) omitted here.
 
   ++$edicount;
@@ -609,7 +616,18 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
   }
 
-  // Segment REF*F8 (Payer Claim Control Number) omitted.
+  // Segment REF*F8 Payer Claim Control Number for claim re-submission.icn_resubmission_number
+
+  #if($claim->billing_options['replacement_claim'] == '1'){
+  if(trim($claim->billing_options['icn_resubmission_number']) > 3){
+    ++$edicount;
+    error_log("Method 1: ".$claim->billing_options['icn_resubmission_number'], 0);
+    $out .= "REF" .
+      "*F8" .
+      "*" . $claim->icnResubmissionNumber() .
+      "~\n";
+  }
+
 
   if ($claim->cliaCode() && ($CMS_5010 || $claim->claimType() === 'MB')) {
     // Required by Medicare when in-house labs are done.
@@ -643,7 +661,16 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   // Segment CRC (Ambulance Certification) omitted.
   // Segment CRC (Patient Condition Information: Vision) omitted.
   // Segment CRC (Homebound Indicator) omitted.
-  // Segment CRC (EPSDT Referral) omitted.
+
+  // Segment CRC (EPSDT Referral).
+   if($claim->epsdtFlag()) {
+      ++$edicount;
+    $out .= "CRC" .
+      "*ZZ" .
+      "*Y" .
+      "*" . $claim->medicaidReferralCode() .
+      "~\n";
+  }
 
   // Diagnoses, up to $max_per_seg per HI segment.
   $max_per_seg = $CMS_5010 ? 12 : 8;
@@ -716,8 +743,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     }
   }
 
-  
-  /* Per the implementation guide lines, only include this information if it is different 
+
+  /* Per the implementation guide lines, only include this information if it is different
    * than the Loop 2010AA information
    */
   if(!$CMS_5010 ||
@@ -746,8 +773,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     if ($claim->providerTaxonomy()) {
         ++$edicount;
         $out .= "PRV" .
-        "*PE" . // PErforming provider
-        "*" . ($CMS_5010 ? "PXC" : "ZZ") .
+        "*PE" . // Performing provider
+        "*" .($claim->claimType() != 'MC' ? "PXC" : "ZZ") .
         "*" . $claim->providerTaxonomy() .
         "~\n";
     }
@@ -765,9 +792,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     /* Skipping this segment because the providerNPI and the billingFacilityNPI are identical
      * is a normal condition, so no need to warn.
      */
-    
+
   }
-  
+
   // 4010: REF*1C is required here for the Medicare provider number if NPI was
   // specified in NM109.  Not sure if other payers require anything here.
   // --- apparently ECLAIMS, INC wants the data in 2010 but NOT in 2310B - tony@mi-squared.com
@@ -1076,7 +1103,18 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       $out .= $dindex;
       if (++$i >= 4) break;
     }
+    # needed for epstd
+  if($claim->epsdtFlag()) {
+    $out .= "*" .
+    "*" .
+    "*" .
+    "*Y" .
+    "~\n";
+  }
+  else
+  {
     $out .= "~\n";
+  }
 
     if (!$claim->cptCharges($prockey)) {
       $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' has no charges!\n";
@@ -1110,7 +1148,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         "*" . $claim->cptNotecodes($prockey) .
         "~\n";
     }
-      
+
     // Segment DTP*471 (Prescription Date) omitted.
     // Segment DTP*607 (Revision/Recertification Date) omitted.
     // Segment DTP*463 (Begin Therapy Date) omitted.
@@ -1295,7 +1333,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         	$a[4] != null ) {
         	$out .= "CAS02" . // Previous payer's adjustment reason
 	          "*" . $a[4] .
-	          "~\n";	
+	          "~\n";
         }
         *************************************************************/
       }
