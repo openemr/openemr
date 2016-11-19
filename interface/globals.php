@@ -160,7 +160,7 @@ $GLOBALS['webroot'] = $web_root;
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
 
 // Static images directory, relative to the webserver root.
-$GLOBALS['images_static_relative'] = "$web_root/public/images";
+$GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
 
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";

@@ -2165,3 +2165,28 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
 #EndIf
 
+#IfMissingColumn form_misc_billing_options medicaid_referral_code
+  ALTER TABLE form_misc_billing_options ADD COLUMN medicaid_referral_code varchar(2) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options epsdt_flag
+  ALTER TABLE form_misc_billing_options ADD COLUMN epsdt_flag tinyint(1) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options provider_qualifier_code
+  ALTER TABLE form_misc_billing_options ADD COLUMN provider_qualifier_code varchar(2) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options provider_id
+  ALTER TABLE form_misc_billing_options ADD COLUMN provider_id int(11) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options icn_resubmission_number
+  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number int(35) default NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id provider_qualifier_code
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dk','DK',10,0);
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dn','DN',20,0);
+#EndIf
