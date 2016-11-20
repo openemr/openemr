@@ -13,7 +13,6 @@ require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
 require_once(dirname(__FILE__) . "/../library/classes/postmaster.php"  );
-require_once(dirname(__FILE__) . "/../library/nonenglish_helpers.php"  );
 
 class C_Document extends Controller {
 
@@ -504,7 +503,7 @@ class C_Document extends Controller {
 				readfile( $tmpfilepath.$tmpfilename );
 				unlink( $tmpfilepath.$tmpfilename );
 			} else {
-				header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_nonenglish($d->get_url()) . "\"");
+				header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
 			        header("Content-Type: " . $d->get_mimetype());
 			        header("Content-Length: " . filesize($tmpcouchpath));
 			        fpassthru($f);
@@ -588,7 +587,7 @@ class C_Document extends Controller {
 		            readfile( $tmpfilepath.$tmpfilename );
                     unlink( $tmpfilepath.$tmpfilename );
 			    } else {
-			        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_nonenglish($d->get_url()) . "\"");
+			        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
 			        header("Content-Type: " . $d->get_mimetype());
 			        header("Content-Length: " . filesize($url));
 			        fpassthru($f);
@@ -597,7 +596,7 @@ class C_Document extends Controller {
 		        }
 		        else {
 			    //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
-			   	$convertedFile = substr(basename_nonenglish($url), 0, strrpos(basename_nonenglish($url), '.')) . '_converted.jpg';
+			   	$convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
 				if($couch_docid && $couch_revid){
 				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $convertedFile;
 				}
@@ -610,7 +609,7 @@ class C_Document extends Controller {
 				header("Pragma: public");
 			    header("Expires: 0");
 			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_nonenglish($url) . "\"");
+			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($url) . "\"");
 			    header("Content-Type: image/jpeg");
 			    header("Content-Length: " . filesize($url));
 			    $f = fopen($url,"r");
@@ -639,11 +638,11 @@ class C_Document extends Controller {
 				$file = $this->_config['repository'] .$file;
 				$file_info = array();
 				//if the filename is a file get its info and put into a tmp array
-				if (is_file($file) && strpos(basename_nonenglish($file),".") !== 0) {
-					$file_info['filename'] = basename_nonenglish($file);
+				if (is_file($file) && strpos(basename_international($file),".") !== 0) {
+					$file_info['filename'] = basename_international($file);
 					$file_info['mtime'] = date("m/d/Y H:i:s",filemtime($file));
 					$d = $this->Document->document_factory_url("file://" . $file);
-					preg_match("/^([0-9]+)_/",basename_nonenglish($file),$patient_match);
+					preg_match("/^([0-9]+)_/",basename_international($file),$patient_match);
 					$file_info['patient_id'] = $patient_match[1];
 					$file_info['document_id'] = $d->get_id();
 					$file_info['web_path'] = $this->_link("retrieve",true) . "document_id=" . $d->get_id() . "&";
@@ -732,7 +731,7 @@ class C_Document extends Controller {
 		  	$fname = $file['name'];
 		  	
 		  	//see if patient autonumbering is used in this filename, if so strip out the autonumber part
-		  	preg_match("/^([0-9]+)_/",basename_nonenglish($fname),$patient_match);
+		  	preg_match("/^([0-9]+)_/",basename_international($fname),$patient_match);
 		  	if ($patient_match[1] == $file['patient_id']) {
 		  		$fname = preg_replace("/^([0-9]+)_/","",$fname);
 		  	}
@@ -743,7 +742,7 @@ class C_Document extends Controller {
 		  	//see if there is an existing file with the same name and rename as necessary
 		  	if (file_exists($new_path.$file['name'])) {
 		  		$messages .= "File with same name already exists at location: " . $new_path . "\n";
-		  		$fname = basename_nonenglish($this->_rename_file($new_path.$file['name']));
+		  		$fname = basename_international($this->_rename_file($new_path.$file['name']));
 		  		$messages .= "Current file name was changed to " . $fname ."\n";
 		  	}
 		  	
@@ -820,7 +819,7 @@ class C_Document extends Controller {
 			//see if there is an existing file with the same name and rename as necessary
 		  	if (file_exists($new_path.$d->get_url_file())) {
 		  		$messages .= "File with same name already exists in the queue.\n";
-		  		$fname = basename_nonenglish($this->_rename_file($new_path.$d->get_url_file()));
+		  		$fname = basename_international($this->_rename_file($new_path.$d->get_url_file()));
 		  		$messages .= "Current file name was changed to " . $fname ."\n";
 		  	}
 		  	 
@@ -948,7 +947,7 @@ class C_Document extends Controller {
      		    if ( rename( $d->get_url(), $new_url ) ) {
      		        // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
      		        $url = preg_replace("|^(.*)://|","",$d->get_url());
-     		        $convertedFile = substr(basename_nonenglish($url), 0, strrpos(basename_nonenglish($url), '.')) . '_converted.jpg';
+     		        $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
                     $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $patient_id . '/' . $convertedFile;
      				if ( file_exists( $url ) ) {
      				    unlink( $url );
@@ -1020,7 +1019,7 @@ class C_Document extends Controller {
      */
     function _rename_file($fname) {
         $path = dirname($fname);
-        $file = basename_nonenglish($fname);
+        $file = basename_international($fname);
 
         $fparts = explode("\.",$file);
 
@@ -1101,7 +1100,7 @@ class C_Document extends Controller {
 				foreach ($categories[$id] as $doc) {
           if($this->tree->get_node_name($id) == "CCR"){
             $current_node->addItem(new HTML_TreeNode(array(
-              'text' => $doc['docdate'] . ' ' . basename_nonenglish($doc['url']),
+              'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
               'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
@@ -1109,7 +1108,7 @@ class C_Document extends Controller {
             )));
           }elseif($this->tree->get_node_name($id) == "CCD"){
             $current_node->addItem(new HTML_TreeNode(array(
-              'text' => $doc['docdate'] . ' ' . basename_nonenglish($doc['url']),
+              'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
               'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
@@ -1117,7 +1116,7 @@ class C_Document extends Controller {
             )));
           }else{
             $current_node->addItem(new HTML_TreeNode(array(
-              'text' => $doc['docdate'] . ' ' . basename_nonenglish($doc['url']),
+              'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
               'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
               'icon' => $icon,
               'expandedIcon' => $expandedIcon
