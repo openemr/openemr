@@ -2213,7 +2213,7 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 #EndIf
 
 #IfNotRow2D list_options list_id groupstat option_id =
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|10');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|0');
 #EndIf
 
 #IfNotRow2D list_options list_id groupstat option_id )
