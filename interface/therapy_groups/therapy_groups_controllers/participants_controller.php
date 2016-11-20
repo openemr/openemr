@@ -11,7 +11,7 @@ class ParticipantsController extends BaseController{
 
     public function index($groupId ,$data = array()){
 
-        if(isset($_POST['save']) && empty($data)){
+        if(isset($_POST['save'])){
 
             for($k = 0; $k < count($_POST['pid']); $k++){
 
@@ -54,7 +54,7 @@ class ParticipantsController extends BaseController{
 
     public function add($groupId){
 
-        if(isset($_POST['save'])){
+        if(isset($_POST['save_new'])){
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);
             if($alreadyRegistered){

@@ -55,20 +55,15 @@ class Therapy_groups_participants{
 
     public function saveParticipant($participantData){
            // print_r($participantData);die;
+        $sql = "INSERT INTO " .self::TABLE . " VALUES(?,?,?,?,?,?);";
         $data[] = $participantData['group_id'];
-        $sql = "INSERT INTO " .self::TABLE . " (group_id, pid) VALUE(?,?);";
         $data[] = $participantData['pid'];
+        $data[] = $participantData['group_patient_status'];
+        $data[] = $participantData['group_patient_start'];
+        $data[] = $participantData['group_patient_end'];
+        $data[] = $participantData['group_patient_comment'];
 
         $result = sqlStatement($sql, $data);
-
-        $data = array();
-       // $data['group_patient_status'] = 10;
-        $data['group_patient_start'] = $participantData['group_patient_start'];
-       // $data['group_patient_end'] = $participantData['group_patient_end'];
-       // $data['group_patient_comment'] = $participantData['group_patient_comment'];
-        //print_r($participantData);
-        //print_r($data);die;
-        $result = $this->updateParticipant($data,(int)$participantData['pid'], (int)$participantData['group_id']);
 
         return !$result ? false :true;
     }

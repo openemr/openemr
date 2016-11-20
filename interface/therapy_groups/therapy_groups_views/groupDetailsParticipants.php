@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
-                                                <input type="submit" name="save" value="<?php echo xl('Adding a participant'); ?>">
+                                                <input type="submit" name="save_new" value="<?php echo xl('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xl('Cancel'); ?>">
                                             </div>
                                         </div>
