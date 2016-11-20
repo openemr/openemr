@@ -64,7 +64,7 @@ if ($obj['date_of_signature'] != "") {
 
 $(document).ready(function(){
     var win = top.printLogPrint ? top : opener.top;
-    win.printLogPrint(window);
+    if (win.printLogPrint(window)) window.close();
 });
 
 </script>
