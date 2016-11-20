@@ -930,6 +930,9 @@ td { font-size:0.8em; }
  if($_GET['prov']==true){
   $cattype=1;
  }
+ if($_GET['group'] == true){
+  $cattype=3;
+ }
  $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
   "pc_recurrtype, pc_duration, pc_end_all_day " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");

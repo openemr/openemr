@@ -9652,3 +9652,6 @@ REPLACE INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`,
  ('groupstat', ')', ') Did Not Take Place', '96', '0', '0', 'BFBFBF|0'),
  ('groupstat', '(', '( Not Reported', '97', '0', '0', 'FEFDCF|0');
 
+REPLACE INTO openemr_postcalendar_categories (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_recurrspec`, `pc_duration` ,`pc_cattype` , `pc_active` , `pc_seq`)
+VALUES ('1000', 'Group Therapy' , '#BFBFBF' , 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', '3600', '3', '1', '90');
+
