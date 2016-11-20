@@ -9645,6 +9645,8 @@ CREATE TABLE `therapy_groups_counselors`(
 
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
 
+REPLACE INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
+
 REPLACE INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
  ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|10'),
  ('groupstat', ')', ') Did Not Take Place', '96', '0', '0', 'BFBFBF|0'),
