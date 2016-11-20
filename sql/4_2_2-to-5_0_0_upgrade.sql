@@ -2207,3 +2207,15 @@ CREATE TABLE `therapy_groups_counselors`(
 #IfMissingColumn openemr_postcalendar_events pc_gid
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
 #EndIf
+
+#IfNotRow2D list_options list_id groupstat option_id =
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|10');
+#EndIf
+
+#IfNotRow2D list_options list_id groupstat option_id )
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', ')', ') Did Not Take Place', '96', '0', '0', 'BFBFBF|0');
+#EndIf
+
+#IfNotRow2D list_options list_id groupstat option_id (
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '(', '( Not Reported', '97', '0', '0', 'FEFDCF|0');
+#EndIf
