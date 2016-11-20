@@ -44,6 +44,7 @@ require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
@@ -782,7 +783,11 @@ if ($_POST['form_action'] == "save") {
  $hometext = "";
  $row = array();
  $informant = "";
+ $groupid = '';
  if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
+ $groupname = null;
+ $group_statuses = getGroupStatuses();
+
 
  // If we are editing an existing event, then get its data.
  if ($eid) {
@@ -925,6 +930,9 @@ td { font-size:0.8em; }
  if($_GET['prov']==true){
   $cattype=1;
  }
+ if($_GET['group'] == true){
+  $cattype=3;
+ }
  $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
   "pc_recurrtype, pc_duration, pc_end_all_day " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
@@ -978,6 +986,18 @@ td { font-size:0.8em; }
  // This invokes the find-patient popup.
  function sel_patient() {
   dlgopen('find_patient_popup.php', '_blank', 500, 400);
+ }
+
+ // This is for callback by the find-group popup.
+ function setgroup(gid, name) {
+     var f = document.forms[0];
+     f.form_group.value = name;
+     f.form_gid.value = gid;
+ }
+
+
+ function sel_group() {
+  dlgopen('find_group_popup.php', '_blank', 500, 400);
  }
 
  // Do whatever is needed when a new event category is selected.
@@ -1642,8 +1662,18 @@ if  ($GLOBALS['select_multi_providers']) {
   <td nowrap>
 
 <?php
-generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'SKIP'), $row['pc_apptstatus']);
-?>
+if($_GET['group']!=true) {
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
+else{ ?>
+      <select name="form_apptstatus" id="form_apptstatus" title="">
+          <option value="-">- None</option>
+          <?php foreach ($group_statuses as $status){ ?>
+              <option value="<?php echo xl($status['option_id']);?>"><?php echo xl($status['title']);?></option>
+          <?php } ?>
+      </select>
+<?php } ?>
+
    <!--
     The following list will be invisible unless this is an In Office
     event, in which case form_apptstatus (above) is to be invisible.
