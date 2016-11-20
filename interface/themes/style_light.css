@@ -1374,3 +1374,9 @@ table.dataTable#therapy_groups_list tbody td{
 .showAddForm{
   max-height: 250px !important;
 }
+.groups-error-msg{
+  color: #ff542d;
+  font-size: 1.3em;
+  padding: 8px;
+  text-align: center;
+}

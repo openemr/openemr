@@ -23,8 +23,8 @@
                     <div class="col-md-12">
                         <div id="component-border">
                             <div  class="row">
-                                <form  id="add-participant-form" name="add-participant-form" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . $groupId?>" method="post">
-                                    <input type="hidden" id="pid" name="pid">
+                                <form  id="add-participant-form" name="add-participant-form" class="<?php echo isset($addStatus) ? 'showAddForm' : '' ?>" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . $groupId?>" method="post">
+                                    <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? $participant_data['pid']: ''?>">
                                     <div class="col-md-12">
                                         <div class="row">
                                             <div class="col-md-offset-1 col-md-5">
@@ -33,7 +33,7 @@
                                                         <span class="bold"><?php echo xlt('Participant’s name'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" readonly>
+                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? $participant_data['participant_name']: ''?>" readonly>
                                                     </div>
                                                 </div>
                                             </div>
@@ -43,7 +43,7 @@
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" name="participant_date" class="full-width datepicker"  value="<?php echo date('Y-m-d');?>">
+                                                        <input type="text" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? $participant_data['group_patient_start']: date('Y-m-d');?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -53,7 +53,7 @@
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
-                                                <input type="text" name="participant_comment" class="full-width">
+                                                <input type="text" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? $participant_data['group_patient_comment']: ''?>" class="full-width">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -62,6 +62,13 @@
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xl('Cancel'); ?>">
                                             </div>
                                         </div>
+                                        <?php if(isset($message)): ?>
+                                        <div class="row">
+                                            <div class="col-md-offset-2 col-md-8">
+                                                <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo $message?></p>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <hr/>
