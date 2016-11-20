@@ -169,7 +169,7 @@ td,th {
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height/Length"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
+                <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="round(number * constant,1)" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
@@ -256,7 +256,7 @@ td,th {
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="head_circ_metric">{else}<td class="graph" id="head_circ_metric">{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="number * constant" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ_input');"/>
+                <input type="text" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"}{/if}</td>
@@ -276,7 +276,7 @@ td,th {
                 {if $units_of_measurement == 1}<td class="unfocus graph" id="waist_circ_metric">{else}<td class="graph" id="waist_circ_metric">{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation="number * constant" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
+                <input type="text" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation="round(number * constant,1)" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"}{/if}</td>
