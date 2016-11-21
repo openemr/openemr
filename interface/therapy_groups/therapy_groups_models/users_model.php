@@ -40,7 +40,7 @@ class Users{
             $user_name[] = $u;
         }
 
-        $user_full_name = $user_name[0]['fname'] . "    " . $user_name[0]['lname'];
+        $user_full_name = $user_name[0]['fname'] . "   " . $user_name[0]['lname'];
 
         return $user_full_name;
 

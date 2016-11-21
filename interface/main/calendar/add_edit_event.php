@@ -1665,14 +1665,10 @@ if  ($GLOBALS['select_multi_providers']) {
 if($_GET['group']!=true) {
     generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
 }
-else{ ?>
-      <select name="form_apptstatus" id="form_apptstatus" title="">
-          <option value="-">- None</option>
-          <?php foreach ($group_statuses as $status){ ?>
-              <option value="<?php echo xl($status['option_id']);?>"><?php echo xl($status['title']);?></option>
-          <?php } ?>
-      </select>
-<?php } ?>
+else{
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
+?>
 
    <!--
     The following list will be invisible unless this is an In Office
@@ -1738,6 +1734,7 @@ if ($repeatexdate != "") {
  $patient_dob = trim($prow['DOB']);
  $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
   '' : 'none';
+ if($_GET['group']==true)$dobstyle = 'none';
 ?>
  <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
   <td colspan='4' nowrap>

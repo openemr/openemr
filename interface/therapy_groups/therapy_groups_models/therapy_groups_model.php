@@ -79,4 +79,24 @@ class Therapy_Groups{
         sqlStatement($sql, array($status, $group_id));
     }
 
+    /**
+     * Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups).
+     * @param $search_params
+     * @param $result_columns
+     * @param $column
+     * @return array
+     */
+    public function getGroupData($search_params, $result_columns, $column){
+        $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ORDER BY group_start_date DESC;';
+        $search_params = '%' . $search_params . '%';
+        $result = sqlStatement($sql, array($search_params));
+        $final_result = array();
+        while($row = sqlFetchArray($result)){
+            $final_result[] = $row;
+        }
+        return $final_result;
+
+    }
+
+
 }

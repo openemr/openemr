@@ -50,11 +50,23 @@ $timeslotHeightUnit="px";
   dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
  }
 
+ function oldGroupEvt(eventdate, eventid, pccattype){
+  dlgopen('add_edit_event.php?group=true&date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
+ }
+
  function goPid(pid) {
   top.restoreSession();
 [-php-]
   		echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
    		"+ '?set_pid=' + pid;\n";
+[-/php-]
+ }
+
+ function goGid(gid) {
+  top.restoreSession();
+[-php-]
+        echo "  top.RTop.location = '" . $GLOBALS['rootdir'] . "/therapy_groups/index.php' " .
+        "+ '?method=groupDetails&group_id=' + gid \n ";
 [-/php-]
  }
 
@@ -653,7 +665,7 @@ foreach ($providers as $provider) {
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
-	    $fname = substr($event['patient_name'], $commapos + 2);
+	        $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -661,12 +673,25 @@ foreach ($providers as $provider) {
             $catname = $event['catname'];
             $title = "Age $patient_age ($patient_dob)";
 
-            $content = "";
+            //Variables for therapy groups
+            $groupid = $event['gid'];
+            if($groupid) $patientid = '';
+            $groupname = $event['group_name'];
+            $grouptype = $event['group_type'];
+            $groupstatus = $event['group_status'];
+            $groupcounselors = '';
+            foreach($event['group_counselors'] as $counselor){
+                $groupcounselors .= getUserNameById($counselor) . " \n ";
+            }
+                $content = "";
 
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
-            $divTitle = htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES);
+            if($groupid)
+                $divTitle = xl('Counselors') . ": \n" . htmlspecialchars($groupcounselors,ENT_QUOTES). " \n";
+            else
+                $divTitle = htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES);
             $result = sqlStatement("SELECT name,id,color FROM facility WHERE id=(SELECT pc_facility FROM openemr_postcalendar_events WHERE pc_eid=".$eventid.")");
             $row = sqlFetchArray($result);
             $color=$event["catcolor"];
@@ -690,7 +715,10 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES);
+                if($groupid)
+                    $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($groupname, ENT_QUOTES);
+                else
+                    $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES);
                 $content .= "<span class='appointment'>";
                 $content .= create_event_time_anchor($dispstarth.":".$startm);
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
@@ -715,6 +743,29 @@ foreach ($providers as $provider) {
                     }
                     if ($catid == 1) $content .= "</strike>";
                     $content .= "</a>";
+                }
+                elseif($groupid){
+                    $divTitle .= "\n" . getStatusName($groupstatus) . "\n";
+                    $link_title = '';
+                    $link_title .= $divTitle ."\n";
+                    $link_title .= "(" . xl('Click to view') . ")";
+                    $content .= "<a href='javascript:goGid($groupid)' title='$link_title'>";
+                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-blue.gif' border='0' title='$link_title' alt='View Patient' />";
+                    if ($catid == 1) $content .= "<strike>";
+                    $content .= htmlspecialchars($groupname);
+                    if ($GLOBALS['calendar_appt_style'] != 1) {
+                        if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
+                            $content .= "(" . $event['title'];
+                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
+                            $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
+                            $content .= ")";
+                        }
+                    }
+                    if ($catid == 1) $content .= "</strike>";
+                    $content .= "</a>";
+
+                    //Add class to wrapping div so EditEvent js function can differentiate between click on group and patient
+                    $evtClass .= ' groups ';
                 }
                 else {
                       //Category Clinic closaed or holiday take the event title
@@ -890,6 +941,11 @@ echo "<P>";
         objID = eObj.id;
         var parts = new Array();
         parts = objID.split("-");
+        editing_group = $(eObj).hasClass("groups");
+        if(editing_group){
+            oldGroupEvt(parts[0], parts[1], parts[2]);
+            return true;
+        }
         // call the oldEvt function to bring up the event editor
         oldEvt(parts[0], parts[1], parts[2]);
         return true;
