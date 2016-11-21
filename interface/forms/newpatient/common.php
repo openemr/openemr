@@ -339,13 +339,23 @@ if ($fres) {
 
   </td>
 
-  <td class='bold' width='33%' nowrap>
+
+<td class='bold' width='33%' nowrap>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
+<?php if ($GLOBALS['athletic_team']) { // they want the old-style popup window ?>
+      <a href="#" class="css_button_small link_submit"
+       onclick="return newissue()"><span><?php echo xlt('Add'); ?></span></a>
+<?php } else {
+      if (acl_check('patients','med','','write')): ?> 
       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
        onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+         <?php else: ?>
+      <a href="#" class="css_button_small link_submit "
+       onclick="alert('You are not authorized to add/edit issues');return false;"><span><?php echo xlt('Add'); ?></span></a>
+    <?php endif;  } ?>
     </div>
   </td>
  </tr>
