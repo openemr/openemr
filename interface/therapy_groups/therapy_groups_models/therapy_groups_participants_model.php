@@ -52,4 +52,19 @@ class Therapy_groups_participants{
         $count = sqlFetchArray($result);
         return($count['count'] > 0) ? true : false;
     }
+
+    public function saveParticipant($participantData){
+           // print_r($participantData);die;
+        $sql = "INSERT INTO " .self::TABLE . " VALUES(?,?,?,?,?,?);";
+        $data[] = $participantData['group_id'];
+        $data[] = $participantData['pid'];
+        $data[] = $participantData['group_patient_status'];
+        $data[] = $participantData['group_patient_start'];
+        $data[] = $participantData['group_patient_end'];
+        $data[] = $participantData['group_patient_comment'];
+
+        $result = sqlStatement($sql, $data);
+
+        return !$result ? false :true;
+    }
 }
