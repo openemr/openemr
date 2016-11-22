@@ -632,8 +632,8 @@ if ($_REQUEST["mode"] == "new")             {
               " LIMIT 1";
       $result = sqlStatement($sql,array($item['code']));
       while ($res = sqlFetchArray($result)) {
-          $item["codedesc"] = $res["code_text"];// = "NP EYE intermediate exam"
-          if (!$item["modifier"]) $item["modifier"] = $res["modifier"];
+          $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
+          if (!$item["modifier"]) $modifier = $res["modifier"];
           $item["units"] = $res["units"];
           $item["fee"] = $res["pr_price"];
       }

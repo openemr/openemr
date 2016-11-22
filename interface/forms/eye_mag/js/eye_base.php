@@ -1578,7 +1578,8 @@ function build_CODING_list() {
                           codedesc: 'Sensorimotor exam',
                           codetext: 'Sensorimotor exam (CPT4:92060)',
                           codetype: 'CPT4',
-                          title:    'Neuro/Sensorimotor Code'
+                          title:    'Neuro/Sensorimotor Code',
+                          justify: visit_justify
                           });
     }
         //2. Tests/procedures performed to bill
@@ -1588,14 +1589,14 @@ function build_CODING_list() {
                      var codetype = obj.value.match(/(.*):(.*)/)[1];
                      var code = obj.value.match(/(.*):(.*)/)[2];
                      var modifier = $('#'+obj.id+'_modifier').val();
-                     alert(modifier);
+                     //alert(modifier);
                      CODING_items.push({
-                                       'code':     code,
-                                       codedesc: obj.title,
-                                       codetext: obj.codetext,
-                                       codetype: codetype,
-                                       title:    obj.title,
-                                       'modifier': modifier
+                                       'code'     :     code,
+                                       'codedesc' : obj.title,
+                                       'codetext' : obj.codetext,
+                                       'codetype' : codetype,
+                                       'title'    : obj.title,
+                                       'modifier' : modifier
                                        });
                      }
                      });
@@ -3833,13 +3834,18 @@ $(document).ready(function() {
                                            });
                   show_QP_section('IMPPLAN','1');
                   $('.modifier').on('click', function () {
+                    var item = this.id.match(/visit_mod_(.*)/)[1];
                     if ($(this).hasClass('status_on')) {
                         $(this).css("background-color","navy");
                         $(this).removeClass('status_on');
+                        delete visit_modifier[''+item];
                       } else {
                         $(this).css("background-color","red");
                         $(this).addClass('status_on');
+                        visit_modifier.push(item);
+                      //justify: visit_justify = 
                       } 
+                      console.log(visit_modifier);
                   });
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
