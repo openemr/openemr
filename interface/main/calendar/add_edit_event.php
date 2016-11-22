@@ -90,12 +90,21 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
-$collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+if($_GET['group'] == true)
+    //groups tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
+elseif($_GET['prov'])
+    //providers tab
+    $collectthis = '';
+else
+    //patient tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+
 if (empty($collectthis)) {
     $collectthis = "undefined";
 }
 else {
-    $collectthis = $collectthis["theform"]["rules"];
+    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
 
@@ -1855,7 +1864,7 @@ function validateform(valu){
             delete collectvalidation.form_enddate;
         }
     }
-    
+
     var submit = submitme(1, undefined, 'theform', collectvalidation);
     if(!submit)return;
 
