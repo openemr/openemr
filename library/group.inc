@@ -29,6 +29,13 @@ function getCounselors($gid){
     return $result;
 }
 
+//Fetches providers for a specific group event
+function getProvidersOfEvent($eid){
+    $model = new Users();
+    $result = $model->getProvidersOfEvent($eid);
+    return $result;
+}
+
 //Fetches name of user by his id
 function  getUserNameById($uid){
     $model = new Users();

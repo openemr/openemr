@@ -1210,7 +1210,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $events[$i]['group_name']   = $tmp['group_name'];
     $events[$i]['group_type']   = $tmp['group_type'];
     $events[$i]['group_status'] = $tmp['group_status'];
-    $counselors = getCounselors($tmp['gid']);
+    $counselors = getProvidersOfEvent($tmp['eid']);
     $events[$i]['group_counselors'] = $counselors;
 
 	  $i++;

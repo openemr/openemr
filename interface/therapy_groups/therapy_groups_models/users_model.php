@@ -9,6 +9,7 @@
 class Users{
 
     const TABLE = 'users';
+    const EVENTS_TABLE = 'openemr_postcalendar_events';
 
     /**
      * Get all users' ids and full names from users table.
@@ -43,6 +44,45 @@ class Users{
         $user_full_name = $user_name[0]['fname'] . "   " . $user_name[0]['lname'];
 
         return $user_full_name;
+
+    }
+
+    public function getProvidersOfEvent($eid){
+
+        $multiple = $this->checkIfMultiple($eid);
+        if($multiple > 0){
+            $sql = "SELECT pc_aid From " . SELF::EVENTS_TABLE . " WHERE pc_multiple = ?";
+            $result = sqlStatement($sql, array($multiple));
+            while($p = sqlFetchArray($result)){
+                $providers[] = $p['pc_aid'];
+            }
+            return $providers;
+        }
+        else{
+            $sql = "SELECT pc_aid From " . SELF::EVENTS_TABLE . " WHERE pc_eid = ?";
+            $result = sqlStatement($sql, array($eid));
+            while($p = sqlFetchArray($result)){
+                $providers[] = $p['pc_aid'];
+            }
+            return $providers;
+        }
+
+    }
+
+
+    /**
+     * Checks if event has multiple providers and if so returns the key of multiple providers
+     * @param $eid
+     * @return bool|ADORecordSet_mysqli
+     */
+    private function checkIfMultiple($eid){
+
+        $sql = "SELECT pc_multiple FROM " . SELF::EVENTS_TABLE . " WHERE pc_eid = ?";
+        $result = sqlStatement($sql, array($eid));
+        if($result->fields['pc_multiple'] == 0){
+            return false;
+        }
+        return $result->fields['pc_multiple'];
 
     }
 }
