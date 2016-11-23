@@ -37,13 +37,25 @@ class TherapyGroupsController extends BaseController{
     public function index($groupId = null){
 
         $data = array();
+
+        //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
+        $eventsModel = $this->loadModel('Therapy_Groups_Events');
         $userModel = $this->loadModel('Users');
+
+        //Get group events
+        $events = $eventsModel->getGroupEvents($groupId);
+        $data['events'] = $events;
+
+        //Get users
         $users = $userModel->getAllUsers();
         $data['users'] = $users;
+
+        //Get statuses
         $data['statuses'] = self::$statuses;
-       //print_r($_POST);die;
+
+        //print_r($_POST);die;
         if(isset($_POST['save'])){
 
             $isEdit = empty( $_POST['group_id']) ? false : true;
