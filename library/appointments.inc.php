@@ -326,7 +326,8 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0 )
+//Support for therapy group appointments added by shachar z.
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null)
 {
 	$sqlBindArray = array();
 
@@ -340,6 +341,9 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	if ( $patient_id ) {
 		$where .= " AND e.pc_pid = ?";
 		array_push($sqlBindArray, $patient_id);
+	} elseif( $group_id ) {
+		$where .= " AND e.pc_gid = ?";
+		array_push($sqlBindArray, $group_id);
 	} else {
 		$where .= " AND e.pc_pid != ''";
 	}
@@ -374,11 +378,12 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	return $appointments;
 }
 
-function fetchNextXAppts($from_date, $patient_id, $nextX = 1) {
+//Support for therapy group appointments added by shachar z.
+function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null) {
 
   $appts = array();
   $nextXAppts = array();
-  $appts = fetchAppointments( $from_date, null, $patient_id, null, null, null, null, null, null, false, $nextX );
+  $appts = fetchAppointments( $from_date, null, $patient_id, null, null, null, null, null, null, false, $nextX, $group_id);
   if($appts) {
     $appts = sortAppointments($appts);
     $nextXAppts = array_slice($appts, 0, $nextX);
@@ -495,12 +500,13 @@ function compareAppointments( $appointment1, $appointment2 )
 {
 	global $appointment_sort_order;
 	$comparisonOrder = getComparisonOrder( $appointment_sort_order );
-	foreach ( $comparisonOrder as $comparison )
-	{
-		$cmp_function = getCompareFunction( $comparison );
-		$result = $cmp_function( $appointment1, $appointment2 );
-		if ( 0 != $result ) {
-			return $result;
+	if($comparisonOrder) {
+		foreach ($comparisonOrder as $comparison) {
+			$cmp_function = getCompareFunction($comparison);
+			$result = $cmp_function($appointment1, $appointment2);
+			if (0 != $result) {
+				return $result;
+			}
 		}
 	}
 

@@ -10,6 +10,10 @@ class Group_Statuses{
 
     const TABLE = 'list_options';
 
+    /**
+     * Gets group appointment statuses
+     * @return ADORecordSet_mysqli
+     */
     public function getGroupStatuses(){
         $sql = 'SELECT  option_id, title FROM ' . SELF::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, array('groupstat'));
