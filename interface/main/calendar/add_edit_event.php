@@ -1741,9 +1741,9 @@ if ($repeatexdate != "") {
  // to enter it right here.  We must display or hide this row dynamically
  // in case the patient-select popup is used.
  $patient_dob = trim($prow['DOB']);
- $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
+ $is_group = $prow['group_name'];
+ $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
   '' : 'none';
- if($_GET['group']==true)$dobstyle = 'none';
 ?>
  <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
   <td colspan='4' nowrap>
