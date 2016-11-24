@@ -48,6 +48,12 @@ class TherapyGroupsController extends BaseController{
         $events = $eventsModel->getGroupEvents($groupId);
         $data['events'] = $events;
 
+        //Insert counselors for each event
+        for ($i =0; $i < count($data['events']); $i++ ){
+            $eid = $data['events'][$i]['pc_eid'];
+            $data['events'][$i]['counselors'] = $userModel->getProvidersOfEvent($eid);
+        }
+
         //Get users
         $users = $userModel->getAllUsers();
         $data['users'] = $users;
