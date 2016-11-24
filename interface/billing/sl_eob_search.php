@@ -33,10 +33,6 @@ require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
 
-//// ADDED TO USE HTML2PDF - OK to remove files not needed  /////////////////////
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -46,10 +42,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/html2pdf/html2pdf.class.php");
-require_once("$srcdir/formdata.inc.php");
-///////
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -102,7 +94,7 @@ function upload_file_to_client_pdf($file_to_send) {
   global $STMT_TEMP_FILE_PDF;
   global $srcdir;
 
-  if ($stmt['PDF_type']= "HTML2PDF") {
+  if ($GLOBALS['statement_appearance'] == "1") {
     require_once("$srcdir/html2pdf/vendor/autoload.php");
     $pdf2 = new HTML2PDF ($GLOBALS['pdf_layout'],
     $GLOBALS['pdf_size'],
@@ -128,39 +120,39 @@ function upload_file_to_client_pdf($file_to_send) {
       if (substr($content, $i+6, $wrlen) === $web_root &&
         substr($content, $i+6, $wsrlen) !== $webserver_root) {
         $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+      }
     }
-  }
-  $pdf2->WriteHTML($content);
-  $temp_filename = $STMT_TEMP_FILE_PDF;
-  $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF,'F');
-} else {
-  $pdf = new Cezpdf('LETTER');//pdf creation starts
-  $pdf->ezSetMargins(45,9,36,10);
-  $pdf->selectFont('Courier');
-  $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-  $countline=1;
-  $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
-  while(!feof($file)) {
-    $OneLine=fgets($file);//one line is read
-    if(stristr($OneLine, "\014") == true && !feof($file))//form feed means we should start a new page.
-    {
-      $pdf->ezNewPage();
-      $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-      str_replace("\014", "", $OneLine);
-    }
+    $pdf2->WriteHTML($content);
+    $temp_filename = $STMT_TEMP_FILE_PDF;
+    $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF,'F');
+  } else {
+    $pdf = new Cezpdf('LETTER');//pdf creation starts
+    $pdf->ezSetMargins(45,9,36,10);
+    $pdf->selectFont('Courier');
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+    $countline=1;
+    $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
+    while(!feof($file)) {
+      $OneLine=fgets($file);//one line is read
+      if(stristr($OneLine, "\014") == true && !feof($file))//form feed means we should start a new page.
+      {
+        $pdf->ezNewPage();
+        $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+        str_replace("\014", "", $OneLine);
+      }
 
-    if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
-      $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6));
-    else
-      $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
-    $countline++;
+      if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+        $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6));
+      else
+        $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
+      $countline++;
+    }
+    $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');//stored to a pdf file
+    if ($fh) {
+      fwrite($fh, $pdf->ezOutput());
+      fclose($fh);
+    }
   }
-  $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');//stored to a pdf file
-  if ($fh) {
-    fwrite($fh, $pdf->ezOutput());
-    fclose($fh);
-  }
-}
   header("Pragma: public");//this section outputs the pdf file to browser
   header("Expires: 0");
   header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -207,54 +199,51 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
     //
   while ($row = sqlFetchArray($res)) {
     $svcdate = substr($row['date'], 0, 10);
-      $duedate = $svcdate; // TBD?
-      $duncount = $row['stmt_count'];
-      $enc_note = $row['enc_billing_note'];
+    $duedate = $svcdate; // TBD?
+    $duncount = $row['stmt_count'];
+    $enc_note = $row['enc_billing_note'];
 
-      // If this is a new patient then print the pending statement
-      // and start a new one.  This is an associative array:
-      //
-      //  cid     = same as pid
-      //  pid     = OpenEMR patient ID
-      //  patient = patient name
-      //  amount  = total amount due
-      //  adjust  = adjustments (already applied to amount)
-      //  duedate = due date of the oldest included invoice
-      //  age     = number of days from duedate to today
-      //  to      = array of addressee name/address lines
-      //  lines   = array of:
-      //    dos     = date of service "yyyy-mm-dd"
-      //    desc    = description
-      //    amount  = charge less adjustments
-      //    paid    = amount paid
-      //    notice  = 1 for first notice, 2 for second, etc.
-      //    detail  = array of details, see invoice_summary.inc.php
-      //
-      if ($stmt['cid'] != $row['pid']) {
-        if (!empty($stmt)) ++$stmt_count;
-
-        //not sure why this is run twice, first here and again
-        fwrite($fhprint, create_HTML_statement($stmt));
-        $stmt['cid'] = $row['pid'];
-        $stmt['pid'] = $row['pid'];
-        $stmt['dun_count'] = $row['stmt_count'];
-        $stmt['bill_note'] = $row['pat_billing_note'];
-        $stmt['enc_bill_note'] = $row['enc_billing_note'];
-        $stmt['bill_level'] = $row['last_level_billed'];
-        $stmt['level_closed'] = $row['last_level_closed'];
-        $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
-        $stmt['encounter'] = $row['encounter'];
-    		#If you use the field in demographics layout called
-    		#guardiansname this will allow you to send statements to the parent
-    		#of a child or a guardian etc
-        if(strlen($row['guardiansname']) == 0) {
-          $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
-        }
-        else
-        {
-         $stmt['to'] = array($row['guardiansname']);
-       }
-       if ($row['street']) $stmt['to'][] = $row['street'];
+    // If this is a new patient then print the pending statement
+    // and start a new one.  This is an associative array:
+    //
+    //  cid     = same as pid
+    //  pid     = OpenEMR patient ID
+    //  patient = patient name
+    //  amount  = total amount due
+    //  adjust  = adjustments (already applied to amount)
+    //  duedate = due date of the oldest included invoice
+    //  age     = number of days from duedate to today
+    //  to      = array of addressee name/address lines
+    //  lines   = array of:
+    //    dos     = date of service "yyyy-mm-dd"
+    //    desc    = description
+    //    amount  = charge less adjustments
+    //    paid    = amount paid
+    //    notice  = 1 for first notice, 2 for second, etc.
+    //    detail  = array of details, see invoice_summary.inc.php
+    //
+    if ($stmt['cid'] != $row['pid']) {
+      if (!empty($stmt)) ++$stmt_count; 
+      $stmt['cid'] = $row['pid'];
+      $stmt['pid'] = $row['pid'];
+      $stmt['dun_count'] = $row['stmt_count'];
+      $stmt['bill_note'] = $row['pat_billing_note'];
+      $stmt['enc_bill_note'] = $row['enc_billing_note'];
+      $stmt['bill_level'] = $row['last_level_billed'];
+      $stmt['level_closed'] = $row['last_level_closed'];
+      $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
+      $stmt['encounter'] = $row['encounter'];
+  		#If you use the field in demographics layout called
+  		#guardiansname this will allow you to send statements to the parent
+  		#of a child or a guardian etc
+      if(strlen($row['guardiansname']) == 0) {
+        $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+      }
+      else
+      {
+       $stmt['to'] = array($row['guardiansname']);
+     }
+     if ($row['street']) $stmt['to'][] = $row['street'];
        $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
        $stmt['lines'] = array();
        $stmt['amount'] = '0.00';
@@ -269,8 +258,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
     }
 
       // Recompute age at each invoice.
-    $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
-      (24 * 60 * 60));
+    $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
     $invlines = ar_get_invoice_summary($row['pid'], $row['encounter'], true);
     foreach ($invlines as $key => $value) {
@@ -278,29 +266,30 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
       $line['dos']     = $svcdate;
       if ($GLOBALS['use_custom_statement']) {
        $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
-     } else {
+      } else {
       $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
+      }
+      $line['amount']  = sprintf("%.2f", $value['chg']);
+      $line['adjust']  = sprintf("%.2f", $value['adj']);
+      $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
+      $line['notice']  = $duncount + 1;
+      $line['detail']  = $value['dtl'];
+      $stmt['lines'][] = $line;
+      $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+      $stmt['ins_paid']  = $stmt['ins_paid'] + $value['ins'];
     }
-    $line['amount']  = sprintf("%.2f", $value['chg']);
-    $line['adjust']  = sprintf("%.2f", $value['adj']);
-    $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
-    $line['notice']  = $duncount + 1;
-    $line['detail']  = $value['dtl'];
-    $stmt['lines'][] = $line;
-    $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-    $stmt['ins_paid']  = $stmt['ins_paid'] + $value['ins'];
-  }
 
       // Record that this statement was run.
-  if (! $DEBUG && ! $_POST['form_without']) {
-    sqlStatement("UPDATE form_encounter SET " .
-      "last_stmt_date = '$today', stmt_count = stmt_count + 1 " .
-      "WHERE id = " . $row['id']);
-  }
-    } // end while
+    if (! $DEBUG && ! $_POST['form_without']) {
+      sqlStatement("UPDATE form_encounter SET " .
+        "last_stmt_date = '$today', stmt_count = stmt_count + 1 " .
+        "WHERE id = " . $row['id']);
+    }
+    fwrite($fhprint, make_statement($stmt));
+    
+  } // end while
 
     if (!empty($stmt)) ++$stmt_count;
-  //  fwrite($fhprint, create_HTML_statement($stmt));
     fclose($fhprint);
     sleep(1);
 

@@ -41,10 +41,10 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
  *
  */
 function make_statement($stmt) {
-  if ($stmt['PDF_type'] == "HTML2PDF") {
-    create__HTML_statement($stmt);
+  if ($GLOBALS['statement_appearance'] == "1") {
+    return create_HTML_statement($stmt);
   } else {
-    create_statement($stmt);
+    return create_statement($stmt);
   }
 }
 /**
@@ -72,19 +72,10 @@ function report_header_2($stmt,$direction='',$providerID='1') {
     <tr>
       <td style='width:100px;text-align:top;'>
         <?php
-        if ($direction == "web") {
-          global $OE_SITE_DIR;
-          $practice_logo = $GLOBALS['webroot']."/sites/default/images/practice_logo.gif";
-          if (file_exists($OE_SITE_DIR."/images/practice_logo.gif")) {
-            echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px;'><br />\n";
-          }
-        } else { //defaults to this
-          global $OE_SITE_DIR;
-          $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+          $practice_logo = "$GLOBALS['OE_SITE_DIR']/images/practice_logo.gif";
           if (file_exists($practice_logo)) {
             echo "<img src='$practice_logo' align='left' style='width:125px;margin:0px;'><br />\n";
           }
-        }
         ?>
       </td>
       <td style='width:40%;'>
@@ -99,7 +90,7 @@ function report_header_2($stmt,$direction='',$providerID='1') {
         <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
         <b style="font-weight:bold;"><?php echo xlt('Chart Number'); ?>:</b> <?php echo text($stmt['pid']); ?><br />
         <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo oeFormatShortDate(); ?><br />
-        <b><?php echo xlt('Provider') . ':</b>  '; ?><?php echo getProviderName($providerID); ?> <br />
+        <b><?php echo xlt('Provider') . ':</b>  '; ?><?php echo text(getProviderName($providerID)); ?> <br />
       </td>
     </tr>
   </table>
@@ -112,17 +103,17 @@ function report_header_2($stmt,$direction='',$providerID='1') {
 function create_HTML_statement($stmt) {
   if (! $stmt['pid']) return ""; // get out if no data
 
-  #minimum_amount_to _print
-  if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+  #minimum_amount_due_to _print
+  if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
 
   // These are your clinics return address, contact etc.  Edit them.
   // TBD: read this from the facility table
   // Facility (service location)
   $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."' " .
+    " left join  billing b on b.provider_id=u.id and b.pid = ? " .
     " where  service_location=1");
-  $row = sqlFetchArray($atres);
+  $row = sqlFetchArray($atres,array($stmt['pid']));
   $clinic_name = "{$row['name']}";
   $clinic_addr = "{$row['street']}";
   $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
@@ -291,7 +282,7 @@ function create_HTML_statement($stmt) {
   $label_call = xl('Please call if any of the above information is incorrect.');
   $label_prompt = xl('We appreciate prompt payment of balances due.');
   $label_dept = xl('Billing Department');
-  $label_bill_phone = xl('(413) 525-1611');
+  $label_bill_phone = $GLOBALS['billing_phone_number'];
   $label_appointments = xl('Future Appointments').':';
 
   // This is the top portion of the page.
@@ -355,11 +346,30 @@ function create_HTML_statement($stmt) {
       $count++;
     }
   }
-  //$provider = "Raymond Magauran, MD";//make this the correct provider
-  while ($count++ < 27) $out .= "\n";
+  while ($count++ < 29) $out .= "\n";
   $out .= sprintf("%-10s %s\n",null,$label_retpay);
   $out .= '</pre></div>';
-  $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br />';
+  $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
+      <table style="width:7in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
+ ';
+  $out .= $label_payby.' '.$label_cards;
+  $out .= "<br /><br />";
+  $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ <br /><br />';
+  $out .= $label_sign .'  ____________________________<br />';
+  $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
+          $practice_cards = $GLOBALS['webroot']."/sites/" . $_SESSION['site_id'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+          if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
+            $out .= "<img src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
+          }
+
+  $out .="</td></tr></table>";
+
+    $out .= '</div><br />
+   <pre>';
+  if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
+  $out .= sprintf("   %-32s\n",$stmt['to'][3]);
+  $out .= ' </pre>
+  <div style="width:7in;border-top:1pt solid black;"><br />';
   $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
   $out .= '<td style="width:3.0in;"><b>'
       .$label_addressee.'</b><br />'
@@ -373,27 +383,8 @@ function create_HTML_statement($stmt) {
       .$remit_csz.'
       </td>
       </tr></table>';
-    $out .= '</div>
-   <pre>';
-  if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-  $out .= sprintf("   %-32s\n",$stmt['to'][3]);
-  $out .= ' </pre>
-  <div style="width:7in;border-top:1pt solid black;"><br />
-    <table style="width:7in;margin-left:20px;"><tr><td style="width:4.5in;">
- ';
-  $out .= $label_payby.' '.$label_cards;
-  $out .= "<br /><br />";
-  $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / _____ <br /><br />';
-  $out .= $label_sign .'  ____________________________<br />';
-  $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
-   global $OE_SITE_DIR;
-          $practice_cards = $GLOBALS['webroot']."/sites/default/images/visa_mc_disc_credit_card_logos_176x35.gif";
-          if (file_exists($OE_SITE_DIR."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-            $out .= "<img src='$practice_cards' align='left' style='width:150px;margin:0px;'><br />\n";
-          }
 
-  $out .="</td></tr></table>
-        </div></div>";
+  $out .= "      </div></div>";
   $out .= "\014
   <br /><br />"; // this is a form feed
   echo $out;
@@ -566,9 +557,9 @@ function create_statement($stmt) {
   // Note that "\n" is a line feed (new line) character.
   // reformatted to handle i8n by tony
   $out = "\n\n";
-  $provider = "Raymond Magauran, MD";
+  $providerNAME = getProviderName($stmt['providerID']);  
   $out .= sprintf("%-30s %s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
-  $out .= sprintf("%-30s %s: %-s\n",$provider,$label_chartnum,$stmt['pid']);
+  $out .= sprintf("%-30s %s: %-s\n",$providerNAME,$label_chartnum,$stmt['pid']);
   $out .= sprintf("%-30s %s\n",$clinic_addr,$label_insinfo);
   $out .= sprintf("%-30s %-s: %-s\n",$clinic_csz,$label_totaldue,$stmt['amount']);
   $out .= "\n";
@@ -583,7 +574,7 @@ function create_statement($stmt) {
   $out .= "\n";
   $out .= sprintf("%-32s\n",$label_payby.' '.$label_cards);
   $out .= "\n";
-  $out .= sprintf("%s_____________________  %s______ %s___________________\n\n",
+  $out .= sprintf("%s_____________________  %s______ %s___________________%s\n\n",
     $label_cardnum,$label_expiry,$label_sign);
   $out .= sprintf("-----------------------------------------------------------------\n");
   $out .= sprintf("%-20s %s\n",null,$label_retpay);
@@ -680,12 +671,12 @@ function create_statement($stmt) {
   // Fixed text labels
   $label_ptname = xl('Name');
   $label_today = xl('Date');
-  $label_due = xl('Due');
+  $label_due = xl('Amount Due');
   $label_thanks = xl('Thank you for choosing');
   $label_call = xl('Please call if any of the above information is incorrect.');
   $label_prompt = xl('We appreciate prompt payment of balances due.');
   $label_dept = xl('Billing Department');
-  $label_bill_phone = xl('(413) 525-1611');
+  $label_bill_phone = $GLOBALS['billing_phone_number'];
   $label_appointments = xl('Future Appointments').':';
 
   // This is the bottom portion of the page.
