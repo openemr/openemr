@@ -156,7 +156,7 @@
                     </div>
                 </div>
             </div>
-            <div id="appointment-component" class="col-md-4 col-sm-12">
+            <div id="appointment-component" class="col-md-2 col-sm-12">
                 <?php require 'appointmentComponent.php';?>
             </div>
         </div>
@@ -178,6 +178,10 @@
         $('#exist-group').hide();
     });
 
+    function refreshme() {
+        top.restoreSession();
+        location.reload();
+    }
 
 </script>
 <?php    $use_validate_js = 1;?>

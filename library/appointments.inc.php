@@ -500,13 +500,11 @@ function compareAppointments( $appointment1, $appointment2 )
 {
 	global $appointment_sort_order;
 	$comparisonOrder = getComparisonOrder( $appointment_sort_order );
-	if($comparisonOrder) {
-		foreach ($comparisonOrder as $comparison) {
-			$cmp_function = getCompareFunction($comparison);
-			$result = $cmp_function($appointment1, $appointment2);
-			if (0 != $result) {
-				return $result;
-			}
+	foreach ($comparisonOrder as $comparison) {
+		$cmp_function = getCompareFunction($comparison);
+		$result = $cmp_function($appointment1, $appointment2);
+		if (0 != $result) {
+			return $result;
 		}
 	}
 

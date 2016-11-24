@@ -1380,3 +1380,7 @@ table.dataTable#therapy_groups_list tbody td{
   padding: 8px;
   text-align: center;
 }
+
+.therapy_group .event_details{
+  font-size: 14px;
+}

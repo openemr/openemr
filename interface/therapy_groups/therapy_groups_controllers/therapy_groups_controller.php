@@ -6,6 +6,7 @@
  * Time: 12:16
  */
 require_once dirname(__FILE__) . '/base_controller.php';
+require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
 
 class TherapyGroupsController extends BaseController{
 
@@ -47,12 +48,6 @@ class TherapyGroupsController extends BaseController{
         //Get group events
         $events = $eventsModel->getGroupEvents($groupId);
         $data['events'] = $events;
-
-        //Insert counselors for each event
-        for ($i =0; $i < count($data['events']); $i++ ){
-            $eid = $data['events'][$i]['pc_eid'];
-            $data['events'][$i]['counselors'] = $userModel->getProvidersOfEvent($eid);
-        }
 
         //Get users
         $users = $userModel->getAllUsers();

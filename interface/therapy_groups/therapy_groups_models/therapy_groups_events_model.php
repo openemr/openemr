@@ -6,7 +6,6 @@
  * Time: 18:25
  */
 
-require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
 
 class Therapy_Groups_Events{
 

@@ -20,6 +20,7 @@
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.datepicker.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery.datetimepicker/jquery.datetimepicker.full.min.js"></script>
+    <script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
 </head>
 
 <body class="body_top therapy_group">
