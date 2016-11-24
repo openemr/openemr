@@ -23,7 +23,6 @@
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
-
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -32,12 +31,10 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
-
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
-
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/classes/Document.class.php");
@@ -94,7 +91,7 @@ function upload_file_to_client_pdf($file_to_send) {
   global $STMT_TEMP_FILE_PDF;
   global $srcdir;
 
-  if ($GLOBALS['statement_appearance'] == "1") {
+  if ($GLOBALS['statement_appearance'] == '1') {
     require_once("$srcdir/html2pdf/vendor/autoload.php");
     $pdf2 = new HTML2PDF ($GLOBALS['pdf_layout'],
     $GLOBALS['pdf_size'],

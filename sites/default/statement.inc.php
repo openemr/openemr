@@ -72,7 +72,7 @@ function report_header_2($stmt,$direction='',$providerID='1') {
     <tr>
       <td style='width:100px;text-align:top;'>
         <?php
-          $practice_logo = "$GLOBALS['OE_SITE_DIR']/images/practice_logo.gif";
+          $practice_logo = $GLOBALS['OE_SITE_DIR']."/images/practice_logo.gif";
           if (file_exists($practice_logo)) {
             echo "<img src='$practice_logo' align='left' style='width:125px;margin:0px;'><br />\n";
           }
@@ -106,14 +106,12 @@ function create_HTML_statement($stmt) {
   #minimum_amount_due_to _print
   if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
 
-  // These are your clinics return address, contact etc.  Edit them.
-  // TBD: read this from the facility table
   // Facility (service location)
   $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = ? " .
+    " left join  billing b on b.provider_id=u.id and b.pid = '".add_escape_custom($stmt['pid']). "' ".
     " where  service_location=1");
-  $row = sqlFetchArray($atres,array($stmt['pid']));
+  $row = sqlFetchArray($atres);
   $clinic_name = "{$row['name']}";
   $clinic_addr = "{$row['street']}";
   $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
