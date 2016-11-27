@@ -7,6 +7,7 @@ class ParticipantsController extends BaseController{
 
     public function __construct(){
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
+        $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
     }
 
     public function index($groupId ,$data = array()){
@@ -39,6 +40,7 @@ class ParticipantsController extends BaseController{
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'],$_GET['pid']);
         }
 
+        $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
         $data['statuses'] = TherapyGroupsController::$statuses;

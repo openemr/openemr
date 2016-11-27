@@ -725,7 +725,7 @@ foreach ($providers as $provider) {
             else {
                 // some sort of patient appointment
                 if($groupid){
-                    $divTitle .= "\n" . xl('Counselors') . ": \n" . htmlspecialchars($groupcounselors,ENT_QUOTES). " \n";
+                    $divTitle .= "\n" . xlt('Counselors') . ": \n" . htmlspecialchars($groupcounselors,ENT_QUOTES). " \n";
                     $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($groupname, ENT_QUOTES);
                 }
                 else

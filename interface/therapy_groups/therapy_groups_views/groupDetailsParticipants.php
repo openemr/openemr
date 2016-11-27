@@ -211,6 +211,11 @@
         $('#pid').val(pid);
         $('#participant_name').val(fname + " " + lname);
     }
+
+    function refreshme() {
+        top.restoreSession();
+        location.reload();
+    }
 </script>
 <?php    $use_validate_js = 1;?>
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupParticipants');?>
