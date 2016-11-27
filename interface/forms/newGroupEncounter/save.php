@@ -97,7 +97,7 @@ else {
   die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "therapy_group/encounter/groups_forms.php?group_id=" . $group_id . "&encounter=" . $encounter;
+$normalurl = "therapy_groups/encounter/groups_forms.php?group_id=" . $group_id . "&encounter=" . $encounter;
 
 $nexturl = $normalurl;
 

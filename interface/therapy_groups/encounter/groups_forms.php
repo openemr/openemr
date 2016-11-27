@@ -233,7 +233,7 @@ $group_encounter = $_GET['encounter'];
             var GotoForm = function(obj) {
                 var parts = $(obj).attr("id").split("~");
                 top.restoreSession();
-                parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
+                parent.location.href = "<?php echo $rootdir; ?>/therapy_groups/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
             }
 
             // todo - checking necessary
@@ -344,7 +344,7 @@ $group_encounter = $_GET['encounter'];
 
     <?php
     $hide=1;
-    require_once("$incdir/patient_file/encounter/new_form.php");
+    require_once("$incdir/therapy_groups/encounter/new_form.php");
     ?>
 
     <div id="encounter_forms">
@@ -514,15 +514,15 @@ $group_encounter = $_GET['encounter'];
 
         </div>
 
-    <!--    <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
+        <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
         <?php //todo - get document
-/*        $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+      $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
         if(count($docs_list) > 0 ) {
-            */?>
+            ?>
             <div class='enc_docs'>
                 <span class="bold"><?php /*echo xlt("Document(s)"); */?>:</span>
                 <?php
-/*                $doc = new C_Document();
+              $doc = new C_Document();
                 foreach ($docs_list as $doc_iter) {
                     $doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=".attr($pid)."&document_id=" . attr($doc_iter[id]) . "&";
                     // Get notes for this document.
@@ -537,16 +537,16 @@ $group_encounter = $_GET['encounter'];
                         for ( $i = 0 ; $i < count($notes) ; $i++ )
                             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
                     }
-                    */?>
+                    ?>
                     <br>
-                    <a href="<?php /*echo $doc_url;*/?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php /*echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));*/?></a>
-                    <?php /*if($note != '') {*/?>
-                        <a href="javascript:void(0);" title="<?php /*echo attr($note);*/?>"><img src="../../../images/info.png"/></a>
-                    <?php /*}*/?>
-                <?php /*} */?>
+                    <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
+                    <?php if($note != '') {?>
+                        <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
+                    <?php }?>
+                <?php } ?>
             </div>
-        <?php /*} */?>
-        <br/>-->
+        <?php } ?>
+        <br/>
 
         <?php
         if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {

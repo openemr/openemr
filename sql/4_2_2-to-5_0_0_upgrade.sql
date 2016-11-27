@@ -2241,7 +2241,7 @@ VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calen
 
 #IfNotTable form_groups_encounter
 DROP TABLE IF EXISTS `form_groups_encounter`;
-CREATE TABLE `form_encounter` (
+CREATE TABLE `form_groups_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `reason` longtext,
