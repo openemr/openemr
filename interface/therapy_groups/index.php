@@ -1,7 +1,10 @@
 <?php
 /**
+ * interface/therapy_groups/index.php routing for therapy groups
  *
- * Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
+ * Contains the routing for therapy groups controllers.
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,8 +18,8 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Shachar Zilbershlag
- * @author  Amiel Elboim
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
  * @link    http://www.open-emr.org
  */
 

@@ -1,4 +1,30 @@
 <?php
+/**
+ * interface/therapy_groups/therapy_groups_views/appointmentComponent.php contains widget for group appointments.
+ *
+ * In group/participant details screen this widget shows the group's appointments.
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+?>
+
+<?php
 //If coming from participants controller groupId contains the id.
 //If from group controller it's contained in groupData array.
 if($groupData['group_id']) $groupId = $groupData['group_id'];
