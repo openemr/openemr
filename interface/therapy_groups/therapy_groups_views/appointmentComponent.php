@@ -34,7 +34,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
         <h5><?php echo xlt('Group appointments')?></h5>
     </div>
     <div class="col-md-5">
-        <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid={$groupId}', '_blank', 775, 500)"; ?>"><button class="float-right"><?php echo xlt('Adding')?></button></a>
+        <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "', '_blank', 775, 500)"; ?>"><button class="float-right"><?php echo xlt('Adding')?></button></a>
     </div>
 </div>
 <div id="component-border" class="appt-widget">
@@ -53,21 +53,21 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                         $disphour -= 12;
                 }
                 //Taken from demographics.php - prepares date for add_edit_event url
-                $date_for_url = htmlspecialchars(preg_replace("/-/", "", $event['pc_eventDate']),ENT_QUOTES);
+                $date_for_url = attr(preg_replace("/-/", "", $event['pc_eventDate']));
                 ?>
                 <div class="event_details">
-                    <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid={$groupId}&date={$date_for_url}&eid={$event['pc_eid']}', '_blank', 775, 500)"; ?>">
-                        <span><b><?php echo $event['pc_eventDate'] . " (" . xl($dayname) . ")" ;?></b></span>
+                    <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid']) . "', '_blank', 775, 500)"; ?>">
+                        <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
                         </br>
                         <span>
-                            <?php echo $disphour . ":" . $dispmin . " " . $dispampm;
+                            <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
                             if($event['pc_recurrtype'] > 0)
                                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
-                            echo " (  " . $event['pc_apptstatus'] . "  )" ;?></span>
+                            echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
                         </br>
-                        <span><?php echo $event['pc_catname'];?></span>
+                        <span><?php echo text($event['pc_catname']);?></span>
                         </br>
-                        <span><?php echo $event['ufname'] . "  " . $event['ulname'] ;?></span>
+                        <span><?php echo text($event['ufname']) . "  " . text($event['ulname']) ;?></span>
                         </br></br>
                     </a>
                 </div>
