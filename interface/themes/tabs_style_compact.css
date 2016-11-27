@@ -127,6 +127,30 @@ body
     display:block;
     max-width:1000px;
 }
+div.tabSpan.tabNotchosen {
+    max-width: 12%;
+    overflow: hidden;
+}
+div.tabSpan.tabNotchosen:hover {
+    overflow: visible;
+}
+div.tabSpan.tabNotchosen:hover > span {
+    background: yellow;
+    z-index:99;
+    position:relative;
+    border: 1px solid black;
+    padding: 0 5px;
+}
+div.tabSpan > span.fa {
+    display: none;
+}
+div.tabSpan > span.tabTitle {
+    float: left;
+}
+div.tabSpan:hover:not(.tabNotchosen) > span.fa {
+    float: right;
+    display: inline;
+}
 
 #dialogDiv
 {
