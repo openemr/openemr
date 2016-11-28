@@ -560,7 +560,7 @@ form#pattrk #inanewwindow>span{
     padding: 0 20px;
 }
 
-.rule_detail.edit.summry .left_col {rtl
+.rule_detail.edit.summry .left_col {
     float: none;
     margin: 5px;
 }
