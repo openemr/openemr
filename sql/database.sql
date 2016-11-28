@@ -9615,17 +9615,6 @@ CREATE TABLE `therapy_groups_participants` (
   PRIMARY KEY (`group_id`,`pid`)
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
-CREATE TABLE `form_therapy_groups_attendance` (
-  `id` int(11) NOT NULL auto_increment,
-  `date` date NOT NULL ,
-  `group_id` int(11),
-  `group_name` int(11) NOT NULL ,
-  `authorized` tinyint NOT NULL ,
-  `encounter_id` int(11),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-
 DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL auto_increment,

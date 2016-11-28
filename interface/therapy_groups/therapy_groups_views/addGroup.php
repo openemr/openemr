@@ -1,3 +1,28 @@
+<?php
+/**
+ * interface/therapy_groups/therapy_groups_views/addGroup.php contains view for adding group.
+ *
+ * This is the view for the screen inwhich we can add a therapy group.
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+?>
 <?php require 'header.php'; ?>
 <main id="add-group">
     <div class="container container-group">
@@ -12,10 +37,10 @@
                 <div class="col-md-7 col-sm-6">
                     <div class="row">
                         <div class="col-md-3 col-sm-5">
-                            <span class="bold"><?php echo xlt('Group’s name') ?>:</span>
+                            <span class="bold"><?php echo xlt('Group\'s name') ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
-                            <input type="text" name="group_name" class="full-width" value="<?php echo $groupData['group_name'];?>">
+                            <input type="text" name="group_name" class="full-width" value="<?php echo attr($groupData['group_name']);?>">
                         </div>
                     </div>
                 </div>
@@ -25,7 +50,7 @@
                             <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo $groupData['group_start_date'];?>">
+                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>">
                         </div>
                     </div>
                 </div>
@@ -58,7 +83,7 @@
                             <span class="bold"><?php echo xlt('Status'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <select name="group_status" class="full-width"  value="<?php echo $groupData['group_status'];?>">
+                            <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>">
                                 <?php foreach($statuses as $key => $status): ?>
                                     <option value="<?php echo $key;?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                 <?php endforeach; ?>
@@ -76,7 +101,7 @@
                         <div class="col-md-8 col-sm-7">
                             <select name="counselors[]" multiple class="full-width">
                                 <?php foreach($users as $user): ?>
-                                    <option value="<?php echo $user['id'];?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
+                                    <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -88,7 +113,7 @@
                             <span class="bold"><?php echo xlt('Notes'); ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
-                            <textarea name="group_notes" class="full-width" style="height: 70px"><?php echo $groupData['group_notes'];?></textarea>
+                            <textarea name="group_notes" class="full-width" style="height: 70px"><?php echo text($groupData['group_notes']);?></textarea>
                         </div>
                     </div>
                 </div>
@@ -100,7 +125,7 @@
                             <span class="bold"><?php echo xlt('Guest counselors'); ?>:</span>
                         </div>
                         <div class="col-md-8 col-sm-7">
-                           <input type="text" name="group_guest_counselors" class="full-width"  value="<?php echo $groupData['group_guest_counselors'];?>">
+                           <input type="text" name="group_guest_counselors" class="full-width"  value="<?php echo attr($groupData['group_guest_counselors']);?>">
                         </div>
                     </div>
                 </div>
@@ -112,13 +137,13 @@
                 <div class="col-md-9 col-sm 12">
 
                     <?php if($savingStatus == 'exist'): ?>
-                        <div id="exist-group"><h4 class="group-error-msg"><?php echo $message ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
+                        <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                     <?php endif ?>
                     <?php if($savingStatus == 'success'): ?>
-                        <h4 class="group-success-msg"><?php echo $message ?></h4>
+                        <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
                     <?php if($savingStatus == 'failed'): ?>
-                        <h4 class="group-serror-msg"><?php echo $message ?></h4>
+                        <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
                 </div>
             <div>

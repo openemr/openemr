@@ -1,5 +1,29 @@
 <?php
 
+/**
+ * interface/therapy_groups/therapy_groups_controllers/participants_controller.php contains the participants controller for therapy groups.
+ *
+ * This is the controller for the groups' participant view.
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once dirname(__FILE__) . '/therapy_groups_controller.php';
 
@@ -7,6 +31,7 @@ class ParticipantsController extends BaseController{
 
     public function __construct(){
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
+        $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
     }
 
     public function index($groupId ,$data = array()){
@@ -39,6 +64,7 @@ class ParticipantsController extends BaseController{
             $this->groupParticipantsModel->removeParticipant($_GET['group_id'],$_GET['pid']);
         }
 
+        $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
         $data['statuses'] = TherapyGroupsController::$statuses;

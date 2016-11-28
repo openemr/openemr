@@ -2173,18 +2173,6 @@ CREATE TABLE `therapy_groups_participants` (
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfNotTable form_therapy_groups_attendance
-CREATE TABLE `form_therapy_groups_attendance` (
-  `id` int(11) NOT NULL auto_increment,
-  `date` date NOT NULL ,
-  `group_id` int(11),
-  `group_name` int(11) NOT NULL ,
-  `authorized` tinyint NOT NULL ,
-  `encounter_id` int(11),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-#EndIf
-
 #IfNotTable therapy_groups_participant_attendance
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL auto_increment,

@@ -164,13 +164,13 @@ use ESign\Api;
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
-if($GLOBALS['enable_group_therapy']){
-    $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
-    $primary_docs['gdg'] = array(xl('Group')   , 1,  /*url*/);
-    $primary_docs['gcv'] = array(xl('Create Visit'), 1, /*url*/);
-    $primary_docs['gce'] = array(xl('Current') , 2, /*url*/);
-    $primary_docs['gvh'] = array(xl('Visit History'), 1, /*url*/);
-}
+ if($GLOBALS['enable_group_therapy']){
+  $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
+  $primary_docs['gdg'] = array(xl('Group')   , 1,  /*url*/);
+  $primary_docs['gcv'] = array(xl('Create Visit'), 1, /*url*/);
+  $primary_docs['gce'] = array(xl('Current') , 2, /*url*/);
+  $primary_docs['gvh'] = array(xl('Visit History'), 1, /*url*/);
+ }
 
  $esignApi = new Api();
  // This section decides which navigation items will not appear.
