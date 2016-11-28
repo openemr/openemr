@@ -32,8 +32,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/formdata.inc.php");
 
-//$group_id = $_GET['group_id'];
-$group_id = 1;
+$group_id = $_SESSION['therapy_group'];
 
 $date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
@@ -53,7 +52,7 @@ if ($mode == 'new')
 {
   $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
   $encounter = generate_id();
-  addForm($encounter, "New Patient Encounter",
+  addForm($encounter, "New Therapy Group Encounter",
     sqlInsert("INSERT INTO form_groups_encounter SET " .
       "date = '" . add_escape_custom($date) . "', " .
       "onset_date = '" . add_escape_custom($onset_date) . "', " .
@@ -64,11 +63,11 @@ if ($mode == 'new')
       "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
       "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
       "referral_source = '" . add_escape_custom($referral_source) . "', " .
-      "group_id = '" . add_escape_custom($pid) . "', " .
+      "group_id = '" . add_escape_custom($group_id) . "', " .
       "encounter = '" . add_escape_custom($encounter) . "', " .
       "pos_code = '" . add_escape_custom($pos_code) . "', " .
       "provider_id = '" . add_escape_custom($provider_id) . "'"),
-    "newpatient", $pid, $userauthorized, $date);
+    "newGroupEncounter", NULL, $userauthorized, $date);
 }
 else if ($mode == 'update')
 {
@@ -97,7 +96,7 @@ else {
   die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "therapy_groups/encounter/groups_forms.php?group_id=" . $group_id . "&encounter=" . $encounter;
+$normalurl = "patient_file/encounter/forms.php?encounter=" . $encounter;
 
 $nexturl = $normalurl;
 
@@ -120,7 +119,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 <html>
 <body>
 <script language='JavaScript'>
-	EncounterDateArray=new Array;
+	/*EncounterDateArray=new Array;
 	CalendarCategoryArray=new Array;
 	EncounterIdArray=new Array;
 	Count=0;
@@ -136,7 +135,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 	 <?php
 				 }
 	 ?>
-	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);*/
  top.restoreSession();
 <?php if ($mode == 'new') { ?>
     //todo - checking necessary

@@ -20,7 +20,7 @@
 
 include_once(dirname(__file__)."/../../globals.php");
 
-function newpatient_report( $pid, $encounter, $cols, $id) {
+function newGroupEncounter_report( $pid, $encounter, $cols, $id) {
 	$res = sqlStatement("select * from form_encounter where pid=? and id=?", array($pid,$id) );
 	print "<table><tr><td>\n";
 	while($result = sqlFetchArray($res)) {

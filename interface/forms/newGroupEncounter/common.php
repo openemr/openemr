@@ -30,7 +30,7 @@ $years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
 
 if ($viewmode) {
   $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
-  $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
+  $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", array($id));
   $encounter = $result['encounter'];
   if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
     echo "<body>\n<html>\n";

@@ -4,6 +4,11 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
+function getEncounterType(){
+	global $pid;
+	return isset($_SESSION['therapy_group']) && empty($pid) ? 'therapy_group' : 'patient';
+}
+
 function getFormById ($id, $cols = "*")
 {
 	$sql = "select $cols from forms where id='$id' order by date DESC limit 0,1";
@@ -31,15 +36,16 @@ function getFormsByPid ($pid, $cols = "*")
 	return sqlQuery("select $cols from forms where pid ='$pid'");
 }
 
-function getFormByEncounter($pid,$encounter, $cols="form_id, form_name", $name="")
+function getFormByEncounter($identify,$encounter, $cols="form_id, form_name", $name="")
 {
  	$arraySqlBind = array();
-	$sql = "select $cols from forms where encounter = ? and pid=? ";
-	array_push($arraySqlBind,$encounter,$pid);
+	$sql = "select $cols from forms where encounter = ? ";
+	array_push($arraySqlBind,$encounter,$identify);
 	if(!empty($name)){
 		$sql .= "and form_name=? ";
 		array_push($arraySqlBind,$name);
 	}
+	$sql .= getEncounterType() == 'patient' ? " and pid=? and therapy_group_id IS NULL " : "and therapy_group_id = ? and pid IS NULL ";
   // This puts vitals first in the list, and newpatient last:
   $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
@@ -56,11 +62,11 @@ function addForm($encounter, $form_name, $form_id, $formdir, $pid,
  $authorized = "0", $date="NOW()", $user="", $group="")
 {
 	if (!$user) $user = $_SESSION['authUser'];
-	if (!$group) $group = $_SESSION['authProvider'];
+	if (!$group) $group = $_SESSION['authProvider']? NULL : $_SESSION['therapy_group'];
 
         $arraySqlBind = array();
 	$sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
-		"user, groupname, authorized, formdir) values (";
+		"user, groupname, authorized, formdir, therapy_group_id) values (";
 	if($date == "NOW()") {
 		$sql .= "$date";
         }
@@ -68,8 +74,8 @@ function addForm($encounter, $form_name, $form_id, $formdir, $pid,
 		$sql .= "?";
                 array_push($arraySqlBind,$date);
         }
-	$sql .= ", ?, ?, ?, ?, ?, ?, ?, ?)";
-        array_push($arraySqlBind,$encounter,$form_name,$form_id,$pid,$user,$group,$authorized,$formdir);
+	$sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        array_push($arraySqlBind,$encounter,$form_name,$form_id,$pid,$user,$group,$authorized,$formdir,$therapy_group);
 	return sqlInsert($sql,$arraySqlBind);
 }
 
@@ -122,14 +128,16 @@ function getEncounters($pid,$dateStart='',$dateEnd='',$encounterRuleType='')
 
 function getEncounterDateByEncounter($encounter)
 {
+	$table = getEncounterType() == 'patient' ? 'form_encounter' : 'form_groups_encounter';
 	// $sql = "select date from forms where encounter='$encounter' order by date";
-	$sql = "select date from form_encounter where encounter='$encounter' order by date";
+	$sql = "select date from $table where encounter='$encounter' order by date";
 	return sqlQuery($sql);
 }
 
-function getProviderIdOfEncounter($encounter)
+function getProviderIdOfEncounter($encounter, $isTherapyGroup = false)
 {
-        $sql = "select provider_id from form_encounter where encounter='$encounter' order by date";
+		$table = getEncounterType() == 'patient' ? 'form_encounter' : 'form_groups_encounter';
+        $sql = "select provider_id from $table where encounter='$encounter' order by date";
         $res = sqlQuery($sql);
         return $res['provider_id'];
 }

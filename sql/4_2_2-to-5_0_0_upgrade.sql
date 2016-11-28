@@ -2269,3 +2269,7 @@ CREATE TABLE `form_groups_encounter` (
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
+
+#IfMissingColumn forms therapy_group_id
+ALTER TABLE  `forms` ADD  `therapy_group_id` INT(11) DEFAULT NULL;
+#EndIf

@@ -7,6 +7,7 @@ use ESign\Api;
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
+require_once("$srcdir/group.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
@@ -16,6 +17,12 @@ require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("forms_review_header.php");
+
+if(getEncounterType() == 'therapy_group'){
+    $groupId = $_SESSION['therapy_group'];
+    $encounter = $_GET['encounter'];
+}
+
 ?>
 <html>
 
@@ -359,7 +366,7 @@ $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 
-if (is_numeric($pid)) {
+if (is_numeric($pid) && !isset($groupId)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
@@ -369,6 +376,21 @@ if (is_numeric($pid)) {
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
+    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+    }
+    // for therapy group
+} else {
+
+    // Check for no access to the patient's squad.
+    $result = getGroup($groupId);
+    echo htmlspecialchars( xl('for','',' ',' ') . $result['group_name'] );
+    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+    }
+    // Check for no access to the encounter's sensitivity level.
+    $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
+        "group_id = '$groupId' AND encounter = '$encounter' LIMIT 1");
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -508,8 +530,13 @@ if ( $esign->isButtonViewable() ) {
 </div>
 
 <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
-<?php 
-	$docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+<?php
+    if(getEncounterType() == 'patient'){
+        $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+    } else {
+        // already doesn't exist document for therapy groups
+        $docs_list = array();
+    }
 	if(count($docs_list) > 0 ) {
 ?>
 <div class='enc_docs'>
@@ -539,7 +566,8 @@ if ( $esign->isButtonViewable() ) {
 <br/>
 
 <?php
-  if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+  $identify = getEncounterType() == 'patient' ? $pid : $groupId;
+  if ($result = getFormByEncounter($identify, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
@@ -598,7 +626,7 @@ if ( $esign->isButtonViewable() ) {
         }
 
         if (acl_check('admin', 'super') ) {
-            if ( $formdir != 'newpatient') {
+            if ( $formdir != 'newpatient' || $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
                 echo "<a target='_parent'" .
                     " href='$rootdir/patient_file/encounter/delete_form.php?" .

@@ -379,23 +379,32 @@ if (!$billing_view) {
 // $count = 0;
 
 $sqlBindArray = array();
+if(getEncounterType() == 'patient') {
+    $from = "FROM form_encounter AS fe " .
+        "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
+        "f.formdir = 'newpatient' AND f.deleted = 0 ";
+} else {
+    $from = "FROM form_groups_encounter AS fe " .
+        "JOIN forms AS f ON f.therapy_group_id = fe.group_id AND f.encounter = fe.encounter AND " .
+        "f.formdir = 'newGroupEncounter' AND f.deleted = 0 ";
+}
 
-$from = "FROM form_encounter AS fe " .
-  "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
-  "f.formdir = 'newpatient' AND f.deleted = 0 ";
 if ($issue) {
   $from .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
   array_push($sqlBindArray, $pid, $issue);
 }
-$from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
-$sqlBindArray[] = $pid;
+if(getEncounterType() == 'patient') {
+    $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
+} else {
+    $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
+}
+$sqlBindArray[] = getEncounterType() == 'patient' ? $pid : $_SESSION['therapy_group'];
 
 $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
         "ORDER BY fe.date DESC, fe.id DESC";
 
 $countQuery = "SELECT COUNT(*) as c " . $from;
-
 
 $countRes = sqlStatement($countQuery,$sqlBindArray);
 $count = sqlFetchArray($countRes);

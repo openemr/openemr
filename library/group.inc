@@ -50,4 +50,12 @@ function getStatusName($key){
     return $status_name;
 }
 
+//Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
+function getGroup($groupId){
+    $model = new Therapy_Groups();
+    $result = $model->getGroup($groupId);
+    return $result;
+}
+
+
 ?>

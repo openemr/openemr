@@ -7,6 +7,7 @@
  */
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
+require_once("{$GLOBALS['srcdir']}/pid.inc");
 
 class TherapyGroupsController extends BaseController{
 
@@ -38,7 +39,7 @@ class TherapyGroupsController extends BaseController{
     public function index($groupId = null){
 
         $data = array();
-
+        $this->setSession($groupId);
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
@@ -313,6 +314,14 @@ class TherapyGroupsController extends BaseController{
         $this->counselorsModel->remove($groupData['group_id']);
         foreach($counselors as $counselorId){
             $this->counselorsModel->save($groupData['group_id'], $counselorId);
+        }
+    }
+
+    private function setSession($groupId){
+
+        setpid(0);
+        if($_SESSION['therapy_group'] != $groupId){
+            $_SESSION['therapy_group'] = $groupId;
         }
     }
 

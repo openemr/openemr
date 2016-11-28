@@ -11,6 +11,8 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
+                        <button onclick="newGroup()">Add encounter</button>
+
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Cancel');?></button>
                             <button type="submit" form="editGroup" id="saveUpdates" name="save" class="float-right"><?php echo xlt('Save');?></button>
@@ -160,11 +162,6 @@
                 <?php require 'appointmentComponent.php';?>
             </div>
         </div>
-        <div class="row">
-            <div id="history-component" class="col-md-12">
-                <?php require 'pastMeetingsComponent.php';?>
-            </div>
-        </div>
     </div>
 </main>
 <script>
@@ -183,8 +180,14 @@
         location.reload();
     }
 
+    function newGroup(){
+        top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
+    }
+    parent.left_nav.clearPatient();
+    $(parent.Title.document.getElementById('clear_active')).hide();
+    parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
 </script>
-<?php    $use_validate_js = 1;?>
+<?php $use_validate_js = 1;?>
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
 <?php require 'footer.php'; ?>
 
