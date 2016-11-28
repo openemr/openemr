@@ -1137,6 +1137,11 @@ div.notab-right {
   color: #ffffff;
 }
 
+#sddm li.encounter-form-category-li{
+  position: relative;
+  z-index: 1;
+}
+
 .text-area {
   background-color: #FFFFFF;
   border: 1px solid black;
@@ -1383,4 +1388,29 @@ table.dataTable#therapy_groups_list tbody td{
 
 .therapy_group .event_details{
   font-size: 14px;
+}
+
+#add_participant{
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+#add_participant .patient_wrap,
+#add_participant .comment_wrap,
+#add_participant .button_wrap{
+  margin-top: 7px;
+}
+
+#add_participant .patient_wrap,
+#add_participant .comment_wrap {
+  display: inline-block;
+}
+
+#add_participant .button_wrap input{
+  float: none;
+  display: inline-block;
+}
+
+#add_participant_element .input_label{
+  display: block;
 }
