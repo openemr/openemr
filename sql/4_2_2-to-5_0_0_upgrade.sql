@@ -2177,7 +2177,6 @@ CREATE TABLE `therapy_groups_participants` (
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL auto_increment,
   `pid` int(11) NOT NULL ,
-  `meeting_status` tinyint,
   `meeting_patient_comment` text ,
   `meeting_patient_status` tinyint,
   PRIMARY KEY (`form_id`)

@@ -6,7 +6,16 @@ require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/th
 require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/group_statuses_model.php");
 require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");
 require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/users_model.php");
+require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php");
 require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
+
+
+//Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
+function getGroup($gid){
+    $model = new Therapy_Groups();
+    $result = $model->getGroup($gid);
+    return $result;
+}
 
 //Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
 function getGroupData($search_params, $result_columns, $column){
@@ -29,6 +38,20 @@ function getCounselors($gid){
     return $result;
 }
 
+//Fetches participants of group
+function getParticipants($gid){
+    $model = new Therapy_groups_participants();
+    $result = $model->getParticipants($gid);
+    return $result;
+}
+
+//Fetches group status name by status key
+function getStatusName($key){
+    $statuses_array = TherapyGroupsController::$statuses;
+    $status_name = $statuses_array[$key];
+    return $status_name;
+}
+
 //Fetches providers for a specific group event
 function getProvidersOfEvent($eid){
     $model = new Users();
@@ -40,20 +63,6 @@ function getProvidersOfEvent($eid){
 function  getUserNameById($uid){
     $model = new Users();
     $result = $model->getUserNameById($uid);
-    return $result;
-}
-
-//Fetches group status name by status key
-function getStatusName($key){
-    $statuses_array = TherapyGroupsController::$statuses;
-    $status_name = $statuses_array[$key];
-    return $status_name;
-}
-
-//Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
-function getGroup($groupId){
-    $model = new Therapy_Groups();
-    $result = $model->getGroup($groupId);
     return $result;
 }
 

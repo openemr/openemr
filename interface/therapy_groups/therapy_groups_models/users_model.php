@@ -64,6 +64,11 @@ class Users{
 
     }
 
+    /**
+     * Get all providers of event.
+     * @param $eid
+     * @return array
+     */
     public function getProvidersOfEvent($eid){
 
         $multiple = $this->checkIfMultiple($eid);
@@ -88,7 +93,7 @@ class Users{
 
 
     /**
-     * Checks if event has multiple providers and if so returns the key of multiple providers
+     * Checks if event has multiple providers and if so returns the key of 'multiple providers'.
      * @param $eid
      * @return bool|ADORecordSet_mysqli
      */
