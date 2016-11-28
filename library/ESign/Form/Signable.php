@@ -123,9 +123,9 @@ class Form_Signable extends DbRow_Signable implements SignableIF
       $sql = sprintf("SELECT fd.* FROM %s fd
       		INNER JOIN forms f ON fd.%s = f.form_id
       		WHERE f.id = ?",
-      		escape_table_name($tbl), $id);
+      		escape_table_name($tbl), escape_sql_column_name($id, array($tbl)));
       if ($limit <> '*') {
-      	$sql .= ' LIMIT '.$limit;
+      	$sql .= ' LIMIT '.escape_limit($limit);
       }
       $rs = sqlStatement($sql, array( $this->_formId ) );
       if (sqlNumRows($rs) == 1) { // maintain legacy hash
