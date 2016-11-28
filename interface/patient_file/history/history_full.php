@@ -246,7 +246,7 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
     <div>
         <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
     </div>
-    <div style='float:left;margin-right:10px'>
+    <div id='namecontainer_fhistory' class='namecontainer_fhistory' style='float:left;margin-right:10px'>
   <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
