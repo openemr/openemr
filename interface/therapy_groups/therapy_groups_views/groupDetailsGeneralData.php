@@ -208,8 +208,9 @@
     function newGroup(){
         top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
     }
-    parent.left_nav.clearPatient();
+    //parent.left_nav.clearPatient();
     $(parent.Title.document.getElementById('clear_active')).hide();
+    parent.left_nav.setTherapyGroup(<?php echo $groupData['group_id']?>,'<?php echo $groupData['group_name']?>');
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
 </script>
 <?php $use_validate_js = 1;?>

@@ -103,7 +103,7 @@ use ESign\Api;
  // chosen.  Each element value is an array of 3 values:
  //
  // * Name to appear in the navigation table
- // * Usage: 0 = global, 1 = patient-specific, 2 = encounter-specific
+ // * Usage: 0 = global, 1 = patient-specific, 2 = encounter-specific, 3 = therapy group-specific, 4 = therapy group encounter - specific
  // * The URL relative to the interface directory
  //
 
@@ -166,10 +166,10 @@ use ESign\Api;
 
  if($GLOBALS['enable_group_therapy']){
   $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
-  $primary_docs['gdg'] = array(xl('Group')   , 1,  /*url*/);
-  $primary_docs['gcv'] = array(xl('Create Visit'), 1, /*url*/);
-  $primary_docs['gce'] = array(xl('Current') , 2, /*url*/);
-  $primary_docs['gvh'] = array(xl('Visit History'), 1, /*url*/);
+  $primary_docs['gdg'] = array(xl('Group')   , 3,  /*url*/);
+  $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+  $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
+  $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
  }
 
  $esignApi = new Api();
@@ -437,6 +437,8 @@ function genFindBlock() {
  var active_pid = 0;
  var active_encounter = 0;
  var encounter_locked = false;
+ //therapy group id
+ var active_gid = 0;
 
  // Current selections in the top and bottom frames.
  var topName = '';
@@ -471,15 +473,19 @@ function genFindBlock() {
  // frame as the default; the url must be relative to interface.
  function loadFrame2(fname, frame, url) {
   var usage = fname.substring(3);
-  if (active_pid == 0 && usage > '0') {
+  if (active_pid == 0 && (usage > '0' && usage < '3')){
    alert('<?php xl('You must first select or add a patient.','e') ?>');
    return false;
   }
-  if (active_encounter == 0 && usage > '1') {
+  if (active_gid == 0 && (usage > '2' && usage < '4')) {
+     alert('<?php xl('You must first select or add a therapy group.','e') ?>');
+     return false;
+  }
+  if (active_encounter == 0 && (usage > '1' && usage < '3')) {
    alert('<?php xl('You must first select or create an encounter.','e') ?>');
    return false;
   }
-  if (encounter_locked && usage > '1') {
+  if (encounter_locked && usage > '1' && (usage > '1' && usage < '3')) {
    alert('<?php echo xls('This encounter is locked. No new forms can be added.') ?>');
    return false;
   }
@@ -587,6 +593,24 @@ function genFindBlock() {
     ?>
     lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
    }
+   //for therapy groups menu
+    <?php if($GLOBALS['enable_group_therapy']) { ?>
+      if (usage == '3' || usage == '4') {
+          var da = false;
+          if (active_gid == 0) da = true;
+          if (active_encounter == 0 && usage > '3') da = true;
+          if (encounter_locked && usage > '3') da = true;
+          <?php
+          if ($GLOBALS['menu_styling_vertical'] == 0){
+              $color = "'#0000ff'";
+          }else{ // ($GLOBALS['menu_styling_vertical'] == 1)
+              $color = "'#000000'";
+          }
+          ?>
+          lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
+      }
+   <?php } ?>
+
   }
   f.popups.disabled = (active_pid == 0);
  }
@@ -753,6 +777,7 @@ function clearactive() {
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, pubpid, frname, str_dob) {
+  clearTherapyGroup();
   var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
@@ -778,6 +803,36 @@ function clearactive() {
 
   $(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
  }
+
+ // Call this to announce that the therapy group has changed.  You must call this
+ // if you change the session 'therapy_group', so that the navigation frame will show the
+ // correct group.
+ function setTherapyGroup(group_id, group_name) {
+     clearPatient();
+     $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
+     setTitleContent('current_patient', '<span>Therapy Group - ' + group_name + ' (' + group_id + ')<span>' );
+     if (group_id == active_gid) return;
+    setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+     active_gid = group_id;
+     active_encounter = 0;
+     encounter_locked = false;
+     syncRadios();
+     $(parent.Title.document.getElementById('current_patient_block')).show();
+     var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+     $(encounter_block).hide();
+
+     // zero out the encounter frame, replace it with the encounter list frame
+     var f = document.forms[0];
+     if ( f.cb_top.checked && f.cb_bot.checked ) {
+         var encounter_frame = getEncounterTargetFrame('enc');
+         if ( encounter_frame != undefined )  {
+             loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
+         }
+     }
+
+     //$(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+ }
+
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
  //This function lists all encounters of the patient.
  //This function writes the drop down in the top frame.
@@ -885,6 +940,22 @@ function isEncounterLocked( encounterId ) {
   $(parent.Title.document.getElementById('current_encounter_block')).hide();
   reloadPatient('');
   syncRadios();
+ }
+
+ // You must call this if you delete the active therapy group so that
+ // the appearance of the navigation frame will be correct and so that any
+ // stale content will be reloaded.
+ function clearTherapyGroup() {
+     if (active_gid == 0) return;
+     var f = document.forms[0];
+     active_gid = 0;
+     active_encounter = 0;
+     encounter_locked = false;
+     setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
+     $(parent.Title.document.getElementById('current_patient_block')).hide();
+     top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
+     $(parent.Title.document.getElementById('current_encounter_block')).hide();
+     syncRadios();
  }
 
  // You must call this if you delete the active encounter (or if for any other
