@@ -71,4 +71,17 @@ class Therapy_Groups_Counselors{
         }
         sqlStatement($sql, $condition);
     }
+
+    public function getAllCounselorsNames($groupId){
+
+        $counselors = $this->getCounselors($groupId);
+        $userModel = new Users();
+        $result = array();
+        foreach ($counselors as $counselor){
+            $counselorName = $userModel->getUserNameById($counselor);
+            $result[] = $counselorName;
+        }
+
+        return $result;
+    }
 }

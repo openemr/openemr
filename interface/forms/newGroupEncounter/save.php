@@ -44,6 +44,8 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+$counselors       = (isset($_POST['counselors']))            ?  implode(', ',$_POST['counselors']) : '';
+
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
 $facility = $facilityresult['name'];
@@ -66,7 +68,8 @@ if ($mode == 'new')
       "group_id = '" . add_escape_custom($group_id) . "', " .
       "encounter = '" . add_escape_custom($encounter) . "', " .
       "pos_code = '" . add_escape_custom($pos_code) . "', " .
-      "provider_id = '" . add_escape_custom($provider_id) . "'"),
+      "provider_id = '" . add_escape_custom($provider_id) . "'," .
+      "counselors = '" . add_escape_custom($counselors) . "'"),
     "newGroupEncounter", NULL, $userauthorized, $date);
 }
 else if ($mode == 'update')
@@ -89,7 +92,9 @@ else if ($mode == 'update')
     "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
     "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
     "referral_source = '" . add_escape_custom($referral_source) . "', " .
+    "counselors = '" . add_escape_custom($counselors) . "', " .
     "pos_code = '" . add_escape_custom($pos_code) . "' " .
+
     "WHERE id = '" . add_escape_custom($id) . "'");
 }
 else {

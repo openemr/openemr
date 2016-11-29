@@ -20,6 +20,7 @@
  */
 
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
@@ -309,6 +310,28 @@ if ($fres) {
   echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');
 ?>
      </td>
+    </tr>
+
+       <?php
+       $counselors = getGroupCounselorsNames($therapy_group);
+        if($viewmode){
+            $encounterCounselors = explode(', ',$result['counselors']);
+        }
+       ?>
+       <td class='bold' nowrap><?php echo xlt('Counselors'); ?>:</td>
+       <td class='text'>
+           <select name="counselors[]" multiple>
+               <?php foreach ($counselors as $counselor) { ?>
+               <option value="<?php echo $counselor?>" <?php echo $viewmode && in_array($counselor,$encounterCounselors) ? 'selected' : ''?>>
+                   <?php echo $counselor?>
+               </option>
+               <?php } ?>
+           </select>
+
+       </td>
+    <tr>
+
+
     </tr>
 
     <tr>
