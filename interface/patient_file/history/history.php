@@ -61,7 +61,7 @@ $(document).ready(function(){
 <div>
     <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
 </div>
-<div style='float:left;margin-right:10px'>
+<div id='namecontainer_history' class='namecontainer_history' style='float:left;margin-right:10px'>
 <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) ?></a></span>
 </div>
 <div>
