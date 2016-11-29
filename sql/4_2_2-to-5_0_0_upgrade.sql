@@ -2260,3 +2260,11 @@ CREATE TABLE `form_groups_encounter` (
 #IfMissingColumn forms therapy_group_id
 ALTER TABLE  `forms` ADD  `therapy_group_id` INT(11) DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn registry patient_encounter
+ALTER TABLE `registry` ADD `patient_encounter` TINYINT NOT NULL DEFAULT '1' AFTER `nickname`;
+#EndIf
+
+#IfMissingColumn registry therapy_group_encouner
+ALTER TABLE `registry` ADD `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0' AFTER `patient_encounter`;
+#EndIf

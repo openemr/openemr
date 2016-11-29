@@ -379,7 +379,7 @@ if (!$billing_view) {
 // $count = 0;
 
 $sqlBindArray = array();
-if(getEncounterType() == 'patient') {
+if($attendant_type == 'pid') {
     $from = "FROM form_encounter AS fe " .
         "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
         "f.formdir = 'newpatient' AND f.deleted = 0 ";
@@ -394,12 +394,12 @@ if ($issue) {
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
   array_push($sqlBindArray, $pid, $issue);
 }
-if(getEncounterType() == 'patient') {
+if($attendant_type == 'pid') {
     $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
 } else {
     $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
 }
-$sqlBindArray[] = getEncounterType() == 'patient' ? $pid : $_SESSION['therapy_group'];
+$sqlBindArray[] = $attendant_type == 'pid' ? $pid : $_SESSION['therapy_group'];
 
 $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
         "ORDER BY fe.date DESC, fe.id DESC";
@@ -431,7 +431,6 @@ if(($pagesize>0) && ($pagestart+$pagesize <= $numRes))
 {
     generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
 }
-
 
 
 $res4 = sqlStatement($query, $sqlBindArray);
@@ -473,7 +472,8 @@ while ($result4 = sqlFetchArray($res4)) {
         if (!$billing_view && $auth_sensitivity &&
             ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser'])))
         {
-            $encarr = getFormByEncounter($pid, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
+            $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+            $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
             $encounter_rows = count($encarr);
         }
 

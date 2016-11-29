@@ -99,4 +99,9 @@ function isRegistered ( $directory, $state = 1)
     return false;
 }
 
+function getTherapyGroupCategories(){
+
+	return array('');
+}
+
 ?>

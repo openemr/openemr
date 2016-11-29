@@ -20,7 +20,7 @@ require_once("forms_review_header.php");
 
 if(getEncounterType() == 'therapy_group'){
     $groupId = $_SESSION['therapy_group'];
-    $encounter = $_GET['encounter'];
+    //$encounter = $_GET['encounter'];
 }
 
 ?>
@@ -230,7 +230,7 @@ jQuery(document).ready( function($) {
         );
     });
 
-    // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
+     $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");

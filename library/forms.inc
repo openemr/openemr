@@ -36,16 +36,17 @@ function getFormsByPid ($pid, $cols = "*")
 	return sqlQuery("select $cols from forms where pid ='$pid'");
 }
 
-function getFormByEncounter($identify,$encounter, $cols="form_id, form_name", $name="")
+function getFormByEncounter($attendant_id,$encounter, $cols="form_id, form_name", $name="")
 {
+	global $attendant_type;
  	$arraySqlBind = array();
 	$sql = "select $cols from forms where encounter = ? ";
-	array_push($arraySqlBind,$encounter,$identify);
+	array_push($arraySqlBind,$encounter,$attendant_id);
 	if(!empty($name)){
 		$sql .= "and form_name=? ";
 		array_push($arraySqlBind,$name);
 	}
-	$sql .= getEncounterType() == 'patient' ? " and pid=? and therapy_group_id IS NULL " : "and therapy_group_id = ? and pid IS NULL ";
+	$sql .= $attendant_type == 'pid' ? " and pid=? and therapy_group_id IS NULL " : "and therapy_group_id = ? and pid IS NULL ";
   // This puts vitals first in the list, and newpatient last:
   $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
@@ -61,9 +62,12 @@ function getFormByEncounter($identify,$encounter, $cols="form_id, form_name", $n
 function addForm($encounter, $form_name, $form_id, $formdir, $pid,
  $authorized = "0", $date="NOW()", $user="", $group="")
 {
+	global $attendant_type;
 	if (!$user) $user = $_SESSION['authUser'];
-	if (!$group) $group = $_SESSION['authProvider']? NULL : $_SESSION['therapy_group'];
+	if (!$group) $group = $_SESSION['authProvider'];
 
+    $therapy_group = $attendant_type == 'pid' ? NULL : $_SESSION['therapy_group'];
+	//print_r($_SESSION['therapy_group']);die;
         $arraySqlBind = array();
 	$sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
 		"user, groupname, authorized, formdir, therapy_group_id) values (";

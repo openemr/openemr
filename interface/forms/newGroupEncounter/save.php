@@ -96,7 +96,7 @@ else {
   die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "patient_file/encounter/forms.php?encounter=" . $encounter;
+$normalurl = "patient_file/encounter/encounter_top.php?set_encounter=" . $encounter;
 
 $nexturl = $normalurl;
 
@@ -119,7 +119,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 <html>
 <body>
 <script language='JavaScript'>
-	/*EncounterDateArray=new Array;
+	EncounterDateArray=new Array;
 	CalendarCategoryArray=new Array;
 	EncounterIdArray=new Array;
 	Count=0;
@@ -135,11 +135,11 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 	 <?php
 				 }
 	 ?>
-	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);*/
+	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
  top.restoreSession();
 <?php if ($mode == 'new') { ?>
     //todo - checking necessary
- //parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
+ parent.left_nav.setEncounter(<?php echo "'" . attr(oeFormatShortDate($date)) . "', '" . attr($encounter) . "', window.name"; ?>);
 <?php } // end if new encounter ?>
  parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
 </script>
