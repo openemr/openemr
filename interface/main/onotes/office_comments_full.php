@@ -108,11 +108,27 @@ if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offse
 $result_count = 0;
 foreach ($result as $iter) {
     $result_count++;
-    
+
+    $datefornat="";
+
+    switch ($GLOBALS['date_display_format']) {
+        case 0:
+            $datefornat= "Y-m-d";
+            break;
+        case 1:
+            $datefornat= "m/d/y";
+            break;
+        case 2:
+            $datefornat= "d/m/y";
+            break;
+        default:
+            $datefornat= "D F dS";
+    }
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = "Today, " . date( $datefornat ,strtotime($iter{"date"}));
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = date($datefornat ,strtotime($iter{"date"}));
     }
     
     if ($iter{"activity"}) { $checked = "checked"; }

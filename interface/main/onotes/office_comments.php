@@ -54,12 +54,27 @@ foreach ($result as $iter) {
         print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert' onclick='top.restoreSession()'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
         break;
     }
+
+    $datefornat="";
     
-    
+    switch ($GLOBALS['date_display_format']) {
+        case 0:
+            $datefornat= "Y-m-d";
+            break;
+        case 1:
+            $datefornat= "m/d/y";
+            break;
+        case 2:
+            $datefornat= "d/m/y";
+            break;
+        default:
+            $datefornat= "D F dS";
+    }
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = "Today, " . date( $datefornat ,strtotime($iter{"date"}));
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = date( $datefornat ,strtotime($iter{"date"}));
     }
     
     print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($iter{"user"}).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
