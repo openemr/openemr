@@ -28,12 +28,13 @@
 function getNonCQMPlans() {
 	$plans = array();
 	
-	$sql_st = "SELECT DISTINCT list_options.title, clin_plans_rules.plan_id, clin_plans.pid " .
+	$sql_st =   "SELECT DISTINCT list_options.title, list_options.option_id as plan_id, clin_plans.pid " .
 				"FROM `list_options` list_options " .
 				"JOIN `clinical_plans` clin_plans ON clin_plans.id = list_options.option_id " .
-				"JOIN `clinical_plans_rules` clin_plans_rules ON clin_plans_rules.plan_id = list_options.option_id " .
-				"JOIN `clinical_rules` clin_rules ON clin_rules.id = clin_plans_rules.rule_id " .
-				"WHERE (clin_rules.cqm_flag = 0 or clin_rules.cqm_flag is NULL) and clin_plans.pid = 0 and list_options.list_id = ?;";
+				"LEFT JOIN `clinical_plans_rules` clin_plans_rules ON clin_plans_rules.plan_id = list_options.option_id " .
+				"LEFT JOIN `clinical_rules` clin_rules ON clin_rules.id = clin_plans_rules.rule_id " .
+				"WHERE (clin_rules.cqm_flag = 0 OR clin_rules.cqm_flag is NULL) ".
+		        "AND list_options.option_id NOT LIKE '%plan_cqm' AND clin_plans.pid = 0 AND list_options.list_id = ?;";
 	$result = sqlStatement($sql_st, array('clinical_plans'));
 
 	while($row = sqlFetchArray($result)) {
