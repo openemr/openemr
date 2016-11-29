@@ -23,6 +23,7 @@ $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
+include_once("$srcdir/formatting.inc.php");
 
 //the number of records to display per screen
 $N = 10;
@@ -108,11 +109,14 @@ if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offse
 $result_count = 0;
 foreach ($result as $iter) {
     $result_count++;
-    
+
+    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
+    $date=oeFormatShortDate($date);
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = xl("Today") . ", " . $date;
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = $date;
     }
     
     if ($iter{"activity"}) { $checked = "checked"; }
