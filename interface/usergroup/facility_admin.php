@@ -110,6 +110,16 @@ $(document).ready(function(){
     $("#cancel").click(function() {
 		  parent.$.fn.fancybox.close();
 	 });
+
+    /**
+     * add required/star sign to required form fields
+     */
+    for (var prop in collectvalidation) {
+        //if (collectvalidation[prop].requiredSign)
+        if (collectvalidation[prop].presence)
+            jQuery("input[name='" + prop + "']").after('*');
+    }
+
 });
 var cp = new ColorPicker('window');
   // Runs when a color is clicked
