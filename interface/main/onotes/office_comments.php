@@ -20,6 +20,7 @@
 
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
+include_once("$srcdir/formatting.inc.php");
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
@@ -55,29 +56,16 @@ foreach ($result as $iter) {
         break;
     }
 
-    $datefornat="";
-    
-    switch ($GLOBALS['date_display_format']) {
-        case 0:
-            $datefornat= "Y-m-d";
-            break;
-        case 1:
-            $datefornat= "m/d/y";
-            break;
-        case 2:
-            $datefornat= "d/m/y";
-            break;
-        default:
-            $datefornat= "D F dS";
-    }
+    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
+    $date=oeFormatShortDate($date);
 
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( $datefornat ,strtotime($iter{"date"}));
+        $date_string = xlt("Today, ") . $date;
     } else {
-        $date_string = date( $datefornat ,strtotime($iter{"date"}));
+        $date_string = $date;
     }
     
-    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($iter{"user"}).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
+    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".xlt(text($iter{"user"})).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
     
     
     $notes_count++;
