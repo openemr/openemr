@@ -2157,3 +2157,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`)
 #IfMissingColumn insurance_companies inactive
 ALTER TABLE `insurance_companies` ADD `inactive` INT(1) NOT NULL DEFAULT '0' ;
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id formdir_keys
+INSERT INTO list_options (list_id, option_id, title,activity) VALUES ('lists','formdir_keys','Form Keys',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','newpatient','"tbl":"form_encounter"',10,'Patient encounter table has non-std name',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','procedure_order','"tbl":"procedure_order","id":"procedure_order_id"',20,'Lab order header table has non-std name and id',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
+#EndIf
+

@@ -4620,6 +4620,14 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES 
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
 
+--  Form Keys
+
+INSERT INTO list_options (list_id, option_id, title,activity) VALUES ('lists','formdir_keys','Form Keys',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','newpatient','"tbl":"form_encounter"',10,'Patient encounter table has non-std name',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','procedure_order','"tbl":"procedure_order","id":"procedure_order_id"',20,'Lab order header table has non-std name and id',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
+
+
 -- --------------------------------------------------------
 
 --
