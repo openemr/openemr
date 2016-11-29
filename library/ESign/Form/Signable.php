@@ -108,33 +108,35 @@ class Form_Signable extends DbRow_Signable implements SignableIF
      */
     public function getData()
     {
-        // We assume that the formdir is the same as the table suffix, 
-        // but this may not always be the case. TODO In the future, 
-        // create a list in the list_options for formdir => table mapping
-        $table = "form_".$this->_formDir;
-        if ( $this->_formDir == 'newpatient' ) {
-            $table = "form_encounter";
+      // Use default standards based on formdir value
+      // Exceptions are specified in formdir_keys list
+      $row = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
+      		array('formdir_keys', $this->_formDir));
+      if (isset($row['title'])) {
+      	$excp = json_decode("{".$row['title']."}");
+      }
+      $tbl = (isset($excp->tbl) ? $excp->tbl : "form_".$this->_formDir);
+      $id = (isset($excp->id) ? $excp->id : 'id');
+      $limit = (isset($excp->limit) ? $excp->limit : 1);
+      
+      // Get form data based on key from forms table
+      $sql = sprintf("SELECT fd.* FROM %s fd
+      		INNER JOIN forms f ON fd.%s = f.form_id
+      		WHERE f.id = ?",
+      		escape_table_name($tbl), escape_sql_column_name($id, array($tbl)));
+      if ($limit <> '*') {
+      	$sql .= ' LIMIT '.escape_limit($limit);
+      }
+      $rs = sqlStatement($sql, array( $this->_formId ) );
+      if (sqlNumRows($rs) == 1) { // maintain legacy hash
+      	$frs = sqlFetchArray($rs);
+      } else {
+        $frs = array();
+        while ($fr = sqlFetchArray($rs)) {
+        	array_push($frs, $fr);
         }
-	if( $this->_formDir == 'procedure_order' ) {
-            $table = "procedure_order";
-        }
-
-        
-        // Get row from forms table
-        $statement = "SELECT F.id, F.date, F.encounter, F.form_name, F.form_id, F.pid, F.user, F.formdir FROM forms F ";
-        $statement .= "WHERE F.id = ? LIMIT 1";
-        $row = sqlQuery( $statement, array( $this->_formId ) );
-        
-        // Get form-specific data
-        $statement = "SELECT * FROM ".escape_table_name( $table )." ";
-        if( $this->_formDir == 'procedure_order' ) {
-            $statement .= "WHERE procedure_order_id = ? LIMIT 1";
-        }
-	else {
-            $statement .= "WHERE id = ? LIMIT 1";
-        }
-        $formRow = sqlQuery( $statement, array( $row['form_id']) );
-        
-        return $formRow;
+      }
+      
+      return $frs;
     }
 }
