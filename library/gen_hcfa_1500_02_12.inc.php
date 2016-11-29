@@ -151,7 +151,7 @@ function process_diagnoses_02_12(&$claim,&$log)
     
     // Box 22. Medicaid Resubmission Code and Original Ref. No.
     $hcfa_entries[]=new hcfa_info(38,50,10,$claim->medicaidResubmissionCode());
-    $hcfa_entries[]=new hcfa_info(38,62,10,$claim->medicaidOriginalReference());
+    $hcfa_entries[]=new hcfa_info(38,62,15,$claim->medicaidOriginalReference());
     
     // Box 23. Prior Authorization Number
     $hcfa_entries[]=new hcfa_info(40,50,28,$claim->priorAuth());
