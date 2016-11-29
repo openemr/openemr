@@ -13,7 +13,7 @@ $statuses_in_meeting = array(
     '40' => 'Late Arrival',
     '50' => 'Cancelled',
 );
-$encounter = 2;
+//will use $therapy_groups global
 $group_id = 2;
 $participants = getParticipants($group_id);
 ?>
@@ -52,7 +52,7 @@ $participants = getParticipants($group_id);
         </div>
     </div>
 </div>
-<form id="group_attendance_form" method=post action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
+<form id="group_attendance_form" method=post action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update" name="my_form">
     <table id="group_attendance_form_table">
         <thead>
         <tr>
@@ -68,13 +68,13 @@ $participants = getParticipants($group_id);
                 <td align="center"><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
                 <td align="center"><?php echo $participant['pid']; ?></td>
                 <td align="center">
-                    <select name="<?php echo "patient_" . $participant['pid'] . "_status" ;?>">
+                    <select name="<?php echo "patientData[" . $participant['pid'] . "]['status']" ;?>">
                         <?php foreach ($statuses_in_meeting as $key => $status_in_meeting){?>
                             <option value="<?php echo $key; ?>"><?php echo $status_in_meeting; ?></option>
                         <?php } ?>
                     </select>
                 </td>
-                <td align="center"><input type="text" name="<?php echo "patient_" . $participant['pid'] . "_comment";  ?>"></input></td>
+                <td align="center"><input type="text" name="<?php echo "patientData[" . $participant['pid'] . "]['comment']";  ?>"></input></td>
             </tr>
         <?php } ?>
         </tbody>
@@ -104,10 +104,12 @@ $(document).ready(function () {
 
     $('.add_button').click(function () {
         $('#add_participant_element').show();
+        $(this).hide();
     });
 
     $('.cancel_button').click(function () {
         $('#add_participant_element').hide();
+        $('.add_button').show();
     });
 
     $('.patient').on('focus', function(){
