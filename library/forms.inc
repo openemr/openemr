@@ -4,11 +4,6 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
-function getEncounterType(){
-	global $pid;
-	return isset($_SESSION['therapy_group']) && empty($pid) ? 'therapy_group' : 'patient';
-}
-
 function getFormById ($id, $cols = "*")
 {
 	$sql = "select $cols from forms where id='$id' order by date DESC limit 0,1";
@@ -132,7 +127,8 @@ function getEncounters($pid,$dateStart='',$dateEnd='',$encounterRuleType='')
 
 function getEncounterDateByEncounter($encounter)
 {
-	$table = getEncounterType() == 'patient' ? 'form_encounter' : 'form_groups_encounter';
+	global $attendant_type;
+	$table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
 	// $sql = "select date from forms where encounter='$encounter' order by date";
 	$sql = "select date from $table where encounter='$encounter' order by date";
 	return sqlQuery($sql);
@@ -140,7 +136,8 @@ function getEncounterDateByEncounter($encounter)
 
 function getProviderIdOfEncounter($encounter, $isTherapyGroup = false)
 {
-		$table = getEncounterType() == 'patient' ? 'form_encounter' : 'form_groups_encounter';
+		global $attendant_type;
+		$table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
         $sql = "select provider_id from $table where encounter='$encounter' order by date";
         $res = sqlQuery($sql);
         return $res['provider_id'];

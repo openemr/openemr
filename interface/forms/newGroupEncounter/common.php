@@ -199,6 +199,8 @@ function cancelClicked() {
   $catid = $crow['pc_catid'];
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='" . attr($catid) . "'";
+  //Option selected is 'Group therapy' - id 1000
+  if(!$viewmode && $crow['pc_catid'] == 1000) echo " selected";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
   echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
  }

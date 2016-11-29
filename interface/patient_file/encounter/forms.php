@@ -18,10 +18,10 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("forms_review_header.php");
 
-if(getEncounterType() == 'therapy_group'){
-    $groupId = $_SESSION['therapy_group'];
-    //$encounter = $_GET['encounter'];
+if($attendant_type == 'gid'){
+    $groupId = $therapy_group;
 }
+$attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
 
 ?>
 <html>
@@ -366,7 +366,7 @@ $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 
-if (is_numeric($pid) && !isset($groupId)) {
+if ($attendant_type == 'pid' && is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
@@ -531,7 +531,7 @@ if ( $esign->isButtonViewable() ) {
 
 <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
 <?php
-    if(getEncounterType() == 'patient'){
+    if($attendant_type == 'pid'){
         $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
     } else {
         // already doesn't exist document for therapy groups
@@ -566,8 +566,8 @@ if ( $esign->isButtonViewable() ) {
 <br/>
 
 <?php
-  $identify = getEncounterType() == 'patient' ? $pid : $groupId;
-  if ($result = getFormByEncounter($identify, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+
+  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
@@ -662,11 +662,11 @@ if ( $esign->isButtonViewable() ) {
         //
         if (substr($formdir,0,3) == 'LBF') {
           include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-          call_user_func("lbf_report", $pid, $encounter, 2, $iter['form_id'], $formdir);
+          call_user_func("lbf_report", $attendant_id, $encounter, 2, $iter['form_id'], $formdir);
         }
         else  {
           include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-          call_user_func($formdir . "_report", $pid, $encounter, 2, $iter['form_id']);
+          call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
         }
         
         if ( $esign->isLogViewable() ) {

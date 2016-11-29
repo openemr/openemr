@@ -20,8 +20,8 @@
 
 include_once(dirname(__file__)."/../../globals.php");
 
-function newGroupEncounter_report( $pid, $encounter, $cols, $id) {
-	$res = sqlStatement("select * from form_encounter where pid=? and id=?", array($pid,$id) );
+function newGroupEncounter_report( $group_id, $encounter, $cols, $id) {
+	$res = sqlStatement("select * from form_groups_encounter where group_id=? and id=?", array($group_id,$id) );
 	print "<table><tr><td>\n";
 	while($result = sqlFetchArray($res)) {
 		print "<span class=bold>" . xlt('Facility') . ": </span><span class=text>" . text($result{"facility"}) . "</span><br>\n";
