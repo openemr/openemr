@@ -624,18 +624,21 @@ function goHome() {
 function clearactive() {
 	top.restoreSession();
 	//Ajax call to clear active patient in session
+    var method = (active_pid > 0) ? 'unset_pid' : 'unset_gid';
 	$.ajax({
 	  type: "POST",
 	  url: "<?php echo $GLOBALS['webroot'] ?>/library/ajax/unset_session_ajax.php",
-	  data: { func: "unset_pid"},
+	  data: { func: method},
 	  success:function( msg ) {
 		clearPatient();
+		clearTherapyGroup();
 		top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
 		top.frames['RBot'].location='messages/messages.php?form_active=1';
 	  }
 	});
     
 	$(parent.Title.document.getElementById('clear_active')).hide();
+	$(parent.Title.document.getElementById('clear_active_group')).hide();
 }
  // Reference to the search.php window.
  var my_window;
@@ -830,7 +833,7 @@ function clearactive() {
          }
      }
 
-     //$(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+     $(parent.Title.document.getElementById('clear_active_group')).show();//To display Clear Active Patient button on selecting a patient
  }
 
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {

@@ -39,6 +39,9 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/formdata.inc.php");
+if($GLOBALS['enable_group_therapy']) {
+    require_once("$srcdir/group.inc");
+}
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
@@ -361,6 +364,11 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
   <th>&nbsp;<?php echo htmlspecialchars( (($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
+<?php if($GLOBALS['enable_group_therapy'] && !$billing_view) { ?>
+    <!-- Two new columns if therapy group is enable - encounter type and group name (empty if isn't group type) -->
+    <th><?php echo htmlspecialchars( xl('Encounter type'), ENT_NOQUOTES);    ?></th>
+    <th><?php echo htmlspecialchars( xl('Group name'), ENT_NOQUOTES);    ?></th>
+<?php }?>
  </tr>
 
 <?php
@@ -761,6 +769,13 @@ while ($result4 = sqlFetchArray($res4)) {
             }
       
             echo "<td>".$insured."</td>\n";
+        }
+
+        if($GLOBALS['enable_group_therapy'] && !$billing_view){
+            $encounter_type = sqlQuery("SELECT pc_catname FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+            echo "<td>".$encounter_type['pc_catname']."</td>\n";
+            $group_name = $result4['pc_catid'] == 1000 ? getGroup($result4['external_id'])['group_name']  : "";
+            echo "<td>".$group_name."</td>\n";
         }
 
         echo "</tr>\n";

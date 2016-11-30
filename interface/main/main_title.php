@@ -93,6 +93,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
             <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
+    <td style="vertical-align:text-bottom;">
+        <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active_group' onClick="javascript:parent.left_nav.clearactive();return false;">
+            <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE THERAPY GROUP'), ENT_QUOTES); ?></span></a>
+    </td>
 </tr>
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
 
