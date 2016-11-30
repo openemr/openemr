@@ -64,10 +64,10 @@ foreach ($result as $iter) {
     } else {
         $date_string = $date;
     }
-    
+
     print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($iter{"user"}).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
-    
-    
+
+
     $notes_count++;
 }
 
