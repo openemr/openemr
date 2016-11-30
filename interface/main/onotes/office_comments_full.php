@@ -89,7 +89,7 @@ elseif ($active==1) { $active_class="link_selected"; }
 elseif ($active==0) { $inactive_class="link_selected"; }
 ?>
 
-<span class="text"><?php echo xlt('View:'); ?> </span> 
+<span class="text"><?php echo xlt('View:'); ?> </span>
 <a href="office_comments_full.php?offset=0&active=all" class="<?php echo attr($all_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('All'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=1" class="<?php echo attr($active_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Active'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=0" class="<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Inactive'); ?>]</a>
@@ -118,7 +118,7 @@ foreach ($result as $iter) {
     } else {
         $date_string = $date;
     }
-    
+
     if ($iter{"activity"}) { $checked = "checked"; }
     else { $checked = ""; }
 
@@ -127,8 +127,8 @@ foreach ($result as $iter) {
     print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
     print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
     print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
-    
-    
+
+
     $notes_count++;
 }
 }else{
