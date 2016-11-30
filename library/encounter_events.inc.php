@@ -172,6 +172,48 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
   );
   return $encounter;
 }
+
+    //===============================================================================
+    // Checks for the patient's encounter ID for today, creating it if there is none.
+    //
+    function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '', $fac_id = '', $billing_fac = '', $provider = '', $cat = '', $return_existing = true){
+        global $today;
+        $encounter = todaysTherapyGroupEncounterIf($group_id);
+        if($encounter){
+            if($return_existing){
+                return $encounter;
+            }else{
+                return 0;
+            }
+        }
+        $dos = $enc_date ? $enc_date : $today;
+        $visit_reason = $reason ? $reason : 'Please indicate visit reason';
+        $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
+        $username = $tmprow['username'];
+        $facility = $tmprow['facility'];
+        $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
+        $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
+        $visit_provider = $provider ? (int)$provider : '(NULL)';
+        $visit_cat = $cat ? $cat : '(NULL)';
+        $conn = $GLOBALS['adodb']['db'];
+        $encounter = $conn->GenID("sequences");
+        addForm($encounter, "New Therapy Group Encounter",
+            sqlInsert("INSERT INTO form_groups_encounter SET " .
+                "date = ?, " .
+                "reason = ?, " .
+                "facility = ?, " .
+                "facility_id = ?, " .
+                "billing_facility = ?, " .
+                "provider_id = ?, " .
+                "group_id = ?, " .
+                "encounter = ?," .
+                "pc_catid = ?",
+                array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$group_id,$encounter,$visit_cat)
+            ),
+            "newGroupEncounter", NULL, "1", "NOW()", $username, "", $group_id
+        );
+        return $encounter;
+    }
 //===============================================================================
 // Get the patient's encounter ID for today, if it exists.
 // In the case of more than one encounter today, pick the last one.
@@ -182,6 +224,17 @@ function todaysEncounterIf($patient_id) {
     "pid = ? AND date = ? " .
     "ORDER BY encounter DESC LIMIT 1",array($patient_id,"$today 00:00:00"));
   return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
+}
+//===============================================================================
+// Get the patient's encounter ID for today, if it exists.
+// In the case of more than one encounter today, pick the last one.
+//
+function todaysTherapyGroupEncounterIf($group_id) {
+	global $today;
+	$tmprow = sqlQuery("SELECT encounter FROM form_groups_encounter WHERE " .
+		"group_id = ? AND date = ? " .
+		"ORDER BY encounter DESC LIMIT 1",array($group_id,"$today 00:00:00"));
+	return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
 }
 //===============================================================================
 

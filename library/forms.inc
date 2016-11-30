@@ -55,13 +55,15 @@ function getFormByEncounter($attendant_id,$encounter, $cols="form_id, form_name"
 }
 
 function addForm($encounter, $form_name, $form_id, $formdir, $pid,
- $authorized = "0", $date="NOW()", $user="", $group="")
+ $authorized = "0", $date="NOW()", $user="", $group="", $therapy_group = null)
 {
 	global $attendant_type;
 	if (!$user) $user = $_SESSION['authUser'];
 	if (!$group) $group = $_SESSION['authProvider'];
 
-    $therapy_group = $attendant_type == 'pid' ? NULL : $_SESSION['therapy_group'];
+	if(is_null($therapy_group)){
+        $therapy_group = $attendant_type == 'pid' ? NULL : $_SESSION['therapy_group'];
+    }
 	//print_r($_SESSION['therapy_group']);die;
         $arraySqlBind = array();
 	$sql = "insert into forms (date, encounter, form_name, form_id, pid, " .

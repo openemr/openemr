@@ -66,5 +66,12 @@ function  getUserNameById($uid){
     return $result;
 }
 
+function getGroupCounselorsNames($gid){
+
+    $model = new Therapy_Groups_Counselors();
+    $result = $model->getAllCounselorsNames($gid);
+    return $result;
+}
+
 
 ?>

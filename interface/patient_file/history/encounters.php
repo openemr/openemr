@@ -253,7 +253,8 @@ if ($issue) {
   echo htmlspecialchars($tmp['title'], ENT_NOQUOTES);
 }
 else {
-  echo htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES);
+    //There isn't documents for therapy group yet
+  echo $attendant_type == 'pid' ? htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES) : htmlspecialchars(xl('Past Therapy Group Encounters'), ENT_NOQUOTES);
 }
 ?>
 </font>
@@ -335,11 +336,15 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
 <?php if ($billing_view) { ?>
   <th class='billing_note'><?php echo htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES); ?></th>
 <?php } else { ?>
-<?php if (!$issue) { ?>
+<?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
   <th><?php echo htmlspecialchars( xl('Issue'), ENT_NOQUOTES);       ?></th>
 <?php } ?>
   <th><?php echo htmlspecialchars( xl('Reason/Form'), ENT_NOQUOTES); ?></th>
+  <?php if($attendant_type == 'pid') { ?>
   <th><?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES);    ?></th>
+  <?php } else { ?>
+        <th><?php echo htmlspecialchars( xl('Counselors'), ENT_NOQUOTES);    ?></th>
+    <?php } ?>
 <?php } ?>
 
 <?php if ($billing_view) { ?>
@@ -503,7 +508,7 @@ while ($result4 = sqlFetchArray($res4)) {
         }
         else {
 
-          if (!$issue) { // only if listing for multiple issues
+          if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues
             // show issues for this encounter
             echo "<td>";
             if ($auth_med && $auth_sensitivity) {
@@ -538,7 +543,7 @@ while ($result4 = sqlFetchArray($res4)) {
             // see this encounter's notes.
 
             foreach ($encarr as $enc) {
-                if ($enc['formdir'] == 'newpatient') continue;
+                if ($enc['formdir'] == 'newpatient' || $enc['formdir'] == 'newGroupEncounter') continue;
             
                 // skip forms whose 'deleted' flag is set to 1 --JRM--
                 if ($enc['deleted'] == 1) continue;
@@ -586,14 +591,22 @@ while ($result4 = sqlFetchArray($res4)) {
             echo "</div>";
             echo "</td>\n";
 
-            // show user (Provider) for the encounter
-            $provname = '&nbsp;';
-            if (!empty($result4['lname']) || !empty($result4['fname'])) {
-              $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
-              if (!empty($result4['fname']) || !empty($result4['mname']))
-                $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
+            if($attendant_type == 'pid'){
+
+                // show user (Provider) for the encounter
+                $provname = '&nbsp;';
+                if (!empty($result4['lname']) || !empty($result4['fname'])) {
+                    $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
+                    if (!empty($result4['fname']) || !empty($result4['mname']))
+                        $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
+                }
+                echo "<td>$provname</td>\n";
+
+                // for therapy group view
+            } else {
+                echo "<td>{$result4['counselors']}</td>\n";
             }
-            echo "<td>$provname</td>\n";
+
 
         } // end not billing view
 

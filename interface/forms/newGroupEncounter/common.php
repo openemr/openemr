@@ -20,6 +20,7 @@
  */
 
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
@@ -311,6 +312,28 @@ if ($fres) {
      </td>
     </tr>
 
+       <?php
+       $counselors = getGroupCounselorsNames($therapy_group);
+        if($viewmode){
+            $encounterCounselors = explode(', ',$result['counselors']);
+        }
+       ?>
+       <td class='bold' nowrap><?php echo xlt('Counselors'); ?>:</td>
+       <td class='text'>
+           <select name="counselors[]" multiple>
+               <?php foreach ($counselors as $counselor) { ?>
+               <option value="<?php echo $counselor?>" <?php echo $viewmode && in_array($counselor,$encounterCounselors) ? 'selected' : ''?>>
+                   <?php echo $counselor?>
+               </option>
+               <?php } ?>
+           </select>
+
+       </td>
+    <tr>
+
+
+    </tr>
+
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>
@@ -378,13 +401,13 @@ if (!$viewmode) { ?>
 
   // Search for an encounter from today
   $erow = sqlQuery("SELECT fe.encounter, fe.date " .
-    "FROM form_encounter AS fe, forms AS f WHERE " .
-    "fe.pid = ? " .
+    "FROM form_groups_encounter AS fe, forms AS f WHERE " .
+    "fe.group_id = ? " .
     " AND fe.date >= ? " .
     " AND fe.date <= ? " .
     " AND " .
-    "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1",array($pid,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
+    "ORDER BY fe.encounter DESC LIMIT 1",array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
   if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog

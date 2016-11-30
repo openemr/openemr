@@ -26,6 +26,7 @@ function newGroupEncounter_report( $group_id, $encounter, $cols, $id) {
 	while($result = sqlFetchArray($res)) {
 		print "<span class=bold>" . xlt('Facility') . ": </span><span class=text>" . text($result{"facility"}) . "</span><br>\n";
 		print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result{"reason"})) . "</span><br>\n";
+		print "<span class=bold>" . xlt('Counselors') . ": </span><span class=text>" . nl2br(text($result{"counselors"})) . "</span><br>\n";
 	}
 	print "</td></tr></table>\n";
 }

@@ -196,6 +196,17 @@ function DOBandEncounter()
              }
      }
     }
+    // auto create encounter fot therapy group
+    if(!empty($_POST['form_gid'])){
+                                                                                // status Took Place is the check in of therapy group
+        if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
+            $encounter = todaysTherapyGroupEncounterCheck($_POST['form_gid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
+            if ($encounter) {
+                $info_msg .= xl("New group encounter created with id");
+                $info_msg .= " $encounter";
+            }
+        }
+    }
 
  }
 

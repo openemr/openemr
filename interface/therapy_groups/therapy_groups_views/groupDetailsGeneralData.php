@@ -212,6 +212,29 @@
     $(parent.Title.document.getElementById('clear_active')).hide();
     parent.left_nav.setTherapyGroup(<?php echo $groupData['group_id']?>,'<?php echo $groupData['group_name']?>');
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
+    /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
+    <?php
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array( $groupData['group_id']));
+    ?>
+
+    EncounterDateArray=new Array;
+    CalendarCategoryArray=new Array;
+    EncounterIdArray=new Array;
+    Count=0;
+    <?php
+    if(sqlNumRows($result4)>0)
+    while($rowresult4 = sqlFetchArray($result4))
+    {
+    ?>
+    EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+    EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
+    CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
+    Count++;
+    <?php
+    }
+    ?>
+    top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 </script>
 <?php $use_validate_js = 1;?>
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
