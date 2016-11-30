@@ -20,6 +20,7 @@
 
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
+include_once("$srcdir/formatting.inc.php");
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
@@ -54,15 +55,17 @@ foreach ($result as $iter) {
         print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert' onclick='top.restoreSession()'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
         break;
     }
-    
-    
+
+    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
+    $date=oeFormatShortDate($date);
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = xlt("Today, ") . $date;
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = $date;
     }
     
-    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($iter{"user"}).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
+    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".xlt(text($iter{"user"})).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
     
     
     $notes_count++;

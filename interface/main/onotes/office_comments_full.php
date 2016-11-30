@@ -23,6 +23,7 @@ $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
+include_once("$srcdir/formatting.inc.php");
 
 //the number of records to display per screen
 $N = 10;
@@ -108,11 +109,14 @@ if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offse
 $result_count = 0;
 foreach ($result as $iter) {
     $result_count++;
-    
+
+    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
+    $date=oeFormatShortDate($date);
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = xlt("Today, ") . $date;
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = $date;
     }
     
     if ($iter{"activity"}) { $checked = "checked"; }
@@ -121,7 +125,7 @@ foreach ($result as $iter) {
     print "<tr><td><input type=hidden value='' name='act".attr($iter{"id"})."' id='act".attr($iter{"id"})."'>";
     print "<input name='box".attr($iter{"id"})."' id='box".attr($iter{"id"})."' onClick='javascript:document.update_activity.act".attr($iter{"id"}).".value=this.checked' type=checkbox $checked></td>";
     print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
-    print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
+    print " <label for='box".attr($iter{"id"})."' class='bold'>(". xlt(text($iter{"user"})).")</label></td>";
     print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
     
     
