@@ -5,6 +5,7 @@ include_once("$srcdir/forms.inc");
 
 //If saving new form
 if($_GET['mode'] == 'new') {
+
     //Get the number that should be the new form's id
     $res = sqlStatement("SELECT MAX(id) as largestId FROM `form_therapy_groups_attendance`");
     $getMaxid = sqlFetchArray($res);
@@ -18,25 +19,71 @@ if($_GET['mode'] == 'new') {
     addForm($encounter, "Group Attendance Form", $newid, "group_attendance", null, $userauthorized);
 
     //Insert into form_therapy_groups_attendance table
-    $sql_for_form_tga = "INSERT INTO form_therapy_groups_attendance (id, date, group_id, user, groupname, authorized, encounter_id, activity) " .
+    $sql_for_table_ftga = "INSERT INTO form_therapy_groups_attendance (id, date, group_id, user, groupname, authorized, encounter_id, activity) " .
         "VALUES(?,NOW(),?,?,?,?,?,?);";
     $sqlBindArray = array();
     array_push($sqlBindArray, $newid, $therapy_group, $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $encounter, '1');
-    sqlInsert($sql_for_form_tga, $sqlBindArray);
+    sqlInsert($sql_for_table_ftga, $sqlBindArray);
+
+    //Insert into therapy_groups_participants_attendance table
+    insert_into_tgpa_table($newid);
+
+    //If adding a new participant
+    if(isset($_POST['submit_new_patient'])){
+        insert_new_participant($newid);
+        jumpToEdit($newid);
+    }
+    else
+        formJump();
+
+
 }
 //If editing a form
 elseif ($_GET['mode'] == 'update'){
 
+    //Update form_therapy_groups_attendance table
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_therapy_groups_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";
     $sqlBindArray = array();
     array_push($sqlBindArray,  $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $id);
     sqlInsert($sql_for_form_tga, $sqlBindArray);
+
+    //Delete from therapy_groups_participant_attendance table
+    $sql_delete_from_table_tgpa = "DELETE FROM therapy_groups_participant_attendance WHERE form_id = ?;";
+    sqlStatement($sql_delete_from_table_tgpa, array($id));
+
+    //Insert into therapy_groups_participants_attendance table
+    insert_into_tgpa_table($id);
+
+    //If adding a new participant
+    if(isset($_POST['submit_new_patient'])){
+        insert_new_participant($id);
+        jumpToEdit($id);
+    }
+    else
+        formJump();
 }
 
+function insert_into_tgpa_table($form_id){
+    $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
+        "VALUES(?,?,?,?);";
+    $patientData = $_POST['patientData'];
+    foreach ($patientData as $key => $patient){
+        sqlInsert($sql_for_table_tgpa, array($form_id, $key, $patient['comment'], $patient['status']));
+    }
+}
 
-//$_SESSION["encounter"] = $encounter;
-formHeader("Redirecting....");
-formJump();
-formFooter();
+function insert_new_participant($form_id){
+    $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
+        "VALUES(?,?,?,?);";
+    $new_participant_id = $_POST['new_id'];
+    $new_comment = $_POST['new_comment'];
+    sqlInsert($sql_for_table_tgpa, array($form_id, $new_participant_id, $new_comment, 20));
+}
+
+function jumpToEdit($form_id){
+    $url = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php?formname=group_attendance&id=$form_id";
+    echo "\n<script language='Javascript'>top.restoreSession();window.location='$url';</script>\n";
+    exit;
+}
 ?>

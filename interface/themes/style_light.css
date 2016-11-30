@@ -1414,3 +1414,7 @@ table.dataTable#therapy_groups_list tbody td{
 #add_participant_element .input_label{
   display: block;
 }
+
+#add_participant_element .error_wrap .error{
+  color: red;
+}
