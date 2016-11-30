@@ -401,13 +401,13 @@ if (!$viewmode) { ?>
 
   // Search for an encounter from today
   $erow = sqlQuery("SELECT fe.encounter, fe.date " .
-    "FROM form_encounter AS fe, forms AS f WHERE " .
-    "fe.pid = ? " .
+    "FROM form_groups_encounter AS fe, forms AS f WHERE " .
+    "fe.group_id = ? " .
     " AND fe.date >= ? " .
     " AND fe.date <= ? " .
     " AND " .
-    "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1",array($pid,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
+    "ORDER BY fe.encounter DESC LIMIT 1",array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
   if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog

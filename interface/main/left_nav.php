@@ -473,13 +473,13 @@ function genFindBlock() {
  // frame as the default; the url must be relative to interface.
  function loadFrame2(fname, frame, url) {
   var usage = fname.substring(3);
-  if (active_pid == 0 && (usage > '0' && usage < '3')){
-   alert('<?php xl('You must first select or add a patient.','e') ?>');
+  if (active_pid == 0 && active_gid == 0  && (usage > '0' && usage < '5')){
+   <?php if($GLOBALS['enable_group_therapy']) { ?>
+      alert('<?php xl('You must first select or add a patient or therapy group.','e') ?>');
+   <?php } else { ?>
+      alert('<?php xl('You must first select or add a patient.','e') ?>');
+  <?php } ?>
    return false;
-  }
-  if (active_gid == 0 && (usage > '2' && usage < '4')) {
-     alert('<?php xl('You must first select or add a therapy group.','e') ?>');
-     return false;
   }
   if (active_encounter == 0 && (usage > '1' && usage < '3')) {
    alert('<?php xl('You must first select or create an encounter.','e') ?>');

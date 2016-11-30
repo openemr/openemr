@@ -360,13 +360,15 @@ $providerNameRes = getProviderName($providerIDres);
 <div class='encounter-summary-container'>
 <div class='encounter-summary-column'>
 <div>
-<span class="title"><?php echo oeFormatShortDate($encounter_date) . " " . xl("Encounter"); ?> </span>
 <?php
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
+
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xl("Encounter") . '</span>';
+
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
@@ -382,9 +384,10 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // for therapy group
 } else {
 
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xl("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
-    echo htmlspecialchars( xl('for','',' ',' ') . $result['group_name'] );
+    echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
