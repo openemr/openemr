@@ -2,6 +2,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
+include_once("functions.php");
 
 //If saving new form
 if($_GET['mode'] == 'new') {
@@ -64,26 +65,4 @@ elseif ($_GET['mode'] == 'update'){
         formJump();
 }
 
-function insert_into_tgpa_table($form_id){
-    $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
-        "VALUES(?,?,?,?);";
-    $patientData = $_POST['patientData'];
-    foreach ($patientData as $key => $patient){
-        sqlInsert($sql_for_table_tgpa, array($form_id, $key, $patient['comment'], $patient['status']));
-    }
-}
-
-function insert_new_participant($form_id){
-    $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
-        "VALUES(?,?,?,?);";
-    $new_participant_id = $_POST['new_id'];
-    $new_comment = $_POST['new_comment'];
-    sqlInsert($sql_for_table_tgpa, array($form_id, $new_participant_id, $new_comment, 20));
-}
-
-function jumpToEdit($form_id){
-    $url = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php?formname=group_attendance&id=$form_id";
-    echo "\n<script language='Javascript'>top.restoreSession();window.location='$url';</script>\n";
-    exit;
-}
 ?>
