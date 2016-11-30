@@ -9617,11 +9617,10 @@ CREATE TABLE `therapy_groups_participants` (
 
 DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 CREATE TABLE `therapy_groups_participant_attendance` (
-  `form_id` int(11) NOT NULL auto_increment,
+  `form_id` int(11) NOT NULL ,
   `pid` int(11) NOT NULL ,
   `meeting_patient_comment` text ,
-  `meeting_patient_status` tinyint,
-  PRIMARY KEY (`form_id`)
+  `meeting_patient_status` tinyint
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `therapy_groups_counselors`;
@@ -9633,6 +9632,9 @@ CREATE TABLE `therapy_groups_counselors`(
 
 -- Add group id to events table
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
+
+-- Add column for patient appointments as key for group appointments
+ALTER TABLE openemr_postcalendar_events ADD pc_group_appt bigint(20) DEFAULT 0 AFTER pc_gid;
 
 -- Therapy Group Statuses
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');

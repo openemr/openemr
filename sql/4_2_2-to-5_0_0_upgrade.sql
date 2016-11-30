@@ -2175,11 +2175,10 @@ CREATE TABLE `therapy_groups_participants` (
 
 #IfNotTable therapy_groups_participant_attendance
 CREATE TABLE `therapy_groups_participant_attendance` (
-  `form_id` int(11) NOT NULL auto_increment,
+  `form_id` int(11) NOT NULL,
   `pid` int(11) NOT NULL ,
   `meeting_patient_comment` text ,
-  `meeting_patient_status` tinyint,
-  PRIMARY KEY (`form_id`)
+  `meeting_patient_status` tinyint
 ) ENGINE=InnoDB;
 #EndIf
 
@@ -2193,6 +2192,10 @@ CREATE TABLE `therapy_groups_counselors`(
 
 #IfMissingColumn openemr_postcalendar_events pc_gid
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_group_appt
+ALTER TABLE openemr_postcalendar_events ADD pc_group_appt bigint(20) DEFAULT 0 AFTER pc_gid;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id groupstat
@@ -2227,7 +2230,6 @@ VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calen
 
 
 #IfNotTable form_groups_encounter
-DROP TABLE IF EXISTS `form_groups_encounter`;
 CREATE TABLE `form_groups_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
@@ -2251,6 +2253,8 @@ CREATE TABLE `form_groups_encounter` (
   `billing_facility` INT(11) NOT NULL DEFAULT 0,
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pos_code` tinyint(4) default NULL,
+  `counselors` VARCHAR (255),
+  `appt_id` INT(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `pid_encounter` (`group_id`, `encounter`),
   KEY `encounter_date` (`date`)
