@@ -44,14 +44,17 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
         sqlInsert($insert_sql, array($participantData['comment'], $result_array['pc_eid']));
     }
     else{
-        $insert_sql =
+        $insert_encounter_sql =
             "INSERT INTO form_encounter (date, reason, pid, encounter, pc_catid, provider_id, external_id) ".
             "VALUES (?, ?, ?, ?, 1000, ?, ?);";
         $enc_id = generate_id();
         $sqlBindArray = array();
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, $pc_aid, $gid);
-        sqlInsert($insert_sql, $sqlBindArray);
+        sqlInsert($insert_encounter_sql, $sqlBindArray);
 
+        $form_id = largest_id('form_encounter');
+        global $userauthorized;
+        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized);
     }
 }
 
@@ -88,6 +91,22 @@ function jumpToEdit($form_id){
     $url = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php?formname=group_attendance&id=$form_id";
     echo "\n<script language='Javascript'>top.restoreSession();window.location='$url';</script>\n";
     exit;
+}
+
+function largest_id_plus_one($table){
+    $maxId = largest_id($table);
+    if ($maxId) {
+        $newid = $maxId + 1;
+    } else {
+        $newid = 1;
+    }
+    return $newid;
+}
+
+function largest_id($table){
+    $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . $table . "`");
+    $getMaxid = sqlFetchArray($res);
+    return $getMaxid['largestId'];
 }
 
 ?>

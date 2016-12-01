@@ -14,13 +14,7 @@ $group_encounter_data = get_group_encounter_data($encounter);
 if($_GET['mode'] == 'new') {
 
     //Get the number that should be the new form's id
-    $res = sqlStatement("SELECT MAX(id) as largestId FROM `form_therapy_groups_attendance`");
-    $getMaxid = sqlFetchArray($res);
-    if ($getMaxid['largestId']) {
-        $newid = $getMaxid['largestId'] + 1;
-    } else {
-        $newid = 1;
-    }
+    $newid = largest_id_plus_one('form_therapy_groups_attendance');
 
     //Insert into 'forms' table
     addForm($encounter, "Group Attendance Form", $newid, "group_attendance", null, $userauthorized);
