@@ -9620,7 +9620,8 @@ CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL ,
   `pid` int(11) NOT NULL ,
   `meeting_patient_comment` text ,
-  `meeting_patient_status` tinyint
+  `meeting_patient_status` tinyint,
+  PRIMARY KEY (`form_id`,`pid`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `therapy_groups_counselors`;
