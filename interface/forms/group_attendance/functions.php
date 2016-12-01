@@ -50,11 +50,12 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
         $enc_id = generate_id();
         $sqlBindArray = array();
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, $pc_aid, $gid);
-        sqlInsert($insert_encounter_sql, $sqlBindArray);
+        $form_id = sqlInsert($insert_encounter_sql, $sqlBindArray);
 
-        $form_id = largest_id('form_encounter');
         global $userauthorized;
-        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized);
+
+        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized, $group_encounter_date,'','',NULL);
+
     }
 }
 

@@ -55,13 +55,13 @@ function getFormByEncounter($attendant_id,$encounter, $cols="form_id, form_name"
 }
 
 function addForm($encounter, $form_name, $form_id, $formdir, $pid,
- $authorized = "0", $date="NOW()", $user="", $group="", $therapy_group = null)
+ $authorized = "0", $date="NOW()", $user="", $group="", $therapy_group = 'not_given')
 {
 	global $attendant_type;
 	if (!$user) $user = $_SESSION['authUser'];
 	if (!$group) $group = $_SESSION['authProvider'];
 
-	if(is_null($therapy_group)){
+	if($therapy_group == 'not_given'){
         $therapy_group = $attendant_type == 'pid' ? NULL : $_SESSION['therapy_group'];
     }
 	//print_r($_SESSION['therapy_group']);die;
