@@ -73,5 +73,10 @@ function getGroupCounselorsNames($gid){
     return $result;
 }
 
+function unsetGroup(){
+
+    unset($_SESSION['therapy_group']);
+}
+
 
 ?>

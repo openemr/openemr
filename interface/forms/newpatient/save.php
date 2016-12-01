@@ -42,6 +42,8 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+//save therapy group if exist in external_id column
+$external_id         = (isset($_POST['form_gid']) && $_POST['pc_catid'] == 1000) ? $_POST['form_gid'] : '';
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
 $facility = $facilityresult['name'];
@@ -68,6 +70,7 @@ if ($mode == 'new')
       "pid = '" . add_escape_custom($pid) . "', " .
       "encounter = '" . add_escape_custom($encounter) . "', " .
       "pos_code = '" . add_escape_custom($pos_code) . "', " .
+      "external_id = '" . add_escape_custom($external_id) . "', " .
       "provider_id = '" . add_escape_custom($provider_id) . "'"),
     "newpatient", $pid, $userauthorized, $date);
 }

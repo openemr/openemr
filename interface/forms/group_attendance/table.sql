@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS `form_therapy_groups_attendance` (
   `activity` tinyint(4) default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+# enable form to therapy group and not for patient
+UPDATE `registry` SET `category` = 'Clinical' ,`patient_encounter`= 0 , `therapy_group_encounter`= 1 WHERE `directory` = 'group_attendance';
