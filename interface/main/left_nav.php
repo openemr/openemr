@@ -805,6 +805,8 @@ function clearactive() {
   }
 
   $(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+  $(parent.Title.document.getElementById('clear_active_group')).hide();//To hide Clear Active group button on selecting a patient
+
  }
 
  // Call this to announce that the therapy group has changed.  You must call this
@@ -833,7 +835,8 @@ function clearactive() {
          }
      }
 
-     $(parent.Title.document.getElementById('clear_active_group')).show();//To display Clear Active Patient button on selecting a patient
+     $(parent.Title.document.getElementById('clear_active_group')).show();//To display Clear Active group button on selecting a patient
+     $(parent.Title.document.getElementById('clear_active')).hide();//To hide Clear Active Patient button on selecting a patient
  }
 
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
