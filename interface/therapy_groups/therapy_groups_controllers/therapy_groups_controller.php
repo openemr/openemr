@@ -122,7 +122,12 @@ class TherapyGroupsController extends BaseController{
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['savingStatus'] = 'success';
-                    $this->loadView('addGroup', $data);
+                    $this->setSession($id);
+                    $events = $eventsModel->getGroupEvents($id);
+                    $data['events'] = $events;
+                    $data['readonly'] = 'disabled';
+
+                    $this->loadView('groupDetailsGeneralData', $data);
                 } else {
                     //update group
                     $this->updateGroup($data['groupData']);

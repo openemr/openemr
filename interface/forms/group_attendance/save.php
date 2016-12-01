@@ -42,8 +42,10 @@ if($_GET['mode'] == 'new') {
         $create_for_patient = if_to_create_for_patient($patient['status']);
         if($create_for_patient && empty($_POST['submit_new_patient'])){
 
-            //Create appt for each patient
-            insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+            //Create appt for each patient (if there is appointment connected to encounter)
+            if(!empty($appt_data)){
+                insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+            }
 
             //Create encounter for each patient
             insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
@@ -88,9 +90,10 @@ elseif ($_GET['mode'] == 'update'){
         $create_for_patient = if_to_create_for_patient($patient['status']);
         if($create_for_patient && empty($_POST['submit_new_patient'])){
 
-            //Create appt for each patient
-            insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
-
+            //Create appt for each patient (if there is appointment connected to encounter)
+            if(!empty($appt_data)) {
+                insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+            }
             //Create encounter for each patient
             insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
 
