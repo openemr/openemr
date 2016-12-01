@@ -1145,6 +1145,12 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for fifth account message.')
     ),
+      'save_codes_history' => array(
+          xl('Save codes history'),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Save codes history')
+      ),
   ),
 
     // E-Sign Tab

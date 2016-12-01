@@ -9610,3 +9610,23 @@ CREATE TABLE `log_validator` (
   `log_checksum` longtext,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
+
+-- Table to save code history log
+DROP TABLE IF EXISTS `codes_history`;
+CREATE TABLE `codes_history` (
+  `log_id` bigint(20) NOT NULL auto_increment,
+  `date` datetime,
+  `code` varchar(25),
+  `modifier` varchar(12),
+  `active` tinyint(1),
+  `diagnosis_reporting` tinyint(1),
+  `financial_reporting` tinyint(1),
+  `category` varchar(255),
+  `code_type_name` varchar(255),
+  `code_text` varchar(255),
+  `code_text_short` varchar(24),
+  `prices` text,
+  `action_type` varchar(25),
+  `update_by` varchar(255),
+   PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
