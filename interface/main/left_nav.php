@@ -814,8 +814,9 @@ function clearactive() {
  // correct group.
  function setTherapyGroup(group_id, group_name) {
      clearPatient();
+
      $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
-     setTitleContent('current_patient', '<span>Therapy Group - ' + group_name + ' (' + group_id + ')<span>' );
+     setTitleContent('current_patient', '<span>Therapy Group - <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
      if (group_id == active_gid) return;
     setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
      active_gid = group_id;
@@ -860,6 +861,10 @@ function loadCurrentPatientFromTitle() {
     top.restoreSession();
     top.frames['RTop'].location='../patient_file/summary/demographics.php';
 }
+ function loadCurrentGroupFromTitle(gid) {
+     top.restoreSession();
+     top.frames['RTop'].location='../therapy_groups/index.php?method=groupDetails&group_id=' + gid;
+ }
 
 function getEncounterTargetFrame( name ) {
     var bias = <?php echo $primary_docs[ 'enc'  ][ 1 ]?>;
