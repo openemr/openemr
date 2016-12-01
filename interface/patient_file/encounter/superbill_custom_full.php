@@ -390,9 +390,9 @@ foreach ($code_types as $key => $value) {
 <?php if (modifiers_are_used()) { ?>
    &nbsp;&nbsp;<?php echo xlt('Modifier'); ?>:
    <?php if ($mode == "modify") { ?>
-     <input type='text' size='3' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>'>
+     <input type='text' size='6' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>'>
    <?php } else { ?>
-     <input type='text' size='3' name='modifier' value='<?php echo attr($modifier) ?>'>
+     <input type='text' size='6' name='modifier' value='<?php echo attr($modifier) ?>'>
    <?php } ?>
 <?php } else { ?>
    <input type='hidden' name='modifier' value=''>
