@@ -46,7 +46,7 @@ if($_GET['mode'] == 'new') {
             insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
 
             //Create encounter for each patient
-            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient);
+            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
 
         }
 
@@ -92,7 +92,7 @@ elseif ($_GET['mode'] == 'update'){
             insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
 
             //Create encounter for each patient
-            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient);
+            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
 
         }
 

@@ -35,11 +35,22 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
     }
 }
 
-function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData){
+function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid){
     $select_sql = "SELECT id FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
     $result = sqlStatement($select_sql, array($pid, $gid, 1000, $group_encounter_date));
     $result_array = sqlFetchArray($result);
     if($result_array){
+        $insert_sql = "UPDATE form_encounter SET reason = ? WHERE id = ?;";
+        sqlInsert($insert_sql, array($participantData['comment'], $result_array['pc_eid']));
+    }
+    else{
+        $insert_sql =
+            "INSERT INTO form_encounter (date, reason, pid, encounter, pc_catid, provider_id, external_id) ".
+            "VALUES (?, ?, ?, ?, 1000, ?, ?);";
+        $enc_id = generate_id();
+        $sqlBindArray = array();
+        array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, $pc_aid, $gid);
+        sqlInsert($insert_sql, $sqlBindArray);
 
     }
 }
