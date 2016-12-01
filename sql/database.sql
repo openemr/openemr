@@ -9592,3 +9592,20 @@ CREATE TABLE `log_validator` (
   `log_checksum` longtext,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
+
+-- Table to save price history log
+CREATE TABLE `prices_history` (
+  `log_id` bigint(20) NOT NULL auto_increment,
+  `date` datetime,
+  `code` varchar(25),
+  `modifier` varchar(12),
+  `active` tinyint(1),
+  `reportable` integer,
+  `financial_reporting` integer,
+  `code_type_name` varchar(255),
+  `code_text` varchar(255),
+  `code_text_short` varchar(24),
+  `prices` text,
+  `update_by` varchar(255),
+   PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;

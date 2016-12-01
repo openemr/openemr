@@ -2157,3 +2157,22 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`)
 #IfMissingColumn insurance_companies inactive
 ALTER TABLE `insurance_companies` ADD `inactive` INT(1) NOT NULL DEFAULT '0' ;
 #EndIf
+
+
+#IfNotTable prices_history
+CREATE TABLE `prices_history` (
+  `log_id` bigint(20) NOT NULL auto_increment,
+  `date` datetime,
+  `code` varchar(25),
+  `modifier` varchar(12),
+  `active` tinyint(1),
+  `reportable` integer,
+  `financial_reporting` integer,
+  `code_type_name` varchar(255),
+  `code_text` varchar(255),
+  `code_text_short` varchar(24),
+  `prices` text,
+  `update_by` varchar(255),
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
+#EndIf
