@@ -134,7 +134,8 @@ function InsertEventFull()
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
-                InsertEvent($args);
+                $pc_eid = InsertEvent($args);
+                return $pc_eid;
             }
 
         // ====================================
@@ -150,7 +151,8 @@ function InsertEventFull()
             $args['starttime'] = $starttime;
             $args['endtime'] = $endtime;
             $args['locationspec'] = $locationspec;
-            InsertEvent($args);
+            $pc_eid = InsertEvent($args);
+            return $pc_eid;
         }
  }
 function DOBandEncounter($pc_eid)
@@ -374,8 +376,8 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 //=============================================================================================================================
 if ($_POST['form_action'] == "duplicate") {
 
-	InsertEventFull();
-	DOBandEncounter();
+	$eid = InsertEventFull();
+	DOBandEncounter($eid);
 
  }
 
@@ -656,7 +658,7 @@ if ($_POST['form_action'] == "save") {
          *                    INSERT NEW EVENT(S)
          * ======================================================*/
 
-		InsertEventFull();
+        $eid = InsertEventFull();
 
     }
 
