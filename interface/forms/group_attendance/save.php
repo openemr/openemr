@@ -4,6 +4,12 @@ include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 include_once("functions.php");
 
+//Get relevant data from group appt (the appt that created the group encounter)
+$appt_data = get_appt_data($encounter);
+
+//Get relevant data from group encounter
+$group_encounter_data = get_group_encounter_data($encounter);
+
 //If saving new form
 if($_GET['mode'] == 'new') {
 
@@ -26,12 +32,31 @@ if($_GET['mode'] == 'new') {
     array_push($sqlBindArray, $newid, $therapy_group, $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $encounter, '1');
     sqlInsert($sql_for_table_ftga, $sqlBindArray);
 
-    //Insert into therapy_groups_participants_attendance table
-    insert_into_tgpa_table($newid);
+    $patientData = $_POST['patientData'];
+    foreach ($patientData as $pid => $patient){
+
+        //Insert into therapy_groups_participants_attendance table
+        insert_into_tgpa_table($newid, $pid, $patient);
+
+        //Check if to create appt and encounter for each patient (if has certain status and 'bottom' submit was pressed, not 'add_patient' submit).
+        $create_for_patient = if_to_create_for_patient($patient['status']);
+        if($create_for_patient && empty($_POST['submit_new_patient'])){
+
+            //Create appt for each patient
+            insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+
+            //Create encounter for each patient
+            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient);
+
+        }
+
+    }
 
     //If adding a new participant
     if(isset($_POST['submit_new_patient'])){
-        insert_new_participant($newid);
+        $new_participant_id = $_POST['new_id'];
+        $new_comment = $_POST['new_comment'];
+        insert_new_participant($newid, $new_participant_id, $new_comment);
         jumpToEdit($newid);
     }
     else
@@ -53,12 +78,31 @@ elseif ($_GET['mode'] == 'update'){
     $sql_delete_from_table_tgpa = "DELETE FROM therapy_groups_participant_attendance WHERE form_id = ?;";
     sqlStatement($sql_delete_from_table_tgpa, array($id));
 
-    //Insert into therapy_groups_participants_attendance table
-    insert_into_tgpa_table($id);
+    $patientData = $_POST['patientData'];
+    foreach ($patientData as $pid => $patient){
+
+        //Insert into therapy_groups_participants_attendance table
+        insert_into_tgpa_table($id, $pid, $patient);
+
+        //Check if to create appt and encounter for each patient (if has certain status and 'bottom' submit was pressed, not 'add_patient' submit).
+        $create_for_patient = if_to_create_for_patient($patient['status']);
+        if($create_for_patient && empty($_POST['submit_new_patient'])){
+
+            //Create appt for each patient
+            insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+
+            //Create encounter for each patient
+            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient);
+
+        }
+
+    }
 
     //If adding a new participant
     if(isset($_POST['submit_new_patient'])){
-        insert_new_participant($id);
+        $new_participant_id = $_POST['new_id'];
+        $new_comment = $_POST['new_comment'];
+        insert_new_participant($id, $new_participant_id, $new_comment);
         jumpToEdit($id);
     }
     else

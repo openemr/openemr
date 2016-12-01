@@ -2194,10 +2194,6 @@ CREATE TABLE `therapy_groups_counselors`(
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
 #EndIf
 
-#IfMissingColumn openemr_postcalendar_events pc_group_appt
-ALTER TABLE openemr_postcalendar_events ADD pc_group_appt bigint(20) DEFAULT 0 AFTER pc_gid;
-#EndIf
-
 #IfNotRow2D list_options list_id lists option_id groupstat
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
 #EndIf

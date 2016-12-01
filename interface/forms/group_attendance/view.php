@@ -2,7 +2,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once ("$srcdir/group.inc");
-include_once ("statuses.php");
+include_once("statics.php");
 
 $returnurl = 'encounter_top.php';
 
