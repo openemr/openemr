@@ -9594,6 +9594,7 @@ CREATE TABLE `log_validator` (
 ) ENGINE=InnoDB;
 
 -- Table to save price history log
+DROP TABLE IF EXISTS `prices_history`;
 CREATE TABLE `prices_history` (
   `log_id` bigint(20) NOT NULL auto_increment,
   `date` datetime,
