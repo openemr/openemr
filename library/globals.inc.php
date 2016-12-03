@@ -793,10 +793,10 @@ $GLOBALS_METADATA = array(
     ),
 
     'preprinted_cms_1500' => array(
-      xl('Prints the CMS 1500 on the Preprinted form.'),
+      xl('Prints the CMS 1500 on the Preprinted form'),
       'bool',                           // data type
       '0',                              // default = false
-      xl('Prints the CMS 1500 on the Preprinted form.')
+      xl('Prints the CMS 1500 on the Preprinted form')
     ),
 
     'cms_top_margin_default' => array(
@@ -810,7 +810,7 @@ $GLOBALS_METADATA = array(
       xl('Default left print margin for CMS 1500'),
       'num', // data type
       '20', // default
-      xl('his is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
+      xl('This is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
     ),
 
       'cms_1500' => array(
