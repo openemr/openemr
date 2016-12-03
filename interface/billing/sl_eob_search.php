@@ -220,7 +220,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
     //    detail  = array of details, see invoice_summary.inc.php
     //
     if ($stmt['cid'] != $row['pid']) {
-      if (!empty($stmt)) ++$stmt_count; 
+      if (!empty($stmt)) ++$stmt_count;
       $stmt['cid'] = $row['pid'];
       $stmt['pid'] = $row['pid'];
       $stmt['dun_count'] = $row['stmt_count'];
@@ -283,7 +283,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
         "WHERE id = " . $row['id']);
     }
     fwrite($fhprint, make_statement($stmt));
-    
+
   } // end while
 
     if (!empty($stmt)) ++$stmt_count;
@@ -725,8 +725,10 @@ while ($row = sqlFetchArray($t_res)) {
   <?php } else { ?>
   <input type='button' value='<?php xl('Select All','e')?>' onclick='checkAll(true)' /> &nbsp;
   <input type='button' value='<?php xl('Clear All','e')?>' onclick='checkAll(false)' /> &nbsp;
-  <input type='submit' name='form_print' value='<?php xl('Print Selected Statements','e'); ?>' /> &nbsp;
-  <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
+  <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
+    <input type='submit' name='form_print' value='<?php xl('Print Selected Statements','e'); ?>' /> &nbsp;
+    <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
+  <?php } ?>
   <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements','e'); ?>' /> &nbsp;
   <?php } ?>
   <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e'); ?>

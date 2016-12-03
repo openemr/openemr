@@ -34,7 +34,7 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
  *
  *  2.  Branded Statement, whose core is build from 1., the original statement, using HTML2PDF.
  *
- *      To customize 2., add your practice location/images/practice_logo.gif 
+ *      To customize 2., add your practice location/images/practice_logo.gif
  *      In the base/default install this is located at '/openemr/sites/default/images/practice_logo.gif',
  *      Adjust directory paths per your installation.
  *      Further customize 2. manually in functions report_2() and create_HTML_statement(), below.
@@ -268,7 +268,7 @@ function create_HTML_statement($stmt) {
     #
   $ageline = xl('Current') .': ' . sprintf("%.2f", $aging[0]);
   for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-    $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' . 
+    $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
                 sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
   }
 
@@ -280,7 +280,7 @@ function create_HTML_statement($stmt) {
   $label_call = xl('Please call if any of the above information is incorrect.');
   $label_prompt = xl('We appreciate prompt payment of balances due.');
   $label_dept = xl('Billing Department');
-  $label_bill_phone = $GLOBALS['billing_phone_number'];
+  $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
   $label_appointments = xl('Future Appointments').':';
 
   // This is the top portion of the page.
@@ -555,7 +555,7 @@ function create_statement($stmt) {
   // Note that "\n" is a line feed (new line) character.
   // reformatted to handle i8n by tony
   $out = "\n\n";
-  $providerNAME = getProviderName($stmt['providerID']);  
+  $providerNAME = getProviderName($stmt['providerID']);
   $out .= sprintf("%-30s %s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
   $out .= sprintf("%-30s %s: %-s\n",$providerNAME,$label_chartnum,$stmt['pid']);
   $out .= sprintf("%-30s %s\n",$clinic_addr,$label_insinfo);
@@ -674,7 +674,7 @@ function create_statement($stmt) {
   $label_call = xl('Please call if any of the above information is incorrect.');
   $label_prompt = xl('We appreciate prompt payment of balances due.');
   $label_dept = xl('Billing Department');
-  $label_bill_phone = $GLOBALS['billing_phone_number'];
+  $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
   $label_appointments = xl('Future Appointments').':';
 
   // This is the bottom portion of the page.
