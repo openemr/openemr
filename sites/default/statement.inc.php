@@ -109,8 +109,8 @@ function create_HTML_statement($stmt) {
   // Facility (service location)
   $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = '".add_escape_custom($stmt['pid']). "' ".
-    " where  service_location=1");
+    " left join  billing b on b.provider_id=u.id and b.pid = ? ".
+    " where  service_location=1",array($stmt['pid']));
   $row = sqlFetchArray($atres);
   $clinic_name = "{$row['name']}";
   $clinic_addr = "{$row['street']}";
