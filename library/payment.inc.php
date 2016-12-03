@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 
@@ -65,7 +65,7 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 //This section handles the common functins of payment screens.
 //===============================================================================
 function DistributionInsert($CountRow,$created_time,$user_id)
- {//Function inserts the distribution.Payment,Adjustment,Deductable,Takeback & Follow up reasons are inserted as seperate rows.
+ {//Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
 	$Affected='no';
@@ -165,7 +165,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', modified_time = '"  . trim($created_time					) .
 		"', pay_amount = '" . 0  .
 		"', adj_amount = '"    . 0 .
-		"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
+		"', memo = '"    . "Deductible $".trim(formData("Deductible$CountRow"   )) .
 		"', account_code = '" . "Deduct"  .
 		"'");
 	   sqlCommitTrans();
@@ -222,12 +222,12 @@ function DistributionInsert($CountRow,$created_time,$user_id)
    {
 	if(trim(formData('type_name'   ))!='patient')
 	 {
-		$ferow = sqlQuery("select last_level_closed from form_encounter  where 
+		$ferow = sqlQuery("select last_level_closed from form_encounter  where
 		pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
 		//multiple charges can come.
 		if($ferow['last_level_closed']<trim(formData("HiddenIns$CountRow"   )))
 		 {
-			sqlStatement("update form_encounter set last_level_closed='".trim(formData("HiddenIns$CountRow"   ))."' where 
+			sqlStatement("update form_encounter set last_level_closed='".trim(formData("HiddenIns$CountRow"   ))."' where
 			pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
 			//last_level_closed gets increased.
 			//-----------------------------------

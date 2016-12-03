@@ -1003,6 +1003,23 @@ $GLOBALS_METADATA = array(
       xl('This will use the custom Statment showing the description instead of the codes.')
     ),
 
+      'statement_appearance' => array(
+      xl('Statement Appearance'),
+      array(
+                '0' => xl('Plain Text'),
+                '1' => xl('Modern/images')
+            ),                          // data type
+      '1',                              // default = true
+      xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
+    ),
+  
+      'billing_phone_number' => array(
+      xl('Custom Billing Phone Number'),
+      'text',                           // data type
+      '',
+      xl('Phone number for billing inquiries')
+    ),
+
     'show_aging_on_custom_statement' => array(
       xl('Show Aging on Custom Statement'),
       'bool',                           // data type
