@@ -1107,7 +1107,6 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for fifth account message.')
     ),
-
       'save_prices_history' => array(
           xl('Save prices history'),
           'bool',                           // data type

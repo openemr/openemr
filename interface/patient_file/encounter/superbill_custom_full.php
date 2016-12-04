@@ -13,6 +13,7 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 // Translation for form fields.
 function ffescape($field) {
@@ -144,7 +145,7 @@ if (isset($mode)) {
       $code_type    = $code_types[$code_type_name_external]['id'];
       $modifier     = $row['modifier'];
       // $units        = $row['units'];
-      $superbill    = $row['superbill'];
+      $superbill    =  ['superbill'];
       $related_code = $row['related_code'];
       $cyp_factor   = $row['cyp_factor'];
       $taxrates     = $row['taxrates'];
@@ -152,6 +153,45 @@ if (isset($mode)) {
       $reportable   = $row['reportable'];
       $financial_reporting  = $row['financial_reporting'];
     }
+  }
+  // If price history is enabled in the billing globals save data to price history table
+  if  ($GLOBALS['save_prices_history'] && $alertmsg=='' &&
+      ( $mode == "modify" || $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ){
+
+      $action_type= empty($_POST['code_id']) ? 'new' : $mode;
+      $action_type= ($action_type=='add') ? 'update' : $action_type ;
+      $code       = $_POST['code'];
+      $code_type  = $_POST['code_type'];
+      $code_text  = $_POST['code_text'];
+      $modifier   = $_POST['modifier'];
+      $superbill  = $_POST['form_superbill'];
+      $related_code = $_POST['related_code'];
+      $cyp_factor = $_POST['cyp_factor'] + 0;
+      $active     = empty($_POST['active']) ? 0 : 1;
+      $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
+      $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
+      $fee=json_encode($_POST['fee']);
+      $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=".$code_type.";"));
+      $code_name='';
+
+      if ($code_sql){
+          $code_name=$code_sql['ct_label'];
+      }
+
+      $categorey_id= $_POST['form_superbill'];
+      $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill' AND option_id=".$categorey_id.";"));;
+      $categorey_name='';
+
+      if ($categorey_sql){
+          $categorey_name=$categorey_sql['title'];
+      }
+
+      $date=date('Y-m-d H:i:s');
+      $date=oeFormatShortDate($date);
+      $results =  sqlStatement("INSERT INTO prices_history ( " .
+                               "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
+                               "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
+                           array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser']) );
   }
 }
 

@@ -2166,12 +2166,14 @@ CREATE TABLE `prices_history` (
   `code` varchar(25),
   `modifier` varchar(12),
   `active` tinyint(1),
-  `reportable` integer,
-  `financial_reporting` integer,
+  `diagnosis_reporting` tinyint(1),
+  `financial_reporting` tinyint(1),
+  `category` varchar(255),
   `code_type_name` varchar(255),
   `code_text` varchar(255),
   `code_text_short` varchar(24),
   `prices` text,
+  `action_type` varchar(25),
   `update_by` varchar(255),
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
