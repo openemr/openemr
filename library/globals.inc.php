@@ -1110,7 +1110,7 @@ $GLOBALS_METADATA = array(
       'save_prices_history' => array(
           xl('Save prices history'),
           'bool',                           // data type
-          '1',                              // default
+          '0',                              // default
           xl('Save prices history')
       ),
   ),
