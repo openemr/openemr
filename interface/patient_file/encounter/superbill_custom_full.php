@@ -145,7 +145,7 @@ if (isset($mode)) {
       $code_type    = $code_types[$code_type_name_external]['id'];
       $modifier     = $row['modifier'];
       // $units        = $row['units'];
-      $superbill    =  ['superbill'];
+      $superbill    = $row['superbill'];
       $related_code = $row['related_code'];
       $cyp_factor   = $row['cyp_factor'];
       $taxrates     = $row['taxrates'];
