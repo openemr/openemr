@@ -49,7 +49,11 @@ switch($method){
             die('Missing group ID');
         }
         $controller = new TherapyGroupsController();
-        $controller->index($_GET['group_id']);
+        if($_GET['group_id'] == 'from_session'){
+            $controller->index($therapy_group);
+        } else {
+            $controller->index($_GET['group_id']);
+        }
         break;
     case 'groupParticipants':
         if(!isset($_GET['group_id'])){
