@@ -58,7 +58,7 @@ class TherapyGroupsController extends BaseController{
     public function index($groupId = null){
 
         $data = array();
-        $this->setSession($groupId);
+        self::setSession($groupId);
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
@@ -122,7 +122,7 @@ class TherapyGroupsController extends BaseController{
                     $data['groupData']['group_id'] = $id;
                     $data['message'] = xlt('New group was saved successfully') . '.';
                     $data['savingStatus'] = 'success';
-                    $this->setSession($id);
+                    self::setSession($id);
                     $events = $eventsModel->getGroupEvents($id);
                     $data['events'] = $events;
                     $data['readonly'] = 'disabled';
@@ -341,7 +341,7 @@ class TherapyGroupsController extends BaseController{
         }
     }
 
-    private function setSession($groupId){
+    static function setSession($groupId){
 
         setpid(0);
         if($_SESSION['therapy_group'] != $groupId){
