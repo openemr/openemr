@@ -1,6 +1,57 @@
 <?php
 
-include_once("statics.php");
+/**
+ * interface/forms/group_attendance/functions.php functions for form
+ *
+ * Contains the functions used for the group attendance form
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
+
+function participant_insertions($form_id, $therapy_group, $group_encounter_data,$appt_data){
+    $patientData = $_POST['patientData'];
+    foreach ($patientData as $pid => $patient){
+
+        //Insert into therapy_groups_participants_attendance table
+        insert_into_tgpa_table($form_id, $pid, $patient);
+
+        //Check if to create appt and encounter for each patient (if has certain status and 'bottom' submit was pressed, not 'add_patient' submit).
+        $create_for_patient = if_to_create_for_patient($patient['status']);
+        if($create_for_patient){
+
+            //Create appt for each patient (if there is appointment connected to encounter)
+            if(!empty($appt_data)){
+                insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+            }
+
+            //Create encounter for each patient
+            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
+
+        }
+
+    }
+
+}
 
 function insert_into_tgpa_table($form_id, $pid, $participantData){
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
@@ -8,20 +59,13 @@ function insert_into_tgpa_table($form_id, $pid, $participantData){
     sqlInsert($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
 }
 
-function insert_new_participant($form_id, $new_participant_id, $new_comment){
-    $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
-        "VALUES(?,?,?,?);";
-    sqlInsert($sql_for_table_tgpa, array($form_id, $new_participant_id, $new_comment, 20));
-}
-
 function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData){
     $select_sql = "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_gid = ? AND pc_eventDate = ? AND pc_startTime = ?;";
     $result = sqlStatement($select_sql, array($pid, $gid, $pc_eventDate, $pc_startTime));
     $result_array = sqlFetchArray($result);
-    $converted_status = convertStatus($participantData['status']);
     if($result_array){
         $insert_sql = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?;";
-        sqlInsert($insert_sql, array($converted_status, $result_array['pc_eid']));
+        sqlInsert($insert_sql, array($participantData['status'], $result_array['pc_eid']));
     }
     else{
         $insert_sql =
@@ -30,7 +74,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
             "VALUES (1000, ?, ?, ?, 'Group Therapy', 1, ?, ?, ?, 0, ?); ";
         $recurrspec = 'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}';
         $sqlBindArray = array();
-        array_push($sqlBindArray, $pc_aid, $pid, $gid, $pc_eventDate, $recurrspec, $pc_startTime, $converted_status);
+        array_push($sqlBindArray, $pc_aid, $pid, $gid, $pc_eventDate, $recurrspec, $pc_startTime, $participantData['status']);
         sqlInsert($insert_sql, $sqlBindArray);
     }
 }
@@ -77,21 +121,9 @@ function get_group_encounter_data($encounter_id){
 }
 
 function if_to_create_for_patient($status){
-    if($status == 20 || $status == 30 || $status == 40)
+    if($status == '@' || $status == '?' || $status == '~')
         return true;
     return false;
-}
-
-function convertStatus($status){
-    global $statuses_in_meeting_for_appt;
-    $converted_status = $statuses_in_meeting_for_appt[$status];
-    return $converted_status;
-}
-
-function jumpToEdit($form_id){
-    $url = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php?formname=group_attendance&id=$form_id";
-    echo "\n<script language='Javascript'>top.restoreSession();window.location='$url';</script>\n";
-    exit;
 }
 
 function largest_id_plus_one($table){
@@ -105,7 +137,7 @@ function largest_id_plus_one($table){
 }
 
 function largest_id($table){
-    $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . $table . "`");
+    $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . escape_table_name($table) . "`");
     $getMaxid = sqlFetchArray($res);
     return $getMaxid['largestId'];
 }

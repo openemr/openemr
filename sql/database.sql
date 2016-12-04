@@ -9637,13 +9637,14 @@ CREATE TABLE `therapy_groups_counselors`(
 -- Add group id to events table
 ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
 
--- Therapy Group Statuses
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
+-- Therapy Group Statuses List
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES
+ ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
  ('groupstat', '-', '- None', '94', '0', '0', 'FEFDCF|0'),
  ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|0'),
- ('groupstat', ')', ') Did Not Take Place', '96', '0', '0', 'BFBFBF|0'),
- ('groupstat', '(', '( Not Reported', '97', '0', '0', 'FEFDCF|0');
+ ('groupstat', '>', '> Did Not Take Place', '96', '0', '0', 'BFBFBF|0'),
+ ('groupstat', '<', '< Not Reported', '97', '0', '0', 'FEFDCF|0');
 
 -- Therapy Group Categories
 INSERT INTO openemr_postcalendar_categories (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_recurrspec`, `pc_duration` ,`pc_cattype` , `pc_active` , `pc_seq`)
@@ -9652,3 +9653,13 @@ VALUES ('1000', 'Group Therapy' , '#BFBFBF' , 'a:5:{s:17:"event_repeat_freq";s:1
 -- Therapy Group add_edit_event validations
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`,`mapping`,`notes`,`codes`,`toggle_setting_1`,`toggle_setting_2`,`activity`,`subtype`)
 VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150,0,0,'','{form_group:{presence: true}}','',0,0,1,'');
+
+-- Therapy Group Attendance Statuses List
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES
+  ('lists', 'attendstat', 'Group Attendance Statuses', '15', '0', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+  ('attendstat', '-', '- Not Reported', '55', '0', '0', 'FEFDCF|0'),
+  ('attendstat', '@', '@ Attended', '56', '0', '0', 'FF2414|0'),
+  ('attendstat', '?', '? Did Not Attend', '57', '0', '0', 'BFBFBF|0'),
+  ('attendstat', '~', '~ Late Arrival', '58', '0', '0', 'BFBFBF|0'),
+  ('attendstat', 'x', 'x Cancelled', '59', '0', '0', 'FEFDCF|0');

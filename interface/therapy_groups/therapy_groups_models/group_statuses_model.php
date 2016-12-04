@@ -40,4 +40,18 @@ class Group_Statuses{
         }
         return $final_result;
     }
+
+    /**
+     * Gets group meeting attendance statuses
+     * @return ADORecordSet_mysqli
+     */
+    public function getGroupAttendanceStatuses(){
+        $sql = 'SELECT  option_id, title FROM ' . SELF::TABLE . ' WHERE list_id = ?;';
+        $result = sqlStatement($sql, array('attendstat'));
+        $final_result =array();
+        while($row = sqlFetchArray($result)){
+            $final_result[] = $row;
+        }
+        return $final_result;
+    }
 }

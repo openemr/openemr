@@ -24,10 +24,17 @@ function getGroupData($search_params, $result_columns, $column){
     return $result;
 }
 
-//Fetches group statuses from group status list
+//Fetches group statuses from 'groupstat' list
 function getGroupStatuses(){
     $model = new Group_Statuses();
     $result = $model->getGroupStatuses();
+    return $result;
+}
+
+//Fetches group attendance statuses from 'attendstat' list
+function getGroupAttendanceStatuses(){
+    $model = new Group_Statuses();
+    $result = $model->getGroupAttendanceStatuses();
     return $result;
 }
 
