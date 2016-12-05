@@ -50,7 +50,7 @@
                     <div class="col-md-12">
                         <div id="component-border">
                             <form method="post" id='editGroup' name="editGroup">
-                                <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? $groupData['group_id'] : '';?>">
+                                <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>">
                                 <div class="row group-row">
                                     <div class="col-md-6 col-sm-7">
                                         <div class="row">
@@ -58,13 +58,13 @@
                                                 <span class="bold"><?php echo xlt('Group’s name') ?>:</span>
                                             </div>
                                             <div class="col-md-8 col-sm-7">
-                                                <input type="text" name="group_name" class="full-width" value="<?php echo $groupData['group_name'];?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_name" class="full-width" value="<?php echo attr($groupData['group_name']);?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 col-sm-3">
                                         <span class="bold"><?php echo xlt('Group number') ?>:</span>
-                                        <span ><?php echo $groupData['group_id']?></span>
+                                        <span ><?php echo text($groupData['group_id'])?></span>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="row">
@@ -74,7 +74,7 @@
                                             <div class="col-md-6 col-sm-6">
                                                 <select name="group_status" class="full-width"  value="<?php echo $groupData['group_status'];?>" <?php echo $readonly; ?>>
                                                     <?php foreach($statuses as $key => $status): ?>
-                                                        <option value="<?php echo $key;?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
+                                                        <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -135,7 +135,7 @@
                                             <div class="col-md-8 col-sm-7">
                                                 <select name="counselors[]" multiple class="full-width" <?php echo $readonly; ?>>
                                                     <?php foreach($users as $user): ?>
-                                                        <option value="<?php echo $user['id'];?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo $user['fname'] . ' ' . $user['lname'];?></option>
+                                                        <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -147,7 +147,7 @@
                                                 <span class="bold"><?php echo xlt('Notes'); ?>:</span>
                                             </div>
                                             <div class="col-md-9 col-sm-7">
-                                                <textarea name="group_notes" class="full-width" style="height: 70px" <?php echo $readonly; ?>><?php echo $groupData['group_notes'];?></textarea>
+                                                <textarea name="group_notes" class="full-width" style="height: 70px" <?php echo $readonly; ?>><?php echo text($groupData['group_notes']);?></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -159,7 +159,7 @@
                                                 <span class="bold"><?php echo xlt('Guest counselors'); ?>:</span>
                                             </div>
                                             <div class="col-md-8 col-sm-7">
-                                                <input type="text" name="group_guest_counselors" class="full-width"  value="<?php echo $groupData['group_guest_counselors'];?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_guest_counselors" class="full-width"  value="<?php echo attr($groupData['group_guest_counselors']);?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -168,13 +168,13 @@
                                     <div class="col-md-9 col-sm 12">
 
                                         <?php if($savingStatus == 'exist'): ?>
-                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo $message ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
+                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                                         <?php endif ?>
                                         <?php if($savingStatus == 'success'): ?>
-                                            <h4 class="group-success-msg"><?php echo $message ?></h4>
+                                            <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
                                         <?php if($savingStatus == 'failed'): ?>
-                                            <h4 class="group-serror-msg"><?php echo $message ?></h4>
+                                            <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
                                     </div>
                                 </div>

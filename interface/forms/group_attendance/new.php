@@ -184,6 +184,10 @@ else{
                 //Convert html object into string
                 var select_html_string =  select_element.prop('outerHTML');
                 var comment_html_string = comment_element.prop('outerHTML');
+                if(select_html_string == undefined || comment_html_string == undefined){ //firefox
+                    select_html_string = new XMLSerializer().serializeToString(select_element[0]);
+                    comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
+                }
 
                 //Insert new row into datatable
                 $('#group_attendance_form_table').dataTable().fnAddData( [

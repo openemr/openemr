@@ -27,7 +27,7 @@
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
-            <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? $groupData['group_id'] : '';?>">
+            <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>">
             <div class="row group-row">
                 <div class="col-md-10">
                     <span class="title"><?php echo xlt('Add group') ?> </span>
@@ -85,7 +85,7 @@
                         <div class="col-md-6 col-sm-6">
                             <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>">
                                 <?php foreach($statuses as $key => $status): ?>
-                                    <option value="<?php echo $key;?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
+                                    <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
