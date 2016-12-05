@@ -144,6 +144,13 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 			return 0;
 		}
 	}
+    if(is_array($provider)){
+        $visit_provider = (int)$provider[0];
+    } elseif($provider){
+        $visit_provider = (int)$provider;
+    } else {
+        $visit_provider = '(NULL)';
+    }
 	$dos = $enc_date ? $enc_date : $today;
 	$visit_reason = $reason ? $reason : 'Please indicate visit reason';
   $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
@@ -151,7 +158,6 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
   $facility = $tmprow['facility'];
   $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
 	$billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
-	$visit_provider = $provider ? (int)$provider : '(NULL)';
 	$visit_cat = $cat ? $cat : '(NULL)';
   $conn = $GLOBALS['adodb']['db'];
   $encounter = $conn->GenID("sequences");
@@ -186,6 +192,14 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
                 return 0;
             }
         }
+        if(is_array($provider)){
+            $visit_provider = (int)$provider[0];
+            $counselors = implode(',', $provider);
+		} elseif($provider){
+            $visit_provider = $counselors = (int)$provider;
+		} else {
+            $visit_provider = $counselors = NULL;
+		}
         $dos = $enc_date ? $enc_date : $today;
         $visit_reason = $reason ? $reason : 'Please indicate visit reason';
         $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
@@ -193,7 +207,6 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
         $facility = $tmprow['facility'];
         $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
         $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
-        $visit_provider = $provider ? (int)$provider : '(NULL)';
         $visit_cat = $cat ? $cat : '(NULL)';
         $conn = $GLOBALS['adodb']['db'];
         $encounter = $conn->GenID("sequences");
@@ -208,8 +221,9 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
                 "group_id = ?, " .
                 "encounter = ?," .
                 "pc_catid = ? ," .
-                "appt_id = ? ",
-                array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$group_id,$encounter,$visit_cat, $eid)
+                "appt_id = ? ," .
+				"counselors = ? ",
+                array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$group_id,$encounter,$visit_cat, $eid, $counselors)
             ),
             "newGroupEncounter", NULL, "1", "NOW()", $username, "", $group_id
         );

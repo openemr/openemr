@@ -33,6 +33,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/formdata.inc.php");
 
 $group_id = $_SESSION['therapy_group'];
+$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
 
 $date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
@@ -44,7 +45,7 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
-$counselors       = (isset($_POST['counselors']))            ?  implode(', ',$_POST['counselors']) : '';
+$counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ',$_POST['counselors']) : $provider_id;
 
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
