@@ -180,7 +180,7 @@ if (isset($mode)) {
 
       $categorey_id= $_POST['form_superbill'];
       $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'".
-                     " AND option_id=?)",array($categorey_id)));
+                     " AND option_id=?",array($categorey_id)));
 
       $categorey_name='';
 
