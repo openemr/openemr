@@ -49,6 +49,7 @@ class TherapyGroupsController extends BaseController{
         '2' => 'optional'
     );
 
+    //Max length of notes preview in groups list
     private $notes_preview_proper_length = 30;
 
 

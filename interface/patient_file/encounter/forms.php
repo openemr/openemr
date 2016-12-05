@@ -367,7 +367,7 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
 
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xl("Encounter") . '</span>';
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Encounter") . '</span>';
 
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
@@ -384,7 +384,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // for therapy group
 } else {
 
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xl("Group Encounter") . '</span>';
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
     echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
@@ -393,7 +393,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
-        "group_id = '$groupId' AND encounter = '$encounter' LIMIT 1");
+        "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }

@@ -51,6 +51,7 @@ $timeslotHeightUnit="px";
  }
 
  function oldGroupEvt(eventdate, eventid, pccattype){
+  top.restoreSession();
   dlgopen('add_edit_event.php?group=true&date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
  }
 

@@ -21,10 +21,10 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-include_once('../../globals.php');
-include_once("$srcdir/group.inc");
-include_once("$srcdir/formdata.inc.php");
-include_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
+require_once('../../globals.php');
+require_once("$srcdir/group.inc");
+require_once("$srcdir/formdata.inc.php");
+require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 $info_msg = "";
 $group_types = TherapyGroupsController::$group_types;
