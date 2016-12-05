@@ -1,6 +1,8 @@
 <?php
 /**
- * interface/forms/group_attendance/report.php
+ * interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php contains the model for therapy group encounters.
+ *
+ * This model fetches the encounters for the therapy group from the DB.
  *
  * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
  *
@@ -20,5 +22,25 @@
  * @author  Amiel Elboim <amielboim@gmail.com>
  * @link    http://www.open-emr.org
  */
-require_once ("new.php");
-?>
+
+ class Therapy_Groups_Encounters{
+
+     const TABLE = 'form_groups_encounter';
+
+     /**
+      * Get all encounters of specified group.
+      * @param $gid
+      * @return ADORecordSet_mysqli
+      */
+     public function getGroupEncounters($gid){
+         $sql = "SELECT * FROM " . SELF::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
+         $result = sqlStatement($sql, array($gid));
+         while($row = sqlFetchArray($result)){
+             $encounters[] = $row;
+         }
+         return $encounters;
+     }
+
+
+
+ }

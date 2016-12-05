@@ -1418,3 +1418,7 @@ table.dataTable#therapy_groups_list tbody td{
 #add_participant_element .error_wrap .error{
   color: red;
 }
+
+#group_attendance_form_table tbody td{
+  text-align: center;
+}

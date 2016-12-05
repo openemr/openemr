@@ -1438,7 +1438,7 @@ $classpati='';
   <td colspan='3' nowrap style='font-size:8pt'>
    &nbsp;
    <span class="infobox">
-   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+   <?php if ($patienttitle != "") { echo text($patienttitle); } ?>
    </span>
   </td>
  </tr>

@@ -342,7 +342,8 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 		$where .= " AND e.pc_pid = ?";
 		array_push($sqlBindArray, $patient_id);
 	} elseif( $group_id ) {
-		$where .= " AND e.pc_gid = ?";
+		//if $group_id this means we want only the group events
+		$where .= " AND e.pc_gid = ? AND e.pc_pid = ''";
 		array_push($sqlBindArray, $group_id);
 	} else {
 		$where .= " AND e.pc_pid != ''";

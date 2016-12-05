@@ -1,89 +1,211 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once ("$srcdir/group.inc");
-include_once("statics.php");
+/**
+ * interface/forms/group_attendance/new.php
+ *
+ * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Shachar Zilbershlag <shachar058@gmail.com>
+ * @author  Amiel Elboim <amielboim@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once ("$srcdir/group.inc");
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
+$statuses_in_meeting = getGroupAttendanceStatuses();
 
 $returnurl = 'encounter_top.php';
-
-$participants = getParticipants($therapy_group);
+if(isset($_GET['id'])){
+    $participants_sql = "SELECT tgpa.*, p.fname, p.lname FROM therapy_groups_participant_attendance as tgpa JOIN patient_data as p ON tgpa.pid = p.id WHERE tgpa.form_id = ?;";
+    $result = sqlStatement($participants_sql, array($_GET['id']));
+    while($p = sqlFetchArray($result)){
+        $participants[] = $p;
+    }
+}
+else{
+    $participants = getParticipants($therapy_group);
+}
 ?>
+
 <html>
 
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui-1-10-11/css/dataTables.jqueryui.min.css" type="text/css">
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.core.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/group_attendance/js/functions.js"></script>
-
-
-
+    <?php html_header_show();?>
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui-1-10-11/css/dataTables.jqueryui.min.css" type="text/css">
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui-1-10-4/ui/jquery.ui.core.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
+    <script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
 </head>
 
 <body class="body_top">
-
-<form id="group_attendance_form" method=post action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
+<?php if(isset($_GET['id'])){ ?>
+<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($_GET['id']) ;?>" name="my_form">
+<?php } else { ?>
+<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
+<?php } ?>
     <div id="add_participant">
         <div class="button_wrap">
-            <input class="add_button" type="button" value="<?php echo xla('Add'); ?>" class="button-css">
+            <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>">
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
                 <span class="input_label"><?php echo xlt("Patient Name");?></span>
-                <input name="new_id" class="patient_id" type="hidden" value="" class="button-css">
-                <input name="new_patient" class="patient" type="text" value="" class="button-css" readonly>
+                <input name="new_id" class="button-css new_patient_id" type="hidden" value="">
+                <input name="new_patient" class="button-css new_patient" type="text" value=""  readonly>
                 <div class="error_wrap">
                     <span class="error"></span>
                 </div>
             </div>
             <div class="comment_wrap">
                 <span class="input_label"><?php echo xlt("Comment");?></span>
-                <input name="new_comment" class="comment" type="text" value="" class="button-css">
+                <input name="new_comment" class="button-css new_comment" type="text" value="">
             </div>
             <div class="button_wrap">
-                <input name="submit_new_patient" class="add_patient_button button-css" type="submit" value="<?php echo xla('Add Patient'); ?>">
-                <input class="cancel_button button-css" type="button" value="<?php echo xla('Cancel'); ?>" >
+                <input class="button-css add_patient_button" type="button" value="<?php echo xla('Add Patient'); ?>">
+                <input class="button-css cancel_button" type="button" value="<?php echo xla('Cancel'); ?>" >
             </div>
         </div>
     </div>
+    <?php if(!empty($participants)) { ?>
     <table id="group_attendance_form_table">
         <thead>
         <tr>
-            <th align="center"><?php echo xl('Participant’s name'); ?></th>
-            <th align="center"><?php echo xl('Patient’s number'); ?></th>
-            <th align="center"><?php echo xl('Status in the meeting'); ?></th>
-            <th align="center"><?php echo xl('Comment'); ?></th>
+            <th align="center"><?php echo xlt('Participant’s name'); ?></th>
+            <th align="center"><?php echo xlt('Patient’s number'); ?></th>
+            <th align="center"><?php echo xlt('Status in the meeting'); ?></th>
+            <th align="center"><?php echo xlt('Comment'); ?></th>
         </tr>
         </thead>
         <tbody>
         <?php foreach ($participants as $participant){?>
             <tr>
-                <td align="center"><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
-                <td align="center"><?php echo $participant['pid']; ?></td>
-                <td align="center">
-                    <select class= "status_select" name="<?php echo "patientData[" . $participant['pid'] . "][status]" ;?>">
-                        <?php foreach ($statuses_in_meeting as $key => $status_in_meeting){?>
-                            <option value="<?php echo $key; ?>"><?php echo $status_in_meeting; ?></option>
+                <td ><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
+                <td ><?php echo text($participant['pid']); ?></td>
+                <td >
+                    <select class="status_select" name="<?php echo "patientData[" . $participant['pid'] . "][status]" ;?>">
+                        <?php foreach ($statuses_in_meeting as $status_in_meeting){?>
+                            <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if($participant['meeting_patient_status'] == $status_in_meeting['option_id']) echo 'selected';?> > <?php echo xlt($status_in_meeting['title']); ?></option>
                         <?php } ?>
                     </select>
                 </td>
-                <td align="center"><input type="text" name="<?php echo "patientData[" . $participant['pid'] . "][comment]";  ?>"></input></td>
+                <td >
+                    <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>"></input>
+                </td>
             </tr>
         <?php } ?>
         </tbody>
     </table>
     <div class="action_buttons">
-        <input name="submit" type="submit" value="<?php echo xla('Save'); ?>" class="button-css">
-        <input class="cancel button-css" type="button" value="<?php echo xla('Cancel'); ?>">
+        <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>">
+        <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
     </div>
+    <?php }else{ ?>
+    <div id="no_participants">
+        <h2 id="no_participants_message"><?php echo xlt("This group currently has no participants");?></h2>
+    </div>
+    <?php } ?>
 </form>
 <script>
     $(document).ready(function () {
 
+        /* Initialise Datatable */
+        var table = $('#group_attendance_form_table').DataTable({
+            language: {
+            },
+            initComplete: function () {
+                $('#group_attendance_form_table_filter').hide(); //hide searchbar
+            }
+        });
+
+        /* 'Add Participant' elements */
+        $('.add_button').click(function () {
+            $('#add_participant_element').show();
+            $(this).hide();
+        });
+
+        $('.new_patient').on('focus', function(){
+            top.restoreSession();
+            $('.new_patient').css("border-color", "black");
+            $('.error_wrap .error').html("");
+            var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
+            dlgopen(url, '_blank', 500, 400);
+        });
+
+        $('.cancel_button').click(function () {
+            $('#add_participant_element').hide();
+            $('.add_button').show();
+        });
+
+        $('.add_patient_button').click(function(e){
+            var name = $('.new_patient').val();
+
+            if(name == ""){
+                //If no patient was chosen (validation)
+                $('.new_patient').css("border-color", "red");
+                var err_msg = "<?php echo xlt("Choose Patient"); ?>";
+                $('.error_wrap .error').html(err_msg);
+            }
+            else{
+
+                // Get new participant details
+                var new_patient_id = $('.new_patient_id').val();
+                var new_patient_name = $('.new_patient').val();
+                var new_patient_comment = $('.new_comment').val();
+
+                //Get html elements to insert into new row
+                var select_element = $('.status_select').first().clone();
+                var comment_element = $('.comment').first().clone();
+
+                //Insert new participant values into html elements
+                select_element.attr('name', 'patientData[' + new_patient_id + '][status]');
+                var attended_sign = '@';
+                select_element.find("option[value='" + attended_sign +"']").attr('selected', 'selected');
+                comment_element.attr('name', 'patientData[' + new_patient_id + '][comment]');
+                comment_element.attr('value', new_patient_comment);
+
+                //Convert html object into string
+                var select_html_string =  select_element.prop('outerHTML');
+                var comment_html_string = comment_element.prop('outerHTML');
+                if(select_html_string == undefined || comment_html_string == undefined){ //firefox
+                    select_html_string = new XMLSerializer().serializeToString(select_element[0]);
+                    comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
+                }
+
+                //Insert new row into datatable
+                $('#group_attendance_form_table').dataTable().fnAddData( [
+                    new_patient_name,
+                    new_patient_id,
+                    select_html_string,
+                    comment_html_string
+                ] );
+
+                //Empty values from inputs
+                $('.new_patient').val("");
+                $('.new_comment').val("");
+
+            }
+        });
+
+
+        /* Form elements */
         $('.cancel').click(function () {
             top.restoreSession();
             var srcdir = "<?php echo $GLOBALS['rootdir'];?>";
@@ -91,15 +213,18 @@ $participants = getParticipants($therapy_group);
             window.location = url;
         });
 
-        $('.patient').on('focus', function(){
-            var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
-            dlgopen(url, '_blank', 500, 400);
-        });
+
 
     });
 
-</script>
+    /* For patient popup search */
+    function setpatient(pid, lname, fname, dob){
+        $('.new_patient_id').val(pid);
+        $('.new_patient').val(fname + " " + lname);
+    }
 
+
+</script>
 <?php
 formFooter();
 ?>

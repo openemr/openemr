@@ -49,6 +49,9 @@ class TherapyGroupsController extends BaseController{
         '2' => 'optional'
     );
 
+    //Max length of notes preview in groups list
+    private $notes_preview_proper_length = 30;
+
 
     /**
      * add / edit therapy group
@@ -232,10 +235,11 @@ class TherapyGroupsController extends BaseController{
         $new_array = array();
         $users_model = $this->loadModel('Users');
 
-        //Insert groups into a new array.
+        //Insert groups into a new array and shorten notes for preview in list
         foreach ($therapy_groups as $therapy_group) {
             $gid = $therapy_group['group_id'];
             $new_array[$gid] = $therapy_group;
+            $new_array[$gid]['group_notes'] = $this->shortenNotes($therapy_group['group_notes']);
             $new_array[$gid]['counselors'] = array();
         }
 
@@ -251,6 +255,15 @@ class TherapyGroupsController extends BaseController{
 
         return $new_array;
 
+    }
+
+    private function shortenNotes($notes){
+
+        $length = strlen($notes);
+        if($length > $this->notes_preview_proper_length){
+            $notes = substr($notes,0,50).'...';
+        }
+        return $notes;
     }
 
     /**
@@ -282,10 +295,10 @@ class TherapyGroupsController extends BaseController{
         $response = array();
 
         //If group has encounters cannot delete the group.
-        $group_has_encounters = $this->checkIfHasEncounters($group_id);
+        $group_has_encounters = $this->checkIfHasApptOrEncounter($group_id);
         if($group_has_encounters){
             $response['success'] = 0;
-            $response['message'] = xl("Deletion failed because group has encounters");
+            $response['message'] = xl("Deletion failed because group has appointments or encounters");
         }
         else{
             //Change group status to 'deleted'.
@@ -297,9 +310,21 @@ class TherapyGroupsController extends BaseController{
         return $response;
     }
 
-    //todo: add checking
-    private function checkIfHasEncounters($group_id){
-        return false;
+    /**
+     * Checks if group has upcoming  appointments or encounters
+     * @param $group_id
+     * @return bool
+     */
+    private function checkIfHasApptOrEncounter($group_id){
+        $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
+        $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
+        $events = $therapy_groups_events_model->getGroupEvents($group_id);
+        $encounters = $therapy_groups_encounters_model->getGroupEncounters($group_id);
+        if(empty($events) && empty($encounters)){
+            return false; //no appts or encounters so can delete
+        }
+        return true; //appts or encounters exist so can't delete
+
     }
 
 

@@ -32,73 +32,73 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <div class="alert alert-danger text-center">
-                    <p class="failed_message"><?php echo $deletion_response['message'];?></p>
+                    <p class="failed_message"><?php echo xlt($deletion_response['message']);?></p>
                 </div>
             </div>
         </div>
     <?php endif ?>
 
     <!---------- FILTERS SECTION ------------->
-    <a id="show_filters" class="btn btn-alert"><?php echo xl("Show Filters")?></a>
-    <a id="hide_filters" class="btn btn-alert" style="display: none;"><?php echo xl("Hide Filters")?></a>
-    <button id="clear_filters" class="btn"><?php echo xl("Clear Filters")?></button>
+    <a id="show_filters" class="btn btn-alert"><?php echo xlt("Show Filters")?></a>
+    <a id="hide_filters" class="btn btn-alert" style="display: none;"><?php echo xlt("Hide Filters")?></a>
+    <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
     </br></br>
     <div id="filters" style="display: none;">
         <div class="row">
             <div class=" form-group col-md-2">
-                <label class="" for="group_name_filter"><?php echo xl('Group Name');?>:</label>
+                <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
                 <input type="text" class="form-control" id="group_name_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_id_filter"><?php echo xl('Group Id');?>:</label>
+                <label class="" for="group_id_filter"><?php echo xlt('Group Id');?>:</label>
                 <input type="number" class="form-control" id="group_id_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_type_filter"><?php echo xl('Group Type');?>:</label>
+                <label class="" for="group_type_filter"><?php echo xlt('Group Type');?>:</label>
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
-                    <option value=""><?php echo xl('choose');?></option>
+                    <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($group_types as $type):?>
-                        <option value="<?php echo $type;?>"><?php echo xl($type) ;?></option>
+                        <option value="<?php echo attr($type);?>"><?php echo xlt($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_status_filter"><?php echo xl('Status');?>:</label>
+                <label class="" for="group_status_filter"><?php echo xlt('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value="<?php echo $statuses[10]; ?>"><?php echo xl($statuses[10]);?></option>
+                    <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
                     <?php foreach ($statuses as $status):?>
                         <?php if($status != $statuses[10]): ?>
-                            <option value="<?php echo $status;?>"><?php echo xl($status) ;?></option>
+                            <option value="<?php echo attr($status);?>"><?php echo xlt($status) ;?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
-                    <option value="all"><?php echo xl("all");?></option>
+                    <option value="all"><?php echo xlt("all");?></option>
                 </select>
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="counselors_filter"><?php echo xl('Main Counselors');?>:</label>
+                <label class="" for="counselors_filter"><?php echo xlt('Main Counselors');?>:</label>
                 <select type="text" class="form-control" id="counselors_filter" placeholder="" >
-                    <option value=""><?php echo xl('choose');?></option>
+                    <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($counselors as $counselor):?>
-                        <option value="<?php echo $counselor;?>"><?php echo xlt($counselor) ;?></option>
+                        <option value="<?php echo attr($counselor);?>"><?php echo xlt($counselor) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
         </div>
         <div class="row">
             <div class=" form-group col-md-2">
-                <label class="" for="group_from_start_date_filter"><?php echo xl('Starting Date From');?>:</label>
+                <label class="" for="group_from_start_date_filter"><?php echo xlt('Starting Date From');?>:</label>
                 <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_to_start_date_filter"><?php echo xl('Starting Date To');?>:</label>
+                <label class="" for="group_to_start_date_filter"><?php echo xlt('Starting Date To');?>:</label>
                 <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_from_end_date_filter"><?php echo xl('End Date From');?>:</label>
+                <label class="" for="group_from_end_date_filter"><?php echo xlt('End Date From');?>:</label>
                 <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
-                <label class="" for="group_to_end_date_filter"><?php echo xl('End Date To');?>:</label>
+                <label class="" for="group_to_end_date_filter"><?php echo xlt('End Date To');?>:</label>
                 <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="" >
             </div>
 
@@ -113,24 +113,24 @@
         <table  id="therapy_groups_list" class="dataTable display">
             <thead>
             <tr>
-                <th><?php echo xl('Group Name'); ?></th>
-                <th><?php echo xl('Group Id'); ?></th>
-                <th><?php echo xl('Group Type'); ?></th>
-                <th><?php echo xl('Status'); ?></th>
-                <th><?php echo xl('Start Date'); ?></th>
-                <th><?php echo xl('End Date'); ?></th>
-                <th><?php echo xl('Main Counselors'); ?></th>
-                <th><?php echo xl('Comment'); ?></th>
-                <th><?php echo xl('Delete'); ?></th>
+                <th><?php echo xlt('Group Name'); ?></th>
+                <th><?php echo xlt('Group Id'); ?></th>
+                <th><?php echo xlt('Group Type'); ?></th>
+                <th><?php echo xlt('Status'); ?></th>
+                <th><?php echo xlt('Start Date'); ?></th>
+                <th><?php echo xlt('End Date'); ?></th>
+                <th><?php echo xlt('Main Counselors'); ?></th>
+                <th><?php echo xlt('Comment'); ?></th>
+                <th><?php echo xlt('Delete'); ?></th>
             </tr>
             </thead>
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
-                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $group['group_id']; ?>"><?php echo $group['group_name'];?></a></td>
-                    <td><?php echo $group['group_id'];?></td>
-                    <td><?php echo $group_types[$group['group_type']];?></td>
-                    <td><?php echo $statuses[$group['group_status']];?></td>
+                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $group['group_id']; ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><?php echo text($group['group_id']);?></td>
+                    <td><?php echo xlt($group_types[$group['group_type']]);?></td>
+                    <td><?php echo xlt($statuses[$group['group_status']]);?></td>
                     <td><?php echo $group['group_start_date'];?></td>
                     <td><?php echo $group['group_end_date'] == '0000-00-00' ? '' : $group['group_end_date'] ; ?></td>
                     <td>
@@ -138,7 +138,7 @@
                             echo xlt($counselor) . " </br> ";
                         } ;?>
                     </td>
-                    <td><?php echo $group['group_notes'];?></td>
+                    <td><?php echo text($group['group_notes']);?></td>
                     <td class="delete_btn">
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
