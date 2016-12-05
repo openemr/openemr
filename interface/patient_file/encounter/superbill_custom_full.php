@@ -171,7 +171,7 @@ if (isset($mode)) {
       $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
       $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
       $fee=json_encode($_POST['fee']);
-      $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=".$code_type.";"));
+      $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?",array($code_type)));
       $code_name='';
 
       if ($code_sql){
@@ -179,7 +179,9 @@ if (isset($mode)) {
       }
 
       $categorey_id= $_POST['form_superbill'];
-      $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill' AND option_id=".$categorey_id.";"));;
+      $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'".
+                     " AND option_id=?)",array($categorey_id)));
+
       $categorey_name='';
 
       if ($categorey_sql){
@@ -189,9 +191,10 @@ if (isset($mode)) {
       $date=date('Y-m-d H:i:s');
       $date=oeFormatShortDate($date);
       $results =  sqlStatement("INSERT INTO prices_history ( " .
-                               "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
-                               "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-                           array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser']) );
+                               "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,".
+                                "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
+                                "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
+                                 array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser']) );
   }
 }
 
