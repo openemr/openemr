@@ -84,7 +84,6 @@ else{
             </div>
         </div>
     </div>
-    <?php if(!empty($participants)) { ?>
     <table id="group_attendance_form_table">
         <thead>
         <tr>
@@ -117,11 +116,6 @@ else{
         <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>">
         <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
     </div>
-    <?php }else{ ?>
-    <div id="no_participants">
-        <h2 id="no_participants_message"><?php echo xlt("This group currently has no participants");?></h2>
-    </div>
-    <?php } ?>
 </form>
 <script>
     $(document).ready(function () {
@@ -141,7 +135,7 @@ else{
             $(this).hide();
         });
 
-        $('.new_patient').on('focus', function(){
+        $('.new_patient').on('click', function(){
             top.restoreSession();
             $('.new_patient').css("border-color", "black");
             $('.error_wrap .error').html("");
@@ -170,23 +164,27 @@ else{
                 var new_patient_name = $('.new_patient').val();
                 var new_patient_comment = $('.new_comment').val();
 
-                //Get html elements to insert into new row
-                var select_element = $('.status_select').first().clone();
-                var comment_element = $('.comment').first().clone();
-
-                //Insert new participant values into html elements
-                select_element.attr('name', 'patientData[' + new_patient_id + '][status]');
+                //Get statuses from list into json and create select element
+                var statuses = <?php echo json_encode($statuses_in_meeting); ?>;
+                var select_element = $("<select class=\"status_select\" name=\"\" />");
+                $.each(statuses, function(key, value) {
+                    $("<option />", {value: value.option_id, text: value.title}).appendTo(select_element);
+                });
                 var attended_sign = '@';
+                select_element.attr('name', 'patientData[' + new_patient_id + '][status]');
                 select_element.find("option[value='" + attended_sign +"']").attr('selected', 'selected');
+
+                //Create comment element
+                var comment_element = $("<input class=\"comment\" type=\"text\" name=\"\" value=\"\">");
                 comment_element.attr('name', 'patientData[' + new_patient_id + '][comment]');
                 comment_element.attr('value', new_patient_comment);
 
                 //Convert html object into string
                 var select_html_string =  select_element.prop('outerHTML');
                 var comment_html_string = comment_element.prop('outerHTML');
-                if(select_html_string == undefined || comment_html_string == undefined){ //firefox
-                    select_html_string = new XMLSerializer().serializeToString(select_element[0]);
-                    comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
+                if(select_html_string == undefined){ //firefox
+                    if(select_element[0]) select_html_string = new XMLSerializer().serializeToString(select_element[0]);
+                    if(comment_element[0]) comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
                 }
 
                 //Insert new row into datatable
