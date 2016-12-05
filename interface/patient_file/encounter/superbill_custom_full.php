@@ -190,7 +190,7 @@ if (isset($mode)) {
 
       $date=date('Y-m-d H:i:s');
       $date=oeFormatShortDate($date);
-      $results =  sqlStatement("INSERT INTO prices_history ( " .
+      $results =  sqlStatement("INSERT INTO codes_history ( " .
                                "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,".
                                 "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
                                 "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
