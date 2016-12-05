@@ -1348,6 +1348,16 @@ table.dataTable#therapy_groups_list tbody td{
   border-color: #ccc;
 }
 
+.therapy_group #therapy_groups_list_container input[type=number] {
+  -moz-appearance:textfield;
+}
+
+.therapy_group #therapy_groups_list_container input[type=number]::-webkit-inner-spin-button,
+.therapy_group #therapy_groups_list_container input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .therapy_group .delete_btn button, .therapy_group .delete_btn span{
   background-color: #ef3935;
   font-size: 15px;
@@ -1422,3 +1432,4 @@ table.dataTable#therapy_groups_list tbody td{
 #group_attendance_form_table tbody td{
   text-align: center;
 }
+
