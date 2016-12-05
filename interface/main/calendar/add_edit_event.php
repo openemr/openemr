@@ -123,6 +123,7 @@ function InsertEventFull()
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
+            $pc_eid = null;
             foreach ($_POST['form_provider'] as $provider) {
                 $args = $_POST;
                 // specify some special variables needed for the INSERT
@@ -134,11 +135,13 @@ function InsertEventFull()
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
-                $pc_eid = InsertEvent($args);
-                return $pc_eid;
+                $pc_eid_temp = InsertEvent($args);
+                if($pc_eid == null) $pc_eid = $pc_eid_temp;
             }
+            return $pc_eid;
 
-        // ====================================
+
+            // ====================================
         // single provider
         // ====================================
         } else {
