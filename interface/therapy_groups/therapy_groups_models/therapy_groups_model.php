@@ -103,8 +103,11 @@ class Therapy_Groups{
      * @param $column
      * @return array
      */
-    public function getGroupData($search_params, $result_columns, $column){
-        $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ORDER BY group_start_date DESC;';
+    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true){
+        $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
+        // status 20 is 'deleted'
+        if($onlyActive) $sql .= ' AND group_status != 20 ';
+        $sql .='ORDER BY group_start_date DESC;';
         $search_params = '%' . $search_params . '%';
         $result = sqlStatement($sql, array($search_params));
         $final_result = array();
