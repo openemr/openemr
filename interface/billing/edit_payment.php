@@ -294,7 +294,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("update ar_activity set "    .
 					"   post_user = '" . trim($user_id            )  .
 					"', modified_time = '"  . trim($created_time					) .
-					"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
+					"', memo = '"    . "Deductible $".trim(formData("Deductible$CountRow"   )) .
 					"', account_code = '" . "Deduct"  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
