@@ -2159,8 +2159,8 @@ ALTER TABLE `insurance_companies` ADD `inactive` INT(1) NOT NULL DEFAULT '0' ;
 #EndIf
 
 
-#IfNotTable prices_history
-CREATE TABLE `prices_history` (
+#IfNotTable codes_history
+CREATE TABLE `codes_history` (
   `log_id` bigint(20) NOT NULL auto_increment,
   `date` datetime,
   `code` varchar(25),

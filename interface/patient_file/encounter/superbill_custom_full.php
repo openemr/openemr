@@ -154,7 +154,7 @@ if (isset($mode)) {
       $financial_reporting  = $row['financial_reporting'];
     }
   }
-  // If price history is enabled in the billing globals save data to price history table
+  // If codes history is enabled in the billing globals save data to codes history table
   if  ($GLOBALS['save_prices_history'] && $alertmsg=='' &&
       ( $mode == "modify" || $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ){
 

@@ -9593,9 +9593,9 @@ CREATE TABLE `log_validator` (
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
 
--- Table to save price history log
-DROP TABLE IF EXISTS `prices_history`;
-CREATE TABLE `prices_history` (
+-- Table to save code history log
+DROP TABLE IF EXISTS `codes_history`;
+CREATE TABLE `codes_history` (
   `log_id` bigint(20) NOT NULL auto_increment,
   `date` datetime,
   `code` varchar(25),

@@ -1107,11 +1107,11 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for fifth account message.')
     ),
-      'save_prices_history' => array(
-          xl('Save prices history'),
+      'save_codes_history' => array(
+          xl('Save codes history'),
           'bool',                           // data type
           '0',                              // default
-          xl('Save prices history')
+          xl('Save codes history')
       ),
   ),
 
