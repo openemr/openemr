@@ -312,28 +312,6 @@ if ($fres) {
      </td>
     </tr>
 
-       <?php
-       $counselors = getGroupCounselorsNames($therapy_group);
-        if($viewmode){
-            $encounterCounselors = explode(', ',$result['counselors']);
-        }
-       ?>
-       <td class='bold' nowrap><?php echo xlt('Counselors'); ?>:</td>
-       <td class='text'>
-           <select name="counselors[]" multiple>
-               <?php foreach ($counselors as $counselor) { ?>
-               <option value="<?php echo $counselor?>" <?php echo $viewmode && in_array($counselor,$encounterCounselors) ? 'selected' : ''?>>
-                   <?php echo $counselor?>
-               </option>
-               <?php } ?>
-           </select>
-
-       </td>
-    <tr>
-
-
-    </tr>
-
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>

@@ -612,7 +612,12 @@ while ($result4 = sqlFetchArray($res4)) {
 
                 // for therapy group view
             } else {
-                echo "<td>{$result4['counselors']}</td>\n";
+                $counselors ='';
+                foreach (explode(',',$result4['counselors']) as $userId){
+                    $counselors .= getUserNameById($userId) . ', ';
+                }
+                $counselors = rtrim($counselors, ", ");
+                echo "<td>$counselors</td>\n";
             }
 
 
