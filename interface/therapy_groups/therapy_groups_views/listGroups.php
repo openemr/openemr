@@ -132,7 +132,7 @@
                     <td><?php echo $group_types[$group['group_type']];?></td>
                     <td><?php echo $statuses[$group['group_status']];?></td>
                     <td><?php echo $group['group_start_date'];?></td>
-                    <td><?php echo $group['group_end_date'];?></td>
+                    <td><?php echo $group['group_end_date'] == '0000-00-00' ? '' : $group['group_end_date'] ; ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo xlt($counselor) . " </br> ";
@@ -352,7 +352,7 @@
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVersion.includes(iVal)){
+            else if(iVersion.indexOf(iVal) != -1){
                 return true;
             }
             return false;
@@ -369,7 +369,7 @@
             if(iVal === "" || iVal == 0){
                 return true;
             }
-            else if(iVersion.includes(iVal)){
+            else if(iVersion.indexOf(iVal) != -1){
                 return true;
             }
             return false;

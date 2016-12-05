@@ -26,6 +26,8 @@
 
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once dirname(__FILE__) . '/therapy_groups_controller.php';
+require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
+require_once("{$GLOBALS['srcdir']}/pid.inc");
 
 class ParticipantsController extends BaseController{
 
@@ -73,6 +75,8 @@ class ParticipantsController extends BaseController{
         if(isset($_GET['editParticipants'])){
             $data['readonly'] = '';
         }
+
+        TherapyGroupsController::setSession($groupId);
 
         $this->loadView('groupDetailsParticipants', $data);
     }
