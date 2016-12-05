@@ -1057,7 +1057,7 @@ function poll_hl7_results(&$info) {
       $pathname = '.';
       if ($pprow['results_path']) $pathname = $pprow['results_path'] . '/' . $pathname;
       // Connect to the server and enumerate files to process.
-      $sftp = new Net_SFTP($remote_host, $remote_port);
+      $sftp = new \phpseclib\Net\SFTP($remote_host, $remote_port);
       if (!$sftp->login($pprow['login'], $pprow['password'])) {
         return xl('Login to remote host') . " '$remote_host' " . xl('failed');
       }
