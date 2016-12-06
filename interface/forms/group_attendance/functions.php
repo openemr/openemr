@@ -28,6 +28,13 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+/**
+ * Inserts participant data into DB
+ * @param $form_id
+ * @param $therapy_group
+ * @param $group_encounter_data
+ * @param $appt_data
+ */
 function participant_insertions($form_id, $therapy_group, $group_encounter_data,$appt_data){
     $patientData = $_POST['patientData'];
     foreach ($patientData as $pid => $patient){
@@ -53,12 +60,27 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
 
 }
 
+/**
+ * Inserts data into therapy_groups_participant_attendance table
+ * @param $form_id
+ * @param $pid
+ * @param $participantData
+ */
 function insert_into_tgpa_table($form_id, $pid, $participantData){
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
         "VALUES(?,?,?,?);";
     sqlInsert($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
 }
 
+/**
+ * Creates an appointment for patient from attendance form
+ * @param $pid
+ * @param $gid
+ * @param $pc_aid
+ * @param $pc_eventDate
+ * @param $pc_startTime
+ * @param $participantData
+ */
 function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, $participantData){
     $select_sql = "SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_gid = ? AND pc_eventDate = ? AND pc_startTime = ?;";
     $result = sqlStatement($select_sql, array($pid, $gid, $pc_eventDate, $pc_startTime));
@@ -79,6 +101,14 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
     }
 }
 
+/**
+ * Creates an encounter for patient from attendance form
+ * @param $pid
+ * @param $gid
+ * @param $group_encounter_date
+ * @param $participantData
+ * @param $pc_aid
+ */
 function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid){
     $select_sql = "SELECT id FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
     $result = sqlStatement($select_sql, array($pid, $gid, 1000, $group_encounter_date));
@@ -103,6 +133,11 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
     }
 }
 
+/**
+ * If the group encounter was created in relation to a group appointment, fetches the appointment relevant data.
+ * @param $encounter_id
+ * @return array
+ */
 function get_appt_data($encounter_id){
     $sql =
         "SELECT ope.pc_aid, ope.pc_eventDate, ope.pc_startTime FROM form_groups_encounter as fge " .
@@ -113,6 +148,11 @@ function get_appt_data($encounter_id){
     return $result_array;
 }
 
+/**
+ * Gets group encounter data
+ * @param $encounter_id
+ * @return array
+ */
 function get_group_encounter_data($encounter_id){
     $sql = "SELECT date FROM form_groups_encounter WHERE encounter = ?";
     $result = sqlStatement($sql, array($encounter_id));
@@ -120,12 +160,22 @@ function get_group_encounter_data($encounter_id){
     return $result_array;
 }
 
+/**
+ * Checks if to create appointment and encounter for patient himself based on the status in the attendance form.
+ * @param $status
+ * @return bool
+ */
 function if_to_create_for_patient($status){
     if($status == '@' || $status == '?' || $status == '~')
         return true;
     return false;
 }
 
+/**
+ * Returns the number after the greatest id number in the table
+ * @param $table
+ * @return int
+ */
 function largest_id_plus_one($table){
     $maxId = largest_id($table);
     if ($maxId) {
@@ -136,6 +186,11 @@ function largest_id_plus_one($table){
     return $newid;
 }
 
+/**
+ * Returns greatest id number in the table
+ * @param $table
+ * @return mixed
+ */
 function largest_id($table){
     $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . escape_table_name($table) . "`");
     $getMaxid = sqlFetchArray($res);
