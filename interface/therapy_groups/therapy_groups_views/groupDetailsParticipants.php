@@ -220,7 +220,8 @@
             $('#add-participant-form').removeClass('showAddForm');
         });
 
-        $('#participant_name').on('focus', function(){
+        $('#participant_name').on('click', function(){
+            top.restoreSession();
             var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
             dlgopen(url, '_blank', 500, 400);
         });
