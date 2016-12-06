@@ -179,12 +179,12 @@ else{
                 comment_element.attr('name', 'patientData[' + new_patient_id + '][comment]');
                 comment_element.attr('value', new_patient_comment);
 
-                //Convert html object into string
+                //Convert html object into string for insertion into datatable
                 var select_html_string =  select_element.prop('outerHTML');
                 var comment_html_string = comment_element.prop('outerHTML');
-                if(select_html_string == undefined){ //firefox
-                    if(select_element[0]) select_html_string = new XMLSerializer().serializeToString(select_element[0]);
-                    if(comment_element[0]) comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
+                if(select_html_string == undefined){ //firefox support
+                    select_html_string = new XMLSerializer().serializeToString(select_element[0]);
+                    comment_html_string = new XMLSerializer().serializeToString(comment_element[0]);
                 }
 
                 //Insert new row into datatable
