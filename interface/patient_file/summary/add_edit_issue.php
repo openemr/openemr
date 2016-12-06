@@ -564,8 +564,11 @@ function set_related(codetype, code, selector, codedesc) {
  var s = f.form_diagnosis.value;
  var title = f.form_title.value;
  if (code) {
-  if (s.length > 0) s += ';';
-  s += codetype + ':' + code;
+     //disabled duplicate codes
+     if (s.indexOf(codetype + ':' + code) == -1){
+         if (s.length > 0) s += ';';
+         s += codetype + ':' + code;
+     }
  } else {
   s = '';
  }
