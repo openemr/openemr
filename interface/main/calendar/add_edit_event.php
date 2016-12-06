@@ -1020,7 +1020,7 @@ td { font-size:0.8em; }
      f.form_gid.value = gid;
  }
 
-
+ // This invokes the find-group popup.
  function sel_group() {
   dlgopen('find_group_popup.php', '_blank', 500, 400);
  }
