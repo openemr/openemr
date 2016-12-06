@@ -55,7 +55,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php echo xlt('Patient Encounter'); ?></title>
+<title><?php echo xlt('Therapy Group Encounter'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
@@ -99,12 +99,12 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
  <?php
  //Gets validation rules from Page Validation list.
  //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
- $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
+ $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
  if (empty($collectthis)) {
    $collectthis = "undefined";
  }
  else {
-   $collectthis = $collectthis["new_encounter"]["rules"];
+   $collectthis = $collectthis["new-encounter-form"]["rules"];
  }
  ?>
  var collectvalidation = <?php echo($collectthis); ?>;
