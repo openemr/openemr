@@ -1914,13 +1914,28 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
       "WHERE " . add_escape_custom($patient_id_label)  . "=? " . $customSQL, array($patient_id) );
   }
   else {
-    // search for number of specific items
-    $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
-      "FROM `" . add_escape_custom($table)  . "` " .
-      " ". $whereTables. " ".
-      "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
-      "AND " . add_escape_custom($patient_id_label)  . "=? " . $customSQL .
-      $dateSql, array($data,$patient_id) );
+      if ($whereTables=="" && strpos($table, 'form_')!== false){
+          //To handle standard forms starting with form_
+          $sql =sqlStatementCdrEngine(
+              "SELECT b.`" . add_escape_custom($column) . "` " .
+              "FROM forms a ".
+              "LEFT JOIN `" . add_escape_custom($table) . "` " . " b ".
+              "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."')".
+              "WHERE a.deleted != '1'".
+              "AND b.`" .add_escape_custom($column) ."`" . $compSql . "? " .
+              "AND b."  . add_escape_custom($patient_id_label)  . "=? " . $customSQL
+              .substr_replace($dateSql,'b.',5,0)
+              ,array($data, $patient_id));
+      }
+      else {
+          // search for number of specific items
+          $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
+              "FROM `" . add_escape_custom($table) . "` " .
+              " " . $whereTables . " " .
+              "WHERE `" . add_escape_custom($column) . "`" . $compSql . "? " .
+              "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
+              $dateSql, array($data, $patient_id));
+      }
   }
 
   // See if number of returned items passes the comparison
