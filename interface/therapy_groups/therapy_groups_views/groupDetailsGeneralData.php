@@ -40,7 +40,7 @@
 
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Cancel');?></button>
-                            <button type="submit" form="editGroup" id="saveUpdates" name="save" class="float-right"><?php echo xlt('Save');?></button>
+                            <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
@@ -197,6 +197,10 @@
     $('#cancel-save').on('click', function(e){
         e.preventDefault();
         $('#exist-group').hide();
+    });
+
+    $('#saveUpdates').on('click', function () {
+        $('#editGroup').append('<input type="hidden" name="save">').submit();
     });
 
     function refreshme() {

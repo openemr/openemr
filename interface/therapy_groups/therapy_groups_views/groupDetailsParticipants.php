@@ -39,7 +39,7 @@
                         <button onclick="newGroup()">Add encounter</button>
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . $groupId; ?>'"><?php echo xlt('Cancel');?></button>
-                            <button type="submit" form="updateParticipants" name="save" class="float-right"><?php echo xlt('Save');?></button>
+                            <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . $groupId; ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
@@ -84,7 +84,7 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
-                                                <input type="submit" form="add-participant-form" name="save_new" value="<?php echo xl('Adding a participant'); ?>">
+                                                <input type="submit" name="save_new" value="<?php echo xl('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xl('Cancel'); ?>">
                                             </div>
                                         </div>
@@ -138,7 +138,7 @@
                                                         </select>
                                                     </td>
                                                     <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo $participant['group_patient_start'];?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_end_date'] == '0000-00-00' ? '' : $participant['group_end_date'] ;?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : $participant['group_patient_end'] ;?>" <?php echo $readonly; ?>></td>
                                                     <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo $participant['group_patient_comment'];?>" <?php echo $readonly; ?> /></td>
                                                     <?php if($readonly == ''): ?>
                                                         <td class="delete_btn">
@@ -205,6 +205,10 @@
                     }
                 }
             }
+        });
+
+        $('#saveForm').on('click', function () {
+            $('#updateParticipants').append('<input type="hidden" name="save">').submit();
         });
 
         $('#addParticipant').on('click', function(e){
