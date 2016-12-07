@@ -29,6 +29,18 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 /**
+ * Returns form_id of an existing attendance form for group encounter (if one already exists);
+ * @param $encounter
+ * @param $group_id
+ * @return array|null
+ */
+function get_form_id_of_existing_attendance_form($encounter, $group_id){
+    $sql = "SELECT form_id FROM forms WHERE encounter = ? AND form_name = 'Group Attendance Form' AND therapy_group_id = ? AND deleted = 0;";
+    $result = sqlQuery($sql, array($encounter, $group_id));
+    return $result;
+}
+
+/**
  * Inserts participant data into DB
  * @param $form_id
  * @param $therapy_group
@@ -115,7 +127,7 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
     $result_array = sqlFetchArray($result);
     if($result_array){
         $insert_sql = "UPDATE form_encounter SET reason = ? WHERE id = ?;";
-        sqlInsert($insert_sql, array($participantData['comment'], $result_array['pc_eid']));
+        sqlInsert($insert_sql, array($participantData['comment'], $result_array['id']));
     }
     else{
         $insert_encounter_sql =

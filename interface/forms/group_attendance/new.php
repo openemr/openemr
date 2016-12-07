@@ -21,8 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("functions.php");
 require_once ("$srcdir/group.inc");
 
 $fake_register_globals=false;
@@ -31,16 +30,28 @@ $sanitize_all_escapes=true;
 $statuses_in_meeting = getGroupAttendanceStatuses();
 
 $returnurl = 'encounter_top.php';
-if(isset($_GET['id'])){
+
+//If editing form, get participants from therapy_groups_participant_attendance table. Otherwise get from therapy_groups_participants table.
+if(isset($_GET['id'])) {//clicked edit form
+    $form_id = $_GET['id'];
+}
+else {//In case didn't click 'edit' but an attendance form already exists (can't have 2 attendance forms for same encounter)
+    $result = get_form_id_of_existing_attendance_form($encounter, $therapy_group);
+    $form_id = $result['form_id'];
+}
+
+
+if($form_id){//If editing a form or the form already exists (inwhich case will automatically go into edit mode for existing form)
     $participants_sql = "SELECT tgpa.*, p.fname, p.lname FROM therapy_groups_participant_attendance as tgpa JOIN patient_data as p ON tgpa.pid = p.id WHERE tgpa.form_id = ?;";
-    $result = sqlStatement($participants_sql, array($_GET['id']));
+    $result = sqlStatement($participants_sql, array($form_id));
     while($p = sqlFetchArray($result)){
         $participants[] = $p;
     }
 }
-else{
+else{//new form
     $participants = getParticipants($therapy_group);
 }
+
 ?>
 
 <html>
@@ -56,8 +67,8 @@ else{
 </head>
 
 <body class="body_top">
-<?php if(isset($_GET['id'])){ ?>
-<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($_GET['id']) ;?>" name="my_form">
+<?php if($form_id){ ?>
+<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($form_id) ;?>" name="my_form">
 <?php } else { ?>
 <form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
 <?php } ?>
