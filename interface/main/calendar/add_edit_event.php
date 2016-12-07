@@ -767,8 +767,9 @@ if ($_POST['form_action'] == "save") {
   echo " if (opener && !opener.closed && opener.refreshme) {\n " .
        "  opener.refreshme();\n " . // This is for standard calendar page refresh
        " } else {\n " .
-       "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh
-       " };\n";
+       " if(window.opener.pattrk){" .
+      "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh}
+       " }};\n";
   echo " window.close();\n";
   echo "</script>\n</body>\n</html>\n";
   exit();
