@@ -261,7 +261,7 @@ class TherapyGroupsController extends BaseController{
 
         $length = strlen($notes);
         if($length > $this->notes_preview_proper_length){
-            $notes = substr($notes,0,50).'...';
+            $notes = mb_substr($notes,0,50).'...';
         }
         return $notes;
     }
