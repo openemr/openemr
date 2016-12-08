@@ -82,7 +82,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
 
     $('#addEvent').on('click', function(){
         top.restoreSession();
-        var url = '<?php echo $GLOBALS['rootdir'] . "/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . ")" ?>';
+        var url = '<?php echo $GLOBALS['rootdir'] . "/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) ?>';
         dlgopen(url, '_blank', 775, 500);
     });
 
