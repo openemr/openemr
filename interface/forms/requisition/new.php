@@ -47,8 +47,6 @@ $encounter = $_SESSION['encounter'];
 
 $oid = fetchProcedureId($pid, $encounter);
 
-
-
 if(empty($oid)){
 	print "<center>".xlt('No Order found, please enter procedure order first')."</center>";
 	exit;
@@ -61,18 +59,11 @@ if(empty($oid)){
 	$facility = getFacility();
 	$ins = getAllinsurances($pid);
 
-
-	
 if (empty($ins)){
 	$responsibleParty = getSelfPay($pid);
 }	
-	$provider = getProviders();	
-
-	
 	$order = getProceduresInfo($oid, $encounter);
-	
-	//var_export($order);
-	
+		
 if(empty($order)){
 	echo xlt('procedure order not found in database contact tech support');
 	exit;
@@ -80,6 +71,7 @@ if(empty($order)){
 	
 		
 	$prov_id = $order[5];
+	$provider = getLabProviders($prov_id);
 	$npi = getNPI($prov_id);
 	$pp = getProcedureProviders();
 	$provLabId = getLabconfig();
@@ -225,7 +217,7 @@ table, th, td {
 			   <?php echo xlt('NPI') ?>:         </br>
 			   <?php echo xlt('UPIN') ?>:        </br>
 			   </div>
-			 <div class="pFill"><?php echo $provider[1]; ?></br>
+			 <div class="pFill"><?php echo $provider['fname'] ." ". $provider['lname']; ?></br>
 			   <?php echo $npi[0]; ?></br>
 			   <?php echo $npi[1]; ?></br>
 			   

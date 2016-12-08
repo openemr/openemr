@@ -9,6 +9,7 @@
  */
 
 require_once("{$GLOBALS['srcdir']}/sql.inc");
+require_once(dirname(__FILE__) . "/classes/WSWrapper.class.php");
 require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 // These are for sports team use:
@@ -76,46 +77,10 @@ function getInsuranceProvider($ins_id) {
 function getInsuranceProviders() {
     $returnval = array();
 
-    if (true) {
-        $sql = "select name, id from insurance_companies where inactive != 1 order by name, id";
-        $rez = sqlStatement($sql);
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-            $returnval[$row['id']] = $row['name'];
-        }
-    }
-
-    // Please leave this here. I have a user who wants to see zip codes and PO
-    // box numbers listed along with the insurance company names, as many companies
-    // have different billing addresses for different plans.  -- Rod Roark
-    //
-    else {
-        $sql = "select insurance_companies.name, insurance_companies.id, " .
-          "addresses.zip, addresses.line1 " .
-          "from insurance_companies, addresses " .
-          "where addresses.foreign_id = insurance_companies.id " .
-          "order by insurance_companies.name, addresses.zip";
-
-        $rez = sqlStatement($sql);
-
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-            preg_match("/\d+/", $row['line1'], $matches);
-            $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
-              "," . $matches[0] . ")";
-        }
-    }
-
-    return $returnval;
-}
-
-function getInsuranceProvidersExtra() {
-    $returnval = array();
-// add a global and if for where to allow inactive inscompanies
-
         $sql = "select insurance_companies.name, insurance_companies.id, " .
           "addresses.zip, addresses.line1, addresses.state " .
           "from insurance_companies, addresses " .
           "where addresses.foreign_id = insurance_companies.id " .
-		  "and insurance_companies.inactive != 1 "  .
           "order by insurance_companies.name, addresses.zip";
 
         $rez = sqlStatement($sql);
@@ -151,17 +116,18 @@ function getInsuranceProvidersExtra() {
 
 function getProviders() {
     $returnval = array("");
-    $sql = "select fname, lname, suffix from users where authorized = 1 and " .
+    $sql = "select fname, lname from users where authorized = 1 and " .
         "active = 1 and username != ''";
     $rez = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($rez); $iter++) {
         if (($row["fname"] != "") && ($row["lname"] != "")) {
-          if ($row["suffix"] != "") $row["lname"] .= ", ".$row["suffix"];
             array_push($returnval, $row["fname"] . " " . $row["lname"]);
         }
     }
     return $returnval;
 }
+
+
 
 // ----------------------------------------------------------------------------
 // Get one facility row.  If the ID is not specified, then get either the
@@ -303,7 +269,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     if ($providerID == "%") {
         $command = "like";
     }
-    $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
+    $query = "select distinct id, username, lname, fname, authorized, info, facility " .
         "from users where username != '' and active = 1 and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
@@ -312,8 +278,8 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
-    //if only one result returned take the key/value pairs in array [0] and merge them down into
-    // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
+    //if only one result returned take the key/value pairs in array [0] and merge them down the the base array so that $resultval[0]['key'] is also
+    //accessible from $resultval['key']
 
     if($iter==1) {
         $akeys = array_keys($returnval[0]);
@@ -348,7 +314,6 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
 function getProviderName($providerID) {
     $pi = getProviderInfo($providerID, 'any');
     if (strlen($pi[0]["lname"]) > 0) {
-      if (strlen($pi[0]["suffix"]) > 0) $pi[0]["lname"] .= ", ".$pi[0]["suffix"];
         return $pi[0]['fname'] . " " . $pi[0]['lname'];
     }
     return "";
@@ -388,10 +353,6 @@ function getHistoryData($pid, $given = "*", $dateStart='',$dateEnd='')
     }
     else {
         $res = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
-    }
-    
-    if($given == 'tobacco'){
-    	$res = sqlQuery("select $given from history_data where pid = ? and tobacco is not null and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
     }
 
     return $res;
@@ -493,7 +454,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         // Do not search first name or middle name
         $where = "lname LIKE ? ";
         array_push($sqlBindArray, $names['last']);
-    } elseif($names['first'] == '' && $names['last'] != '') {
+    } elseif(isset($names['first']) == '' && $names['last'] != '') {
         // Search both first name and last name with same term
         $names['first'] = $names['last']; 
         $where = "lname LIKE ? OR fname LIKE ? ";
@@ -560,8 +521,7 @@ function getPatientNameSplit($term) {
             $n['last'] = end($names);
         }
     } else {
-        $n['last'] = $term;
-	if(empty($n['last'])) $n['last'] = '%';
+        $n['last'] = $term;       
     }
     // Trim whitespace off the names before returning
     foreach($n as $key => $val) {
@@ -857,7 +817,7 @@ function newPatientData(    $db_id="",
 
     // Get the default price level.
     $lrow = sqlQuery("SELECT option_id FROM list_options WHERE " .
-      "list_id = 'pricelevel' AND activity = 1 ORDER BY is_default DESC, seq ASC LIMIT 1");
+      "list_id = 'pricelevel' ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
     $query = ("replace into patient_data set
@@ -921,6 +881,9 @@ function newPatientData(    $db_id="",
     }
 
     $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
+
+    sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
+                $phone_biz,$phone_cell,$email,$pid);
 
     return $foo['pid'];
 }
@@ -1014,6 +977,11 @@ function updatePatientData($pid, $new, $create=false)
     $sql .= " WHERE id = '$db_id'";
     sqlStatement($sql);
   }
+
+  $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
+  sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
+    $rez['postal_code'],$rez['state'],$rez['phone_home'],$rez['phone_biz'],
+    $rez['phone_cell'],$rez['email'],$rez['pid']);
 
   return $db_id;
 }
@@ -1272,6 +1240,68 @@ function updateHistoryData($pid,$new)
         return sqlInsert($sql, $arraySqlBind );
 }
 
+function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
+                $phone_biz,$phone_cell,$email,$pid="")
+{
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) return;
+    if (!$GLOBALS['oer_config']['ws_accounting']['enabled']) return;
+
+    $db = $GLOBALS['adodb']['db'];
+    $customer_info = array();
+
+    $sql = "SELECT foreign_id,foreign_table FROM integration_mapping where local_table = 'patient_data' and local_id = '" . $id . "'";
+    $result = $db->Execute($sql);
+    if ($result && !$result->EOF) {
+        $customer_info['foreign_update'] = true;
+        $customer_info['foreign_id'] = $result->fields['foreign_id'];
+        $customer_info['foreign_table'] = $result->fields['foreign_table'];
+    }
+
+    ///xml rpc code to connect to accounting package and add user to it
+    $customer_info['firstname'] = $fname;
+    $customer_info['lastname'] = $lname;
+    $customer_info['address'] = $street;
+    $customer_info['suburb'] = $city;
+    $customer_info['state'] = $state;
+    $customer_info['postcode'] = $postal_code;
+
+    //ezybiz wants state as a code rather than abbreviation
+    $customer_info['geo_zone_id'] = "";
+    $sql = "SELECT zone_id from geo_zone_reference where zone_code = '" . strtoupper($state) . "'";
+    $db = $GLOBALS['adodb']['db'];
+    $result = $db->Execute($sql);
+    if ($result && !$result->EOF) {
+        $customer_info['geo_zone_id'] = $result->fields['zone_id'];
+    }
+
+    //ezybiz wants country as a code rather than abbreviation
+    $customer_info['geo_country_id'] = "";
+    $sql = "SELECT countries_id from geo_country_reference where countries_iso_code_2 = '" . strtoupper($country_code) . "'";
+    $db = $GLOBALS['adodb']['db'];
+    $result = $db->Execute($sql);
+    if ($result && !$result->EOF) {
+        $customer_info['geo_country_id'] = $result->fields['countries_id'];
+    }
+
+    $customer_info['phone1'] = $phone_home;
+    $customer_info['phone1comment'] = "Home Phone";
+    $customer_info['phone2'] = $phone_biz;
+    $customer_info['phone2comment'] = "Business Phone";
+    $customer_info['phone3'] = $phone_cell;
+    $customer_info['phone3comment'] = "Cell Phone";
+    $customer_info['email'] = $email;
+    $customer_info['customernumber'] = $pid;
+
+    $function['ezybiz.add_customer'] = array(new xmlrpcval($customer_info,"struct"));
+    $ws = new WSWrapper($function);
+
+    // if the remote patient was added make an entry in the local mapping table to that updates can be made correctly
+    if (is_numeric($ws->value)) {
+        $sql = "REPLACE INTO integration_mapping set id = '" . $db->GenID("sequences") . "', foreign_id ='" . $ws->value . "', foreign_table ='customer', local_id = '" . $id . "', local_table = 'patient_data' ";
+        $db->Execute($sql) or die ("error: " . $db->ErrorMsg());
+    }
+}
+
 // Returns Age 
 //   in months if < 2 years old
 //   in years  if > 2 years old
@@ -1310,7 +1340,7 @@ function getPatientAge($dobYMD, $nowYMD=null)
         else if ($monthDiff < 0) { $age -= 1; }
     }
     else  {
-        $age = "$ageInMonths " . xl('month');
+        $age = "$ageInMonths month"; 
     }
 
     return $age;
@@ -1691,6 +1721,31 @@ function getEffectiveInsurances($patient_id, $encdate) {
 }
 
 /**
+ * Get all insurance companies 
+ *
+ *
+ */
+
+function getAllinsurances($pid){
+   $insarr = array();
+   $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number, 
+           a.subscriber_lname, a.subscriber_fname, a.subscriber_relationship, a.subscriber_employer, 
+		   b.name, c.line1, c.line2, c.city, c.state, c.zip 
+           FROM `insurance_data` AS a
+           RIGHT JOIN insurance_companies AS b
+           ON a.provider = b.id
+           RIGHT JOIN addresses AS c 
+           ON a.provider = c.foreign_id
+           WHERE a.pid = $pid  ";
+   $inco = sqlStatement($sql);
+   
+    while($icl = sqlFetchArray($inco)){
+	  $insarr[] = $icl;
+	}
+   return $insarr; 
+}
+
+/**
  * Get the patient's balance due. Normally this excludes amounts that are out
  * to insurance.  If you want to include what insurance owes, set the second
  * parameter to true.
@@ -1700,6 +1755,7 @@ function getEffectiveInsurances($patient_id, $encdate) {
  * @return number The balance.
  */
 function get_patient_balance($pid, $with_insurance=false) {
+  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
     $balance = 0;
     $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
       "last_level_closed, stmt_count " .
@@ -1737,6 +1793,26 @@ function get_patient_balance($pid, $with_insurance=false) {
       }
     }
     return sprintf('%01.2f', $balance);
+  }
+  else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+    // require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
+    $conn = $GLOBALS['adodb']['db'];
+    $customer_info['id'] = 0;
+    $sql = "SELECT foreign_id FROM integration_mapping AS im " .
+      "LEFT JOIN patient_data AS pd ON im.local_id = pd.id WHERE " .
+      "pd.pid = '" . $pid . "' AND im.local_table = 'patient_data' AND " .
+      "im.foreign_table = 'customer'";
+    $result = $conn->Execute($sql);
+    if($result && !$result->EOF) {
+      $customer_info['id'] = $result->fields['foreign_id'];
+    }
+    $function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
+    $ws = new WSWrapper($function);
+    if(is_numeric($ws->value)) {
+      return sprintf('%01.2f', $ws->value);
+    }
+  }
+  return '';
 }
 
 // Function to check if patient is deceased.
