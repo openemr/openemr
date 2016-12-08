@@ -51,7 +51,7 @@ class Tree {
 	  //get the left and right value of the root node
 	  $sql = "SELECT * FROM " . $this->_table . " WHERE id='".$root."'";
 	  
-	  if ($this->root_type == ROOT_TYPE_NAME) {
+	  if ($this->_root_type == ROOT_TYPE_NAME) {
 	  	$sql = "SELECT * FROM " . $this->_table . " WHERE name='".$root."'";
 	  }
 	  $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
@@ -89,11 +89,9 @@ class Tree {
 	    }
 		
 	    // only check stack if there is one
-	    if (count($right)>0) {
-	      // check if we should remove a node from the stack
-	      while ($right[count($right)-1]<$row['rght']) {
-	        array_pop($right);
-	      }
+	    // check if we should remove a node from the stack
+	    while(count($right) > 0 & $right[count($right)-1] < $row['rght']) {
+	      array_pop($right);
 	    }
 
 		//set up necessary variables to then determine the chain of parents for each node
