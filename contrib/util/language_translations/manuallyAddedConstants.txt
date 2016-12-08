@@ -477,6 +477,7 @@ PHIN Questions
 Physician
 Physician Type
 PID (Pelvic Inflammatory Disease)
+Place of Service
 Pneumococcal Conjugate 1
 Pneumococcal Conjugate 2
 Pneumococcal Conjugate 3
