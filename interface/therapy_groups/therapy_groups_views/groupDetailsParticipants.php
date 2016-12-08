@@ -133,7 +133,7 @@
                                                     <td>
                                                         <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                                             <?php foreach ($statuses as $key => $status): ?>
-                                                                <option value="<?php echo $key;?>"><?php echo xlt($status); ?></option>
+                                                                <option value="<?php echo $key;?>" <?php echo $participant['group_patient_status'] == $key ? 'selected' : '';?>><?php echo xlt($status); ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
