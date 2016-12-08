@@ -368,6 +368,7 @@ while($result = sqlFetchArray($res)) {
         echo "<div class='encounter_forms'>\n";
     }
     else {
+		/*  Leaving this incase it is needed for something
         $form_name = trim($result{"form_name"});
         //if form name is not in registry, look for the closest match by
         // finding a registry name which is  at the start of the form name.
@@ -386,6 +387,11 @@ while($result = sqlFetchArray($res)) {
                                                 " value='" . $result{"encounter"} . "'" .
                                                 " class='encounter_form' ".
                                                 ">" . xl_form_title($result{"form_name"}) . "<br>\n");
+		*/
+		 echo "<input type='checkbox' name='".$result['formdir']."_".$result['form_id']."'".
+		      "id ='".$result['formdir']."_".$result['form_id'] .
+			  " value='".$result['encounter']."'" .
+			  " class='encounter_form' >" . xl_form_title($result['form_name']). "-<br>\n" ;		
     }
 }
 foreach($registry_form_name as $var) {
