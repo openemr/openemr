@@ -110,8 +110,12 @@ form {
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
-<script language="JavaScript">
+<?php if ($popup) { ?>
+<script type="text/javascript" src="../../../library/topdialog.js"></script>
+<?php } ?>
 
+<script language="JavaScript">
+<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 // This is called when forward or backward paging is done.
 //
 function submitList(offset) {
