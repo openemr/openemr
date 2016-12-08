@@ -34,7 +34,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
         <h5><?php echo xlt('Group appointments')?></h5>
     </div>
     <div class="col-md-5">
-        <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "', '_blank', 775, 500)"; ?>"><button class="float-right"><?php echo xlt('Adding')?></button></a>
+        <button id="addEvent" class="float-right"><?php echo xlt('Adding')?></button>
     </div>
 </div>
 <div id="component-border" class="appt-widget">
@@ -56,7 +56,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                 $date_for_url = attr(preg_replace("/-/", "", $event['pc_eventDate']));
                 ?>
                 <div class="event_details">
-                    <a href="<?php echo "javascript:dlgopen('{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid']) . "', '_blank', 775, 500)"; ?>">
+                    <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
                         </br>
                         <span>
@@ -75,3 +75,19 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
         </div>
     </div>
 </div>
+<script>
+    function refreshme() {
+        location.reload();
+    }
+
+    $('#addEvent').on('click', function(){
+        top.restoreSession();
+        var url = '<?php echo $GLOBALS['rootdir'] . "/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . ")" ?>';
+        dlgopen(url, '_blank', 775, 500);
+    });
+
+    function goToEvent(url) {
+        top.restoreSession();
+        dlgopen(url, '_blank', 775, 500);
+    }
+</script>
