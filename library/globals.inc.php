@@ -1148,7 +1148,7 @@ $GLOBALS_METADATA = array(
       'save_codes_history' => array(
           xl('Save codes history'),
           'bool',                           // data type
-          '0',                              // default
+          '1',                              // default
           xl('Save codes history')
       ),
   ),
