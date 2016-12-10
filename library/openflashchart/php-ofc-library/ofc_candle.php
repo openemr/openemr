@@ -7,7 +7,7 @@ class candle_value
 	/**
 	 *
 	 */
-	function candle_value( $high, $open, $close, $low )
+	public function __construct( $high, $open, $close, $low )
 	{
 		$this->high = $high;
 		$this->top = $open;
@@ -28,7 +28,7 @@ class candle_value
 
 class candle extends bar_base
 {
-	function candle($colour, $negative_colour=null)
+	public function __construct($colour, $negative_colour=null)
 	{
 		$this->type      = "candle";
 		parent::bar_base();

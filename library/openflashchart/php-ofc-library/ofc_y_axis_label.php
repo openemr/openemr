@@ -5,7 +5,7 @@
  */
 class y_axis_label
 {
-	function y_axis_label( $y, $text)
+	public function __construct( $y, $text)
 	{
 		$this->y = $y;
 		$this->set_text( $text );

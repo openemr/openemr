@@ -2,7 +2,7 @@
 
 class ofc_tags
 {
-	function ofc_tags()
+	public function __construct()
 	{
 		$this->type      = "tags";
 		$this->values	= array();
@@ -125,7 +125,7 @@ class ofc_tags
 
 class ofc_tag extends ofc_tags
 {
-	function ofc_tag($x, $y)
+	public function __construct($x, $y)
 	{
 		$this->x = $x;
 		$this->y = $y;

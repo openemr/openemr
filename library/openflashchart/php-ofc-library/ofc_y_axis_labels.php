@@ -2,7 +2,7 @@
 
 class y_axis_labels
 {
-	function y_axis_labels(){}
+	public function __construct(){}
 	
 	/**
 	 * @param $steps which labels are generated

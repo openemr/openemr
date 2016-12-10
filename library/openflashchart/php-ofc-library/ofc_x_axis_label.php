@@ -5,7 +5,7 @@
  */
 class x_axis_label
 {
-	function x_axis_label( $text, $colour, $size, $rotate )
+	public function __construct( $text, $colour, $size, $rotate )
 	{
 		$this->set_text( $text );
 		$this->set_colour( $colour );
