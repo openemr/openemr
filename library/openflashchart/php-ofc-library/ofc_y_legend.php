@@ -2,7 +2,7 @@
 
 class y_legend
 {
-	function y_legend( $text='' )
+	public function __construct( $text='' )
 	{
 		$this->text = $text;
 	}

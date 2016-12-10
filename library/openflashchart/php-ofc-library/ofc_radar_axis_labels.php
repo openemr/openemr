@@ -3,12 +3,12 @@
 class radar_axis_labels
 {
 	// $labels : array
-	function radar_axis_labels( $labels )
+	public function __construct( $labels )
 	{
 		$this->labels = $labels;
 	}
 	
-	function set_colour( $colour )
+	public function set_colour( $colour )
 	{
 		$this->colour = $colour;
 	}
