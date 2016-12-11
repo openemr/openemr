@@ -279,13 +279,6 @@ var GoBack = function () {
     top.restoreSession();
     location.href='demographics.php';
 }
-// it is working after saving at interface/patient_file/problem_encounter.php for get the right 'Enc' (encounter connection) form database.
-function reloadAfterSecond() {
-    setTimeout(function () {
-        window.location.reload();
-    },1000)
-}
-
 
 </script>
 

@@ -79,6 +79,8 @@
   ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
   . "<script language='JavaScript'>\n";
   if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
+  echo " var myboss = opener ? opener : parent;\n";
+  echo " myboss.location.reload();\n";
   echo " window.close();\n";
   echo "</script></body></html>\n";
   exit();
@@ -98,7 +100,6 @@
 <html>
 <head>
 <?php html_header_show();?>
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 <title><?php echo xlt('Issues and Encounters'); ?></title>
@@ -381,10 +382,6 @@ in that section to add and delete relationships.'); ?>
  }
  if ($alertmsg) echo "alert('" . addslashes($alertmsg) . "');\n";
 ?>
-// reload the parent screen (after saving openemr is not available)
-$('#problem_encounter').submit(function (e) {
-    opener.reloadAfterSecond();
-});
 </script>
 </body>
 </html>
