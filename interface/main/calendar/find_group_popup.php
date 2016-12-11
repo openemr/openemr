@@ -182,11 +182,11 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 
     <script language="JavaScript">
 
-        function selgid(gid, name) {
+        function selgid(gid, name, end_date) {
             if (opener.closed || !opener.setgroup)
                 alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
             else
-                opener.setgroup(gid, name);
+                opener.setgroup(gid, name, end_date);
             window.close();
             return false;
         }
@@ -251,11 +251,12 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
             $itername = $iter['group_name'];
             $itertype = $group_types[$iter['group_type']];
             $iter_start_date = $iter['group_start_date'];
+            $iter_end_date = $iter['group_end_date'];
 
             $trClass = "oneresult";
 
             echo " <tr class='" . $trClass . "' id='" .
-                htmlspecialchars($itergid . "~" . $itername . "~" . $itertype . "~" . $iter_start_date, ENT_QUOTES) . "'>";
+                htmlspecialchars($itergid . "~" . $itername . "~" . $itertype . "~" . $iter_start_date . "~" . $iter_end_date, ENT_QUOTES) . "'>";
             echo "  <td class='srName'>" . htmlspecialchars($itername, ENT_NOQUOTES);
             echo "  <td class='srGID'>" . htmlspecialchars($itergid, ENT_NOQUOTES) . "</td>\n";
             echo "  <td class='srType'>" . htmlspecialchars($itertype, ENT_NOQUOTES) . "</td>\n";
@@ -292,11 +293,11 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     }
 
 
-    // parts[] ==>  0=GID, 1=Group Name
+    // parts[] ==>  0=GID, 1=Group Name 4=Group End Date
     var SelectGroup = function (eObj) {
         objID = eObj.id;
         var parts = objID.split("~");
-        return selgid(parts[0], parts[1]);
+        return selgid(parts[0], parts[1], parts[4]);
     }
 
 </script>

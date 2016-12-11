@@ -53,10 +53,10 @@ function getParticipants($gid){
 }
 
 //Fetches group status name by status key
-function getStatusName($key){
-    $statuses_array = TherapyGroupsController::$statuses;
-    $status_name = $statuses_array[$key];
-    return $status_name;
+function getTypeName($key){
+    $types_array = TherapyGroupsController::$group_types;
+    $types_name = $types_array[$key];
+    return $types_name;
 }
 
 //Fetches providers for a specific group event

@@ -853,6 +853,7 @@ if ($_POST['form_action'] == "save") {
       $repeattype = 6;
     }
   }
+  $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : NULL;
   $pcroom = $row['pc_room'];
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
@@ -902,11 +903,14 @@ if ($_POST['form_action'] == "save") {
   if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
  }
 
- // If we have a group id, get the name
+ // If we have a group id, get group data
  if ($groupid){
-  $prow = sqlQuery("SELECT group_name " .
-   "FROM therapy_groups WHERE group_id = ?", array($groupid));
-  $groupname = $prow['group_name'];
+  $group_data = getGroup($groupid);
+  $groupname = $group_data['group_name'];
+  $group_end_date = $group_data['group_end_date'];
+  if(!$recurrence_end_date){
+      $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default
+  }
  }
 
  // Get the providers list.
@@ -1015,10 +1019,14 @@ td { font-size:0.8em; }
  }
 
  // This is for callback by the find-group popup.
- function setgroup(gid, name) {
+ function setgroup(gid, name, end_date) {
      var f = document.forms[0];
      f.form_group.value = name;
      f.form_gid.value = gid;
+     if(f.form_enddate.value == ""){
+        f.form_enddate.value = end_date;
+     }
+
  }
 
  // This invokes the find-group popup.
@@ -1301,7 +1309,7 @@ $classpati='';
          <?php if($GLOBALS['enable_group_therapy']) :?>
          <li <?php echo $group_class ;?>>
             <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-            <?php echo xlt('Groups');?></a>
+            <?php echo xlt('Group');?></a>
          </li>
          <?php endif ?>
 		</ul>
@@ -1472,7 +1480,7 @@ $classpati='';
  ?>
  <tr>
   <td nowrap>
-   <b><?php echo xlt('Provider'); ?>:</b>
+   <b><?php if($_GET['group']==true) echo xlt('Coordinating Counselors'); else echo xlt('Provider'); ?>:</b>
   </td>
   <td nowrap>
 
@@ -1711,7 +1719,7 @@ else{
   <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr($row['pc_endDate']) ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
+   <input type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php echo xla('Click here to choose a date');?>'>
@@ -1758,7 +1766,7 @@ if ($repeatexdate != "") {
  // to enter it right here.  We must display or hide this row dynamically
  // in case the patient-select popup is used.
  $patient_dob = trim($prow['DOB']);
- $is_group = $prow['group_name'];
+ $is_group = $groupname;
  $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
   '' : 'none';
 ?>
