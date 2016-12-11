@@ -79,6 +79,8 @@
   ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
   . "<script language='JavaScript'>\n";
   if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
+  echo " var myboss = opener ? opener : parent;\n";
+  echo " myboss.location.reload();\n";
   echo " window.close();\n";
   echo "</script></body></html>\n";
   exit();
