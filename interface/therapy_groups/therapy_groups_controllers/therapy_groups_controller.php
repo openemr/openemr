@@ -61,7 +61,7 @@ class TherapyGroupsController extends BaseController{
     public function index($groupId = null){
 
         $data = array();
-        self::setSession($groupId);
+        if($groupId) self::setSession($groupId);
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
