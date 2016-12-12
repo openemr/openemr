@@ -37,6 +37,11 @@ class TherapyGroupsController extends BaseController{
         '10' => 'active',
         '20' => 'deleted',
     );
+    //list of participant statuses
+    public static $participant_statuses = array(
+        '10' => 'active',
+        '20' => 'not active',
+    );
     //list of group types
     public static $group_types = array(
         '1' => 'closed',

@@ -69,7 +69,7 @@ class ParticipantsController extends BaseController{
         $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
-        $data['statuses'] = TherapyGroupsController::$statuses;
+        $data['statuses'] = TherapyGroupsController::$participant_statuses;
         $data['groupId'] = $groupId;
 
         if(isset($_GET['editParticipants'])){
