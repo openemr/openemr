@@ -158,6 +158,10 @@ if ($refresh and $refresh != 'fullscreen') {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../library/dialog.js"></script>
+
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jscolor-2-0-4/jscolor.js"></script>
+
     <script language="JavaScript">
     <?php require_once("$srcdir/restoreSession.php");
     ?>
@@ -3380,9 +3384,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                     }
                                     ?>
                                   </select>
-                                  <span class="modifier" id="visit_mod_22" title="<?php echo xla('Modifier 22: Unrelated evaluation and management service by the same physician during postoperative period.') ?>">22</span>
-                                  <span class="modifier" id="visit_mod_25" title="<?php echo xla('Modifier 25: Significant, separately identifiable evaluation and management (E/M) service by the same physician* on the day of a procedure') ?>">25</span>
-                                  <span class="modifier" id="visit_mod_57" title="<?php echo xla('Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.'); ?>">57</span>
+                                  <span class="modifier" id="visit_mod_22" value="22" title="<?php echo xla('Modifier 22: Increased Procedural Services: When the work required to provide a service is substantially greater than typically required, it may be identified by adding modifier 22 to the usual procedure code.') ?>">22</span>
+                                  <span class="modifier" id="visit_mod_24" value="24" title="<?php echo xla('Modifier 24: Unrelated Evaluation and Management Service by the Same Physician During a Postoperative Period') ?>">24</span>
+                                  <span class="modifier" id="visit_mod_25" value="25" title="<?php echo xla('Modifier 25: Significant, separately identifiable evaluation and management (E/M) service by the same physician on the day of a procedure or other service') ?>">25</span>
+                                  <span class="modifier" id="visit_mod_57" value="57" title="<?php echo xla('Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.'); ?>">57</span>
                                 </div>
                               </td>
                             </tr>
@@ -3749,6 +3754,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jscolor.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side">
       <div style="margin-top:20px;text-align:center;font-size:1.2em;">

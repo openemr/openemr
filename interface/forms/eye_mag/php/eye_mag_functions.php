@@ -2578,15 +2578,60 @@ function display_draw_section($zone,$encounter,$pid,$side ='OU',$counter='') {
              */
         //$output = priors_select($zone,$orig_id,$id_to_show,$pid); echo $output;
         ?>
-        <div class="tools" style="text-align:center;width:100%;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("blue");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
+        <div class="tools" style="text-align:center;width:100%;text-align:left;margin-left:2em;">
+            <div id="sketch_tooled_<?php echo attr($zone); ?>_8" style="position: relative;
+                        float: left;
+                        background-image: url(../../forms/eye_mag/images/pencil_white.png);
+                        background-size: 40px 80px;
+                        margin-right:50px;">
+                <input class="jscolor {mode:'HVS', 
+                                position:'right',
+                                borderColor:'#FFF #666 #666 #FFF',
+                                insetColor:'#666 #FFF #FFF #666',
+                                backgroundColor:'#CCC', 
+                                hash:'true',
+                                styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
+                                valueElement: 'selColor_<?php echo attr($zone); ?>',
+                                refine:true
+                            }"
+                id="sketch_tool_<?php echo attr($zone); ?>_color" 
+                type="text" style="width: 38px;
+height: 20px;
+padding: 11px 0px;
+background-color: blue;
+margin-top: 26px;
+color: white;
+background-image: none;" />
+            </div>
+            <?php
+                $sql = "SELECT * from documents where url like ?";
+                $doc = sqlQuery($sql,array("%". $base_name ."%"));
+                $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+                
+                // random to not pull from cache.
+                if (file_exists($file_store) && ($doc['id'] > '0')) {
+                    $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&blahblah=".rand();
+                } else {
+                    //base image.
+                    $filetoshow = $base_filetoshow;
+                }
+            ?>
+        
+            <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
+            <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
+            <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
+            <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
+    
+            
+           
+            <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_4" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#AC8359");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_brown.png" style="height:30px;width:15px;">
-            <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("red");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
+            <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
-
+            
             <span style="min-width:1in;">&nbsp;</span>
             <!-- now to pencil size -->
             <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">
@@ -2596,29 +2641,15 @@ function display_draw_section($zone,$encounter,$pid,$side ='OU',$counter='') {
             <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
         </div>
 
-        <?php
-        $sql = "SELECT * from documents where url like '%".$base_name."%'";
-            $doc = sqlQuery($sql);
-            // random to not pull from cache.
-            if (file_exists($file_store) && ($doc['id'] > '0')) {
-                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=".$doc['id']."&as_file=false&blahblah=".rand();
-            } else {
-                //base image.
-                $filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-            }
-        ?>
-        <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>">
-
         <div align="center" class="borderShadow">
-            <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="400" height="225"></canvas>
+            <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
         </div>
-        <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
-        <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000">
         <div style="margin-top: 7px;">
             <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
             <button onclick="javascript:cRedo('<?php echo attr($zone); ?>');return false;" id="Redo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Redo"); ?></button>
-            <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Clear"); ?></button>
-            <!-- <button onclick="return false;" id="Base_Canvas_<?php echo attr($zone); ?>">Change Base</button> -->
+            <button onclick="javascript:drawImage('<?php echo attr($zone); ?>');return false;" id="Revert_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Revert"); ?></button>
+            <button onclick="javascript:cReload('<?php echo attr($zone); ?>');return false;" id="Clear_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("New"); ?></button>
+            <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
         </div>
         <br />
     </div>
@@ -2627,7 +2658,7 @@ function display_draw_section($zone,$encounter,$pid,$side ='OU',$counter='') {
 
 /**
  *  This function returns a JSON object to replace a requested section with copy_forward values (3 input values)
- *  It will also replace the drawings if ALL is selected
+ *  It will not replace the drawings with older encounter drawings... Not yet anyway.
  *
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_mag.id where the data to carry forward is located
@@ -3080,7 +3111,7 @@ function build_IMPPLAN_items($pid,$form_id) {
 /**
  *  This function builds an array of documents for this patient ($pid).
  *  We first list all the categories this practice has created by name and by category_id
- *
+ *  for this patient ($pid)
  *  Each document info from documents table is added to these as arrays
  *
  *  @param string $pid patient_id
