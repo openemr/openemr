@@ -678,7 +678,7 @@ if ($_POST['form_action'] == "save") {
                     (Bug would occur when a recurrent event is set and no provider is
                     chosen [which is only possible when multiple-provider is enabled]. It
                     would cause the server to crash!) */
-                    if(!$origEvent){
+                    if(!$origEvent && is_null($provider)){
                         $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
                             " WHERE pc_aid is NULL AND pc_multiple=?", array($row['pc_multiple']) );
                     }
