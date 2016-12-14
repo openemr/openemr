@@ -672,17 +672,7 @@ if ($_POST['form_action'] == "save") {
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
-
-                    /* -- MAJOR BUG FIX! --
-                    (Bug would occur when a recurrent event is set and no provider is
-                    chosen [which is only possible when multiple-provider is enabled]. It
-                    would cause the server to crash!) */
-                    if(!$origEvent && is_null($provider)){
-                        $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                            " WHERE pc_aid is NULL AND pc_multiple=?", array($row['pc_multiple']) );
-                    }
-
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
