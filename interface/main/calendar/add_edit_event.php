@@ -672,7 +672,7 @@ if ($_POST['form_action'] == "save") {
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
@@ -1799,6 +1799,16 @@ function validateform(valu){
     <?php
     }
     ?>
+
+    <?php
+    if($GLOBALS['select_multi_providers']){
+    ?>
+    //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
+    collectvalidation.form_provider = {presence: true};
+    <?php
+    }
+    ?>
+
 
     var submit = submitme(1, undefined, 'theform', collectvalidation);
     if(!submit)return;
