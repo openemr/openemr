@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Use Dynamic Web TWAIN to Download</title>
+    <script type="text/javascript" src="Resources/dynamsoft.webtwain.initiate.js"> </script>
+    <script type="text/javascript" src="Resources/dynamsoft.webtwain.config.js"> </script>
+</head>
+
+<body>
+    <input type="button" value="Download" onclick="DownloadImage();" />
+
+    <!-- dwtcontrolContainer is the default div id for Dynamic Web TWAIN control.
+    If you need to rename the id, you should also change the id in the dynamsoft.webtwain.config.js accordingly. -->
+    <div id="dwtcontrolContainer"></div>
+    <br />
+    <div id="successfulInfo"></div>
+    <script type="text/javascript">
+        Dynamsoft.WebTwainEnv.RegisterEvent('OnWebTwainReady', Dynamsoft_OnReady); // Register OnWebTwainReady event. This event fires as soon as Dynamic Web TWAIN is initialized and ready to be used
+
+        var DWObject;
+
+        function Dynamsoft_OnReady() {
+            DWObject = Dynamsoft.WebTwainEnv.GetWebTwain('dwtcontrolContainer'); // Get the Dynamic Web TWAIN object that is embeded in the div with id 'dwtcontrolContainer'
+        }
+
+        //Callback functions for async APIs
+        function OnSuccess() {
+            console.log('successful');
+            document.getElementById('successfulInfo').innerHTML = 'Check the source code of this page for more info.';
+        }
+
+        function OnFailure(errorCode, errorString) {
+            alert(errorString);
+        }
+
+        function DownloadImage() {
+            if (DWObject) {
+                var strHTTPServer = location.hostname; //The name of the HTTP server. For example: "www.dynamsoft.com";
+                var file = "/Resources/reference/imgs/img.png";
+                var downloadfilename = location.pathname.substring(0, location.pathname.lastIndexOf('/')) + file;
+                DWObject.HTTPPort = location.port == "" ? 80 : location.port;                
+                DWObject.HTTPDownload(strHTTPServer, downloadfilename, OnSuccess, OnFailure);
+            }
+        }
+    </script>
+</body>
+</html>
