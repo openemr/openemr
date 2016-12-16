@@ -50,7 +50,7 @@ require_once("$srcdir/formatting.inc.php");
 	}
 	else
 	{
-		echo xl("Audit Log validation failed") . "(ERROR:: $errors[0])";
+		echo xl("Audit Log Validation Failed") . "(ERROR:: $errors[0])";
 	}
 
 	function catch_logs(){
