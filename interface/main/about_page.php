@@ -115,7 +115,7 @@ require_once("../globals.php");
 
 <body class="body_top">
     <div style="text-align: center;">
-        <span class="title"><?php  echo xlt('About OpenEMR'); ?> </span><br><br>
+        <span class="title"><?php  echo xlt('About'); ?> OpenEMR</span><br><br>
         <span class="text"><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
         <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br><br>
         <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
@@ -128,7 +128,7 @@ require_once("../globals.php");
     <?php } ?>
     <a href="../../acknowledge_license_cert.html" target="_blank" class="css_button"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a><br>
     <div class="donations-needed">
-        <span class="text"><?php echo xlt("Please consider sending in a donation to OpenEMR"); ?>:</span><br>
+        <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br>
         <a href="http://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V6EVVTYYK264C" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
     </div>
 
