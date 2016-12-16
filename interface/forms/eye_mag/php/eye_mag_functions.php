@@ -434,7 +434,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     </tr>
                     <tr>
                         <td><textarea disabled name="PRIOR_ODAC" id="PRIOR_ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
-                        <td class="ident"><?php echo xlt('A/C{{Anterior Chamber}}'); ?></td>
+                        <td class="ident"><?php echo xlt('A/C{{anterior chamber}}'); ?></td>
                         <td><textarea disabled name="PRIOR_OSAC" id="PRIOR_OSAC" class=""><?php echo text($OSAC); ?></textarea></td>
                     </tr>
                     <tr>
