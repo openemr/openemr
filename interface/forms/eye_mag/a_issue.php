@@ -858,7 +858,7 @@ foreach (explode(',',$given) as $item) {
                       <select name="form_tobacco" id="form_tobacco" onchange="radioChange(this.options[this.selectedIndex].value)" title="<?php xla('Tobacco use'); ?>">
                         <option value="" <?php if ($result2['tobacco']['reslist'] =='') echo "selected"; ?>><?php echo xlt('Unassigned'); ?></option>
                         <option value="1" <?php if ($result2['tobacco']['reslist'] =='1') echo "selected"; ?>><?php echo xlt('Current every day smoker'); ?></option>
-                        <option value="2" <?php if ($result2['tobacco']['reslist'] =='2') echo "selected"; ?>><?php echo xlt('Current some day smoker<'); ?>/option>
+                        <option value="2" <?php if ($result2['tobacco']['reslist'] =='2') echo "selected"; ?>><?php echo xlt('Current some day smoker'); ?></option>
                         <option value="3" <?php if ($result2['tobacco']['reslist'] =='3') echo "selected"; ?>><?php echo xlt('Former smoker'); ?></option>
                         <option value="4" <?php if ($result2['tobacco']['reslist'] =='4') echo "selected"; ?>><?php echo xlt('Never smoker'); ?></option>
                         <option value="5" <?php if ($result2['tobacco']['reslist'] =='5') echo "selected"; ?>><?php echo xlt('Smoker, current status unknown'); ?></option>
@@ -1117,7 +1117,7 @@ foreach (explode(',',$given) as $item) {
               <input type="text" name="ROSHEENT" id="ROSHEENT" onclick='clear_option(this)' value="<?php echo attr($ROSHEENT); ?>"></td>
           </tr>
           <tr>
-            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{cardiovascular}}'); ?>:</td>
+            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{Cardiovascular}}'); ?>:</td>
             <td>
               <input type="radio" onclick='negate_radio(this);' id="radio_ROSCV" name="radio_ROSCV"<?php if (!$ROSCV) echo "checked='checked'"; ?>>
               <input type="text" name="ROSCV" id="ROSCV" onclick='clear_option(this)' value="<?php echo attr($ROSCV); ?>"></td>
@@ -1127,17 +1127,17 @@ foreach (explode(',',$given) as $item) {
               <input type="text" name="ROSPULM" id="ROSPULM" onclick='clear_option(this)' value="<?php echo attr($ROSPULM); ?>"></td>
             </tr>
           <tr>
-            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{gastroenterology}}'); ?>:</td>
+            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{Gastrointestinal}}'); ?>:</td>
             <td>
               <input type="radio" onclick='negate_radio(this);' id="radio_ROSGI" name="radio_ROSGI"<?php if (!$ROSGI) echo "checked='checked'"; ?>>
               <input type="text" name="ROSGI" id="ROSGI" onclick='clear_option(this)' value="<?php echo attr($ROSGI); ?>"></td>
-            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{genitourinary}}'); ?>:</td>
+            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{Genitourinary}}'); ?>:</td>
             <td>
               <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU"<?php if (!$ROSGU) echo "checked='checked'"; ?>>
               <input type="text" name="ROSGU" id="ROSGU" onclick='clear_option(this)' value="<?php echo attr($ROSGU); ?>"></td>
           </tr>
           <tr>
-            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dematologic}}'); ?>:</td>
+            <td class="right" nowrap><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dermatologic}}'); ?>:</td>
             <td>
               <input type="radio" onclick='negate_radio(this);' id="radio_ROSDERM" name="radio_ROSDERM"<?php if (!$ROSDERM) echo "checked='checked'"; ?>>
               <input type="text" name="ROSDERM" id="ROSDERM" onclick='clear_option(this)' value="<?php echo attr($ROSDERM); ?>"></td>

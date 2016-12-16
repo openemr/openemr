@@ -392,7 +392,7 @@ if ($_REQUEST['dispensed']) {
                                 } else if ($row['REFTYPE'] == "MR") {
                                     echo xlt('Manifest (Dry) Refraction');
                                 } else if ($row['REFTYPE'] == "AR") {
-                                    echo xlt('Auto-Refraction');
+                                    echo xlt('Auto Refraction');
                                 } else if ($row['REFTYPE'] == "CTL") {
                                     echo xlt('Contact Lens');
                                 }  ?>
@@ -407,7 +407,7 @@ if ($_REQUEST['dispensed']) {
                                             <td></td>
                                             <td class="center"><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                             <td class="center"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                                            <td class="center"><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                            <td class="center"><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                                             <td rowspan="5" class="right bold underline" colspan="2" style="min-width:200px;font-weight:bold;">
                                                 <?php echo xlt('Rx Type'); ?><br /><br />
                                                 <?php echo xlt('Single'); ?>
@@ -468,7 +468,7 @@ if ($_REQUEST['dispensed']) {
                                             <td></td>
                                             <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                             <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                                            <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                            <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                                             <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                             <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                                             <td><?php echo xlt('ADD'); ?></td>
@@ -496,7 +496,7 @@ if ($_REQUEST['dispensed']) {
                                             <td></td>
                                             <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                             <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                                            <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                            <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                                             <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                             <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                                             <td><?php echo xlt('ADD'); ?></td>

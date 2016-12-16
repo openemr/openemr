@@ -410,7 +410,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <textarea name="HPI1" id="HPI1" class="HPI_text" tabindex="21"><?php echo text($HPI1); ?></textarea>
                                       <br />
                                     </td>
-                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php echo xla('Chronic/Inactive Problems:')."&nbsp\n".xla('document 3 and their status to reach the detailed HPI level')."&nbsp\n";
+                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php echo xla('Chronic/Inactive Problems').":&nbsp\n".xla('document 3 and their status to reach the detailed HPI level')."&nbsp\n";
                                     echo "PMH items flagged as Chronic with a comment regarding status will automatically appear here.";?>"><?php echo xlt('Chronic Problems') ?>:</span>
                                       <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC1</div>
                                       <textarea name="CHRONIC1" id="CHRONIC1" class="HPI_text chronic_HPI" tabindex="22"><?php echo text($CHRONIC1); ?></textarea>
@@ -871,7 +871,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <ul>
                                   <li id="LayerVision_W_lightswitch" class="<?php echo attr($button_W); ?>" value="Current" title="<?php echo xla("Display the patient's current glasses"); ?>"><?php echo xlt('W{{Current Rx - wearing}}'); ?></li> |
                                   <li id="LayerVision_MR_lightswitch" class="<?php echo attr($button_MR); ?>" value="Auto" title="<?php echo xla("Display the Manifest Refraction panel"); ?>"><?php echo xlt('MR{{Manifest Refraction}}'); ?></li> |
-                                  <li id="LayerVision_CR_lightswitch" class="<?php echo attr($button_AR); ?>" value="Cyclo" title="<?php echo xla("Display the Autorefraction Panel"); ?>"><?php echo xlt('AR{{AutoRefraction}}'); ?></li> |
+                                  <li id="LayerVision_CR_lightswitch" class="<?php echo attr($button_AR); ?>" value="Cyclo" title="<?php echo xla("Display the Autorefraction Panel"); ?>"><?php echo xlt('AR{{autorefraction}}'); ?></li> |
                                   <li id="LayerVision_CTL_lightswitch" class="<?php echo attr($button_CTL); ?>" value="Contact Lens" title="<?php echo xla("Display the Contact Lens Panel"); ?>"><?php echo xlt('CTL{{Contact Lens}}'); ?></li> |
                                   <li id="LayerVision_ADDITIONAL_lightswitch" class="<?php echo attr($button_ADDITIONAL); ?>" value="Additional" title="<?php echo xla("Display Additional measurements (Ks, IOL cals, etc)"); ?>"><?php echo xlt('Add.{{Additional Measurements}}'); ?></li> |
                                   <li id="LayerVision_VAX_lightswitch" class="<?php echo attr($button_VAX); ?>" value="Visual Acuities" title="<?php echo xla("Summary of Acuities for this patient"); ?>"><?php echo xlt('Va{{Visual Acuities}}'); ?></li>
@@ -912,8 +912,8 @@ if ($refresh and $refresh != 'fullscreen') {
                       <br />
                       <span id="more_visions_2" name="more_visions_2"><b><?php echo xlt('Acuity'); ?></b> </span>
                       <span><b><?php echo xlt('AR{{Autorefraction Acuity}}'); ?></b></span>
-                      <span><b><?php echo xlt('MR{{Manifest refraction}}'); ?></b></span>
-                      <span><b><?php echo xlt('CR{{Cycloplegic refraction}}'); ?></b></span>
+                      <span><b><?php echo xlt('MR{{Manifest Refraction}}'); ?></b></span>
+                      <span><b><?php echo xlt('CR{{Cycloplegic Refraction}}'); ?></b></span>
                   </div>
                 </div>
                 <!-- end of the VISION BOX -->
@@ -1232,7 +1232,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>" aria-hidden="true" id="revW1" ></i></td>
                           <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                           <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                          <td><?php echo xlt('Axis'); ?></td>
+                          <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                           <td><?php echo xlt('Acuity'); ?></td>
                           <td name="W_wide"></td>
                           <td name="W_wide" title="<?php echo xla('Horizontal Prism Power'); ?>"><?php echo xlt('HP{{abbreviation for Horizontal Prism Power}}'); ?></td>
@@ -1252,7 +1252,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <input type="radio" value="1" id="Bifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '1') echo 'checked="checked"'; ?> /></span><br /><br />
                             <label for="Trifocal_1" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
                             <input type="radio" value="2" id="Trifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '2') echo 'checked="checked"'; ?> /></span><br /><br />
-                            <label for="Progressive_1" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.'); ?></label>
+                            <label for="Progressive_1" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
                             <input type="radio" value="3" id="Progressive_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '3') echo 'checked="checked"'; ?> /></span><br />
                           </td>
                         </tr>
@@ -1370,7 +1370,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>" aria-hidden="true" id="MR" ></i></td>
                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                        <td><?php echo xlt('Axis'); ?></td>
+                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                         <td><?php echo xlt('Acuity'); ?></td>
                         <td><?php echo xlt('ADD'); ?></td>
                         <td><?php echo xlt('Jaeger'); ?></td>
@@ -1406,7 +1406,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>" aria-hidden="true" id="CR" ></i></td>
                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                        <td><?php echo xlt('Axis'); ?></td>
+                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                         <td><?php echo xlt('Acuity'); ?></td>
                         <td></td>
                         <td id="IOP_dil"><?php echo xlt('IOP Dilated{{Dilated Intraocular Pressure}}'); ?>
@@ -1461,7 +1461,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>" aria-hidden="true" id="AR" ></i></td>
                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                        <td><?php echo xlt('Axis'); ?></td>
+                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                         <td><?php echo xlt('Acuity'); ?></td>
                         <td><?php echo xlt('ADD'); ?></td>
                         <td><?php echo xlt('Jaeger{{Near Acuity Type Jaeger}}'); ?></td>
@@ -1616,7 +1616,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><i class="fa fa-gamepad" name="reverseme" title="<?php echo xla('Convert between plus and minus cylinder'); ?>" aria-hidden="true" id="CTL" ></i></td>
                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                        <td><?php echo xlt('Axis'); ?></td>
+                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                         <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                         <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                         <td><?php echo xlt('ADD'); ?></td>
@@ -1663,10 +1663,10 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td title="<?php echo xla('Pinhole Vision'); ?>"><?php echo xlt('PH{{pinhole acuity}}'); ?></td>
                         <td title="<?php echo xla('Potential Acuity Meter'); ?>"><?php echo xlt('PAM{{Potential Acuity Meter}}'); ?></td>
                         <td title="<?php echo xla('Laser Interferometry Acuity'); ?>"><?php echo xlt('LI{{Laser Interferometry Acuity}}'); ?></td>
-                        <td title="<?php echo xla('Brightness Acuity testing'); ?>"><?php echo xlt('BAT{{Brightness Acuity testing}}'); ?></td>
+                        <td title="<?php echo xla('Brightness Acuity Testing'); ?>"><?php echo xlt('BAT{{Brightness Acuity Testing}}'); ?></td>
                         <td><?php echo xlt('K1{{Keratometry 1}}'); ?></td>
                         <td><?php echo xlt('K2{{Keratometry 2}}'); ?></td>
-                        <td><?php echo xlt('Axis'); ?></td>
+                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input type="text" id="PHODVA" name="PHODVA" title="<?php echo xla('Pinhole Vision'); ?>" value="<?php echo attr($PHODVA); ?>" tabindex="10251"></td>
@@ -1690,11 +1690,11 @@ if ($refresh and $refresh != 'fullscreen') {
                       <tr><td>&nbsp;</td></tr>
                       <tr>
                         <td></td>
-                        <td title="<?php echo xla('Axial Length'); ?>"><?php echo xlt('AxLength{{Axial Length}}'); ?></td>
-                        <td title="<?php echo xla('Anterior Chamber Depth'); ?>"><?php echo xlt('ACD{{Anterior Chamber Depth}}'); ?></td>
+                        <td title="<?php echo xla('Axial Length'); ?>"><?php echo xlt('AxLength{{axial Length}}'); ?></td>
+                        <td title="<?php echo xla('Anterior Chamber Depth'); ?>"><?php echo xlt('ACD{{anterior chamber depth}}'); ?></td>
                         <td title="<?php echo xla('Inter-pupillary distance'); ?>"><?php echo xlt('PD{{Inter-pupillary distance}}'); ?></td>
-                        <td title="<?php echo xla('Lens Thickness'); ?>"><?php echo xlt('LT{{Lens Thickness}}'); ?></td>
-                        <td title="<?php echo xla('White-to-white'); ?>"><?php echo xlt('W2W{{White-to-white}}'); ?></td>
+                        <td title="<?php echo xla('Lens Thickness'); ?>"><?php echo xlt('LT{{lens thickness}}'); ?></td>
+                        <td title="<?php echo xla('White-to-white'); ?>"><?php echo xlt('W2W{{white-to-white}}'); ?></td>
                         <td title="<?php echo xla('Equivalent contact lens power at the corneal level'); ?>"><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
                         <!-- <td><?php echo xlt('pend'); ?></td> -->
                       </tr>
@@ -1730,8 +1730,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td title="<?php echo xla('Acuity with correction'); ?>"><?php echo xlt('W Rx{{Acuity with correction}}'); ?></td>
                         <td title="<?php echo xla('Acuity with Autorefraction'); ?>"><?php echo xlt('AR{{Autorefraction Acuity}}'); ?></td>
                         <td title="<?php echo xla('Acuity with Manifest Refraction'); ?>"><?php echo xlt('MR{{Manifest Refraction}}'); ?></td>
-                        <td title="<?php echo xla('Acuity with Cycloplegic Refraction'); ?>"><?php echo xlt('CR{{Cycloplegic refraction}}'); ?></td>
-                        <td title="<?php echo xla('Acuity with Pinhole'); ?>"><?php echo xlt('PH{{Pinhole acuity}}'); ?></td>
+                        <td title="<?php echo xla('Acuity with Cycloplegic Refraction'); ?>"><?php echo xlt('CR{{Cycloplegic Refraction}}'); ?></td>
+                        <td title="<?php echo xla('Acuity with Pinhole'); ?>"><?php echo xlt('PH{{pinhole acuity}}'); ?></td>
                         <td title="<?php echo xla('Acuity with Contact Lenses'); ?>"><?php echo xlt('CTL{{Contact Lens}}'); ?></td>
 
                       </tr>
@@ -1756,13 +1756,13 @@ if ($refresh and $refresh != 'fullscreen') {
                       <tr><td>&nbsp;</td></tr>
                       <tr>
                         <td></td>
-                        <td title="<?php echo xla('Near Acuity without correction'); ?>"><?php echo xlt('scNear{{without correct at near}}'); ?></td>
-                        <td title="<?php echo xla('Near Acuity with correction'); ?>"><?php echo xlt('ccNear{{with corrction at near}}'); ?></td>
+                        <td title="<?php echo xla('Near Acuity without Correction'); ?>"><?php echo xlt('scNear{{without correction near}}'); ?></td>
+                        <td title="<?php echo xla('Near Acuity with Correction'); ?>"><?php echo xlt('ccNear{{with correction at near}}'); ?></td>
                         <td title="<?php echo xla('Near Acuity with Autorefraction'); ?>"><?php echo xlt('ARNear{{autorefraction near}}'); ?></td>
-                        <td title="<?php echo xla('Near Acuity with Manifest (Dry) refraction'); ?>"><?php echo xlt('MRNear{{maifest refraction near}}'); ?></td>
+                        <td title="<?php echo xla('Near Acuity with Manifest (Dry) refraction'); ?>"><?php echo xlt('MRNear{{manifest refraction near}}'); ?></td>
                         <td title="<?php echo xla('Potential Acuity'); ?>"><?php echo xlt('PAM{{Potential Acuity Meter}}'); ?></td>
                         <td title="<?php echo xla('Brightness Acuity Testing'); ?>"><?php echo xlt('BAT{{Brightness Acuity Testing}}'); ?></td>
-                        <td title="<?php echo xla('Contrast Acuity'); ?>"><?php echo xlt('Contrast'); ?></td>
+                        <td title="<?php echo xla('Contrast Acuity'); ?>"><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input class="jaeger" type="text" id="SCNEARODVA" title="<?php echo xla('Near Acuity without Correction'); ?>" name="SCNEARODVA" value="<?php echo attr($SCNEARODVA); ?>" tabindex="10320"></td>
@@ -1849,7 +1849,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         </table>
                         <table>
                               <tr>
-                                <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L'); ?></td>
+                                <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L{{left}}'); ?></td>
                               </tr>
                               <tr>
                                   <td class="right" title="<?php echo xla('Levator Function'); ?>">
@@ -1890,7 +1890,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               </tr>
                               <tr>
                                   <td class="right" title="<?php echo xla('Cranial Nerve 7: Facial Nerve'); ?>">
-                                    <div class="kb kb_left"><?php echo xlt('CN7{{cranial nerve five}}'); ?></div><?php echo xlt('CN VII{{cranial nerve seven}}'); ?></td>
+                                    <div class="kb kb_left"><?php echo xlt('CN7{{cranial nerve seven}}'); ?></div><?php echo xlt('CN VII{{cranial nerve seven}}'); ?></td>
                                   <td><input type="text" size="1" name="RCNVII" class="EXT" id="RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
                                   <td><input type="text" size="1" name="LCNVII" class="EXT" id="LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                               </tr>
@@ -2144,7 +2144,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <tr>
                                       <td>
                                         <textarea name="ODCONJ" id="ODCONJ" class="right"><?php echo text($ODCONJ); ?></textarea></td>
-                                      <td><div class="ident"><?php echo xlt('Conj'); ?> / <?php echo xlt('Sclera'); ?></div>
+                                      <td><div class="ident"><?php echo xlt('Conj{{Conjunctiva}}'); ?> / <?php echo xlt('Sclera'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RC{{right conjunctiva}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LC{{left conjunctiva}}'); ?></div></td>
                                       <td><textarea name="OSCONJ" id="OSCONJ" class="ANTSEG"><?php echo text($OSCONJ); ?></textarea></td>
@@ -2158,7 +2158,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   </tr>
                                   <tr>
                                       <td><textarea name="ODAC" id="ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
-                                      <td><div class="ident"><?php echo xlt('A/C'); ?></div>
+                                      <td><div class="ident"><?php echo xlt('A/C{{anterior chamber}}'); ?></div>
                                         <div class="kb kb_left"><?php echo xlt('RAC{{right anterior chamber}}'); ?></div>
                                         <div class="kb kb_right"><?php echo xlt('LAC{{left anterior chamber}}'); ?></div></td></td>
                                       <td><textarea name="OSAC" id="OSAC" class="ANTSEG"><?php echo text($OSAC); ?></textarea></td>
@@ -2210,11 +2210,11 @@ if ($refresh and $refresh != 'fullscreen') {
                               <span  class="eye_button" id="ANTSEG_prefix_5mm" name="ANTSEG_prefix_5mm"  onclick="$('#ANTSEG_prefix').val('5mm').trigger('change');"> <?php echo xlt('5mm'); ?> </span>  <br />
                               <span  class="eye_button" id="ANTSEG_prefix_medial" name="ANTSEG_prefix_medial"  onclick="$('#ANTSEG_prefix').val('medial').trigger('change');"><?php echo xlt('med{{medial}}'); ?></span>
                               <span  class="eye_button" id="ANTSEG_prefix_lateral" name="ANTSEG_prefix_lateral"  onclick="$('#ANTSEG_prefix').val('lateral').trigger('change');"><?php echo xlt('lat{{lateral}}'); ?></span>
-                              <span  class="eye_button" id="ANTSEG_prefix_superior" name="ANTSEG_prefix_superior"  onclick="$('#ANTSEG_prefix').val('superior').trigger('change');"><?php echo xlt('sup{{su[erior}}'); ?></span>
+                              <span  class="eye_button" id="ANTSEG_prefix_superior" name="ANTSEG_prefix_superior"  onclick="$('#ANTSEG_prefix').val('superior').trigger('change');"><?php echo xlt('sup{{superior}}'); ?></span>
                               <span  class="eye_button" id="ANTSEG_prefix_inferior" name="ANTSEG_prefix_inferior"  onclick="$('#ANTSEG_prefix').val('inferior').trigger('change');"><?php echo xlt('inf{{inferior}}'); ?></span>
                               <span  class="eye_button" id="ANTSEG_prefix_anterior" name="ANTSEG_prefix_anterior"  onclick="$('#ANTSEG_prefix').val('anterior').trigger('change');"><?php echo xlt('ant{{anterior}}'); ?></span>  <br />
                               <span  class="eye_button" id="ANTSEG_prefix_mid" name="ANTSEG_prefix_mid"  onclick="$('#ANTSEG_prefix').val('mid').trigger('change');"><?php echo xlt('mid'); ?></span>  <br />
-                              <span  class="eye_button" id="ANTSEG_prefix_posterior" name="ANTSEG_prefix_posterior"  onclick="$('#ANTSEG_prefix').val('posterior').trigger('change');"><?php echo xlt('post'); ?></span>  <br />
+                              <span  class="eye_button" id="ANTSEG_prefix_posterior" name="ANTSEG_prefix_posterior"  onclick="$('#ANTSEG_prefix').val('posterior').trigger('change');"><?php echo xlt('post{{posterior}}'); ?></span>  <br />
                               <span  class="eye_button" id="ANTSEG_prefix_deep" name="ANTSEG_prefix_deep"  onclick="$('#ANTSEG_prefix').val('deep').trigger('change');"><?php echo xlt('deep'); ?></span>
                               <br />
                               <br />
@@ -2458,7 +2458,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist{{without correction distance}}'); ?> </td>
                                                 <td id="ACT_tab_CCDIST" name="ACT_tab_CCDIST" class="ACT_deselected"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </td>
                                                 <td id="ACT_tab_SCNEAR" name="ACT_tab_SCNEAR" class="ACT_deselected"> <?php echo xlt('scNear{{without correction near}}'); ?> </td>
-                                                <td id="ACT_tab_CCNEAR" name="ACT_tab_CCNEAR" class="ACT_deselected"> <?php echo xlt('ccNear{{with correction near}}'); ?> </td>
+                                                <td id="ACT_tab_CCNEAR" name="ACT_tab_CCNEAR" class="ACT_deselected"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </td>
                                             </tr>
                                             <tr>
                                                 <td colspan="4"><div id="ACT_SCDIST" name="ACT_SCDIST" class="ACT_box">
@@ -3103,7 +3103,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <br />
                         </div>  <br /><br />
                        <div>
-                          <button id="NEURO_RECORD" name="NEURO_RECORD"><?php echo xlt(' RECORD '); ?></button>
+                          <button id="NEURO_RECORD" name="NEURO_RECORD"> <?php echo xlt('RECORD'); ?> </button>
                         </div>
                       </div>
                       <div id="NEURO_P_3">
@@ -3112,14 +3112,14 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="eye_button <?php if ($ACT_SHOW =='SCDIST') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_SCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCDIST').trigger('change');"> <?php echo xlt('scDist{{without correction distance}}'); ?> </span>
                           <span class="eye_button <?php if ($ACT_SHOW =='CCDIST') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_CCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCDIST').trigger('change');"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </span>
                           <span class="eye_button <?php if ($ACT_SHOW =='SCNEAR') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_SCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCNEAR').trigger('change');"> <?php echo xlt('scNear{{without correction near}}'); ?> </span>
-                          <span class="eye_button <?php if ($ACT_SHOW =='CCNEAR') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction near}}'); ?> </span>
+                          <span class="eye_button <?php if ($ACT_SHOW =='CCNEAR') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </span>
                         </div>
                         <div class="borderShadow ACT_boxed"><span class="underline"><?php echo xlt('Position of Gaze'); ?></span><br />
-                          <span class="eye_button_blank"> <?php echo xlt('R{{Right}}'); ?> </span>
+                          <span class="eye_button_blank"> <?php echo xlt('R{{right}}'); ?> </span>
                           <span class="eye_button" id="NEURO_field_1" name="NEURO_field"  onclick="$('#NEURO_field').val('1').trigger('change');"> 1 </span>
                           <span class="eye_button" id="NEURO_field_2" name="NEURO_field"  onclick="$('#NEURO_field').val('2').trigger('change');"> 2 </span>
                           <span class="eye_button" id="NEURO_field_3" name="NEURO_field"  onclick="$('#NEURO_field').val('3').trigger('change');"> 3 </span>
-                          <span class="eye_button_blank"> <?php echo xlt('L{{Left}}'); ?> </span>
+                          <span class="eye_button_blank"> <?php echo xlt('L{{left}}'); ?> </span>
 
                           <span class="eye_button_blank"><i class="fa fa-1 fa-reply rotate-left"></i></span>
                           <span class="eye_button" id="NEURO_field_4" name="NEURO_field"  onclick="$('#NEURO_field').val('4').trigger('change');"> 4 </span>
@@ -3249,8 +3249,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <span id="IMP_start" name="IMP_start"><?php echo xlt('Impression/Plan Builder'); ?></span>
                         <div id="IMP_start2">
                           <input type="checkbox" id="inc_PE" name="inc_PE" checked><label for='inc_PE' class='input-helper input-helper--checkbox'><?php echo xlt('Exam{{Physical Exam}}'); ?></label>&nbsp;
-                          <input type="checkbox" id="inc_POH" name="inc_POH" checked><label for='inc_POH' class='input-helper input-helper--checkbox'><?php echo xlt('POH{{Past Ocular History abbreviation}}'); ?></label>&nbsp;
-                          <input type="checkbox" id="inc_PMH" name="inc_PMH"><label for='inc_PMH' class='input-helper input-helper--checkbox'><?php echo xlt('PMH{{Past Medical History abbreviation}}') ?></label>&nbsp;
+                          <input type="checkbox" id="inc_POH" name="inc_POH" checked><label for='inc_POH' class='input-helper input-helper--checkbox'><?php echo xlt('POH{{Past Ocular History}}'); ?></label>&nbsp;
+                          <input type="checkbox" id="inc_PMH" name="inc_PMH"><label for='inc_PMH' class='input-helper input-helper--checkbox'><?php echo xlt('PMH{{Past Medical History}}') ?></label>&nbsp;
                         </div>
                       </dt>
                         <dd id="IMP_start_acc" name="IMP_start_acc">
@@ -3611,7 +3611,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       echo text($pcp_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_pcp'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_PCP['id']."'
-                                      target='_blank' title='".xla('View the Summay Report sent to Fax Server.')."''>
+                                      target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."''>
                                       <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                       <i class='fa fa-repeat fa-fw'
                                         onclick=\"top.restoreSession(); create_task('".attr($pat_data['providerID'])."','Fax-resend','ref'); return false;\">
@@ -3633,7 +3633,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       echo text($ref_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_ref'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_REF['id']."'
-                                      target='_blank' title='".xla('View the Summay Report sent to Fax Server.')."''>
+                                      target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."''>
                                       <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                       <i class='fa fa-repeat fa-fw'
                                         onclick=\"top.restoreSession(); create_task('".attr($pat_data['ref_providerID'])."','Fax-resend','ref'); return false;\">

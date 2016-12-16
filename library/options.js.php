@@ -208,7 +208,7 @@ function lbfCanvasSetup(canid, canWidth, canHeight) {
   LC.localize({
     "stroke"    : "<?php echo xls('stroke'    ); ?>",
     "fill"      : "<?php echo xls('fill'      ); ?>",
-    "bg"        : "<?php echo xls('bg'        ); ?>",
+    "bg"        : "<?php echo xls('bg{{image canvas label}}'        ); ?>",
     "Clear"     : "<?php echo xls('Clear'     ); ?>",
     // The following are tooltip translations, however they do not work due to
     // a bug in LiterallyCanvas 0.4.13.  We'll leave them here pending a fix.

@@ -467,7 +467,7 @@ if ( $esign->isButtonViewable() ) {
                 <?php } ?>
                 </td>
                 <td>
-                <span class="text"><?php echo xl('Summary Of Care Provided ?') ?></span>
+                <span class="text"><?php echo xl('Summary Of Care Provided?') ?></span>
                 </td>
                 </tr>
                 </table>

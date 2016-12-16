@@ -500,7 +500,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             </tr>
             <?php } if ($ARODVA||$AROSVA) { ?>
             <tr>
-              <td><?php echo xlt('AR{{Auto-refraction}}'); ?></td>
+              <td><?php echo xlt('AR{{autorefraction}}'); ?></td>
               <td><?php echo text($ARODVA); ?></td>
               <td><?php echo text($AROSVA); ?></td>
             </tr>
@@ -530,13 +530,13 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             </tr>
             <?php } if ($SCNEARODVA||$SCNEAROSVA) { ?>
             <tr>
-              <td><?php echo xlt('scNear{{without correction at Near}}'); ?></td>
+              <td><?php echo xlt('scNear{{without correction near}}'); ?></td>
               <td><?php echo text($SCNEARODVA); ?></td>
               <td><?php echo text($SCNEAROSVA); ?></td>
             </tr>
             <?php } if ($ODNEARVA_1||$WNEAROSVA_1) { ?>
             <tr>
-              <td><?php echo xlt('ccNear{{with correction at Near}}'); ?></td>
+              <td><?php echo xlt('ccNear{{with correction at near}}'); ?></td>
               <td><?php echo text($ODNEARVA_1); ?></td>
               <td><?php echo text($OSNEARVA_1); ?></td>
             </tr>
@@ -560,13 +560,13 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             </tr>
             <?php } if ($GLAREODVA||$GLAREOSVA) { ?>
             <tr>
-              <td><?php echo xlt('Glare{{Acuity under Glare  conditions}}'); ?></td>
+              <td><?php echo xlt('Glare{{Acuity under Glare conditions}}'); ?></td>
               <td><?php echo text($GLAREODVA); ?></td>
               <td><?php echo text($GLAREOSVA); ?></td>
             </tr>
             <?php } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
             <tr>
-              <td><?php echo xlt('Contrast{{Constaast Visual Acuity}}'); ?></td>
+              <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
               <td><?php echo text($CONTRASTODVA); ?></td>
               <td><?php echo text($CONTRASTOSVA); ?></td>
             </tr>
@@ -624,13 +624,13 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
           <?php
           if ($bad < '1' ) {  ?>
         <td class="report_vitals">
-          <b class="underline"><?php echo xlt('Fields'); ?></b>
+          <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
           <?php
             echo "<br /><br />&nbsp;Full to CF OU&nbsp;<br /><br /><br />";
           } else {
             ?>
           <td class="report_vitals">
-            <b class="underline"><?php echo xlt('Fields'); ?></b>
+            <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
             <table style="font-size:1.0em;text-align:center;">
               <tr style="font-weight:bold;">
                       <td style="width:0.5in;text-align:center;text-decoration:underline;" colspan="2"><b><?php echo xlt('OD'); ?></b>
@@ -764,11 +764,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                           <tr>
                             <th> &nbsp;
                             </th>
-                            <th style="padding: 2px 5px;"><?php echo xlt('size'); ?> (<?php echo xlt('mm{{size in millimeters}}'); ?>)
+                            <th style="padding: 2px 5px;"><?php echo xlt('size'); ?> (<?php echo xlt('mm{{millimeters}}'); ?>)
                             </th>
                             <th style="padding: 2px;"><?php echo xlt('react{{reactivity}}'); ?>
                             </th>
-                            <th style="padding: 2px;"><?php echo xlt('APD{{Afferent Pupillary Defect}}'); ?>
+                            <th style="padding: 2px;"><?php echo xlt('APD{{afferent pupillary defect}}'); ?>
                             </th>
                           </tr>
                           <tr>
@@ -823,7 +823,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
             <table style="report_vitals" style="font-size: 8px;text-align:middle;">
               <tr >
                 <th></th>
-                <th style="padding: 2px;text-align:center;" ><?php echo xlt('size'); ?> (<?php echo xlt('mm'); ?>)
+                <th style="padding: 2px;text-align:center;" ><?php echo xlt('size'); ?> (<?php echo xlt('mm{{millimeters}}'); ?>)
                 </th>
               </tr>
               <tr>
@@ -903,7 +903,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Eye'); ?></td>
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Sph{{Sphere}}'); ?></td>
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-              <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Axis'); ?></td>
+              <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Prism'); ?></td>
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Acuity'); ?></td>
               <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
@@ -967,7 +967,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
 
               if ($ARODSPH||$AROSSPH) { ?>
                 <tr style="border-bottom:1pt solid black;">
-                  <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Autorefraction'); ?></td>
+                  <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Auto Refraction'); ?></td>
                   <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
                   <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODSPH)?:"-");  ?></td>
                   <td style="font-weight:400;font-size:1.0em;text-align:center;"><?php echo (text($ARODCYL)?:"-");  ?></td>
@@ -1061,8 +1061,8 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                   <td></td>
                   <td><?php echo xlt('Eye'); ?></td>
                   <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
-                  <td><?php echo xlt('Cyl{{Cyinder}}'); ?></td>
-                  <td><?php echo xlt('Axis'); ?></td>
+                  <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                  <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                   <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                   <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                   <td><?php echo xlt('ADD'); ?></td>
@@ -1128,7 +1128,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
               <td><?php echo xlt('BAT{{Brightness Acuity Testing}}'); ?></td>
               <td><?php echo xlt('K1{{Keratometry 1}}'); ?></td>
               <td><?php echo xlt('K2{{Keratometry 2}}'); ?></td>
-              <td><?php echo xlt('Axis'); ?></td>
+              <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
             </tr>
             <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
               <td><?php echo text($PHODVA); ?></td>
@@ -1273,7 +1273,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     </tr>
                     <tr>
                       <td class="report_text right"><?php echo text($ODCONJ); ?></td>
-                      <td class="middle"><?php echo xlt('Conj'); ?></td>
+                      <td class="middle"><?php echo xlt('Conj{{Conjunctiva}}'); ?></td>
                       <td class="report_text left"><?php echo text($OSCONJ); ?></td>
                     </tr>
                     <tr>
@@ -1283,7 +1283,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                     </tr>
                     <tr>
                       <td class="report_text right "><?php echo text($ODAC); ?></td>
-                      <td class="middle"><?php echo xlt('A/C'); ?></td>
+                      <td class="middle"><?php echo xlt('A/C{{anterior chamber}}'); ?></td>
                       <td class="report_text left"><?php echo text($OSAC); ?></td>
                     </tr>
                     <tr>
@@ -1656,11 +1656,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                       <td colspan="4" style="text-align:center;font-size:0.9em;">
                                           <table>
                                             <tr>
-                                              <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT1SCDIST); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT2SCDIST); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT3SCDIST); ?></td>
-                                              <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
                                             </tr>
                                             <tr>
                                               <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
@@ -1694,11 +1694,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                       <td colspan="4" style="text-align:center;font-size:0.8em;">
                                           <table>
                                             <tr>
-                                              <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT1CCDIST); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT2CCDIST); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT3CCDIST); ?></td>
-                                              <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
                                             </tr>
                                             <tr>
                                               <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
@@ -1730,17 +1730,17 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                               <td style="text-align:center;"> <!-- scNEAR -->
                                   <table cellpadding="0" style="position:relative;text-align:center;font-size:1.5em;margin: 7 5 10 5;border-collapse: separate;">
                                     <tr>
-                                      <td class="ACT_deselected"> <?php echo xlt('sc Near{{without correction near'); ?> </td>
+                                      <td class="ACT_deselected"> <?php echo xlt('sc Near{{without correction near}}'); ?> </td>
                                     </tr>
                                     <tr>
                                       <td colspan="4" style="text-align:center;font-size:0.8em;">
                                           <table>
                                             <tr>
-                                              <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT1SCNEAR); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT2SCNEAR); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT3SCNEAR); ?></td>
-                                              <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
                                             </tr>
                                             <tr>
                                               <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
@@ -1776,11 +1776,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                                       <td colspan="4" style="text-align:center;font-size:1.0em;">
                                           <table>
                                             <tr>
-                                              <td style="text-align:center;"><?php echo xlt('R{{Right}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT1CCNEAR); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT2CCNEAR); ?></td>
                                               <td class="ACT"><?php echo report_ACT($ACT3CCNEAR); ?></td>
-                                              <td style="text-align:center;"><?php echo xlt('L{{Left}}'); ?></td>
+                                              <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
                                             </tr>
                                             <tr>
                                               <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td>
