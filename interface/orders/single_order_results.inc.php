@@ -24,14 +24,35 @@ require_once($GLOBALS["srcdir"] . "/formdata.inc.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/formatting.inc.php");
 require_once($GLOBALS["srcdir"] . "/classes/Document.class.php");
+require_once($GLOBALS["srcdir"] . "/pnotes.inc");
+
+/**
+ * Cache translated titles from small list (need a library function here)
+ * For lists with large number of entries, use sqlQuery
+ * ** Options are not translated **
+ *
+ * @param  string  $listid  List identifier.
+ *
+ * @return array of titles
+ */
+function getListItems($listid) {
+    $items = array();
+    $rs = sqlStatement("SELECT option_id, title FROM list_options " .
+            "WHERE list_id = ? AND activity = 1",
+            array($listid));
+    while ($r = sqlFetchArray($rs)) {
+        $items[$r['option_id']] = xl_list_label($r['title']);
+    }
+    return $items;
+}
+
+$cached_list = array();
 
 function getListItem($listid, $value) {
-  $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
-  $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
-  return $tmp;
+    if (!isset($cached_list[$listid])) $cached_list[$listid] = getListItems($listid);
+    $tmp = $cached_list[$listid][$value];
+    if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
+    return $tmp;
 }
 
 function myCellText($s) {
@@ -101,7 +122,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
   $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
   $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
-
+  
   // Someone changed the delimiter in result comments from \n to \r.
   // Have to make sure results are consistent with those before that change.
   $result_comments = str_replace("\r", "\n", $result_comments);
@@ -134,39 +155,43 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   if ($ctx['lastpcid'] != $order_seq) {
     ++$ctx['encount'];
   }
-  $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
+//   $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
 
-  echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+//   
 
   if ($ctx['lastpcid'] != $order_seq) {
+    printf(' <tr class="detail detail-rep">');
     $ctx['lastprid'] = -1; // force report fields on first line of each procedure
-    $tmp = text("$procedure_code: $procedure_name");
+    $tmp = text("$procedure_code");
     // Get the LOINC code if one exists in the compendium for this order type.
     if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
       $trow = sqlQuery("SELECT standard_code FROM procedure_type WHERE " .
         "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
         "ORDER BY procedure_type_id LIMIT 1",
         array($lab_id, $procedure_code));
-      if (!empty($trow['standard_code'])) {
-        $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
-          "\")'>$tmp</a>";
+      if (empty($trow['standard_code'])) {
+          $tmp = '';
+      } else {
+          $tmp = sprintf(' href="javascript:educlick(%s,%s)"', 
+                "'LOINC'", ("'".attr($trow['standard_code'])."'"));
       }
     }
-    echo "  <td>$tmp</td>\n";
+    printf('  <td colspan="2" %s>%s (%s)</td>', 
+            $tmp, $procedure_name, text("$procedure_code"));
   }
-  else {
-    echo "  <td style='background-color:transparent'>&nbsp;</td>";
-  }
+//   else {
+//     echo "  <td style='background-color:transparent'>&nbsp;</td>";
+//   }
 
   // If this starts a new report or a new order, generate the report fields.
   if ($report_id != $ctx['lastprid']) {
-    echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
-    echo "</td>\n";
-
-    echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10) . $date_collected_suf);
-    echo "</td>\n";
+    printf ('  <td  colspan="2">
+            <div><label class="lighter">%s:</label> %s %s%s</div>
+            <div><label class="lighter">%s:</label> %s %s%s</div></td>',
+        xlt("Reported"), oeFormatShortDate(substr($date_report, 0, 10)), 
+            substr($date_report, 10), $date_report_suf,
+        xlt("Collected"), oeFormatShortDate(substr($date_collected, 0, 10)), 
+            substr($date_collected, 10), $date_collected_suf);
 
     echo "  <td>";
     echo myCellText($specimen_num);
@@ -182,18 +207,19 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     echo "  <td align='center'>";
     echo myCellText($report_noteid);
     echo "</td>\n";
-  }
-  else {
-    echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
+    
+    echo "</tr>\n";
   }
 
+  $detail_abn = (($result_abnormal && strtolower($result_abnormal) != 'no') ? 'detail-abn' : '');
+  echo "<tr class='detail detail-res $detail_abn'>";
   if ($result_code !== '' || $result_document_id) {
     $tmp = myCellText($result_code);
     if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
       $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
         "\")'>$tmp</a>";
     }
-    echo "  <td>$tmp</td>\n";
+    echo "  <td><span style='margin-left: 10px;'>$tmp</span></td>\n";
     echo "  <td>";
     echo myCellText($result_text);
     echo "</td>\n";
@@ -220,18 +246,19 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
         echo "</a>";
       }
       echo "</td>\n";
-      $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?",array($result_document_id));
-      if(!empty($narrative_notes)){
-      	$nnotes = explode("\n",$narrative_notes['notes']);
-      	$narrative_note_list = '';
-      	foreach($nnotes as $nnote){
-      		if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
-      		$narrative_note_list .= $nnote;
-      	}
-      	
-      	if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', '; $result_noteid .= 1 + storeNote($narrative_note_list);}
+      // Build document related notes in date order (minor enhancement to earlier commit)
+      $rsn = sqlStatement('SELECT owner, date, note FROM notes WHERE foreign_id = ?
+          ORDER BY date, owner', array($result_document_id));
+      if (sqlNumRows($rsn)) {
+          $dNotes = xl('Narrative Notes').":\n";
+          while ($dNote = sqlFetchArray($rsn)) {
+              $dNotes .= sprintf('[%s - %s %s] %s',
+                      $dNote['owner'], oeFormatShortDate($dNote['date']), oeFormatTime(date('H:i:s', $dNote['date'])),
+                      $dNote['note']."\n");
+              if ($result_noteid) $result_noteid .= ', ';
+              $result_noteid .= 1 + storeNote($dNotes);
+          }
       }
-      
     }
     else {
       echo "  <td>";
@@ -358,7 +385,8 @@ function showpnotes(orderid) {
  for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
   if (w.parent == w) {
    // This message is not translated because a developer will need to find it.
-   alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
+   top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?orderid=" + orderid;
+   // alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
    return false;
   }
  }
@@ -385,80 +413,106 @@ function educlick(codetype, codevalue) {
 <form method='post' action='single_order_results.php?orderid=<?php echo $orderid; ?>'>
 <?php } // end if input form ?>
 
-<div class='labres'>
-
-<table width='100%' cellpadding='2' cellspacing='0'>
- <tr>
-  <td class="td-label" width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
-  <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
-  <td class="td-label" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
-  <td width='45%'>
-<?php
-  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-    echo "   <a href='" . $GLOBALS['webroot'];
-    echo "/interface/orders/order_manifest.php?orderid=";
-    echo attr($orow['procedure_order_id']);
-    echo "' target='_blank' onclick='top.restoreSession()'>";
-  }
-  echo myCellText($orow['procedure_order_id']);
-  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-    echo "</a>\n";
-  }
-  if ($orow['control_id']) {
-    echo myCellText(' ' . xl('Lab') . ': ' . $orow['control_id']);
-  }
+<div>
+<?php 
+// Prepare top header data
+$ord_ref = myCellText($orow['procedure_order_id']);
+if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+    $ord_ref = sprintf('<a href="%s/interface/orders/order_manifest.php?orderid=%s
+            target="_blank" onclick="top.restoreSession()">%s</a>',
+            $GLOBALS['webroot'], $orow['procedure_order_id'], $ord_ref);
+}
+if ($orow['control_id']) {
+    $ord_ref .= sprintf(' / %s (%s)', $orow['control_id'], $orow['labname']);
+}
+$hdr = array(
+    'Patient' => sprintf('%s, %s %s (%s)', $orow['lname'], $orow['fname'], $orow['mname'], $orow['pubpid']),
+    'Encounter Date' => oeFormatShortDate(substr($orow['date'], 0, 10)),
+    'Service Provider' => $orow['labname'],
+    'Ordered By' => sprintf('%s, %s %s', $orow['ulname'], $orow['ufname'], $orow['umname']),
+    'Order Date' => oeFormatShortDate($orow['date_ordered']),
+    'Order Ref' => $ord_ref,
+    'Specimen Type' => $orow['specimen_type'],
+    'Order Status' => $orow['order_status'],
+);
+$grid_cols=3;
+$ix_col=0;
+echo "<table class='report_results indented'>\n";
+foreach ($hdr as $hlbl => $hval) {
+    if (strlen(trim($hval)) == 0) continue;
+    if (($ix_col % $grid_cols) == 0) echo "<tr>";
+    printf('<td><label>%s</label><div>%s</div></td>',
+            xlt($hlbl), $hval);
+    $ix_col++;
+    if (($ix_col % $grid_cols) == 0) echo "</tr>";
+}
+if (($ix_col % $grid_cols) != 0) echo "</tr>";
 ?>
-  </td>
- </tr>
- <tr>
-  <td class="td-label" nowrap><?php echo xlt('Patient Name'); ?></td>
-  <td><?php echo myCellText($orow['lname'] . ', ' . $orow['fname'] . ' ' . $orow['mname']); ?></td>
-  <td class="td-label" nowrap><?php echo xlt('Ordered By'); ?></td>
-  <td><?php echo myCellText($orow['ulname'] . ', ' . $orow['ufname'] . ' ' . $orow['umname']); ?></td>
- </tr>
- <tr>
-  <td class="td-label" nowrap><?php echo xlt('Order Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate($orow['date_ordered'])); ?></td>
-  <td class="td-label" nowrap><?php echo xlt('Print Date'); ?></td>
-  <td><?php echo oeFormatShortDate(date('Y-m-d')); ?></td>
- </tr>
- <tr>
-  <td class="td-label" nowrap><?php echo xlt('Order Status'); ?></td>
-  <td><?php echo myCellText($orow['order_status']); ?></td>
-  <td class="td-label" nowrap><?php echo xlt('Encounter Date'); ?></td>
-  <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
- </tr>
- <tr>
-  <td class="td-label" nowrap><?php echo xlt('Lab'); ?></td>
-  <td><?php echo myCellText($orow['labname']); ?></td>
-  <td class="td-label" nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
-  <td><?php echo myCellText($orow['specimen_type']); ?></td>
- </tr>
 </table>
 
-&nbsp;<br />
+ <div style="margin: 10px 0;">
+<?php
+  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+      $rsn = getPnotesByDate("", "1", "id", $patient_id, "1", 0, '', 0, "", $orderid);
+      if (count($rsn)) {
+        printf ('<span onclick="showpnotes(%s)">%s(%s)</span>',
+                    $orderid, xla('View Active Notes'), count($rsn));
+      }
+  }
+?>
+</div>
 
-<table width='100%' cellpadding='2' cellspacing='0'>
 
+<style>
+.detail-rep {
+    font-size: 110%;
+    font-weight: 900;
+    border-style: groove;
+    border-radius: 25px 25px 0 0; 
+}
+.detail-rep > td {
+    margin-top: 10px;
+}
+.detail-res {
+    font-size: 90%;
+    font-weight: 300;
+}
+.detail-res > td, .detail-res > th  {
+    padding-right: 4px;
+    font-size: 90%;
+}
+.detail-abn > td {
+    background-color: yellow;
+}
+table.indented label, label.lighter {
+    font-weight: lighter;
+    color: gray;
+    font-size: 90%;
+    margin-bottom: 0;
+}
+table.indented div { 
+    display: block;
+    margin: 0 0 0 20px;
+    font-weight: bold;
+}
+
+</style>
+<table class="report_results">
+<?php if (FALSE) { ?>
  <tr class='head'>
   <td class="td-label" rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
   <td  class="td-label" colspan='5'><?php echo xlt('Report'); ?></td>
   <td class="td-label" colspan='7'><?php echo xlt('Results'); ?></td>
  </tr>
-
- <tr class='head'>
-  <td><?php echo xlt('Reported'); ?></td>
-  <td><?php echo xlt('Collected'); ?></td>
-  <td><?php echo xlt('Specimen'); ?></td>
-  <td><?php echo xlt('Status'); ?></td>
-  <td><?php echo xlt('Note'); ?></td>
-  <td><?php echo xlt('Code'); ?></td>
-  <td><?php echo xlt('Name'); ?></td>
-  <td><?php echo xlt('Abn'); ?></td>
-  <td><?php echo xlt('Value'); ?></td>
-  <td><?php echo xlt('Range'); ?></td>
-  <td><?php echo xlt('Units'); ?></td>
-  <td><?php echo xlt('Note'); ?></td>
+<?php } ?>
+ <tr>
+  <th><?php echo xlt('Code'); ?></th>
+  <th><?php echo xlt('Description'); ?></th>
+  <th><?php echo xlt('Abn'); ?></th>
+  <th><?php echo xlt('Value'); ?></th>
+  <th><?php echo xlt('Range'); ?></th>
+  <th><?php echo xlt('Units'); ?></th>
+  <th><?php echo xlt('Note'); ?></th>
  </tr>
 
 <?php 
@@ -562,42 +616,26 @@ function educlick(codetype, codevalue) {
   }
 
 ?>
-
 </table>
-
-&nbsp;<br />
-<table width='100%' style='border-width:0px;'>
- <tr>
-  <td style='border-width:0px;'>
-<?php
-  if (!empty($aNotes)) {
-    echo "<table cellpadding='3' cellspacing='0'>\n";
-    echo " <tr bgcolor='#cccccc'>\n";
-    echo "  <th align='center' colspan='2'>" . xlt('Notes') . "</th>\n";
-    echo " </tr>\n";
+<br>
+<?php 
+if (!empty($aNotes)) {
+    printf ('<div>%s</div><table class="report_results"><tr>', xlt('Notes'));
     foreach ($aNotes as $key => $value) {
-      echo " <tr>\n";
-      echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
-      // <pre> tag because white space and a fixed font are often used to line things up.
-      echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
-      echo " </tr>\n";
+        printf('<tr><td style="padding:6px;" valign="top">%s</td>
+                    <td style="padding:6px;">%s</td></tr>', 
+                ($key + 1), text($value));
     }
-    echo "</table>\n";
-  }
+}
 ?>
-  </td>
+<tr>
   <td style='border-width:0px;' align='right' valign='top'>
 <?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */ ) { ?>
-   <input type='submit' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
+   <input type='submit' name='form_showall' value='<?php echo xla("Show All Results"); ?>'
     title='<?php echo xla('Include all values reported for each result code'); ?>' />
 <?php } else if ($input_form && !empty($_POST['form_showall'])) { ?>
    <input type='submit' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
     title='<?php echo xla('Show only latest values reported for each result code'); ?>' />
-<?php } ?>
-<?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
-   &nbsp;
-   <input type='button' value='<?php echo xla('Related Patient Notes'); ?>' 
-    onclick='showpnotes(<?php echo $orderid; ?>)' />
 <?php } ?>
 <?php if ($input_form && $ctx['sign_list']) { ?>
    &nbsp;
@@ -621,7 +659,10 @@ function educlick(codetype, codevalue) {
   </td>
  </tr>
 </table>
-
+  <span style="float:right;"><label class="lighter">
+    <?php printf('<small>%s %s %s</small>', xlt('Printed on'), 
+          oeFormatShortDate(), oeFormatTime(date('H:i:s'))); ?>
+  </label></span>
 </div>
 
 <?php if ($input_form) { ?>
