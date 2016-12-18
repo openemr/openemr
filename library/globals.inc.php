@@ -1356,7 +1356,7 @@ $GLOBALS_METADATA = array(
         '1' => 'Last name',
         '2' => 'Last name, first name',
         '3' => 'Last name, first name (title)',
-        '4' => 'Last name, first name (title: description)',
+        '4' => 'Last name, first name (title: comments)',
       ),
       '2',                               // default
       xl('This determines how appointments display on the calendar.')
