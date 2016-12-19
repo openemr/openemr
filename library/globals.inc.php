@@ -1898,7 +1898,12 @@ $GLOBALS_METADATA = array(
       '1',                               // default
       xl('Enable Itemization of AMC Reports')
     ),
-
+    'dated_reminders_max_alerts_to_show' => array(
+       xl('Dated reminders maximum alerts to show'),
+       'num',                           // data type
+       '5',                               // default
+       xl('Dated reminders maximum alerts to show')
+      ),
   ),
 
   // Logging

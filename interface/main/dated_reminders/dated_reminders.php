@@ -29,7 +29,7 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/dated_reminder_functions.php");
 
         $days_to_show = 5;
-        $alerts_to_show = 5;
+        $alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
         $updateDelay = 60; // time is seconds 
 
         
