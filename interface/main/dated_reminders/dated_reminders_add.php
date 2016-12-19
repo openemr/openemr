@@ -95,7 +95,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
            isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$_POST['dueDate']) and
 // ------- check priority, only allow 1-3 
            isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
-// ------- check message, only up to 60 characters limited by Db
+// ------- check message, only up to 160 characters limited by Db
            isset($_POST['message']) and strlen($_POST['message']) <= $max_reminder_words and strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
            isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
