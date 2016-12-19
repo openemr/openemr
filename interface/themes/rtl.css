@@ -575,3 +575,7 @@ form#pattrk #inanewwindow>span{
 #namecontainer_preminders {
     float: right !important;
 }
+
+#namecontainer_creminders {
+    float: right !important;
+}
