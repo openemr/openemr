@@ -1,8 +1,8 @@
 <div id="component-border">
     <div class="row">
         <div class="col-md-12">
-            <h4><?php echo xlt('Past meetings ')?></h4>
-            <button onclick="newGroup()">Add encounter</button>
+            <h4><?php echo xlt('Past meetings')?></h4>
+            <button onclick="newGroup()"><?php echo xlt('Add encounter')?></button>
         </div>
     </div>
 </div>
