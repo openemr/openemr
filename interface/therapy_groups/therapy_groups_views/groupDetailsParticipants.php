@@ -4,7 +4,8 @@
  *
  * This is the therapy group's participants detail screen for the chosen group.
  *
- * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ * Copyright (C) 2016 Shachar <shachar058@gmail.com>
+ * Copyright (C) 2016 Amiel<amielboim@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,7 +60,7 @@
                                                         <span class="bold"><?php echo xlt('Participant’s name'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? $participant_data['participant_name']: ''?>" readonly>
+                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']): ''?>" readonly>
                                                     </div>
                                                 </div>
                                             </div>
@@ -69,7 +70,7 @@
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? $participant_data['group_patient_start']: date('Y-m-d');?>">
+                                                        <input type="text" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_start']): date('Y-m-d');?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -79,19 +80,19 @@
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
-                                                <input type="text" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? $participant_data['group_patient_comment']: ''?>" class="full-width">
+                                                <input type="text" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
-                                                <input type="submit" name="save_new" value="<?php echo xl('Adding a participant'); ?>">
-                                                <input id="cancelAddParticipant" type="button" value="<?php echo xl('Cancel'); ?>">
+                                                <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
+                                                <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
                                             </div>
                                         </div>
                                         <?php if(isset($message)): ?>
                                         <div class="row">
                                             <div class="col-md-offset-2 col-md-8">
-                                                <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo $message?></p>
+                                                <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo text($message)?></p>
                                             </div>
                                         </div>
                                         <?php endif; ?>
@@ -106,19 +107,19 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <form id="updateParticipants" method="post">
-                                        <input type="hidden" name="group_id" value="<?php echo htmlspecialchars($groupId,ENT_QUOTES); ?>" />
-                                        <button id="addParticipant"><?php echo xl('Add'); ?></button>
+                                        <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>" />
+                                        <button id="addParticipant"><?php echo xlt('Add'); ?></button>
                                         <table  id="participants_table" class="dataTable display">
                                             <thead>
                                             <tr>
-                                                <th><?php echo xl('Participant’s name'); ?></th>
-                                                <th><?php echo xl('Patient’s number'); ?></th>
-                                                <th><?php echo xl('Status in the group'); ?></th>
-                                                <th><?php echo xl('Date of registration'); ?></th>
-                                                <th><?php echo xl('Date of exit'); ?></th>
-                                                <th><?php echo xl('Comment'); ?></th>
+                                                <th><?php echo xlt('Participant’s name'); ?></th>
+                                                <th><?php echo xlt('Patient’s number'); ?></th>
+                                                <th><?php echo xlt('Status in the group'); ?></th>
+                                                <th><?php echo xlt('Date of registration'); ?></th>
+                                                <th><?php echo xlt('Date of exit'); ?></th>
+                                                <th><?php echo xlt('Comment'); ?></th>
                                                 <?php if($readonly == ''): ?>
-                                                    <th><?php echo xl('Delete'); ?></th>
+                                                    <th><?php echo xlt('Delete'); ?></th>
                                                 <?php endif; ?>
                                             </tr>
                                             </thead>
@@ -127,9 +128,9 @@
                                                 <tr>
                                                     <td>
                                                         <input type="hidden" name="pid[]" value="<?php echo htmlspecialchars($participant['pid'],ENT_QUOTES); ?>" />
-                                                        <span><?php echo htmlspecialchars($participant['lname'],ENT_QUOTES) .', ' . htmlspecialchars($participant['fname'],ENT_QUOTES); ?></span>
+                                                        <span><?php echo text($participant['lname']) .', ' . text($participant['fname']); ?></span>
                                                     </td>
-                                                    <td><span><?php echo htmlspecialchars($participant['pid'],ENT_QUOTES); ?></span></td>
+                                                    <td><span><?php echo text($participant['pid']); ?></span></td>
                                                     <td>
                                                         <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                                             <?php foreach ($statuses as $key => $status): ?>
@@ -137,12 +138,12 @@
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo $participant['group_patient_start'];?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : $participant['group_patient_end'] ;?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo $participant['group_patient_comment'];?>" <?php echo $readonly; ?> /></td>
+                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr($participant['group_patient_start']);?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr($participant['group_patient_end']) ;?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                                     <?php if($readonly == ''): ?>
                                                         <td class="delete_btn">
-                                                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. $groupId .'&deleteParticipant=1&pid=' . $participant['pid']; ?>"><span>X</span></a>
+                                                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) .'&deleteParticipant=1&pid=' . attr($participant['pid']); ?>"><span>X</span></a>
                                                         </td>
                                                     <?php endif; ?>
                                                 </tr>
@@ -224,6 +225,7 @@
         });
 
         $('#saveForm').on('click', function () {
+            top.restoreSession();
             $('#updateParticipants').append('<input type="hidden" name="save">').submit();
         });
 
@@ -260,9 +262,10 @@
     }
 
     function newGroup(){
+        top.restoreSession();
         top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
     }
-   // parent.left_nav.setTherapyGroup(<?php echo $group_id;?>,'<?php echo 'test'?>');
+   // parent.left_nav.setTherapyGroup(<?php echo attr($group_id);?>,'<?php echo 'test'?>');
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
     $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".

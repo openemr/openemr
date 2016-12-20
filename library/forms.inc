@@ -36,12 +36,13 @@ function getFormByEncounter($attendant_id,$encounter, $cols="form_id, form_name"
 	global $attendant_type;
  	$arraySqlBind = array();
 	$sql = "select $cols from forms where encounter = ? ";
-	array_push($arraySqlBind,$encounter,$attendant_id);
+	array_push($arraySqlBind,$encounter);
 	if(!empty($name)){
 		$sql .= "and form_name=? ";
 		array_push($arraySqlBind,$name);
 	}
 	$sql .= $attendant_type == 'pid' ? " and pid=? and therapy_group_id IS NULL " : "and therapy_group_id = ? and pid IS NULL ";
+	array_push($arraySqlBind,$attendant_id);
   // This puts vitals first in the list, and newpatient last:
   $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
