@@ -37,6 +37,11 @@ class TherapyGroupsController extends BaseController{
         '10' => 'active',
         '20' => 'deleted',
     );
+    //list of participant statuses
+    public static $participant_statuses = array(
+        '10' => 'active',
+        '20' => 'not active',
+    );
     //list of group types
     public static $group_types = array(
         '1' => 'closed',
@@ -61,7 +66,7 @@ class TherapyGroupsController extends BaseController{
     public function index($groupId = null){
 
         $data = array();
-        self::setSession($groupId);
+        if($groupId) self::setSession($groupId);
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
@@ -261,7 +266,7 @@ class TherapyGroupsController extends BaseController{
 
         $length = strlen($notes);
         if($length > $this->notes_preview_proper_length){
-            $notes = substr($notes,0,50).'...';
+            $notes = mb_substr($notes,0,50).'...';
         }
         return $notes;
     }

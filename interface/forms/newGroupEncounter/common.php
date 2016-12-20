@@ -326,7 +326,7 @@ if ($fres) {
     </tr>
 
     <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
-     <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
        value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 

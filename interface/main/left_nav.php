@@ -1213,7 +1213,7 @@ if (!empty($reg)) {
           <ul>
               <?php genMiscLink('RTop','gfn','0',xl('Groups'),'therapy_groups/index.php?method=listGroups'); ?>
               <?php genTreeLink('RTop','gng', xl('New')); ?>
-              <?php genTreeLink('RTop','gdg',xl('Summary')); ?>
+              <?php genTreeLink('RTop','gdg',xl('Group Details')); ?>
               <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
                   <ul>
                       <?php genTreeLink('RBot','gcv',xl('Create Visit')); ?>

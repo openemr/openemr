@@ -676,7 +676,6 @@ foreach ($providers as $provider) {
 
             //Variables for therapy groups
             $groupid = $event['gid'];
-            if($groupid) $patientid = '';
             $groupname = $event['group_name'];
             $grouptype = $event['group_type'];
             $groupstatus = $event['group_status'];
@@ -746,7 +745,7 @@ foreach ($providers as $provider) {
                     $content .= "</a>";
                 }
                 elseif($groupid){
-                    $divTitle .= "\n" . getStatusName($groupstatus) . "\n";
+                    $divTitle .= "\n" . getTypeName($grouptype) . "\n";
                     $link_title = '';
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
