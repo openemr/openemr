@@ -180,7 +180,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 }
 
     //===============================================================================
-    // Checks for the patient's encounter ID for today, creating it if there is none.
+    // Checks for the group's encounter ID for today, creating it if there is none.
     //
     function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '', $fac_id = '', $billing_fac = '', $provider = '', $cat = '', $return_existing = true, $eid = null){
         global $today;
@@ -241,7 +241,7 @@ function todaysEncounterIf($patient_id) {
   return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
 }
 //===============================================================================
-// Get the patient's encounter ID for today, if it exists.
+// Get the group's encounter ID for today, if it exists.
 // In the case of more than one encounter today, pick the last one.
 //
 function todaysTherapyGroupEncounterIf($group_id) {
