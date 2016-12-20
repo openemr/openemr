@@ -4962,6 +4962,8 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (12, 'Health and Behavioral
 INSERT INTO `openemr_postcalendar_categories` VALUES (13, 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13);
 
 INSERT INTO `openemr_postcalendar_categories` VALUES (14, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14);
+INSERT INTO `openemr_postcalendar_categories` VALUES (1000, 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 1000);
+
 -- --------------------------------------------------------
 
 --
@@ -4975,6 +4977,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_multiple` int(10) unsigned NOT NULL,
   `pc_aid` varchar(30) default NULL,
   `pc_pid` varchar(11) default NULL,
+  `pc_gid` int(11) default 0,
   `pc_title` varchar(150) default NULL,
   `pc_time` datetime default NULL,
   `pc_hometext` text,
@@ -7935,8 +7938,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{group_name:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, group_patient_start:{presence: true}}', 1);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`,`mapping`,`notes`,`codes`,`toggle_setting_1`,`toggle_setting_2`,`activity`,`subtype`) VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150,0,0,'','{form_group:{presence: true}}','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups', '/interface/main/calendar/add_edit_event.php?group=true', 150, '{form_group:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
 
 
 
@@ -8545,6 +8549,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Lens_Treatments', 'LT_UVBLOCK', 'UV-blocking treatment', 30, 0, 0, '', '', '', 0, 0, 1, ''),
 ('Eye_Lens_Treatments', 'LT_PHOTOGREY', 'Photochromic treatment', 40, 0, 0, '', '', '', 0, 0, 1, '');
 
+
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+('groupstat', '-', '- None', '1', '0', '0', 'FEFDCF|0'),
+('groupstat', '=', '= Took Place', '2', '0', '0', 'FF2414|0'),
+('groupstat', '>', '> Did Not Take Place', '3', '0', '0', 'BFBFBF|0'),
+('groupstat', '<', '< Not Reported', '4', '0', '0', 'FEFDCF|0');
+
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'attendstat', 'Group Attendance Statuses', '1', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+('attendstat', '-', '- Not Reported', '1', '0', '0', 'FEFDCF|0'),
+('attendstat', '@', '@ Attended', '2', '0', '0', 'FF2414|0'),
+('attendstat', '?', '? Did Not Attend', '3', '0', '0', 'BFBFBF|0'),
+('attendstat', '~', '~ Late Arrival', '4', '0', '0', 'BFBFBF|0'),
+('attendstat', 'x', 'x Cancelled', '5', '0', '0', 'FEFDCF|0');
 -- --------------------------------------------------------
 
 -- --------------------------------------------------------
@@ -9637,33 +9656,3 @@ CREATE TABLE `therapy_groups_counselors`(
 	`user_id` int(11) NOT NULL,
 	PRIMARY KEY (`group_id`,`user_id`)
 ) ENGINE=InnoDB;
-
--- Add group id to events table
-ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
-
--- Therapy Group Statuses List
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES
- ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
- ('groupstat', '-', '- None', '94', '0', '0', 'FEFDCF|0'),
- ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|0'),
- ('groupstat', '>', '> Did Not Take Place', '96', '0', '0', 'BFBFBF|0'),
- ('groupstat', '<', '< Not Reported', '97', '0', '0', 'FEFDCF|0');
-
--- Therapy Group Categories
-INSERT INTO openemr_postcalendar_categories (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_recurrspec`, `pc_duration` ,`pc_cattype` , `pc_active` , `pc_seq`)
-VALUES ('1000', 'Group Therapy' , '#BFBFBF' , 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', '3600', '3', '1', '90');
-
--- Therapy Group add_edit_event validations
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`option_value`,`mapping`,`notes`,`codes`,`toggle_setting_1`,`toggle_setting_2`,`activity`,`subtype`)
-VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150,0,0,'','{form_group:{presence: true}}','',0,0,1,'');
-
--- Therapy Group Attendance Statuses List
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES
-  ('lists', 'attendstat', 'Group Attendance Statuses', '15', '0', '0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
-  ('attendstat', '-', '- Not Reported', '55', '0', '0', 'FEFDCF|0'),
-  ('attendstat', '@', '@ Attended', '56', '0', '0', 'FF2414|0'),
-  ('attendstat', '?', '? Did Not Attend', '57', '0', '0', 'BFBFBF|0'),
-  ('attendstat', '~', '~ Late Arrival', '58', '0', '0', 'BFBFBF|0'),
-  ('attendstat', 'x', 'x Cancelled', '59', '0', '0', 'FEFDCF|0');
