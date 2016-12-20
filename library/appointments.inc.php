@@ -612,7 +612,9 @@ function compareAppointmentsByCompletedDrugScreen( $appointment1, $appointment2 
 function fetchAppointmentCategories()
 {
      $catSQL= " SELECT pc_catid as id, pc_catname as category "
-            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";
+            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0";
+	if($GLOBALS['enable_group_therapy']) $catSQL .= " OR pc_cattype=3";
+    $catSQL .= "  ORDER BY category";
      return sqlStatement($catSQL);
 }
 
