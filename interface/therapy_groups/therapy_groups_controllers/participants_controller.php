@@ -5,7 +5,8 @@
  *
  * This is the controller for the groups' participant view.
  *
- * Copyright (C) 2016 Shachar&Amiel <shachar058@gmail.com> <amielboim@gmail.com>
+ * Copyright (C) 2016 Shachar <shachar058@gmail.com>
+ * Copyright (C) 2016 Amiel<amielboim@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
