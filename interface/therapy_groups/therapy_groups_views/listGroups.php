@@ -39,11 +39,9 @@
     <?php endif ?>
 
     <!---------- FILTERS SECTION ------------->
-    <a id="show_filters" class="btn btn-alert"><?php echo xlt("Show Filters")?></a>
-    <a id="hide_filters" class="btn btn-alert" style="display: none;"><?php echo xlt("Hide Filters")?></a>
     <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
-    </br></br>
-    <div id="filters" style="display: none;">
+    </br></br></br>
+    <div id="filters">
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
