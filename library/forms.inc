@@ -142,7 +142,7 @@ function getEncounterDateByEncounter($encounter)
 	return sqlQuery($sql);
 }
 
-function getProviderIdOfEncounter($encounter, $isTherapyGroup = false)
+function getProviderIdOfEncounter($encounter)
 {
 		global $attendant_type;
 		$table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';

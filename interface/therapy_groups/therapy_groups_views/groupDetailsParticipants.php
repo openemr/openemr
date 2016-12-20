@@ -170,6 +170,22 @@
         });
 
         var table = $('#participants_table').DataTable({
+            "language": {
+                "lengthMenu": '<?php echo xlt("Display")  .' _MENU_  ' .xlt("records per page")?>',
+                "zeroRecords": '<?php echo xlt("Nothing found - sorry")?>',
+                "info": '<?php echo xlt("Showing page") .' _PAGE_ '. xlt("of") . ' _PAGES_'; ?>',
+                "infoEmpty": '<?php echo xlt("No records available") ?>',
+                "infoFiltered": '<?php echo "(" . xlt("filtered from") . ' _MAX_ '. xlt("total records") . ")"; ?>',
+                "infoPostFix":  "",
+                "search":       "<?php echo xlt('Search')?>",
+                "url":          "",
+                "oPaginate": {
+                    "sFirst":    "<?php echo xlt('First')?>",
+                    "sPrevious": "<?php echo xlt('Previous')?>",
+                    "sNext":     "<?php echo xlt('Next')?>",
+                    "sLast":     "<?php echo xlt('Last')?>"
+                }
+            },
             "columnDefs": [
                 { "width": "35%", "targets": 5 }
             ],
