@@ -64,6 +64,8 @@ class EncountermanagerController extends AbstractActionController
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         
         $downloadccda       = $request->getPost('downloadccda') ? $request->getPost('downloadccda') : $request->getQuery()->downloadccda;
+        $latest_ccda    = $request->getPost('latestccda') ? $request->getPost('latestccda') : $this->getRequest()->getQuery('latest_ccda');
+
         if($downloadccda == 'download_ccda') {
           $pids           = '';
           if($request->getQuery('pid_ccda')) {
@@ -91,7 +93,9 @@ class EncountermanagerController extends AbstractActionController
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
                                                                    'downloadccda' => $downloadccda,
-                                                                   'components'   => $components));
+                                                                   'components'   => $components,
+                                                                   'latest_ccda'  => $latest_ccda,
+                                                                  ));
         }
         
         $params     = array(
@@ -185,9 +189,10 @@ class EncountermanagerController extends AbstractActionController
         $arr = explode('|', $pids);
         foreach($arr as $row){
             $pid      = $row;
-            $id       = $this->getEncountermanagerTable()->getFileID($pid);
-            $dir      = $parent_dir."/CCDA_$id/";
-            $filename = "CCDA_$id.xml";
+            $row      = $this->getEncountermanagerTable()->getFileID($pid);
+            $id       = $row['id'];
+            $dir      = $parent_dir."/CCDA_{$row['lname']}_{$row['fname']}/";
+            $filename = "CCDA_{$row['lname']}_{$row['fname']}.xml";
             if(!is_dir($dir)){
               mkdir($dir, true);
               chmod($dir, 0777);
