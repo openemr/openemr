@@ -1733,8 +1733,8 @@ if ($repeatexdate != "") {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#form_save").click(function() { validateform("save"); });
-    $("#form_duplicate").click(function() { validateform("duplicate"); });
+    $("#form_save").click(function(e) { validateform(e,"save"); });
+    $("#form_duplicate").click(function(e) { validateform(e,"duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
     $("#cancel").click(function() { window.close(); });
@@ -1765,7 +1765,7 @@ function are_days_checked(){
 * this enable to add new rules for this form in the pageValidation list.
 * */
 var collectvalidation = <?php echo($collectthis); ?>;
-function validateform(valu){
+function validateform(event,valu){
 
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
@@ -1810,7 +1810,7 @@ function validateform(valu){
     ?>
 
 
-    var submit = submitme(1, undefined, 'theform', collectvalidation);
+    var submit = submitme(1, event, 'theform', collectvalidation);
     if(!submit)return;
 
     $('#form_action').val(valu);
