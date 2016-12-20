@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `form_care_plan` (
   `code` varchar(255) DEFAULT NULL,
   `codetext` text,
   `description` text,
-  `external_id` VARCHAR(30) DEFAULT NULL
+  `external_id` VARCHAR(30) DEFAULT NULL,
+  `care_plan_type` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB;
 

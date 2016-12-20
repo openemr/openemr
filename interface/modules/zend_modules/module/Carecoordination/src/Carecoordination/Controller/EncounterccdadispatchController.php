@@ -51,6 +51,8 @@ class EncounterccdadispatchController extends AbstractActionController
         
     protected $referral_reason;
     
+    protected $latest_ccda;
+    
     public function __construct($serviceManager = null)
     {
 		$this->listenerObject	= new Listener;
@@ -271,6 +273,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 $this->referral_reason	= $this->getRequest()->getQuery('referral_reason');
 		$this->components       = $this->getRequest()->getQuery('components') ? $this->getRequest()->getQuery('components') :$this->params('components');
     $downloadccda           = $this->params('downloadccda');
+        $this->latest_ccda      = $this->getRequest()->getQuery('latest_ccda') ? $this->getRequest()->getQuery('latest_ccda') : $this->params('latest_ccda');
         if($downloadccda == 'download_ccda') {
           $combination      = $this->params('pids');
           $view             = $this->params('view');
@@ -301,6 +304,9 @@ class EncounterccdadispatchController extends AbstractActionController
                 $arr = explode('_',$row);
                 $this->patient_id   = $arr[0];
                 $this->encounter_id = ($arr[1] > 0 ? $arr[1] : NULL);
+                if($this->latest_ccda)
+                  $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send,$this->components);
                 $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
 				
@@ -526,8 +532,8 @@ class EncounterccdadispatchController extends AbstractActionController
             $ccd .= $this->getEncounterccdadispatchTable()->getFunctionalCognitiveStatus($pid,$encounter);
         if(in_array('instructions',$components_list))
             $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid,$encounter);
-        if(in_array('referral',$components_list))
-            $ccd .= $this->getEncounterccdadispatchTable()->getRefferals($pid,$encounter);
+//        if(in_array('referral',$components_list))
+//            $ccd .= $this->getEncounterccdadispatchTable()->getRefferals($pid,$encounter);
         return $ccd;
     }
     
