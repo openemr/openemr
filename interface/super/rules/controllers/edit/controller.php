@@ -133,7 +133,7 @@ class Controller_edit extends BaseController {
     function _action_categories() {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            $columns[] = array( "code" => $row['option_id'], "lbl" => $row['title'] );
+            $columns[] = array( "code" => $row['option_id'], "lbl" => xl($row['title']) );
         }
         $this->emit_json($columns);
     }
@@ -141,7 +141,7 @@ class Controller_edit extends BaseController {
     function _action_items() {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            $columns[] = array( "code" => $row['option_id'], "lbl" => $row['title'] );
+            $columns[] = array( "code" => $row['option_id'], "lbl" => xl($row['title']) );
         }
         $this->emit_json($columns);
     }
