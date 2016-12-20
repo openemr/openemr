@@ -21,9 +21,9 @@
 
 <script type="text/html" id="tabs-controls">
     <div class="tabControls" data-bind="with: tabs">
-        <span class="tabNotchosen" style="width:2%">
+        <div class="tabNotchosen" style="width:2%">
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
-        </span>
+        </div>
         <!-- ko  foreach: tabsList -->
             <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
@@ -40,6 +40,7 @@
                 <!-- /ko -->
             </div>
         <!-- /ko -->
+        <div class="tabNotchosen" style="width:100%;"></div>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">
