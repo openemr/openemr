@@ -180,7 +180,11 @@ if (!empty($reg)) {
       foreach ($reg as $entry) {
         $new_category = trim($entry['category']);
         $new_nickname = trim($entry['nickname']);
-        if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+        if ($new_category == '') {
+          $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
+        }else{
+          $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
+        }
         if ($new_nickname != '') {$nickname = $new_nickname;}
         else {$nickname = $entry['name'];}
         if ($old_category != $new_category) {
