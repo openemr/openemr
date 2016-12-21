@@ -2196,27 +2196,15 @@ CREATE TABLE `therapy_groups_counselors`(
 #EndIf
 
 #IfMissingColumn openemr_postcalendar_events pc_gid
-ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0 AFTER pc_pid;
+ALTER TABLE openemr_postcalendar_events ADD pc_gid int(11) DEFAULT 0;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id groupstat
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'groupstat', 'Group Statuses', '13', '0', '0');
-#EndIf
-
-#IfNotRow2D list_options list_id groupstat option_id -
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '-', '- None', '94', '0', '0', 'FEFDCF|0');
-#EndIf
-
-#IfNotRow2D list_options list_id groupstat option_id =
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '=', '= Took Place', '95', '0', '0', 'FF2414|0');
-#EndIf
-
-#IfNotRow2D list_options list_id groupstat option_id >
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '>', '> Did Not Take Place', '96', '0', '0', 'BFBFBF|0');
-#EndIf
-
-#IfNotRow2D list_options list_id groupstat option_id <
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '<', '< Not Reported', '97', '0', '0', 'FEFDCF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '-', '- None', '1', '0', '0', 'FEFDCF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '=', '= Took Place', '2', '0', '0', 'FF2414|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '>', '> Did Not Take Place', '3', '0', '0', 'BFBFBF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('groupstat', '<', '< Not Reported', '4', '0', '0', 'FEFDCF|0');
 #EndIf
 
 #IfNotRow2D openemr_postcalendar_categories pc_catid 1000 pc_catname Group Therapy
@@ -2267,35 +2255,20 @@ ALTER TABLE  `forms` ADD  `therapy_group_id` INT(11) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn registry patient_encounter
-ALTER TABLE `registry` ADD `patient_encounter` TINYINT NOT NULL DEFAULT '1' AFTER `nickname`;
+ALTER TABLE `registry` ADD `patient_encounter` TINYINT NOT NULL DEFAULT '1';
 #EndIf
 
 #IfMissingColumn registry therapy_group_encounter
-ALTER TABLE `registry` ADD `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0' AFTER `patient_encounter`;
+ALTER TABLE `registry` ADD `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0';
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id attendstat
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'attendstat', 'Group Attendance Statuses', '15', '0', '0');
-#EndIf
-
-#IfNotRow2D list_options list_id attendstat option_id -
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '-', '- Not Reported', '55', '0', '0', 'FEFDCF|0');
-#EndIf
-
-#IfNotRow2D list_options list_id attendstat option_id @
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '@', '@ Attended', '56', '0', '0', 'FF2414|0');
-#EndIf
-
-#IfNotRow2D list_options list_id attendstat option_id ?
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '?', '? Did Not Attend', '57', '0', '0', 'BFBFBF|0');
-#EndIf
-
-#IfNotRow2D list_options list_id attendstat option_id ~
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '~', '~ Late Arrival', '58', '0', '0', 'BFBFBF|0');
-#EndIf
-
-#IfNotRow2D list_options list_id attendstat option_id x
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', 'x', 'x Cancelled', '59', '0', '0', 'FEFDCF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '-', '- Not Reported', '1', '0', '0', 'FEFDCF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '@', '@ Attended', '2', '0', '0', 'FF2414|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '?', '? Did Not Attend', '3', '0', '0', 'BFBFBF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '~', '~ Late Arrival', '4', '0', '0', 'BFBFBF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', 'x', 'x Cancelled', '5', '0', '0', 'FEFDCF|0');
 #EndIf
 
 #IfNotRow2D list_options list_id page_validation option_id common#new-encounter-form

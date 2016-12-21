@@ -176,6 +176,19 @@ else{//new form
                 var new_patient_name = $('.new_patient').val();
                 var new_patient_comment = $('.new_comment').val();
 
+                //Check if patient already exists in form
+                var ids_array = [];
+                $('#group_attendance_form_table tbody tr td:nth-child(2)').each(function(){
+                    ids_array.push($(this).text());
+                });
+                var exists = $.inArray(new_patient_id, ids_array);
+                if(exists >= 0){
+                    $('.new_patient').css("border-color", "red");
+                    var err_msg = "<?php echo xlt("Patient already in form"); ?>";
+                    $('.error_wrap .error').html(err_msg);
+                    return;
+                }
+
                 //Get statuses from list into json and create select element
                 var statuses = <?php echo json_encode($statuses_in_meeting); ?>;
                 var select_element = $("<select class=\"status_select\" name=\"\" />");

@@ -1,14 +1,13 @@
 <?php
 /** group.inc includes methods for groups  */
 
-require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/therapy_groups_model.php");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/group_statuses_model.php");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/users_model.php");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php");
-require_once("{$GLOBALS['include_root']}/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
-
+require_once (dirname(__FILE__) . "/sql.inc");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/group_statuses_model.php");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/users_model.php");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php");
+require_once (dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 //Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
 function getGroup($gid){
