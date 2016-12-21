@@ -372,8 +372,9 @@ form {
                 echo " </tr>\n";
             }
             $lastdate = $thisdate;
+            $dayName = date("l", $utime);
             echo " <tr class='oneresult'>\n";
-            echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srDate'>" . xlt($dayName)."<br>".date("Y-m-d", $utime) . "</td>\n";
             echo "  <td class='srTimes'>";
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag
