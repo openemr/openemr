@@ -243,6 +243,9 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
           $(this).hide();
           return false;
         })
+          // update word counter
+          var messegeTextarea=$("#message")[0];
+          limitText(messegeTextarea.form.message,messegeTextarea.form.countdown,<?php echo $max_reminder_words ?>);
       })       
     
         function sel_patient(){ 
@@ -347,9 +350,9 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
     </fieldset>                       
      
      
-      <br />  
-      
-      
+      <br />
+
+        
     <fieldset>
       <table style="width:100%;">
         <tr>
