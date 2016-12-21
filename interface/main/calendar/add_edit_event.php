@@ -908,8 +908,8 @@ if ($_POST['form_action'] == "save") {
   $group_data = getGroup($groupid);
   $groupname = $group_data['group_name'];
   $group_end_date = $group_data['group_end_date'];
-  if(!$recurrence_end_date){
-      $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default
+  if(!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00'){
+      $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
   }
  }
 
