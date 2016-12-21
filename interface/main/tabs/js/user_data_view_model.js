@@ -31,6 +31,12 @@ function user_data_view_model(username,fname,lname,authGrp)
 
 }
 
+function viewPtFinder()
+{
+    navigateTab(webroot_url+"/interface/main/finder/dynamic_finder.php","fin");
+    activateTabByName("fin",true);
+}
+
 function viewMessages()
 {
     navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg");
