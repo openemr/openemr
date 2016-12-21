@@ -37,7 +37,7 @@ require_once("$srcdir/forms.inc");
  * @return array|null
  */
 function get_form_id_of_existing_attendance_form($encounter, $group_id){
-    $sql = "SELECT form_id FROM forms WHERE encounter = ? AND form_name = 'Group Attendance Form' AND therapy_group_id = ? AND deleted = 0;";
+    $sql = "SELECT form_id FROM forms WHERE encounter = ? AND formdir = 'group_attendance' AND therapy_group_id = ? AND deleted = 0;";
     $result = sqlQuery($sql, array($encounter, $group_id));
     return $result;
 }
