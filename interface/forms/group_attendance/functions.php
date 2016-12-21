@@ -26,10 +26,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
-
+require_once(dirname(__FILE__) . "/../../../library/api.inc");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 /**
  * Returns form_id of an existing attendance form for group encounter (if one already exists);
  * @param $encounter
@@ -62,11 +60,11 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
 
             //Create appt for each patient (if there is appointment connected to encounter)
             if(!empty($appt_data)){
-                insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+                $pc_eid = insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
             }
 
             //Create encounter for each patient
-            insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
+            $encounter_id = insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
 
         }
 
@@ -101,7 +99,8 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
     $result_array = sqlFetchArray($result);
     if($result_array){
         $insert_sql = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?;";
-        sqlInsert($insert_sql, array($participantData['status'], $result_array['pc_eid']));
+        sqlStatement($insert_sql, array($participantData['status'], $result_array['pc_eid']));
+        return $result_array['pc_eid'];
     }
     else{
         $insert_sql =
@@ -111,7 +110,8 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
         $recurrspec = 'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}';
         $sqlBindArray = array();
         array_push($sqlBindArray, $pc_aid, $pid, $gid, $pc_eventDate, $recurrspec, $pc_startTime, $participantData['status']);
-        sqlInsert($insert_sql, $sqlBindArray);
+        $pc_eid = sqlInsert($insert_sql, $sqlBindArray);
+        return $pc_eid;
     }
 }
 
@@ -124,12 +124,13 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
  * @param $pc_aid
  */
 function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid){
-    $select_sql = "SELECT id FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
+    $select_sql = "SELECT id, encounter FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
     $result = sqlStatement($select_sql, array($pid, $gid, 1000, $group_encounter_date));
     $result_array = sqlFetchArray($result);
     if($result_array){
         $insert_sql = "UPDATE form_encounter SET reason = ? WHERE id = ?;";
-        sqlInsert($insert_sql, array($participantData['comment'], $result_array['id']));
+        sqlStatement($insert_sql, array($participantData['comment'], $result_array['id']));
+        return $result_array['encounter'];
     }
     else{
         $insert_encounter_sql =
@@ -144,6 +145,8 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
 
         addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized, $group_encounter_date,'','',NULL);
 
+        return $enc_id;
+
     }
 }
 
@@ -157,9 +160,8 @@ function get_appt_data($encounter_id){
         "SELECT ope.pc_aid, ope.pc_eventDate, ope.pc_startTime FROM form_groups_encounter as fge " .
         "JOIN openemr_postcalendar_events as ope ON fge.appt_id = ope.pc_eid " .
         "WHERE fge.encounter = ?;";
-    $result = sqlStatement($sql, array($encounter_id));
-    $result_array = sqlFetchArray($result);
-    return $result_array;
+    $result = sqlQuery($sql, array($encounter_id));
+    return $result;
 }
 
 /**
@@ -169,20 +171,20 @@ function get_appt_data($encounter_id){
  */
 function get_group_encounter_data($encounter_id){
     $sql = "SELECT date FROM form_groups_encounter WHERE encounter = ?";
-    $result = sqlStatement($sql, array($encounter_id));
-    $result_array = sqlFetchArray($result);
-    return $result_array;
+    $result = sqlQuery($sql, array($encounter_id));
+    return $result;
 }
 
 /**
  * Checks if to create appointment and encounter for patient himself based on the status in the attendance form.
+ * [Note: `toggle_setting_1` in table `list_options` is used as a flag to know the statuses for which an appt or encounter should be created.]
  * @param $status
  * @return bool
  */
 function if_to_create_for_patient($status){
-    if($status == '@' || $status == '?' || $status == '~')
-        return true;
-    return false;
+    $sql = 'SELECT toggle_setting_1 FROM list_options WHERE list_id = \'attendstat\' AND toggle_setting_1 = 1 AND option_id = ?';
+    $to_create = sqlQuery($sql, array($status));
+    return $to_create;
 }
 
 /**

@@ -22,11 +22,12 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("functions.php");
-require_once ("$srcdir/group.inc");
-
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
+
+require_once("../../globals.php");
+require_once("functions.php");
+require_once(dirname(__FILE__) . "/../../../library/group.inc");
 
 $statuses_in_meeting = getGroupAttendanceStatuses();
 

@@ -2264,11 +2264,11 @@ ALTER TABLE `registry` ADD `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0
 
 #IfNotRow2D list_options list_id lists option_id attendstat
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', 'attendstat', 'Group Attendance Statuses', '15', '0', '0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '-', '- Not Reported', '1', '0', '0', 'FEFDCF|0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '@', '@ Attended', '2', '0', '0', 'FF2414|0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '?', '? Did Not Attend', '3', '0', '0', 'BFBFBF|0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', '~', '~ Late Arrival', '4', '0', '0', 'BFBFBF|0');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES ('attendstat', 'x', 'x Cancelled', '5', '0', '0', 'FEFDCF|0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES ('attendstat', '-', '- Not Reported', '1', '0', '0', 'FEFDCF|0', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES ('attendstat', '@', '@ Attended', '2', '0', '0', 'FF2414|0', '1');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES ('attendstat', '?', '? Did Not Attend', '3', '0', '0', 'BFBFBF|0', '1');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES ('attendstat', '~', '~ Late Arrival', '4', '0', '0', 'BFBFBF|0', '1');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES ('attendstat', 'x', 'x Cancelled', '5', '0', '0', 'FEFDCF|0', '0');
 #EndIf
 
 #IfNotRow2D list_options list_id page_validation option_id common#new-encounter-form
