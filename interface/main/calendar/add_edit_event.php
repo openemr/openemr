@@ -341,11 +341,11 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
                     );
 
     //
-    if($my_recurrtype == 2) {
+    if($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit) 
       if($_POST['old_repeats'] == 2) {
         if($_POST['rt2_flag2']) $recurrspec['rt2_pf_flag'] = "1";
       } else $recurrspec['rt2_pf_flag'] = "1";
-    }
+    } // End of addition by epsdky
     //
     // no recurr specs, this is used for adding a new non-recurring event
     $noRecurrspec = array("event_repeat_freq" => "",
@@ -1216,8 +1216,10 @@ $classpati='';
 <!-- used for recurring events -->
 <input type="hidden" name="selected_date" id="selected_date" value="<?php echo attr($date); ?>">
 <input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>">
+<!-- Following added by epsdky 2016 (details in commit) -->
 <input type="hidden" name="old_repeats" id="old_repeats" value="<?php echo attr($repeats); ?>">
 <input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>">
+<!-- End of addition by epsdky -->
 <center>
 <table border='0' >
 <?php
