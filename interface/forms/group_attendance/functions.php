@@ -28,6 +28,8 @@
 
 require_once(dirname(__FILE__) . "/../../../library/api.inc");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
+require_once(dirname(__FILE__) . "/../../../library/patient_tracker.inc.php");
+
 /**
  * Returns form_id of an existing attendance form for group encounter (if one already exists);
  * @param $encounter
@@ -58,13 +60,14 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
         $create_for_patient = if_to_create_for_patient($patient['status']);
         if($create_for_patient){
 
+            //Create encounter for each patient
+            $encounter_id = insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
+
             //Create appt for each patient (if there is appointment connected to encounter)
             if(!empty($appt_data)){
                 $pc_eid = insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
+                manage_tracker_status($appt_data['pc_eventDate'],$appt_data['pc_startTime'],$pc_eid,$pid,$appt_data['pc_aid'],$patient['status'],$appt_data['pc_room'],$encounter_id);
             }
-
-            //Create encounter for each patient
-            $encounter_id = insert_patient_encounter($pid, $therapy_group, $group_encounter_data['date'], $patient, $appt_data['pc_aid']);
 
         }
 
@@ -157,7 +160,7 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
  */
 function get_appt_data($encounter_id){
     $sql =
-        "SELECT ope.pc_aid, ope.pc_eventDate, ope.pc_startTime FROM form_groups_encounter as fge " .
+        "SELECT ope.pc_aid, ope.pc_eventDate, ope.pc_startTime, ope.pc_room FROM form_groups_encounter as fge " .
         "JOIN openemr_postcalendar_events as ope ON fge.appt_id = ope.pc_eid " .
         "WHERE fge.encounter = ?;";
     $result = sqlQuery($sql, array($encounter_id));
