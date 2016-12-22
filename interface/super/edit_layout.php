@@ -744,7 +744,7 @@ function writeFieldLine($linedata) {
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('Validation rule  ') . "</td>\n" .
+    "  <td align='left' class='bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .

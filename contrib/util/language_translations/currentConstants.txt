@@ -498,7 +498,7 @@ Arabic
 Aragonese
 Archive
 Archive Log Files
-Archive old files 
+Archive old files
 Are access control group names to be translated?
 Are appointment category names to be translated?
 Are document category names to be translated?
@@ -793,7 +793,7 @@ Bottom Margin (px)
 BOX 10 A. Employment related 
 BOX 10 B. Auto Accident 
 BOX 10 C. Other Accident 
-BOX 10 D. EPSDT Referral Code 
+BOX 10 D. EPSDT Referral Code
 BOX 14 Date Qualifier
 BOX 14. Is Populated from the Encounter Screen as the Onset Date
 BOX 15 Other Date Qualifier
@@ -2475,7 +2475,7 @@ EOB Posting - Patient Note
 EOB Posting - Search
 EOBs
 Epilepsy
-EPSDT 
+EPSDT
 Equals
 Equivalent contact lens power at the corneal level
 ERA
@@ -4374,7 +4374,7 @@ MSH.8 message type is not valid
 MSP Code
 MSP Remit Codes
 Multi Language Tool
-Multi-select desired DX(s) and click the 
+Multi-select desired DX(s) and click the
 Multiple areas
 Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click.
 Multiple Lots
@@ -8120,7 +8120,7 @@ Valedictory
 validate
 Validate Log
 Validation mechanism for when modifying patient demographics.
-Validation rule  
+Validation rule
 Value
 Value 1
 Value 2
@@ -8392,7 +8392,7 @@ X(T){{intermittent exophoria}}
 X-ray
 X-RAY Interpretation:
 X-Ray Interpretation:
-X12 only ICN resubmission No. 
+X12 only ICN resubmission No.
 X12 only: Replacement Claim 
 X12 Partner
 X12 Partners

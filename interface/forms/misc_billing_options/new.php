@@ -97,8 +97,8 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 <label><span class=text><?php echo xlt('BOX 10 B. Auto Accident '); ?>: </span><input type=checkbox name="auto_accident" value="1" <?php if ($obj['auto_accident'] == "1") echo "checked";?>></label>
 <span class=text><?php echo xlt('State'); ?>: </span><input type=entry name="accident_state" size=1 value="<?php echo attr($obj{"accident_state"});?>" ><br><br>
 <label><span class=text><?php echo xlt('BOX 10 C. Other Accident '); ?>: </span><input type=checkbox name="other_accident" value="1" <?php if ($obj['other_accident'] == "1") echo "checked";?>></label><br><br>
-<span class=text><?php echo xlt('BOX 10 D. EPSDT Referral Code ');?></span><input type=entry style="width: 25px;" size=2 name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >&nbsp;&nbsp;&nbsp;&nbsp;
-<label><span class=text><?php echo xlt('EPSDT '); ?>: </span><input type=checkbox name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>></label><br><br>
+<span class=text><?php echo xlt('BOX 10 D. EPSDT Referral Code');?> </span><input type=entry style="width: 25px;" size=2 name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >&nbsp;&nbsp;&nbsp;&nbsp;
+<label><span class=text><?php echo xlt('EPSDT'); ?> : </span><input type=checkbox name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>></label><br><br>
 <span class="text" title="<?php echo xla("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>"></span>
 <span class=text title="<?php echo xla('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>"></span>
  <tr>
@@ -169,7 +169,7 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 <span class=text><?php echo xlt(' Medicaid Original Reference No. ');?></span><input type=entry size=15 name="medicaid_original_reference" value="<?php echo attr($obj{"medicaid_original_reference"});?>" ><br><br>
 <span class=text><?php echo xlt('BOX 23. Prior Authorization No. ');?></span><input type=entry size=15 name="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"});?>" ><br><br>
 <label><span class=text><?php echo xlt('X12 only: Replacement Claim '); ?>: </span><input type=checkbox name="replacement_claim" value="1" <?php if ($obj['replacement_claim'] == "1") echo "checked";?>></label><br><br>
-<span class=text><?php echo xlt('X12 only ICN resubmission No. ');?></span><input type=entry size=35 name="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" ><br><br>
+<span class=text><?php echo xlt('X12 only ICN resubmission No.');?> </span><input type=entry size=35 name="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" ><br><br>
 
 <table>
 <tr>

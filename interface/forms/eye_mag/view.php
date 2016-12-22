@@ -3189,7 +3189,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             echo '<span style="font-weight:bold;margin-left:-5px;">'.xlt('or utilize the Impression/Plan Builder').'</span>';
                             echo '<li>'.xlt('Drag a DX over by its handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
                             echo '<li>'.xlt('Double click on a DX\'s handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
-                            echo '<li>'.xlt('Multi-select desired DX(s) and click the ').'<i class="fa fa-share-square-o fa-flip-horizontal"></i> '.xlt('icon').'</li>';
+                            echo '<li>'.xlt('Multi-select desired DX(s) and click the').' <i class="fa fa-share-square-o fa-flip-horizontal"></i> '.xlt('icon').'</li>';
                             echo '</ol>';
                         ?>
                       </div>
