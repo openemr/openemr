@@ -276,7 +276,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			<tr>
 				<td colspan=2>
 					<form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
-					<fieldset><legend><?php echo xlt("Archive old files "); ?></legend>
+					<fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
 					<label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
 					<select id="archiveselect" name="archive_sel">
 						<option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
