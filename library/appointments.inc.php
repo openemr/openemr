@@ -239,13 +239,16 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 
         list($ny,$nm,$nd) = explode('-',$event['pc_eventDate']);
 
+        if(isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1;
+
         $occuranceYm = "$ny-$nm"; // YYYY-mm
         $from_dateYm = substr($from_date,0,7); // YYYY-mm
         $stopDateYm = substr($stopDate,0,7); // YYYY-mm
 
-        // $nd will sometimes be 29, 30 or 31, and if used in mktime below, a problem
-        // with overflow will occur ('01' should be plugged in to avoid this). We need
-        // to mirror the calendar code which has this problem, so $nd has been used.
+        // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
+        // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
+        // appointments set prior to fix $nd remains unchanged). This can be done since
+        // $nd has no influence past the mktime functions.
         while($occuranceYm < $from_dateYm) {
           $occuranceYmX = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
           list($ny,$nm,$nd) = explode('-',$occuranceYmX);
