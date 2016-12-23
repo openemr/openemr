@@ -253,7 +253,6 @@ font-weight: bold;
     height: 95%;
 }
 .body_title table tr td {
-  Xpadding: 0px !important;
 }
 
 /*=============================================================
@@ -714,14 +713,19 @@ margin-top: -0.1px;
 margin-bottom: 2em;
 }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
-div.tabContainer div.current { display: block; }
-div.tab {   min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:800px;}
+div.tabContainer div.current { display: block; box-shadow:0pt;}
+div.tab {   min-height: 180px; 
+    background: #ffffff none repeat scroll 0 0; 
+    margin-bottom: 10px;
+    width:800px;
+border: 1pt solid black;
+border-radius: 5px;
+}
 div.tab_long {  min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
 
 table {
         border-collapse: separate;
-        border-spacing: 9px 5px;
 }
 div.tab table td {
     padding-right: 1px; padding-bottom: 0px;
@@ -1002,10 +1006,12 @@ font-size:9pt;
     display: none;
     margin: 0;
     padding: 0;
-    background: #C9F1B5;
-    border-left: 1px solid #000000;
+    background: #C9DBF2;;
+    border: 1px solid #000000;
     border-right: 1px solid #000000;
     border-bottom: 1px solid #000000;
+    border-radius:0px 3px 5px 5px;
+    box-shadow:2px 2px 4px grey;
 }
 
 #sddm div a
@@ -1018,7 +1024,7 @@ font-size:9pt;
     white-space:normal;
     text-align: left;
     text-decoration: none;
-    background: #fefdcf;
+    background: #C9DBF2;;
     color: #2875DE;
     font-size: 0.8em;
     font-weight:normal;
@@ -1028,6 +1034,9 @@ font-size:9pt;
 {
     background: #16558C;
     color: #ffffff;
+}
+#sddm td {
+    border-top:0pt !important;
 }
 .text-area{
   background-color:#FFFFFF;
