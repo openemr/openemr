@@ -48,7 +48,7 @@ a:hover {
 
 .text {
     text-decoration: none;
-    color: #000000;
+    color: #713535;
     font-size: 0.9em;
 }
 
@@ -144,8 +144,8 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes 
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-.body_top { background-color: #fefdcf; margin: 8px }    /* $top_bg_line */
-.bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
+.body_top { background-color: #fffbeb; margin: 8px }    /* $top_bg_line */
+.bgcolor2 { background-color: #fffbeb; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
 .body_title { background-color: #fedf98; }  /* $title_bg_line */
 .body_nav { background-color: #fefdcf; }    /* $nav_bg_line */
@@ -566,7 +566,10 @@ font-weight: bold;
 #addressbook_list tr.oddrow {
     background-color:#ffffff;
 }
-tr.odd, td.even {
+tr.odd {
+    background-color: grey;
+
+    } td.even {
     background-color: #ffffff;
 }
 
@@ -657,32 +660,72 @@ a.disabled_button:hover {
  * TABS
 */
 
-ul.tabNav { margin: 0; padding: 0; float: left; list-style: none; width: 100%; }
-ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
+ul.tabNav { margin: 0; float: left; list-style: none; width: 100%; }
+ul.tabNav li { float: left; margin: 0 3px 0 0;
+    padding: 0.5px 0 0;
     font-size: 0.8em;
     vertical-align: bottom;
     text-align: left;
+    border-radius: 8px 8px 0 0;
+position: relative;
+z-index: 5;
+top: 2px;
+border-left: 1pt solid black;
+border-top: 1pt solid black;
+border-right: 1pt solid black;
 }
-ul.tabNav li.current { padding-top: 0;
+ul.tabNav li.current { 
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: bottom;
     text-align: left;
+box-shadow: 2px -2px 2px grey;
+position: relative;
+z-index: 5;
+top: 0.0875em;
+border-left:1pt solid black;
 }
-ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
-ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }
+ul.tabNav a { 
+    background: #F8E6CBE6;
+color: #333;
+display: block;
+padding: 4px 12px 9px 12px;
+text-decoration: none;
+border-radius: 8px 8px 0 0;
+box-shadow: 2px -1px 1px grey;
+ }
+ form {
+    width: 85%;
+margin: 0 auto;
+ }
+ul.tabNav li.current a { background:#FFFFFF ;padding: 7px 8px 8px; 
+border-radius:8px 8px 0 0 ;}
 
-div.tabContainer { clear: both; float: left; width: 100%; }
+div.tabContainer { 
+    clear: both;
+float: left;
+width: 100%;
+border-radius: 0px 8px 8px 8px;
+box-shadow: 2px 2px 2px grey;
+border: 1pt solid black;
+z-index: 1;
+background-color: white;
+margin-top: -0.1px;
+margin-bottom: 2em;
+}
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; }
 div.tab {   min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:800px;}
 div.tab_long {  min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
 
-div.tab table td {
-    padding-right: 1px; padding-bottom: 0px
+table {
+        border-collapse: separate;
+        border-spacing: 9px 5px;
 }
-
+div.tab table td {
+    padding-right: 1px; padding-bottom: 0px;
+}
 div.tab table td.label {
     min-width:80px;
 }
@@ -692,23 +735,45 @@ div.tab table td.data {
 }
 
 div.notab {
-    background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+background: #FFFFFF none repeat scroll 0 0;
+margin-bottom: 10px;
+border: 1px solid black;
+background-color: #fff;
+border-radius: 0 0 5px 5px;
+box-shadow: 1px 2px 4px grey;
+padding-left: 10px;
+margin-bottom: 1em;
 }
-
 div.notab-right {
-    background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+    background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px; 
+border: 1px solid black;
+background-color: #fff;
+border-radius: 0 0 5px 5px;
+box-shadow: 1px 2px 4px grey;
 }
 
 .section-header {
-    margin-bottom:5px; width:685px; border-bottom: 1px solid;
+    clear: both;
+    border: 1px solid black;
+background-color: #f8e8cb;
+border-radius: 5px 5px 0px 0px;
+box-shadow: 2px 0px 5px grey;
+padding: 6px;
 }
-
 .section-header-dynamic {
-    margin-bottom:5px; border-bottom: 1px solid;
+    border: 1px solid black;
+background-color: #f8e8cb;
+border-radius: 5px 5px 0px 0px;
+box-shadow: 2px 2px 2px grey;
+padding: 6px;
 }
 
 .summary_item {
-     background:#FFFFFF; padding:8px;
+    background:#FFFFFF; padding:8px;
+    border: 1pt solid black;
+    border-radius: 0px 3px 3px 3px;
+    box-shadow: 2px 0px 2px grey;
+            margin: 0 auto 10px;
 }
 
 /*
