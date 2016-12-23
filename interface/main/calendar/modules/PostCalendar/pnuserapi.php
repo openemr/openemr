@@ -1445,6 +1445,13 @@ function calculateEvents($days,$events,$viewtype) {
         //  Populate - Enter data into the event array
         //==============================================================
         $nm = $esM; $ny = $esY; $nd = $esD;
+
+        if(isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1; // Added by epsdky 2016.
+        // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
+        // below a problem with overfow will occur so it is set to 1 to prevent this.
+        // (for rt2 appointments set prior to fix it remains unchanged). This can be done
+        // since $nd has no influence past the mktime functions - epsdky 2016.
+
         // make us current
         while($ny < $cy) {
           $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
