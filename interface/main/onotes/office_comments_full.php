@@ -23,6 +23,7 @@ $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
+include_once("$srcdir/formatting.inc.php");
 
 //the number of records to display per screen
 $N = 10;
@@ -62,11 +63,7 @@ if ($userauthorized) { $backurl="office_comments.php"; }
 else { $backurl="../main_info.php"; }
 ?>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="office_comments.php" onclick='top.restoreSession()'>
-<?php } else { ?>
-<a href="<?php echo $backurl; ?>" target="Main">
-<?php } ?>
 
 <span class="title"><?php echo xlt('Office Notes'); ?></span>
 <span class="back"><?php echo text($tback); ?></span></a>
@@ -92,7 +89,7 @@ elseif ($active==1) { $active_class="link_selected"; }
 elseif ($active==0) { $inactive_class="link_selected"; }
 ?>
 
-<span class="text"><?php echo xlt('View:'); ?> </span> 
+<span class="text"><?php echo xlt('View:'); ?> </span>
 <a href="office_comments_full.php?offset=0&active=all" class="<?php echo attr($all_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('All'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=1" class="<?php echo attr($active_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Active'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=0" class="<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Inactive'); ?>]</a>
@@ -112,13 +109,16 @@ if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offse
 $result_count = 0;
 foreach ($result as $iter) {
     $result_count++;
-    
+
+    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
+    $date=oeFormatShortDate($date);
+
     if (getdate() == strtotime($iter{"date"})) {
-        $date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = xl("Today") . ", " . $date;
     } else {
-        $date_string = date( "D F dS" ,strtotime($iter{"date"}));
+        $date_string = $date;
     }
-    
+
     if ($iter{"activity"}) { $checked = "checked"; }
     else { $checked = ""; }
 
@@ -127,8 +127,8 @@ foreach ($result as $iter) {
     print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
     print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
     print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
-    
-    
+
+
     $notes_count++;
 }
 }else{

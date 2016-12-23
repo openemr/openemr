@@ -70,44 +70,59 @@ if($GLOBALS['password_expiration_days'] != 0){
 if ($is_expired) {
   //display the php file containing the password expiration message.
   $frame1url = "pwd_expires_alert.php";
+  $frame1target = "adm";
 }
 else if (!empty($_POST['patientID'])) {
   $patientID = 0 + $_POST['patientID'];
   if (empty($_POST['encounterID'])) {
     // Open patient summary screen (without a specific encounter)
     $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+    $frame1target = "pat";
   }
   else {
     // Open patient summary screen with a specific encounter
     $encounterID = 0 + $_POST['encounterID'];
     $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
+    $frame1target = "pat";
   }
 }
 else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
   $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
   if (isset($_GET['date'])) $frame1url .= "&date=" . attr($_GET['date']);
-}
-else if ($GLOBALS['concurrent_layout']) {
-  // new layout
-  if ($GLOBALS['default_top_pane']) {
-    $frame1url=attr($GLOBALS['default_top_pane']);
-  } else {
-    $frame1url = "main_info.php";
-  }
+  $frame1target = "cal";
 }
 else {
-  // old layout
-  $frame1url = "main.php?mode=" . attr($_GET['mode']);
+  // standard layout
+  if ($GLOBALS['default_top_pane']) {
+    $frame1url=attr($GLOBALS['default_top_pane']);
+    $map_paths_to_targets = array(
+      'main_info.php' => ('cal'),
+      '../new/new.php' => ('pat'),
+      '../../interface/main/finder/dynamic_finder.php' => ('pat'),
+      '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb')
+    );
+    $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
+    if (empty($frame1target)) $frame1target = "msc";
+  } else {
+    $frame1url = "main_info.php";
+    $frame1target = "cal";
+  }
 }
 
 $nav_area_width = '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
 
 // This is where will decide whether to use tabs layout or non-tabs layout
+// Will also set Session variables to communicate settings to tab layout
+$_SESSION['frame1url'] = $frame1url;
+$_SESSION['frame1target'] = $frame1target;
 if (!$GLOBALS['new_tabs_layout']) {
   $_REQUEST['tabs'] = "false";
 }
 require_once("tabs/redirect.php");
+// unset the Session variables that were only meant for the tab layout
+unset($_SESSION['frame1url']);
+unset($_SESSION['frame1target']);
 
 ?>
 <html>
@@ -118,7 +133,7 @@ require_once("tabs/redirect.php");
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -161,8 +176,6 @@ $main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
 // same thing. use both.
 // frameborder specifies a 3d look, not whether there are borders.
 
-if ($GLOBALS['concurrent_layout']) {
-  // start new layout
   if (empty($GLOBALS['gbl_tall_nav_area'])) {
     // not tall nav area ?>
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
@@ -204,21 +217,5 @@ if ($GLOBALS['concurrent_layout']) {
 </frameset>
 
 <?php } // end tall nav area ?>
-
-<?php } else { // start old layout ?>
-
-</head>
-<frameset rows="<?php echo attr($GLOBALS[navBarHeight]).",".attr($GLOBALS[titleBarHeight]) ?>,*"
-  cols="*" frameborder="no" border="0" framespacing="0"
-  onunload="imclosing()">
-  <frame src="main_navigation.php" name="Navigation" scrolling="no" noresize frameborder="no">
-  <frame src="main_title.php" name="Title" scrolling="no" noresize frameborder="no">
-  <frame src='<?php echo $frame1url ?>' name='Main' scrolling='auto' noresize frameborder='no'>
-</frameset>
-<noframes><body bgcolor="#FFFFFF">
-<?php echo xlt('Frame support required'); ?>
-</body></noframes>
-
-<?php } // end old layout ?>
 
 </html>

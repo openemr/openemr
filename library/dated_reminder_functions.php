@@ -334,7 +334,7 @@ function logRemindersArray(){
           }
           if(isset($_GET['ed']) and $_GET['ed'] != ''){
             $where = ($where == '' ? 'dr.dr_message_sent_date <= ?' : $where.' AND dr.dr_message_sent_date <= ?');
-            $input[] = $_GET['ed'].' 24:00:00';
+            $input[] = $_GET['ed'].' 23:59:59';
           }
 //------------------------------------------  
 

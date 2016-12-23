@@ -1,6 +1,6 @@
 <?php
 /* $Id$ */
-// Copyright (C) 2008-2014 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2014, 2016 Rod Roark <rod@sunsetsystems.com>
 // Adapted for cross-platform operation by Bill Cernansky (www.mi-squared.com)
 //
 // This program is free software; you can redistribute it and/or
@@ -303,7 +303,7 @@ if ($form_step == 101) {
   echo "<b>" . xlt('Lists') . "</b><br />\n";
   echo "<select multiple name='form_sel_lists[]' size='15'>";
   $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-    "list_id = 'lists' ORDER BY title, seq");
+    "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
   while ($lrow = sqlFetchArray($lres)) {
     echo "<option value='" . attr($lrow['option_id']) . "'";
     echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
@@ -315,7 +315,7 @@ if ($form_step == 101) {
   echo "<b>" . xlt('Layouts') . "</b><br />\n";
   echo "<select multiple name='form_sel_layouts[]' size='15'>";
   $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-    "list_id = 'lbfnames' ORDER BY title, seq");
+    "list_id = 'lbfnames' AND activity = 1 ORDER BY title, seq");
   while ($lrow = sqlFetchArray($lres)) {
     echo "<option value='" . attr($lrow['option_id']) . "'";
     echo ">" . text(xl_layout_label($lrow['title'])) . "</option>\n";
@@ -536,11 +536,13 @@ $res=sqlStatement("create table if not exists log_comment_encrypt_new like log_c
 $res=sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
 $res=sqlStatement("create table if not exists log_new like log");
 $res=sqlStatement("rename table log to log_backup,log_new to log");
+$res=sqlStatement("create table if not exists log_validator_new like log_validator");
+$res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator"); 
 echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
-    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup";
+    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup log_validator_backup";
 # Set Eventlog Flag when it is done
 $eventlog=1;
 // 301 If ends here.
@@ -573,6 +575,8 @@ if ($cmd) {
        	 $res=sqlStatement("rename table log_comment_encrypt_backup to log_comment_encrypt");
          $res=sqlStatement("drop table if exists log");
          $res=sqlStatement("rename table log_backup to log");
+         $res=sqlStatement("drop table if exists log_validator");
+         $res=sqlStatement("rename table log_validator_backup to log_validator");
      }
     die("\"$cmd\" returned $tmp2: $tmp0");
   }
@@ -580,6 +584,7 @@ if ($cmd) {
   if ($eventlog==1)       {
         $res=sqlStatement("drop table if exists log_backup");
         $res=sqlStatement("drop table if exists log_comment_encrypt_backup");
+        $res=sqlStatement("drop table if exists log_validator_backup");
         echo "<br><b>";
         echo xl('Backup Successfully taken in')." ";
         echo  $BACKUP_EVENTLOG_DIR;

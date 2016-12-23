@@ -45,19 +45,13 @@ function toencounter(rawdata) {
     if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
 
     top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
     parent.left_nav.setEncounter(datestr, enc, frame);
-    parent.left_nav.setRadio(frame, 'enc');
     top.frames[frame].location.href  = '../patient_file/encounter/encounter_top.php?set_encounter=' + enc;
-<?php } else { ?>
-    top.Title.location.href = '../patient_file/encounter/encounter_title.php?set_encounter='   + enc;
-    top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?set_encounter=' + enc;
-<?php } ?>
 }
 
 function bpopup() {
  top.restoreSession();
- window.open('../main/about_page.php','_blank', 'width=350,height=250,resizable=1');
+ window.open('../main/about_page.php','_blank', 'width=420,height=350,resizable=1');
  return false;
 }
 
@@ -72,17 +66,25 @@ function showhideMenu() {
 		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 	}
 }
+
 </script>
 </head>
 <body class="body_title">
 <?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
-
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
+
+<?php if ($GLOBALS['tiny_logo_1'] || $GLOBALS['tiny_logo_2']) {
+    $width_column = "100px";
+    if (!$GLOBALS['tiny_logo_1'] || !$GLOBALS['tiny_logo_2']) $width_column = "50px"; ?>
+    <td align="left" style="width:<?php echo attr($width_column) ?>">
+        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
+    </td>
+<?php } ?>
+
 <td align="left">
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
@@ -100,9 +102,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 	<tr><td valign="baseline"><B>
 		<a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
 	</td></tr></table>
-<?php } else { ?>
-&nbsp;
-<?php } ?>
+
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
@@ -114,7 +114,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<div style='margin-left:5px; float:left; display:none' id="past_encounter_block">
 			<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span>
 		</div></td></tr>
-	<tr><td valign="baseline" align="center">	
+	<tr><td valign="baseline" align="center">
         <div style='display:none' class='text' id="current_encounter_block" >
             <span class='text'><?php xl('Selected Encounter','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
         </div></td></tr></table>
@@ -125,7 +125,6 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
-		<td id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></td>
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>

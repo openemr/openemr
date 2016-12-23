@@ -392,11 +392,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <table cellpadding='0' cellspacing='0' border='0'>
 	<tr>
 		<td>
-			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a href="demographics.php" onclick="top.restoreSession()">
-			<?php } else { ?>
-			<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-			<?php } ?>
 			<font class=title><?php xl('Current Patient','e'); ?></font>
 			</a>
 			&nbsp;&nbsp;
@@ -405,11 +401,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
             <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
-			<?php if ($GLOBALS['concurrent_layout']) { ?>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
-			<?php } else { ?>
-			<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-			<?php } ?>
 			<span><?php xl('Cancel','e'); ?></span>
 			</a>
 		</td>
@@ -765,9 +757,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php }?>
 
-<?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
+<?php if ($set_pid) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) . "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
- parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 
 <?php echo $date_init; ?>
@@ -782,12 +773,18 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php /*Include the validation script and rules for this form*/
 $form_id="DEM";
+//LBF forms use the new validation depending on the global value
+$use_validate_js=$GLOBALS['new_validate'];
+
 ?>
 <?php  include_once("$srcdir/validation/validation_script.js.php");?>
 
 
 </body>
 <script language='JavaScript'>
+	var duplicateFieldsArray=[];
+
+
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>
@@ -838,19 +835,43 @@ $form_id="DEM";
 
 			var flds = new Array(<?php echo $mflist; ?>);
 			var separator = '?';
+			var valueIsChanged=false;
 			for (var i = 0; i < flds.length; ++i) {
 				var fval = $('#form_' + flds[i]).val();
+				if(duplicateFieldsArray['#form_' + flds[i]]!=fval) {
+					valueIsChanged = true;
+
+				}
+
 				if (fval && fval != '') {
 					url += separator;
 					separator = '&';
 					url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
 				}
 			}
+
+
+			//Only if check for duplicates values are changed open the popup hook screen
+			if(valueIsChanged) {
+				//("value has changed for duplicate check inputs");
 			url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
 			dlgopen(url, '_blank', 700, 500);
+			}
+			else {//other wise submit me is a success just submit the form
+				$('#DEM').submit();
+			}
 		});
 
 	<?php endif;?>
+
+	$(document).ready(function(){
+		//When document is ready collect all the values Marked with D (check duplicate) stored in the db into array duplicateFieldsArray.
+		var flds = new Array(<?php echo $mflist; ?>);
+		for (var i = 0; i < flds.length; ++i) {
+			var fval = $('#form_' + flds[i]).val();
+			duplicateFieldsArray['#form_' + flds[i]] = fval;
+		}
+	})
 </script>
 
 

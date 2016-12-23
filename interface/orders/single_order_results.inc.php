@@ -2,7 +2,7 @@
 /**
 * Script to display results for a given procedure order.
 *
-* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@ require_once($GLOBALS["srcdir"] . "/classes/Document.class.php");
 
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ?",
+    "WHERE list_id = ? AND option_id = ? AND activity = 1",
     array($listid, $value));
   $tmp = xl_list_label($lrow['title']);
   if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
@@ -220,6 +220,18 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
         echo "</a>";
       }
       echo "</td>\n";
+      $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?",array($result_document_id));
+      if(!empty($narrative_notes)){
+      	$nnotes = explode("\n",$narrative_notes['notes']);
+      	$narrative_note_list = '';
+      	foreach($nnotes as $nnote){
+      		if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
+      		$narrative_note_list .= $nnote;
+      	}
+      	
+      	if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', '; $result_noteid .= 1 + storeNote($narrative_note_list);}
+      }
+      
     }
     else {
       echo "  <td>";
@@ -352,7 +364,6 @@ function showpnotes(orderid) {
  }
  var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
  w.parent.left_nav.forceDual();
- w.parent.left_nav.setRadio(othername, 'pno');
  w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
  return false;
 }

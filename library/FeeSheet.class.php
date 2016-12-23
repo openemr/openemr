@@ -26,6 +26,7 @@
 $fake_register_globals = false;
 $sanitize_all_escapes = true;
 
+
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/acl.inc");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
@@ -36,7 +37,6 @@ require_once(dirname(__FILE__) . "/appointment_status.inc.php");
 require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/log.inc");
-
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
 
@@ -103,7 +103,7 @@ class FeeSheet {
     $this->ALLOW_COPAYS = !$GLOBALS['ippf_specific'];
 
     // Get the user's default warehouse and an indicator if there's a choice of warehouses.
-    $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");
+    $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse' AND activity = 1");
     $this->got_warehouses = $wrow['count'] > 1;
     $wrow = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?",
       array($_SESSION['authUser']));
@@ -704,7 +704,7 @@ class FeeSheet {
           deleteBilling($id);
         }
         else {
-          $tmp = sqlQuery("SELECT * FROM billing WHERE id = ? AND billed = 0 AND activity = 1",
+          $tmp = sqlQuery("SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
             array($id));
           if (!empty($tmp)) {
             $tmparr = array('code' => $code, 'authorized' => $auth);

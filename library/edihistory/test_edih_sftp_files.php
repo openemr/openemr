@@ -282,7 +282,7 @@ if (!$exitcd) foreach ($sftp_hosts as $sftp_host) {
 	if (!isset($sftp_host['port'])) {
 		$sftp_host['port'] = (isset($wrk[1]) ? $wrk[1] : '22');
 	}
-	$cn = new Net_SFTP($sftp_host['remote_host'], $sftp_host['port']);
+	$cn = new \phpseclib\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);
 	if (!$cn->login($sftp_host['login'], $sftp_host['password'])) {
 		sftp_status('Login error', $sftp_host['remote_host'].':'.$sftp_host['port']);
 	} else {

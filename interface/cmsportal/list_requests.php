@@ -38,7 +38,7 @@ require_once("portal.inc.php");
  */
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ?",
+    "WHERE list_id = ? AND option_id = ? AND activity = 1",
     array($listid, $value));
   $tmp = xl_list_label($lrow['title']);
   if (empty($tmp)) $tmp = "($report_status)";
@@ -169,7 +169,6 @@ function openRequest(postid, type) {
  // var w = window;
  // var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
  // w.parent.left_nav.forceDual();
- // w.parent.left_nav.setRadio(othername, 'ore');
  // w.parent.left_nav.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
 }
 

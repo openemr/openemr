@@ -183,7 +183,12 @@ class InsuranceCompany extends ORDataObject{
 	function set_zip($zip) {
 		$this->address->set_zip($zip);
 	}
-
+	function set_inactive($inactive){
+		$this->inactive = $inactive;
+	}
+    function get_inactive(){
+		return $this->inactive;
+	}
 	function set_name($name) {
 		$this->name = $name;
 	}

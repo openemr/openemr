@@ -83,8 +83,8 @@ function List_Look($thisData, $thisList) {
     if(!$thisData || $thisData == '') return xl('Unknown or N/A');
   }
   if($thisData == '') return '';
-  $fres=sqlStatement("SELECT title FROM list_options WHERE list_id=? ".
-        "AND option_id=?", array($thisList, $thisData));
+  $fres=sqlStatement("SELECT title FROM list_options WHERE list_id = ? ".
+        "AND option_id = ? AND activity = 1", array($thisList, $thisData));
   if($fres) {
     $rret=sqlFetchArray($fres);
     $dispValue= xl_list_label($rret{'title'});
@@ -443,7 +443,7 @@ function sel_patient() {
                     <a href='#' class='css_button' id='printbutton'>
                          <span><?php echo xlt('Print Ledger'); ?></span></a>
                     <?php if($type_form == '1') { ?>
-                    <a href="../patient_file/summary/demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+                    <a href="../patient_file/summary/demographics.php" class="css_button" onclick="top.restoreSession()">
                          <span><?php echo xlt('Back To Patient');?></span></a>
                     <?php } ?>    
 					</div>

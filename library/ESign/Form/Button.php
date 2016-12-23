@@ -39,7 +39,7 @@ class Form_Button implements ButtonIF
         $this->_viewer->formId = $formId;
         $this->_viewer->formDir = $formDir;
         $this->_viewer->encounterId = $encounterId;
-        $this->_viewer->target = $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+        $this->_viewer->target = "_parent";
     }
     
     public function isViewable()

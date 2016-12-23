@@ -174,8 +174,8 @@ else {
 
 </table>
 
-<?php 
-  if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) { 
+<?php
+  if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
     if (!$form_code_type) $form_code_type = $codetype;
 ?>
 

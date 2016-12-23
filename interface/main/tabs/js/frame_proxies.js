@@ -28,19 +28,19 @@ var RTop = {
 
 
 var left_nav = {
-    
+
 };
 
 left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
 {
     if(
-        (app_view_model.application_data.patient()!==null) 
+        (app_view_model.application_data.patient()!==null)
         && (pid===app_view_model.application_data.patient().pid()))
     {
         app_view_model.application_data.patient().pname(pname);
         app_view_model.application_data.patient().pubpid(pubpid);
         app_view_model.application_data.patient().str_dob(str_dob);
-        
+
         return;
     }
     var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob);
@@ -74,11 +74,7 @@ left_nav.loadFrame=function(id,name,url)
     activateTabByName(name,true);
 }
 
-left_nav.setRadio = function(raname, rbid)
-{
-};
-
 left_nav.syncRadios = function()
 {
-    
+
 };

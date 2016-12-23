@@ -32,7 +32,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/htmlspecialchars.inc.php");
 formHeader("Form:AfterCare Planning");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 

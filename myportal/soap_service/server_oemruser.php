@@ -260,7 +260,7 @@ class OEMRUser{
             break;
             
             case 'payment_gateways_list':
-            $query = "SELECT option_id, title FROM list_options WHERE list_id = 'payment_gateways' ORDER BY seq";
+            $query = "SELECT option_id, title FROM list_options WHERE list_id = 'payment_gateways' AND activity = 1 ORDER BY seq";
             return array($query);
             break;
 

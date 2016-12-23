@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +15,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -56,7 +58,7 @@ function activateTab(data)
         {
             curTab.visible(true);
         }
-    }    
+    }
 }
 
 function activateTabByName(name,hideOthers)
@@ -92,7 +94,12 @@ function tabRefresh(data,evt)
 
 function tabClose(data,evt)
 {
-        app_view_model.application_data.tabs.tabsList.remove(data);
+    //remove the tab
+    app_view_model.application_data.tabs.tabsList.remove(data);
+    //activate the next tab
+    if(data.visible()) {
+        activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
+    }
 }
 
 function tabCloseByName(name)
@@ -104,7 +111,7 @@ function tabCloseByName(name)
         {
             tabClose(curTab);
         }
-    }    
+    }
 }
 
 function navigateTab(url,name)
@@ -112,8 +119,8 @@ function navigateTab(url,name)
     top.restoreSession();
     var curTab;
     if($("iframe[name='"+name+"']").length>0)
-    {            
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url; 
+    {
+       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
     }
     else
     {
@@ -140,6 +147,10 @@ function refreshPatient(data,evt)
     loadCurrentPatient();
 }
 
+function refreshEncounter(data,evt)
+{
+    loadCurrentEncounter();
+}
 
 function setEncounter(id)
 {
@@ -179,7 +190,7 @@ function newEncounter()
 {
     var url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc='
     navigateTab(url,"enc");
-    activateTabByName("enc",true);    
+    activateTabByName("enc",true);
 
 }
 
@@ -191,18 +202,27 @@ function encounterList()
 {
     var url=webroot_url+'/interface/patient_file/history/encounters.php'
     navigateTab(url,"enc");
-    activateTabByName("enc",true);    
-    
+    activateTabByName("enc",true);
+
 }
 
 function loadCurrentPatient()
 {
     var url=webroot_url+'/interface/patient_file/summary/demographics.php'
     navigateTab(url,"pat");
-    activateTabByName("pat",true);    
-    
+    activateTabByName("pat",true);
+
 }
 
+function loadCurrentEncounter()
+{
+    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php';
+    navigateTab(url,"enc");
+    activateTabByName("enc",true);
+
+}
+
+// note the xl_strings_tabs_view_model variable is required for the alert messages and translations
 function menuActionClick(data,evt)
 {
     if(data.enabled())
@@ -212,36 +232,37 @@ function menuActionClick(data,evt)
             var encounterID=app_view_model.application_data.patient().selectedEncounterID();
             if(isEncounterLocked(encounterID))
             {
-                alert("This encounter is locked. No new forms can be added.");
+                alert(xl_strings_tabs_view_model.encounter_locked);
                 return;
             }
-        }        
+        }
         navigateTab(webroot_url+data.url(),data.target);
-        activateTabByName(data.target,true);        
+        activateTabByName(data.target,true);
     }
     else
     {
         if(data.requirement===1)
         {
-            alert('You must first select or add a patient.');        
+            alert(xl_strings_tabs_view_model.must_select_patient);
         }
         else if((data.requirement===2)||data.requirement===3)
         {
-            alert('You must first select or create an encounter.');                    
+            alert(xl_strings_tabs_view_model.must_select_encounter);
         }
-    }    
-       
+    }
+
 }
 
 function clearPatient()
 {
-    top.restoreSession();    
+    top.restoreSession();
     app_view_model.application_data.patient(null);
     tabCloseByName('enc');
     tabCloseByName('rev');
     tabCloseByName('pop');
-    navigateTab(webroot_url+'/interface/main/messages/messages.php?form_active=1','pat');
-    activateTabByName('lst',true);    
+    tabCloseByName('pat');
+    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin');
+    activateTabByName('fin',true);
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",
@@ -249,7 +270,7 @@ function clearPatient()
 	  data: { func: "unset_pid"},
 	  success:function( msg ) {
 
-    
+
 	  }
 	});
 }

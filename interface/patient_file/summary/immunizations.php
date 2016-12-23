@@ -340,13 +340,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 
 <body class="body_top">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
     <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
-<?php } else { ?>
-    <a href="patient_summary.php" target="Main" onClick="top.restoreSession()">
-    <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
-    <span class=back><?php echo htmlspecialchars( $tback, ENT_NOQUOTES); ?></span></a>
-<?php } ?>
 
 <form action="immunizations.php" name="add_immunization" id="add_immunization">
 <input type="hidden" name="mode" id="mode" value="add">

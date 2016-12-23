@@ -16,7 +16,7 @@ $form_name = "My Example Form";
 $form_folder = "example";
 
 formHeader("Form: ".$form_name);
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 
 /* load the saved record */
 $record = formFetch($table_name, $_GET["id"]);

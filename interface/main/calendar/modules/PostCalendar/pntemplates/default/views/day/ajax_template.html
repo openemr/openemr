@@ -43,27 +43,18 @@ $timeslotHeightUnit="px";
                 }
         }
     [-/php-]
-   ,'_blank', 775, 375);
+   ,'_blank', 775, 500);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
-  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 375);
+  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 775, 500);
  }
 
  function goPid(pid) {
   top.restoreSession();
 [-php-]
- if ($GLOBALS['concurrent_layout'])
- {
-
   		echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
    		"+ '?set_pid=' + pid;\n";
-
- } else 
- {
-  echo "  top.location = '../../patient_file/patient_file.php' " .
-   "+ '?set_pid=' + pid + '&pid=' + pid;\n";
- }
 [-/php-]
  }
 
@@ -90,7 +81,7 @@ $timeslotHeightUnit="px";
  $DOWlist = array();
  $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
  // bound check and auto-correction
- if ($tmpDOW <0 || $tmpDOW >6) { 
+ if ($tmpDOW <0 || $tmpDOW >6) {
     pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
     $tmpDOW = 0;
  }
@@ -154,30 +145,37 @@ if ( $_SESSION['pc_facility'] ) {
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
-echo "   <a href='#' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'/><span>".xl("Add")."</span></a>\n";
-echo "   <a href='#' value='" . xl ("Search") .
-    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'/><span>".xl("Search")."</span></a>\n";
+echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'>
+            <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xl("Search Appointment") . "'
+            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
+            <i class='fa fa-search' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
 
 <div id="dateNAV"">
-<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
-<a href='[-php-]echo $PREV_DAY_URL[-/php-]' onclick='top.restoreSession()'>
-<img id="prevday" src="[-$TPL_IMAGE_PATH-]/leftbtn.gif" border="0" title="[-php-]echo xl("Previous Day")[-/php-]" alt="[-php-]echo xl ("Previous Day")[-/php-]" style="padding-top:5px"/></a>
-<a href='[-php-]echo $NEXT_DAY_URL[-/php-]' onclick='top.restoreSession()'>
-<img id="nextday" src="[-$TPL_IMAGE_PATH-]/rightbtn.gif" border="0" title="[-php-]echo xl("Next Day")[-/php-]" alt="[-php-]echo xl ("Next Day")[-/php-]" /></a>
-&nbsp;
 [-php-]
+if ($Date <> date('Ymd')) {
+[-/php-]
+<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
+[-php-]
+}
+echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xl("Previous Day") . "'>
+            <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
 echo dateformat (strtotime($atmp[0]),true);
+echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' title='" . xl("Next Day") . "'>
+            <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
 <div id="viewPicker">
 [-php-]
-echo "   <a href='#' type='button' id='printview' title='" .xl ("Print View"). "' class='css_button'/><span>" . xlt("View Printable Version") . "</span></a>\n";
-echo "   <a href='#' type='button' value='" .xl ("Refresh"). "' onclick='javascript:refreshme()' class='css_button'/><span>".xl("Refresh")."</span></a>\n";
+echo "   <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button'>
+            <i class='fa fa-print' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
+            <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES)."</span></a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
 echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
@@ -282,7 +280,7 @@ while ($currdate <= $enddate) {
     $td .= "title=\"" . xl('Go to') . " ".date('M d, Y', $currdate)."\" ";
     $td .= "> ".date('d', $currdate)."</td>\n";
     echo $td;
-   
+
     // end of week row
     if (date('w', $currdate) == $DOWlist[6]) echo "</tr>\n";
 
@@ -420,7 +418,7 @@ foreach ($providers as $provider) {
     $calStartMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
     $tmpTime = $times[count($times)-1];
     $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
-        
+
     // having a 'title' for the TD makes the date appear by the mouse pointer
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
@@ -451,7 +449,7 @@ foreach ($providers as $provider) {
             foreach ($events as $e1) {
                 // ignore IN event
                 if (($e1['catid'] == 2)) { continue; }
-				
+
 				// skip events without an ID (why they are in the loop, I have no idea)
                 if ($e1['eid'] == "") { continue; }
 
@@ -459,7 +457,7 @@ foreach ($providers as $provider) {
                 // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
                 // we dont want to exclude those events from being displayed
                 if ($providerid != $e1['aid']  && $event['aid']!=0) { continue; }
-            
+
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
                     $tmpTime = $times[0];
@@ -500,17 +498,17 @@ foreach ($providers as $provider) {
 				if (!isset($eventPositions[$eid]->width))
 				{
 					$eventPositions[$eid]->width = $width;
-				} else if ($eventPositions[$eid]->width > $width) 
+				} else if ($eventPositions[$eid]->width > $width)
 				{
 					$eventPositions[$eid]->width = $width;
 				}
-               
+
                 // set the left position if not already set or if the current left is
                 // greater than what was previously set
 				if (!isset($eventPositions[$eid]->leftpos))
 				{
 					$eventPositions[$eid]->leftpos = $leftpos;
-				} else if ($eventPositions[$eid]->leftpos < $leftpos) 
+				} else if ($eventPositions[$eid]->leftpos < $leftpos)
 				{
 					$eventPositions[$eid]->leftpos = $leftpos;
 				}
@@ -525,10 +523,10 @@ foreach ($providers as $provider) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
             if ($providerid != $event['aid'] && $event['aid']!=0) { continue; }
-            
+
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
-                
+
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
                 $tmpTime = $times[0];
@@ -547,7 +545,7 @@ foreach ($providers as $provider) {
 
              //fix bug 456 and 455
              //check to see if the event is in the clinic hours range, if not it will not be displayed
-             if  ( (int)$starth < (int)$openhour || (int)$starth >= (int)$closehour ){ continue; }
+             if  ( (int)$starth < (int)$openhour || (int)$starth > (int)$closehour ){ continue; }
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
@@ -577,7 +575,7 @@ foreach ($providers as $provider) {
                     $evtClass = "event_appointment";
                     break;
             }
-            
+
             // if this is an IN or OUT event then we have some extra special
             // processing to be done
             // the IN event creates a DIV until the OUT event
@@ -619,7 +617,7 @@ foreach ($providers as $provider) {
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
-            
+
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
@@ -792,7 +790,7 @@ foreach ($providers as $provider) {
                echo $content;
                echo "</div>\n";
            }
-   
+
            // output the DIV and content
            // For "OUT" events, applying the background color in CSS.
           $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$event["catcolor"];
@@ -840,7 +838,7 @@ foreach ($providers as $provider) {
   } // end EVENT loop
 
    echo "</div>";
-   
+
    } // end date
 
     echo "</td>\n";
@@ -880,8 +878,8 @@ echo "<P>";
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
-            
-            dpCal=$("#datePicker>table"); 
+
+            dpCal=$("#datePicker>table");
             mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
     });
 
@@ -897,7 +895,7 @@ echo "<P>";
         return true;
     }
 
-    /* change the current date based upon what the user clicked in 
+    /* change the current date based upon what the user clicked in
      * the datepicker DIV
      */
     var ChangeDate = function(eObj) {

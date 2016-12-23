@@ -82,6 +82,8 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 
 <!-- validation library -->
+<!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
+<?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
@@ -338,6 +340,13 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
                         "exdate" => $_POST['form_repeat_exdate']
                     );
 
+    //
+    if($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit) 
+      if($_POST['old_repeats'] == 2) {
+        if($_POST['rt2_flag2']) $recurrspec['rt2_pf_flag'] = "1";
+      } else $recurrspec['rt2_pf_flag'] = "1";
+    } // End of addition by epsdky
+    //
     // no recurr specs, this is used for adding a new non-recurring event
     $noRecurrspec = array("event_repeat_freq" => "",
                         "event_repeat_freq_type" => "",
@@ -670,7 +679,7 @@ if ($_POST['form_action'] == "save") {
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
@@ -1207,6 +1216,10 @@ $classpati='';
 <!-- used for recurring events -->
 <input type="hidden" name="selected_date" id="selected_date" value="<?php echo attr($date); ?>">
 <input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>">
+<!-- Following added by epsdky 2016 (details in commit) -->
+<input type="hidden" name="old_repeats" id="old_repeats" value="<?php echo attr($repeats); ?>">
+<input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>">
+<!-- End of addition by epsdky -->
 <center>
 <table border='0' >
 <?php
@@ -1578,8 +1591,8 @@ if  ($GLOBALS['select_multi_providers']) {
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
-        foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('M{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('W{{Wednesday}}'),
-                     5 => xl('Th{{Thursday}}'), 6 => xl('F{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
+        foreach (array(1 => xl('Su{{Sunday}}') , 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
+                     5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value)
         {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
@@ -1731,8 +1744,8 @@ if ($repeatexdate != "") {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#form_save").click(function() { validateform("save"); });
-    $("#form_duplicate").click(function() { validateform("duplicate"); });
+    $("#form_save").click(function(e) { validateform(e,"save"); });
+    $("#form_duplicate").click(function(e) { validateform(e,"duplicate"); });
     $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
     $("#cancel").click(function() { window.close(); });
@@ -1763,7 +1776,7 @@ function are_days_checked(){
 * this enable to add new rules for this form in the pageValidation list.
 * */
 var collectvalidation = <?php echo($collectthis); ?>;
-function validateform(valu){
+function validateform(event,valu){
 
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
@@ -1782,7 +1795,7 @@ function validateform(valu){
             presence: true
         }
     } else {
-        if(collectvalidation.form_enddate != undefined){
+        if(typeof (collectvalidation) != 'undefined'){
             delete collectvalidation.form_enddate;
         }
     }
@@ -1798,7 +1811,17 @@ function validateform(valu){
     }
     ?>
 
-    var submit = submitme(1, undefined, 'theform', collectvalidation);
+    <?php
+    if($GLOBALS['select_multi_providers']){
+    ?>
+    //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
+    collectvalidation.form_provider = {presence: true};
+    <?php
+    }
+    ?>
+
+
+    var submit = submitme(1, event, 'theform', collectvalidation);
     if(!submit)return;
 
     $('#form_action').val(valu);

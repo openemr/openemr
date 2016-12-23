@@ -82,14 +82,14 @@ if ($mode == "simple") {
   <span class='title'><?php echo htmlspecialchars( xl('Patient Reminders'), ENT_NOQUOTES); ?></span>
 </div>
 <?php if ($mode == "simple") { ?> 
-  <div style='float:left;margin-right:10px'>
+  <div id='namecontainer_preminders' class='namecontainer_preminders' style='float:left;margin-right:10px'>
     <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;
     <span class="title">
       <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid), ENT_NOQUOTES); ?></a>
     </span>
   </div>
   <div>
-    <a href="../summary/demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+    <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
       <span><?php echo htmlspecialchars( xl('Back To Patient'), ENT_NOQUOTES);?></span>
     </a>
   </div>

@@ -199,6 +199,7 @@ foreach($this->status_details as $row_status){
                     <div style="display:none;" id="download_ccd"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                     <input type="hidden" name="downloadccd" id="downloadccd" value="">
                     <input type="hidden" name="pid_ccda" id="pid_ccda" value="">
+                    <input type="hidden" name="latestccda" id="latestccda" value="">
                     <?php
                     $arr = $this->getVariables('Application\Controller\SendtoController','sendAction');
                     $arr['required_butons'] = array('hie','emr_direct','download_all');

@@ -18,10 +18,7 @@
 <h2>[-php-] xl('Searching for appointments','e'); [-/php-]</h2>
 &nbsp;
 [-php-]
-if ($GLOBALS['concurrent_layout'])
     echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu' onclick='top.restoreSession()'>";
-else
-    echo "<a href='".$GLOBALS['webroot']."/interface/main/main.php' target='Main' class='menu' onclick='top.restoreSession()'>";
 [-/php-]
 [-php-] xl('Return to calendar','e'); [-/php-]</a>
 <div id="calsearch_params">
@@ -176,7 +173,7 @@ $(document).ready(function(){
 var EditEvent = function (eObj) {
     objID = eObj.id;
     var parts = objID.split("~");
-    dlgopen('add_edit_event.php?date='+ parts[1] +'&eid=' + parts[0], '_blank', 775, 375);
+    dlgopen('add_edit_event.php?date='+ parts[1] +'&eid=' + parts[0], '_blank', 775, 500);
 }
 
 // show the 'searching...' status and submit the form
@@ -189,16 +186,8 @@ var SubmitForm = function(eObj) {
 function goPid(pid) {
     top.restoreSession();
     [-php-]
-    if ($GLOBALS['concurrent_layout'])
-    {
-
            echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
            			 "+ '?set_pid=' + pid;\n";         	
-
-    } else {
-        echo "top.location = '../../patient_file/patient_file.php' " .
-            "+ '?set_pid=' + pid + '&pid=' + pid;\n";
-    }
     [-/php-]
  }
 </script>

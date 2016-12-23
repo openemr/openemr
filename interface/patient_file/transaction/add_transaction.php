@@ -93,10 +93,7 @@ if ($mode) {
     processAmcCall('send_sum_elec_amc', true, 'remove', $pid, 'transactions', $transid);
   }
 
-  if ($GLOBALS['concurrent_layout'])
     $body_onload_code = "javascript:location.href='transactions.php';";
-  else
-    $body_onload_code = "javascript:parent.Transactions.location.href='transactions.php';";
 }
 
 $CPR = 4; // cells per row
@@ -296,12 +293,12 @@ div.tab {
 	    <tr>
             <td>
                 <b><?php echo htmlspecialchars( xl('Add/Edit Patient Transaction'), ENT_NOQUOTES); ?></b>&nbsp;</td><td>
-                 <a href="javascript:;"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="submitme();">
+                 <a href="javascript:;" class="css_button" onclick="submitme();">
                     <span><?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES); ?></span>
                  </a>
              </td>
              <td>
-                <a href="transactions.php"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+                <a href="transactions.php" class="css_button" onclick="top.restoreSession()">
                     <span><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES); ?></span>
                 </a>
             </td>

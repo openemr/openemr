@@ -8,7 +8,7 @@ if ( (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mod
   $out_of_encounter = true;
 }
 //  formHeader("Form: CAMOS");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 function myauth() {
   return 1;
 }

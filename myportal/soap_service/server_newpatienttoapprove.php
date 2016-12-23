@@ -453,7 +453,7 @@ class newpatienttoapprove {
                             break;
                         
             case 'C2':
-                    $query = "SELECT option_id, title FROM list_options WHERE list_id = ? ORDER BY seq";
+                    $query = "SELECT option_id, title FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq";
                             return array($query,$data[1]);
                             break;
             

@@ -187,25 +187,14 @@ function toencounter(rawdata) {
     var datestr = parts[1];
 
     top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
     parent.left_nav.setEncounter(datestr, enc, window.name);
-    parent.left_nav.setRadio(window.name, 'enc');
     parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
-<?php } else { ?>
-    top.Title.location.href = '../encounter/encounter_title.php?set_encounter='   + enc;
-    top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
-<?php } ?>
 }
 
 function todocument(docid) {
   h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo $pid ?>&doc_id=' + docid;
   top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-  parent.left_nav.setRadio(window.name, 'doc');
   location.href = h;
-<?php } else { ?>
-  top.Main.location.href = h;
-<?php } ?>
 }
 
  // Helper function to set the contents of a div.
@@ -256,11 +245,6 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 <body class="body_bottom">
 <div id="encounters"> <!-- large outer DIV -->
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-<!-- <a href='encounters_full.php'> -->
-<?php } else { ?>
-<!-- <a href='encounters_full.php' target='Main'> -->
-<?php } ?>
 <font class='title'>
 <?php
 if ($issue) {

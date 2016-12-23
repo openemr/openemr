@@ -21,7 +21,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/gprelations.inc.php");
 
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
 }
@@ -323,11 +323,10 @@ if ($result_count == $N) {
 <script language='JavaScript'>
 
 <?php
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
   $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," . addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
- parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }
 

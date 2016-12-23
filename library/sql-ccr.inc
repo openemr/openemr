@@ -58,9 +58,9 @@ function getMedicationData() {
         lo.title
       FROM prescriptions 
       LEFT JOIN list_options AS lo
-      ON lo.list_id = 'drug_units' AND prescriptions.unit = lo.option_id
+      ON lo.list_id = 'drug_units' AND prescriptions.unit = lo.option_id AND lo.activity = 1
       LEFT JOIN list_options AS lo2
-      ON lo2.list_id = 'drug_form' AND prescriptions.form = lo2.option_id
+      ON lo2.list_id = 'drug_form' AND prescriptions.form = lo2.option_id AND lo2.activity = 1
       WHERE prescriptions.patient_id = ?
       AND prescriptions.date_added BETWEEN ? AND ?
       UNION
@@ -105,9 +105,9 @@ function getMedicationData() {
         lo.title
       FROM prescriptions 
       LEFT JOIN list_options AS lo
-      ON lo.list_id = 'drug_units' AND prescriptions.unit = lo.option_id
+      ON lo.list_id = 'drug_units' AND prescriptions.unit = lo.option_id AND lo.activity = 1
       LEFT JOIN list_options AS lo2
-      ON lo2.list_id = 'drug_form' AND prescriptions.form = lo2.option_id
+      ON lo2.list_id = 'drug_form' AND prescriptions.form = lo2.option_id AND lo2.activity = 1
       WHERE prescriptions.patient_id = ?
       UNION
       SELECT 
@@ -197,7 +197,7 @@ function getProcedureData() {
         ON form_encounter.provider_id = users.id 
       LEFT JOIN list_options
         ON lists.outcome = list_options.option_id
-        AND list_options.list_id = 'outcome'
+        AND list_options.list_id = 'outcome' AND list_options.activity = 1
     WHERE lists.type = 'surgery' 
       AND lists.pid = ?
       AND lists.date BETWEEN ? AND ?
@@ -229,7 +229,7 @@ function getProcedureData() {
         AND ptt.procedure_type = 'ord' 
       LEFT JOIN list_options AS lo 
         ON lo.list_id = 'proc_unit' 
-        AND pt.units = lo.option_id 
+        AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ?
     AND prs.date BETWEEN ? AND ?";
   
@@ -257,7 +257,7 @@ function getProcedureData() {
         ON form_encounter.provider_id = users.id 
       LEFT JOIN list_options
         ON lists.outcome = list_options.option_id
-        AND list_options.list_id = 'outcome'
+        AND list_options.list_id = 'outcome' AND list_options.activity = 1
     WHERE lists.type = 'surgery' 
       AND lists.pid = ? 
     UNION
@@ -288,7 +288,7 @@ function getProcedureData() {
         AND ptt.procedure_type = 'ord' 
       LEFT JOIN list_options AS lo 
         ON lo.list_id = 'proc_unit' 
-        AND pt.units = lo.option_id 
+        AND pt.units = lo.option_id AND lo.activity = 1
     WHERE po.patient_id = ? ";
   
     $result = sqlStatement($sql, array($pid,$pid) );
@@ -423,7 +423,7 @@ function getResultData() {
           ON pt.parent = ptt.procedure_type_id
           AND ptt.procedure_type = 'ord'
         LEFT JOIN list_options AS lo
-          ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id
+          ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?
       AND prs.date BETWEEN ? AND ?";
 		
@@ -457,7 +457,7 @@ function getResultData() {
           ON pt.parent = ptt.procedure_type_id
           AND ptt.procedure_type = 'ord'
         LEFT JOIN list_options AS lo
-          ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id
+          ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id AND lo.activity = 1
       WHERE po.patient_id=?";
 		
     $result = sqlStatement($sql, array($pid) );
@@ -490,7 +490,7 @@ function getActorData() {
       ON f.form_id = po.procedure_order_id 
       AND f.formdir = 'procedure_order'
     LEFT JOIN list_options AS lo 
-      ON lo.title = f.form_name
+      ON lo.title = f.form_name AND lo.activity = 1
     LEFT JOIN procedure_providers AS u
       ON po.lab_id = u.ppid
   WHERE f.pid = ? 

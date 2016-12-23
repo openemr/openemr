@@ -35,14 +35,14 @@ if ($GLOBALS['ippf_specific']) {
 
 // Include Layout Based Transaction Forms.
 $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'transactions' ORDER BY seq, title");
+  "WHERE list_id = 'transactions' AND activity = 1 ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
   $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
 // Include Layout Based Encounter Forms.
 $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
   $layouts[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
@@ -50,7 +50,7 @@ while ($lrow = sqlFetchArray($lres)) {
 // Include predefined Validation Rules from list
 $validations = array();
 $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = 'LBF_Validations' ORDER BY seq, title");
+    "WHERE list_id = 'LBF_Validations' AND activity = 1 ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
@@ -744,7 +744,7 @@ function writeFieldLine($linedata) {
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('Validation rule  ') . "</td>\n" .
+    "  <td align='left' class='bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .

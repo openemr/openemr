@@ -8,15 +8,15 @@
  *
  * Copyright (c) 2010 OpenEMR Support LLC
  *
- * LICENSE: This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 3 
- * of the License, or (at your option) any later version. 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU General Public License for more details. 
- * You should have received a copy of the GNU General Public License 
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
@@ -24,7 +24,7 @@
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady@sparmy.com>
- * @link http://www.open-emr.org 
+ * @link http://www.open-emr.org
  */
 
 //SANITIZE ALL ESCAPES
@@ -60,12 +60,12 @@ require_once("$srcdir/formatting.inc.php");
 <br /><br />
 <span class="title"><?php echo xlt('Reminders'); ?></span>
 
-<?php 
-        
+<?php
+
         // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
         // I am asuming that at this point security checks have been performed
         require_once '../dated_reminders/dated_reminders.php';
-        
+
 // Check to see if the user has Admin rights, and if so, allow access to See All.
 $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "" ;
 if ($showall == "yes") {
@@ -235,7 +235,7 @@ echo "
  <?php
   }
  if ($reply_to) {
-  $prow = sqlQuery("SELECT lname, fname " .
+  $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
    "FROM patient_data WHERE pid = ?", array($reply_to) );
   $patientname = $prow['lname'] . ", " . $prow['fname'];
  }
@@ -298,11 +298,12 @@ if ($noteid) {
     echo xlt('Linked document') . ":</b>\n";
     while ($gprow = sqlFetchArray($tmp)) {
       $d = new Document($gprow['id1']);
-      echo "   <a href='";
-      echo $GLOBALS['webroot'] . "/controller.php?document&retrieve";
-      echo "&patient_id="  . $d->get_foreign_id();
-      echo "&document_id=" . $d->get_id();
-      echo "&as_file=true' target='_blank' onclick='top.restoreSession()'>";
+      $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+        " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($prow['pid']));
+      $str_dob = htmlspecialchars(xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']));
+      $pname = $prow['fname']." ".$prow['lname'];
+      echo "<a href='javascript:void(0);' ";
+      echo "onClick=\"gotoReport(".addslashes(attr($d->get_id())).",'".addslashes(attr($pname))."',".addslashes(attr($prow['pid'])).",".addslashes(attr($prow['pubpid'])).",'".addslashes(attr($str_dob))."');\">";
       echo text($d->get_url_file());
       echo "</a>\n";
     }
@@ -409,6 +410,46 @@ $(document).ready(function(){
         $("#new_note").submit();
     }
 });
+ function gotoReport(doc_id,pname,pid,pubpid,str_dob){
+		EncounterDateArray=new Array;
+        CalendarCategoryArray=new Array;
+        EncounterIdArray=new Array;
+        Count = 0;
+	<?php
+		if(isset($enc_list) && sqlNumRows($enc_list) >0 ){
+			while($row = sqlFetchArray($enc_list)){
+	?>
+				        EncounterIdArray[Count]='<?php echo attr($row['encounter']); ?>';
+                                        EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
+                                        CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
+                                        Count++;
+	<?php
+			}
+		}
+	?>
+  top.restoreSession();
+  $.ajax({
+    type:'get',
+    url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
+    data:{set_pid: pid},
+    async: false
+  });
+	parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
+	parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+  <?php if ($GLOBALS['new_tabs_layout']) { ?>
+    var docurl  = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+    var paturl = 'patient_file/summary/demographics.php?pid=' + pid;
+    parent.left_nav.loadFrame('dem1', 'pat', paturl);
+    parent.left_nav.loadFrame('doc0', 'enc', docurl);
+    top.activateTabByName('enc',true);
+  <?php } else  { ?>
+    var docurl  = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
+    var paturl  = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + pid;
+    var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+    parent.frames[othername].location.href = paturl;
+    location.href = docurl;
+  <?php } ?>
+ }
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
   var f = document.forms[0];
@@ -427,7 +468,7 @@ $(document).ready(function(){
  function sel_patient() {
   dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
  }
- 
+
   function addtolist(sel){
     var itemtext = document.getElementById('assigned_to_text');
     var item = document.getElementById('assigned_to');
@@ -443,7 +484,7 @@ $(document).ready(function(){
       }
     }
   }
- 
+
 </script><?php
 }
 else {

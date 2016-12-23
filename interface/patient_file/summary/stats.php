@@ -280,7 +280,7 @@ else { ?>
 
 <?php
   $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, ".
-         " if (i1.administered_date, concat(i1.administered_date,' - '), substring(i1.note,1,20)) as immunization_data ".
+         " if (i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short), IF(i1.note,substring(i1.note,1,20),c.code_text_short)) as immunization_data ".
          " from immunizations i1 ".
          " left join code_types ct on ct.ct_key = 'CVX' ".
          " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".

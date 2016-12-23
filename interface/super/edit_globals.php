@@ -369,6 +369,13 @@ input     { font-size:10pt; }
   <p><b><?php echo xlt('Edit Global Settings'); ?></b>
 <?php } ?>
 
+<?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
+<span style='float: right;'>
+    <input name='srch_desc' size='20' 
+        value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
+    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+</span>
+
 <ul class="tabNav">
 <?php
 $i = 0;
@@ -406,7 +413,12 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   foreach ($grparr as $fldid => $fldarr) {
    if ( !$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS) ) {
     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-
+    // mdsupport - Check for matches
+    $srch_cl = '';
+    if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== FALSE)) {
+        $srch_cl = 'class="srch"';
+    }
+    
     // Most parameters will have a single value, but some will be arrays.
     // Here we cater to both possibilities.
     $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
@@ -430,7 +442,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
     }
 
-    echo " <tr title='" . attr($flddesc) . "'><td valign='top'><b>" . text($fldname) . "</b></td><td valign='top'>\n";
+    echo " <tr $srch_cl title='" . attr($flddesc) . "'><td valign='top'><b>" . text($fldname) . "</b></td><td valign='top'>\n";
 
     if (is_array($fldtype)) {
       echo "  <select name='form_$i' id='form_$i'>\n";
@@ -662,6 +674,12 @@ $(document).ready(function(){
   tabbify();
   enable_modals();
 
+  <?php // mdsupport - Highlight search results ?>
+  $('.srch td').wrapInner("<mark></mark>");
+  $('.tab > table').find('tr.srch:first').each(function() {
+      var srch_div = $(this).closest('div').prevAll().length + 1;
+      $('.tabNav > li:nth-child('+srch_div+') a').wrapInner("<mark></mark>");
+  });
   // Use the counter ($i) to make the form user friendly for user-specific globals use
   <?php if ($userMode) { ?>
     <?php for ($j = 0; $j <= $i; $j++) { ?>

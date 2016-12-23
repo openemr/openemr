@@ -29,7 +29,7 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/dated_reminder_functions.php");
 
         $days_to_show = 5;
-        $alerts_to_show = 5;
+        $alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
         $updateDelay = 60; // time is seconds 
 
         
@@ -152,13 +152,8 @@ require_once("$srcdir/dated_reminder_functions.php");
             function goPid(pid) {
               top.restoreSession();
               <?php 
-                if ($GLOBALS['concurrent_layout']){
                   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
                   "+ '?set_pid=' + pid;\n";
-                } else{
-                  echo "  top.location = '../../patient_file/patient_file.php' " .
-                  "+ '?set_pid=' + pid + '&pid=' + pid;\n";
-                }
               ?>
 }
       </script>

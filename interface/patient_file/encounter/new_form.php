@@ -20,7 +20,6 @@ $esignApi = new Esign\Api();
 
 function openNewForm(sel) {
  top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   FormNameValueArray = sel.split('formname=');
   if(FormNameValueArray[1] == 'newpatient')
    {
@@ -30,9 +29,6 @@ function openNewForm(sel) {
    {
 	parent.Forms.location.href = sel;
    }
-<?php } else { ?>
-  top.frames['Main'].location.href = sel;
-<?php } ?>
 }
 function toggleFrame1(fnum) {
   top.frames['left_nav'].document.forms[0].cb_top.checked=false;
@@ -184,7 +180,11 @@ if (!empty($reg)) {
       foreach ($reg as $entry) {
         $new_category = trim($entry['category']);
         $new_nickname = trim($entry['nickname']);
-        if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+        if ($new_category == '') {
+          $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
+        }else{
+          $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
+        }
         if ($new_nickname != '') {$nickname = $new_nickname;}
         else {$nickname = $entry['name'];}
         if ($old_category != $new_category) {
@@ -218,7 +218,7 @@ if($StringEcho){
 //
 if ( $encounterLocked === false ) {
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+      "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
     if (sqlNumRows($lres)) {
       if(!$StringEcho){
         $StringEcho= '<ul id="sddm">';

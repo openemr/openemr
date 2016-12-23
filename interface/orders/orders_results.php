@@ -39,7 +39,6 @@ if ($_GET['set_pid'] && $form_review) {
   ?>
   <script language='JavaScript'>
     parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
-    parent.left_nav.setRadio(window.name, 'orp');
   </script>
   <?php
 }

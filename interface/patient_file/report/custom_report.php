@@ -132,7 +132,7 @@ function postToGet($arin) {
 
 <?php // do not show stuff from report.php in forms that is encaspulated
       // by div of navigateLink class. Specifically used for CAMOS, but
-      // can also be used by other forms that require output in the 
+      // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
 <style>
   div.navigateLink {display:none;}
@@ -154,7 +154,7 @@ function postToGet($arin) {
 
 <?php if (!$PDF_OUTPUT) { ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-5/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
@@ -164,7 +164,7 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <?php  } ?>
 
 </head>
-<?php 
+<?php
 // remove blank header for printable version to conserve space
 // adjust this if you are printing to letterhead to appropriate height
 ($printable) ? ($style = ''):($style='padding-top:95px;');
@@ -309,7 +309,7 @@ foreach ($ar as $key => $val) {
     if (stristr($key,"include_")) {
 
         if ($val == "demographics") {
-            
+
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
             print "<h1>".xl('Patient Data').":</h1>";
@@ -710,22 +710,22 @@ foreach ($ar as $key => $val) {
                     echo ' '. xl('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
                 echo "<br>\n";
-   
+
                 // call the report function for the form
-                ?>                
+                ?>
                 <div name="search_div" id="search_div_<?php echo attr($form_id)?>_<?php echo attr($res[1])?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                 <?php
                 if (substr($res[1],0,3) == 'LBF')
                   call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
-                
+
                 $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
                 if ( $esign->isLogViewable("report") ) {
                     $esign->renderLog();
                 }
                 ?>
-                
+
                 </div>
                 <?php
 
@@ -747,7 +747,7 @@ foreach ($ar as $key => $val) {
                 }
 
                 print "</div>";
-            
+
             } // end auth-check for encounter forms
 
         } // end if('issue_')... else...

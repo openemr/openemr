@@ -84,12 +84,6 @@ $row = sqlFetchArray($res);
 <br>&nbsp;&nbsp;&nbsp;
 <INPUT TYPE="Submit" VALUE=<?php echo xla('Save Changes'); ?> onClick="return update_password()">
 
-<?php if (! $GLOBALS['concurrent_layout']) { ?>
-&nbsp;&nbsp;&nbsp;
-[<a href="../main/main_screen.php" target="_top" class="link_submit"
-  onclick="top.restoreSession()"><?php xl('Back','e'); ?></font></a>]
-<?php } ?>
-
 </FORM>
 
 <br><br>

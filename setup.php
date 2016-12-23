@@ -117,7 +117,7 @@ else if ($state > 3) {
 <HEAD>
 <TITLE>OpenEMR Setup Tool</TITLE>
 <LINK REL=STYLESHEET HREF="interface/themes/style_sky_blue.css">
-<link rel="shortcut icon" href="interface/pic/favicon.ico" />
+<link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
 .noclone { }

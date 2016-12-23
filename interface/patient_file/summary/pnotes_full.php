@@ -35,7 +35,7 @@ require_once($GLOBALS['srcdir'].'/classes/Document.class.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
     setpid($_GET['set_pid']);
 }
@@ -240,13 +240,13 @@ $urlparms = "docid=$docid&orderid=$orderid";
     <div>
         <span class="title"><?php echo xlt('Patient Notes') . $title_docname; ?></span>
     </div>
-    <div style='float:left;margin-right:10px'>
+    <div id='namecontainer_pnotes' class='namecontainer_pnotes' style='float:left;margin-right:10px'>
         <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
       <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
         <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button iframe" onclick='top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-        <a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+        <a href="demographics.php" class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars( xl('View Patient'), ENT_NOQUOTES);?></span>
         </a>
     </div>
@@ -649,12 +649,11 @@ if ($result_sent_count == $M) {
 <script language='JavaScript'>
 
 <?php
-if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+if ($_GET['set_pid']) {
   $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," .
    addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
- parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }
 

@@ -30,4 +30,9 @@ if (( $_POST['mode'] == 1 || $_POST['mode'] == 0 ) && ( substr($_POST['target'],
   setUserSetting($_POST['target'], $_POST['mode']);
 
 }
+
+//mdsupport : Generic user setting
+if ((isset($_POST['lab'])) && (isset($_POST['val']))) {
+	setUserSetting($_POST['lab'], $_POST['val']);
+}
 ?>

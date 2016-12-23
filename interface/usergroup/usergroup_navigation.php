@@ -132,14 +132,6 @@ include_once("../../library/acl.inc");
 </td>
 <?php } ?>
 
-<?php if (! $GLOBALS['concurrent_layout']) { ?>
-<td valign="middle" align="right" nowrap>
-&nbsp;<a class=menu href="../main/main_screen.php" target="_top" class="menu"
- onclick="top.restoreSession()"
- title=<?php xl('Exit from Administration','e'); ?>><?php xl('Back','e');?></a>&nbsp;&nbsp;
-</td>
-<?php } ?>
-
 </tr>
 </table>
 

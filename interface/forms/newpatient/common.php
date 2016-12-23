@@ -65,7 +65,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 
 <!-- validation library -->
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php
+//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
+$use_validate_js = 1;
+require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <!-- pop up calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
@@ -91,7 +94,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
  <?php
  //Gets validation rules from Page Validation list.
- //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
  if (empty($collectthis)) {
    $collectthis = "undefined";
@@ -124,11 +127,9 @@ ajax_bill_loc(pid,dte,facility);
 // Show demographics or encounters list depending on what frame we're in.
 function cancelClicked() {
  if (window.name == 'RBot') {
-  parent.left_nav.setRadio(window.name, 'ens');
   parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
  }
  else {
-  parent.left_nav.setRadio(window.name, 'dem');
   parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
  }
  return false;
@@ -146,8 +147,7 @@ function cancelClicked() {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'
- <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
+<form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
 
 <div style='float:left'>
 <?php if ($viewmode) { ?>
@@ -165,17 +165,10 @@ function cancelClicked() {
       <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
       <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
     </div>
-
     <div style = 'float:left; margin-top:-3px'>
-  <?php if ($GLOBALS['concurrent_layout']) { ?>
       <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
         class="css_button link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
-  <?php } else { ?>
-      <a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
-        class="css_button link_submit" target='Main' onClick="top.restoreSession()">
-      <span><?php echo xlt('Cancel'); ?>]</span></a>
-  <?php } // end not concurrent layout ?>
-  <?php } else if ($GLOBALS['concurrent_layout']) { // not $viewmode ?>
+  <?php } else { // not $viewmode ?>
       <a href="" class="css_button link_submit" onClick="return cancelClicked()">
       <span><?php echo xlt('Cancel'); ?></span></a>
   <?php } // end not $viewmode ?>
@@ -330,7 +323,7 @@ if ($fres) {
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
        title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -341,18 +334,21 @@ if ($fres) {
 	<tr>
      <td class='text' colspan='2' style='padding-top:1em'>
 	 </td>
-    </tr> 
+    </tr>
    </table>
 
   </td>
+
 
   <td class='bold' width='33%' nowrap>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
-       onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php if (acl_check('patients','med','','write')) { ?>
+       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+        onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php } ?>
     </div>
   </td>
  </tr>
@@ -410,12 +406,11 @@ if (!$viewmode) { ?>
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
-            parent.left_nav.setRadio(window.name, 'enc');
             parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
             return;
         }
         // otherwise just continue normally
-    }    
+    }
 <?php
 
   // Search for an encounter from today

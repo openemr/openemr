@@ -1,12 +1,28 @@
 <?php
-// Copyright (C) 2010 MMF Systems, Inc>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-	/** This report is the batch report required for batch eligibility verification. **/
+/*
+ * main file for the 270 batch creation.
+ * This report is the batch report required for batch eligibility verification.
+ *
+ * This program creates the batch for the x12 270 eligibility file
+ *
+ * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2010 MMF Systems, Inc
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://opensource.org/licenses/gpl-license.php.
+ *
+ * @package OpenEMR
+ * @author Terry Hill <terry@lilysystems.com>
+ * @link http://www.open-emr.org
+ */
 
 	//SANITIZE ALL ESCAPES
 	$sanitize_all_escapes=true;
@@ -26,16 +42,16 @@
 	include_once("$srcdir/calendar.inc");
 	include_once("$srcdir/edi.inc");
 
-	// Element data seperator		
+	// Element data seperator
 	$eleDataSep		= "*";
 
-	// Segment Terminator	
+	// Segment Terminator
 	$segTer			= "~";
 
 	// Component Element seperator
-	$compEleSep		= "^";
-	
-	// filter conditions for the report and batch creation 
+	$compEleSep		= ":";
+
+	// filter conditions for the report and batch creation
 
 	$from_date		= fixDate($_POST['form_from_date'], date('Y-m-d'));
 	$to_date		= fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -49,7 +65,7 @@
 
 	$where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
 	array_push($sqlBindArray, $from_date);
-	
+
 	//$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
 
 	if ($to_date) {
@@ -79,7 +95,7 @@
 								   e.pc_facility,
 								   p.lname,
 								   p.fname,
-								   p.mname, 
+								   p.mname,
 								   DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
 								   p.ss,
 								   p.sex,
@@ -99,8 +115,8 @@
 								   d.fname as provider_fname,
 								   d.npi as provider_npi,
 								   d.upin as provider_pin,
-								   f.federal_ein,
-								   f.facility_npi,
+								   f.federal_ein as federal_ein,
+								   f.facility_npi as facility_npi,
 								   f.name as facility_name,
 								   c.name as payer_name
 							FROM openemr_postcalendar_events AS e
@@ -118,19 +134,19 @@
 							LEFT JOIN insurance_companies as c ON (c.id = i.provider)
 							WHERE %s ",	$where );
 
-	// Run the query 
+	// Run the query
 	$res			= sqlStatement($query, $sqlBindArray);
-	
-	// Get the facilities information 
+
+	// Get the facilities information
 	$facilities		= getUserFacilities($_SESSION['authId']);
 
-	// Get the Providers information 
+	// Get the Providers information
 	$providers		= getUsernames();
 
-	//Get the x12 partners information 
+	//Get the x12 partners information
 	$clearinghouses	= getX12Partner();
-		
-		
+
+
 	if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
 		header('Content-Type: text/plain');
 		header(sprintf('Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
@@ -194,28 +210,28 @@
 			var stringDelete = "<?php echo htmlspecialchars( xl('Do you want to remove this record?'), ENT_QUOTES); ?>?";
 			var stringBatch	 = "<?php echo htmlspecialchars( xl('Please select X12 partner, required to create the 270 batch'), ENT_QUOTES); ?>";
 
-			// for form refresh 
+			// for form refresh
 
 			function refreshme() {
 				document.forms[0].submit();
 			}
 
-			//  To delete the row from the reports section 
+			//  To delete the row from the reports section
 			function deletetherow(id){
 				var suredelete = confirm(stringDelete);
 				if(suredelete == true){
 					document.getElementById('PR'+id).style.display="none";
 					if(document.getElementById('removedrows').value == ""){
-						document.getElementById('removedrows').value = "'" + id + "'"; 
+						document.getElementById('removedrows').value = "'" + id + "'";
 					}else{
-						document.getElementById('removedrows').value = document.getElementById('removedrows').value + ",'" + id + "'"; 
-					
+						document.getElementById('removedrows').value = document.getElementById('removedrows').value + ",'" + id + "'";
+
 					}
 				}
-				
+
 			}
 
-			//  To validate the batch file generation - for the required field [clearing house/x12 partner] 
+			//  To validate the batch file generation - for the required field [clearing house/x12 partner]
 			function validate_batch()
 			{
 				if(document.getElementById('form_x12').value=='')
@@ -227,13 +243,13 @@
 				{
 					document.getElementById('form_savefile').value = "true";
 					document.theform.submit();
-					
+
 				}
 
 
 			}
 
-			// To Clear the hidden input field 
+			// To Clear the hidden input field
 
 			function validate_policy()
 			{
@@ -242,14 +258,14 @@
 				return true;
 			}
 
-			// To toggle the clearing house empty validation message 
+			// To toggle the clearing house empty validation message
 			function toggleMessage(id,x12){
-				
+
 				var spanstyle = new String();
 
 				spanstyle		= document.getElementById(id).style.visibility;
 				selectoption	= document.getElementById(x12).value;
-				
+
 				if(selectoption != '')
 				{
 					document.getElementById(id).style.visibility = "hidden";
@@ -309,7 +325,7 @@
 										</td>
 										<td>&nbsp;</td>
 									</tr>
-									
+
 									<tr>
 										<td class='label'>
 											<?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
@@ -333,7 +349,7 @@
 										<td>&nbsp;
 										</td>
 									</tr>
-									
+
 									<tr>
 										<td class='label'>
 											<?php echo htmlspecialchars( xl('X12 Partner'), ENT_NOQUOTES); ?>:
@@ -341,7 +357,7 @@
 										<td colspan='5'>
 											<select name='form_x12' id='form_x12' onchange='return toggleMessage("emptyVald","form_x12");' >
 														<option value=''>--<?php echo htmlspecialchars( xl('select'), ENT_NOQUOTES); ?>--</option>
-														<?php 
+														<?php
 															if(isset($clearinghouses) && !empty($clearinghouses))
 															{
 																foreach($clearinghouses as $clearinghouse): ?>
@@ -350,9 +366,9 @@
 																	><?php echo htmlspecialchars( $clearinghouse['name'], ENT_NOQUOTES); ?></option>
 														<?php	endforeach;
 															}
-															
+
 														?>
-												</select> 
+												</select>
 												<span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars( xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
 										</td>
 									</tr>
@@ -369,14 +385,14 @@
 												<?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
 											</span>
 											</a>
-																						
+
 											<a href='#' class='css_button' onclick='return validate_batch();'>
 												<span>
 													<?php echo htmlspecialchars( xl('Create batch'), ENT_NOQUOTES); ?>
 													<input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 												</span>
 											</a>
-											
+
 										</div>
 									</td>
 								</tr>
@@ -384,7 +400,7 @@
 						</td>
 					</tr>
 				</table>
-			</div> 
+			</div>
 
 			<div class='text'>
 				<?php echo htmlspecialchars( xl('Please choose date range criteria above, and click Refresh to view results.'), ENT_NOQUOTES); ?>

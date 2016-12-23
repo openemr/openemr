@@ -5,9 +5,7 @@ include_once("{$GLOBALS['srcdir']}/sql.inc");
 include_once("{$GLOBALS['srcdir']}/billing.inc");
 include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
-$GLOBALS['form_exit_url'] = $GLOBALS['concurrent_layout'] ?
-	"$rootdir/patient_file/encounter/encounter_top.php" :
-	"$rootdir/patient_file/encounter/patient_encounter.php";
+$GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
 function formHeader ($title = "My Form")
 {
@@ -98,7 +96,7 @@ function formUpdate ($tableName, $values, $id, $authorized = "0")
 
 function formJump ($address = "0")
 {
-	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+	$returnurl = 'encounter_top.php';
 	if ($address == "0")
 		$address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
 	echo "\n<script language='Javascript'>top.restoreSession();window.location='$address';</script>\n";

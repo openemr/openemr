@@ -617,64 +617,69 @@ font-weight: bold;
  * CSS BUTTONS
 */
 .css_button_small {
-    background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 9px arial, sans-serif;
-    height: 19px;
+    background: #063f80;
+    color: #ffffff !important;
+    display: inline-block;
+    font-weight: 300;
     margin-right: 3px;
-    padding-right: 10px; /* sliding doors padding */
+    /* sliding doors padding */
     text-decoration: none;
+    padding: 2px 7px 2px;
+    border: none;
+    font-size: 0.7em;
+    box-shadow: 2px 1px 4px #88888B;
+    border-radius: 5px;
 }
 
 .css_button_small span {
-    background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
-    display: block;
-    line-height: 20px;
-    padding: 0px 0px 0px 10px;
+    display: inline-block;
 }
 
-.css_button {
-    background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 10px arial, sans-serif;
-    height: 24px;
-    margin-right: 3px;
-    padding-right: 10px; /* sliding doors padding */
-    text-decoration: none;
+.css_button_small:hover {
+    background: #1050b6;
+    box-shadow: 0px 1px 3px #DDD;
 }
 
-.css_button span {
-    background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
-    display: block;
-    line-height: 14px;
-    padding: 5px 0 5px 10px;
-}
-.css_btn {
-    background: #fcfcfc;
-    background-image: -webkit-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -moz-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -ms-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: -o-linear-gradient(top, #fcfcfc, #c1ced1);
-    background-image: linear-gradient(to bottom, #fcfcfc, #c1ced1);
-    -webkit-border-radius: 28;
-    -moz-border-radius: 28;
-    border-radius: 28px;
-    font: bold 10px arial, sans-serif;
-    color: #444;
-    font-size: 10px;
-    padding: 6px 15px 6px 15px;
-    border: solid #8d9194 1px;
+.css_button, input[type="button"], input[type="submit"], button{
+    background: #063f80;
+    color: #ffffff !important;
+    display: inline-block;
+    font-weight: 300;
+    margin: 4px;
+    vertical-align: middle;
+    /* sliding doors padding */
     text-decoration: none;
-    height: 24px;
-    outline: none;
+    padding: 4px 6px 4px;
+    border: none;
+    border-radius: 5px;
+    font-size:0.8em;
+    box-shadow: 2px 1px 4px #88888B;
 }
-.css_btn:hover{
-    color: orangered;
+
+.css_button span, input[type="button"] span, input[type="submit"] span, button span {
+    display: inline-block;
 }
+
+.css_button[href*="deleter"], input[type="button"][href*="deleter"], button[href*="deleter"] {
+  background: red !important;
+}
+
+.css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
+    background: #1050b6;
+    box-shadow: 3px 4px 6px #DDD ;
+}
+
+input[type="button"][style="background-color:#ffff55"] {
+    background: #2672ec !important;
+}
+
+input[type="text"] {
+    background: #ffffff;
+    border: 1px solid #444444;
+    padding: 3px;
+    margin: 3px;
+}
+
 .sellistclass {
 float:left;
 }

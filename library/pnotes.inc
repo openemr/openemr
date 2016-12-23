@@ -251,10 +251,10 @@ function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = 
       patient_reminders AS pr 
       LEFT JOIN list_options AS lo 
         ON lo.option_id = pr.category 
-        AND lo.list_id = 'rule_action_category' 
+        AND lo.list_id = 'rule_action_category' AND lo.activity = 1
       LEFT JOIN list_options AS lo2 
         ON lo2.option_id = pr.item 
-        AND lo2.list_id = 'rule_action' 
+        AND lo2.list_id = 'rule_action' AND lo2.activity = 1
     WHERE pid = ?
       AND active = 1
       AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)

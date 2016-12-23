@@ -1,6 +1,6 @@
 <?php
 
-// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // 2012 - Refactored extensively to allow for creating multiple feesheets on demand
 // uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
@@ -140,7 +140,7 @@ if (empty($SBCODES)) {
 
     // Create entries based on categories defined within the codes.
     $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-            "WHERE list_id = 'superbill' ORDER BY seq");
+            "WHERE list_id = 'superbill' AND activity = 1 ORDER BY seq");
     while ($prow = sqlFetchArray($pres)) {
         $SBCODES[] = '*G|' . xl_list_label($prow['title']);
         $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
@@ -279,7 +279,7 @@ height: ${page_height}pt;
 </style>";
 
 $html .= "<title>" . htmlspecialchars($frow['name']) . "</title>
-<script type='text/javascript' src='<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js'></script>
+<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/jquery-min-1-2-2/index.js'></script>
 <script type=\"text/javascript\" src=\"../../library/dialog.js\"></script>
 <script language=\"JavaScript\">";
 

@@ -3,7 +3,7 @@
  * The address book entry editor.
  * Available from Administration->Addr Book in the concurrent layout.
  *
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@
 $sqlBindArray = array();
 $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
-  "list_id = 'abook_type' AND option_id = u.abook_type " .
+  "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
 if ($form_organization) {
  $query .= "AND u.organization LIKE ? ";

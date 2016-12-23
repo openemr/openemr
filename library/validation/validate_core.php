@@ -26,9 +26,11 @@
  */
 function collectValidationPageRules($title,$active=true){
 
+    // Note from Rod: Not sure what the purpose is of $active because nothing calls it with a false value.
+
     if($active){
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title=?",array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?",array('page_validation',1,$title));
     }
     else {
         $sql = sqlStatement("SELECT * " .
@@ -71,8 +73,9 @@ function validateUsingPageRules($fileNamePath)
         print '<!---Start of page  form validation-->';
         print '<!--//include new rules of submitme functionallity-->';
         echo("\r\n");
+        //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
+        $use_validate_js = 1;
         require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
-        $new_validate = $GLOBALS['new_validate'] ? 1 : 0;
         echo("\r\n");
         print '<script type="text/javascript">';
         echo ("$(document).ready(function(){");
@@ -96,7 +99,7 @@ function validateUsingPageRules($fileNamePath)
             echo("\r\n");
 
             echo("\r\n");
-            echo ('var submitvalue = submitme(' . $new_validate . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ');');
+            echo ('var submitvalue = submitme(' . $use_validate_js . ',event,"' . $key . '",' . $collectThis[$key]['rules'] . ');');
             echo("\r\n");
             echo(' if(submitvalue){');
             echo("\r\n");

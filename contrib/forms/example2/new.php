@@ -14,7 +14,7 @@ $form_folder = "example";
 
 formHeader("Form: ".$forn_name);
 
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 ?>
 
 <html><head>

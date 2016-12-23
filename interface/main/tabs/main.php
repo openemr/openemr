@@ -2,6 +2,7 @@
 Use Esign\Api;
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +17,7 @@ Use Esign\Api;
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -31,17 +33,46 @@ $esignApi = new Api();
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-<title><?php echo xlt("OpenEMR Tabs"); ?></title>
+<title><?php echo text($openemr_name); ?></title>
 
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-//  Include this variable for backward compatibility 
+// This flag indicates if another window or frame is trying to reload the login
+// page to this top-level window.  It is set by javascript returned by auth.inc
+// and is checked by handlers of beforeunload events.
+var timed_out = false;
+
+//  Include this variable for backward compatibility
 var loadedFrameCount = 0;
 var tab_mode=true;
 function allFramesLoaded() {
 // Stub function for backward compatibility with frame race condition mechanism
  return true;
+}
+
+function goRepeaterServices(){
+    top.restoreSession();
+    // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
+    //  timing out mechanism in OpenEMR.
+
+    // Send the skip_timeout_reset parameter to not count this as a manual entry in the
+    //  timing out mechanism in OpenEMR.
+    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
+        { skip_timeout_reset: "1" },
+        function(data) {
+            // Go knockout.js
+            app_view_model.application_data.user().messages(data);
+        }
+    );
+
+    // run background-services
+    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
+        { skip_timeout_reset: "1", ajax: "1" }
+    );
+
+    // auto run this function every 60 seconds
+    var repeater = setTimeout("goRepeaterServices()", 60000);
 }
 
 function isEncounterLocked( encounterId ) {
@@ -59,7 +90,7 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});	    
+	});
 	return encounter_locked;
 	<?php } else { ?>
 	// If encounter locking isn't enabled then always return false
@@ -70,47 +101,81 @@ var webroot_url="<?php echo $web_root; ?>";
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
+
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
-
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+
+<script type="text/javascript">
+// Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
+var xl_strings_tabs_view_model = <?php echo json_encode( array(
+    'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
+    'must_select_patient'  => xla('You must first select or add a patient.'),
+    'must_select_encounter'    => xla('You must first select or create an encounter.')
+));
+?>;
+</script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script type="text/javascript" src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    
+<?php
+// Below code block is to prepare certain elements for deciding what links to show on the menu
+//
+// prepare newcrop globals that are used in creating the menu
+if ($GLOBALS['erx_enable']) {
+    $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
+    $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
+    if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
+        $GLOBALS['newcrop_user_role_erxadmin'] = 1;
+    }
+}
+// prepare track anything to be used in creating the menu
+$track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
+$GLOBALS['track_anything_state'] = $track_anything_sql['state'];
+// prepare Issues popup link global that is used in creating the menu
+$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write') || acl_check('encounters','notes_a','','write')) &&
+  acl_check('patients','med','','write'));
+?>
+
 <?php require_once("templates/tabs_template.php"); ?>
 <?php require_once("templates/menu_template.php"); ?>
 <?php require_once("templates/patient_data_template.php"); ?>
 <?php require_once("templates/user_data_template.php"); ?>
 <?php require_once("menu/menu_json.php"); ?>
-<?php $userQuery = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"); ?>
+<?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-    <?php if(isset($_REQUEST['url']))
-        {
-        ?>
-            app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".urldecode($_REQUEST['url'])); ?>);
-        <?php 
-        }
-    ?>
+
+    <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
+        app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
+        app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
+    <?php } ?>
+    <?php unset($_SESSION['frame1url']); ?>
+    <?php unset($_SESSION['frame1target']); ?>
+
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
-                                                                  .',' . json_encode($userQuery['fname'])
-                                                                  .',' . json_encode($userQuery['lname'])
-                                                                  .',' . json_encode($_SESSION['authGroup']); ?>));
+        .',' . json_encode($userQuery['fname'])
+        .',' . json_encode($userQuery['lname'])
+        .',' . json_encode($_SESSION['authGroup']); ?>));
+
 </script>
 
 </head>
 <body>
+<!-- Below iframe is to support auto logout when timeout is reached -->
+<iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <div id="mainBox">
     <div id="dialogDiv"></div>
     <div class="body_top">
-        <a href="http://www.open-emr.org" title="<?php echo xla("OpenEMR Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $webroot; ?>/interface/pic/favicon.ico"></a>
+        <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>
@@ -127,6 +192,7 @@ var webroot_url="<?php echo $web_root; ?>";
     ko.applyBindings(app_view_model);
 
     $(document).ready(function() {
+        goRepeaterServices();
         $('#patient_caret').click(function() {
            $('#patientData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');

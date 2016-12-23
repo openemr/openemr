@@ -25,8 +25,9 @@
  */
 
 
-/*If the validation (new) that uses the validate.js library was set on "on" in globals include the following libraries*/
-if($GLOBALS['new_validate']) {
+/*LBF form take the valude from the global $GLOBALS['new_validate'];*/
+/*Other pages depend if the page in the lists options (page validation)is active and exists)*/
+if($use_validate_js){
 ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
@@ -81,9 +82,10 @@ function submitme(new_validate,e,form_id, constraints) {
                     element = $('[name="'+ key + '"]');
                     if(!$(element).is('select[multiple]')) {
 
-                        if($(element).parent().prop('style') != undefined && $(element).parent().prop('style').visibility == 'hidden'){
-                            $(element).val("");
-                        }
+                            if($(element).parent().prop('style') != undefined && ($(element).parent().prop('style').visibility == 'hidden'|| element.parent().parent().css('display')== 'none')){
+                                $(element).val("");
+                            }
+
                     }
                 }
 

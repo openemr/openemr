@@ -106,7 +106,7 @@ document.x12_partner.name.focus();
 		{else}
 			<a class="css_button" href="javascript:add_x12();"><span>{xl t='Save'}</span></a>
 		{/if}
-	<a href="controller.php?practice_settings&x12_partner&action=list"  {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} class="css_button" onclick="top.restoreSession()">
+	<a href="controller.php?practice_settings&x12_partner&action=list"  class="css_button" onclick="top.restoreSession()">
 <span>{xl t='Cancel'}</span></a></td>
 </tr>
 </table>

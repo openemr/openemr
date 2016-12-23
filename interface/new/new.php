@@ -74,16 +74,9 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 
 <body class="body_top" onload="javascript:document.new_patient.fname.focus();">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
 <span class='title'><?php xl('Add Patient Record','e');?></span>
-<?php } else { ?>
-<form name='new_patient' method='post' action="new_patient_save.php"
- target='_top' onsubmit='return validate()'>
-<a class="title" href="../main/main_screen.php" target="_top" onclick="top.restoreSession()">
-<?php xl('Add Patient Record','e');?></a>
-<?php } ?>
 
 <br><br>
 
@@ -104,7 +97,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
    <select name='title'>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'titles' ORDER BY seq");
+  "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_title) echo " selected";
@@ -152,7 +145,7 @@ while ($orow = sqlFetchArray($ores)) {
     <option value=''>Unassigned</option>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'sex' ORDER BY seq");
+  "WHERE list_id = 'sex' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_sex) echo " selected";
@@ -173,7 +166,7 @@ while ($orow = sqlFetchArray($ores)) {
     <option value=''>Unassigned</option>
 <?php
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'refsource' ORDER BY seq");
+  "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . $orow['option_id'] . "'";
   if ($orow['option_id'] == $form_refsource) echo " selected";

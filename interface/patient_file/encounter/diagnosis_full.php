@@ -3,8 +3,6 @@ require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/formdata.inc.php");
 
-$targparm = $GLOBALS['concurrent_layout'] ? "" : "target='Main'";
-
 if (isset($mode)) {
 	if ($mode == "add") {
 		addBilling($encounter, $type, $code, strip_escape_custom($text),$pid, $userauthorized,$_SESSION['authUserID']);
@@ -25,11 +23,7 @@ if (isset($mode)) {
 
 <body class="body_top">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
-<?php } else { ?>
-<a href="patient_encounter.php" target="Main" onclick="top.restoreSession()">
-<?php } ?>
 
 <span class=title><?php xl('Billing','e'); ?></span>
 <font class=more><?php echo $tback;?></font></a>
@@ -43,7 +37,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		if ($iter["code_type"] == "ICD9") {
 			$html = "<tr>";
 			$html .= "<td valign=\"middle\"></td>" .
-				"<td><div><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
+				"<td><div><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a></div></td>\n";
 			$billing_html[$iter["code_type"]] .= $html;
@@ -51,13 +45,13 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		}
 		elseif ($iter["code_type"] == "COPAY") {
 			$billing_html[$iter["code_type"]] .= "<tr><td></td>" .
-				"<td><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
+				"<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"}."</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a></td>\n";
 		}
 		else {
 			$billing_html[$iter["code_type"]] .= "<tr><td></td>" .
-				"<td><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
+				"<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a><span class=\"small\">";
 			$js = explode(":",$iter['justify']);

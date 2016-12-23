@@ -105,7 +105,6 @@ if((top.window.parent) && (parent.window)){
         var wname = top.window.parent.left_nav;
         fname = (parent.window.name)?parent.window.name:window.name;
         wname.syncRadios();
-        wname.setRadio(fname, "new");
 }//Visolve - sync the radio buttons - End
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -885,7 +884,10 @@ while ($lrow = sqlFetchArray($lres)) {
 $form_id="DEM";
 ?>
 
-<?php include_once("$srcdir/validation/validation_script.js.php");?>
+<?php
+//LBF forms use the new validation depending on the global value
+$use_validate_js=$GLOBALS['new_validate'];
+include_once("$srcdir/validation/validation_script.js.php");?>
 <script language='JavaScript'>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [

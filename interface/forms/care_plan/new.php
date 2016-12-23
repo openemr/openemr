@@ -39,7 +39,7 @@ require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 formHeader("Form:Care Plan Form");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 if ($formid) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
@@ -51,6 +51,11 @@ if ($formid) {
 }
 
 $check_res = $formid ? $check_res : array();
+$sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
+$result = sqlStatement($sql1, array('Plan_of_Care_Type'));
+foreach($result as $value):
+  $care_plan_type[] = $value;
+endforeach;
 ?>
 <html>
     <head>
@@ -78,6 +83,7 @@ $check_res = $formid ? $check_res : array();
                 changeIds('img_code_date');
                 changeIds('code_date');
                 changeIds('displaytext');
+                changeIds('care_plan_type');
                 changeIds('count');
                 removeVal(newRow.id);
             }
@@ -91,6 +97,7 @@ $check_res = $formid ? $check_res : array();
                 document.getElementById("img_code_date_" + rowid1[1]).value = '';
                 document.getElementById("code_date_" + rowid1[1]).value = '';
                 document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
+                document.getElementById("care_plan_type_" + rowid1[1]).value = '';
             }
 
             function changeIds(class_val) {
@@ -124,7 +131,7 @@ $check_res = $formid ? $check_res : array();
                 id = id.split('tb_row_');
                 var checkId = '_' + id[1];
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT,LOINC,CPT4', '_blank', 700, 400);
             }
             
             function set_related(codetype, code, selector, codedesc) {
@@ -144,21 +151,32 @@ $check_res = $formid ? $check_res : array();
             if (!empty($check_res)) {
                 foreach ($check_res as $key => $obj) {
                     ?>
-                    <tr class="tb_row" id="tb_row_<?php echo $key + 1; ?>">
+                    <tr class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                         <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                         <td class="forms">
-                            <input type="text" id="code_<?php echo $key + 1; ?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                            <span id="displaytext_<?php echo $key + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
-                            <input type="hidden" id="codetext_<?php echo $key + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+                            <input type="text" id="code_<?php echo attr($key) + 1; ?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>"  onclick='sel_code(this.parentElement.parentElement.id);'><br>
+                            <span id="displaytext_<?php echo attr($key) + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
+                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
                         <td class="forms">
-                            <textarea rows="4" id="description_<?php echo $key + 1; ?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
+                            <textarea rows="4" id="description_<?php echo attr($key) + 1; ?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                         <td class="forms">
-                            <input type='text' id="code_date_<?php echo $key + 1; ?>" size='10' name='code_date[]' class="code_date" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)' />
-                            <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo $key + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" size='10' name='code_date[]' class="code_date" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)' />
+                            <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo attr($key) + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                        </td>
+                        <td align="left" class="forms"><?php echo xlt('Type'); ?>:</td>
+                        <td>
+                          <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="care_plan_type">
+                            <option value=""></option>
+                            <?php foreach($care_plan_type as $value):
+                              $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                            ?>
+                            <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
+                            <?php endforeach;?>
+                          </select>
                         </td>
                         <td>
                             <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
@@ -166,9 +184,9 @@ $check_res = $formid ? $check_res : array();
                         </td>
                     <script language="javascript">
                         /* required for popup calendar */
-                        Calendar.setup({inputField: "code_date_<?php echo $key + 1; ?>", ifFormat: "%Y-%m-%d", button: "img_code_date_<?php echo $key + 1; ?>"});
+                        Calendar.setup({inputField: "code_date_<?php echo attr($key) + 1; ?>", ifFormat: "%Y-%m-%d", button: "img_code_date_<?php echo $key + 1; ?>"});
                     </script>
-                    <input type="hidden" name="count[]" id="count_<?php echo $key + 1; ?>" class="count" value="<?php echo $key + 1;?>">
+                    <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
                 </tr>
                 <?php
             }
@@ -188,7 +206,18 @@ $check_res = $formid ? $check_res : array();
                 <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                 <td class="forms">
                     <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)' />
-                    <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo $key + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                    <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo attr($key) + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                </td>
+                <td align="left" class="forms"><?php echo xlt('Type'); ?>:</td>
+                <td>
+                  <select name="care_plan_type[]" id="care_plan_type_1" class="care_plan_type">
+                    <option value=""></option>
+                    <?php foreach($care_plan_type as $value):
+                      $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                    ?>
+                    <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
+                    <?php endforeach;?>
+                  </select>
                 </td>
                 <td>
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>

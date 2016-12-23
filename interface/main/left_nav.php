@@ -8,8 +8,8 @@ use ESign\Api;
  * of the License, or (at your option) any later version.
  */
 
- // This provides the left navigation frame when $GLOBALS['concurrent_layout']
- // is true.  Following are notes as to what else was changed for this feature:
+ // This provides the left navigation frame. 
+ // Following are notes as to what else was changed for this feature:
  //
  // * interface/main/main_screen.php: the top-level frameset.
  // * interface/main/finder/patient_select.php: loads stuff when a new patient
@@ -73,7 +73,7 @@ use ESign\Api;
  // with the set_pid parameter, which establishes the new session pid and also
  // calls the setPatient() function (below).  In this case demographics.php
  // will also load the summary frameset into the bottom frame, invoking our
- // loadFrame() and setRadio() functions.
+ // loadFrame() function.
  //
  // Similarly, we have the concept of selecting an encounter from the
  // Encounters list, and then having that "stick" until some other encounter
@@ -91,6 +91,13 @@ use ESign\Api;
  require_once($GLOBALS['fileroot']."/library/patient.inc");
  require_once($GLOBALS['fileroot']."/library/lists.inc");
  require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+ require_once $GLOBALS['srcdir'].'/user.inc';
+ 
+ // Fetch user preferences saved from prior session
+ $uspfx = substr(__FILE__, strlen($GLOBALS['fileroot']."/")) . '.';
+ $cb_top_chk = prevSetting($uspfx, 'cb_top', 'frame0_chk', 'checked');
+ $cb_bot_chk = prevSetting($uspfx, 'cb_bot', 'frame1_chk', 'checked');
+ $usrval = json_encode( array ( $cb_top_chk, $cb_bot_chk ) );
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -153,7 +160,7 @@ use ESign\Api;
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
- if ($GLOBALS['use_charges_panel'] || $GLOBALS['concurrent_layout'] == 2) {
+ if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
@@ -388,6 +395,8 @@ function genFindBlock() {
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language='JavaScript'>
+ // User settings
+ var usrval = jQuery.parseJSON('<?php echo $usrval ?>');
  
  // tajemo work by CB 2012/01/31 12:32:57 PM dated reminders counter
  function getReminderCount(){ 
@@ -410,10 +419,9 @@ function genFindBlock() {
  $(document).ready(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
-   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>   
-   $("input[name=cb_bot]").trigger('click');
-   toggleFrame(2);
-   <?php } ?>
+   for (var i = 0, len = usrval.length; i < len; i++) {
+       if (usrval[i] != "checked") toggleFrame(i+1);
+   }
  }) 
  // end of tajemo work dated reminders counter
  
@@ -438,7 +446,7 @@ function genFindBlock() {
   var rows = f.cb_top.checked ? '*' :  '0';
   rows += f.cb_bot.checked ? ',*' : ',0';
   fset.rows = rows;
-  fset.rows = rows;
+  save_setting ([(f.cb_top.checked ? 'checked' : '&nbsp;'), (f.cb_bot.checked ? 'checked' : '&nbsp;')]);
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
@@ -547,31 +555,11 @@ function genFindBlock() {
   return false;
  }
 
- // Select a designated radio button. raname may be either the radio button
- // array name (rb_top or rb_bot), or the frame name (RTop or RBot).
- // You should call this if you directly load a document that does not
- // correspond to the current radio button setting.
- function setRadio(raname, rbid) {
-<?php if ($GLOBALS['concurrent_layout'] < 2) { ?>
-  var f = document.forms[0];
-  if (raname == 'RTop') raname = 'rb_top';
-  if (raname == 'RBot') raname = 'rb_bot';
-  for (var i = 0; i < f[raname].length; ++i) {
-   if (f[raname][i].value.substring(0,3) == rbid) {
-    f[raname][i].checked = true;
-    return true;
-   }
-  }
-<?php } ?>
-  return false;
- }
-
  // Set disabled/enabled state of radio buttons and associated labels
  // depending on whether there is an active patient or encounter.
  function syncRadios() {
   var f = document.forms[0];
   encounter_locked = isEncounterLocked(active_encounter);
-<?php if (($GLOBALS['concurrent_layout'] == 2)||($GLOBALS['concurrent_layout'] == 3)) { ?>
   var nlinks = document.links.length;
   for (var i = 0; i < nlinks; ++i) {
    var lnk = document.links[i];
@@ -583,34 +571,15 @@ function genFindBlock() {
     if (active_encounter == 0 && usage > '1') da = true;
     if (encounter_locked && usage > '1') da = true;
     <?php
-    if ($GLOBALS['concurrent_layout'] == 2){
+    if ($GLOBALS['menu_styling_vertical'] == 0){
       $color = "'#0000ff'";
-    }else{
+    }else{ // ($GLOBALS['menu_styling_vertical'] == 1)
       $color = "'#000000'";
     }
     ?>
     lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
    }
   }
-<?php } else if ($GLOBALS['concurrent_layout'] < 2) { ?>
-  for (var i = 0; i < f.rb_top.length; ++i) {
-   var da = false;
-   var rb1 = f.rb_top[i];
-   var rb2 = f.rb_bot[i];
-   var rbid = rb1.value.substring(0,3);
-   var usage = rb1.value.substring(3);
-   if (active_pid == 0 && usage > '0') da = true;
-   if (active_encounter == 0 && usage > '1') da = true;
-   if (encounter_locked && usage > '1') da = true;
-   // daemon_frame can also set special label colors, so don't mess with
-   // them unless we have to.
-   if (rb1.disabled != da) {
-    rb1.disabled = da;
-    rb2.disabled = da;
-    document.getElementById('lbl_' + rbid).style.color = da ? '#888888' : '#000000';
-   }
-  }
-<?php } ?>
   f.popups.disabled = (active_pid == 0);
  }
 
@@ -662,7 +631,6 @@ function clearactive() {
    toggleFrame(1);
   }
   f.findBy.value = findby;
-  setRadio('rb_top', 'dem');
   top.restoreSession();
   document.find_patient.submit();
  }
@@ -695,11 +663,9 @@ function clearactive() {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '0' && frname != 'RTop') {
    loadFrame('cal0','RTop', '<?php echo $primary_docs['cal'][2]; ?>');
-   setRadio('rb_top', 'cal');
   }
   if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
    loadFrame('ens0','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
-   setRadio('rb_bot', 'ens');
   }
  }
 
@@ -710,11 +676,9 @@ function clearactive() {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '1' && frname != 'RTop') {
    loadFrame('dem1','RTop', '<?php echo $primary_docs['dem'][2]; ?>');
-   setRadio('rb_top', 'dem');
   }
   if (botName.length > 3 && botName.substring(3) > '1' && frname != 'RBot') {
    loadFrame('ens1','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
-   setRadio('rb_bot', 'ens');
   }
  }
  
@@ -801,7 +765,6 @@ function clearactive() {
       var encounter_frame = getEncounterTargetFrame('enc');
       if ( encounter_frame != undefined )  {
           loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
-          setRadio(encounter_frame, 'ens');
       }
   }
 
@@ -987,7 +950,7 @@ function removeOptionSelected(EncounterId)
  }
 // Treeview activation stuff:
 $(document).ready(function(){
-  if(3 == <?php echo $GLOBALS['concurrent_layout'] ?>){
+  if(1 == <?php echo $GLOBALS['menu_styling_vertical'] ?>){
     $("#navigation-slide > li > a.collapsed + ul").slideToggle("medium");
     $("#navigation-slide > li > ul > li > a.collapsed_lv2 + ul").slideToggle("medium");
     $("#navigation-slide > li > a.expanded").click(function() {
@@ -1024,7 +987,7 @@ $(document).ready(function(){
         $(" > a", this).addClass("collapsed");
       }
     });
-  }else if(2 == <?php echo $GLOBALS['concurrent_layout'] ?>){
+  } else { // $GLOBALS['menu_styling_vertical'] == 0
 
     //Remove the links (used by the sliding menu) that will break treeview
     $('a.collapsed').each(function() { $(this).replaceWith('<span>'+$(this).text()+'</span>'); });
@@ -1053,7 +1016,6 @@ $(document).ready(function(){
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
 
-<?php if ( ( $GLOBALS['concurrent_layout'] == 2) || ($GLOBALS['concurrent_layout'] == 3) ) { ?>
 <center>
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100;'>
  <option value='0'><?php xl('Default','e'); ?></option>
@@ -1065,19 +1027,19 @@ $(document).ready(function(){
 <table cellpadding='0' cellspacing='0' border='0' width='100%'>
  <tr>
   <td class='smalltext' nowrap>
-   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked />
+   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' <?php echo $cb_top_chk ?> />
    <b><?php xl('Top','e') ?></b>
   </td>
   <td class='smalltext' align='right' nowrap>
    <b><?php xl('Bot','e') ?></b>
-   <input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+   <input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' <?php echo $cb_bot_chk ?> />
   </td>
  </tr>
 </table>
 
-<?php if ( $GLOBALS['concurrent_layout'] == 3) { ?>
+<?php if ( $GLOBALS['menu_styling_vertical'] == 1) { ?>
   <ul id="navigation-slide">
-<?php } else { // ($GLOBALS['concurrent_layout'] == 2) ?>
+<?php } else { // ($GLOBALS['menu_styling_vertical'] == 0) ?>
   <ul id="navigation">
 <?php } ?>
 
@@ -1120,7 +1082,7 @@ $(document).ready(function(){
 //
 
 $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 if (sqlNumRows($lres)) {
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
@@ -1424,7 +1386,7 @@ if (!empty($reg)) {
           <?php genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php'); ?>
 <?php
   $lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
@@ -1466,50 +1428,6 @@ if (!empty($reg)) {
 
 </ul>
 
-<?php } else { // end ($GLOBALS['concurrent_layout'] == 2 || $GLOBALS['concurrent_layout'] == 3) ?>
-
-<table cellpadding='0' cellspacing='0' border='0'>
- <tr>
-  <td colspan='3'>
-   <table cellpadding='0' cellspacing='0' border='0' width='100%'>
-    <tr>
-     <td class='smalltext' nowrap>
-      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php xl('Top','e') ?></b>
-     </td>
-     <td class='smalltext' align='right' nowrap>
-      <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
-     </td>
-    </tr>
-   </table>
-  </td>
- </tr>
-<?php
- // Builds the table of radio buttons and their labels.  Radio button values
- // are comprised of the 3-character document id and the 1-digit usage type,
- // so that JavaScript can easily access this information.
- $default_top_rbid = 'cal';
- foreach ($primary_docs as $key => $varr) {
-  if (!empty($disallowed[$key])) continue;
-  $label = $varr[0];
-  $usage = $varr[1];
-  $url   = $varr[2];
-  echo " <tr>\n";
-  echo "  <td class='smalltext'><input type='radio' name='rb_top' value='$key$usage' " .
-       "onclick=\"loadFrame('$key$usage','RTop','$url')\"";
-  if ($key == $default_top_rbid) echo " checked";
-  echo " /></td>\n";
-  echo "  <td class='smalltext' id='lbl_$key'>$label</td>\n";
-  echo "  <td class='smalltext'><input type='radio' name='rb_bot' value='$key$usage' " .
-       "onclick=\"loadFrame('$key$usage','RBot','$url')\"";
-  if ($key == 'msg') echo " checked";
-  echo " /></td>\n";
-  echo " </tr>\n";
- }
-?>
-</table>
-
-<?php } ?>
-
 <br /><hr />
 
 <div id='current_patient' style = 'display:none'>
@@ -1534,6 +1452,28 @@ if (!empty($reg)) {
 
 <script language='JavaScript'>
 syncRadios();
+
+function save_setting (cb_frames) {
+    for (var i = 0, len = cb_frames.length; i < len; i++) {
+	    try {
+	        var fref = '<?php echo $uspfx ?>frame' + i + '_chk';
+	        var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", 
+                    { lab: fref, val: cb_frames[i] })
+	        .done(function(data) {
+	            // alert( "Data Loaded: " + data );
+	        })
+	        .fail(function(xhr, textStatus, errorThrown) {
+	            alert("Error:"+xhr.responseText+"\n"+textStatus+"\n"+errorThrown);
+	        })
+	        .always(function() {
+	            // alert( "finished" );
+	        });
+	
+	    } catch (err) {
+	        alert (err.message);
+	    }
+    }
+}
 </script>
 
 </body>

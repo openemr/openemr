@@ -418,7 +418,7 @@ div.section {
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
-  $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ?",array($key."_issue_list"));
+  $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1",array($key."_issue_list"));
   while($res = sqlFetchArray($qry)){
     echo " aopts[$i][aopts[$i].length] = new Option('".attr(xl_list_label(trim($res['title'])))."', '".attr(trim($res['option_id']))."', false, false);\n";
     if ($res['codes']) {
@@ -564,8 +564,11 @@ function set_related(codetype, code, selector, codedesc) {
  var s = f.form_diagnosis.value;
  var title = f.form_title.value;
  if (code) {
-  if (s.length > 0) s += ';';
-  s += codetype + ':' + code;
+     //disabled duplicate codes
+     if (s.indexOf(codetype + ':' + code) == -1){
+         if (s.length > 0) s += ';';
+         s += codetype + ':' + code;
+     }
  } else {
   s = '';
  }

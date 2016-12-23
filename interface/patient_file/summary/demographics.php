@@ -43,7 +43,7 @@ $fake_register_globals=false;
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
  
-  if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) {
+  if (isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
@@ -188,7 +188,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
  //////////
  function oldEvt(apptdate, eventid) {
-  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 375);
+  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 500);
  }
 
  function advdirconfigure() {
@@ -208,16 +208,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-<?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.clearPatient();
-<?php } else { ?>
-  top.restoreSession();
-  top.location.href = '../main/main_screen.php';
-<?php } ?>
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 775, 375);
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 775, 500);
   return false;
  }
 
@@ -354,7 +349,7 @@ $(document).ready(function(){
 <?php
   // Initialize for each applicable LBF form.
   $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+    "list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
   while($gfrow = sqlFetchArray($gfres)) {
 ?>
     $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");
@@ -416,7 +411,6 @@ $(document).ready(function(){
 // JavaScript stuff to do when a new patient is set.
 //
 function setMyPatient() {
-<?php if ($GLOBALS['concurrent_layout']) { ?>
  // Avoid race conditions with loading of the left_nav or Title frame.
  if (!parent.allFramesLoaded()) {
   setTimeout("setMyPatient()", 500);
@@ -447,18 +441,23 @@ function setMyPatient() {
 ?>
  parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 <?php } // end setting new pid ?>
- parent.left_nav.setRadio(window.name, 'dem');
  parent.left_nav.syncRadios();
 <?php if ( (isset($_GET['set_pid']) ) && (isset($_GET['set_encounterid'])) && ( intval($_GET['set_encounterid']) > 0 ) ) {
  $encounter = intval($_GET['set_encounterid']);
  $_SESSION['encounter'] = $encounter;
  $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
- var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
- parent.left_nav.setRadio(othername, 'enc');
- parent.frames[othername].location.href = '../encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
+ encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
+ <?php if ($GLOBALS['new_tabs_layout']) { ?>
+  parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', 'enc');
+  top.restoreSession();
+  parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
+ <?php } else  { ?>
+  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+  parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
+  top.restoreSession();
+  parent.frames[othername].location.href = '../' + encurl;
+ <?php } ?>
 <?php } // end setting new encounter id (only if new pid is also set) ?>
-<?php } // end concurrent layout ?>
 }
 
 $(window).load(function() {
@@ -658,7 +657,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			?>
 			|
 			<a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-			<?php echo htmlspecialchars($nickname,ENT_NOQUOTES); ?></a>
+			<?php echo xlt($nickname); ?></a>
 		<?php	
 		}
 	}
@@ -1156,7 +1155,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   // supports charting.  The form ID is used as the "widget label".
   //
   $gfres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+    "list_id = 'lbfnames' AND " .
+    "option_value > 0 AND activity = 1 " .
+    "ORDER BY seq, title");
   while($gfrow = sqlFetchArray($gfres)) {
 ?>
     <tr>
@@ -1316,7 +1317,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  }
 	  echo "   <br />&nbsp;<br />\n";
 	}
-
 
      // Show Clinical Reminders for any user that has rules that are permitted.
      $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);

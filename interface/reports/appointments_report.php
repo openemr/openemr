@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 // Reminders related stuff
 $incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
 function fetch_rule_txt ($list_id, $option_id) {
-    $rs = sqlQuery('SELECT title, seq from list_options WHERE list_id=? AND option_id=?',
+    $rs = sqlQuery('SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
             array($list_id, $option_id));
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
@@ -127,7 +127,7 @@ function fetch_reminders($pid, $appt_date) {
  }
 
  function oldEvt(eventid) {
-    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 375);
+    dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 500);
  }
 
  function refreshme() {

@@ -85,7 +85,7 @@ require_once (dirname(__FILE__) . "/../formdata.inc.php");
 //   users the options of using the addlist widgets and validation frunctions from options.inc.php
 //   in the forms and output.
 function load_drug_attributes($id) {
-    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = '$id' ORDER BY seq");
+    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = '$id' AND activity = 1 ORDER BY seq");
     while ($row = sqlFetchArray($res)) {
 	if ($row['title'] == '') {
 	 $arr[$row['option_id']] = ' ';

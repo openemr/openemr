@@ -40,7 +40,7 @@ ksort($versions);
 <head>
 <title>OpenEMR Database Upgrade</title>
 <link rel='STYLESHEET' href='interface/themes/style_blue.css'>
-<link rel="shortcut icon" href="interface/pic/favicon.ico" />
+<link rel="shortcut icon" href="public/images/favicon.ico" />
 </head>
 <body>
 <center>
@@ -73,7 +73,7 @@ if (!empty($_POST['form_submit'])) {
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
       list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-      if (substr($fldtype, 0, 2) !== 'm_') {
+      if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
         $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
         if (empty($row['count'])) {
           sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
@@ -110,8 +110,8 @@ if (!empty($_POST['form_submit'])) {
 <?php
 foreach ($versions as $version => $filename) {
   echo " <option value='$version'";
-  // Defaulting to most recent version, which is now 4.2.2.
-  if ($version === '4.2.2') echo " selected";
+  // Defaulting to most recent version, which is now 5.0.0.
+  if ($version === '5.0.0') echo " selected";
   echo ">$version</option>\n";
 }
 ?>

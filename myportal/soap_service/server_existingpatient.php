@@ -433,7 +433,7 @@ class existingpatient {
                             break;
                         
             case 'C2':
-                    $query = "SELECT option_id, title FROM list_options WHERE list_id = ? ORDER BY seq";
+                    $query = "SELECT option_id, title FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq";
                             return array($query,$data[1]);
                             break;
             
@@ -472,7 +472,7 @@ class existingpatient {
                                ON ptrc.procedure_type_id = pt1.parent AND ptrc.procedure_type LIKE 'grp%' LEFT JOIN procedure_type AS pt2 ON ((ptrc.procedure_type_id IS NULL 
                                AND (pt2.parent = pt1.procedure_type_id OR pt2.procedure_type_id = pt1.procedure_type_id)) OR (pt2.procedure_type_id IS NOT NULL 
                                AND pt2.parent = pt1.procedure_type_id )) AND (pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%') LEFT JOIN list_options AS lo 
-                               ON list_id = 'proc_unit' AND option_id = pt2.units LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id 
+                               ON list_id = 'proc_unit' AND option_id = pt2.units AND lo.activity = 1 LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id 
                                LEFT JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id WHERE po.patient_id = ? 
                                ORDER BY po.date_ordered,po.procedure_order_id,pr.procedure_report_id,ptrc.seq,ptrc.name,ptrc.procedure_type_id,pt2.seq,pt2.name,
                                pt2.procedure_type_id ";

@@ -34,6 +34,7 @@ body
     display: flex;
     flex-direction: column;
     margin: 0px;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -91,10 +92,11 @@ body
 
 .tabControls
 {
-    margin: 0 0 0 0;
-    padding: 0 0 0 0;
+    margin: -9px 0 0 0;
+    padding: 9px 0 0 0;
     display: flex;
     flex-direction: row;
+    overflow: auto;
 }
 
 .tabSpan
@@ -123,7 +125,6 @@ body
     border-bottom:1pt solid black;
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
     display:block;
-    max-width:1000px;
 }
 
 #dialogDiv
@@ -135,7 +136,7 @@ body
 
     width: 99%;
     height:99%;
-    
+
     background-color: gray;
     z-index:1000;
     opacity: 0.5;
@@ -184,11 +185,21 @@ div.closeDlgIframe {
     min-height: 4em;
 }
 
+.patientCurrentEncounter {
+    display: inline;
+}
+
 .patientDataColumn
 {
     width: 33%;
     float: left;
     display: block;
+}
+
+.messagesColumn
+{
+    float: right;
+    padding-right: 20px;
 }
 
 .patientEncountersColumn
@@ -284,7 +295,7 @@ div.closeDlgIframe {
     padding:0px 0px;
     white-space: nowrap;
 }
-.appMenu > span:hover 
+.appMenu > span:hover
 {
     color: #fff;
     text-decoration: none;
@@ -309,7 +320,7 @@ div.closeDlgIframe {
     text-shadow: none;
 }
 .appMenu li:hover > .menuDisabled
- {   
+ {
     background-color: transparent;
 }
 .menuSection{
@@ -319,7 +330,7 @@ div.closeDlgIframe {
     background-color:#C9DBF2;
     display: none;
     position: absolute;
-    top: 20px;
+    top: 19px;
     z-index:1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
@@ -348,7 +359,7 @@ div.closeDlgIframe {
 .menuLabel
 {
     cursor: pointer;
-    padding: 5px 12px 3px;
+    padding: 5px 12px 5px;
 }
 .menuDisabled
 {
@@ -365,7 +376,7 @@ div.closeDlgIframe {
     right:10px;
 }
 .body_top {
-    background-color: #C9DBF2;   
+    background-color: #C9DBF2;
     padding:0px;
     border-bottom:0.1pt solid black;
     -moz-box-shadow:    0 0 10px #000;

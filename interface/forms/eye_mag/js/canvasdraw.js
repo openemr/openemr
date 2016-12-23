@@ -72,7 +72,7 @@ function drawImage(zone) {
         // and stores it in this id-->
     image[zone].src = $("#url_"+zone).val();
     $(image[zone]).load(function () {
-                        ctx[zone].drawImage(image[zone], 0, 0, 400, 225);
+                        ctx[zone].drawImage(image[zone], 0, 0, 450, 225);
                         // using variable size canvas? -> adjust size for canvas
     cPush(zone);
     });    
@@ -121,6 +121,14 @@ function cRedo(zone) {
         canvasPic.onload = function () { ctx[zone].drawImage(canvasPic, 0, 0); }
             //   document.title = cStep[zone] + ":" + cPushArray[zone].length + ":" +zone;
     }
+}
+function cReload(zone) {
+    $('#url_'+zone).val($('#base_url_'+zone).val());
+    drawImage(zone);
+}
+function cBlank(zone) {
+    $('#url_'+zone).val('../images/BLANK_BASE.png');
+    drawImage(zone);
 }
     //each canvas on your page must be initialized
     // add this to your own forms/js files where HPI is replaced with your canvas Identifier

@@ -555,4 +555,27 @@ form#pattrk #inanewwindow>span{
     float: left !important;
 }
 
+/* cdr Groups */
+.cdr-rules-class .ui-multiselect .ui-state-default {
+    padding: 0 20px;
+}
 
+.rule_detail.edit.summry .left_col {
+    float: none;
+    margin: 5px;
+}
+
+.rule_detail .left_col,
+.rule_detail .mid_col,
+.rule_detail .end_col {
+    float: none;
+    display: inline-block;
+}
+
+#namecontainer_preminders {
+    float: right !important;
+}
+
+#namecontainer_creminders {
+    float: right !important;
+}

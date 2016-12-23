@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 
  // Collect user id if editing entry
  $userid = $_REQUEST['userid'];
- 
+
  // Collect type if creating a new entry
  $type = $_REQUEST['type'];
 
@@ -40,7 +40,7 @@
 <title><?php echo $userid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Person'); ?></title>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 
 <style>
 td { font-size:10pt; }
@@ -66,7 +66,7 @@ td { font-size:10pt; }
   // 2 = Person Centric
   // 3 = Company Centric
   $sql = sqlStatement("SELECT option_id, option_value FROM list_options WHERE " .
-   "list_id = 'abook_type'");
+   "list_id = 'abook_type' AND activity = 1");
   while ($row_query = sqlFetchArray($sql)) {
    echo "type_options_js"."['" . attr($row_query['option_id']) . "']=" . attr($row_query['option_value']) . ";\n";
   }
@@ -111,7 +111,7 @@ td { font-size:10pt; }
 
  // Collect the form_abook_type option value
  //  (ie. patient vs company centric)
- $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ?", array(trim($_POST['form_abook_type'])));
+ $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = ? AND activity = 1", array(trim($_POST['form_abook_type'])));
  $option_abook_type = $type_sql_row['option_value'];
  // Set up any abook_type specific settings
  if ($option_abook_type == 3) {
@@ -120,6 +120,7 @@ td { font-size:10pt; }
   $form_fname = invalue('form_director_fname');
   $form_lname = invalue('form_director_lname');
   $form_mname = invalue('form_director_mname');
+  $form_suffix = invalue('form_director_suffix');
  }
  else {
   // Person centric
@@ -264,13 +265,13 @@ td { font-size:10pt; }
  $(document).ready(function() {
   // customize the form via the type options
   typeSelect("<?php echo attr($row['abook_type']); ?>");
-  if(abook_type == 'ord_lab') {
+  if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {
     $('#cpoe_span').css('display','inline');
    }
  });
 </script>
 
-<form method='post' name='theform' action='addrbook_edit.php?userid=<?php echo attr($userid) ?>'>
+<form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr($userid) ?>'>
 <center>
 
 <table border='0' width='100%'>
@@ -292,14 +293,14 @@ td { font-size:10pt; }
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>' '), $row['title']);
 ?>
-   <b><?php echo xlt('Last'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['lname']); ?>'/>&nbsp;
-   <b><?php echo xlt('First'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;
-   <b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['mname']); ?>' />
-   <b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_suffix' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['suffix']); ?>' />
+   <div style="display: inline-block"><b><?php echo xlt('Last'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
+                                                                               maxlength='50' value='<?php echo attr($row['lname']); ?>'/></div>
+   <div style="display: inline-block"><b><?php echo xlt('First'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
+                                                                                 maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;</div>
+   <div style="display: inline-block"><b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
+                                                                                  maxlength='50' value='<?php echo attr($row['mname']); ?>' /></div>
+   <div style="display: inline-block"><b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_suffix' class='inputtext'
+                                                                                  maxlength='50' value='<?php echo attr($row['suffix']); ?>' /></div>
   </td>
  </tr>
 
@@ -337,6 +338,8 @@ td { font-size:10pt; }
      maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;
    <b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_director_mname' class='inputtext'
      maxlength='50' value='<?php echo attr($row['mname']); ?>' />
+   <b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_director_suffix' class='inputtext'
+     maxlength='50' value='<?php echo attr($row['suffix']); ?>' />
   </td>
  </tr>
 
@@ -503,8 +506,9 @@ td { font-size:10pt; }
 &nbsp;
 <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 </p>
-
 </center>
 </form>
+<?php    $use_validate_js = 1;?>
+<?php validateUsingPageRules($_SERVER['PHP_SELF']);?>
 </body>
 </html>

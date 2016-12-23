@@ -171,7 +171,7 @@ table.mymaintable td, table.mymaintable th {
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
-		     "WHERE list_id = 'pricelevel' ORDER BY seq");
+		     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
   // Added 5-09 by BM - Translate label if applicable
   echo "   <th class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</th>\n";
@@ -183,7 +183,7 @@ while ($prow = sqlFetchArray($pres)) {
 <?php
 $res = sqlStatement("SELECT c.*, lo.title FROM codes AS c " .
   "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
-  "AND lo.option_id = c.superbill " .
+  "AND lo.option_id = c.superbill AND lo.activity = 1 " .
   "WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier");
 
 $last_category = '';
@@ -229,7 +229,7 @@ while ($row = sqlFetchArray($res)) {
     "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
     "p.pr_id = '" . $row['id'] . "' AND p.pr_selector = '' " .
     "AND p.pr_level = lo.option_id " .
-    "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
+    "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq");
   while ($prow = sqlFetchArray($pres)) {
     echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
   }

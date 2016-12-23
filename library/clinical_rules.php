@@ -70,7 +70,7 @@ function listingCDRReminderLog($begin_date='',$end_date='') {
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
 function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='') {
-  
+
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
@@ -357,7 +357,7 @@ function allergy_conflict($patient_id,$mode,$user,$test=FALSE) {
       $conflicts_unique = array_unique($conflicts);
     }
   }
- 
+
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
   $new_conflicts = array();
   if ( (!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===FALSE) ) {
@@ -424,7 +424,7 @@ function compare_log_alerts($patient_id,$current_targets,$category='clinical_rem
 
   // Store current action_log and the new items
   //  If $log_trigger=='all'
-  //  or If $log_trigger=='new' and there are new items 
+  //  or If $log_trigger=='new' and there are new items
   if ( ($log_trigger=='all') || (($log_trigger=='new')  && (!empty($new_targets))) ) {
     $current_targets_json = json_encode($current_targets);
     $new_targets_json = '';
@@ -588,7 +588,7 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
  * </pre>
  *
  * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans  inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
- * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules. 
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
  * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param  integer      $patient_id    pid of patient. If blank then will check all patients.
@@ -704,7 +704,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   //  for grouping items when not being done in real-time or for official reporting.
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
-  //  a separate call to this function. 
+  //  a separate call to this function.
   if ($mode != "report") {
     // Use per patient custom rules (if exist)
     // Note as discussed above, this only works for single patient instances.
@@ -736,7 +736,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           array_push($results,$tempResult);
         }
       }
- 
+
       // Go on to the next rule
       continue;
     }
@@ -771,7 +771,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     if ( (count($targetGroups) == 1) || ($mode == "report") ) {
 
       // If report itemization is turned on, then iterate the rule id iterator
-      if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+      if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
         $GLOBALS['report_itemized_test_id_iterator']++;
       }
 
@@ -792,7 +792,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
         $dateCounter = 1; // for reminder mode to keep track of which date checking
         // If report itemization is turned on, reset flag.
-        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
           $temp_track_pass = 1;
         }
         foreach ( $target_dates as $dateFocus ) {
@@ -877,7 +877,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           $dateCounter++;
         }
         // If report itemization is turned on, then record the "failed" item if it did not pass
-        if ($GLOBALS['report_itemizing_temp_flag_and_id'] && !($temp_track_pass)) {
+        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
           insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
         }
       }
@@ -889,7 +889,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       $newRow=array('is_main'=>TRUE,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
       $newRow=array_merge($newRow,$rowRule);
 
-      // If itemization is turned on, then record the itemized_test_id 
+      // If itemization is turned on, then record the itemized_test_id
       if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
         $newRow=array_merge($newRow,array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
       }
@@ -1015,7 +1015,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         if ($mode == "report") {
           $newRow=array('is_sub'=>TRUE,'action_category'=>$action['category'],'action_item'=>$action['item'],'total_patients'=>'','excluded'=>'','pass_filter'=>'','pass_target'=>$pass_target,'percentage'=>$percentage);
 
-        // If itemization is turned on, then record the itemized_test_id 
+        // If itemization is turned on, then record the itemized_test_id
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
           $newRow=array_merge($newRow,array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
         }
@@ -1509,13 +1509,13 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
  * Function to return a specific rule
  *
  * @param  string   $rule        id(string) of rule
- * @param  integer  $patient_id  pid of selected patient. (if set to 0, then will return the default rule).    
+ * @param  integer  $patient_id  pid of selected patient. (if set to 0, then will return the default rule).
  * @return array                 rule
  */
 function collect_rule($rule,$patient_id='0') {
 
   return sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
-  
+
 }
 
 /**
@@ -1684,7 +1684,7 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
   }
   $cond_loop = 0;
   foreach( $filter as $row ) {
-  	
+
     // Row description
     //   [0]=>special modes
     $temp_df = explode("::",$row['value']);
@@ -1892,8 +1892,8 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
   if ($table == 'immunizations') {
     $customSQL = " AND `added_erroneously` = '0' ";
   }
-  
-  //adding table list for where condition 
+
+  //adding table list for where condition
   $whereTables = '';
   if($table == 'procedure_result'){
   	$whereTables = ", procedure_order_code, " .
@@ -1914,13 +1914,29 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
       "WHERE " . add_escape_custom($patient_id_label)  . "=? " . $customSQL, array($patient_id) );
   }
   else {
-    // search for number of specific items
-    $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
-      "FROM `" . add_escape_custom($table)  . "` " .
-      " ". $whereTables. " ".
-      "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
-      "AND " . add_escape_custom($patient_id_label)  . "=? " . $customSQL .
-      $dateSql, array($data,$patient_id) );
+      if ($whereTables=="" && strpos($table, 'form_')!== false){
+          //To handle standard forms starting with form_
+          //In this case, we are assuming the date field is "date"
+          $sql =sqlStatementCdrEngine(
+              "SELECT b.`" . add_escape_custom($column) . "` " .
+              "FROM forms a ".
+              "LEFT JOIN `" . add_escape_custom($table) . "` " . " b ".
+              "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
+              "WHERE a.deleted != '1' ".
+              "AND b.`" .add_escape_custom($column) ."`" . $compSql . "? " .
+              "AND b."  . add_escape_custom($patient_id_label)  . "=? " . $customSQL
+              . str_replace("`date`", "b.`date`", $dateSql)
+              ,array($data, $patient_id));
+      }
+      else {
+          // search for number of specific items
+          $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
+              "FROM `" . add_escape_custom($table) . "` " .
+              " " . $whereTables . " " .
+              "WHERE `" . add_escape_custom($column) . "`" . $compSql . "? " .
+              "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
+              $dateSql, array($data, $patient_id));
+      }
   }
 
   // See if number of returned items passes the comparison
@@ -1934,7 +1950,7 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
  * @param  string   $proc_title       procedure title
  * @param  string   $proc_code        procedure identifier code (array of <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.)
  * @param  string   $results_comp     results comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $result_data      results data 
+ * @param  string   $result_data      results data
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
@@ -1961,7 +1977,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
   if (empty($result_data)) {
     $result_comp = "ne";
   }
-  
+
   // get the appropriate sql comparison operator
   $compSql = convertCompSql($result_comp);
 
@@ -2006,7 +2022,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
   array_push($sqlBindArray,$proc_title,$result_data,$patient_id);
 
   $sql = sqlStatementCdrEngine($sql_query,$sqlBindArray);
- 
+
   // See if number of returned items passes the comparison
   return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
@@ -2065,7 +2081,7 @@ function exist_lifestyle_item($patient_id,$lifestyle,$status,$dateTarget) {
 
   // Collect pertinent history data
   $history = getHistoryData($patient_id, $lifestyle,'',$dateTarget);
- 
+
   // See if match
   $stringFlag = strstr($history[$lifestyle], "|".$status);
   if (empty($status)) {
@@ -2244,7 +2260,7 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget) {
  * @return string          contains official label of selected element
  */
 function collect_database_label($label,$table) {
- 
+
   if ($table == 'PROCEDURE-EXCEPTION') {
     // return cell to get procedure collection
     // special case since reuqires joing of multiple
@@ -2458,10 +2474,10 @@ function reminder_results_integrate($reminderOldArray, $reminderNew) {
 /**
  * Compares number of items with requested comparison operator
  *
- * @param  string   $comp       Comparison operator(eq,ne,gt,ge,lt,le)  
+ * @param  string   $comp       Comparison operator(eq,ne,gt,ge,lt,le)
  * @param  string   $thres      Threshold used in comparison
  * @param  integer  $num_items  Number of items
- * @return boolean              Comparison results    
+ * @return boolean              Comparison results
  */
 function itemsNumberCompare($comp, $thres, $num_items) {
 

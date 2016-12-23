@@ -15,7 +15,7 @@ if (! $encounter) { // comes from globals.php
  die("Internal error: we do not seem to be in an encounter!");
 }
 
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+$returnurl = 'encounter_top.php';
 
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp) {
  $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .

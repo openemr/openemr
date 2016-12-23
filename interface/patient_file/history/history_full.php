@@ -246,13 +246,13 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
     <div>
         <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
     </div>
-    <div style='float:left;margin-right:10px'>
+    <div id='namecontainer_fhistory' class='namecontainer_fhistory' style='float:left;margin-right:10px'>
   <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
         <input class="css_btn"  type="submit" value="<?php xl('Save','e'); ?>">
 
-        <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+        <a href="history.php" class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
     </div>
@@ -296,6 +296,9 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
 
 <?php /*Include the validation script and rules for this form*/
 $form_id="HIS";
+//LBF forms use the new validation depending on the global value
+$use_validate_js=$GLOBALS['new_validate'];
+
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 
 </html>

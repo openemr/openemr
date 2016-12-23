@@ -1,5 +1,16 @@
 <?php
 
+// Default values for optional variables that are allowed to be set by callers.
+
+// Unless specified explicitly, apply Auth functions
+if (!isset($ignoreAuth)) $ignoreAuth = false;
+// Unless specified explicitly, caller is not offsite_portal and Auth is required
+if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Unless specified explicitly, do not reverse magic quotes
+if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
+// Unless specified explicitly, "fake" register_globals.
+if (!isset($fake_register_globals)) $fake_register_globals = true;
+
 // Is this windows or non-windows? Create a boolean definition.
 if (!defined('IS_WINDOWS'))
  define('IS_WINDOWS', (stripos(PHP_OS,'WIN') === 0));
@@ -11,7 +22,7 @@ ini_set('session.gc_maxlifetime', '14400');
 
 // This is for sanitization of all escapes.
 //  (ie. reversing magic quotes if it's set)
-if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
+if ($sanitize_all_escapes) {
   if (get_magic_quotes_gpc()) {
     function undoMagicQuotes($array, $topLevel=true) {
       $newArray = array();
@@ -87,7 +98,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     $tmp = $_GET['site'];
   }
   else {
-    if (!$ignoreAuth) die("Site ID is missing from session data!");
+    if (empty($ignoreAuth)) die("Site ID is missing from session data!");
     $tmp = $_SERVER['HTTP_HOST'];
     if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) $tmp = "default";
   }
@@ -147,6 +158,13 @@ $GLOBALS['webroot'] = $web_root;
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
+
+// Relative images directory, relative to the webserver root.
+$GLOBALS['images_static_relative'] = "$web_root/public/images";
+
+// Static images directory, absolute to the webserver root.
+$GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
+
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
@@ -269,6 +287,9 @@ if (!empty($glrow)) {
     $GLOBALS['language_menu_login'] = true;
   }
 
+  // Added this $GLOBALS['concurrent_layout'] set to 3 in order to support legacy forms
+  // that may use this; note this global has been removed from the standard codebase.
+  $GLOBALS['concurrent_layout'] = 3;
 
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
@@ -325,7 +346,6 @@ else {
   $GLOBALS['translate_form_titles'] = true;
   $GLOBALS['translate_document_categories'] = true;
   $GLOBALS['translate_appt_categories'] = true;
-  $GLOBALS['concurrent_layout'] = 2;
   $timeout = 7200;
   $openemr_name = 'OpenEMR';
   $css_header = "$rootdir/themes/style_default.css";
@@ -347,21 +367,13 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 
 // Theme definition.  All this stuff should be moved to CSS.
 //
-if ($GLOBALS['concurrent_layout']) {
- $top_bg_line = ' bgcolor="#dddddd" ';
- $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
- $bottom_bg_line = $top_bg_line;
- $title_bg_line = ' bgcolor="#bbbbbb" ';
- $nav_bg_line = ' bgcolor="#94d6e7" ';
-} else {
- $top_bg_line = ' bgcolor="#94d6e7" ';
- $GLOBALS['style']['BGCOLOR2'] = "#94d6e7";
- $bottom_bg_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
- $title_bg_line = ' bgcolor="#aaffff" ';
- $nav_bg_line = ' bgcolor="#94d6e7" ';
-}
+$top_bg_line = ' bgcolor="#dddddd" ';
+$GLOBALS['style']['BGCOLOR2'] = "#dddddd";
+$bottom_bg_line = $top_bg_line;
+$title_bg_line = ' bgcolor="#bbbbbb" ';
+$nav_bg_line = ' bgcolor="#94d6e7" ';
 $login_filler_line = ' bgcolor="#f7f0d5" ';
-$logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+$logocode = "<img class='img-responsive center-block' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
 $tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
@@ -425,7 +437,7 @@ $GLOBALS['include_de_identification']=0;
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
 }
-if (!isset($ignoreAuth) || !$ignoreAuth) {
+if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
 
@@ -476,11 +488,6 @@ ini_set("session.bug_compat_warn","off");
 
 //////////////////////////////////////////////////////////////////
 
-/* If the includer didn't specify, assume they want us to "fake" register_globals. */
-if (!isset($fake_register_globals)) {
-	$fake_register_globals = TRUE;
-}
-
 /* Pages with "myadmin" in the URL don't need register_globals. */
 $fake_register_globals =
 	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
@@ -493,5 +500,4 @@ if ($fake_register_globals) {
   extract($_GET,EXTR_SKIP);
   extract($_POST,EXTR_SKIP);
 }
-
 ?>

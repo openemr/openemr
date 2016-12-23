@@ -188,6 +188,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     width: 2em;
     background-color: #FFF3D1;
     padding: 0px;
+    max-width: 12px;
 }
 #times table {
     border-collapse: collapse;
@@ -210,6 +211,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     height: 20px;
     margin: 0px;
     padding: 0px;
+    text-align: center;
 }
 .schedule {
     background-color: #FFF3D1;

@@ -7,6 +7,11 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
+    $category = $event;
+    // Special case delete for lists table
+    if($event == 'delete')
+    	$category = eventCategoryFinder($comments, $event, '');
+
     // deal with comments encryption, if turned on
     $encrypt_comment = 'No';
     if (!empty($comments)) {
@@ -25,13 +30,14 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
         }
 
         $menuItemId = array_search($menu_item, $menuItems);
-        $sql = "insert into log ( date, event, user, patient_id, groupname, success, comments,
-                log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
+        $sql = "insert into log ( date, event,category, user, patient_id, groupname, success, comments,
+                log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?,'Patient Portal', ?, ?, ?, ?, ?, ?, ?,?, ?)";
         $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
     } else {
+    
     /* More details added to the log */
-    $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user, patient_id) " .
-            "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($user) .
+    $sql = "insert into log ( date, event,category, user, groupname, success, comments, crt_user, patient_id) " .
+            "values ( NOW(), " . $adodb->qstr($event) . ",". $adodb->qstr($category) . "," . $adodb->qstr($user) .
             "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
             $adodb->qstr($comments) ."," .
             $adodb->qstr($crt_user) ."," . $adodb->qstr($patient_id). ")";
@@ -78,7 +84,7 @@ function getEventByDate($date, $user="", $cols="DISTINCT date, event, user, grou
 function getEvents($params)
 {
     // parse the parameters
-    $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments,checksum,crt_user, id ";
+    $cols = "DISTINCT date, event, category, user, groupname, patient_id, success, comments,checksum,crt_user, id ";
     if (isset($params['cols']) && $params['cols'] != "") $cols = $params['cols'];
 
     $date1 = date("Y-m-d H:i:s", time());
@@ -103,6 +109,9 @@ function getEvents($params)
      $tevent = "";
     if (isset($params['tevent']) && $params['tevent'] != "") $tevent = $params['tevent'];
 
+    $direction = 'asc';
+    if (isset($params['direction']) && $params['direction'] != "") $direction = $params['direction'];
+
      $event = "";
     if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
     if ($event!=""){
@@ -110,12 +119,13 @@ function getEvents($params)
     if ($sortby == "groupname") $sortby = ""; //VicarePlus :: since there is no groupname in extended_log
     if ($sortby == "success") $sortby = "";   //VicarePlus :: since there is no success field in extended_log
     if ($sortby == "checksum") $sortby = "";  //VicarePlus :: since there is no checksum field in extended_log
+    if ($sortby == "category") $sortby = "";  //VicarePlus :: since there is no category field in extended_log
     $columns = "DISTINCT date, event, user, recipient,patient_id,description";
     $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1' AND date <= '$date2'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
-    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC"; // descending order
     $sql .= " LIMIT 5000";
     }
     else
@@ -126,7 +136,7 @@ function getEvents($params)
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
     if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
-    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby."  ".escape_sort_order($direction); // descending order
     $sql .= " LIMIT 5000";
     }
     $res = sqlStatement($sql);
@@ -595,6 +605,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
 
     /* Determine the audit event based on the database tables */
     $event = "other";
+    $category = "other";
     $tables = array("billing" => "patient-record",
                     "claims" => "patient-record",
                     "employer_data" => "patient-record",
@@ -656,7 +667,11 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     				"gacl_axo_sections" => "security-administration",
     				"gacl_groups_aro_map" => "security-administration",
     				"gacl_groups_axo_map" => "security-administration",
-    				"gacl_phpgacl" => "security-administration"
+    				"gacl_phpgacl" => "security-administration",
+    				"procedure_order" => "lab-order",
+    			    "procedure_order_code" => "lab-order",
+    				"procedure_report" => "lab-results",
+    				"procedure_result" => "lab-results" 
                   );
 
     /* When searching for table names, truncate the SQL statement,
@@ -688,10 +703,12 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     foreach ($tables as $table => $value) {
         if (strpos($truncated_sql, $table) !== FALSE) {
             $event = $value;
-             break;
+            $category = eventCategoryFinder($comments, $event,$table);
+            break;
         }
       else if (strpos($truncated_sql, "form_") !== FALSE) {
             $event = "patient-record";
+            $category = eventCategoryFinder($comments, $event,$table);
              break;
         }
     }
@@ -749,10 +766,11 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
 
 	$current_datetime = date("Y-m-d H:i:s");
     $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
-    $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
+    $sql = "insert into log (date, event,category, user, groupname, comments, patient_id, success, checksum,crt_user) " .
          "values ( ".
 		 $adodb->qstr($current_datetime). ", ".
          $adodb->qstr($event) . ", " .
+         $adodb->qstr($category) . ", " .
          $adodb->qstr($user) . "," .
          $adodb->qstr($group) . "," .
          $adodb->qstr($comments) . "," .
@@ -917,5 +935,49 @@ function logCommentEncryptData($log_id){
 		$encryptRow['checksum'] = $logRow['checksum'];
 	}
 	return $encryptRow;
+}
+
+/**
+ * Function used to determine category of the event
+ * 
+ */
+function eventCategoryFinder($sql,$event,$table){
+	if($event == 'delete'){
+		if(strpos($sql, "lists:") === 0){
+			$fieldValues	= explode("'",$sql);
+			if(in_array('medical_problem',$fieldValues) === TRUE) return 'Problem List';
+			else if(in_array('medication',$fieldValues) === TRUE) return 'Medication';
+			else if(in_array('allergy', $fieldValues) === TRUE) return 'Allergy';
+		}
+	}
+	if($table == 'lists' || $table == 'lists_touch'){
+		$trimSQL   		= stristr($sql, $table);
+		$fieldValues	= explode("'",$trimSQL);
+		if(in_array('medical_problem',$fieldValues) === TRUE) return 'Problem List';
+		else if(in_array('medication',$fieldValues) === TRUE) return 'Medication';
+		else if(in_array('allergy', $fieldValues) === TRUE) return 'Allergy';
+	}
+	else if($table == 'immunizations') return "Immunization";
+	else if($table == 'form_vitals') return "Vitals";
+	else if($table == 'history_data') return "Social and Family History";
+	else if($table == 'forms' || $table == 'form_encounter' || strpos($table,'form_') === 0) return "Encounter Form";
+	else if($table == 'insurance_data') return "Patient Insurance";
+	else if($table == 'patient_data' || $table == 'employer_data') return "Patient Demographics";
+	else if($table == 'payments' || $table == "billing" || $table == "claims") return "Billing";
+	else if($table == 'pnotes') return "Clinical Mail";
+	else if($table == 'prescriptions') return "Medication";
+	else if($table == 'transactions'){
+		$trimSQL   		= stristr($sql, "transactions");
+		$fieldValues	= explode("'",$trimSQL);
+		if(in_array("LBTref", $fieldValues)) return "Referral";
+		else return $event;
+	}
+	else if($table == 'amendments' || $table == 'amendments_history') return "Amendments";
+	else if($table == 'openemr_postcalendar_events') return "Scheduling";
+	else if($table == 'procedure_order' || $table == 'procedure_order_code') return "Lab Order";
+	else if($table == 'procedure_report' || $table == 'procedure_result') return "Lab Result";
+	else if($event == 'security-administration') return "Security";
+	
+	return $event;
 }
 ?>

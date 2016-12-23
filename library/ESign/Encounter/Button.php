@@ -34,7 +34,7 @@ class Encounter_Button implements ButtonIF
     public function __construct( $encounterId )
     {
         $this->_viewer = new Viewer();
-        $this->_viewer->target = $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+        $this->_viewer->target = "_parent";
         $this->_viewer->encounterId = $encounterId;
     }
     

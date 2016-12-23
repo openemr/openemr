@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +16,7 @@
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -35,6 +37,7 @@ body
     flex-direction: column;
     margin: 0px;
     background-color: #f4f4f4;
+    font-size: 12px;
 }
 #mainBox
 {
@@ -99,6 +102,7 @@ body
     display: flex;
     flex-direction: row;
     background: #f4f4f4;
+    overflow: auto;
 }
 
 .tabSpan
@@ -222,11 +226,25 @@ div.closeDlgIframe:before {
     color: #333 !important;
 }
 
+.patientCurrentEncounter {
+    display: inline;
+}
+
+.patientCurrentEncounter a {
+    color: #333 !important;
+}
+
 .patientDataColumn
 {
     width: 33%;
     float: left;
     display: block;
+}
+
+.messagesColumn
+{
+    float: right;
+    padding-right: 20px;
 }
 
 .patientEncountersColumn
@@ -360,7 +378,6 @@ div.closeDlgIframe:before {
 .menuLabel
 {
     color: #333;
-    display:inline-block;
     padding: 15px 10px;
     font-weight: 600;
 }

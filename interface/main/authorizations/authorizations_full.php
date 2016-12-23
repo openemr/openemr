@@ -45,11 +45,7 @@ sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pi
 </head>
 <body class="body_top">
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="authorizations.php" onclick='top.restoreSession()'>
-<?php } else { ?>
-<a href="../main.php" target=Main>
-<?php } ?>
 <font class=title><?php echo htmlspecialchars(xl('Authorizations'),ENT_NOQUOTES); ?></font>
 <font class=more><?php echo htmlspecialchars($tback,ENT_NOQUOTES); ?></font></a>
 

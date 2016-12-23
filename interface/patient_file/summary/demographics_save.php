@@ -154,9 +154,5 @@ newInsuranceData(
   formData('i3policy_type')
 );
 
-if ($GLOBALS['concurrent_layout']) {
  include_once("demographics.php");
-} else {
- include_once("patient_summary.php");
-}
 ?>

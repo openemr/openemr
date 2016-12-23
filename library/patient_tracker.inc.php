@@ -158,7 +158,7 @@ function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null,
 function  is_checkin($option) {
   
   $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
-    "list_id = 'apptstat' AND option_id = ?", array($option));
+    "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
   if (empty($row['toggle_setting_1'])) return(false);
   return(true);
 }
@@ -167,7 +167,7 @@ function  is_checkin($option) {
 function  is_checkout($option) {
   
   $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
-    "list_id = 'apptstat' AND option_id = ?", array($option));
+    "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
   if (empty($row['toggle_setting_2'])) return(false);
   return(true);
 }
@@ -263,7 +263,7 @@ return $tracker_id;
 function collectApptStatusSettings($option) {
   $color_settings = array();
   $row = sqlQuery("SELECT notes FROM list_options WHERE " .
-    "list_id = 'apptstat' AND option_id = ?", array($option));
+    "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
   if (empty($row['notes'])) return $option;
   list($color_settings['color'], $color_settings['time_alert']) = explode("|", $row['notes']);
   return $color_settings;
@@ -287,7 +287,7 @@ function collect_checkin($trackerid) {
                                    "INNER JOIN list_options " .
                                    "ON patient_tracker_element.status = list_options.option_id " .
                                    "WHERE  list_options.list_id = 'apptstat' " .
-                                   "AND list_options.toggle_setting_1 = '1' " .
+                                   "AND list_options.toggle_setting_1 = '1' AND list_options.activity = 1 " .
                                    "AND patient_tracker_element.pt_tracker_id = ?",
                                    array($trackerid));
   if (empty($tracker['start_datetime'])) {
@@ -305,7 +305,7 @@ function collect_checkout($trackerid) {
                                    "INNER JOIN list_options " .
                                    "ON patient_tracker_element.status = list_options.option_id " .
                                    "WHERE  list_options.list_id = 'apptstat' " .
-                                   "AND list_options.toggle_setting_2 = '1' " .
+                                   "AND list_options.toggle_setting_2 = '1' AND list_options.activity = 1 " .
                                    "AND patient_tracker_element.pt_tracker_id = ?",
                                    array($trackerid));
   if (empty($tracker['start_datetime'])) {
