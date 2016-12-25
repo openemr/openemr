@@ -728,7 +728,7 @@ if ($_REQUEST["mode"] == "new")             {
     if (!$_POST['confused']) $fields['confused'] = '0';
     if (!$_POST['PUPIL_NORMAL']) $fields['PUPIL_NORMAL'] = '0';
     if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
-    if (!$_POST['ACT']) $fields['ACT'] = '0';
+    if (!$_POST['ACT']) $fields['ACT'] = 'off';
     if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
     if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
     if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';
