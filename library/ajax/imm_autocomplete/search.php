@@ -18,15 +18,24 @@
  * @link    http://www.open-emr.org
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 require_once('../../../interface/globals.php');
 
 
 if (isset($_GET['term'])){
+    $term = $_GET['term'];
 	$return_arr = array();
 
 	try {
-		$sql = "SELECT DISTINCT lot_number FROM immunizations WHERE lot_number LIKE '%".$_GET['term']."%'";
-		$res = sqlstatement($sql);
+		$sql = "SELECT DISTINCT lot_number FROM immunizations WHERE lot_number LIKE ? ";
+
+		$res = sqlstatement($sql,"%".$term."%");
 		while($row = sqlFetchArray($res)){
 			$return_arr[] =  $row['lot_number'] ;
 		}

@@ -180,12 +180,12 @@ if (!$administered_by && !$administered_by_id) {
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-ui-min/index.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.min.css" type="text/css" /> 
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-ui-1-10-4/themes/base/jquery-ui.min.css" type="text/css" /> 
 
 <style>
 .highlight {
