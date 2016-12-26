@@ -31,6 +31,7 @@
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
  * @author  Brady Miller <brady@sparmy.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -161,6 +162,18 @@ if (is_dir($mainPATH)) {
                     $supported_file = 1;
                 }
                 else if (preg_match("/SnomedCT_Release_US[0-9]*_([0-9]{8}).zip/",$file,$matches)) {
+
+                    // This is the SNOMED US extension pack which can only be installed on top
+                    // of a International SNOMED version.
+                    // Hard code this version SNOMED feed to be US Extension
+                    //
+                    $version = "US Extension";
+                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+                    array_push($revisions,$temp_date);
+                    $supported_file = 1;
+                }
+                else if (preg_match("/SnomedCT_RF1Release_US[0-9]*_([0-9]{8}).zip/",$file,$matches)) {
 
                     // This is the SNOMED US extension pack which can only be installed on top
                     // of a International SNOMED version.
