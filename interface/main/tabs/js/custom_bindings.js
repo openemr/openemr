@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +15,7 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -25,15 +27,20 @@ ko.bindingHandlers.location={
         element.addEventListener("load",
             function()
             {
-                
+
                 var cwDocument=this.contentWindow.document
                 $(cwDocument).ready(function(){
                         var jqDocument=$(cwDocument);
+                        var titleDocument=jqDocument.attr('title');
                         var titleText="Unknown";
                         var titleClass=jqDocument.find(".title:first");
-                        if(titleClass.length>=1)
+                        if (titleClass.length>=1)
                         {
                             titleText=titleClass.text();
+                        }
+                        else if (titleDocument.length>=1)
+                        {
+                            titleText=titleDocument;
                         }
                         else
                         {
@@ -45,7 +52,7 @@ ko.bindingHandlers.location={
                                 titleClass=jqFrameDocument.find(".title:first");
                                 if(titleClass.length>=1)
                                 {
-                                    titleText=titleClass.text();                                
+                                    titleText=titleClass.text();
                                 }
                                 var subFrame= frameDocument.get(0);
                                 subFrame.addEventListener("load",
@@ -58,7 +65,7 @@ ko.bindingHandlers.location={
                                         titleText=titleClass.text();
                                         tabData.title(titleText);
                                     }
-                                   
+
                                 });
                             }
                             else
@@ -76,9 +83,9 @@ ko.bindingHandlers.location={
                                         titleText=title.text();
                                     }
                                 }
-                                        
+
                             }
-                            
+
                         }
                         tabData.title(titleText);
                     }
@@ -101,7 +108,7 @@ ko.bindingHandlers.iframeName = {
     },
     update: function(element,valueAccessor, allBindings,viewModel, bindingContext)
     {
-        element.name=ko.unwrap(valueAccessor());        
+        element.name=ko.unwrap(valueAccessor());
     }
 }
 
