@@ -313,7 +313,7 @@ foreach ($ar as $key => $val) {
             /// label/header for recurring days
             echo "<hr />";
             echo "<div class='text' id='appointments'>\n";
-            print "<h1>".xl('Recurrent Appointments').":</h1>";
+            print "<h1>".xlt('Recurrent Appointments').":</h1>";
 
             //fetch the data of the recurring days
             $recurrences = fetchRecurrences($pid);
