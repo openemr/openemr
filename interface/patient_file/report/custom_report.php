@@ -310,9 +310,17 @@ foreach ($ar as $key => $val) {
 
         if($val == "recurring_days"){
 
+            /// label/header for recurring days
+            echo "<hr />";
+            echo "<div class='text' id='appointments'>\n";
+            print "<h1>".xl('Recurrent Appointments').":</h1>";
+
+            //fetch the data of the recurring days
             $recurrences = fetchRecurrences($pid);
+
+            //print the recurring days to screen
             if($recurrences[0] == false){ //if there are no recurrent appointments:
-                echo "<div>";
+                echo "<div class='text' >";
                 echo "<span>" . xlt('None') . "</span>";
                 echo "</div>";
                 echo "<br>";
@@ -322,10 +330,10 @@ foreach ($ar as $key => $val) {
                     //checks if there are recurrences and if they are current (git didn't end yet)
                     if ($row == false || !recurrence_is_current($row['pc_endDate']))
                         continue;
-                    echo "<div>";
+                    echo "<div class='text' >";
                     echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
                     echo "<br>";
-                    echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
+                    echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
                     echo "<br>";
                     $red_text = ""; //if ends in a week, make font red
                     if (ends_in_a_week($row['pc_endDate'])) {

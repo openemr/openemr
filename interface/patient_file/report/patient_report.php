@@ -219,7 +219,7 @@ function show_date_fun(){
    <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
   </td>
      <td class="text">
-         <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" ><?php xl('Recurrent Appointments','e'); ?><br>
+         <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" ><?php echo  xlt('Recurrent Appointments'); ?><br>
      </td>
  </tr>
 </table>
