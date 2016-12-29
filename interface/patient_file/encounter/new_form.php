@@ -19,17 +19,22 @@ $esignApi = new Esign\Api();
 <script language="JavaScript">
 
 function openNewForm(sel) {
- top.restoreSession();
+  top.restoreSession();
   FormNameValueArray = sel.split('formname=');
   if(FormNameValueArray[1] == 'newpatient')
-   {
-    parent.location.href = sel
-   }
+  {
+    parent.location.href = sel;
+  }
+  else if (!parent.Forms)
+  {
+    location.href = sel;
+  }
   else
-   {
-	parent.Forms.location.href = sel;
-   }
+  {
+    parent.Forms.location.href = sel;
+  }
 }
+
 function toggleFrame1(fnum) {
   top.frames['left_nav'].document.forms[0].cb_top.checked=false;
   top.window.parent.left_nav.toggleFrame(fnum);
@@ -56,7 +61,7 @@ function mopen(id)
 {
 	// cancel close timer
 	//mcancelclosetime();
-	
+
 	flag=10;
 
 	// close old layer
@@ -168,7 +173,7 @@ isset($GLOBALS['encounter']) &&
       $encounterLocked = true;
   }
 }
-  
+
 if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
   if(isset($hide)){
@@ -236,7 +241,7 @@ if ( $encounterLocked === false ) {
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
 	$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
   $DivId = 'mod_installer';
   if (sqlNumRows($module_query)) {
