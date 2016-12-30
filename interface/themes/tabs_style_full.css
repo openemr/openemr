@@ -95,7 +95,6 @@ body
 
 .tabControls
 {
-    border-bottom: 1pt solid #1976d2;
     margin: 0px;
     padding: 0px;
     padding-top: 4px;
@@ -111,15 +110,9 @@ body
     padding: 8px 8px;
     border-top: 3pt solid #1976d2;
     border-left: 1px solid #1976d2;
-    border-bottom: none;
+    border-bottom: 0pt;
     border-right: 1px solid #1976d2;
     cursor: pointer;
-    /**
-     * This next part "connects" the tab to the
-     * "content" by hiding the containing border
-     */
-    position: relative;
-    bottom: -1px;
     flex: 0 1 auto;
     white-space: nowrap;
     overflow: visible;
@@ -142,14 +135,12 @@ body
     color: #888888;
 }
 .tabNotchosen {
-    position: relative;
-    bottom: 0px;
     background: transparent;
     border-top: 3pt solid transparent;
     border-left: none;
     border-right: none;
+    border-bottom: 1pt solid #1976d2;
     display:block;
-    max-width:1000px;
 }
 .tabNotchosen:hover {
     background: #e9e9e9;
