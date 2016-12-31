@@ -87,6 +87,7 @@ function tabClicked(data,evt)
 
 function tabRefresh(data,evt)
 {
+    top.restoreSession();
     // To do: Consider modification if part of frame.
     data.window.location=data.window.location;
     activateTab(data);
