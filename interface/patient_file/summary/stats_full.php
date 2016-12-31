@@ -61,6 +61,7 @@ function refreshIssue(issue, title) {
 
 function dopclick(id,category) {
     <?php if (acl_check('patients','med','','write')): ?>
+    top.restoreSession();
     if (category == 0) category = '';
     dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 550, 400);
     <?php else: ?>
@@ -70,11 +71,13 @@ function dopclick(id,category) {
 
 // Process click on number of encounters.
 function doeclick(id) {
+    top.restoreSession();
     dlgopen('../problem_encounter.php?issue=' + id, '_blank', 550, 400);
 }
 
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
+  top.restoreSession();
   dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
     '&code=' + encodeURIComponent(codevalue) +
     '&language=<?php echo urlencode($language); ?>',
