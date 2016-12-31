@@ -1,8 +1,9 @@
 <html>
 <head>
 {php}html_header_show();{/php}
+{php}$this->assign('GLOBALS', $GLOBALS);{/php}
 
-<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
+<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 
 {literal}
 {/literal}
@@ -18,18 +19,10 @@
   <body class="body_top">
 {php} } {/php}
 
-<div class="title">{xl t='Documents'}</div>
 <div id="documents_list">
-<table>
-	<tr>
-		<td height="20" valign="top">{xl t='Categories'} &nbsp;
-            (<a href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">{xl t='Collapse all'}</a>)
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">{$tree_html}</td>
-	</tr>
-</table>
+<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'})</a>
+<div class="title">{xl t='Documents'}</div>
+{$tree_html}
 </div>
 <div id="documents_actions">
 		{if $message}
@@ -40,5 +33,9 @@
 		{/if}
 		{$activity}
 </div>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript">
+$("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
+</script>
 </body>
 </html>
