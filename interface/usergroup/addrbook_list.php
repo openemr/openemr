@@ -187,7 +187,7 @@ $res = sqlStatement($query,$sqlBindArray);
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

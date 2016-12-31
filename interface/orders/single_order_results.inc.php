@@ -345,7 +345,7 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
 
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';

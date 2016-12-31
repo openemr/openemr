@@ -46,7 +46,7 @@ if($status == 0)
 	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
 	type='text/css'>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <style type="text/css">
 .style1 {
