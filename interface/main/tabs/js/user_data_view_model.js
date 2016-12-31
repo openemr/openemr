@@ -57,5 +57,6 @@ function changePassword()
 
 function logout()
 {
-    top.window.location=webroot_url+"/interface/logout.php"
+    top.restoreSession();
+    top.window.location=webroot_url+"/interface/logout.php";
 }
