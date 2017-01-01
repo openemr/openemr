@@ -57,9 +57,10 @@ function grabfocus(w) {
  // }
 }
 
-// call this when a "modal" dialog is desired
-
-
+// Call this when a "modal" dialog is desired.
+// Note that the below function is used for the
+// frames ui, and that a separate dlgopen function
+// is used below (see if(top.tab_mode)...) for the tabs ui.
  function dlgopen(url, winname, width, height) {
  if (top.modaldialog && ! top.modaldialog.closed) {
   if (window.focus) top.modaldialog.focus();
@@ -92,6 +93,8 @@ if(top.tab_mode)
     dlgOpenWindow=dlgopen;
     dlgopen=function(url,winname,width,height,forceNewWindow)
     {
+        top.restoreSession();
+
         if(forceNewWindow)
         {
             return dlgOpenWindow(url,winname,width,height);
