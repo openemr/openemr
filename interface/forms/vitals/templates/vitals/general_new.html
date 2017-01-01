@@ -3,7 +3,7 @@
 {php}html_header_show();{/php}
 
 <style type="text/css">@import url({$FORM_ACTION}/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="{$FORM_ACTION}/library/dialog.js"></script>
+<script type="text/javascript" src="{$FORM_ACTION}/library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
 <script type="text/javascript" src="{$FORM_ACTION}/library/textformat.js"></script>
 <script type="text/javascript" src="{$FORM_ACTION}/library/dynarch_calendar.js"></script>
 {php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}

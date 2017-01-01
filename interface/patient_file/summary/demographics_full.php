@@ -60,7 +60,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>

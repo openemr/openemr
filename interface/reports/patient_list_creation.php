@@ -75,7 +75,7 @@
 			<?php echo xlt('Patient List Creation'); ?>
 		</title>
 		<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-		<script type="text/javascript" src="../../library/dialog.js"></script>
+		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 		<script language="JavaScript">
 		var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -95,7 +95,7 @@
 		}
 		
 		</script>
-		<script type="text/javascript" src="../../library/dialog.js"></script>
+		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.css" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
