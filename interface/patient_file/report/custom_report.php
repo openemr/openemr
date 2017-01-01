@@ -42,7 +42,7 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
-
+require_once("$srcdir/appointments.inc.php");
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
@@ -308,7 +308,44 @@ foreach ($ar as $key => $val) {
     //
     if (stristr($key,"include_")) {
 
-        if ($val == "demographics") {
+        if($val == "recurring_days"){
+
+            /// label/header for recurring days
+            echo "<hr />";
+            echo "<div class='text' id='appointments'>\n";
+            print "<h1>".xlt('Recurrent Appointments').":</h1>";
+
+            //fetch the data of the recurring days
+            $recurrences = fetchRecurrences($pid);
+
+            //print the recurring days to screen
+            if($recurrences[0] == false){ //if there are no recurrent appointments:
+                echo "<div class='text' >";
+                echo "<span>" . xlt('None') . "</span>";
+                echo "</div>";
+                echo "<br>";
+            }
+            else {
+                foreach ($recurrences as $row) {
+                    //checks if there are recurrences and if they are current (git didn't end yet)
+                    if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                        continue;
+                    echo "<div class='text' >";
+                    echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
+                    echo "<br>";
+                    echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
+                    echo "<br>";
+                    $red_text = ""; //if ends in a week, make font red
+                    if (ends_in_a_week($row['pc_endDate'])) {
+                        $red_text = " style=\"color:red;\" ";
+                    }
+                    echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                    echo "</div>";
+                    echo "<br>";
+                }
+            }
+        }
+        elseif ($val == "demographics") {
 
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";

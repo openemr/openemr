@@ -221,7 +221,7 @@ if ($showit=='ext') $showit="external";
 							That's a lot to document and one mighty complicated patient!<br />
 							Combined it may be many more issues than we would see on a routine day, with routine patients, but it could happen...  <br />
 						Documenting this many findings would take a little bit of time on paper, and a lifetime in a typical EHR. <br />
-						The average typist can now do it <b>in less than a minute.</b>  A normal encounter can be completed in seconds.
+						The average typist can now do it <b>in less than a minute.</b>  A normal encounter can be accurately documented in seconds.
 						<hr />
 
 						<h4 class="bold">HPI: </h4> 

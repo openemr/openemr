@@ -1,6 +1,6 @@
 <?php
 /**
- * Main info frame. 
+ * Main info frame.
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,9 +26,7 @@ require_once("../globals.php");
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <HTML>
 <HEAD>
-<TITLE>
-Main Screen
-</TITLE>
+<TITLE><?php echo xlt('Calendar'); ?></TITLE>
 <!-- (CHEMED) -->
 <!-- The DOCTYPE is set above to XHTML to put IE into Sttrict Mode so we can get a viewport width -->
 <script type='text/javascript' language='JavaScript'>

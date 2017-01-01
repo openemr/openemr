@@ -30,9 +30,9 @@ $v_acl = 3;
 //Offsite Portal SOAP functions version, which are at myportal directory.
 $v_offsite_portal='1.47';
 
-// Version for JavaScript includes. Increment whenever a .js file changes.
-// Also whenever you change a .js file, make sure that all URLs referencing it
+// Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
+// Also whenever you change a .js or .css file, make sure that all URLs referencing it
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
-$v_js_includes = 15;
+$v_js_includes = 19;
 ?>

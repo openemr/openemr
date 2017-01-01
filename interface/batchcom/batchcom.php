@@ -66,7 +66,7 @@ if ($_POST['form_action']=='Process') {
     //process sql
     if (!$form_err) {
 
-           
+
          $sql="select patient_data.*, cal_events.pc_eventDate as next_appt,cal_events.pc_startTime as appt_start_time,cal_date.last_appt,forms.last_visit from patient_data left outer join openemr_postcalendar_events as cal_events on patient_data.pid=cal_events.pc_pid and curdate() < cal_events.pc_eventDate left outer join (select pc_pid,max(pc_eventDate) as last_appt from openemr_postcalendar_events where curdate() >= pc_eventDate group by pc_pid ) as cal_date on cal_date.pc_pid=patient_data.pid left outer join (select pid,max(date) as last_visit from forms where curdate() >= date group by pid) as forms on forms.pid=patient_data.pid";
         //appointment dates
         if ($_POST['app_s']!=0 AND $_POST['app_s']!='') {
@@ -78,7 +78,7 @@ if ($_POST['form_action']=='Process') {
             $sql_where_a.=" $and cal_events.pc_endDate < '".$_POST['app_e']."'";
         }
         $sql.=$sql_where_a;
-        
+
         // encounter dates
         if ($_POST['seen_since']!=0 AND $_POST['seen_since']!='') {
             $and=where_or_and ($and);
@@ -110,7 +110,7 @@ if ($_POST['form_action']=='Process') {
             $and=where_or_and ($and);
             $sql.=" $and patient_data.hipaa_mail='YES' ";
         }
-        
+
         switch ($_POST['process_type']):
             case $choices[1]: // Email
                 $and=where_or_and ($and);
@@ -129,6 +129,7 @@ if ($_POST['form_action']=='Process') {
 	?>
         <html>
 	<head>
+    <title><?php echo xlt('BatchCom'); ?></title>
 	<?php html_header_show();?>
 	<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 	<link rel="stylesheet" href="batchcom.css" type="text/css">
@@ -142,7 +143,7 @@ if ($_POST['form_action']=='Process') {
 	<span class="title"><?php xl('Batch Communication Tool','e')?></span>
 	<br><br>
 	<div class="text">
-        <?php 
+        <?php
             echo (xl('No results found, please try again.','','<br>'));
         ?> </div></body></html> <?php
         //if results
@@ -169,6 +170,7 @@ if ($_POST['form_action']=='Process') {
 ?>
 <html>
 <head>
+<title><?php echo xlt('BatchCom'); ?></title>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="batchcom.css" type="text/css">
@@ -237,7 +239,7 @@ if ($_POST['form_action']=='Process') {
     title="<?php xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a></td>
      </tr><tr><td>
-   
+
      <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"></td><td> <?php xl('Seen since','e')?> :</td><td><INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
     title="<?php xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a></td>

@@ -158,7 +158,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../../library/dialog.js"></script>
+    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jscolor-2-0-4/jscolor.js"></script>
 
@@ -3755,7 +3755,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side">
       <div style="margin-top:20px;text-align:center;font-size:1.2em;">
         <span class="fa fa-file-text-o" id="PANEL_TEXT" name="PANEL_TEXT" style="margin:2px;"></span>
