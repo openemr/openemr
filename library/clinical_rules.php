@@ -1929,6 +1929,11 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
               ,array($data, $patient_id));
       }
       else {
+          // This allows to enter the wild card #CURDATE# in the CDR Demographics filter criteria  at the value field
+          // #CURDATE# is replace by the Current date allowing a dynamic date filtering
+          if ($data=='#CURDATE#') {
+              $data = date("Y-m-d");
+          }          
           // search for number of specific items
           $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
               "FROM `" . add_escape_custom($table) . "` " .
