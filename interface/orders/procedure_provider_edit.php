@@ -71,12 +71,12 @@ td { font-size:10pt; }
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save']) {
-   $org_qry = "SELECT organization FROM users WHERE id = ?";
-   $org_res = sqlQuery($org_qry, array($_POST['form_name']));
-   $org_name = $org_res['organization'];
+//    $org_qry = "SELECT organization FROM users WHERE id = ?";
+//    $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+//    $org_name = $org_res['organization'];
    $sets =
-    "name = '"  .add_escape_custom($org_name). "', " .
-    "lab_director = "         . invalue('form_name')         . ", " .
+    "name = "         . invalue('form_name')         . ", " .
+    "lab_director = " . invalue('form_lab_director') . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
     "send_app_id = "  . invalue('form_send_app_id')  . ", " .
     "send_fac_id = "  . invalue('form_send_fac_id')  . ", " .
@@ -106,12 +106,13 @@ else if ($_POST['form_delete']) {
   }
 }
 
-if ($_POST['form_save'] || $_POST['form_delete']) {
-  // Close this window and redisplay the updated list.
+if ($_POST['form_cancel'] || $_POST['form_save'] || $_POST['form_delete']) { // Close frame
   echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
-  echo " window.close();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
+  if ($_POST['form_save'] || $_POST['form_delete']) {
+    echo "parent.document.forms[0].submit();\n";
+  } else {
+    echo " window.close();\n";
+  }
   echo "</script></body></html>\n";
   exit();
 }
@@ -120,10 +121,11 @@ if ($ppid) {
   $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
 }
 
-$lab_org_query = "SELECT id, organization FROM users WHERE abook_type = 'ord_lab'";
+$optionsStr .= "<option value=''>". xl('No contact specified')."</option>";
+$lab_org_query = "SELECT id, fname, lname, organization FROM users WHERE abook_type = 'ord_lab'";
 $org_res = sqlStatement($lab_org_query);
 while ($org_row = sqlFetchArray($org_res)) {
-    $lab_org_name = $org_row['organization'];
+    $lab_org_name = sprintf('%s %s- %s', $org_row['fname'], $org_row['lname'], $org_row['organization']);
     $selected = '';
     if ($ppid) {
         if($row['lab_director'] == $org_row['id']){
@@ -142,7 +144,15 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-	<select name='form_name' id='form_name' class='inputtext' style='width:150px'> 
+    <input type='text' size='40' name='form_name' id='form_name' class='inputtext'
+        value='<?php echo attr($row['name']) ?>' / >
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php echo xlt('Director'); ?>:</b></td>
+  <td>
+	<select name='form_lab_director' id='form_lab_director' class='inputtext'> 
           <?php echo $optionsStr; ?>
     </select>
   </td>
@@ -294,18 +304,24 @@ foreach(array(
 
 <br />
 
-<input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
+<input class='button' type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
 
 <?php if ($ppid) { ?>
 &nbsp;
-<input type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' style='color:red' />
+<input class='button' type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' style='color:red' />
 <?php } ?>
 
 &nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+<input class='button' type='submit' name='form_cancel' value='<?php echo xla('Cancel'); ?>' />
 </p>
 
 </center>
 </form>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('td input, td select').css('margin-left', 0);
+    $('tr').css({'margin-top':'1', 'margin-bottom':'1'});
+});
+</script>
 </body>
 </html>

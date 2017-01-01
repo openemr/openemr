@@ -35,18 +35,18 @@ $form_name = trim($_POST['form_name']);
 $query = "SELECT pp.* FROM procedure_providers AS pp";
 $query .= " ORDER BY pp.name";
 $res = sqlStatement($query);
+
+$adm_acl = acl_check('admin', 'practice' );
 ?>
 <html>
 
 <head>
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<style type="text/css">
+    table tr:hover{cursor:pointer;} /* Since not part of standard, set this for all tables */
+</style>
 <title><?php echo xlt('Procedure Providers'); ?></title>
-
-<?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language="JavaScript">
 
@@ -57,25 +57,21 @@ function refreshme() {
  // location.reload();
  document.forms[0].submit();
 }
-
-// Process click to pop up the add window.
-function doedclick_add() {
- top.restoreSession(); 
- dlgopen('procedure_provider_edit.php?ppid=0', '_blank', 700, 550);
-}
-
-// Process click to pop up the edit window.
-function doedclick_edit(ppid) {
- top.restoreSession();
- dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 700, 550);
-}
-
 </script>
 
 </head>
 
 <body class="body_top">
-
+<div class="container" style='top: 0;left:0; width: 100%; margin:0; padding: 0;'>
+    <div class="row">
+        <div id="left4" class="col-md-4"></div>
+        <?php if ($adm_acl) {?>
+        <div id="right8" class="col-md-8 embed-responsive embed-responsive-16by9">
+            <iframe id='ppeditor' class="embed-responsive-item"></iframe>
+        </div>
+        <?php }?>
+    </div>
+</div>
 <div id="addressbook_list">
 <form method='post' action='procedure_provider_list.php'>
 
@@ -83,12 +79,12 @@ function doedclick_edit(ppid) {
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
    <input type='submit' class='button' name='form_search' value='<?php echo xla("Refresh")?>' />
-   <input type='button' class='button' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add()' />
+   <input type='button' class='button' value='<?php echo xla("Add New"); ?>' onclick='edit_ppid(0)' />
   </td>
  </tr>
 </table>
 
-<table>
+<table class='table table-striped table-hover table-bordered'>
  <tr class='head'>
   <td title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></td>
   <td><?php echo xlt('NPI'); ?></td>
@@ -98,25 +94,40 @@ function doedclick_edit(ppid) {
 <?php
  $encount = 0;
  while ($row = sqlFetchArray($res)) {
-  ++$encount;
-  $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
-
-  if (acl_check('admin', 'practice' )) {
-   $trTitle = xl('Edit') . ' ' . $row['name'];
-   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
-  }
-  else {
-   $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-   echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
-  }
-  echo "  <td>" . text($row['name']    ) . "</td>\n";
-  echo "  <td>" . text($row['npi']     ) . "</td>\n";
-  echo "  <td>" . text($row['protocol']) . "</td>\n";
-  echo " </tr>\n";
+     printf('<tr class="clickable-row" data-p1="%s">
+                <td>%s</td><td>%s</td><td>%s,%s</td>
+             </tr>', 
+        $row['ppid'], text($row['name']), text($row['npi']), text($row['protocol']), 
+        text($row['direction']));
  }
 ?>
 </table>
-
+</form>
+</div>
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/javascript">
+var adm_acl = <?php echo ($adm_acl ? 'true':'false'); ?>;
+var xl_icons = {'DL':'download', 'SFTP':'bolt', 'FS':'folder', 'R':'download', 'B':'exchange'};
+$(document).ready(function() {
+    $('#addressbook_list').detach().appendTo('#left4');
+    if (adm_acl) {
+        $('.clickable-row').click(function() {
+            $(this).addClass('alert alert-warning active').siblings().removeClass('alert alert-warning active');
+            edit_ppid ($(this).data('p1')); 
+        });
+    }
+    $('.clickable-row td:nth-child(3)').each(function() {
+        var p = $(this).html().split(',');
+        $(this).html('');
+        for (ix = 0; ix < p.length; ++ix) {
+            $(this).append('<i class="fa fa-' + xl_icons[p[ix]] + '" aria-hidden="true"></i>&nbsp;');
+        }
+    });
+});
+function edit_ppid(ppid) {
+    top.restoreSession();
+    $('#ppeditor').attr('src', 'procedure_provider_edit.php?ppid='+ppid);
+}
+</script>
 </body>
 </html>
