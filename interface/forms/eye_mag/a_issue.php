@@ -93,7 +93,7 @@ foreach (explode(',',$given) as $item) {
     <?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script language="JavaScript">
      var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
      var aitypes = new Array(); // issue type attributes

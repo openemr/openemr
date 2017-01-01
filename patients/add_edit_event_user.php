@@ -679,7 +679,7 @@ td { font-size:0.8em; }
 
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../library/topdialog.js"></script>
-<script type="text/javascript" src="../library/dialog.js"></script>
+<script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/textformat.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
