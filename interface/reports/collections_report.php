@@ -1054,7 +1054,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 <?php
       if ($form_age_cols) {
         for ($c = 0; $c < $form_age_cols; ++$c) {
-          echo "<td class='detail ". $form_cb_with_debt && $balance<=0 ? "delete" : ""." align='right'>";
+          echo "<td class='detail ". ($form_cb_with_debt && $balance<=0 ? "delete" : "")."' align='right'>";
           if ($c == $agecolno) {
             bucks($balance);
           }
