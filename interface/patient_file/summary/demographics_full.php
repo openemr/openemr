@@ -813,6 +813,9 @@ $use_validate_js=$GLOBALS['new_validate'];
 		$("#submit_btn").attr("name","btnSubmit");
 		$("#submit_btn").attr("id","btnSubmit");
 		$("#btnSubmit").click(function( event ) {
+
+      top.restoreSession();
+
 			if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
 				event.preventDefault();
 				return;
