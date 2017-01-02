@@ -97,7 +97,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   $form_cb_err      = false;
 
 }
-$form_cb_with_debt = $_POST['form_cb_with_debt']=='on'    ? true : false;
+$form_cb_with_debt = $_POST['form_cb_with_debt']    ? true : false;
 $form_age_cols = (int) $_POST['form_age_cols'];
 $form_age_inc  = (int) $_POST['form_age_inc'];
 if ($form_age_cols > 0 && $form_age_cols < 50) {
@@ -1054,7 +1054,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 <?php
       if ($form_age_cols) {
         for ($c = 0; $c < $form_age_cols; ++$c) {
-          echo "<td class='detail <?php echo $form_cb_with_debt && $balance<=0?\"delete\":\"\";?>' align='right'>";
+          echo "<td class='detail ". $form_cb_with_debt && $balance<=0 ? "delete" : ""." align='right'>";
           if ($c == $agecolno) {
             bucks($balance);
           }
@@ -1063,7 +1063,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       }
       else {
 ?>
-  <td class="detail <?php echo $form_cb_with_debt && $balance<=0?'delete':'';?>" align="right"><?php bucks($balance) ?>&nbsp;</td>
+  <td class="detail <?php echo $form_cb_with_debt && $balance<=0 ? 'delete' : '';?>" align="right"><?php bucks($balance) ?>&nbsp;</td>
 <?php
       } // end else
 ?>
@@ -1246,7 +1246,7 @@ if (!$_POST['form_csvexport']) {
 ?>
 </script>
 </body>
-<!-- stuff for the popup calendar -->צ
+<!-- stuff for the popup calendar -->
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
