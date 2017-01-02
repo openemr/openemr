@@ -222,7 +222,7 @@ function policykeyup(e) {
   if ((c >= '0' && c <= '9') ||
      (c >= 'A' && c <= 'Z') ||
      (c == '*') ||
-     (c == '-') ||     
+     (c == '-') ||
      (c == '_') ||
      (c == '(') ||
      (c == ')') ||
@@ -291,9 +291,9 @@ function validate(f) {
          msg += errMsgs[i] + "\n";
   }
   msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'),ENT_QUOTES); ?>";
- 
-  
-//Misc  Deceased Date Validation for Future Date 
+
+
+//Misc  Deceased Date Validation for Future Date
 var dateVal = document.getElementById("form_deceased_date").value;
 var currentDate;
 var d = new Date();
@@ -305,12 +305,12 @@ if (day.length < 2) day = '0' + day;
 currentDate = year+'-'+month+'-'+day;
 if(errMsgs.length > 0 || dateVal > currentDate)
 {
-if(errMsgs.length > 0)	
+if(errMsgs.length > 0)
 	alert(msg);
 if(dateVal > currentDate)
-	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
 	return false;
-} 
+}
  return true;
 }
 
@@ -468,10 +468,10 @@ while ($frow = sqlFetchArray($fres)) {
       echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
         "onclick='return divclick(this,\"div_$group_seq\");'";
       if ($display_style == 'block') echo " checked";
-        
-      // Modified 6-09 by BM - Translate if applicable  
+
+      // Modified 6-09 by BM - Translate if applicable
       echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
-        
+
       echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
       echo " <table border='0' cellpadding='0'>\n";
       $display_style = 'none';
@@ -502,10 +502,10 @@ while ($frow = sqlFetchArray($fres)) {
   ++$item_count;
 
   echo "<b>";
-    
+
   // Modified 6-09 by BM - Translate if applicable
   if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
-    
+
   echo "</b>";
 
   // Handle starting of a new data cell.
@@ -698,7 +698,7 @@ if (! $GLOBALS['simplified_demographics']) {
    <?php
     // Modified 6/2009 by BM to use list_options and function
     generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
-   ?>	
+   ?>
    <br>
    <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
    <input type=entry size=25 name=i<?php echo $i?>subscriber_street
@@ -713,7 +713,7 @@ if (! $GLOBALS['simplified_demographics']) {
     // Modified 7/2009 by BM to incorporate data types
     generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
    ?>
-   <br />	
+   <br />
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
    <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
    <?php xl('Country','e'); ?>: </span>
@@ -722,7 +722,7 @@ if (! $GLOBALS['simplified_demographics']) {
     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
    ?>
    <br />
-   <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
+   <span class=bold><?php xl('Subscriber Phone','e'); ?>:
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />
    <span class=bold><?php xl('CoPay','e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
@@ -816,6 +816,7 @@ enable_modals();
         if (valid) {
             if (force_submit) {
                 // In this case dups were shown already and Save should just save.
+                top.restoreSession();
                 f.submit();
                 return;
             }

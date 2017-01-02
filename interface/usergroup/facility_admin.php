@@ -102,8 +102,8 @@ parent.$.fn.fancybox.close();
             }
             <?php } ?>
 
-            document.forms[0].submit();
             top.restoreSession();
+            document.forms[0].submit();
         }
 
         $(document).ready(function(){
