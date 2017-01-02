@@ -1859,13 +1859,16 @@ function lists_check($patient_id,$filter,$dateTarget) {
  * @param  string   $table            selected mysql table
  * @param  string   $column           selected mysql column
  * @param  string   $data_comp        data comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $data             selected data in the mysql database
+ * @param  string   $data             selected data in the mysql database (2)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
  * @param  integer  $intervalValue    searched for within this many times of the interval type
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
+ *
+ * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
+ *
  */
 function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='') {
 
