@@ -86,7 +86,7 @@ function submitform() {
 				alertMsg += checkLength(f[i].name,f[i].value,10);
 				alertMsg += checkFederalEin(f[i].name,f[i].value);
 			}
-		}		
+		}
 	}
 	if(alertMsg)
 	{
@@ -95,8 +95,8 @@ function submitform() {
 	}
 	<?php } ?>
 
-    document.forms[0].submit();
     top.restoreSession();
+    document.forms[0].submit();
 }
 
 function toggle( target, div ) {
