@@ -308,14 +308,15 @@ function saveImmunizationObservationResults($id,$immunizationdata)
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-ui-min/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/jquery-ui.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/public/assets/jquery-ui-1-10-4/themes/base/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/base/jquery-ui.min.css" type="text/css" />
 <style>
 .highlight {
   color: green;

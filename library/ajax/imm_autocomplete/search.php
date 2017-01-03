@@ -41,8 +41,8 @@ if (isset($_GET['term'])){
 		}
 
 	
-	} catch(PDOException $e) {
-	    echo 'ERROR: ' . $e->getMessage();
+catch(Excption $e) {
+	    echo 'ERROR: ' . $e->getMessage(), "\n";
 	}
 
 
