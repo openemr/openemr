@@ -22,7 +22,8 @@
         "phenx/php-svg-lib": "0.1",
         "dompdf/dompdf": "0.7.0",
         "doctrine/common": "2.5.0",
-        "doctrine/couchdb": "1.0-beta2"
+        "doctrine/couchdb": "1.0-beta2",
+        "doctrine/orm": "2.5.5"
 
     },
     "require-dev": {

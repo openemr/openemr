@@ -32,6 +32,7 @@
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
 	<delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
+	<delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
     <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
     <delete dir="${dir.vendor}/dompdf/dompdf/wwww" verbose="true"/>
     <delete dir="${dir.vendor}/doctrine/cache/tests" verbose="true"/>
@@ -39,6 +40,12 @@
     <delete dir="${dir.vendor}/doctrine/common/tests" verbose="true"/>
     <delete dir="${dir.vendor}/doctrine/couchdb/tests" verbose="true"/>
     <delete dir="${dir.vendor}/doctrine/inflector/tests" verbose="true"/>
+    <delete dir="${dir.vendor}/doctrine/instantiator/tests" verbose="true"/>
+    <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
+    <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
+    <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>
+    <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
+    <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
     <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>
 </target>
 
