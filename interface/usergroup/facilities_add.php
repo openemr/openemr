@@ -145,6 +145,15 @@ $(document).ready(function(){
     $("#cancel").click(function() {
 		  parent.$.fn.fancybox.close();
 	 });
+
+    /**
+     * add required/star sign to required form fields
+     */
+    for (var prop in collectvalidation) {
+        //if (collectvalidation[prop].requiredSign)
+        if (collectvalidation[prop].presence)
+            jQuery("input[name='" + prop + "']").after('*');
+    }
 });
 var cp = new ColorPicker('window');
   // Runs when a color is clicked
@@ -188,7 +197,7 @@ function displayAlert()
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
-        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""><span class="mandatory">&nbsp;*</span></td>
+        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
         <td width=20>&nbsp;</td>
         <td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
         </tr>
@@ -227,7 +236,7 @@ function displayAlert()
         <tr>
           <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
 	<?php
 	 $disabled='';
