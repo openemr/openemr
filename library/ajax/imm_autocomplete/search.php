@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -28,23 +28,15 @@ $fake_register_globals=false;
 require_once('../../../interface/globals.php');
 
 
-if (isset($_GET['term'])){
+if (!empty($_GET['term'])){
     $term = $_GET['term'];
-	$return_arr = array();
+    $return_arr = array();
 
-	try {
-		$sql = "SELECT DISTINCT lot_number FROM immunizations WHERE lot_number LIKE ? ";
-
-		$res = sqlstatement($sql,"%".$term."%");
-		while($row = sqlFetchArray($res)){
-			$return_arr[] =  $row['lot_number'] ;
-		}
-
-	
-catch(Excption $e) {
-	    echo 'ERROR: ' . $e->getMessage(), "\n";
-	}
-
+    $sql = "SELECT DISTINCT lot_number FROM immunizations WHERE lot_number LIKE ?";
+    $res = sqlstatement($sql, array("%".$term."%"));
+    while($row = sqlFetchArray($res)){
+        $return_arr[] =  $row['lot_number'] ;
+    }
 
     /* Toss back results as json encoded array. */
     echo json_encode($return_arr);

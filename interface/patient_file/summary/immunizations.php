@@ -315,7 +315,7 @@ function saveImmunizationObservationResults($id,$immunizationdata)
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/base/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/base/jquery-ui.css" type="text/css" />
 <style>
 .highlight {
   color: green;
@@ -1143,12 +1143,12 @@ function sel_code(id)
 }
 
 $(function() {
-  
+
   //autocomplete
   $(".auto").autocomplete({
     source: "../../../library/ajax/imm_autocomplete/search.php",
     minLength: 1
-  });       
+  });
 
 });
 </script>
