@@ -46,6 +46,8 @@ if($use_validate_js){
 
 function submitme(new_validate,e,form_id, constraints) {
 
+        top.restoreSession();
+
         //Use the old validation script if no parameter sent (backward compatibility)
         //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
         // was on code up to today (the validate library was not loaded ( look at the top of this file)
@@ -53,7 +55,6 @@ function submitme(new_validate,e,form_id, constraints) {
             var f = document.forms[0];
             if (validate(f)) {
                 somethingChanged = false;
-                top.restoreSession();
                 f.submit();
             } else { //If there was an error prevent the form submit in order to display them
                 e.preventDefault();
