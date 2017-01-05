@@ -48,7 +48,7 @@ a:hover {
 
 .text {
     text-decoration: none;
-    color: #713535;
+    color: #4C2222;
     font-size: 0.9em;
 }
 
@@ -710,6 +710,7 @@ z-index: 1;
 background-color: white;
 margin-top: -0.1px;
 margin-bottom: 2em;
+padding: 10px;
 }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; box-shadow:0pt;}
@@ -853,7 +854,7 @@ div.summary_item div {
 * List-table formatting
 **/
 .showborder {
-width:650px;
+Xwidth:650px;
 }
 .showborder td {
 border-bottom:1px dashed #000000;
@@ -1192,4 +1193,33 @@ height: 300px !important;
     border: solid 1px;
     width: 100%;
     border-collapse: collapse;
+}
+#theform table table {
+    background: #FFF;
+    color: #333;
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 8px;
+    border:1pt solid black;
+    box-shadow: 2px 2px 2px #c0c0c0;
+ }
+ #theform th ul li {
+    top: .375em;
+}
+#pattrk {
+    background: #FFF;
+    color: #333;
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 8px;
+    border:1pt solid black;
+    box-shadow: 2px 2px 2px #c0c0c0;
+}
+#refreshme {
+    font-size:0.7em;
+}
+#setting_cog {
+    font-size:0.7em;
 }
