@@ -139,6 +139,11 @@ var tab_mode=false;
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+// Since this should be the parent window, this is to prevent calls to the
+// window that opened this window. For example when a new window is opened
+// from the Patient Flow Board or the Patient Finder.
+window.opener = null;
+
 // This flag indicates if another window or frame is trying to reload the login
 // page to this top-level window.  It is set by javascript returned by auth.inc
 // and is checked by handlers of beforeunload events.
