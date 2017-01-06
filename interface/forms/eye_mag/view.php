@@ -31,8 +31,6 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 require_once("../../globals.php");
-require_once("$srcdir/globals.inc.php");
-
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/api.inc");
@@ -381,7 +379,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="HPI_left_text" class="TEXT_class">
                         <span class="closeButton fa fa-paint-brush" title="<?php echo xla('Open/Close the HPI Canvas'); ?>" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
                         <i class="closeButton_2 fa fa-database" title="<?php echo xla('Open/Close the detailed HPI panel'); ?>" id="BUTTON_QP_HPI" name="BUTTON_QP_HPI"></i>
-                        <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes next to each field").". ".xlt('Document clinical findings in Shorthand Format')." <b>".xla('FIELD: Text(.a); '); ?></b>."></i>
+                        <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes next to each field").". ".xla('Document clinical findings in Shorthand Format')." <b>".xla('FIELD: Text(.a); '); ?></b>."></i>
 
                         <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
                           <div id="tabs_wrapper" >
@@ -3613,7 +3611,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       echo text($pcp_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_pcp'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_PCP['DOC_ID']."'
-                                      target='_blank' title='".xla('View the Summay Report sent via Fax Server on')." ".$FAX_PCP['COMPLETED_DATE'].".'>
+                                      target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_PCP['COMPLETED_DATE'].".'>
                                       <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                       <i class='fa fa-repeat fa-fw'
                                         onclick=\"top.restoreSession(); create_task('".attr($pat_data['providerID'])."','Fax-resend','ref'); return false;\">
@@ -3635,7 +3633,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       echo text($ref_data['fax'])."&nbsp;&nbsp;
                                       <span id='status_Fax_ref'>
                                       <a href='".$webroot."/controller.php?document&view&patient_id=".$pid."&doc_id=".$FAX_REF['DOC_ID']."'
-                                      target='_blank' title='".xla('View the Summay Report sent via Fax Server on')." ".$FAX_REF['COMPLETED_DATE'].".'>
+                                      target='_blank' title='".xla('View the Summary Report sent via Fax Server on')." ".$FAX_REF['COMPLETED_DATE'].".'>
                                       <i class='fa fa-file-pdf-o fa-fw'></i></a>
                                       <i class='fa fa-repeat fa-fw'
                                         onclick=\"top.restoreSession(); create_task('".attr($pat_data['ref_providerID'])."','Fax-resend','ref'); return false;\">
