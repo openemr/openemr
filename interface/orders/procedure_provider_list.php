@@ -43,6 +43,8 @@ $adm_acl = acl_check('admin', 'practice' );
 <head>
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css' type='text/css'>
+<link rel="stylesheet" href='<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css' type='text/css'>
 <style type="text/css">
     table tr:hover{cursor:pointer;} /* Since not part of standard, set this for all tables */
 </style>
