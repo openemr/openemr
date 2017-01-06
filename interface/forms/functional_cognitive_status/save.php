@@ -34,7 +34,6 @@ $fake_register_globals = $_POST['false'];
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
-require_once("$srcdir/formdata.inc.php");
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));

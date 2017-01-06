@@ -2,7 +2,6 @@
 require_once("../globals.php");
 require_once("../../library/create_ssl_certificate.php");
 require_once("../../library/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/translation.inc.php");
 
 /********************************************************************************\

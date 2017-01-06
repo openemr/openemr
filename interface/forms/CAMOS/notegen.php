@@ -1,7 +1,6 @@
 <?php
 $depth = '../../../';
 include_once ($depth.'interface/globals.php');
-include_once($depth.'library/formdata.inc.php');
 include_once("content_parser.php");
 ?>
 <?php

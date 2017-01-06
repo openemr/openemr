@@ -14,7 +14,6 @@ include_once("$srcdir/registry.inc");
 include_once("$srcdir/sql.inc");
 include_once("../../library/acl.inc");
 require_once("language.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
 //START OUT OUR PAGE....
 ?>

@@ -7,7 +7,6 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/sql.inc");
-require_once(dirname(__FILE__) . "/formdata.inc.php");
 
 // Set effective user - If no user id is provided, then use the currently logged in user
 function effectiveUser($user) {

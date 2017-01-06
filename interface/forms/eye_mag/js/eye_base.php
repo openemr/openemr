@@ -27,7 +27,6 @@
 
 
     include_once("../../../globals.php");
-    include_once("$srcdir/htmlspecialchars.inc.php");
     include_once("$srcdir/acl.inc");
     include_once("$srcdir/api.inc");
     include_once("$srcdir/forms.inc");
@@ -1269,7 +1268,7 @@ function build_IMPPLAN(items,nodisplay) {
       $('#IMPPLAN_zone').html("");
     }
       $('#Coding_DX_Codes').html("");
-    
+
     if ((items == null) || ((typeof items == "undefined")|| (items.length =='0'))) {
         items = [];
         $('#IMPPLAN_text').removeClass('nodisplay'); //Display Builder instructions for starting out
@@ -3434,7 +3433,7 @@ $(document).ready(function() {
                                             var zone = this.id.match(/Clear_Canvas_(.*)/)[1];
                                             submit_canvas(zone);
                                             });
-                  $("[id^='Blank_']").click(function() { 
+                  $("[id^='Blank_']").click(function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
                                            $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
@@ -3830,7 +3829,7 @@ $(document).ready(function() {
                         $(this).css("background-color","red");
                         $(this).addClass('status_on');
                         visit_modifier.push(item);
-                      } 
+                      }
                   });
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';

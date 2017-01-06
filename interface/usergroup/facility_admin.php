@@ -42,7 +42,6 @@ parent.$.fn.fancybox.close();
     <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
     <?php    $use_validate_js = 1;?>
     <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-    <?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
     <?php
     //Gets validation rules from Page Validation list.
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.

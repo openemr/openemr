@@ -33,7 +33,6 @@ pnModAPILoad(__POSTCALENDAR__,'user');
 
 // Added to improve security and standardization of input data to be used in
 //  database insertion.
-require_once($GLOBALS['srcdir']."/formdata.inc.php");
 
 //=========================================================================
 //  start the main postcalendar application

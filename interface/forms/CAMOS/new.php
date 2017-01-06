@@ -2,7 +2,6 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/sql.inc");
-include_once("../../../library/formdata.inc.php");
 $out_of_encounter = false;
 if ( (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
   $out_of_encounter = true;

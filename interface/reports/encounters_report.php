@@ -32,7 +32,6 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 
 $alertmsg = ''; // not used yet but maybe later
 

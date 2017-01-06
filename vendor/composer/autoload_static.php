@@ -12,6 +12,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'd5fa61a7f6cbc1df09dd4df84549a2dc' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cpdf.php',
         '2d15964294879de66053d54f6bde65d7' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cezpdf.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+        'ce966aaf9a7a6ac4e4663ee998e4282d' => __DIR__ . '/../..' . '/library/htmlspecialchars.inc.php',
+        'e503b8ca58d1a18c65b5632ecd5a76b4' => __DIR__ . '/../..' . '/library/formdata.inc.php',
+        '90ddd4120fc0e77b06a383f880188d79' => __DIR__ . '/../..' . '/library/sanitize.inc.php',
+        '7f8090c4c03d2da09b90683b7b7b64f3' => __DIR__ . '/../..' . '/library/date_functions.php',
+        '50df9e87484b37f614378efa1c994e18' => __DIR__ . '/../..' . '/library/validation/validate_core.php',
     );
 
     public static $prefixLengthsPsr4 = array (

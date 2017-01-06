@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../formdata.inc.php");
 
 
 class Controller extends Smarty {

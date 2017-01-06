@@ -1,7 +1,6 @@
 <?php
 #require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once(dirname(__FILE__). "/sql.inc");
-require_once(dirname(__FILE__). "/formdata.inc.php");
 
 function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0) {
     $adodb = $GLOBALS['adodb']['db'];

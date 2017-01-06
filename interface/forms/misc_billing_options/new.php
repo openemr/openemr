@@ -30,7 +30,6 @@ $sanitize_all_escapes=true;
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("date_qualifier_options.php");
 
 

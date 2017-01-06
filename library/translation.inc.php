@@ -1,6 +1,5 @@
 <?php
 include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
-require_once(dirname(__FILE__) . '/formdata.inc.php');
 
 // Translation function
 // This is the translation engine

@@ -5,7 +5,6 @@ include_once("../../../library/api.inc");
 include_once("../../../library/forms.inc");
 include_once("../../../library/sql.inc");
 include_once("./content_parser.php");
-include_once("../../../library/formdata.inc.php");
 
 if ($_GET["mode"] == "delete") {
   foreach($_POST as $key => $val) {

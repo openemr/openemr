@@ -3,7 +3,6 @@ include_once("../../globals.php");
 include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/billing.inc");
 include_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 
 //the number of rows to display before resetting and starting a new column:
 $N=10;

@@ -3,7 +3,6 @@
 include_once("../../globals.php");
 include_once("{$GLOBALS['srcdir']}/sql.inc");
 include_once("{$GLOBALS['srcdir']}/billing.inc");
-include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 

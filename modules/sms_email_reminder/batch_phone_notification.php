@@ -31,7 +31,6 @@ $fake_register_globals=false;
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
-require_once("$srcdir/formdata.inc.php");
 
 $type = "Phone";
 $before_trigger_hours = 72;  // 3 days is default

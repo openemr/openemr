@@ -17,8 +17,6 @@
  include_once("../globals.php");
  include_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formdata.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  // Collect user id if editing entry
  $userid = $_REQUEST['userid'];

@@ -28,7 +28,6 @@ require_once("{$GLOBALS['srcdir']}/log.inc");
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/authentication/login_operations.php");
 
 $incoming_site_id = '';

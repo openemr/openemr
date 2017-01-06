@@ -2,7 +2,6 @@
 include_once ('../../globals.php');
 include_once ('../../../library/sql.inc');
 include_once ('../../../library/classes/Prescription.class.php');
-include_once("../../../library/formdata.inc.php");
 //practice data
 $physician_name = '';
 $practice_fname = '';

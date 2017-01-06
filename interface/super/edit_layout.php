@@ -21,7 +21,6 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/formdata.inc.php");
 
 $layouts = array(
   'DEM' => xl('Demographics'),

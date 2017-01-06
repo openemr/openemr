@@ -16,7 +16,6 @@
 //
 require_once("../../interface/globals.php");
 require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 function myGetValue($fldname) {
   $val = formData($fldname, 'G', true);

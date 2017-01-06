@@ -36,7 +36,6 @@
 // 1 = Write Once (not editable when not empty) (text fields)
 // 2 = Show descriptions instead of codes for billing code input
 
-require_once("formdata.inc.php");
 require_once("formatting.inc.php");
 require_once("user.inc");
 require_once("patient.inc");
