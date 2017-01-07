@@ -239,6 +239,13 @@ function menuActionClick(data,evt)
         }
         navigateTab(webroot_url+data.url(),data.target);
         activateTabByName(data.target,true);
+        var par = $(evt.currentTarget).closest("ul.menuEntries");
+    	par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
+    	par.detach();
+    	setTimeout(function() {
+    	    par.insertBefore(".timedReplace");
+    	    $(".timedReplace").remove(); 
+    	}, 500);
     }
     else
     {
