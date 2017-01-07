@@ -2,7 +2,6 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 
 $alertmsg = '';
 

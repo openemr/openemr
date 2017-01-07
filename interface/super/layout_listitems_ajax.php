@@ -25,7 +25,6 @@ $fake_register_globals = false;
 $sanitize_all_escapes  = true;
 
 require_once("../globals.php");
-require_once("$srcdir/formdata.inc.php");
 
 $listid  = $_GET['listid'];
 $target  = $_GET['target'];

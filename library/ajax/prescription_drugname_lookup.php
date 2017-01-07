@@ -15,7 +15,6 @@
 //
 include_once("../../interface/globals.php");
 include_once("{$GLOBALS['srcdir']}/sql.inc");
-include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 $q = formData("q","G",true);
 if (!$q) return;

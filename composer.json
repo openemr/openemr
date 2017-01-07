@@ -30,6 +30,15 @@
         "phing/phing": "2.14.0"
 
     },
+    "autoload": {
+        "files": [
+            "library/htmlspecialchars.inc.php",
+            "library/formdata.inc.php",
+            "library/sanitize.inc.php",
+            "library/date_functions.php",
+            "library/validation/validate_core.php"
+        ]
+    },
     "config": {
         "preferred-install": {
             "doctrine/couchdb": "dist"

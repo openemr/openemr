@@ -6,7 +6,6 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
@@ -176,7 +175,6 @@ parent.$.fn.fancybox.close();
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -282,7 +280,7 @@ function submitform() {
 	<?php } ?>
 	if(flag == 0){
                     document.forms[0].submit();
-                    parent.$.fn.fancybox.close(); 
+                    parent.$.fn.fancybox.close();
 	}
 }
 //Getting the list of selected item in ACL
@@ -331,8 +329,8 @@ function authorized_clicked() {
 <input type=hidden name="get_admin_id" value="<?php echo $GLOBALS['Emergency_Login_email']; ?>" >
 <input type=hidden name="admin_id" value="<?php echo $GLOBALS['Emergency_Login_email_id']; ?>" >
 <input type=hidden name="check_acl" value="">
-<?php 
-//Calculating the grace time 
+<?php
+//Calculating the grace time
 $current_date = date("Y-m-d");
 $password_exp=$iter["pwd_expiration_date"];
 if($password_exp != "0000-00-00")

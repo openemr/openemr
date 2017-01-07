@@ -12,7 +12,6 @@ require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
 
 // Translation for form fields.

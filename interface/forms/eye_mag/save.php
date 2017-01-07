@@ -59,7 +59,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 $returnurl = 'encounter_top.php';

@@ -23,7 +23,6 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../orders/qoe.inc.php");
 require_once("../../orders/gen_hl7_order.inc.php");

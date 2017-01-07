@@ -6,10 +6,9 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once(dirname(__FILE__)."/../../../../library/htmlspecialchars.inc.php");
 
 /**
- * This is a wrapper for implode function, which calls each function in the 
+ * This is a wrapper for implode function, which calls each function in the
  * array $funcs on each piece in the array $pieces
  * @param <type> $glue
  * @param <type> $pieces
@@ -24,7 +23,7 @@ function implode_funcs( $glue, array $pieces, array $funcs ) {
         }
         $new_pieces []= $new_piece;
     }
-    
+
     return implode( $glue, $new_pieces );
 }
 
@@ -32,7 +31,7 @@ function implode_funcs( $glue, array $pieces, array $funcs ) {
  * * xxx todo: sanitize inputs
  * @param <type> $var
  * @param <type> $default
- * @return <type> 
+ * @return <type>
  */
 function _get( $var, $default='' ) {
     $val = $_GET[$var];

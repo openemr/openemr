@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * QRDA Download 
+ * QRDA Download
  *
  * Copyright (C) 2015 Ensoftek, Inc
  *
@@ -24,12 +24,11 @@
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
-  
+
 require_once("../interface/globals.php");
 require_once "$srcdir/report_database.inc";
 require_once("$srcdir/formatting.inc.php");
 require_once ("$srcdir/options.inc.php");
-require_once("$srcdir/sanitize.inc.php");
 require_once("qrda_category1.inc");
 
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
@@ -44,12 +43,12 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 ?>
 
 <html>
-	
+
 <head>
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-4-3/index.js"></script>
@@ -68,7 +67,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 			});
 		});
 	});
-	
+
 	function downloadSelected() {
 		zipFileArray.length = 0;
 		var criteriaArray = new Array();
@@ -89,7 +88,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 			downloadXML(checkBoxCounterArray[1],lastOne,ruleID);
 		}
 	}
-	
+
 	function downloadXML(counter,lastOne) {
 		$("#download" + counter).css("display","none");
 		$("#spin" + counter).css("display","inline");
@@ -133,7 +132,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 		 }
 		});
 	}
-	
+
 	function closeMe() {
 		window.close();
 	}
@@ -143,7 +142,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 		cursor: hand;
 	}
 	.multiDownload {
-		
+
 	}
 </style>
 </head>

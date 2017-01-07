@@ -32,7 +32,6 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-include_once('../../library/formdata.inc.php');
 
 class newpatienttoapprove {
     

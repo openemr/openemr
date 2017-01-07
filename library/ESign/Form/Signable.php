@@ -27,7 +27,6 @@ namespace ESign;
 
 require_once $GLOBALS['srcdir'].'/ESign/DbRow/Signable.php';
 require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'].'/formdata.inc.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {

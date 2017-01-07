@@ -180,23 +180,14 @@ $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 //  open the openemr mysql connection.
 require_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
-// Include convenience functions with shorter names than "htmlspecialchars" (for security)
-require_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
-
-// Include sanitization/checking functions (for security)
-require_once (dirname(__FILE__) . "/../library/formdata.inc.php");
-
-// Include sanitization/checking function (for security)
-require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
-
-// Includes functions for date internationalization
-require_once (dirname(__FILE__) . "/../library/date_functions.php");
-
 // Includes compoaser autoload
+// Note this also brings in following library files:
+//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
+//  library/formdata.inc.php - Include sanitization/checking functions (for security)
+//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
+//  library/date_functions.php - Includes functions for date internationalization
+//  library/validation/validate_core.php - Includes functions for page validation
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
-
-// Includes functions for page validation
-require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
 
 // Include the version file
 require_once (dirname(__FILE__) . "/../version.php");

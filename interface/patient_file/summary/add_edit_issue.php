@@ -29,8 +29,6 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 ?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <?php
@@ -134,7 +132,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
     $modeIssueTypes[$idx2] = $issueTypeX;
     $issueTypeIdx2[$issueTypeX] = $idx2;
     ++$idx2;
-  
+
   }
 
   $pe2 = array($thispid2);
@@ -181,7 +179,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
       list($codeTyX,) = explode(":", $listCode2);
 
       if (in_array($codeTyX, $allowCodes2)) {
-            
+
         array_push($memberCodes[$akey1], $listCode2);
 
       }
@@ -201,7 +199,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
   foreach ($displayCodeSets as $akey => $displayCodeSet) {
 
     echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
-  
+
     if ($displayCodeSet) {
 
       foreach ($displayCodeSet as $dispCode2) {
@@ -210,9 +208,9 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
         echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option('" . attr($dispCode2) . " (" . attr(trim($codeDesc2)) . ") ' ,'" . attr($dispCode2) . "' , false, false);\n";
 
       }
-    
+
     }
- 
+
   }
 
   // map issues to a set of display options
@@ -428,7 +426,7 @@ div.section {
   ++$i;
  }
 
-///////////     
+///////////
 ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
 ///////////
 ?>
@@ -732,7 +730,7 @@ function divclick(cb, divid) {
    <td>
    <input type='hidden'  name='form_return' id='form_return' />
    <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
-  <img  
+  <img
     id='img_return'/>
   </td>
  </tr>
@@ -771,7 +769,7 @@ function divclick(cb, divid) {
     <td><?php
         $severity=$irow['severity_al'];
         generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
-      ?>  
+      ?>
     </td>
   </tr>
   <tr id='row_reaction'>

@@ -9,7 +9,6 @@ require_once("$include_root/globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/auth.inc");
-include_once("$srcdir/formdata.inc.php");
 
 function lab_results_messages($set_pid, $rid, $provider_id="") {
     global $userauthorized;

@@ -1,7 +1,6 @@
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/formdata.inc.php");
 
 if (isset($mode)) {
 	if ($mode == "add") {

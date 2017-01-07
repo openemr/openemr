@@ -23,7 +23,6 @@ $sanitize_all_escapes=true;
 
 /* Include our required headers */
 require_once('../globals.php');
-require_once("$srcdir/formdata.inc.php");
 
 // Creates a new session id when load this outer frame
 // (allows creations of separate OpenEMR frames to view patients concurrently

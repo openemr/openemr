@@ -29,7 +29,6 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 

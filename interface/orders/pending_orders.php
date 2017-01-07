@@ -11,7 +11,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 
 function thisLineItem($row) {
   $provname = $row['provider_lname'];

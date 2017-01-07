@@ -7,7 +7,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 
 // Find and match the patient with the incoming lab report.
 // return patient pid if matched else return false

@@ -12,7 +12,6 @@ include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/options.inc.php");
-include_once("$srcdir/formdata.inc.php");
 ?>
 
 <div id="patient_stats_summary">

@@ -36,7 +36,6 @@ require_once("$srcdir/parse_era.inc.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
