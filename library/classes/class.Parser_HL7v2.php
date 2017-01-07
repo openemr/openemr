@@ -63,7 +63,7 @@ class Parser_HL7v2 {
 				break;
 			} // end switch type
 		}
-		
+
 		// Depending on message type, handle differently
 		switch ($this->message_type) {
 			default:
@@ -124,7 +124,7 @@ class Parser_HL7v2 {
 				print "composite[$k] = ".prepare($v)."<br/>\n";
 			}
 		}
-		
+
 		// Assign values
 		list (
 			$__garbage, // Skip index [0], it's the separator
@@ -173,14 +173,14 @@ class Parser_HL7v2 {
 				$composites[$key] = $this->__parse_composite($composite);
 			}
 		}
-		
+
 		$pos = 0;
 
 		// Find out where we are
 		if (is_array($this->message[$type])) {
 			$pos = count($this->message[$type]);
 		}
-		
+
 		//Ramesh Nagul - EnSoftek commented line out as it is throwing an error in parsing.
 		//$this->message[$type][$pos] = $composites;
 		// Add parsed segment to message

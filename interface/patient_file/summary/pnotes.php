@@ -31,7 +31,6 @@ $fake_register_globals=false;
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/classes/Document.class.php");
 
  // form parameter docid can be passed to restrict the display to a document.
  $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
@@ -165,12 +164,12 @@ if ($result != null) {
     }
 
     echo " <tr class='text noterow' id='".htmlspecialchars( $iter['id'], ENT_QUOTES)."'>\n";
-      
-    // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings  
+
+    // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
     echo "  <td valign='top' class='bold'>";
     echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
     echo "</td>\n";
-      
+
     echo "  <td valign='top'>$body</td>\n";
     echo " </tr>\n";
 

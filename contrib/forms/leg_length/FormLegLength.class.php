@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -50,7 +49,7 @@ class FormLegLength extends ORDataObject {
 	var $ASIS_right;
 	var $UMB_left;
 	var $UMB_right;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -63,7 +62,7 @@ class FormLegLength extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_leg_length";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -74,7 +73,7 @@ class FormLegLength extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -104,7 +103,7 @@ class FormLegLength extends ORDataObject {
 	function get_pid() {
 		return $this->pid;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -130,11 +129,11 @@ class FormLegLength extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
+
 	function persist() {
 		parent::persist();
 	}
-	
+
 	//
 
 	function get_AE_left() {

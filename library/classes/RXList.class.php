@@ -72,7 +72,7 @@ class RxList {
 		return $list;
 	} // end function RxList::get_list
 
-        /* break the web page into a collection of TAGS 
+        /* break the web page into a collection of TAGS
          * such as <input ..> or <img ... >
          */
 	function parse2tokens( $page ) {

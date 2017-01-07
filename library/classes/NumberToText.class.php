@@ -37,7 +37,7 @@ class NumberToText {
 	var $currency;
 	var $capatalize;
 	var $and;
-	
+
 	function __construct($number, $currency = false, $capatalize = false, $and = false) {
 		$this->number = $number;
 		$this->currency = $currency;
@@ -60,29 +60,29 @@ class NumberToText {
 	* @return The textual description of the number, as a string.
 	* @package NumberToText
 	*/
-	
+
 	function convert() {
 		$number = $this->number;
 		$currency = $this->currency;
 		$capatalize = $this->capatalize;
 		$and = $this->and;
-		
+
 	    $big = unserialize(N2T_BIG);
 	    $small = unserialize(N2T_SMALL);
-    
+
 	    // get rid of leading 0's
 	    /*
 	    while ($number{0} == 0) {
 	        $number = substr($number,1);
 	    }
 	    */
-	    
+
 	    if ($number === 0) {
 	    	return "zero";
 	    }
-    
+
 	    $text = "";
-	    
+
 	    //$negative = ($number < 0); // check for negative
 	    //$number = abs($number); // make sure we have a +ve number
 	    if (substr($number, 0, 1) == "-") {
@@ -91,7 +91,7 @@ class NumberToText {
 	    } else {
 	        $negative = false;
 	    }
-	    
+
 	    // get the integer and decimal parts
 	    //$int_o = $int = floor($number); // store into two vars
 	    if ($pos = strpos($number,".")) {
@@ -125,7 +125,7 @@ class NumberToText {
 	                  $convert = substr($int, -3); // grab the last 3 digits
 	                  $int = substr($int, 0, -1 * strlen($convert));
 		    }
-	            
+
 	            if ($convert > 0) {
 	                // we have something here, put it in
 	                if ( $section > 0 ) {
@@ -135,29 +135,29 @@ class NumberToText {
 	                }
 	            }
 	        }
-	        
+
 	        $section++;
 	    } while ($int > 0);
-	    
+
 	    // conversion for decimal part:
 
 	    if ($currency && floor($number)) {
 	        // add " dollars"
 	        $text .= " ".($int_o == 1 ? N2T_DOLLARS_ONE : N2T_DOLLARS)." ";
 	    }
-	    
+
 	    if ($decimal && $currency) {
 	        // if we have any cents, add those
 	        if ($int_o > 0) {
 	            $text .= " ".N2T_AND." ";
 	        }
-	        
+
 	        $cents = substr($decimal,0,2); // (0.)2342 -> 23
 	        $decimal = substr($decimal,2); // (0.)2345.. -> 45..
 
 	        $text .= $this->n2t_convertthree($cents, false, true); // explicitly show "and" if there was an $int
 	    }
-	    
+
 	    if ($decimal) {
 	        // any remaining decimals (whether or not $currency is set)
 	        $text .= " point";
@@ -166,27 +166,27 @@ class NumberToText {
 	            $text .= " ".$small[$decimal{$i}];
 	        }
 	    }
-	    
-	    
+
+
 	    if ($decimal_o && $currency) {
 	        // add " cents" (if we're doing currency and had decimals)
 	        $text .= " ".($decimal_o == 1 ? N2T_CENTS_ONE : N2T_CENTS);
 	    }
-	    
+
 	    // check for negative
 	    if ($negative) {
 	        $text = N2T_NEGATIVE." ".$text;
 	    }
-	    
+
 	    // capatalize words
 	    if ($capatalize) {
 	        // easier to capatalize all words then un-capatalize "and"
 	        $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
 	    }
-	    
+
 	    return trim($text);
 	}
-	
+
 	/** This is a utility function of n2t. It converts a 3-digit number
 	* into a textual description. Normally this is not called by itself.
 	*
@@ -200,9 +200,9 @@ class NumberToText {
 	function n2t_convertthree($number, $and, $preceding) {
 	    $small = unserialize(N2T_SMALL);
 	    $medium = unserialize(N2T_MEDIUM);
-    
+
     	$text = "";
-    
+
 		if ($hundreds = floor($number / 100)) {
 	        // we have 100's place
 	        $text .= $small[$hundreds]." hundred ";
@@ -213,7 +213,7 @@ class NumberToText {
 	        if ($and && ($hundreds || $preceding)) {
 	            $text .= " ".N2T_AND." ";
 	        }
-	        
+
 	        if ($tens < 20) {
 	            $text .= $small[$tens];
 	        } else {
@@ -223,7 +223,7 @@ class NumberToText {
 	            }
 	        }
 	    }
-	    
+
 	    return $text;
 	}
 

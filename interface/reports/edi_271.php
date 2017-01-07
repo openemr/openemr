@@ -21,8 +21,6 @@
 	include_once("$srcdir/patient.inc");
 	include_once("$srcdir/report.inc");
 	include_once("$srcdir/calendar.inc");
-	include_once("$srcdir/classes/Document.class.php");
-	include_once("$srcdir/classes/Note.class.php");
 	include_once("$srcdir/edi.inc");
 
 	// END - INCLUDE STATEMENTS

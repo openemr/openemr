@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -41,7 +40,7 @@ class FormHand extends ORDataObject {
 	var $right_1;
 	var $right_2;
 	var $right_3;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -54,7 +53,7 @@ class FormHand extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_hand";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -65,7 +64,7 @@ class FormHand extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -95,7 +94,7 @@ class FormHand extends ORDataObject {
 	function get_pid() {
 		return $this->pid;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -149,7 +148,7 @@ class FormHand extends ORDataObject {
 	function get_left_3() {
 		return $this->left_3;
 	}
-	
+
 	function set_right_1($tf) {
 		$this->right_1 = $tf;
 	}
@@ -170,7 +169,7 @@ class FormHand extends ORDataObject {
 	function get_right_3() {
 		return $this->right_3;
 	}
-	
+
 
 	var $handedness;
 	function get_handedness() {

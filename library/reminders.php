@@ -6,7 +6,7 @@
  * session variables, because the session_write_close() function
  * is typically called before utilizing these functions.
  *
- * Functions for collection/displaying/sending patient reminders. This is 
+ * Functions for collection/displaying/sending patient reminders. This is
  * part of the CDR engine, which can be found at library/clinical_rules.php.
  *
  * Copyright (C) 2010-2012 Brady Miller <brady@sparmy.com>
@@ -31,7 +31,6 @@
  * Include the main CDR engine library, email class and maviq class
  */
 require_once(dirname(__FILE__) . "/clinical_rules.php");
-require_once(dirname(__FILE__) . "/classes/postmaster.php");
 require_once(dirname(__FILE__) . "/maviq_phone_api.php");
 
 /**
@@ -447,7 +446,7 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*') {
     $where = "`pid` IN (?) AND ";
     array_push($arraySqlBind,$patient_id);
   }
-    
+
   if (!empty($due_status)) {
     $where .= "`due_status`=? AND ";
     array_push($arraySqlBind,$due_status);

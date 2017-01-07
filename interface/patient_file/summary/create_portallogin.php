@@ -34,7 +34,6 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
  require_once("../../globals.php");
- require_once("$srcdir/classes/postmaster.php");
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
 $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "off";

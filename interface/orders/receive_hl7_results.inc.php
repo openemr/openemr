@@ -22,7 +22,6 @@
 */
 
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/classes/Document.class.php");
 
 $rhl7_return = array();
 

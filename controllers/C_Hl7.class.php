@@ -1,8 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Pharmacy.class.php");
-include_once ($GLOBALS['fileroot'] ."/library/classes/class.Parser_HL7v2.php");
 
 class C_Hl7 extends Controller {
 
@@ -11,7 +8,7 @@ class C_Hl7 extends Controller {
     	$this->template_mod = $template_mod;
     	$this->assign("STYLE", $GLOBALS['style']);
     }
-    
+
     function default_action() {
 		return $this->fetch($GLOBALS['template_dir'] . "hl7/" . $this->template_mod . "_parse.html");
 	}
@@ -29,7 +26,7 @@ class C_Hl7 extends Controller {
 		$this->assign("hl7_array", $hp->composite_array());
 		return;
 	}
-    
+
 }
 
 

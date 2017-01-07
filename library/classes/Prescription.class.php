@@ -1,11 +1,5 @@
 <?php
 require_once (dirname(__FILE__) . "/../lists.inc");
-require_once("ORDataObject.class.php");
-require_once("Patient.class.php");
-require_once("Person.class.php");
-require_once("Provider.class.php");
-require_once("Pharmacy.class.php");
-require_once("NumberToText.class.php");
 //below is required for the set_medication() function
 
 // Below list of terms are deprecated, but we keep this list

@@ -28,7 +28,6 @@ $fake_register_globals = false;
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/classes/Document.class.php");
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;

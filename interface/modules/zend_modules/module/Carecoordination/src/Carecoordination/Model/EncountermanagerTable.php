@@ -30,7 +30,6 @@ use ZipArchive;
 
 use CouchDB;
 use DOMPDF;
-require_once(dirname(__FILE__) . "/../../../../../../../../library/classes/CouchDB.class.php");
 
 class EncountermanagerTable extends AbstractTableGateway
 {
@@ -48,23 +47,23 @@ class EncountermanagerTable extends AbstractTableGateway
 				if($data['status']) {
 						$query  .= " LEFT JOIN combination_form AS cf ON cf.encounter = fe.encounter ";
 				}
-				
+
 				$query  .= " WHERE 1=1 ";
-				
+
 				if($data['status'] == "signed") {
 						$query  .= " AND cf.encounter IS NOT NULL AND cf.encounter !=''";
 				}
-				
+
 				if($data['status'] == "unsigned") {
 						$query  .= " AND (cf.encounter IS  NULL OR cf.encounter ='')";
 				}
-				
+
 				if($data['from_date'] && $data['to_date']) {
 						$query .= " AND fe.date BETWEEN ? AND ? ";
 						$query_data[] = $data['from_date'];
 						$query_data[] = $data['to_date'];
 				}
-				
+
 				if($data['pid']) {
 						$query .= " AND (fe.pid = ? OR pd.fname like ? OR pd.mname like ? OR pd.lname like ? OR CONCAT_WS(' ',pd.fname,pd.lname) like ?) ";
 						$query_data[] = $data['pid'];
@@ -73,29 +72,29 @@ class EncountermanagerTable extends AbstractTableGateway
 						$query_data[] = "%".$data['pid']."%";
 						$query_data[] = "%".$data['pid']."%";
 				}
-				
+
 				if($data['encounter']) {
 						$query .= " AND fe.encounter = ? ";
 						$query_data[] = $data['encounter'];
 				}
-				
+
 				$query .= " GROUP BY fe.pid ";
-				
+
 				$query .= " ORDER BY fe.pid, fe.date ";
 
 				$appTable   = new ApplicationTable();
-				
+
 				if($getCount){
 						$res        = $appTable->zQuery($query, $query_data);
 						$resCount 	= $res->count();
 						return $resCount;
 				}
-						
+
 				$query 		 .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($data['results']);
 				$resDetails = $appTable->zQuery($query, $query_data);
         return $resDetails;
     }
-    
+
     public function getStatus($data)
     {
 		foreach($data as $row){
@@ -111,7 +110,7 @@ class EncountermanagerTable extends AbstractTableGateway
 		$result     = $appTable->zQuery($query, array($pid));
 		return $result;
     }
-    
+
     public function convert_to_yyyymmdd($date)
     {
         $date = str_replace('/','-',$date);
@@ -119,7 +118,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
         return $formatted_date;
     }
-    
+
     /*
     * Convert date from database format to required format
     *
@@ -136,14 +135,14 @@ class EncountermanagerTable extends AbstractTableGateway
 	$date = $temp[0];
         $date = str_replace('/','-',$date);
         $arr = explode('-',$date);
-	
+
 	if($format == 'm/d/y'){
 	    $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];
 	}
 	$formatted_date = $temp[1] ? $formatted_date." ".$temp[1] : $formatted_date; //append the time, if exists, with the new formatted date
         return $formatted_date;
     }
-    
+
     public function getFile($id)
     {
 		$query 	    = "select couch_docid, couch_revid, ccda_data from ccda where id=?";
@@ -167,11 +166,11 @@ class EncountermanagerTable extends AbstractTableGateway
 			return $content;
 		}
     }
-	
+
 	/*
      * Connect to a phiMail Direct Messaging server and transmit
      * a CCDA document to the specified recipient. If the message is accepted by the
-     * server, the script will return "SUCCESS", otherwise it will return an error msg. 
+     * server, the script will return "SUCCESS", otherwise it will return an error msg.
      * @param DOMDocument ccd the xml data to transmit, a CCDA document is assumed
      * @param string recipient the Direct Address of the recipient
      * @param string requested_by user | patient
@@ -342,7 +341,7 @@ class EncountermanagerTable extends AbstractTableGateway
       $res_cur  = $res->current();
       return $res_cur;
     }
-    
+
     /*
     * Save new user with abook type emr_direct
     *

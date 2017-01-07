@@ -15,7 +15,6 @@ $backpic = "";
 $ignoreAuth=1;
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 ?>
@@ -40,7 +39,7 @@ require_once($GLOBALS['srcdir'] . "/reminders.php");
 <table>
  <tr>
   <td class='text' align='left' colspan="3"><br>
-  
+
     <?php $update_rem_log = update_reminders(); ?>
 
     <span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been updated'), ENT_NOQUOTES) . ":"?></span><br>

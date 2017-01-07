@@ -1,7 +1,5 @@
 <?php
 require_once(dirname(__FILE__) . "/../interface/globals.php");
-require_once(dirname(__FILE__) . "/../library/classes/Document.class.php");
-require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
 
 $type = $_GET['type'];
 $document_id = $_GET['doc_id'];

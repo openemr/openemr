@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -47,7 +46,7 @@ class FormSOAP extends ORDataObject {
 	var $neurological;
 	var $mentalstatus;
 	var $plan;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -60,7 +59,7 @@ class FormSOAP extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_soap2";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -71,7 +70,7 @@ class FormSOAP extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -109,7 +108,7 @@ class FormSOAP extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -142,7 +141,7 @@ class FormSOAP extends ORDataObject {
 			$this->objective = $data;
 		}
 	}
-	
+
 	function get_assessment() {
 		return $this->assessment;
 	}
@@ -151,14 +150,14 @@ class FormSOAP extends ORDataObject {
 			$this->assessment = $data;
 		}
 	}
-		
-	
-	
+
+
+
 	/*  The following code replaces assessment.  It is
 	  part of the SOAP form Dr J has requested.
 	*/
-	
-	
+
+
 	// **** General *****
 	function get_general() {
 	   return $this->general;
@@ -168,7 +167,7 @@ class FormSOAP extends ORDataObject {
 	      $this->general = $data;
 	   }
 	}
-	
+
 	// **** HEENT  ******
 	function get_heent() {
 	   return $this->heent;
@@ -178,7 +177,7 @@ class FormSOAP extends ORDataObject {
 	     $this->heent = $data;
 	   }
 	}
-	
+
 	// **** Neck *****
 	function get_neck() {
 	   return $this->neck;
@@ -188,7 +187,7 @@ class FormSOAP extends ORDataObject {
 	     $this->neck = $data;
 	   }
 	}
-	
+
 	// **** CV *****
 	function get_cardio() {
 	   return $this->cardio;
@@ -198,7 +197,7 @@ class FormSOAP extends ORDataObject {
 	     $this->cardio = $data;
 	   }
 	}
-	
+
 	// **** Lungs *****
 	function get_respiratory() {
 	   return $this->respiratory;
@@ -208,7 +207,7 @@ class FormSOAP extends ORDataObject {
 	     $this->respiratory = $data;
 	   }
 	}
-	
+
 	// **** Breasts *****
 	// * my personal favorite :>  ***
 	function get_breasts() {
@@ -219,7 +218,7 @@ class FormSOAP extends ORDataObject {
 	     $this->breasts = $data;
 	   }
 	}
-	
+
 	// **** Abdomen *****
 	function get_abdomen() {
 	   return $this->abdomen;
@@ -229,7 +228,7 @@ class FormSOAP extends ORDataObject {
 	     $this->abdomen = $data;
 	   }
 	}
-	
+
 	// **** GU *****
 	function get_gastro() {
 	   return $this->gastro;
@@ -239,7 +238,7 @@ class FormSOAP extends ORDataObject {
 	     $this->gastro = $data;
 	   }
 	}
-	
+
 	// **** Bones/Joints/Extremities *****
 	function get_extremities() {
 	   return $this->extremities;
@@ -249,7 +248,7 @@ class FormSOAP extends ORDataObject {
 	     $this->extremities = $data;
 	   }
 	}
-	
+
 	// **** Skin *****
 	function get_skin() {
 	   return $this->skin;
@@ -259,7 +258,7 @@ class FormSOAP extends ORDataObject {
 	     $this->skin = $data;
 	   }
 	}
-	
+
 	// **** Neuro/Psych *****
 	function get_neurological() {
 	   return $this->neurological;
@@ -269,7 +268,7 @@ class FormSOAP extends ORDataObject {
 	     $this->neurological = $data;
 	   }
 	}
-	
+
 	// **** Mental Status *****
 	function get_mentalstatus() {
 	   return $this->mentalstatus;
@@ -279,7 +278,7 @@ class FormSOAP extends ORDataObject {
 	     $this->mentalstatus = $data;
 	   }
 	}
-	
+
 	function get_plan() {
 		return $this->plan;
 	}
@@ -288,7 +287,7 @@ class FormSOAP extends ORDataObject {
 			$this->plan = $data;
 		}
 	}
-	
+
 	function persist() {
 		parent::persist();
 	}

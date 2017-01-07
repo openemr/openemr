@@ -24,7 +24,7 @@ class MyMailer extends PHPMailer
     {
         $this->emailMethod();
     }
-    
+
     function emailMethod()
     {
         global $HTML_CHARSET;

@@ -180,7 +180,7 @@ class Installer
   public function create_dumpfiles() {
     return $this->dumpSourceDatabase();
   }
-  
+
   public function load_dumpfiles() {
     $sql_results = ''; // information string which is returned
     foreach ($this->dumpfiles as $filename => $title) {
@@ -267,9 +267,9 @@ class Installer
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
       return FALSE;
-      
+
     }
-    
+
     // Create the new style login credentials with blowfish and salt
     if ($this->execute_sql("INSERT INTO users_secure (id, username, password, salt) VALUES (1,'$this->iuser','$hash','$salt')") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user login credentials\n" .
@@ -298,7 +298,7 @@ class Installer
     }
     return True;
   }
-    
+
   public function write_configuration_file() {
     @touch($this->conffile); // php bug
     $fd = @fopen($this->conffile, 'w');
@@ -568,7 +568,7 @@ $config = 1; /////////////
   }
 
   /**
-   * 
+   *
    * Directory copy logic borrowed from a user comment at
    * http://www.php.net/manual/en/function.copy.php
    * @param string $src name of the directory to copy
@@ -596,7 +596,7 @@ $config = 1; /////////////
   }
 
   /**
-   * 
+   *
    * dump a site's database to a temporary file.
    * @param string $source_site_id the site_id of the site to dump
    * @return filename of the backup
@@ -604,9 +604,9 @@ $config = 1; /////////////
   private function dumpSourceDatabase() {
     global $OE_SITES_BASE;
     $source_site_id = $this->source_site_id;
-    
+
     include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
-    
+
     if (empty($config)) die("Source site $source_site_id has not been set up!");
 
     $backup_file = $this->get_backup_filename();
@@ -614,10 +614,10 @@ $config = 1; /////////////
       " -p" . escapeshellarg($pass) .
       " --opt --skip-extended-insert --quote-names -r $backup_file " .
       escapeshellarg($dbase);
-    
+
     $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
     if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
-    
+
     return $backup_file;
   }
 

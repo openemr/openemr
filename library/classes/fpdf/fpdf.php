@@ -7,6 +7,10 @@
 * Author:  Olivier PLATHEY                                                     *
 *******************************************************************************/
 
+// Modified by OpenEMR to work with the Barcode class
+// Needed to make $k, $w, and $h var.
+// Thus was unable to bring this in via composer since modified.
+
 define('FPDF_VERSION','1.81');
 
 class FPDF

@@ -23,7 +23,6 @@ $sanitize_all_escapes = true;
 $fake_register_globals = false;
 
 require_once("../globals.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once("portal.inc.php");
 
 // This function builds an array of document categories recursively.

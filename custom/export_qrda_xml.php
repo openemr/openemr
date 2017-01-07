@@ -33,7 +33,6 @@ require_once("../ccr/uuid.php");
 require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
-require_once("../library/classes/QRDAXml.class.php");
 require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
 

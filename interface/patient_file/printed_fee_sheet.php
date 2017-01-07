@@ -14,8 +14,6 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/classes/Address.class.php");
-require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$srcdir/formatting.inc.php");
 
 function genColumn($ix) {
@@ -84,7 +82,7 @@ if (empty($_GET['fill'])) {
     $form_fill = $_GET['fill'];
 }
 
-// Show based on session array or single pid? 
+// Show based on session array or single pid?
 $pid_list = array();
 
 if(!empty($_SESSION['pidList']) and $form_fill == 2)
@@ -95,7 +93,7 @@ else if ($form_fill == 1)
 {
     array_push($pid_list,$pid); //get from active PID
 } else {
-    array_push($pid_list,''); // empty element for blank form 
+    array_push($pid_list,''); // empty element for blank form
 }
 
 // This file is optional. You can create it to customize how the printed
@@ -318,7 +316,7 @@ $frow = sqlQuery("SELECT * FROM facility WHERE primary_business_entity = 1");
 
 // If primary is not set try to old method of guessing...for backward compatibility
 if (empty($frow)) {
-    $frow = sqlQuery("SELECT * FROM facility " . 
+    $frow = sqlQuery("SELECT * FROM facility " .
             "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 }
 
@@ -534,9 +532,9 @@ foreach ($pid_list as $pid) {
 </tr>
 
 </table>";
-        
+
         $html .= "</div>";  //end of div.pageLetter
-        
+
     } // end while
     $pages = $saved_pages; //RESET
 }
@@ -548,7 +546,7 @@ $html .= "<div id='hideonprint'>
 <input type='button' value='";
 
 $html .= xla('Print');
-$html .="' id='printbutton' /> 
+$html .="' id='printbutton' />
 </div>";
 }
 

@@ -10,8 +10,6 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
-require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 
@@ -377,13 +375,13 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 					$counter++;
 				}
 			}
-			
-		        	
+
+
 			$billing_html[$iter["code_type"]] .= "</span></td></tr>\n";
 		}
-			
+
 	}
-	
+
 $billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . oeFormatMoney($total) . "</td></tr>\n";
 ?>
 <tr><td><?php xl('code type','e'); ?></td><td><?php xl('code','e'); ?></td><td><?php xl('description','e'); ?></td><td><?php xl('fee','e'); ?></td></tr>

@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -36,7 +35,7 @@ class FormROM extends ORDataObject {
 	var $groupname;
 	var $activity;
 
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -49,7 +48,7 @@ class FormROM extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_rom";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -60,7 +59,7 @@ class FormROM extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -90,7 +89,7 @@ class FormROM extends ORDataObject {
 	function get_pid() {
 		return $this->pid;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}

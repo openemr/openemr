@@ -1,8 +1,5 @@
 <?php
 
-require_once (dirname(__FILE__) . "/../library/classes/Controller.class.php");
-require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
-require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
 
 class C_DocumentCategory extends Controller {
 
@@ -19,7 +16,7 @@ class C_DocumentCategory extends Controller {
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&document_category&");
 		$this->link = $GLOBALS['webroot']."/controller.php?" . "document_category&";
 		$this->assign("STYLE", $GLOBALS['style']);
-		
+
 		$t = new CategoryTree(1);
 		//print_r($t->tree);
 		$this->tree = $t;
@@ -42,10 +39,10 @@ class C_DocumentCategory extends Controller {
 		$menu->addItem($rnode);
 		$treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
 		$this->assign("tree_html",$treeMenu->toHTML());
-		
+
 		return $this->fetch($GLOBALS['template_dir'] . "document_categories/" . $this->template_mod . "_list.html");
 	}
-	
+
 	function add_node_action($parent_is) {
 		//echo $parent_is ."<br>";
 		//echo $this->tree->get_node_name($parent_is);
@@ -54,7 +51,7 @@ class C_DocumentCategory extends Controller {
 		$this->assign("add_node",true);
 		return $this->list_action();
 	}
-	
+
 	function add_node_action_process() {
 		if ($_POST['process'] != "true")
 			return;
@@ -67,20 +64,20 @@ class C_DocumentCategory extends Controller {
 		$this->_state = false;
 		return $this->list_action();
 	}
-	
+
 	function delete_node_action_process($id) {
 		if ($_POST['process'] != "true")
 			return;
 		$category_name = $this->tree->get_node_name($id);
 		$category_info = $this->tree->get_node_info($id);
 		$parent_name = $this->tree->get_node_name($category_info['parent']);
-		
+
 		if($parent_name != false && $parent_name != '')
 		{
 			$this->tree->delete_node($id);
 		        $trans_message = xl('Category','','',' ') . "'" . $category_name . "'" . xl('had been successfully deleted. Any sub-categories if present were moved below','',' ',' ') . "'" . $parent_name . "'" . xl('.') . "<br>";
 			$this->assign("message",$trans_message);
-			
+
 			if (is_numeric($id)) {
 				$sql = "UPDATE categories_to_documents set category_id = '" . $category_info['parent'] . "' where category_id = '" . $id ."'";
 				$this->tree->_db->Execute($sql);
@@ -92,7 +89,7 @@ class C_DocumentCategory extends Controller {
 			$this->assign("message",$trans_message);
 		}
 		$this->_state = false;
-		
+
 		return $this->list_action();
 	}
 
@@ -113,7 +110,7 @@ class C_DocumentCategory extends Controller {
 		//echo "action processeed";
 		$_POST['process'] = "";
 	}
-	
+
 	function &_array_recurse($array) {
 		if (!is_array($array)) {
 			$array = array();
@@ -124,7 +121,7 @@ class C_DocumentCategory extends Controller {
  		foreach($array as $id => $ar) {
  			if (is_array($ar) || !empty($id)) {
  			  if ($node == null) {
- 			  	
+
  			  	//echo "r:" . $this->tree->get_node_name($id) . "<br>";
 			    $rnode = new HTML_TreeNode(array('text' => $this->tree->get_node_name($id), 'link' => $this->_link("add_node",true) . "parent_id=" . ($id) . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false));
 			    $this->_last_node = &$rnode;
@@ -156,7 +153,7 @@ class C_DocumentCategory extends Controller {
  		}
  		return $node;
  	}
- 	
+
 }
 
 ?>

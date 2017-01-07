@@ -1,8 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceNumbers.class.php");
 
 class C_InsuranceNumbers extends Controller {
 
@@ -117,7 +114,7 @@ class C_InsuranceNumbers extends Controller {
 
                 //echo "action processeed";
                 $_POST['process'] = "";
-				
+
                 if (!is_numeric($_POST['id'])) {//Z&H
 					header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
                 }//Z&H

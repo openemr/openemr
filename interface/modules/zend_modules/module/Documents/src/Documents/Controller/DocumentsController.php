@@ -16,8 +16,8 @@
 *    You should have received a copy of the GNU Affero General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *    @author  Basil PT <basil@zhservices.com>
-*    @author  Chandni Babu <chandnib@zhservices.com> 
-*    @author  Riju KP <rijukp@zhservices.com> 
+*    @author  Chandni Babu <chandnib@zhservices.com>
+*    @author  Riju KP <rijukp@zhservices.com>
 * +------------------------------------------------------------------------------+
 */
 
@@ -27,19 +27,18 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
-require_once($GLOBALS['fileroot'] . "/library/classes/Document.class.php");
 use Document;
 
 class DocumentsController extends AbstractActionController
 {
   protected $documentsTable;
   protected $listenerObject;
-  
+
   public function __construct()
   {
     $this->listenerObject	= new Listener;
   }
-  
+
   public function getDocumentsTable()
   {
     if (!$this->documentsTable) {
@@ -48,7 +47,7 @@ class DocumentsController extends AbstractActionController
     }
     return $this->documentsTable;
   }
-  
+
   /*
   * Upload document
   */
@@ -72,7 +71,7 @@ class DocumentsController extends AbstractActionController
         $dateStamp      = date('Y-m-d-H-i-s');
         $file_name      = $dateStamp."_".basename($file["name"]);
         $file["name"]   = $file_name;
-        
+
         $documents[$i]  = array(
           'name'        => $file_name,
           'type'        => $file['type'],
@@ -81,35 +80,35 @@ class DocumentsController extends AbstractActionController
           'category_id' => $category_id,
           'pid'         => $pid,
         );
-        
+
         // Read File Contents
         $tmpfile    = fopen($file['tmp_name'], "r");
         $filetext   = fread($tmpfile,$file['size']);
-        
+
         // Decrypt Encryped Files
         if($encrypted_file == '1') {
           $plaintext  = \Documents\Plugin\Documents::decrypt($filetext,$encryption_key);
           fclose($tmpfile);
           unlink($file['tmp_name']);
-          
+
           // Write new file contents
           $tmpfile = fopen($file['tmp_name'],"w+");
           fwrite($tmpfile,$plaintext);
           fclose($tmpfile);
           $file['size'] = filesize($file['tmp_name']);
         }
-        
+
         $ob     = new \Document();
         $ret = $ob->createDocument($pid, $category_id, $file_name, $file['type'], $filetext,'', 1, 0);
       }
     }
   }
-  
+
   /*
   * Retrieve document
   */
   public function retrieveAction() {
-    
+
     // List of Preview Available File types
 		$previewAvailableFiles = array(
 			'application/pdf',
@@ -120,23 +119,23 @@ class DocumentsController extends AbstractActionController
 			'text/html',
       'text/xml',
 		);
-    
+
     $request        = $this->getRequest();
     $documentId     = $this->params()->fromRoute('id');
     $doEncryption   = ($this->params()->fromRoute('doencryption') == '1') ? true : false;
     $encryptionKey  = $this->params()->fromRoute('key');
     $type           = ($this->params()->fromRoute('download') == '1') ? "attachment" : "inline";
-    
+
     $result         = $this->getDocumentsTable()->getDocument($documentId);
     $skip_headers   = false;
     $contentType    = $result['mimetype'];
-    
+
     $document       = \Documents\Plugin\Documents::getDocument($documentId,$doEncryption,$encryptionKey);
     $categoryIds    = $this->getDocumentsTable()->getCategoryIDs(array('CCD','CCR','CCDA'));
     if(in_array($result['category_id'],$categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
       $xml          = simplexml_load_string($document);
       $xsl          = new \DomDocument;
-      
+
       switch($result['category_id']){
         case $categoryIds['CCD']:
           $style = "ccd.xsl";
@@ -148,13 +147,13 @@ class DocumentsController extends AbstractActionController
           $style = "ccda.xsl";
           break;
       };
-      
+
       $xsl->load(__DIR__.'/../../../../../public/xsl/'.$style);
       $proc         = new \XSLTProcessor;
       $proc->importStyleSheet($xsl);
       $document     = $proc->transformToXML($xml);
     }
-    
+
     if($type=="inline" && !$doEncryption) {
       if(in_array($result['mimetype'],$previewAvailableFiles)){
         if(in_array($result['category_id'],$categoryIds) && $contentType == 'text/xml') {
@@ -170,7 +169,7 @@ class DocumentsController extends AbstractActionController
         $contentType  = $result['mimetype'];
       }
     }
-    
+
     if(!$skip_headers) {
       $response       = $this->getResponse();
       $response->setContent($document);

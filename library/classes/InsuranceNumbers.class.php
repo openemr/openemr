@@ -1,6 +1,4 @@
 <?php
-require_once("ORDataObject.class.php");
-require_once("InsuranceCompany.class.php");
 
 /**
  * class InsuranceNumbers

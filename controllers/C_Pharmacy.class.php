@@ -1,7 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Pharmacy.class.php");
 
 class C_Pharmacy extends Controller {
 
