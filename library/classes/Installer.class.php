@@ -244,6 +244,9 @@ class Installer
     return $sql_results;
   }
 
+  // Please note that the plain sql is used over the Doctrine ORM for
+  // `version` table interactions because it cannot connect due to a
+  // lack of context (this code is ran outside of the OpenEMR context).
   public function add_version_info() {
     include dirname(__FILE__) . "/../../version.php";
     if ($this->execute_sql("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', v_patch = '$v_patch', v_realpatch = '$v_realpatch', v_tag = '$v_tag', v_database = '$v_database', v_acl = '$v_acl'") == FALSE) {
