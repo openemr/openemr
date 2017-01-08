@@ -1,19 +1,18 @@
 <?php
-// Copyright (C) 2010 OpenEMR Support LLC   
+// Copyright (C) 2010 OpenEMR Support LLC
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
 
 // Find and match the patient with the incoming lab report.
 // return patient pid if matched else return false
 function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastName, $dob, $gender, $ssn, $address) {
     $sql = "SELECT pid from patient_data WHERE ";
     $where = "";
-    /* 
+    /*
     // Search for pid and return if pid match with $externalId(from lab API)
     if ($externalId != "") {
         $where .= "pid = '".add_escape_custom($externalId)."' " ;
@@ -26,7 +25,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
         }
     }
     */
-    
+
     // If empty $externalId or externalId no matched
     if (preg_replace("/[:space:]/", "", $firstName) != "")
         $where .= "fname = '".add_escape_custom($firstName)."' " ;
@@ -49,7 +48,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     if (preg_replace("/[:space:]/", "", $gender) != "") {
         if ($gender =="F") $sex = "Female";
         if ($gender =="M") $sex = "Male";
-        
+
         if(isset($sex))
         {
             if ($where != "") $where .= "AND ";
@@ -63,7 +62,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
         $ss = substr($ssn,0,3)."-".substr($ssn,3,2)."-".substr($ssn,5);
         $where .= "(ss = '".add_escape_custom($ssn)."' OR ss = '".add_escape_custom($ss)."' OR ss = '')";
     }
-        
+
     if ($where == "") {
         return false;
     }
@@ -79,10 +78,10 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
 }
 
 /**
- * identify the lab ordering provider and return the userid. 
- * 
+ * identify the lab ordering provider and return the userid.
+ *
  * parameters are populated from the lab result
- * 
+ *
  * @param <type> $id
  * @param <type> $lastName
  * @param <type> $firstName
@@ -281,7 +280,7 @@ function addNewLabFacility($facility)
 
 function mapReportStatus($stat) {
     $return_status = $stat;
-    
+
     // if($stat == "")
         // $return_status = "unknown";
     if($stat=="F" || $stat=="f")
@@ -292,13 +291,13 @@ function mapReportStatus($stat) {
         $return_status = "cancel";
     if($stat=="C" || $stat=="c")
         $return_status = "correct";
-    
+
     return $return_status;
 }
 
 function mapResultStatus($stat) {
     $return_status = $stat;
-    
+
     // if($stat == "")
          // $return_status = "unknown";
     if($stat=="F" || $stat=="f")
@@ -311,13 +310,13 @@ function mapResultStatus($stat) {
          $return_status = "correct";
     if($stat=="I" || $stat=="i")
         $return_status = "incomplete";
-    
+
     return $return_status;
 }
 
 function mapAbnormalStatus($stat) {
     $return_status = $stat;
-    
+
     // if($stat == "")
         // $return_status = "unknown";
     if($stat=="L" || $stat=="l")
@@ -334,7 +333,7 @@ function mapAbnormalStatus($stat) {
          $return_status = "high";
     if($stat=="A" || $stat=="a")
         $return_status = "yes";
-    
+
     return $return_status;
 }
 

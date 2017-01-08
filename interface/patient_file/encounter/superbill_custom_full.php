@@ -9,7 +9,6 @@ $sanitize_all_escapes=true;
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/formatting.inc.php");

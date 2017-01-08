@@ -1,5 +1,4 @@
 <?php
-    require_once("{$GLOBALS['srcdir']}/sql.inc");
     require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
     function GenerateTheQueryPart()
      {
@@ -144,7 +143,7 @@
         {
             $all[$iter] = $row;
         }
-        
+
         $query = sqlStatement("SELECT pid, 'COPAY' AS code_type, pay_amount AS code, date(post_time) AS date ".
             "FROM ar_activity where 1=1 $query_part2 and payer_type=0 and account_code='PCP'");
             //new fees screen copay gives account_code='PCP' openemr payment screen copay gives code='CO-PAY'
@@ -197,24 +196,24 @@
 
         return;
     }
-    
+
     function ReturnOFXSql()
      {
         GenerateTheQueryPart();
         global $query_part,$billstring,$auth;
-        
+
           $sql = "SELECT distinct billing.*, concat(patient_data.fname, ' ', patient_data.lname) as name from billing "
           . "join patient_data on patient_data.pid = billing.pid "
           . "join form_encounter on "
-          . "billing.encounter = form_encounter.encounter AND " 
-          . "billing.pid = form_encounter.pid " 
-          . "join claims on claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter " 
+          . "billing.encounter = form_encounter.encounter AND "
+          . "billing.pid = form_encounter.pid "
+          . "join claims on claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter "
           . "join insurance_data on insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' "
           . "where billed = '1' "
-          . "$auth " 
-          . "$billstring  $query_part  " 
+          . "$auth "
+          . "$billstring  $query_part  "
           . "order by billing.pid,billing.encounter";
-          
+
          return $sql;
      }
 

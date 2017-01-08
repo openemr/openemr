@@ -1,8 +1,7 @@
 <?php
 //these are the functions used to access the forms registry database
 //
-//include_once("../../globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
+
 
 function registerForm ( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 {
@@ -30,7 +29,7 @@ function updateRegistered ( $id, $mod )
 {
 	return sqlInsert("update registry set
 		$mod,
-		date=NOW() 
+		date=NOW()
 	where
 		id='$id'
 	");
@@ -71,18 +70,18 @@ function installSQL ( $dir )
 		   sqlStatement(rtrim("$sqlq"));
 		  }
 		}
-			
+
 		return true;
 	}else
 		return false;
 }
 
 
-/* 
+/*
  * is a form registered
  *  (optional - and active)
  * in the database?
- * 
+ *
  * NOTE - sometimes the Name of a form has a line-break at the end, thus this function might be better
  *
  *  INPUT =   directory => form directory

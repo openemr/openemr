@@ -1,7 +1,6 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sql.inc");
 
 $alertmsg = '';
 

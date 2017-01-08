@@ -1,5 +1,4 @@
 <?php
-include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
 
 // Translation function
 // This is the translation engine

@@ -1,5 +1,4 @@
 <?php
-require_once (dirname(__FILE__) . "/../sql.inc");
 require_once (dirname(__FILE__) . "/../lists.inc");
 require_once("ORDataObject.class.php");
 require_once("Patient.class.php");
@@ -100,12 +99,12 @@ function load_drug_attributes($id) {
  *
  */
 class Prescription extends ORDataObject {
-    
+
     /**
      *
      * @access public
      */
-    
+
     /**
      *
      * static
@@ -117,12 +116,12 @@ class Prescription extends ORDataObject {
     var $substitute_array;
     var $medication_array;
     var $refills_array;
-    
+
     /**
      *
      * @access private
      */
-    
+
     var $id;
     var $patient;
     var $pharmacist;
@@ -153,9 +152,9 @@ class Prescription extends ORDataObject {
     /**
     * Constructor sets all Prescription attributes to their default value
     */
-    
+
     function __construct($id= "", $_prefix = "") {
-    
+
 	// Modified 7-2009 by BM to load the arrays from the lists in lists_options.
 	// Plan for this to only be temporary, hopefully have the lists used directly
 	//  from forms in future to allow use of widgets etc.
@@ -166,9 +165,9 @@ class Prescription extends ORDataObject {
 
         $this->substitute_array = array("",xl("substitution allowed"),
             xl ("do not substitute"));
-    
+
         $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
-    
+
         if (is_numeric($id)) { $this->id = $id; }
         else { $id = "";}
 
@@ -190,17 +189,17 @@ class Prescription extends ORDataObject {
         $this->date_modified = date("Y-m-d");
         $this->per_refill = 0;
         $this->note = "";
-        
+
         $this->drug_id = 0;
         $this->active = 1;
-        
+
         for($i=0;$i<21;$i++) {
             $this->refills_array[$i] = sprintf("%02d",$i);
         }
 
         if ($id != "") { $this->populate(); }
     }
-    
+
     function persist() {
         $this->date_modified = date("Y-m-d");
         if ($this->id == "") { $this->date_added = date("Y-m-d"); }
@@ -289,7 +288,7 @@ class Prescription extends ORDataObject {
     function get_form() {
         return $this->form;
     }
-    
+
     function set_refills($refills) {
         if (is_numeric($refills)) { $this->refills = $refills; }
     }
@@ -310,14 +309,14 @@ class Prescription extends ORDataObject {
     function get_quantity() {
         return $this->quantity;
     }
-    
+
     function set_route($route) {
         if (is_numeric($route)) { $this->route = $route; }
     }
     function get_route() {
         return $this->route;
     }
-    
+
     function set_interval($interval) {
         if (is_numeric($interval)) { $this->interval = $interval; }
     }
@@ -341,7 +340,7 @@ class Prescription extends ORDataObject {
 
         // Avoid making a mess if we are not using the "medication" issue type.
         if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) return;
-	
+
         //below statements are bypassing the persist() function and being used directly in database statements, hence need to use the functions in library/formdata.inc.php
 	// they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
 
@@ -372,7 +371,7 @@ class Prescription extends ORDataObject {
     function get_medication() {
         return $this->medication;
     }
-    
+
     function set_per_refill($pr) {
         if (is_numeric($pr)) { $this->per_refill = $pr; }
     }
@@ -397,7 +396,7 @@ class Prescription extends ORDataObject {
     function set_provider($pobj) {
         if (get_class($pobj) == "provider") { $this->provider = $pobj; }
     }
-    
+
     function set_pharmacy_id($id) {
         if (is_numeric($id)) { $this->pharmacy = new Pharmacy($id); }
     }
@@ -451,7 +450,7 @@ class Prescription extends ORDataObject {
     function set_start_date($date) {
         return $this->start_date = $date;
     }
-    
+
     // TajEmo work by CB 2012/05/30 01:56:32 PM added encounter for auto ticking of checkboxes
     function set_encounter($enc) {
         return $this->encounter = $enc;
@@ -498,7 +497,7 @@ class Prescription extends ORDataObject {
     function get_rxnorm_drugcode() {
         return $this->rxnorm_drugcode;
     }
-    
+
     function get_filled_by_id() {
         return $this->pharmacist->id;
     }
@@ -519,10 +518,10 @@ class Prescription extends ORDataObject {
     function get_active() {
         return $this->active;
     }
-    
+
     function get_prescription_display() {
         $pconfig = $GLOBALS['oer_config']['prescriptions'];
-        
+
         switch ($pconfig['format']) {
             case "FL":
                 return $this->get_prescription_florida_display();
@@ -540,7 +539,7 @@ class Prescription extends ORDataObject {
                     . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
                     . $results->fields['phone'] . "\n\n";
         }
-        
+
         $string .= ""
                 ."Prescription For:" . "\t" .$this->patient->get_name_display() . "\n"
                 ."DOB:"."\t".$this->patient->get_dob()."\n"
@@ -558,36 +557,36 @@ class Prescription extends ORDataObject {
         $string .= "\n"."Notes: \n" . $this->note . "\n";
         return $string;
     }
-    
+
     function get_prescription_florida_display() {
-    
+
         $db = get_db();
         $ntt = new NumberToText($this->quantity);
         $ntt2 = new NumberToText($this->per_refill);
         $ntt3 = new NumberToText($this->refills);
-        
+
         $string = "";
-        
+
         $gnd = $this->provider->get_name_display();
-        
+
         while(strlen($gnd)<31) { $gnd .= " "; }
-        
+
         $string .= $gnd . $this->provider->federal_drug_id . "\n";
-        
+
         $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
         $results = $db->Execute($sql);
-        
+
         if (!$results->EOF) {
             $rfn = $results->fields['name'];
-        
+
             while(strlen($rfn)<31) { $rfn .= " "; }
-        
+
             $string .= $rfn . $this->provider->get_provider_number_default() . "\n"
                     . $results->fields['street'] . "\n"
                     . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
                     . $results->fields['phone'] . "\n";
         }
-        
+
         $string .= "\n";
         $string .= strtoupper($this->patient->lname) . ", " . ucfirst($this->patient->fname) . " " . $this->patient->mname . "\n";
         $string .= "DOB " .  $this->patient->date_of_birth . "\n";
@@ -617,15 +616,14 @@ class Prescription extends ORDataObject {
         $string .= "Refills: " . $this->refills . " (" . trim(strtoupper($ntt3->convert())) ."), Per Refill Disp: " . $this->per_refill . " (" . trim(strtoupper($ntt2->convert())) . ")" ."\n";
         $string .= $this->substitute_array[$this->substitute]. "\n";
         $string .= "\n";
-        
+
         return $string;
     }
-    
+
     static function prescriptions_factory($patient_id,
                             $order_by = "active DESC, date_modified DESC, date_added DESC")
     {
         $prescriptions = array();
-        require_once (dirname(__FILE__) . "/../translation.inc.php");
         $p = new Prescription();
         $sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .
                 add_escape_custom($patient_id) .
@@ -636,7 +634,7 @@ class Prescription extends ORDataObject {
         }
         return $prescriptions;
     }
-    
+
     function get_dispensation_count() {
         if (empty($this->id)) return 0;
         $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .

@@ -38,7 +38,6 @@ $ignoreAuth=1;
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");

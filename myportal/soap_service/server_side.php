@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //           Vinish K     <vinish@zhservices.com>
@@ -42,7 +42,6 @@ require_once("../../interface/globals.php");
 require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
 require_once(dirname(__FILE__)."/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/log.inc");
-require_once(dirname(__FILE__) . "/../../library/sql.inc");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/direct_message_check.inc");
 
@@ -55,7 +54,7 @@ require_once("factory_class.php");
 class UserService extends Userforms
 {
 
-/**  
+/**
 * To display the result/report names from lists
 */
   public function get_display_field($data){
@@ -65,7 +64,7 @@ class UserService extends Userforms
     }
   }
 
-/**  
+/**
 * To display the procedure order results
 */
   public function procedure_order($data){
@@ -73,64 +72,64 @@ class UserService extends Userforms
       global $pid;
       $arr = array();
       $i   = 0;
-      $proc_query = "SELECT 
+      $proc_query = "SELECT
                        po.procedure_order_id, po.date_ordered, pc.procedure_order_seq,
                        pt1.procedure_type_id AS order_type_id, pc.procedure_name,
                        pr.procedure_report_id, pr.date_report, pr.date_collected,
-                       pr.specimen_num, pr.report_status, pr.review_status 
+                       pr.specimen_num, pr.report_status, pr.review_status
                      FROM
-                       procedure_order AS po 
-                       JOIN procedure_order_code AS pc 
-                         ON pc.procedure_order_id = po.procedure_order_id 
-                       LEFT JOIN procedure_type AS pt1 
-                         ON pt1.lab_id = po.lab_id 
-                         AND pt1.procedure_code = pc.procedure_code 
-                       LEFT JOIN procedure_report AS pr 
-                         ON pr.procedure_order_id = po.procedure_order_id 
-                         AND pr.procedure_order_seq = pc.procedure_order_seq 
+                       procedure_order AS po
+                       JOIN procedure_order_code AS pc
+                         ON pc.procedure_order_id = po.procedure_order_id
+                       LEFT JOIN procedure_type AS pt1
+                         ON pt1.lab_id = po.lab_id
+                         AND pt1.procedure_code = pc.procedure_code
+                       LEFT JOIN procedure_report AS pr
+                         ON pr.procedure_order_id = po.procedure_order_id
+                         AND pr.procedure_order_seq = pc.procedure_order_seq
                      WHERE po.patient_id = ?
-                       AND pr.review_status = 'reviewed' 
+                       AND pr.review_status = 'reviewed'
                      ORDER BY po.date_ordered, po.procedure_order_id, pc.procedure_order_seq, pr.procedure_report_id";
       $proc_result = sqlStatement($proc_query,array($pid));
       while ($row  = sqlFetchArray($proc_result)) {
 
         $procedure_report_id = empty($row['procedure_report_id']) ? '' : $row['procedure_report_id'];
         $order_type_id       = empty($row['order_type_id']) ? '' : $row['order_type_id'];
-        
-        $proc_order_query    = "(SELECT 
+
+        $proc_order_query    = "(SELECT
                                   pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units,
                                   pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id,
                                   pt2.name AS NAME, pt2.description, pt2.seq AS seq,
                                   ps.procedure_result_id, ps.result_code AS result_code,
                                   ps.result_text, ps.abnormal, ps.result,
                                   ps.range, ps.result_status, ps.facility,
-                                  ps.comments, ps.units, ps.comments 
+                                  ps.comments, ps.units, ps.comments
                                 FROM
-                                  procedure_type AS pt2 
-                                  LEFT JOIN procedure_result AS ps 
-                                    ON ps.procedure_report_id = ? 
-                                    AND ps.result_code = pt2.procedure_code 
-                                WHERE pt2.parent = ? 
-                                  AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' )) 
+                                  procedure_type AS pt2
+                                  LEFT JOIN procedure_result AS ps
+                                    ON ps.procedure_report_id = ?
+                                    AND ps.result_code = pt2.procedure_code
+                                WHERE pt2.parent = ?
+                                  AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' ))
                                 UNION
-                                (SELECT 
+                                (SELECT
                                   pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units,
                                   pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id,
                                   pt2.name AS NAME, pt2.description, pt2.seq AS seq,
                                   ps.procedure_result_id, ps.result_code AS result_code,
                                   ps.result_text, ps.abnormal, ps.result,
                                   ps.range, ps.result_status, ps.facility,
-                                  ps.comments, ps.units, ps.comments 
+                                  ps.comments, ps.units, ps.comments
                                 FROM
-                                  procedure_result AS ps 
-                                  LEFT JOIN procedure_type AS pt2 
-                                    ON pt2.parent = ? 
-                                    AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' ) 
-                                    AND ps.result_code = pt2.procedure_code 
-                                WHERE ps.procedure_report_id = ?) 
+                                  procedure_result AS ps
+                                  LEFT JOIN procedure_type AS pt2
+                                    ON pt2.parent = ?
+                                    AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' )
+                                    AND ps.result_code = pt2.procedure_code
+                                WHERE ps.procedure_report_id = ?)
                                 ORDER BY seq, NAME, procedure_type_id,result_code";
         $proc_order_result = sqlStatement($proc_order_query,array($procedure_report_id,$order_type_id,$order_type_id,$procedure_report_id));
-        
+
         while ($rrow = sqlFetchArray($proc_order_result)) {
           $arr[$i]['procedure_report_id'] = empty($row['procedure_report_id']) ? '' : $row['procedure_report_id'] ;
           $arr[$i]['date_ordered']        = empty($row['date_ordered']) ? '' : $row['date_ordered'];
@@ -149,7 +148,7 @@ class UserService extends Userforms
     }
   }
 
-/**  
+/**
 * To display the patient uploaded files/pdf patient wise
 */
   public function patientuploadedfiles($data){
@@ -166,19 +165,19 @@ class UserService extends Userforms
           ad2.field_value AS file_name,
           ad3.field_value AS pat_comments
         FROM
-          audit_details AS ad 
-          JOIN audit_master AS am 
-            ON am.id = ad.audit_master_id 
-          LEFT JOIN patient_data AS pd 
+          audit_details AS ad
+          JOIN audit_master AS am
+            ON am.id = ad.audit_master_id
+          LEFT JOIN patient_data AS pd
             ON am.pid = pd.pid
-          JOIN audit_details AS ad2 
+          JOIN audit_details AS ad2
             ON am.id = ad2.audit_master_id
             AND ad2.field_name = 'dlm_filename'
-          JOIN audit_details AS ad3 
+          JOIN audit_details AS ad3
             ON am.id = ad3.audit_master_id
-            AND ad3.field_name = 'dld_patient_comments'                                                
-        WHERE ad.field_name = 'dlm_document_name'   
-          AND approval_status = '1' 
+            AND ad3.field_name = 'dld_patient_comments'
+        WHERE ad.field_name = 'dlm_document_name'
+          AND approval_status = '1'
           AND am.type = '4'
           ORDER BY am.pid ASC
       ";
@@ -197,7 +196,7 @@ class UserService extends Userforms
       return $all;
     }
   }
-    
+
   public function createandstoretodirectory($data){
     global $pid;
     if($this->valid($data[0])){
@@ -219,8 +218,8 @@ class UserService extends Userforms
       throw new SoapFault("Server", "credentials failed");
     }
   }
-  
-/**  
+
+/**
 * To move category,rename filename,input note and to move to new patient#
 */
   public function documents_update($data){
@@ -262,7 +261,7 @@ class UserService extends Userforms
 	      ,"htm"=>"text/html"
 	      ,"html"=>"text/html"
       );
-  
+
       $extension = strtolower(end(explode('.',$file_path)));
       $mime_types = $mime_types[$extension];
       $_FILES['file']['name'][0]     = $data[6];
@@ -296,8 +295,8 @@ class UserService extends Userforms
       unset($_POST);
     }
   }
- 
-/** 
+
+/**
 * To display the files/pdfforms patient wise
 */
   public function userslistportal($data){
@@ -316,21 +315,21 @@ class UserService extends Userforms
                     dld.dld_master_docid,
                     dld.dld_signed,
                     dld.dld_patient_comments,
-                    dld.dld_moved,  
+                    dld.dld_moved,
                     pd.fname,
                     pd.lname,
                     pd.mname
                   FROM
-                    documents_legal_master AS dlm 
-                    LEFT OUTER JOIN documents_legal_detail AS dld 
-                      ON dlm.dlm_document_id = dld_master_docid 
-                    JOIN patient_data AS pd 
-                      ON dld.dld_pid = pd.pid 
-                  WHERE dlm.dlm_effective_date <= NOW() 
-                    AND dlm.dlm_effective_date <> '0000-00-00 00:00:00' 
-                    AND dld.dld_id IS NOT NULL 
-                    AND dld.dld_signed IN (1,2,4) 
-                    AND dld.dld_moved = 0 
+                    documents_legal_master AS dlm
+                    LEFT OUTER JOIN documents_legal_detail AS dld
+                      ON dlm.dlm_document_id = dld_master_docid
+                    JOIN patient_data AS pd
+                      ON dld.dld_pid = pd.pid
+                  WHERE dlm.dlm_effective_date <= NOW()
+                    AND dlm.dlm_effective_date <> '0000-00-00 00:00:00'
+                    AND dld.dld_id IS NOT NULL
+                    AND dld.dld_signed IN (1,2,4)
+                    AND dld.dld_moved = 0
           AND dlm_subcategory NOT IN
           (
             SELECT
@@ -338,11 +337,11 @@ class UserService extends Userforms
             FROM
               documents_legal_categories
             WHERE
-              dlc_category_name = 'Layout Signed' 
+              dlc_category_name = 'Layout Signed'
               AND dlc_category_type = 2
           )
                   ORDER BY dld.dld_pid ASC ";
-		  
+
       $res = sqlStatement($query);
       if ($res) {
 	for($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -354,7 +353,7 @@ class UserService extends Userforms
     }
   }
 
-/**  
+/**
 * To display the category list in Move To Category option
 */
   public function category_list($data){
@@ -371,20 +370,20 @@ class UserService extends Userforms
       return $all;
     }
   }
-    
+
 //Converts a text to xml format.Format is as follows
   public function text_to_xml($data){
 	if($this->valid($data[0])){
 	 $text = $data[1];
 	 $doc = new DOMDocument();
 	 $doc->formatOutput = true;
-	 
+
 	 $root = $doc->createElement( "root" );
 	 $doc->appendChild( $root );
-	
+
 	 $level = $doc->createElement( "level" );
 	 $root->appendChild( $level );
-	 
+
 	 $element = $doc->createElement( "text" );
 	 $element->appendChild(
 	   $doc->createTextNode( $text )
@@ -401,14 +400,14 @@ class UserService extends Userforms
 
 
   public function function_return_to_xml($var=array()){
-	
+
 	  $doc = new DOMDocument();
 	  $doc->formatOutput = true;
-	 
+
 	  $root = $doc->createElement( "root" );
 	  $doc->appendChild( $root );
-	
-	 
+
+
 	   $level = $doc->createElement( "level" );
 	   $root->appendChild( $level );
 	   foreach($var as $key=>$value){
@@ -418,12 +417,12 @@ class UserService extends Userforms
 	   );
 	   $level->appendChild( $element );
 	       }
-	   
+
 	 return $doc->saveXML();
-	
+
     }
-    
-   //When a filled PDf is rejected During audit , the file is deleted 
+
+   //When a filled PDf is rejected During audit , the file is deleted
 
 
   public function delete_file($data){
@@ -435,7 +434,7 @@ class UserService extends Userforms
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-        
+
 
 //Accepts a file path.Fetches the file in xml format.
 //Transfer the file to portal in XML format
@@ -448,19 +447,19 @@ class UserService extends Userforms
 	   fclose($handler);
 	   $doc = new DOMDocument();
 	   $doc->formatOutput = true;
-	   
+
 	   $root = $doc->createElement( "root" );
 	   $doc->appendChild( $root );
-	
+
 	       $level = $doc->createElement( "level" );
 	       $root->appendChild( $level );
-	 
+
 	   $filename = $doc->createElement( "name" );
 	   $filename->appendChild(
 	   $doc->createTextNode( $path_parts['basename'] )
 	   );
 	   $level->appendChild( $filename );
-	   
+
 	   $type = $doc->createElement( "type" );
 	   $type->appendChild(
 	   $doc->createTextNode( $path_parts['extension'] )
@@ -477,8 +476,8 @@ class UserService extends Userforms
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-    
- 
+
+
  //File teceived from the portal  side is saved to OpenEMR
 
   public function store_to_file($data){
@@ -522,12 +521,12 @@ class UserService extends Userforms
 		throw new SoapFault("Server", "credentials failed");
 	}
 	}
-	
-	
-//receive a batch of function calls received from Portal, execute it and return the results to the portal
-//The results will be stored in the key, which is received from portal.  
 
- 
+
+//receive a batch of function calls received from Portal, execute it and return the results to the portal
+//The results will be stored in the key, which is received from portal.
+
+
 static  public function batch_despatch($var,$func,$data_credentials){
 	global $pid;
 	if(UserService::valid($data_credentials)){
@@ -647,7 +646,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-    
+
   //Writing patient credentials to table
   public function insert_login_details($var)
        {
@@ -665,10 +664,10 @@ static  public function batch_despatch($var,$func,$data_credentials){
 			throw new SoapFault("Server", "credentials failed");
 		 }
 	}
-   
-   
 
-//Updating the password on a password change  
+
+
+//Updating the password on a password change
 
   public function update_password($var){
 	      $data_credentials=$var[0];
@@ -689,7 +688,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       $setarray[]=0;
 	       $setarray[]=$pid;
 	       }
-	       
+
 	       else
 	       {
 		$set= "portal_pwd=? ";
@@ -727,7 +726,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       throw new SoapFault("Server", "credentials failed");
        }
     }
-    
+
     //appointment update
 
 
@@ -752,15 +751,15 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		     throw new SoapFault("Server", "credentials failed");
 	      }
        }
-       
-       
-   //Marking the Documents as ready to be signed  
+
+
+   //Marking the Documents as ready to be signed
 
   public function update_dlm_dld($var)
     {
 	$data_credentials=$var[0];
        if(UserService::valid($data_credentials)){
-	            
+
 	        $qry=" UPDATE  documents_legal_detail set dld_signed=2 where dld_id=?";
 	            sqlStatement($qry,array($var['dld_id']));
        }
@@ -768,7 +767,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       throw new SoapFault("Server", "credentials failed");
        }
     }
-    
+
 
 //Setting PDF documets approve /denial status
 
@@ -776,39 +775,39 @@ static  public function batch_despatch($var,$func,$data_credentials){
       if($this->valid($data[0])){
 				if(substr($data[1][2],0,3) == 'am-'){
 					$audid = substr($data[1][2],3);
-					$status = sqlQuery("SELECT 
+					$status = sqlQuery("SELECT
 						am2.approval_status,
 						ad.field_value AS uname,
 						CONCAT(ad4.field_value,' ',ad5.field_value,' ',ad6.field_value) AS name
 					FROM
-						audit_master am 
-						JOIN audit_details ad 
-							ON ad.audit_master_id = am.id 
-							AND ad.table_name = 'patient_access_offsite' 
-							AND ad.field_name = 'portal_username' 
-						JOIN audit_details ad2 
-							ON ad2.table_name = 'patient_access_offsite' 
-							AND ad2.field_name = 'portal_username' 
-							AND ad2.field_value = ad.field_value 
-						JOIN audit_details ad3 
-							ON ad3.table_name = 'patient_access_offsite' 
-							AND ad3.field_name = 'portal_pwd' 
-							AND ad3.audit_master_id = ad2.audit_master_id 
-						JOIN audit_details ad4 
-							ON ad4.table_name = 'patient_data' 
-							AND ad4.field_name = 'fname' 
-							AND ad4.audit_master_id = ad2.audit_master_id 
-						JOIN audit_details ad5 
-							ON ad5.table_name = 'patient_data' 
-							AND ad5.field_name = 'mname' 
-							AND ad5.audit_master_id = ad2.audit_master_id 
-						JOIN audit_details ad6 
-							ON ad6.table_name = 'patient_data' 
-							AND ad6.field_name = 'lname' 
-							AND ad6.audit_master_id = ad2.audit_master_id 
-						JOIN audit_master am2 
-							ON am2.id = ad3.audit_master_id 
-							AND am2.type = 1 
+						audit_master am
+						JOIN audit_details ad
+							ON ad.audit_master_id = am.id
+							AND ad.table_name = 'patient_access_offsite'
+							AND ad.field_name = 'portal_username'
+						JOIN audit_details ad2
+							ON ad2.table_name = 'patient_access_offsite'
+							AND ad2.field_name = 'portal_username'
+							AND ad2.field_value = ad.field_value
+						JOIN audit_details ad3
+							ON ad3.table_name = 'patient_access_offsite'
+							AND ad3.field_name = 'portal_pwd'
+							AND ad3.audit_master_id = ad2.audit_master_id
+						JOIN audit_details ad4
+							ON ad4.table_name = 'patient_data'
+							AND ad4.field_name = 'fname'
+							AND ad4.audit_master_id = ad2.audit_master_id
+						JOIN audit_details ad5
+							ON ad5.table_name = 'patient_data'
+							AND ad5.field_name = 'mname'
+							AND ad5.audit_master_id = ad2.audit_master_id
+						JOIN audit_details ad6
+							ON ad6.table_name = 'patient_data'
+							AND ad6.field_name = 'lname'
+							AND ad6.audit_master_id = ad2.audit_master_id
+						JOIN audit_master am2
+							ON am2.id = ad3.audit_master_id
+							AND am2.type = 1
 					WHERE am.id = ?",array($audid));
 					if($status['approval_status'] == '2'){
 						$result = UserService::update_audited_data(array($data[0],'audit_master_id' => $audid));
@@ -828,7 +827,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	throw new SoapFault("Server", "credentials failed");
       }
     }
-    
+
     //Marking PDF documets as signed
 
   public function update_dld_signed($data){
@@ -840,7 +839,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	throw new SoapFault("Server", "credentials failed");
       }
     }
-    
+
     //Marking PDF documets for audit.
 
   public function update_dld_pending($data){
@@ -852,8 +851,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	throw new SoapFault("Server", "credentials failed");
       }
   }
-    
-  
+
+
 
   public function insert_dld($data){
        global $pid,$auditmasterid;
@@ -875,8 +874,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       throw new SoapFault("Server", "credentials failed");
        }
     }
-    
-    
+
+
   //Inserting the entries for Master PDF documents uploaded
 
   public function insert_dlm($data){
@@ -888,8 +887,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       throw new SoapFault("Server", "credentials failed");
        }
     }
-    
- 
+
+
 //REceive an array of Select cases from portal execute it and return
 // it in the keys received from portal. A batch of queries execute and returns it in one batch.
 
@@ -912,8 +911,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-    
-  
+
+
 //Receive a batch of function calls from portal and execute it through batch despatch Function
 //Any  OpenEmr function can be executed this way, if necessary if clause is written in batch_despatch.
 
@@ -935,9 +934,9 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
- 
+
 //Execute a batch of functions received from portal. But this function is limited to
-// the functions written in the myportal module. 
+// the functions written in the myportal module.
 
   public function multiplecall($data){
          $batch = $data[1];
@@ -955,36 +954,36 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	 }
 	 return $return_array;
     }
-    
-     
+
+
 
 
   public function getversion($data){
       global $v_offsite_portal;
       return $v_offsite_portal;
     }
-    
-    
+
+
   public function loginchecking($data){
       if($this->valid($data[0])=='existingpatient' || $this->valid($data[0])=='newpatient'){
 				$res = sqlStatement("SELECT portal_pwd_status, 'yes' AS patient_status, portal_relation  FROM patient_access_offsite WHERE BINARY portal_username=? AND  BINARY portal_pwd=?",$data[1]);
 				return $this->resourcetoxml($res);
       }elseif($this->valid($data[0])=='newpatienttoapprove'){
 				$res = sqlStatement("
-					SELECT 
+					SELECT
 						COUNT(*) AS portal_pwd_status,
-						'no' AS patient_status 
+						'no' AS patient_status
 					FROM
-						audit_master am 
-						JOIN audit_details ad 
-							ON ad.audit_master_id = am.id 
-							AND ad.table_name = 'patient_access_offsite' 
-							AND ad.field_name = 'portal_username' 
-						JOIN audit_details ad2 
-							ON ad2.audit_master_id = am.id 
-							AND ad2.table_name = 'patient_access_offsite' 
-							AND ad2.field_name = 'portal_pwd' 
-					WHERE am.approval_status = 1 
+						audit_master am
+						JOIN audit_details ad
+							ON ad.audit_master_id = am.id
+							AND ad.table_name = 'patient_access_offsite'
+							AND ad.field_name = 'portal_username'
+						JOIN audit_details ad2
+							ON ad2.audit_master_id = am.id
+							AND ad2.table_name = 'patient_access_offsite'
+							AND ad2.field_name = 'portal_pwd'
+					WHERE am.approval_status = 1
 						AND ad.field_value = ?
 						AND ad2.field_value = ?;
 				",$data[1]);
@@ -992,7 +991,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 			}
       return false;
     }
-    
+
   //Execute a query and return its results.
 
   public function selectquery($data){
@@ -1009,14 +1008,14 @@ static  public function batch_despatch($var,$func,$data_credentials){
 				return $this->resourcetoxml($sql_result_set);
       }
     }
-       
+
 //Return an SQL resultset as an XML
 
 
   public function resourcetoxml($sql_result_set){
 	 $doc = new DOMDocument();
 	 $doc->formatOutput = true;
-	 
+
 	 $root = $doc->createElement( "root" );
 	 $doc->appendChild( $root );
       while($row = sqlFetchArray($sql_result_set))
@@ -1033,7 +1032,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	 }
 	 return $doc->saveXML();
     }
-		
+
 	public function resourcetoxml2($row){
 		$doc = new DOMDocument();
 		$doc->formatOutput = true;
@@ -1050,7 +1049,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		}
 		return $doc->saveXML();
 	}
-	
+
   //Writing facility payment configuration to table
   public function save_payment_configuration($var){
 	$data_credentials=$var[0];
@@ -1079,7 +1078,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 			throw new SoapFault("Server", "credentials failed");
 		 }
 	}
-    
+
  //Writing patient's authorizenet profile id to table
   public function insert_authorizenet_details($var){
 	global $pid;
@@ -1161,16 +1160,16 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		  $GLOBALS['pid'] = $prow['pid'];
 		}elseif($okE == 2 || $okN == 3){
 			$arow = sqlQuery("
-				SELECT 
-					ad.audit_master_id 
+				SELECT
+					ad.audit_master_id
 				FROM
-					audit_details ad 
-					JOIN audit_details ad2 
-						ON ad2.audit_master_id = ad.audit_master_id 
-						AND ad2.table_name = 'patient_access_offsite' 
-						AND ad2.field_name = 'portal_pwd' 
-				WHERE ad.table_name = 'patient_access_offsite' 
-					AND ad.field_name = 'portal_username' 
+					audit_details ad
+					JOIN audit_details ad2
+						ON ad2.audit_master_id = ad.audit_master_id
+						AND ad2.table_name = 'patient_access_offsite'
+						AND ad2.field_name = 'portal_pwd'
+				WHERE ad.table_name = 'patient_access_offsite'
+					AND ad.field_name = 'portal_username'
 					AND ad.field_value = ?
 			",array($credentials[6]));
 			$auditmasterid = $arow['audit_master_id'];
@@ -1184,15 +1183,15 @@ static  public function batch_despatch($var,$func,$data_credentials){
 				$portal = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
 			}elseif($okE == 2){
 				$portal = sqlQuery("
-					SELECT 
+					SELECT
 						IF(COUNT(*),'yes','no') AS allow_patient_portal
 					FROM
-						audit_master am 
-						JOIN audit_details ad 
-							ON ad.audit_master_id = am.id 
-							AND ad.table_name = 'patient_access_offsite' 
-							AND ad.field_name = 'portal_username' 
-					WHERE am.approval_status = 1 
+						audit_master am
+						JOIN audit_details ad
+							ON ad.audit_master_id = am.id
+							AND ad.table_name = 'patient_access_offsite'
+							AND ad.field_name = 'portal_username'
+					WHERE am.approval_status = 1
 						AND ad.field_value = ?
 				",array($credentials[6]));
 			}
@@ -1221,9 +1220,9 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		return false;
 	}
     }
-    
-    
-    
+
+
+
 
   public function validcredential($credentials){
 		$tim = strtotime(gmdate("Y-m-d H:m"));
@@ -1233,19 +1232,19 @@ static  public function batch_despatch($var,$func,$data_credentials){
 			if(!$prow['portal_pwd']){
 				$newpatient_to_approve = 1;
 				$prow = sqlQuery("
-					SELECT 
+					SELECT
 						ad2.field_value AS portal_pwd
 					FROM
-						audit_master am 
-						JOIN audit_details ad 
-							ON ad.audit_master_id = am.id 
-							AND ad.table_name = 'patient_access_offsite' 
-							AND ad.field_name = 'portal_username' 
-						JOIN audit_details ad2 
-							ON ad2.audit_master_id = am.id 
-							AND ad2.table_name = 'patient_access_offsite' 
-							AND ad2.field_name = 'portal_pwd' 
-					WHERE am.approval_status = 1 
+						audit_master am
+						JOIN audit_details ad
+							ON ad.audit_master_id = am.id
+							AND ad.table_name = 'patient_access_offsite'
+							AND ad.field_name = 'portal_username'
+						JOIN audit_details ad2
+							ON ad2.audit_master_id = am.id
+							AND ad2.table_name = 'patient_access_offsite'
+							AND ad2.field_name = 'portal_pwd'
+					WHERE am.approval_status = 1
 						AND ad.field_value = ?
 				",array($credentials[6]));
 			}
@@ -1273,8 +1272,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
     }
 		return false;
   }
-    
-       
+
+
     //for checking the connection
 
 
@@ -1287,7 +1286,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	   return 'notok';
        }
     }
-    
+
     /**
      * Checks whether a module is installed or not
      * @param type $parameter_array
@@ -1301,13 +1300,13 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	  $res = sqlStatement($sql, array($module_name));
 	  $row = sqlFetchArray($res);
 	  return !empty($row);
-	   
+
        }
        else{
 	   return 'noauth';
        }
     }
-    
+
     /**
      * Soap function to add direct address
      * @param type $data
@@ -1323,7 +1322,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
             } else {
                 $status = 'duplicate-address';
             }
-           
+
 		} else {
             $status = 'auth-failed';
         }
@@ -1334,7 +1333,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
                       </level>
                     </root>';
     }
-    
+
     /**
      * Soap function to edit direct address
      */
@@ -1350,7 +1349,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
             } else {
                 $status = 'duplicate-address';
             }
-           
+
 		} else {
             $status = 'auth-failed';
         }
@@ -1361,22 +1360,22 @@ static  public function batch_despatch($var,$func,$data_credentials){
                       </level>
                     </root>';
     }
-    
-    
+
+
     /**
      * Soap function to get direct address details
      */
       public function getDirectAddressDetails($data){
         if($this->valid($data[0])=='existingpatient'){
            $qry = "SELECT fname, mname, lname,email,id FROM users WHERE id = ?";
-           
+
 	       $res=sqlStatement($qry,array($data['id']));
             if(sqlNumRows($res)>0){
                 return $this->resourcetoxml($res);
             }else {
                 $status = 'invalid-id';
             }
-           
+
 		} else {
             $status = 'auth-failed';
         }
@@ -1387,7 +1386,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
                       </level>
                     </root>';
     }
-    
+
     /**
      * Soap function to get list of direct address
      */
@@ -1405,7 +1404,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
             } else {
                 $status = 'empty-records';
             }
-           
+
 		} else {
             $status = 'auth-failed';
         }

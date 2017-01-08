@@ -2,7 +2,6 @@
 
 include_once("../../globals.php");
 
-include_once("$srcdir/sql.inc");
 include_once("$srcdir/patient.inc");
 
 //function called to set the global session variable for patient id (pid) number

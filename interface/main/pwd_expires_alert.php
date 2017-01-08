@@ -1,6 +1,6 @@
 <?php
 /**
- * Display a message indicating that the user's password has/will expire. 
+ * Display a message indicating that the user's password has/will expire.
  *
  * Copyright 2010 ViCarePlus Team, Visolve <vicareplus_engg@visolve.com>
  *
@@ -24,8 +24,6 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 include_once("../globals.php");
-include_once("$srcdir/sql.inc");
-require_once("$srcdir/translation.inc.php");
 
 $pwd_expires = "";
 $q = $_SESSION["authUserID"];
@@ -84,7 +82,7 @@ else if ((strtotime($current_date) >= strtotime($pwd_alert)) && strtotime($pwd_a
     </td>
     <td>&nbsp;</td>
   </tr>
- 
+
   <tr>
     <td>&nbsp;</td>
     <td>&nbsp;</td>

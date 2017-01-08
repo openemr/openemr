@@ -21,7 +21,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-include_once("../../library/sql.inc");
 $query = "SELECT status FROM re_identification_status";
 $res = sqlStatement($query);
 if ($row = sqlFetchArray($res))
@@ -104,7 +103,7 @@ system ($sh_cmd);
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
-	</tr> 
+	</tr>
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>

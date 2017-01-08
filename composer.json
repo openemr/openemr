@@ -36,7 +36,8 @@
             "library/formdata.inc.php",
             "library/sanitize.inc.php",
             "library/date_functions.php",
-            "library/validation/validate_core.php"
+            "library/validation/validate_core.php",
+            "library/translation.inc.php"
         ]
     },
     "config": {

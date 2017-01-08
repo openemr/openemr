@@ -1,6 +1,4 @@
 <?php
-#require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once(dirname(__FILE__). "/sql.inc");
 
 function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0) {
     $adodb = $GLOBALS['adodb']['db'];
@@ -33,7 +31,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
                 log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?,'Patient Portal', ?, ?, ?, ?, ?, ?, ?,?, ?)";
         $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
     } else {
-    
+
     /* More details added to the log */
     $sql = "insert into log ( date, event,category, user, groupname, success, comments, crt_user, patient_id) " .
             "values ( NOW(), " . $adodb->qstr($event) . ",". $adodb->qstr($category) . "," . $adodb->qstr($user) .
@@ -670,7 +668,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     				"procedure_order" => "lab-order",
     			    "procedure_order_code" => "lab-order",
     				"procedure_report" => "lab-results",
-    				"procedure_result" => "lab-results" 
+    				"procedure_result" => "lab-results"
                   );
 
     /* When searching for table names, truncate the SQL statement,
@@ -938,7 +936,7 @@ function logCommentEncryptData($log_id){
 
 /**
  * Function used to determine category of the event
- * 
+ *
  */
 function eventCategoryFinder($sql,$event,$table){
 	if($event == 'delete'){
@@ -976,7 +974,7 @@ function eventCategoryFinder($sql,$event,$table){
 	else if($table == 'procedure_order' || $table == 'procedure_order_code') return "Lab Order";
 	else if($table == 'procedure_report' || $table == 'procedure_result') return "Lab Result";
 	else if($event == 'security-administration') return "Security";
-	
+
 	return $event;
 }
 ?>

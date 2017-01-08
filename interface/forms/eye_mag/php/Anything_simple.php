@@ -1,12 +1,12 @@
 <?php
 
-/** 
- * forms/eye_mag/php/Anything_simple.php 
- * 
+/**
+ * forms/eye_mag/php/Anything_simple.php
+ *
  * Adaptation of AnythingSlider's Anything_simple.php to fit Eye Exam form
- * 
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
- * 
+ *
+ * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
+ *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
  *  published by the Free Software Foundation, either version 3 of the
@@ -19,46 +19,45 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * @package OpenEMR 
- * @author Ray Magauran <magauran@MedFetch.com> 
- * @link http://www.open-emr.org 
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
  */
-     
+
     $fake_register_globals=false;
     $sanitize_all_escapes=true;
     include_once("../../../globals.php");
     include_once("$srcdir/acl.inc");
     include_once("$srcdir/lists.inc");
     include_once("$srcdir/api.inc");
-    include_once("$srcdir/sql.inc");
     require_once("$srcdir/formatting.inc.php");
 	require_once("$srcdir/forms.inc");
 
     $form_name = "Eye Form";
     $form_folder = "eye_mag";
     include_once($GLOBALS['webserver_root']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
-	
+
 	$pid = $_SESSION['pid'];
 	$display = $_REQUEST['display'];
 	$category_id = $_REQUEST['category_id'];
 	$encounter = $_REQUEST['encounter'];
 	$category_name = $_REQUEST['category_name'];
-	
+
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
- 	
+
     $providerID  =  getProviderIdOfEncounter($encounter);
 	$providerNAME = getProviderName($providerID);
 	$query = "SELECT * FROM users where id = ?";
 	$prov_data =  sqlQuery($query,array($providerID));
 
     $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter
-    where 
-    form_encounter.encounter =? and 
-    form_encounter.encounter = forms.encounter and 
+    where
+    form_encounter.encounter =? and
+    form_encounter.encounter = forms.encounter and
     form_eye_mag.id=forms.form_id and
-    forms.deleted != '1' and 
+    forms.deleted != '1' and
     form_eye_mag.pid=? ";
     $encounter_data =sqlQuery($query,array($encounter,$pid));
     $dated = new DateTime($encounter_data['encounter_date']);
@@ -66,7 +65,7 @@
 	$visit_date = oeFormatShortDate($dated);
 
  	list($documents) = document_engine($pid);
-              
+
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -77,11 +76,11 @@
 		<link rel="apple-touch-icon" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/images/apple-touch-icon.png">
 
 	    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-	    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
+	    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
       	<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/anythingslider.css">
 		<!-- AnythingSlider optional extensions -->
-		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.fx.js"></script> 
+		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.fx.js"></script>
 		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.video.js"></script>
 		<!-- Anything Slider optional plugins -->
 		 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.easing.1.2.js"></script>
@@ -228,10 +227,10 @@
 			});
 		</script>
 
-	    <script language="JavaScript">    
+	    <script language="JavaScript">
 	    	<?php require_once("$srcdir/restoreSession.php"); ?>
 	    </script>
-	      
+
 		<!-- Add Font stuff for the look and feel.  -->
 		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
 	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
@@ -239,7 +238,7 @@
 	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
 	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 	    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">    
+		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -315,7 +314,7 @@
                             <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='window.close();'><?php echo xlt('Quit'); ?></a></li>
                         </ul>
                     </li>
-                  
+
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt('Images'); ?></a>
                         <ul class="dropdown-menu" role="menu">
@@ -328,7 +327,7 @@
 						      	if ($zone[0]['value'] == "ANTSEG") $name = xl("Anterior Segment");
 						      	if ($zone[0]['value'] == "POSTSEG") $name = xl("Posterior Segment");
 						      	if ($zone[0]['value'] == "NEURO") $name = xl("Neuro-physiology");
-						      	
+
 						      	$class = "git";
 						      	if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
 						      	if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
@@ -339,31 +338,31 @@
 					      			}
 					      			$count = count($documents['docs_in_zone'][$zone[0][value]]);
 					      				if ($count!=1) {$s =xla('s{{suffix to make Document plural, ie. Documents}}');} else {$s='';}
-					      			$response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'" 
-										class="'.$class.' " 
+					      			$response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'"
+										class="'.$class.' "
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
 										text($name).'</a>
 										'.$append;
-										$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'" 
-										class="'.$class.' " 
+										$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
+										class="'.$class.' "
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
 										text($name).' <span class="menu_icon">+'.$count.'</span></a></li>';
 					    	  	} else {
 					      			$class="current";
-					      			$response[$zone[0][value]] =  '<a title="'.xla('No Documents').'" 
+					      			$response[$zone[0][value]] =  '<a title="'.xla('No Documents').'"
 							  				class="'.$class.' borderShadow"
 											disabled >'.text($name).'</a>
 										';
-									$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'" 
-										class="'.$class.'" 
+									$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
+										class="'.$class.'"
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
 										text($name).'</a></li>';
 					      		}
 							}
 							echo $menu['EXT'].$menu['ANTSEG'].$menu['POSTSEG'].$menu['NEURO'];
-				    	
+
 							if ($category_name == "OTHER") {$class='play'; } else { $class = "git"; }
-					    	echo '<li><a title="'.xla('Other Documents').'"  
+					    	echo '<li><a title="'.xla('Other Documents').'"
 										class="'.$class.'"  style="'.$style.'"
 										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name=OTHER">
 										'.xlt('OTHER').'<span class="menu_icon">+</span></a></li>
@@ -420,8 +419,8 @@
                                             ";
                                         }
                                       $StringEcho.= '
-                                      <a class="dropdown-toggle" data-toggle="dropdown" 
-                                        id="menu_dropdown_'.attr($new_category_).'" role="button" 
+                                      <a class="dropdown-toggle" data-toggle="dropdown"
+                                        id="menu_dropdown_'.attr($new_category_).'" role="button"
                                         aria-expanded="false">'.text($new_category).' </a>
                                         <ul class="dropdown-menu" role="menu">
                                         ';
@@ -441,23 +440,23 @@
                         echo $StringEcho;
                     ?>
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" 
-                           id="menu_dropdown_library" role="button" 
+                        <a class="dropdown-toggle" data-toggle="dropdown"
+                           id="menu_dropdown_library" role="button"
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop"  
+                            <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop"
                             href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view&framewidth=1020">
                             <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>&nbsp;<?php echo xlt("Calendar"); ?><span class="menu_icon"><i class="fa fa-calendar"></i>  </span></a></li>
                             <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a target="RTop" role="menuitem" tabindex="-1" 
+                            <li role="presentation"><a target="RTop" role="menuitem" tabindex="-1"
                                 href="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&list&patient_id=<?php echo attr($pid); ?>">
                                 <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
                                 <?php echo xlt("Documents"); ?></a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" 
-                           id="menu_dropdown_help" role="button" 
+                        <a class="dropdown-toggle" data-toggle="dropdown"
+                           id="menu_dropdown_help" role="button"
                            aria-expanded="true"><?php echo xlt("Help"); ?> </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                             <li role="presentation"><a role="menuitem" tabindex="-1" target="_blank" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
@@ -470,19 +469,19 @@
         </div>
     </nav>
 	<br /><br />
-	
-	<div class="borderShadow" style="margin:0px 0px 5px 0px;padding:10px;">		
+
+	<div class="borderShadow" style="margin:0px 0px 5px 0px;padding:10px;">
 		<div style="position:absolute;margin:0 5px 10px 0; top:0.0in;text-align:center;width:95%;font-size:0.75em;;">
 			<!-- Links to other demo pages & docs -->
-			<div id="nav" style="position:absolute;top:0.0in;text-align:center;">	
-				<?php 
+			<div id="nav" style="position:absolute;top:0.0in;text-align:center;">
+				<?php
 				foreach ($documents['zones'][$category_name] as $zone) {
 					$class = "git";
 		    		$append ='';
 		    		if ($category_id == $zone['id']) {
 		    			$class="play";
 		    			$append = "<i class='fa fa-arrow-down'></i>"; }
-			      	
+
 					if ($zone['name'] == xl('Advance Directives') ||
 						$zone['name'] == xl('Durable Power of Attorney') ||
 						$zone['name'] == xl('Patient Information') ||
@@ -496,13 +495,13 @@
 							$class = 'current';
 							$disabled = "disabled='disabled'";
 							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="" >
-								<span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a> 
+								<span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a>
 							'.$append;
 						} else {
 
-							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'" 
+							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'"
 								href="Anything_simple.php?display=i&category_id='.$zone['id'].'&encounter='.$encounter.'&category_name='.$category_name.'">
-								<span  class="borderShadow">'.text($zone['name']).'</span></a> 
+								<span  class="borderShadow">'.text($zone['name']).'</span></a>
 								'.$append;
 						}
 					}
@@ -511,7 +510,7 @@
 			</div>
 		</div>
 		<!-- End Links -->
-	</div> 
+	</div>
 	<br />
 	<!-- Simple AnythingSlider -->
 	<ul id="slider">
@@ -536,7 +535,7 @@
 				 ';
 			}
 		}
-		?>		
+		?>
 	</ul>
 
 	<!-- END AnythingSlider -->

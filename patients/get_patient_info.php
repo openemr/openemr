@@ -36,6 +36,8 @@
         }
     //
 
+    // Need to include this before the autoloader in below globals.php include
+    // since need to use the getLanguageDir() function.
     require_once("../library/translation.inc.php");
 
     // set the language

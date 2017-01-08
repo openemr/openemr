@@ -6,16 +6,15 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This file is used to add an item to the list_options table
 //
-// OUTPUT 
+// OUTPUT
 //   on error = NULL
 //   on succcess = JSON data, array of "value":"title" for new list of options
 */
 
 include_once("../../interface/globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
 
 // check for required values
 if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") exit;
@@ -30,7 +29,7 @@ $option_value = 0;
 // make sure we're not adding a duplicate title or id
 $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and title = '" . trim($title) . "' AND activity = 1" 
+                    " and title = '" . trim($title) . "' AND activity = 1"
                     );
 if ($exists_title) {
 	echo json_encode(array("error"=> xl('Record already exist') ));
@@ -74,7 +73,7 @@ $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' AND 
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';
-    
+
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
      echo '"title":"' . xl($lrow['title']) .'"}';
