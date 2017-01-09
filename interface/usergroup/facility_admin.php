@@ -1,6 +1,5 @@
 <?php
 include_once("../globals.php");
-include_once("$srcdir/sql.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");

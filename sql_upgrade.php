@@ -16,7 +16,6 @@ ini_set('max_execution_time', '0');
 $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
-require_once('library/sql.inc');
 require_once('library/sql_upgrade_fx.php');
 
 // Force logging off

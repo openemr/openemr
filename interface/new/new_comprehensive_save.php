@@ -7,7 +7,6 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
 
 // Validation for non-unique external patient identifier.
 $alertmsg = '';

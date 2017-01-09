@@ -15,7 +15,6 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
 
 $res = sqlStatement("SELECT date, encounter, reason FROM form_encounter " .
   "WHERE pid = ? " .

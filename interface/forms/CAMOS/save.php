@@ -3,7 +3,6 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/forms.inc");
-include_once("../../../library/sql.inc");
 include_once("./content_parser.php");
 
 if ($_GET["mode"] == "delete") {

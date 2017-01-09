@@ -17,6 +17,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         '90ddd4120fc0e77b06a383f880188d79' => __DIR__ . '/../..' . '/library/sanitize.inc.php',
         '7f8090c4c03d2da09b90683b7b7b64f3' => __DIR__ . '/../..' . '/library/date_functions.php',
         '50df9e87484b37f614378efa1c994e18' => __DIR__ . '/../..' . '/library/validation/validate_core.php',
+        '26894f783baf7dc8ebf76b94d69f85d4' => __DIR__ . '/../..' . '/library/translation.inc.php',
     );
 
     public static $prefixLengthsPsr4 = array (

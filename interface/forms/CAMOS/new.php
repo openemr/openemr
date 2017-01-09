@@ -1,7 +1,6 @@
 <?php
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
-include_once("../../../library/sql.inc");
 $out_of_encounter = false;
 if ( (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
   $out_of_encounter = true;
@@ -78,7 +77,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
       $query .= $item."', '".$content."', '".$subcategory_id."')";
       sqlInsert($query);
     }
-    
+
   }
   elseif ($_POST['hidden_selection'] == 'change_content') {
     $item_id = $_POST['hidden_item'];
@@ -155,7 +154,7 @@ elseif ($_POST['hidden_mode'] == 'delete') {
       $tablename = 'item';
       $subtablename = '';
     }
-  
+
     if ($subtablename == '') {
       $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
       sqlInsert($query, array($to_delete_id));
@@ -197,12 +196,12 @@ elseif ($_POST['hidden_mode'] == 'alter') {
 
   //preselect column items
   //either a database change has been made, so the user should be made to feel that they never left the same CAMOS screen
-  //or, CAMOS has been started freshly, therefore the last entry of the current patient should be selected. 
+  //or, CAMOS has been started freshly, therefore the last entry of the current patient should be selected.
   $preselect_mode = '';
   if ($preselect_category == '' && !$out_of_encounter) {
     $preselect_mode = 'by name';
     //at this point, if this variable has not been set, CAMOS must have been start over
-    //so let's get the most recent values from form_CAMOS for this patient's pid 
+    //so let's get the most recent values from form_CAMOS for this patient's pid
     $tmp = sqlQuery("SELECT max(id) AS max FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE " .
       "pid = '" . $_SESSION['pid'] . "'");
     $maxid = $tmp['max'] ? $tmp['max'] : 0;
@@ -224,7 +223,7 @@ elseif ($_POST['hidden_mode'] == 'alter') {
 <html><head>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
-<script language="javascript" type="text/javascript"> 
+<script language="javascript" type="text/javascript">
 
 var array1 = new Array();
 var array2 = new Array();
@@ -289,7 +288,7 @@ function specialSelect(t_area, delim_1, delim_2) {
 function cropToSelect(t_area, delim_2) {
   var cv = t_area.value;
   crop_buffer = cv;
-  var start = special_select_start; 
+  var start = special_select_start;
   var end = special_select_end+delim_2.length;
   var length = end-start;
   t_area.value = cv.substr(start,length);
@@ -342,7 +341,7 @@ function resize_content() {
 //    f2.textarea_content02.cols /= 3;
 //    hs_status = false;
 //  } else {
-//    hide_columns(); 
+//    hide_columns();
 ////    f2.textarea_content.cols *= 3;
 //    f2.textarea_content02.cols *= 3;
 //    hs_status = true;
@@ -454,7 +453,7 @@ function select_word(mode, mystring, myselect) { //take a string and select it i
     }
     else if (mode == 'by number') {
       match = myselect.options[i].value;
-    } 
+    }
     else {return 0;}
     if (match == mystring) {
       myselect.selectedIndex = i;
@@ -466,7 +465,7 @@ function select_word(mode, mystring, myselect) { //take a string and select it i
 
 if (1) { //we are hiding the clone buttons and still need 'search others' so this is not to be removed if out of encounter anymore.
 //if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  //cloning - similar process to preselect set to first time starting CAMOS 
+  //cloning - similar process to preselect set to first time starting CAMOS
   //as above
   $clone_category = '';
   $clone_subcategory = '';
@@ -521,7 +520,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
       $clone_search_term = " and content like '%$clone_search%'";
     }
     if (substr($_POST['hidden_mode'],0,12) == 'clone others') {
-		
+
 		if (preg_match('/^(export)(.*)/',$clone_search,$matches)) {
 			$query1 = "select id, category from ".mitigateSqlTableUpperCase("form_CAMOS_category");
 			$statement1 = sqlStatement($query1);
@@ -572,7 +571,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 			}
 		} else {
 		      //$clone_data_array['others'] = '/*'.$clone_category.'::'.$clone_subcategory.'::'.
-		      //  $clone_item.'*/'; 
+		      //  $clone_item.'*/';
 		      //See the two lines commented out just below:
 		      //I am trying out searching all content regardless of category, subcategory, item...
 		      //because of this, we have to limit results more.  There may be a few lines
@@ -606,7 +605,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
     } else {//end of clone others
 	    $query = "SELECT date(date) as date, subcategory, item, content FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE category like '".
 		    $clone_category."' and pid=".$_SESSION['pid']." order by id desc";
-  
+
       if ($_POST['hidden_mode'] == 'clone last visit') {
         //go back $stepback # of encounters...
 	//This has been changed to clone last visit based on actual last encounter rather than as it was
@@ -662,7 +661,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 		$bpd = $result['bpd'];
 		$pulse = $result['pulse'];
 		$temperature = $result['temperature'];
-//          	$clone_vitals = "/* vitals_key:: weight :: height :: systolic :: diastolic :: pulse :: temperature */\n"; 
+//          	$clone_vitals = "/* vitals_key:: weight :: height :: systolic :: diastolic :: pulse :: temperature */\n";
           	$clone_vitals = "";
           	$clone_vitals .= "/* vitals\n :: $weight\n :: $height\n :: $bps\n :: $bpd\n :: $pulse\n :: $temperature\n */";
           	$clone_data_array[$clone_vitals] = $clone_vitals;
@@ -676,7 +675,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
           $clone_modifier = $result['modifier'];
           $clone_units = $result['units'];
           $clone_fee = $result['fee'];
-	  
+
 	  //added ability to grab justifications also - bm
 	  $clone_justify = "";
 	  $clone_justify_raw = $result['justify'];
@@ -687,7 +686,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 	      $clone_justify .= ":: ".$temp_justify." ";
 	    }
 	  }
-	      
+
           $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee $clone_justify*/";
           $clone_data_array[$clone_billing_data] = $clone_billing_data;
         }
@@ -826,7 +825,7 @@ function insert_content(direction) {
   var insert_text = (source_box.value).
     substring(sba, sbb);
   target_box.value = (target_box.value).
-    substring(0,tba) + insert_text + 
+    substring(0,tba) + insert_text +
     (target_box.value).substring(tba,target_box.value.length);
 }
 
@@ -835,7 +834,7 @@ function insert_content(direction) {
 function getxmlhttp (){
   //Create a boolean variable to check for a valid microsoft active X instance.
   var xmlhttp = false;
-  
+
   //Check if we are using internet explorer.
   try {
     //If the javascript version is greater than 5.
@@ -850,12 +849,12 @@ function getxmlhttp (){
       xmlhttp = false;
     }
   }
-  
+
   //If we are using a non-internet explorer browser, create a javascript instance of the object.
   if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
   xmlhttp = new XMLHttpRequest();
   }
-  
+
   return xmlhttp;
 }
 
@@ -877,7 +876,7 @@ function processajax (serverPage, obj, getOrPost, str){
     xmlhttp.onreadystatechange = function() {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         obj.innerHTML = xmlhttp.responseText;
-      } 
+      }
     }
     xmlhttp.send(str);
   }
@@ -885,7 +884,7 @@ function processajax (serverPage, obj, getOrPost, str){
 
 
 function setformvalues(form_array){
-  
+
   //Run through a list of all objects
   var str = '';
   for(key in form_array) {
@@ -899,7 +898,7 @@ function setformvalues(form_array){
 
 function js_button(mode,selection) {
   var f2 = document.CAMOS;
-//check lock next 
+//check lock next
 if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
   alert("<?php xl("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'","e"); ?>");
   return;
@@ -910,7 +909,7 @@ if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
 if ( (mode == 'add') || (mode == 'alter') ) {
   if (selection == 'change_category') {
     if (trimString(f2.change_category.value) == "") {
-      alert("<?php xl("You cannot add a blank value for a category!","e"); ?>"); 
+      alert("<?php xl("You cannot add a blank value for a category!","e"); ?>");
       return;
     }
     if (selectContains(f2.select_category, trimString(f2.change_category.value))) {
@@ -920,7 +919,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
   }
   if (selection == 'change_subcategory') {
     if (trimString(f2.change_subcategory.value) == "") {
-      alert("<?php xl("You cannot add a blank value for a subcategory!","e"); ?>"); 
+      alert("<?php xl("You cannot add a blank value for a subcategory!","e"); ?>");
       return;
     }
     if (selectContains(f2.select_subcategory, trimString(f2.change_subcategory.value))) {
@@ -930,7 +929,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
   }
   if (selection == 'change_item') {
     if (trimString(f2.change_item.value) == "") {
-      alert("<?php xl("You cannot add a blank value for an item!","e"); ?>"); 
+      alert("<?php xl("You cannot add a blank value for an item!","e"); ?>");
       return;
     }
     if (selectContains(f2["select_item[]"], trimString(f2.change_item.value))) {
@@ -999,7 +998,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
   f2.item.value = item_text;
   //end of setting values relating to selections
 
-//deal with clone buttons or add, alter, delete. 
+//deal with clone buttons or add, alter, delete.
   if ( (mode.substr(0,5) == 'clone') || (mode == 'add') || (mode == 'add to') ||
     (mode == 'alter') || (mode =='delete') ) {
     f2.hidden_mode.value = mode;
@@ -1092,7 +1091,7 @@ if (!$out_of_encounter) {
   <option value=11><?php xl('Back eleven visits','e'); ?></option>
   <option value=12><?php xl('Back twelve visits','e'); ?></option>
 </select>
-<?php 
+<?php
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
 ?>
 <input type=button name='hide columns' value='<?php xl('Hide/Show Columns','e'); ?>' onClick="hide_columns()">
@@ -1104,7 +1103,7 @@ echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$retur
 <!-- supposedly where ajax induced php pages can print their output to... -->
 </div>
 <div id=id_mainbox style="display:inline">
-<?php 
+<?php
 if ($error != '') {
   echo "<h1> error: ".$error."</h1>\n";
 }
@@ -1137,7 +1136,7 @@ if ($error != '') {
     <select name=select_category size=<?php echo $select_size ?> onchange="click_category()"></select><br>
 <?php
 
-if (myAuth() == 1) {//root user only can see administration option 
+if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_category><br>
     <input type=button name=add1 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_category')">
@@ -1154,7 +1153,7 @@ if (myAuth() == 1) {//root user only can see administration option
     <select name=select_subcategory size=<?php echo $select_size ?> onchange="click_subcategory()"></select><br>
 <?php
 
-if (myAuth() == 1) {//root user only can see administration option 
+if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_subcategory><br>
     <input type=button name=add2 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_subcategory')">
@@ -1171,7 +1170,7 @@ if (myAuth() == 1) {//root user only can see administration option
     <select name=select_item[] size=<?php echo $select_size ?> onchange="click_item()" multiple="multiple"></select><br>
 <?php
 
-if (myAuth() == 1) {//root user only can see administration option 
+if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_item><br>
     <input type=button name=add3 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_item')">
@@ -1192,7 +1191,7 @@ if (myAuth() == 1) {//root user only can see administration option
 <input type=button name=clone_others_selected_search_button value='<?php xl('Search Selected','e'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
 <?php
 
-if (myAuth() == 1) {//root user only can see administration option 
+if (myAuth() == 1) {//root user only can see administration option
 ?>
 <div id=id_main_content_buttons style="display:block">
     <input type=button name=add4 value='<?php xl('Add','e'); ?>' onClick="js_button('add','change_content')">
@@ -1202,7 +1201,7 @@ if (myAuth() == 1) {//root user only can see administration option
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
-    <input type=button name=icd9 value='<?php xl('ICD9','e'); ?>' onClick="append_icd9()"> 
+    <input type=button name=icd9 value='<?php xl('ICD9','e'); ?>' onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
 <?php
 

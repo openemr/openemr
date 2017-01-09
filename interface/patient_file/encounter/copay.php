@@ -1,10 +1,8 @@
 <?php
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 
 // This may be more appropriate to move to the library
 // later
-require_once("{$GLOBALS['srcdir']}/sql.inc");
 function getInsuranceCompanies($pid) {
   $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = '$pid' " .
     "ORDER BY type ASC, date DESC");

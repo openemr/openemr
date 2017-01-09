@@ -1,7 +1,6 @@
 <?php
 
 include_once("../../globals.php");
-include_once("../../../library/sql.inc");
 
 function addAppt($days,$time) {
   $days = formDataCore($days);
@@ -49,16 +48,16 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   $units = formDataCore($units);
   $fee = formDataCore($fee);
   $justify_string = formDataCore($justify_string);
-    
+
   // set to authorize billing codes as default - bm
   //  could place logic here via acls to control who
   //  can authorize as a feature in the future
   $authorized=1;
 
   $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), '".$_SESSION['encounter']."', '$code_type', '$code', '$code_text', '".$_SESSION['pid']."', '$authorized', '" . $_SESSION['authId'] . "', '" . $_SESSION['authProvider'] . "',1,0,".$_SESSION['authUserID'].",'$modifier','$units','$fee','$justify_string')";
-	
+
   return sqlInsert($sql);
-	
+
 }
 
 function content_parser($input) {
@@ -109,7 +108,7 @@ function process_commands(&$string_to_process, &$camos_return_data) {
   }
   //date_add is a function to add a given number of days to the date of the current encounter
   //this will be useful for saving templates of prescriptions with 'do not fill until' dates
-  //I am going to implement with mysql date functions. 
+  //I am going to implement with mysql date functions.
   //I am putting this before other functions just like replace function because it is replacing text
   //needs to be here.
   if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
@@ -140,7 +139,7 @@ function process_commands(&$string_to_process, &$camos_return_data) {
   if (!preg_match_all("/\/\*.*?\*\//s",$string_to_process, $matches)) {return $return_value;}
   $command_array = $matches[0];
   foreach($command_array as $val) {
-    //process each command 
+    //process each command
     $comm = preg_replace("/(\/\*)|(\*\/)/","",$val);
     $comm_array = explode('::', $comm); //array where first element is command and rest are args
     //Here is where we process particular commands
@@ -184,9 +183,9 @@ function process_commands(&$string_to_process, &$camos_return_data) {
     if (trim($comm_array[0]) == 'camos') {
       $command_count++;
       //data to be submitted as separate camos forms
-      //this is for embedded prescriptions, test orders etc... usually within a soap note or something  
+      //this is for embedded prescriptions, test orders etc... usually within a soap note or something
       //data collected here will be returned so that save.php can give it special treatment and insert
-      //into the database after the main form data is submitted so it will be in a sensible order 
+      //into the database after the main form data is submitted so it will be in a sensible order
       array_push($camos_return_data,
         array("category" => trim($comm_array[1]),
         "subcategory" => trim($comm_array[2]),

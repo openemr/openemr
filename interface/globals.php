@@ -176,18 +176,18 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-// Include the translation engine. This will also call sql.inc to
-//  open the openemr mysql connection.
-require_once (dirname(__FILE__) . "/../library/translation.inc.php");
-
-// Includes compoaser autoload
+// Includes composer autoload
 // Note this also brings in following library files:
 //  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
 //  library/formdata.inc.php - Include sanitization/checking functions (for security)
 //  library/sanitize.inc.php - Include sanitization/checking functions (for security)
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
+//  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
+
+// This will open the openemr mysql connection.
+require_once (dirname(__FILE__) . "/../library/sql.inc");
 
 // Include the version file
 require_once (dirname(__FILE__) . "/../version.php");

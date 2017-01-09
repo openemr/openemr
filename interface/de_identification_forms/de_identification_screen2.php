@@ -21,8 +21,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/translation.inc.php");
-require_once("../../library/sqlconf.php");
 ?>
 <?php
 /*executes the De Identification process, using the parameters chosen from the

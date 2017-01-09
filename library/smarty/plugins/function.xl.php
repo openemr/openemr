@@ -14,16 +14,15 @@
  * Type:     function<br>
  * Name:     xl<br>
  * Purpose:  translate in OpenEMR - Smarty templates<br>
- * 
+ *
  * Examples:
- * 
+ *
  * {xl t="some words"}
- * 
+ *
  * @param array
  * @param Smarty
  */
 
-require_once(dirname(__FILE__) . '/../../translation.inc.php');
 
 function smarty_function_xl($params, &$smarty)
 {

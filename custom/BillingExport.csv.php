@@ -14,7 +14,6 @@
 //
 // To implement this feature, rename this file to BillingExport.php.
 
-require_once (dirname(__FILE__) . "/../library/sql.inc");
 
 class BillingExport {
 

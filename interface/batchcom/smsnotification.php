@@ -2,7 +2,6 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
-include_once("$srcdir/sql.inc");
 include_once("../../library/acl.inc");
 include_once("batchcom.inc.php");
 
@@ -105,7 +104,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <?php }?>
             </SELECT>
         <br>
-        
+
         <?php xl('Name of Provider','e')?> :
         <INPUT TYPE="text" NAME="provider_name" size="40" value="<?php echo $provider_name?>">
         <br>

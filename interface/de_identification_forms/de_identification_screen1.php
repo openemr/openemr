@@ -21,7 +21,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/translation.inc.php");
 ?>
 
 <html>
@@ -47,7 +46,7 @@ function set_related(s,type) {
    list = "drug_list";
  else if(type == "immunizations")
    list = "immunization_list";
-   
+
  var p=s.split("#");
  var elSel = document.getElementById(list);
  var i,k;
@@ -57,7 +56,7 @@ function set_related(s,type) {
   {
    if((elSel.options[k].value)==p[i])
     p[i]= " ";
-  }	
+  }
   if(p[i]!= " ")
   {
   var elOptNew = document.createElement('option');
@@ -70,7 +69,7 @@ function set_related(s,type) {
     elSel.add(elOptNew); // IE only
   }
   }
- }  
+ }
  show_value(type);
 }
 
@@ -84,7 +83,7 @@ function get_values(type)
    dlgopen('find_immunization_popup.php', '_blank', 500, 400,true);
 }
 
-//remove item selected from list 
+//remove item selected from list
 function remove_selected(type)
 {
   var list;
@@ -93,11 +92,11 @@ function remove_selected(type)
  else if(type == "drugs")
    list = "drug_list";
  else if(type == "immunizations")
-   list = "immunization_list";   
+   list = "immunization_list";
   var elSel = document.getElementById(list);
   var i;
   for (i = elSel.length - 1; i>=0; i--) {
-    if (elSel.options[i].selected) 
+    if (elSel.options[i].selected)
 	{
       elSel.remove(i);
 	}
@@ -113,33 +112,33 @@ function show_value(type)
  else if(type == "drugs")
   { radio = "drugs";  list = "drug_list"; text="drug_text"; }
  else if(type == "immunizations")
-  { radio = "immunizations"; list = "immunization_list"; text="immunization_text"; } 
+  { radio = "immunizations"; list = "immunization_list"; text="immunization_text"; }
  if(document.getElementById(radio) == "all")
  {
 	document.getElementById(text).value="all";
  }
  else
-{ 
+{
  var str;
  var elSel = document.getElementById(list);
   var i;
   for (i = elSel.length - 1; i>=0; i--)
-  {  
+  {
 	  if(!str)
 	   str = elSel.options[i].value;
-	  else 
+	  else
       str = str +"#"+elSel.options[i].value;
-	  
-    }  
+
+    }
  document.getElementById(text).value=str;
  }
-} 
- 
+}
+
 //disable - enable other checkbox when all checkbox is clicked
 function disable_other_chkbox()
 {
- var value = document.forms[0].all.checked; 
- if(value == 1) 
+ var value = document.forms[0].all.checked;
+ if(value == 1)
  {
  document.forms[0].history_data.disabled = true;
  document.forms[0].prescriptions.disabled = true;
@@ -197,7 +196,7 @@ function enable_controls(type)
 function form_validate()
 {
  if(document.forms[0].begin_date.value >= document.forms[0].end_date.value)
- { 
+ {
   alert("<?php echo xl('End date should be greater than Begin date');?>");
   return false;
  }
@@ -205,28 +204,28 @@ function form_validate()
  if(document.forms[0].all.checked == false &&
  document.forms[0].history_data.checked == false &&
  document.forms[0].prescriptions.checked == false &&
- document.forms[0].immunization.checked == false && 
+ document.forms[0].immunization.checked == false &&
  document.forms[0].lists.checked == false &&
- document.forms[0].transactions.checked == false && 
+ document.forms[0].transactions.checked == false &&
  document.forms[0].billing_data.checked == false &&
  document.forms[0].insurance_data.checked == false)
- { 
+ {
   alert("<?php echo xl('Select Data Required for De Identification');?>");
   return false;
  }
- 
+
  if(document.forms[0].diagnosis_text.value == "undefined" || document.forms[0].diagnosis_text.value == "")
- { 
+ {
   alert("<?php echo xl('Select Diagnosis for De Identification request');?>");
   return false;
  }
  if(document.forms[0].drug_text.value == "undefined" || document.forms[0].drug_text.value == "")
- { 
+ {
   alert("<?php echo xl('Select Drugs for De Identification request');?>");
   return false;
  }
  if(document.forms[0].immunization_text.value == "undefined" || document.forms[0].immunization_text.value == "")
- { 
+ {
   alert("<?php echo xl('Select Immunizations for De Identification request');?>");
   return false;
  }
@@ -244,7 +243,7 @@ function download_file()
 </script>
 </head>
 <body class="body_top">
-<form name="de_identification" id="de_identification" action="de_identification_screen2.php" method="post" onsubmit="return form_validate();"> 
+<form name="de_identification" id="de_identification" action="de_identification_screen2.php" method="post" onsubmit="return form_validate();">
 <strong><?php xl('De Identification','e'); ?></strong>
 <?php
  $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
@@ -252,7 +251,7 @@ function download_file()
  {
    ?>
    <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr> 
+	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
  </table>
  <table class="de_identification_status_message" align="center" >
 	<tr valign="top">
@@ -265,7 +264,7 @@ function download_file()
     	echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
-	</tr>    
+	</tr>
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
@@ -275,7 +274,7 @@ function download_file()
 		<td>&nbsp;</td>
 	</tr>
 	</table>
-  <?php 
+  <?php
   }
  else {
  $query = "select status from de_identification_status";
@@ -295,7 +294,7 @@ function download_file()
   //1 - A De Identification process is currently in progress.
  ?>
  <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr> 
+	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
  </table>
  <table class="de_identification_status_message" align="center" >
 	<tr valign="top">
@@ -308,7 +307,7 @@ function download_file()
     	echo "</br>";	?>      <br>
 		</td>
 		<td>&nbsp;</td>
-	</tr>    
+	</tr>
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
@@ -336,7 +335,7 @@ function download_file()
  $res = sqlStatement($query);
 	 ?>
 	 <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr> 
+	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
  </table>
  <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
@@ -347,24 +346,24 @@ function download_file()
        <?php echo xl('No Patient record found for given Selection criteria');
 	echo "</br></br>";
 	echo xl('Please start new De Identification process');
-    echo "</br>";	?> </br>      
+    echo "</br>";	?> </br>
 		</td>
 		<td>&nbsp;</td>
-	</tr>    
+	</tr>
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	</table>
-	
+
 	<table align="center">
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-      </table>	  
+      </table>
 	 <?php
       }
      else {
  ?>
  <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr> 
+	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
  </table>
  <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
@@ -377,7 +376,7 @@ function download_file()
     echo "</br>";	?>      <br>
 		</td>
 		<td>&nbsp;</td>
-	</tr>    
+	</tr>
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	</table>
@@ -396,7 +395,7 @@ function download_file()
   //3 - The De Identification process completed with error
   ?>
    <table>  <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	        <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr> 
+	        <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
    </table>
  <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
@@ -411,7 +410,7 @@ function download_file()
     echo "</br>";	?></span> 	<br>
 		</td>
 		<td>&nbsp;</td>
-	</tr>    
+	</tr>
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	</table>
@@ -421,7 +420,7 @@ function download_file()
    <td colspan="2" class="style1">
 		<input type="button" name="Download" value=<?php echo xl("Download Anyway");?>  onclick="download_file()"></td>
    </tr>
-   </table>		
+   </table>
  </tr>
  </table>
 
@@ -434,7 +433,7 @@ function download_file()
 <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;">
 </div>
 <table style="width: 74%" border=0>
-	<tr rowspan=2> 
+	<tr rowspan=2>
 		<td>&nbsp;</td>
 		<td><span class="text"><?php xl('Begin Date','e'); ?></span>
 		<input type="text" size="10" name="begin_date" id="begin_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
@@ -445,15 +444,15 @@ function download_file()
 		<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php xl('Click here to choose a date','e'); ?>">
 		</td>
 		<td>&nbsp;</td>
-		<td>&nbsp;</td>		
+		<td>&nbsp;</td>
 		</tr>
-		<tr> 
-		<td>&nbsp;</td> </tr>		
+		<tr>
+		<td>&nbsp;</td> </tr>
 		<tr><td>&nbsp;</td>
 		<td colspan=2 class="de_identification_input_controls_box"><input type="checkbox" name="unstructured" id="unstructured" value=<?php echo xl("unstructured");?>><span class="text"><?php xl('Include Unstructured data','e'); ?></span></td>
 		<td>&nbsp;</td></tr>
 		<tr>
-		<td>&nbsp;</td>		
+		<td>&nbsp;</td>
 		<td colspan="2">
 		<table class="de_identification_input_controls_box">
 			<tr>
@@ -463,7 +462,7 @@ function download_file()
 				<input type="checkbox" name="immunization" id="immunization" value="immunizations"><span class="text"><?php xl('Immunizations','e'); ?></span>
 				<br />
 				<input type="checkbox" name="prescriptions" id="prescriptions" value="prescriptions"><span class="text"><?php xl('Prescriptions','e'); ?></span>
-				
+
 &nbsp;</td>		<br />
 				<td><br>
 				<input type="checkbox" name="lists" id="lists" value="lists"><span class="text"><?php xl('Issues','e'); ?> </span><br />
@@ -471,7 +470,7 @@ function download_file()
 				<br />
 				<input type="checkbox" name="insurance_data" id="insurance_data" value="insurance_data"><span class="text"><?php xl('Insurance Data','e'); ?> </span><br />
 				<input type="checkbox" name="billing_data" id="billing_data" value="billing_data"><span class="text"><?php xl('Billing Data','e'); ?></span> <br />
-				
+
 &nbsp;</td>
 			</tr>
 		</table>
@@ -491,27 +490,27 @@ function download_file()
 			<tr valign="top">
 				<!--diagnosis--><td style="width:50%;" class="style1"><span class="text"><?php xl('Enter Diagnosis','e'); ?></span>
 				<input type="radio" id="diagnosis" name="diagnosis" value="all" onclick="disable_controls('diagnosis');" /><span class="text"> <?php xl('All','e'); ?></span>
-				<input type="radio" id="diagnosis" name="diagnosis" value="select_diagnosis" onclick="enable_controls('diagnosis');"    /> 
+				<input type="radio" id="diagnosis" name="diagnosis" value="select_diagnosis" onclick="enable_controls('diagnosis');"    />
 				<span class="text"><?php xl('Select Diagnosis','e'); ?></span>
 				<select id="diagnosis_list" name="diagnosis_list" size="10" style="width: 60%">
 				</select>
-				
+
 				</td>
 				<td style="width:50%;" class="style1">
 				<!--drugs--><span class="text"><?php xl('Enter Drugs','e'); ?></span>
 				<input type="radio" id="drugs" name="drugs" value="all"); onclick="disable_controls('drugs')"/><span class="text"> <?php xl('All','e'); ?></span>
-				<input type="radio" id="drugs" name="drugs" value="select_drug" onclick="enable_controls('drugs')" /> 
+				<input type="radio" id="drugs" name="drugs" value="select_drug" onclick="enable_controls('drugs')" />
 				<span class="text"><?php xl('Select Drugs','e'); ?> <br></span>
 				<select id="drug_list" name="drug_list" size="10" style="width: 60%">
 				</select>
-				
+
 				</td>
 			</tr>
-			<tr> <td class="style1"> 
+			<tr> <td class="style1">
 				<input type="button" name="add_diagnosis" id = "add_diagnosis" value=<?php echo xl("Add Diagnosis"); ?> onclick="get_values('diagnosis')">
-				<input type="button" name="remove_diagnosis" id="remove_diagnosis"value=<?php echo xl("Remove"); ?> onclick="remove_selected('diagnosis')">&nbsp; </td> <td class="style1"> 
+				<input type="button" name="remove_diagnosis" id="remove_diagnosis"value=<?php echo xl("Remove"); ?> onclick="remove_selected('diagnosis')">&nbsp; </td> <td class="style1">
 				<input type="button" name="add_drug" id="add_drug" value=<?php echo xl("Add Drug"); ?> onclick="get_values('drugs')">
-				<input type="button" name="remove_drug" id="remove_drug" value=<?php echo xl("Remove"); ?> onclick="remove_selected('drugs')"> 
+				<input type="button" name="remove_drug" id="remove_drug" value=<?php echo xl("Remove"); ?> onclick="remove_selected('drugs')">
 			</td> </tr>
 		</table>
 		</td>
@@ -523,7 +522,7 @@ function download_file()
 		<!--immunizations--><br>
 		<span class="text"><?php xl('Enter Immunizations','e'); ?></span>
 		<input type="radio" id="immunizations" name="immunizations" value="all" onclick="disable_controls('immunizations')"/><span class="text"> <?php xl('All','e'); ?></span>
-		<input type="radio" id="immunizations" name="immunizations" value="select_immunization" onclick="enable_controls('immunizations')" /> 
+		<input type="radio" id="immunizations" name="immunizations" value="select_immunization" onclick="enable_controls('immunizations')" />
 		<span class="text"><?php xl('Select Immunizations','e'); ?></span> <br>
 		<select id="immunization_list" name="immunization_list" size="10" width="300" style="width: 30%">
 		</select> <br>
@@ -539,7 +538,7 @@ function download_file()
 		<input type="submit" name="Submit" value=<?php echo xl("Submit"); ?> ></td>
 		<td>&nbsp;</td>
 	</tr>
-	
+
 	<input type="hidden" name="diagnosis_text" id="diagnosis_text"><br>
 		<input type="hidden" name="drug_text" id="drug_text"><br>
 		<input type="hidden" name="immunization_text" id="immunization_text">
@@ -548,11 +547,11 @@ function download_file()
 /* required for popup calendar */
 Calendar.setup({inputField:"begin_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
 Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
-</script>		
-	<?php	
+</script>
+	<?php
 	}
        }
-      
+
    ?>
 </form>
 </body>
