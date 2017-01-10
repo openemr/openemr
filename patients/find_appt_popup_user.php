@@ -35,11 +35,11 @@ $ignoreAuth = 1;
  include_once("../interface/globals.php");
  include_once("$srcdir/patient.inc");
 
- // Exit if the modify calendar for portal flag is not set
- if (!($GLOBALS['portal_onsite_appt_modify'])) {
+ // Exit if the modify calendar for portal flag is not set patched out v5
+ /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
    exit;
- }
+ } */
 
  $input_catid = $_REQUEST['catid'];
 
@@ -109,7 +109,7 @@ $ignoreAuth = 1;
  $slotbase  = (int) ($slotstime / $slotsecs);
  $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range");
+ if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range.");
 
  $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
@@ -161,7 +161,7 @@ $ignoreAuth = 1;
 
     $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
     if ($endtime > $slotetime) $endtime = $slotetime;
-    
+
     $repeatix = 0;
     while ($thistime < $endtime) {
 
@@ -253,17 +253,18 @@ $ignoreAuth = 1;
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-
+<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
+<script src="assets/js/jquery-1.11.3.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<!-- for ajax-y stuff
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script> -->
 
-<!-- for ajax-y stuff -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-
-<script language="JavaScript">
+<script>
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
@@ -286,25 +287,25 @@ form {
 #searchCriteria {
     text-align: center;
     width: 100%;
-    font-size: 0.8em;
-    background-color: #ddddff;
+   /* font-size: 0.8em; */
+    background-color: #bfe6ff;
     font-weight: bold;
     padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
     width: 100%;
     background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
 #searchResultsHeader th {
-    font-size: 0.7em;
+   /* font-size: 0.7em; */
 }
 #searchResults {
     width: 100%;
-    height: 350px; 
+    height: 100%;
     overflow: auto;
 }
 
@@ -317,12 +318,12 @@ form {
     background-color: white;
 }
 #searchResults td {
-    font-size: 0.7em;
+   /* font-size: 0.7em; */
     border-bottom: 1px solid gray;
     padding: 1px 5px 1px 5px;
 }
 .highlight { background-color: #ff9; }
-.blue_highlight { background-color: #336699; color: white; }
+.blue_highlight { background-color: #BBCCDD; color: white; }
 #am {
     border-bottom: 1px solid lightgrey;
     color: #00c;
@@ -336,7 +337,7 @@ form {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
+<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
    <input type="hidden" name='bypatient' />
 
    <?php xl('Start date:','e'); ?>
@@ -344,7 +345,7 @@ form {
 
    <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
-    
+
    <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
@@ -360,7 +361,7 @@ form {
 <?php if (!empty($slots)) : ?>
 
 <div id="searchResultsHeader">
-<table>
+<table class='table table-bordered'>
  <tr>
   <th class="srDate"><?php xl ('Day','e'); ?></th>
   <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
@@ -369,7 +370,7 @@ form {
 </div>
 
 <div id="searchResults">
-<table> 
+<table class='table table-condensed table-inversed table-bordered'>
 <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
@@ -397,7 +398,7 @@ form {
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag
         }
-        
+
         $ampm = date('a', $utime);
         if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
         $ampmFlag = $ampm;

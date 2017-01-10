@@ -1,14 +1,27 @@
 <?php
- // Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Cassian LUP <cassi.lup@gmail.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org 
+ *
+ */
         require_once("verify_session.php");
-
-
         require_once('../library/options.inc.php');
 
 	$selects =
@@ -28,31 +41,31 @@
     "pc.procedure_order_seq, pr.procedure_report_id";
 
   $where = "1 = 1";
-  	  	
+
   $res = sqlStatement("SELECT $selects " .
-	  "FROM procedure_order AS po $joins " .
-	  "WHERE po.patient_id = ? AND $where " .
-	  "ORDER BY $orderby", array($pid));
+      "FROM procedure_order AS po $joins " .
+      "WHERE po.patient_id = ? AND $where " .
+      "ORDER BY $orderby", array($pid));
 
   	if(sqlNumRows($res)>0)
   	{
-  		?>
-  		<table class="class1">
-  			<tr class="header">
-  				<th><?php echo htmlspecialchars( xl('Order Date'),ENT_NOQUOTES); ?></th>
-  				<th><?php echo htmlspecialchars( xl('Order Name'),ENT_NOQUOTES); ?></th>
-                                <th><?php echo htmlspecialchars( xl('Result Name'),ENT_NOQUOTES); ?></th>
-  				<th><?php echo htmlspecialchars( xl('Abnormal'),ENT_NOQUOTES); ?></th>
-  				<th><?php echo htmlspecialchars( xl('Value'),ENT_NOQUOTES); ?></th>
-                                <th><?php echo htmlspecialchars( xl('Range'),ENT_NOQUOTES); ?></th>
-                                <th><?php echo htmlspecialchars( xl('Units'),ENT_NOQUOTES); ?></th>
-                                <th><?php echo htmlspecialchars( xl('Result Status'),ENT_NOQUOTES); ?></th>
-                                <th><?php echo htmlspecialchars( xl('Report Status'),ENT_NOQUOTES); ?></th>
-  			</tr>
-  		<?php
-  		$even=false;
+        ?>
+        <table class="table table-striped table-condensed table-bordered">
+            <tr class="header">
+                <th><?php echo xlt('Order Date'); ?></th>
+                <th><?php echo xlt('Order Name'); ?></th>
+                <th><?php echo xlt('Result Name'); ?></th>
+                <th><?php echo xlt('Abnormal'); ?></th>
+  	            <th><?php echo xlt('Value'); ?></th>
+                <th><?php echo xlt('Range'); ?></th>
+                <th><?php echo xlt('Units'); ?></th>
+                <th><?php echo xlt('Result Status'); ?></th>
+                <th><?php echo xlt('Report Status'); ?></th>
+            </tr>
+        <?php
+        $even=false;
 
-  		while ($row = sqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
         $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id' ] + 0);
         $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
 
@@ -86,34 +99,34 @@
         $rres = sqlStatement($query);
         while ($rrow = sqlFetchArray($rres)) {
 
-  			if ($even) {
-  				$class="class1_even";
-  				$even=false;
-  			} else {
-  				$class="class1_odd";
-  				$even=true;
-  			}
-  			$date=explode('-',$row['date_ordered']);
-  			echo "<tr class='".$class."'>";
-  			echo "<td>".htmlspecialchars($date[1]."/".$date[2]."/".$date[0],ENT_NOQUOTES)."</td>";
-  			echo "<td>".htmlspecialchars($row['procedure_name'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".htmlspecialchars($rrow['name'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_abnormal'),$rrow['abnormal'])."</td>";
-  			echo "<td>".htmlspecialchars($row['result'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".htmlspecialchars($rrow['pt2_range'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$rrow['pt2_units'])."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_status'),$rrow['result_status'])."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_rep_status'),$row['report_status'])."</td>";
-  			echo "</tr>";
+            if ($even) {
+                $class="class1_even";
+                $even=false;
+            } else {
+                $class="class1_odd";
+                $even=true;
+            }
+            $date=explode('-',$row['date_ordered']);
+            echo "<tr class='".$class."'>";
+            echo "<td>".text($date[1]."/".$date[2]."/".$date[0])."</td>";
+            echo "<td>".text($row['procedure_name'])."</td>";
+            echo "<td>".text($rrow['name'])."</td>";
+            echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_abnormal'),$rrow['abnormal'])."</td>";
+            echo "<td>".text($row['result'])."</td>";
+            echo "<td>".text($rrow['pt2_range'])."</td>";
+            echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$rrow['pt2_units'])."</td>";
+            echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_status'),$rrow['result_status'])."</td>";
+            echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_rep_status'),$row['report_status'])."</td>";
+            echo "</tr>";
 
       }
 
      }
 
-		echo "</table>";
+        echo "</table>";
   	}
 	else
-	{
-		echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
-	}
+    {
+        echo xlt("No Results");
+    }
 ?>
