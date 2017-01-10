@@ -2284,18 +2284,32 @@ $GLOBALS_METADATA = array(
   //
   'Portal' => array(
 
-    'portal_onsite_enable' => array(
-      xl('Enable Onsite Patient Portal'),
+    'portal_onsite_two_enable' => array(
+      xl('Enable Version 2 Onsite Patient Portal'),
       'bool',                           // data type
       '0',
-      xl('Enable Onsite Patient Portal.')
+      xl('Enable Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_two_address' => array(
+      xl('Version 2 Onsite Patient Portal Site Address'),
+      'text',                           // data type
+      'https://your_web_site.com/openemr/portal',
+      xl('Website link for the Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_enable' => array(
+      xl('Enable Version 1 Onsite Patient Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_address' => array(
-      xl('Onsite Patient Portal Site Address'),
+      xl('Version 1 Onsite Patient Portal Site Address'),
       'text',                           // data type
       'https://your_web_site.com/openemr/patients',
-      xl('Website link for the Onsite Patient Portal.')
+      xl('Website link for the Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_document_download' => array(
