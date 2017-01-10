@@ -231,7 +231,7 @@ CREATE TABLE `categories` (
 --
 -- Dumping data for table `categories`
 --
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 51);
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57);
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10);
@@ -257,7 +257,9 @@ INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42);
 INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44);
 INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46);
 INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48);
-
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56);
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53);
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55);
 -- --------------------------------------------------------
 
 --
@@ -274,7 +276,7 @@ CREATE TABLE `categories_seq` (
 -- Dumping data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (26);
+INSERT INTO `categories_seq` VALUES (29);
 
 -- --------------------------------------------------------
 
@@ -3473,6 +3475,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, toggle_setting_2 ) VALUES ('apptstat','>'       ,'> Checked out'       ,55,0,'FEFDCF|0','1');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','$'       ,'$ Coding done'       ,60,0,'C0FF96|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','%'       ,'% Canceled < 24h'    ,65,0,'BFBFBF|0');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','^'       ,'^ Pending'           ,70,0,'FEFDCF|0');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'warehouse','Warehouses',21,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('warehouse','onsite'   ,'On Site'   , 5,0);
@@ -4870,6 +4873,162 @@ CREATE TABLE `onotes` (
   `groupname` varchar(255) default NULL,
   `activity` tinyint(4) default NULL,
   PRIMARY KEY  (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_documents`
+--
+
+DROP TABLE IF EXISTS `onsite_documents`;
+CREATE TABLE `onsite_documents` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `facility` int(10) UNSIGNED DEFAULT NULL,
+  `provider` int(10) UNSIGNED DEFAULT NULL,
+  `encounter` int(10) UNSIGNED DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `doc_type` varchar(255) NOT NULL,
+  `patient_signed_status` smallint(5) UNSIGNED NOT NULL,
+  `patient_signed_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authorize_signed_time` datetime DEFAULT NULL,
+  `accept_signed_status` smallint(5) NOT NULL,
+  `authorizing_signator` varchar(50) NOT NULL,
+  `review_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `denial_reason` varchar(255) NOT NULL,
+  `authorized_signature` text,
+  `patient_signature` text,
+  `full_document` blob,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_mail`
+--
+
+DROP TABLE IF EXISTS `onsite_mail`;
+CREATE TABLE `onsite_mail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `owner` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `header` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `body` longtext,
+  `recipient_id` varchar(128) DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(128) DEFAULT NULL,
+  `sender_name` varchar(255) DEFAULT NULL,
+  `assigned_to` varchar(255) DEFAULT NULL,
+  `deleted` tinyint(4) DEFAULT '0' COMMENT 'flag indicates note is deleted',
+  `delete_date` datetime DEFAULT NULL,
+  `mtype` varchar(128) DEFAULT NULL,
+  `message_status` varchar(20) NOT NULL DEFAULT 'New',
+  `mail_chain` int(11) DEFAULT NULL,
+  `reply_mail_chain` int(11) DEFAULT NULL,
+  `is_msg_encrypted` tinyint(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  PRIMARY KEY (`id`),
+  KEY `pid` (`owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_messages`
+--
+
+DROP TABLE IF EXISTS `onsite_messages`;
+CREATE TABLE `onsite_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `message` longtext,
+  `ip` varchar(15) NOT NULL,
+  `date` datetime NOT NULL,
+  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+  `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_online`
+--
+
+DROP TABLE IF EXISTS `onsite_online`;
+CREATE TABLE `onsite_online` (
+  `hash` varchar(32) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `last_update` datetime NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `userid` int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_portal_activity`
+--
+
+DROP TABLE IF EXISTS `onsite_portal_activity`;
+CREATE TABLE `onsite_portal_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `patient_id` bigint(20) DEFAULT NULL,
+  `activity` varchar(255) DEFAULT NULL,
+  `require_audit` tinyint(1) DEFAULT '1',
+  `pending_action` varchar(255) DEFAULT NULL,
+  `action_taken` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `narrative` longtext,
+  `table_action` longtext,
+  `table_args` longtext,
+  `action_user` int(11) DEFAULT NULL,
+  `action_taken_time` datetime DEFAULT NULL,
+  `checksum` longtext,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_signatures`
+--
+
+DROP TABLE IF EXISTS `onsite_signatures`;
+CREATE TABLE `onsite_signatures` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `status` varchar(128) NOT NULL DEFAULT 'waiting',
+  `type` varchar(128) NOT NULL,
+  `created` int(11) NOT NULL,
+  `lastmod` datetime NOT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) NOT NULL DEFAULT '0',
+  `authorized` tinyint(4) DEFAULT NULL,
+  `signator` varchar(255) NOT NULL,
+  `sig_image` text,
+  `signature` text,
+  `sig_hash` varchar(128) NOT NULL,
+  `ip` varchar(46) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`,`user`),
+  KEY `encounter` (`encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------

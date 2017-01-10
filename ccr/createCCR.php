@@ -31,10 +31,15 @@ $fake_register_globals=false;
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
-if (isset($_GET['portal_auth'])) {
-  $landingpage = "../patients/index.php";
+if (isset($_GET['portal_auth']) || isset($_GET['portal_auth_two'])) {
+  if (isset($_GET['portal_auth'])) {
+    $landingpage = "../patients/index.php";
+  }
+  else { // isset($_GET['portal_auth_two'])
+    $landingpage = "../portal/index.php";
+  }
   session_start();
-  if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
+  if ( isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two']))) {
     $pid = $_SESSION['pid'];
     $ignoreAuth=true;
     global $ignoreAuth;

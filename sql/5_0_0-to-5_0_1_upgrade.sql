@@ -268,7 +268,140 @@ CREATE TABLE `form_therapy_groups_attendance` (
 ) ENGINE=InnoDB ;
 #EndIf
 
-
 #IfNotRow2D list_options list_id lists option_id files_white_list
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
+#EndIf
+
+#IfNotTable onsite_documents
+CREATE TABLE `onsite_documents` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `facility` int(10) UNSIGNED DEFAULT NULL,
+  `provider` int(10) UNSIGNED DEFAULT NULL,
+  `encounter` int(10) UNSIGNED DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `doc_type` varchar(255) NOT NULL,
+  `patient_signed_status` smallint(5) UNSIGNED NOT NULL,
+  `patient_signed_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authorize_signed_time` datetime DEFAULT NULL,
+  `accept_signed_status` smallint(5) NOT NULL,
+  `authorizing_signator` varchar(50) NOT NULL,
+  `review_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `denial_reason` varchar(255) NOT NULL,
+  `authorized_signature` text,
+  `patient_signature` text,
+  `full_document` blob,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_mail
+CREATE TABLE `onsite_mail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `owner` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `header` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `body` longtext,
+  `recipient_id` varchar(128) DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(128) DEFAULT NULL,
+  `sender_name` varchar(255) DEFAULT NULL,
+  `assigned_to` varchar(255) DEFAULT NULL,
+  `deleted` tinyint(4) DEFAULT '0' COMMENT 'flag indicates note is deleted',
+  `delete_date` datetime DEFAULT NULL,
+  `mtype` varchar(128) DEFAULT NULL,
+  `message_status` varchar(20) NOT NULL DEFAULT 'New',
+  `mail_chain` int(11) DEFAULT NULL,
+  `reply_mail_chain` int(11) DEFAULT NULL,
+  `is_msg_encrypted` tinyint(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  PRIMARY KEY (`id`),
+  KEY `pid` (`owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_messages
+CREATE TABLE `onsite_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `message` longtext,
+  `ip` varchar(15) NOT NULL,
+  `date` datetime NOT NULL,
+  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+ `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_online
+CREATE TABLE `onsite_online` (
+  `hash` varchar(32) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `last_update` datetime NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `userid` int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable onsite_portal_activity
+CREATE TABLE `onsite_portal_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `patient_id` bigint(20) DEFAULT NULL,
+  `activity` varchar(255) DEFAULT NULL,
+  `require_audit` tinyint(1) DEFAULT '1',
+  `pending_action` varchar(255) DEFAULT NULL,
+  `action_taken` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `narrative` longtext,
+  `table_action` longtext,
+  `table_args` longtext,
+  `action_user` int(11) DEFAULT NULL,
+  `action_taken_time` datetime DEFAULT NULL,
+  `checksum` longtext,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotTable onsite_signatures
+CREATE TABLE `onsite_signatures` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `status` varchar(128) NOT NULL DEFAULT 'waiting',
+  `type` varchar(128) NOT NULL,
+  `created` int(11) NOT NULL,
+  `lastmod` datetime NOT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) NOT NULL DEFAULT '0',
+  `authorized` tinyint(4) DEFAULT NULL,
+  `signator` varchar(255) NOT NULL,
+  `sig_image` text,
+  `signature` text,
+  `sig_hash` varchar(128) NOT NULL,
+  `ip` varchar(46) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`,`user`),
+  KEY `encounter` (`encounter`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotRow categories name Onsite Portal
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Onsite Portal', '', 1, rght, rght + 5 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Patient', '', (select id from categories where name = 'Onsite Portal'), rght + 1, rght + 2 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Reviewed', '', (select id from categories where name = 'Onsite Portal'), rght + 3, rght + 4 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 6 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfNotRow2D list_options list_id apptstat option_id ^
+INSERT INTO list_options ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `notes` ) VALUES ('apptstat','^','^ Pending',70,0,'FEFDCF|0');
 #EndIf

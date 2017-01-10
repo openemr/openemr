@@ -71,8 +71,15 @@ function validEmail($email){
 function messageCreate($uname,$pass,$site){
     $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>";
     if ($site == "on") {
-        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
-                    htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br><br>";
+        if ($GLOBALS['portal_onsite_enable']) {
+            $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br>";
+        }
+        if ($GLOBALS['portal_onsite_two_enable']) {
+            $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_two_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_onsite_two_address'],ENT_NOQUOTES) . "</a><br>";
+        }
+        $message .= "<br>";
     } // $site == "off"
     else {
 	$offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  htmlspecialchars($GLOBALS['portal_offsite_address_patient_link'],ENT_QUOTES) : htmlspecialchars("https://mydocsportal.com",ENT_QUOTES);
