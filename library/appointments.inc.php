@@ -642,8 +642,9 @@ function interpretRecurrence($recurr_freq, $recurr_type){
 }
 
 function fetchRecurrences($pid){
-	$query = "SELECT `pc_title`, `pc_endDate`, `pc_recurrtype`, `pc_recurrspec` FROM openemr_postcalendar_events
-WHERE `pc_pid` = ?  AND `pc_recurrtype` > 0;";
+    $query = "SELECT pe.pc_title, pe.pc_endDate, pe.pc_recurrtype, pe.pc_recurrspec, pc.pc_catname FROM openemr_postcalendar_events AS pe "
+					. "JOIN openemr_postcalendar_categories AS pc ON pe.pc_catid=pc.pc_catid "
+					. "WHERE pe.pc_pid = ?  AND pe.pc_recurrtype > 0;";
 	$sqlBindArray = array();
 	array_push($sqlBindArray, $pid);
 	$res = sqlStatement($query, $sqlBindArray);
