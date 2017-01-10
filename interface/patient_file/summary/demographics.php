@@ -1517,7 +1517,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                  if ($row == false || !recurrence_is_current($row['pc_endDate']))
                      continue;
                  echo "<div>";
-                 echo "<span>" . xlt('Appointment Category') . ': ' . text($row['pc_title']) . "</span>";
+                 echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
                  echo "<br>";
                  echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
                  echo "<br>";
