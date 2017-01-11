@@ -41,8 +41,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <!-- jQuery-ui and datatables -->
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/css/dataTables.jqueryui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-1/css/scroller.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-2/css/scroller.jqueryui.min.css" />
 
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
@@ -316,9 +316,9 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <!--  -->
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/js/dataTables.jqueryui.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-1/js/dataTables.scroller.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/js/dataTables.jqueryui.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-2/js/dataTables.scroller.min.js"></script>
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
     jQuery(document).ready(function() {
