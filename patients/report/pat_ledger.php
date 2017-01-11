@@ -281,7 +281,7 @@ if ($_REQUEST['form_csvexport']) {
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/patients/assets/js/jquery-1.5.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
 <script type="text/javascript">
@@ -441,9 +441,9 @@ function sel_patient() {
 					<span><?php echo xlt('Submit'); ?></span></a>
 
 			<?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-					<div id="controls">
-                    <a href='#' class='css_button' id='printbutton'>
-                         <span><?php echo xlt('Print Ledger'); ?></span></a>
+					<div id="controls"> <!--  print is patched out until I feel like convert to patient side -->
+                    <!-- <a href='#' class='css_button' id='printbutton'>
+                         <span><?php //echo xlt('Print Ledger'); ?></span></a> -->
                     <?php if($type_form == '1') { ?>
                     <!--  <a href="../patient_file/summary/demographics.php" <?php // if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">-->
                          <!-- <span><?php //echo xlt('Back To Patient');?></span></a> -->
