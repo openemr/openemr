@@ -1,6 +1,7 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "angular",
     "bootstrap",
     "datatables",
     "datatables.net-bs",
@@ -11,6 +12,8 @@
     "datatables.net",
     "jquery",
     "imagesloaded",
-    "react"
+    "moment",
+    "react",
+    "summernote"
   ]
 }
