@@ -21,10 +21,29 @@
  * @link http://www.open-emr.org
  */
 
-require_once ("verify_session.php");
-require_once ("./lib/portal_pnotes.inc");
+session_start();
+if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite'] ) ){
+	$pid = $_SESSION['pid'];
+	$ignoreAuth = true;
+	$fake_register_globals=false;
+	$sanitize_all_escapes=true;
+	require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
+} else{
+	session_destroy();
+	$ignoreAuth = false;
+	$sanitize_all_escapes = true;
+	$fake_register_globals = false;
+	require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
+	if( ! isset( $_SESSION['authUserID'] ) ){
+		$landingpage = "index.php";
+		header( 'Location: ' . $landingpage );
+		exit();
+	}
+}
 
-$pid = $_SESSION ['pid'];
+require_once (dirname( __FILE__ ) . "/lib/portal_pnotes.inc");
+
+$pid = $_SESSION ['pid'] ? $_SESSION ['pid'] : $_POST ['pid'];
 $task = $_POST ['task'];
 if (! $task)
 	return 'no task';
