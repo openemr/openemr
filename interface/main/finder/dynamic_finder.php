@@ -44,16 +44,12 @@ while ($row = sqlFetchArray($res)) {
     <title><?php echo xlt("Patient Finder"); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
-<style type="text/css">
-@import "../../../library/js/datatables/media/css/demo_page.css";
-@import "../../../library/js/datatables/media/css/demo_table.css";
-.mytopdiv { float: left; margin-right: 1em; }
-</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
 
-<script type="text/javascript" src="../../../library/js/datatables/media/js/jquery.js"></script>
-<script type="text/javascript" src="../../../library/js/datatables/media/js/jquery.dataTables.min.js"></script>
-<!-- this is a 3rd party script -->
-<script type="text/javascript" src="../../../library/js/datatables/extras/ColReorder/media/js/ColReorderWithResize.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
 
 <script language="JavaScript">
 
@@ -104,7 +100,7 @@ $(document).ready(function() {
  });
 
  // OnClick handler for the rows
- $('#pt_table tbody tr').live('click', function () {
+ $('#pt_table').on('click', 'tbody tr', function () {
   // ID of a row element is pid_{value}
   var newpid = this.id.substring(4);
   // If the pid is invalid, then don't attempt to set 
