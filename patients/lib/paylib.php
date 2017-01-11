@@ -42,7 +42,7 @@ if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite'] ) ){
 
 require_once("./appsql.class.php");
 //$_SESSION['whereto'] = 'paymentpanel';
-if($_SESSION['portal_init'] != true) $_SESSION['whereto'] = 'paymentpanel';
+if($_SESSION['portal_init'] != 'true') $_SESSION['whereto'] = 'paymentpanel';
 $_SESSION['portal_init'] = false;
 
 if ($_POST['mode'] == 'portal-save') {

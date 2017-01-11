@@ -20,7 +20,7 @@ function addPortalMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1
 	if ($message_status == "Done") $activity = 0;
 	
 	$pname = $_SESSION['ptName']?$_SESSION['ptName']:$pid;
-	
+	$user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
 	//$body = date('Y-m-d H:i') . " (";
 	$body =  " ($pname";
 	if ($assigned_to) $body .= " to $assigned_to";
@@ -28,7 +28,7 @@ function addPortalMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1
 
 	return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
 			"authorized, activity, title, assigned_to, message_status, portal_relation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			array($datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note) );
+			array($datetime, $body, $pid, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note) );
 }
 
 function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')

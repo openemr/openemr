@@ -277,7 +277,7 @@ foreach ( $result as $iter ) {
 									<label class="col-sm-2" for="selSendto"><?php echo xlt('To'); ?></label>
 									<div class="col-sm-10">
 										<select class="form-control" id="selSendto" name="selSendto">
-											<option selected="selected" value="<?php echo($_SESSION['providerUName'].'">'.$_SESSION['providerName']);?></option>
+											<option selected="selected" value="<?php echo($_SESSION['providerUName'])?>"><?php echo $_SESSION['providerName'];?></option>
 											<option>Admin</option>
 											<option>Nursing</option>
 											<option>Billing</option>

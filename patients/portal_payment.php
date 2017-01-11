@@ -283,8 +283,9 @@ if( $_POST['form_save'] ){
     } // if ($_POST['form_upay'])
 } // if ($_POST['form_save'])
 
-if( $_POST['form_save'] || $_REQUEST['receipt'] ){
-
+if( $_POST['form_save'] || $_REQUEST['receipt']){
+	//$form_pid =$pid;
+	//$timestamp = decorateString( '....-..-.. ..:..:..', $_GET['time'] );
     if( $_REQUEST['receipt'] ){
         $form_pid = $_GET['patient'];
         $timestamp = decorateString( '....-..-.. ..:..:..', $_GET['time'] );
@@ -320,56 +321,41 @@ if( $_POST['form_save'] || $_REQUEST['receipt'] ){
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/patients/js/jquery-1.11.3.min.js"></script>
-<!--  -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/patients/assets/js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript">
-<?php //require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-initPayment = function() {
- var win = top.printLogSetup ? top : opener.top;
- win.printLogSetup(document.getElementById('printbutton'));
-};
 $( document ).ready();
 function goHome(){
-    <?php $_SESSION['whereto'] = 'paymentpanel';?>
      window.location.replace("./patient/onsiteactivityviews");
-
 }
- // This is action to take before printing and is called from restoreSession.php.
- function printlog_before_print() {
-  var divstyle = document.getElementById('hideonprint').style;
-  divstyle.display = 'none';
- }
-
- // Process click on Delete button.
- function deleteme() {
-  dlgopen('./../interface/patient_file/deleter.php?payment=<?php echo $payment_key ?>', '_blank', 500, 450);
-  return false;
- }
- // Called by the deleteme.php window on a successful delete.
- function imdeleted() {
-  window.close();
- }
-
- // Called to switch to the specified encounter having the specified DOS.
- // This also closes the popup window.
-
+function notifyPatient(){
+	var note = $('#pop_receipt').text();
+    var formURL = 'handle_note.php';
+    $.ajax({
+        url: formURL,
+        type: "POST",
+        data: {'task':'add', 'pid':'30', 'inputBody':note, 'title':'Payment Receipt', 'sendto':'-patient-','noteid':'0'},
+        success: function(data, textStatus, jqXHR) {
+        	alert('Receipt sent to patient')
+        },
+        error: function(jqXHR, status, error) {
+            console.log(status + ": " + error);
+        }
+    });
+}
 </script>
-<!-- Get the receipt from buffer do with what is need later rpthtml -->
-<?php // ob_start(); ?>
-<div id='pop_recreipt' style='display: block'>
-    <body style="text-align: center; margin: auto;">
+<?php
+require_once ("./lib/portal_pnotes.inc");
+ob_start();
+echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
+?>
+
+<div id='pop_receipt' style='display: block'>
         <p>
-
-
         <h2><?php echo xlt('Receipt for Payment'); ?></h2>
-
         <p><?php echo text($frow['name'])?>
-<br><?php echo text($frow['street'])?>
-<br><?php
-
-echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_code'] )?>
-<br><?php echo htmlentities($frow['phone'])?>
+		<br><?php echo text($frow['street'])?>
+		<br><?php echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_code'] )?>
+		<br><?php echo htmlentities($frow['phone'])?>
         <p>
         <div style="text-align: center; margin: auto;">
             <table border='0' cellspacing='8'
@@ -380,9 +366,7 @@ echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_c
                 </tr>
                 <tr>
                     <td><?php echo xlt('Patient'); ?>:</td>
-                    <td><?php
-
-echo text( $patdata['fname'] ) . " " . text( $patdata['mname'] ) . " " . text( $patdata['lname'] ) . " (" . text( $patdata['pubpid'] ) . ")"?></td>
+                    <td><?php echo text( $patdata['fname'] ) . " " . text( $patdata['mname'] ) . " " . text( $patdata['lname'] ) . " (" . text( $patdata['pubpid'] ) . ")"?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Paid Via'); ?>:</td>
@@ -406,31 +390,13 @@ echo text( $patdata['fname'] ) . " " . text( $patdata['mname'] ) . " " . text( $
                 </tr>
             </table>
         </div>
-        <button class='btn btn-sm' type='button' onclick='goHome()'
-            id='returnhome'><?php echo xla('Return Home'); ?></button>
-        <div id='hideonprint'>
-            <p>
-                <input type='button' value='<?php echo xla('Print'); ?>'
-                    id='printbutton' />
-
-<?php
-    $todaysenc = todaysEncounterIf( $pid );
-    if( $todaysenc && $todaysenc != $encounter ){
-        echo "&nbsp;<input type='button' " . "value='" . xla( 'Open Today`s Visit' ) . "' " . "onclick='($todaysenc,\"$today\",opener.top)' />\n";
-    }
-    ?>
-<?php if (!acl_check('admin', 'super')) { ?>
-&nbsp;
-<input type='button' value='<?php echo xla('Delete'); ?>'
-                    style='color: red' onclick='deleteme()' />
-<?php } ?>
-        </div>
 </div>
-<!-- pop div -->
-
-</body>
-<!--   End of receipt printing logic. -->
+        <button class='btn btn-sm' type='button' onclick='goHome()' id='returnhome'><?php echo xla('Return Home'); ?></button>
+        <button class='btn btn-sm' type='button' onclick="notifyPatient()"><?php echo xla('Notify Patient'); ?></button>
+</body></html>
 <?php
+ $note = ob_get_flush();
+//sendMail ( $pid, $note, "Payment Receipt", "-patient-", 0 );
 } else{
     //
     // Here we display the form for data entry.
@@ -825,7 +791,7 @@ $('#paySubmit').click( function(e) {
             console.log("There was an error:"+errorThrow);
         },
         success: function(templateHtml, textStatus, jqXHR){
-        	alert("<?php echo addslashes( xl('Payment successfully sent for authorization. You will be notified when payment is posted. \nUntil payment is accepted and you are notified, you may resubmit this payment at anytime\n with new amounts or different credit card. Thank you')) ?>")
+        	alert("<?php echo addslashes( xl('Payment successfully sent for authorization. You will be notified when payment is posted. Until payment is accepted and you are notified, you may resubmit this payment at anytime with new amounts or different credit card. Thank you')) ?>")
             window.location.reload(false);
         }
     });
@@ -860,7 +826,6 @@ $("#payfrm").on('submit', function(e){
             return false;
         },
         success: function(templateHtml, textStatus, jqXHR){
-            //alert('Success');
             thisform.submit();
         }
     });
@@ -891,7 +856,7 @@ function formRepopulate(jsondata){
     });
 }
 function getAuth(){
-    var authnum = prompt("Please enter card comfirmation authorization", "");
+    var authnum = prompt("<?php echo  xlt('Please enter card comfirmation authorization') ?>", "");
     if (authnum != null) {
         $('#check_number').val(authnum);
     }
@@ -986,12 +951,11 @@ echo htmlspecialchars( $patdata['fname'], ENT_QUOTES ) . " " . htmlspecialchars(
             </tr>
             <tr id="tr_radio2">
                 <!-- For radio self -->
-                <td class='text' valign="top">
-   <?php echo xlt('Payment against'); ?>:
+                <td class='text' valign="top"><?php echo xlt('Payment against'); ?>:
   </td>
-                <td class='text' colspan="2"><input type="radio"    name="radio_type_of_payment" id="radio_type_of_payment1"
+                <td class='text' colspan="2"><input type="radio"    name="radio_type_of_payment" id="radio_type_of_payment1" checked="checked"
                     value="copay" onClick="make_visible_row();cursor_pointer();" /><?php echo xlt('Co Pay'); ?>
-          <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2" checked="checked"
+          <input type="radio" name="radio_type_of_payment" id="radio_type_of_payment2"
                     value="invoice_balance" onClick="make_visible_row();" /><?php echo xlt('Invoice Balance'); ?><br />
         <input type="radio" name="radio_type_of_payment"    id="radio_type_of_payment4" value="pre_payment"
                     onClick="make_hide_row();" /><?php echo xlt('Pre Pay'); ?></td>
@@ -1191,9 +1155,7 @@ echo htmlspecialchars( $patdata['fname'], ENT_QUOTES ) . " " . htmlspecialchars(
             echo '<div class="panel-heading">Payment Information <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">Authorize</button></div>';
     }
     else{
-        echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6">
-        <div class="panel panel-default height">
-        <div class="panel-heading">Payment Information </div>';
+        echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6"><div class="panel panel-default height"><div class="panel-heading">Payment Information </div>';
     }
     ?>
                      <div class="panel-body">
