@@ -395,10 +395,7 @@ function checkAll(checked) {
 						   <?php echo xlt('Errors') ?></label>
 						</td>
 
-						<td>
-						   <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) echo ' checked'; ?>>
-						   <?php echo xlt('Only those with debt') ?></label>
-						</td>
+
 					</tr>
 				</table>
 			</td>
@@ -526,6 +523,10 @@ function checkAll(checked) {
 						<td>
 						   <input type='text' name='form_age_inc' size='3' value='<?php echo attr($form_age_inc); ?>' />
 						</td>
+						<td>
+						   <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) echo ' checked'; ?>>
+						   <?php echo xlt('Paitents with debt') ?></label>
+						</td>
 					</tr>
 
 
@@ -615,6 +616,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $where .= "f.provider_id = ? ";
       array_push($sqlArray, $form_provider);
     }
+
     
     if (! $where) {
       $where = "1 = 1";
@@ -645,7 +647,8 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       "ORDER BY f.pid, f.encounter";
  
     $eres = sqlStatement($query, $sqlArray);
-    
+
+
     while ($erow = sqlFetchArray($eres)) {
 
 
@@ -657,11 +660,12 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
       $svcdate = substr($erow['date'], 0, 10);
 
-        if($form_cb_with_debt && $pt_balance<0) {
-            $pt_balance=0;
 
-        }
-
+      if($form_cb_with_debt && $pt_balance<0)
+      {
+          unset($erow);
+          continue;
+      }
 
       if ($_POST['form_refresh'] && ! $is_all) {
         if ($pt_balance == 0) continue;
