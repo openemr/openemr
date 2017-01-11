@@ -111,8 +111,8 @@
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
 
-    <script type="text/javascript" src="../library/js/jquery-1.5.js"></script>
-    <script type="text/javascript" src="../library/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="assets/js/jquery.gritter.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="assets/css/jquery.gritter.css" />
     <link rel="stylesheet" type="text/css" href="assets/css/base.css" />
@@ -242,8 +242,7 @@
 		<tr>
 		    <td class="algnRight"><?php echo xlt('Password');?></>
 		    <td>
-			<input name="pass" id="pass" type="password" required autocomplete="on" />::
-			<input name="passaddon" id="passaddon" placeholder="Password continued" type="email" autocomplete="on" />
+			<input name="pass" id="pass" type="password" required autocomplete="on" /><input name="passaddon" id="passaddon" placeholder="Email" type="email" autocomplete="on" />
 		    </td>
 		</tr>
 

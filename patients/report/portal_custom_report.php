@@ -171,7 +171,7 @@ input[type="checkbox"], input[type="radio"] {
 <?php if (!$PDF_OUTPUT) { ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/jquery-1.5.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/patients/assets/js/jquery-1.5.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
