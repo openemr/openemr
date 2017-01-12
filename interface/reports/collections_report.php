@@ -116,7 +116,7 @@ if ($form_provider   ) ++$initial_colspan;
 if ($form_payer_id   ) ++$initial_colspan;
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-
+$form_cb_with_debt = $_POST['form_cb_with_debt']    ? true : false;
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -440,7 +440,7 @@ function checkAll(checked) {
                         <td>
                         <?php dropdown_facility($form_facility, 'form_facility', false); ?>
                         </td>
-                        
+
                         <td class='label'>
                         <?php echo xlt('Payor'); ?>:
 						</td>
@@ -456,7 +456,7 @@ function checkAll(checked) {
                                  if ($iid == $_POST['form_payer_id']) $ins_co_name = $iname;
                                }
                                echo "   </select>\n";
-                        ?>            
+                        ?>
 						</td>
 					</tr>
 
@@ -475,7 +475,7 @@ function checkAll(checked) {
 						?>
 						   </select>
 						</td>
-                        
+
                         <td class='label'>
 						   <?php echo xlt('Provider') ?>:
 						</td>
@@ -515,6 +515,10 @@ function checkAll(checked) {
 						</td>
 						<td>
 						   <input type='text' name='form_age_inc' size='3' value='<?php echo attr($form_age_inc); ?>' />
+						</td>
+						<td>
+						   <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) echo ' checked'; ?>>
+						   <?php echo xlt('Paitents with debt') ?></label>
 						</td>
 					</tr>
 
@@ -564,7 +568,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   $where = "";
   $sqlArray = array();
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
-       
+
       $where = "( 1 = 2";
       foreach ($_POST['form_cb'] as $key => $value) {
          list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
@@ -605,7 +609,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $where .= "f.provider_id = ? ";
       array_push($sqlArray, $form_provider);
     }
-    
+
     if (! $where) {
       $where = "1 = 1";
     }
@@ -633,15 +637,21 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       "LEFT OUTER JOIN users AS w ON w.id = f.provider_id " .
       "WHERE $where " .
       "ORDER BY f.pid, f.encounter";
- 
+
     $eres = sqlStatement($query, $sqlArray);
-    
+
     while ($erow = sqlFetchArray($eres)) {
       $patient_id = $erow['pid'];
       $encounter_id = $erow['encounter'];
       $pt_balance = $erow['charges'] + $erow['sales'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
       $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
       $svcdate = substr($erow['date'], 0, 10);
+
+      if($form_cb_with_debt && $pt_balance<=0)
+      {
+          unset($erow);
+          continue;
+      }
 
       if ($_POST['form_refresh'] && ! $is_all) {
         if ($pt_balance == 0) continue;
