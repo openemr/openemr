@@ -19,12 +19,14 @@ function addPortalMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1
 	// make inactive if set as Done
 	if ($message_status == "Done") $activity = 0;
 	
-	$pname = $_SESSION['ptName']?$_SESSION['ptName']:$pid;
 	$user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
-	//$body = date('Y-m-d H:i') . " (";
-	$body =  " ($pname";
+	$pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;
+
+	/* $body =  " ($pname";
 	if ($assigned_to) $body .= " to $assigned_to";
-	$body = $body . ') ' . $newtext; 
+	$body = $body . ') ' . $newtext; */
+	
+	$body = $newtext;
 
 	return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
 			"authorized, activity, title, assigned_to, message_status, portal_relation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",

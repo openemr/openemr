@@ -284,8 +284,7 @@ if( $_POST['form_save'] ){
 } // if ($_POST['form_save'])
 
 if( $_POST['form_save'] || $_REQUEST['receipt']){
-	//$form_pid =$pid;
-	//$timestamp = decorateString( '....-..-.. ..:..:..', $_GET['time'] );
+
     if( $_REQUEST['receipt'] ){
         $form_pid = $_GET['patient'];
         $timestamp = decorateString( '....-..-.. ..:..:..', $_GET['time'] );
@@ -328,14 +327,15 @@ function goHome(){
      window.location.replace("./patient/onsiteactivityviews");
 }
 function notifyPatient(){
+	var pid = <?php echo attr($pid);?>;
 	var note = $('#pop_receipt').text();
     var formURL = 'handle_note.php';
     $.ajax({
         url: formURL,
         type: "POST",
-        data: {'task':'add', 'pid':'30', 'inputBody':note, 'title':'Payment Receipt', 'sendto':'-patient-','noteid':'0'},
+        data: {'task':'add', 'pid':pid, 'inputBody':note, 'title':'Bill/Collect', 'sendto':'-patient-','noteid':'0'},
         success: function(data, textStatus, jqXHR) {
-        	alert('Receipt sent to patient')
+        	alert('Receipt sent to patient via Messages.')
         },
         error: function(jqXHR, status, error) {
             console.log(status + ": " + error);
@@ -344,7 +344,6 @@ function notifyPatient(){
 }
 </script>
 <?php
-require_once ("./lib/portal_pnotes.inc");
 ob_start();
 echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
 ?>
@@ -395,8 +394,7 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
         <button class='btn btn-sm' type='button' onclick="notifyPatient()"><?php echo xla('Notify Patient'); ?></button>
 </body></html>
 <?php
- $note = ob_get_flush();
-//sendMail ( $pid, $note, "Payment Receipt", "-patient-", 0 );
+ ob_end_flush();
 } else{
     //
     // Here we display the form for data entry.
