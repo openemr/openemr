@@ -518,7 +518,7 @@ function checkAll(checked) {
 						</td>
 						<td>
 						   <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) echo ' checked'; ?>>
-						   <?php echo xlt('Paitents with debt') ?></label>
+						   <?php echo xlt('Patients with debt') ?></label>
 						</td>
 					</tr>
 
