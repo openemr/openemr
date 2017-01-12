@@ -68,7 +68,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     $form_cb_referrer = false;
     $form_cb_idays    = false;
     $form_cb_err      = false;
-
   } else {
     $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
     $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
@@ -81,7 +80,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     $form_cb_referrer = $_POST['form_cb_referrer'] ? true : false;
     $form_cb_idays    = $_POST['form_cb_idays']    ? true : false;
     $form_cb_err      = $_POST['form_cb_err']      ? true : false;
-
   }
 } else {
   $form_cb_ssn      = true;
@@ -95,9 +93,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   $form_cb_referrer = false;
   $form_cb_idays    = false;
   $form_cb_err      = false;
-
 }
-$form_cb_with_debt = $_POST['form_cb_with_debt']    ? true : false;
 $form_age_cols = (int) $_POST['form_age_cols'];
 $form_age_inc  = (int) $_POST['form_age_inc'];
 if ($form_age_cols > 0 && $form_age_cols < 50) {
@@ -121,7 +117,7 @@ if ($form_provider   ) ++$initial_colspan;
 if ($form_payer_id   ) ++$initial_colspan;
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-
+$form_cb_with_debt = $_POST['form_cb_with_debt']    ? true : false;
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -394,8 +390,6 @@ function checkAll(checked) {
 						   <label><input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) echo ' checked'; ?>>
 						   <?php echo xlt('Errors') ?></label>
 						</td>
-
-
 					</tr>
 				</table>
 			</td>
@@ -447,7 +441,7 @@ function checkAll(checked) {
                         <td>
                         <?php dropdown_facility($form_facility, 'form_facility', false); ?>
                         </td>
-                        
+
                         <td class='label'>
                         <?php echo xlt('Payor'); ?>:
 						</td>
@@ -463,7 +457,7 @@ function checkAll(checked) {
                                  if ($iid == $_POST['form_payer_id']) $ins_co_name = $iname;
                                }
                                echo "   </select>\n";
-                        ?>            
+                        ?>
 						</td>
 					</tr>
 
@@ -482,7 +476,7 @@ function checkAll(checked) {
 						?>
 						   </select>
 						</td>
-                        
+
                         <td class='label'>
 						   <?php echo xlt('Provider') ?>:
 						</td>
@@ -575,7 +569,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   $where = "";
   $sqlArray = array();
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
-       
+
       $where = "( 1 = 2";
       foreach ($_POST['form_cb'] as $key => $value) {
          list($key_newval['pid'], $key_newval['encounter']) = explode(".", $key);
@@ -617,7 +611,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       array_push($sqlArray, $form_provider);
     }
 
-    
     if (! $where) {
       $where = "1 = 1";
     }
@@ -645,23 +638,17 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       "LEFT OUTER JOIN users AS w ON w.id = f.provider_id " .
       "WHERE $where " .
       "ORDER BY f.pid, f.encounter";
- 
+
     $eres = sqlStatement($query, $sqlArray);
 
-
     while ($erow = sqlFetchArray($eres)) {
-
-
-
-
       $patient_id = $erow['pid'];
       $encounter_id = $erow['encounter'];
       $pt_balance = $erow['charges'] + $erow['sales'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
       $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
       $svcdate = substr($erow['date'], 0, 10);
 
-
-      if($form_cb_with_debt && $pt_balance<0)
+      if($form_cb_with_debt && $pt_balance<=0)
       {
           unset($erow);
           continue;
@@ -938,8 +925,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   <th align="center"><?php echo xlt('Prv') ?></th>
   <th align="center"><?php echo xlt('Sel') ?></th>
 <?php } ?>
-
-
 <?php if ($form_cb_err) { ?>
   <th>&nbsp;<?php echo xlt('Error')?></th>
 <?php } ?>
@@ -1058,7 +1043,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 <?php
       if ($form_age_cols) {
         for ($c = 0; $c < $form_age_cols; ++$c) {
-          echo "<td class='detail ". ($form_cb_with_debt && $balance<=0 ? "delete" : "")."' align='right'>";
+          echo "  <td class='detail' align='right'>";
           if ($c == $agecolno) {
             bucks($balance);
           }
@@ -1067,11 +1052,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       }
       else {
 ?>
-  <td class="detail <?php echo $form_cb_with_debt && $balance<=0 ? 'delete' : '';?>" align="right"><?php bucks($balance) ?>&nbsp;</td>
+  <td class="detail" align="right"><?php bucks($balance) ?>&nbsp;</td>
 <?php
       } // end else
 ?>
-
 <?php
       if ($form_cb_idays) {
         echo "  <td class='detail' align='right'>";
@@ -1205,7 +1189,6 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     if ($form_cb_idays) echo "  <td class='detail'>&nbsp;</td>\n";
     if (!$is_ins_summary) echo "  <td class='detail' colspan='2'>&nbsp;</td>\n";
     if ($form_cb_err) echo "  <td class='detail'>&nbsp;</td>\n";
-
     echo " </tr>\n";
     echo "</table>\n";
 	echo "</div>\n";
@@ -1258,7 +1241,6 @@ if (!$_POST['form_csvexport']) {
 <script language="Javascript">
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
- $(".delete").closest('tr').remove();
 </script>
 </html>
 <?php
