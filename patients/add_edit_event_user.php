@@ -48,7 +48,7 @@ global $ignoreAuth;
 
  // Exit if the modify calendar for portal flag is not set-pulled for v5
  /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
-   echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
+   echo add_escape_custom( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
    exit;
  } */
 
@@ -344,10 +344,10 @@ if ( $eid ) {
                     "'" . $row['pc_multiple']             . "', " .
                     "'" . $to_be_inserted            . "', " .
                     "'" . $_POST['form_pid']                  . "', " .
-                    "'" . $_POST['form_title']                . "', " .
+                    "'" . add_escape_custom($_POST['form_title'])               . "', " .
                     "NOW(), "                                         .
-                    "'" . $_POST['form_comments']             . "', " .
-                    "'" . $_SESSION['authUserID']             . "', " .
+                    "'" . add_escape_custom($_POST['form_comments'])             . "', " .
+                    "'" . $_SESSION['providerId']             . "', " .
                     "'" . $event_date                         . "', " .
                     "'" . fixDate($_POST['form_enddate'])     . "', " .
                     "'" . ($duration * 60)                    . "', " .
@@ -371,10 +371,10 @@ if ( $eid ) {
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
             "pc_catid = '"       . $_POST['form_category']             . "', " .
             "pc_pid = '"         . $_POST['form_pid']                  . "', " .
-            "pc_title = '"       . $_POST['form_title']                . "', " .
+            "pc_title = '"       . add_escape_custom($_POST['form_title'])               . "', " .
             "pc_time = NOW(), "                                                .
-            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
-            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
+            "pc_hometext = '"    . add_escape_custom($_POST['form_comments'])             . "', " .
+            "pc_informant = '"   . $_SESSION['providerId']             . "', " .
             "pc_eventDate = '"   . $event_date                         . "', " .
             "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
             "pc_duration = '"    . ($duration * 60)                    . "', " .
@@ -405,10 +405,10 @@ if ( $eid ) {
             "pc_catid = '"       . $_POST['form_category']             . "', " .
             "pc_aid = '"         . $prov            . "', " .
             "pc_pid = '"         . $_POST['form_pid']                  . "', " .
-            "pc_title = '"       . $_POST['form_title']                . "', " .
+            "pc_title = '"       . add_escape_custom($_POST['form_title'])               . "', " .
             "pc_time = NOW(), "                                                .
-            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
-            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
+            "pc_hometext = '"    . add_escape_custom($_POST['form_comments'])          . "', " .
+            "pc_informant = '"   . $_SESSION['providerId']             . "', " .
             "pc_eventDate = '"   . $event_date                         . "', " .
             "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
             "pc_duration = '"    . ($duration * 60)                    . "', " .
@@ -459,10 +459,10 @@ if (is_array($_POST['form_provider_ae'])) {
     "'" . $new_multiple_value             . "', " .
     "'" . $provider                           . "', " .
     "'" . $_POST['form_pid']                  . "', " .
-    "'" . $_POST['form_title']                . "', " .
+    "'" . add_escape_custom($_POST['form_title'])               . "', " .
     "NOW(), "                                         .
-    "'" . $_POST['form_comments']             . "', " .
-    "'" . $_SESSION['authUserID']             . "', " .
+    "'" . add_escape_custom($_POST['form_comments'])             . "', " .
+    "'" . $_SESSION['providerId']             . "', " .
     "'" . $event_date                         . "', " .
     "'" . fixDate($_POST['form_enddate'])     . "', " .
     "'" . ($duration * 60)                    . "', " .
@@ -480,7 +480,7 @@ if (is_array($_POST['form_provider_ae'])) {
     } // foreach
 
 } else {
-$_POST['form_apptstatus'] =  '^ Pending';
+$_POST['form_apptstatus'] =  '^';
 sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
@@ -490,10 +490,10 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "'" . $_POST['form_category']             . "', " .
     "'" . $_POST['form_provider_ae']             . "', " .
     "'" . $_POST['form_pid']                  . "', " .
-    "'" . $_POST['form_title']                . "', " .
+    "'" . add_escape_custom($_POST['form_title'])               . "', " .
     "NOW(), "                                         .
-    "'" . $_POST['form_comments']             . "', " .
-    "'" . $_SESSION['authUserID']             . "', " .
+    "'" . add_escape_custom($_POST['form_comments'])             . "', " .
+    "'" . $_SESSION['providerId']             . "', " .
     "'" . $event_date                         . "', " .
     "'" . fixDate($_POST['form_enddate'])     . "', " .
     "'" . ($duration * 60)                    . "', " .
@@ -542,7 +542,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
         sqlInsert("INSERT INTO form_encounter SET " .
           "date = '$event_date', " .
           "onset_date = '$event_date', " .
-          "reason = '" . $_POST['form_comments'] . "', " .
+          "reason = '" . add_escape_custom($_POST['form_comments']) . "', " .
           "facility = '$facility', " .
           "facility_id = '$facility_id', " .
           "pid = '" . $_POST['form_pid'] . "', " .
@@ -596,6 +596,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   '<' => xl('< In exam room'),
   '>' => xl('> Checked out'),
   '$' => xl('$ Coding done'),
+  '^' => xl('^ Pending'),
  );
 
  $repeats = 0; // if the event repeats
@@ -679,35 +680,36 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 
 </head>
 
-<body class="body_top" onunload='imclosing()' onload='categoryChanged()'>
+<body class="body_top" >
 
 <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo $eid ?>'>
 <input type="hidden" name="form_action" id="form_action" value="">
-
+   <input type='hidden' name='form_category' id='form_category' value='<?php echo $row['pc_catid'] ? $row['pc_catid'] : '5'; ?>' />
+   <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? $row['pc_apptstatus'] : "^" ?>' />
 <table border='0' width='100%'>
  <tr>
   <td width='1%' nowrap>
    <b><?php xl('Visit','e'); ?>: </b>
   </td>
   <td nowrap style='padding:0px 5px 5px 0'>
-   <input class="form-control input-md" type="text" id='form_category' name='form_category' value='Office Visit' readonly='readonly'/>
+   <input class="form-control input-md" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars(['pc_title'],ENT_QUOTES) ? htmlspecialchars(['pc_title'],ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
   </td>
   <td></td>
   <td width='1%' nowrap>
   	<b><?php xl('Date','e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
-   <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date' <?php echo $disabled ?>
+   <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
     value='<?php if (isset($eid)) { echo $eid ? $row['pc_eventDate'] : $date; } ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'  />
   </td>
  </tr>
  <tr>
   <td nowrap>
-   <b><?php xl('Title','e'); ?>:</b>
+   <b><?php //xl('Title','e'); ?></b>
   </td>
   <td style='padding:0px 5px 5px 0' nowrap>
-   <input class="form-control input-md" type='text' size='10' name='form_title' value='<?php echo addslashes($row['pc_title']) ?>' title='<?php xl('Event title','e'); ?>' />
+   <!-- <input class="form-control input-md" type='text' size='10' name='form_title' readonly value='<?php //echo htmlspecialchars($row['pc_title'],ENT_QUOTES) ?>' title='<?php //xl('Event title','e'); ?>' /> -->
   </td>
   <td nowrap>
   </td>
@@ -719,7 +721,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     title='<?php xl('Event start time','e'); ?>' readonly/> :
   <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php if(isset($eid)) { echo $starttimem; } ?>'
     title='<?php  xl('Event start time','e'); ?>' readonly/>&nbsp; <!--  -->
-   <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM'>
+   <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly >
     <option value='1'><?php xl('AM','e'); ?></option>
     <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php xl('PM','e'); ?></option>
    </select>
@@ -736,12 +738,9 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdallday4'><?php xl('Duration','e'); ?>
-  </td>
+  <td nowrap id='tdallday4'><?php xl('Duration','e'); ?></td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' readonly value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' />
-    <?php xl('minutes','e'); ?>
-
+   <!-- --> <input class="form-control input-md" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration']*1/60) : "0" ?>' readonly /><?php echo xl('minutes'); ?>
   </td>
  </tr>
     <tr>
@@ -766,53 +765,25 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 </select>
   </td>
   <td nowrap style='font-size:8pt'>
-
   </td>
-  <td><input type='button' class='btn btn-danger btn-md' value='<?php xl('Openings','e');?>' onclick='find_available()' /></td>
+  <td><input type='button' class='btn btn-danger btn-sm' value='<?php xl('Openings','e');?>' onclick='find_available()' /></td>
   <td></td>
  </tr>
-
  <tr>
   <td nowrap>
    <b><?php xl('Reason','e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-	<input class="form-control input-md" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
+	<input class="form-control input-md" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext,ENT_QUOTES) ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
-
-<?php
- // DOB is important for the clinic, so if it's missing give them a chance
- // to enter it right here.  We must display or hide this row dynamically
- // in case the patient-select popup is used.
- $patient_dob = trim($prow['DOB']);
- $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
-  '' : 'none';
-?>
- <tr id='dob_row' style='display:none<?php //echo $dobstyle
-  ?>'>
-  <td colspan='4' nowrap style='display:none'>
-   <font color='white'><?php xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
-  </td>
-  <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob' style='display:none' title='<?php xl('yyyy-mm-dd date of birth','e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand;display:none'
-    title='<?php xl('Click here to choose a date','e');?>'>
-  </td>
- </tr>
-
 </table>
-
 <p>
-<input type='button' name='form_save' class='btn btn-success btn-lg' onsubmit='return false' value='<?php xl('Save','e');?>' onclick="validate()" />
+<input type='button' name='form_save' class='btn btn-success btn-md' onsubmit='return false' value='<?php xl('Save','e');?>' onclick="validate()" />
 &nbsp;
 </p>
-
 </form>
-
 <script>
-
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var durations = new Array();
@@ -854,7 +825,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
  }
 ?>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php // require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
@@ -998,19 +969,6 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
          window.open('find_appt_popup_user.php?bypatient&providerid=' + s +
                 '&catid=5' +
                 '&startdate=' + formDate.value, '_blank', "width=900,height=800");
-       /* var purl = 'find_appt_popup_user.php?bypatient&providerid=' + s + '&catid=5' + '&startdate=' + formDate.value;
-        var title = 'Openings';
-        var params = {
-                buttons: [
-                   { text: 'Close', close: true, style: 'danger' },
-                   { text: 'Send Edits', style: 'success', close: false }
-                ],
-                size:eModal.size.xl,
-                title: title,
-                url: purl
-            };
-        return eModal.iframe(params)
-            .then(function () { });*/
     }
 
  // Check for errors when the form is submitted.
@@ -1022,7 +980,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   }
 
 //  in lunch outofoffice reserved vacation
-  f.form_category.value='2';
+ // f.form_category.value='2';
   if (f.form_patient.value=='Click to select' && (!(
          f.form_category.value=='2' || f.form_category.value=='8' || f.form_category.value=='3' || f.form_category.value=='4' || f.form_category.value=='11'
 	 || f.form_category.value=='10'))) {
