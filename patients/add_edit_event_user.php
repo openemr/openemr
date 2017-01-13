@@ -692,7 +692,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
    <b><?php xl('Visit','e'); ?>: </b>
   </td>
   <td nowrap style='padding:0px 5px 5px 0'>
-   <input class="form-control input-md" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars(['pc_title'],ENT_QUOTES) ? htmlspecialchars(['pc_title'],ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
+   <input class="form-control input-md" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'],ENT_QUOTES) ? htmlspecialchars(['pc_title'],ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
   </td>
   <td></td>
   <td width='1%' nowrap>
