@@ -31,6 +31,12 @@
 
     },
     "autoload": {
+        "exclude-from-classmap": ["library/classes/ClinicalTypes/",
+            "library/classes/rulesets/",
+            "library/classes/smtp/",
+            "library/classes/Prescription.class.php"
+        ],
+        "classmap": ["library/classes"],
         "files": [
             "library/htmlspecialchars.inc.php",
             "library/formdata.inc.php",

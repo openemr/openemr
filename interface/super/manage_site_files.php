@@ -15,7 +15,6 @@ $fake_register_globals = false;
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['srcdir'].'/classes/thumbnail/ThumbnailGenerator.php');
 /* for formData() */
 
 if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));

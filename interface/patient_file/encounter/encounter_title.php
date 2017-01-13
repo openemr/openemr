@@ -3,7 +3,6 @@ include_once("../../globals.php");
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/encounter.inc");
 include_once("$srcdir/patient.inc");
-require_once("$srcdir/classes/Pharmacy.class.php");
 ?>
 
 <html>

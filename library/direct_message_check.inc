@@ -25,7 +25,6 @@
 
 require_once(dirname(__FILE__) . "/log.inc");
 require_once(dirname(__FILE__) . "/pnotes.inc");
-require_once(dirname(__FILE__) . "/../controllers/C_Document.class.php");
 require_once(dirname(__FILE__) . "/documents.php");
 require_once(dirname(__FILE__) . "/gprelations.inc.php");
 

@@ -8,7 +8,6 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-require_once("ORDataObject.class.php");
 /**
  * class Address
  *

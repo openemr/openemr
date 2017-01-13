@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -54,24 +53,24 @@ class FormVitals extends ORDataObject {
 	function __construct($id= "", $_prefix = "")	{
 		if ($id > 0) {
 			$this->id = $id;
-			
+
 		}
 		else {
 			$id = "";
 			$this->date = $this->get_date();
 		}
-		
+
 		$this->_table = "form_vitals";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
 		if ($id != "") {
 			$this->populate();
-			
+
 		}
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -109,7 +108,7 @@ class FormVitals extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
+
   function get_date() {
     if(!$this->date){
       $this->date = date('YmdHis', time());

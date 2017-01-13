@@ -6,8 +6,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once(dirname(__FILE__) . "/classes/Address.class.php");
-require_once(dirname(__FILE__) . "/classes/InsuranceCompany.class.php");
 require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
 
 // This enforces the X12 Basic Character Set. Page A2.

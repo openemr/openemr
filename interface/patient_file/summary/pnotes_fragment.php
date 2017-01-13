@@ -31,7 +31,6 @@ $fake_register_globals=false;
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/classes/Document.class.php");
  require_once("$srcdir/formatting.inc.php");
 
  // form parameter docid can be passed to restrict the display to a document.
@@ -126,7 +125,7 @@ $fake_register_globals=false;
         ?>
         <br/>
         <span class='text'>
-	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?> 
+	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?>
 	    <b><?php echo $N;?></b><br>
 	    <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
         </span>
@@ -199,7 +198,7 @@ $fake_register_globals=false;
         ?>
         <br/>
         <span class='text'>
-	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'),ENT_NOQUOTES).":"; ?> 
+	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'),ENT_NOQUOTES).":"; ?>
 	    <b><?php echo $M;?></b><br>
 	    <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
         </span>

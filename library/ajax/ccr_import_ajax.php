@@ -33,8 +33,6 @@ $fake_register_globals=false;
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../parse_patient_xml.php");
-require_once(dirname(__FILE__) . "/../classes/Document.class.php");
-require_once(dirname(__FILE__) . "/../classes/CouchDB.class.php");
 
 if($_REQUEST["ccr_ajax"] == "yes"){
   $doc_id = $_REQUEST["document_id"];

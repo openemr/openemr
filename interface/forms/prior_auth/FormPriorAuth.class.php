@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 
 
@@ -16,7 +15,7 @@ class FormPriorAuth extends ORDataObject {
 	 */
 
 
-	
+
 	/**
 	 *
 	 * @access private
@@ -28,8 +27,8 @@ class FormPriorAuth extends ORDataObject {
 	var $activity;
 	var $prior_auth_number;
 	var $comments;
-	
-	
+
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -86,29 +85,29 @@ class FormPriorAuth extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
-	
+
+
 	function set_comments($string) {
 		$this->comments = $string;
 	}
-	
+
 	function get_comments() {
 		return $this->comments;
 	}
-	
+
 	function set_prior_auth_number($string) {
 		$this->prior_auth_number = $string;
 	}
-	
+
 	function get_prior_auth_number() {
 		return $this->prior_auth_number;
 	}
-	
-	
+
+
 	function get_date() {
 		return $this->date;
 	}
-	
+
 
 }	// end of Form
 

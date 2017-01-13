@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * Superbill Report
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -27,8 +27,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
 require_once("$srcdir/formatting.inc.php");
 
 $startdate = $enddate = "";
@@ -289,7 +287,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 		}
         $res_query.=     " order by date DESC" ;
 		$res =sqlStatement($res_query,$sqlBindArray);
-	
+
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             $newpatient[] = $result{"form_id"}.":".$result{"encounter"};

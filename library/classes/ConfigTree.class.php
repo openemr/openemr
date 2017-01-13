@@ -1,6 +1,5 @@
 <?php
 
-require_once("Tree.class.php");
 
 /**
  * class CategoryTree

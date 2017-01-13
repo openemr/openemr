@@ -23,7 +23,6 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
-require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 
 $alertmsg = '';
 $bg_msg = '';

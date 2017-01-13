@@ -1,8 +1,4 @@
 <?php
-	require_once("Patient.class.php");
-	require_once("Person.class.php");
-	require_once("Provider.class.php");
-	require_once("Pharmacy.class.php");
 
 /**
  * class ORDataObject

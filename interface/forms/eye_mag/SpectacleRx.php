@@ -41,8 +41,6 @@ require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 

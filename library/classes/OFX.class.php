@@ -7,7 +7,7 @@ require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
  *
  */
 class OFX {
-	
+
 	var $billing_array;
 	var $config;
 	/**
@@ -17,7 +17,7 @@ class OFX {
 		$this->billing_array = $ba;
 		$this->config = $GLOBALS['oer_config']['ofx'];
 	}
-	
+
 	function get_OFX() {
 		$string = $this->_ofx_header() . "\n";
 		$trns = array();
@@ -62,7 +62,7 @@ class OFX {
 		$string .= $this->_ofx_footer($sum);
 		return $string;
 	}
-	
+
 	function _ofx_header() {
 		$string .= "OFXHEADER:100\n";
 		$string .= "DATA:OFXSGML\n";
@@ -82,10 +82,10 @@ class OFX {
 		$string .= "</STATUS>\n";
 		$string .= "<DTSERVER>" . date("YmdHis") . "\n";
 		$string .= "<LANGUAGE>ENG\n";
-		
+
 		//OpenEMR doesn't have a good grasp of timezone so we will need to revisit this later if it causes problems for transaction timestamping
 		$string .= "<DTACCTUP>" . date("YmdHis") . ".000[-8:PST]\n";
-		
+
 		//intuit programs requires the fields below or it won't accept our ofx transactions
 		$string .= "<FI>\n";
 		$string .= "<ORG>Bank of America\n";
@@ -97,7 +97,7 @@ class OFX {
 
 		$string .= "</SONRS>\n";
 		$string .= "</SIGNONMSGSRSV1>\n";
-		
+
 		$string .= "<BANKMSGSRSV1>\n";
 		$string .= "<STMTTRNRS>\n";
 		$string .= "<TRNUID>0\n";
@@ -115,7 +115,7 @@ class OFX {
 		$string .= "<BANKTRANLIST>\n";
 		return $string;
 	}
-	
+
 	function _ofx_footer($sum) {
 		$string = "</BANKTRANLIST>\n";
 		$string .= "<LEDGERBAL>\n";

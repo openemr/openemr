@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -36,7 +35,7 @@ class FormROS2 extends ORDataObject {
 	var $groupname;
 	var $authorized;
 	var $activity;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -49,7 +48,7 @@ class FormROS2 extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_ros2";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -60,7 +59,7 @@ class FormROS2 extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -98,7 +97,7 @@ class FormROS2 extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -115,11 +114,11 @@ class FormROS2 extends ORDataObject {
 			$this->user = $u;
 		}
 	}
-	
+
 	function persist() {
 		parent::persist();
 	}
-	
+
 
 
 	// ----- headache -----
@@ -146,8 +145,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_headache_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_fever;
 	var $general_fever_text;
 	function get_general_fever() {
@@ -170,8 +169,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_fever_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_chills;
 	var $general_chills_text;
 	function get_general_chills() {
@@ -194,8 +193,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_chills_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_body_aches;
 	var $general_body_aches_text;
 	function get_general_body_aches() {
@@ -218,8 +217,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_body_aches_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_fatigue;
 	var $general_fatigue_text;
 	function get_general_fatigue() {
@@ -242,8 +241,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_fatigue_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_loss_of_appetite;
 	var $general_loss_of_appetite_text;
 	function get_general_loss_of_appetite() {
@@ -266,8 +265,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_loss_of_appetite_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_weight_loss;
 	var $general_weight_loss_text;
 	function get_general_weight_loss() {
@@ -290,8 +289,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_weight_loss_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_daytime_drowsiness;
 	var $general_daytime_drowsiness_text;
 	function get_general_daytime_drowsiness() {
@@ -314,8 +313,8 @@ class FormROS2 extends ORDataObject {
 			$this->general_daytime_drowsiness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $general_excessive_snoring;
 	var $general_excessive_snoring_text;
 	function get_general_excessive_snoring() {
@@ -338,7 +337,7 @@ class FormROS2 extends ORDataObject {
 			$this->general_excessive_snoring_text = $data;
 		}
 	}
-	
+
 	// ----- disorientation -----
 
 	var $neuro_disorientation;
@@ -363,8 +362,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_disorientation_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_loss_of_consciousness;
 	var $neuro_loss_of_consciousness_text;
 	function get_neuro_loss_of_consciousness() {
@@ -387,8 +386,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_loss_of_consciousness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_numbness;
 	var $neuro_numbness_text;
 	function get_neuro_numbness() {
@@ -411,8 +410,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_numbness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_tingling;
 	var $neuro_tingling_text;
 	function get_neuro_tingling() {
@@ -435,8 +434,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_tingling_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_restlessness;
 	var $neuro_restlessness_text;
 	function get_neuro_restlessness() {
@@ -459,8 +458,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_restlessness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_dizziness;
 	var $neuro_dizziness_text;
 	function get_neuro_dizziness() {
@@ -483,8 +482,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_dizziness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_vertigo;
 	var $neuro_vertigo_text;
 	function get_neuro_vertigo() {
@@ -507,8 +506,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_vertigo_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_amaurosis_fugax;
 	var $neuro_amaurosis_fugax_text;
 	function get_neuro_amaurosis_fugax() {
@@ -531,8 +530,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_amaurosis_fugax_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_stroke;
 	var $neuro_stroke_text;
 	function get_neuro_stroke() {
@@ -555,8 +554,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_stroke_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_gait_abnormality;
 	var $neuro_gait_abnormality_text;
 	function get_neuro_gait_abnormality() {
@@ -579,8 +578,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_gait_abnormality_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_frequent_headaches;
 	var $neuro_frequent_headaches_text;
 	function get_neuro_frequent_headaches() {
@@ -603,8 +602,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_frequent_headaches_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_parathesias;
 	var $neuro_parathesias_text;
 	function get_neuro_parathesias() {
@@ -627,8 +626,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_parathesias_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_seizures;
 	var $neuro_seizures_text;
 	function get_neuro_seizures() {
@@ -651,8 +650,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_seizures_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_trans_ischemic_attacks;
 	var $neuro_trans_ischemic_attacks_text;
 	function get_neuro_trans_ischemic_attacks() {
@@ -675,8 +674,8 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_trans_ischemic_attacks_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neuro_significant_tremors;
 	var $neuro_significant_tremors_text;
 	function get_neuro_significant_tremors() {
@@ -699,7 +698,7 @@ class FormROS2 extends ORDataObject {
 			$this->neuro_significant_tremors_text = $data;
 		}
 	}
-	
+
 	// ----- neck stiffness -----
 
 	var $neck_neck_stiffness;
@@ -724,8 +723,8 @@ class FormROS2 extends ORDataObject {
 			$this->neck_neck_stiffness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neck_neck_pain;
 	var $neck_neck_pain_text;
 	function get_neck_neck_pain() {
@@ -748,8 +747,8 @@ class FormROS2 extends ORDataObject {
 			$this->neck_neck_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neck_neck_masses;
 	var $neck_neck_masses_text;
 	function get_neck_neck_masses() {
@@ -772,8 +771,8 @@ class FormROS2 extends ORDataObject {
 			$this->neck_neck_masses_text = $data;
 		}
 	}
-	
-	
+
+
 	var $neck_neck_tenderness;
 	var $neck_neck_tenderness_text;
 	function get_neck_neck_tenderness() {
@@ -796,7 +795,7 @@ class FormROS2 extends ORDataObject {
 			$this->neck_neck_tenderness_text = $data;
 		}
 	}
-	
+
 	// ----- oral ulcers -----
 
 	var $heent_oral_ulcers;
@@ -821,8 +820,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_oral_ulcers_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_excessive_cavities;
 	var $heent_excessive_cavities_text;
 	function get_heent_excessive_cavities() {
@@ -845,8 +844,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_excessive_cavities_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_gingival_disease;
 	var $heent_gingival_disease_text;
 	function get_heent_gingival_disease() {
@@ -869,8 +868,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_gingival_disease_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_persistent_hoarseness;
 	var $heent_persistent_hoarseness_text;
 	function get_heent_persistent_hoarseness() {
@@ -893,8 +892,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_persistent_hoarseness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_mouth_lesions;
 	var $heent_mouth_lesions_text;
 	function get_heent_mouth_lesions() {
@@ -917,8 +916,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_mouth_lesions_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_dysphagia;
 	var $heent_dysphagia_text;
 	function get_heent_dysphagia() {
@@ -941,8 +940,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_dysphagia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_odynophagia;
 	var $heent_odynophagia_text;
 	function get_heent_odynophagia() {
@@ -965,8 +964,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_odynophagia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_dental_pain;
 	var $heent_dental_pain_text;
 	function get_heent_dental_pain() {
@@ -989,8 +988,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_dental_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_sore_throat;
 	var $heent_sore_throat_text;
 	function get_heent_sore_throat() {
@@ -1013,8 +1012,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_sore_throat_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_ear_pain;
 	var $heent_ear_pain_text;
 	function get_heent_ear_pain() {
@@ -1037,8 +1036,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_ear_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_ear_discharge;
 	var $heent_ear_discharge_text;
 	function get_heent_ear_discharge() {
@@ -1061,8 +1060,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_ear_discharge_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_tinnitus;
 	var $heent_tinnitus_text;
 	function get_heent_tinnitus() {
@@ -1085,8 +1084,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_tinnitus_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_hearing_loss;
 	var $heent_hearing_loss_text;
 	function get_heent_hearing_loss() {
@@ -1109,8 +1108,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_hearing_loss_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_allergic_rhinitis;
 	var $heent_allergic_rhinitis_text;
 	function get_heent_allergic_rhinitis() {
@@ -1133,8 +1132,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_allergic_rhinitis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_nasal_congestion;
 	var $heent_nasal_congestion_text;
 	function get_heent_nasal_congestion() {
@@ -1157,8 +1156,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_nasal_congestion_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_nasal_discharge;
 	var $heent_nasal_discharge_text;
 	function get_heent_nasal_discharge() {
@@ -1181,8 +1180,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_nasal_discharge_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_nasal_injury;
 	var $heent_nasal_injury_text;
 	function get_heent_nasal_injury() {
@@ -1205,8 +1204,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_nasal_injury_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_nasal_surgery;
 	var $heent_nasal_surgery_text;
 	function get_heent_nasal_surgery() {
@@ -1229,8 +1228,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_nasal_surgery_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_nose_bleeds;
 	var $heent_nose_bleeds_text;
 	function get_heent_nose_bleeds() {
@@ -1253,8 +1252,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_nose_bleeds_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_post_nasal_drip;
 	var $heent_post_nasal_drip_text;
 	function get_heent_post_nasal_drip() {
@@ -1277,8 +1276,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_post_nasal_drip_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_sinus_pressure;
 	var $heent_sinus_pressure_text;
 	function get_heent_sinus_pressure() {
@@ -1301,8 +1300,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_sinus_pressure_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_sinus_pain;
 	var $heent_sinus_pain_text;
 	function get_heent_sinus_pain() {
@@ -1325,8 +1324,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_sinus_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_headache;
 	var $heent_headache_text;
 	function get_heent_headache() {
@@ -1349,8 +1348,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_headache_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_eye_pain;
 	var $heent_eye_pain_text;
 	function get_heent_eye_pain() {
@@ -1373,8 +1372,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_eye_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_eye_redness;
 	var $heent_eye_redness_text;
 	function get_heent_eye_redness() {
@@ -1397,8 +1396,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_eye_redness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_visual_changes;
 	var $heent_visual_changes_text;
 	function get_heent_visual_changes() {
@@ -1421,8 +1420,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_visual_changes_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_blurry_vision;
 	var $heent_blurry_vision_text;
 	function get_heent_blurry_vision() {
@@ -1445,8 +1444,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_blurry_vision_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_eye_discharge;
 	var $heent_eye_discharge_text;
 	function get_heent_eye_discharge() {
@@ -1469,8 +1468,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_eye_discharge_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_eye_glasses_contacts;
 	var $heent_eye_glasses_contacts_text;
 	function get_heent_eye_glasses_contacts() {
@@ -1493,8 +1492,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_eye_glasses_contacts_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_excess_tearing;
 	var $heent_excess_tearing_text;
 	function get_heent_excess_tearing() {
@@ -1517,8 +1516,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_excess_tearing_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_photophobia;
 	var $heent_photophobia_text;
 	function get_heent_photophobia() {
@@ -1541,8 +1540,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_photophobia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_scotomata;
 	var $heent_scotomata_text;
 	function get_heent_scotomata() {
@@ -1565,8 +1564,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_scotomata_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_tunnel_vision;
 	var $heent_tunnel_vision_text;
 	function get_heent_tunnel_vision() {
@@ -1589,8 +1588,8 @@ class FormROS2 extends ORDataObject {
 			$this->heent_tunnel_vision_text = $data;
 		}
 	}
-	
-	
+
+
 	var $heent_glaucoma;
 	var $heent_glaucoma_text;
 	function get_heent_glaucoma() {
@@ -1613,7 +1612,7 @@ class FormROS2 extends ORDataObject {
 			$this->heent_glaucoma_text = $data;
 		}
 	}
-	
+
 	// ----- sub sternal or left chest pain -----
 
 	var $cardiovascular_sub_sternal_or_left_chest_pain;
@@ -1638,8 +1637,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_sub_sternal_or_left_chest_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_other_chest_pain;
 	var $cardiovascular_other_chest_pain_text;
 	function get_cardiovascular_other_chest_pain() {
@@ -1662,8 +1661,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_other_chest_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_palpitations;
 	var $cardiovascular_palpitations_text;
 	function get_cardiovascular_palpitations() {
@@ -1686,8 +1685,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_palpitations_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_irregular_rhythm;
 	var $cardiovascular_irregular_rhythm_text;
 	function get_cardiovascular_irregular_rhythm() {
@@ -1710,8 +1709,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_irregular_rhythm_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_jugular_vein_distention;
 	var $cardiovascular_jugular_vein_distention_text;
 	function get_cardiovascular_jugular_vein_distention() {
@@ -1734,8 +1733,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_jugular_vein_distention_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_claudication;
 	var $cardiovascular_claudication_text;
 	function get_cardiovascular_claudication() {
@@ -1758,8 +1757,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_claudication_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_dizziness;
 	var $cardiovascular_dizziness_text;
 	function get_cardiovascular_dizziness() {
@@ -1782,8 +1781,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_dizziness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_dyspnea_on_exertion;
 	var $cardiovascular_dyspnea_on_exertion_text;
 	function get_cardiovascular_dyspnea_on_exertion() {
@@ -1806,8 +1805,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_dyspnea_on_exertion_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_orthopnea;
 	var $cardiovascular_orthopnea_text;
 	function get_cardiovascular_orthopnea() {
@@ -1830,8 +1829,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_orthopnea_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_noctural_dyspnea;
 	var $cardiovascular_noctural_dyspnea_text;
 	function get_cardiovascular_noctural_dyspnea() {
@@ -1854,8 +1853,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_noctural_dyspnea_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_edema;
 	var $cardiovascular_edema_text;
 	function get_cardiovascular_edema() {
@@ -1878,8 +1877,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_edema_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_presyncope;
 	var $cardiovascular_presyncope_text;
 	function get_cardiovascular_presyncope() {
@@ -1902,8 +1901,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_presyncope_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_syncope;
 	var $cardiovascular_syncope_text;
 	function get_cardiovascular_syncope() {
@@ -1926,8 +1925,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_syncope_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_heart_murmur;
 	var $cardiovascular_heart_murmur_text;
 	function get_cardiovascular_heart_murmur() {
@@ -1950,8 +1949,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_heart_murmur_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_raynauds;
 	var $cardiovascular_raynauds_text;
 	function get_cardiovascular_raynauds() {
@@ -1974,8 +1973,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_raynauds_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_severe_varicose_veins;
 	var $cardiovascular_severe_varicose_veins_text;
 	function get_cardiovascular_severe_varicose_veins() {
@@ -1998,8 +1997,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_severe_varicose_veins_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_deep_vein_thrombosis;
 	var $cardiovascular_deep_vein_thrombosis_text;
 	function get_cardiovascular_deep_vein_thrombosis() {
@@ -2022,8 +2021,8 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_deep_vein_thrombosis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $cardiovascular_thrombophlebitis;
 	var $cardiovascular_thrombophlebitis_text;
 	function get_cardiovascular_thrombophlebitis() {
@@ -2046,7 +2045,7 @@ class FormROS2 extends ORDataObject {
 			$this->cardiovascular_thrombophlebitis_text = $data;
 		}
 	}
-	
+
 	// ----- cough -----
 
 	var $respirations_cough;
@@ -2071,8 +2070,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_cough_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_sputum;
 	var $respirations_sputum_text;
 	function get_respirations_sputum() {
@@ -2095,8 +2094,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_sputum_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_dyspnea;
 	var $respirations_dyspnea_text;
 	function get_respirations_dyspnea() {
@@ -2119,8 +2118,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_dyspnea_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_wheezes;
 	var $respirations_wheezes_text;
 	function get_respirations_wheezes() {
@@ -2143,8 +2142,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_wheezes_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_rales;
 	var $respirations_rales_text;
 	function get_respirations_rales() {
@@ -2167,8 +2166,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_rales_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_labored_breathing;
 	var $respirations_labored_breathing_text;
 	function get_respirations_labored_breathing() {
@@ -2191,8 +2190,8 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_labored_breathing_text = $data;
 		}
 	}
-	
-	
+
+
 	var $respirations_hemoptysis;
 	var $respirations_hemoptysis_text;
 	function get_respirations_hemoptysis() {
@@ -2215,7 +2214,7 @@ class FormROS2 extends ORDataObject {
 			$this->respirations_hemoptysis_text = $data;
 		}
 	}
-	
+
 	// ----- frequent urination -----
 
 	var $gu_frequent_urination;
@@ -2240,8 +2239,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_frequent_urination_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_dysuria;
 	var $gu_dysuria_text;
 	function get_gu_dysuria() {
@@ -2264,8 +2263,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_dysuria_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_dyspareunia;
 	var $gu_dyspareunia_text;
 	function get_gu_dyspareunia() {
@@ -2288,8 +2287,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_dyspareunia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_discharge;
 	var $gu_discharge_text;
 	function get_gu_discharge() {
@@ -2312,8 +2311,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_discharge_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_odor;
 	var $gu_odor_text;
 	function get_gu_odor() {
@@ -2336,8 +2335,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_odor_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_fertility_problems;
 	var $gu_fertility_problems_text;
 	function get_gu_fertility_problems() {
@@ -2360,8 +2359,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_fertility_problems_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_flank_pain_kidney_stone;
 	var $gu_flank_pain_kidney_stone_text;
 	function get_gu_flank_pain_kidney_stone() {
@@ -2384,8 +2383,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_flank_pain_kidney_stone_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_polyuria;
 	var $gu_polyuria_text;
 	function get_gu_polyuria() {
@@ -2408,8 +2407,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_polyuria_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_hematuria;
 	var $gu_hematuria_text;
 	function get_gu_hematuria() {
@@ -2432,8 +2431,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_hematuria_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_pyuria;
 	var $gu_pyuria_text;
 	function get_gu_pyuria() {
@@ -2456,8 +2455,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_pyuria_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_umbilical_hernia;
 	var $gu_umbilical_hernia_text;
 	function get_gu_umbilical_hernia() {
@@ -2480,8 +2479,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_umbilical_hernia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_incontinence;
 	var $gu_incontinence_text;
 	function get_gu_incontinence() {
@@ -2504,8 +2503,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_incontinence_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_nocturia;
 	var $gu_nocturia_text;
 	function get_gu_nocturia() {
@@ -2528,8 +2527,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_nocturia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_urinary_urgency;
 	var $gu_urinary_urgency_text;
 	function get_gu_urinary_urgency() {
@@ -2552,8 +2551,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_urinary_urgency_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_recurrent_utis;
 	var $gu_recurrent_utis_text;
 	function get_gu_recurrent_utis() {
@@ -2576,8 +2575,8 @@ class FormROS2 extends ORDataObject {
 			$this->gu_recurrent_utis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gu_venereal_disease;
 	var $gu_venereal_disease_text;
 	function get_gu_venereal_disease() {
@@ -2600,7 +2599,7 @@ class FormROS2 extends ORDataObject {
 			$this->gu_venereal_disease_text = $data;
 		}
 	}
-	
+
 	// ----- Erectile Dysfunction -----
 
 	var $male_gu_erectile_dysfunction;
@@ -2625,8 +2624,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_erectile_dysfunction_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_inguinal_hernia;
 	var $male_gu_inguinal_hernia_text;
 	function get_male_gu_inguinal_hernia() {
@@ -2649,8 +2648,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_inguinal_hernia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_penile_lesions;
 	var $male_gu_penile_lesions_text;
 	function get_male_gu_penile_lesions() {
@@ -2673,8 +2672,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_penile_lesions_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_scrotal_mass;
 	var $male_gu_scrotal_mass_text;
 	function get_male_gu_scrotal_mass() {
@@ -2697,8 +2696,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_scrotal_mass_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_testicular_pain;
 	var $male_gu_testicular_pain_text;
 	function get_male_gu_testicular_pain() {
@@ -2721,8 +2720,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_testicular_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_urethral_discharge;
 	var $male_gu_urethral_discharge_text;
 	function get_male_gu_urethral_discharge() {
@@ -2745,8 +2744,8 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_urethral_discharge_text = $data;
 		}
 	}
-	
-	
+
+
 	var $male_gu_weak_urinary_stream;
 	var $male_gu_weak_urinary_stream_text;
 	function get_male_gu_weak_urinary_stream() {
@@ -2769,7 +2768,7 @@ class FormROS2 extends ORDataObject {
 			$this->male_gu_weak_urinary_stream_text = $data;
 		}
 	}
-	
+
 	// ----- Abnormal Menses -----
 
 	var $female_gu_abnormal_menses;
@@ -2794,8 +2793,8 @@ class FormROS2 extends ORDataObject {
 			$this->female_gu_abnormal_menses_text = $data;
 		}
 	}
-	
-	
+
+
 	var $female_gu_abnormal_vaginal_bleeding;
 	var $female_gu_abnormal_vaginal_bleeding_text;
 	function get_female_gu_abnormal_vaginal_bleeding() {
@@ -2818,8 +2817,8 @@ class FormROS2 extends ORDataObject {
 			$this->female_gu_abnormal_vaginal_bleeding_text = $data;
 		}
 	}
-	
-	
+
+
 	var $female_gu_vaginal_discharge;
 	var $female_gu_vaginal_discharge_text;
 	function get_female_gu_vaginal_discharge() {
@@ -2842,7 +2841,7 @@ class FormROS2 extends ORDataObject {
 			$this->female_gu_vaginal_discharge_text = $data;
 		}
 	}
-	
+
 	// ----- abdominal pain -----
 
 	var $gi_abdominal_pain;
@@ -2867,8 +2866,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_abdominal_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_cramps;
 	var $gi_cramps_text;
 	function get_gi_cramps() {
@@ -2891,8 +2890,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_cramps_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_tenderness;
 	var $gi_tenderness_text;
 	function get_gi_tenderness() {
@@ -2915,8 +2914,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_tenderness_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_vomiting;
 	var $gi_vomiting_text;
 	function get_gi_vomiting() {
@@ -2939,8 +2938,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_vomiting_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_frequent_diarrhea;
 	var $gi_frequent_diarrhea_text;
 	function get_gi_frequent_diarrhea() {
@@ -2963,8 +2962,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_frequent_diarrhea_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_significant_constipation;
 	var $gi_significant_constipation_text;
 	function get_gi_significant_constipation() {
@@ -2987,8 +2986,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_significant_constipation_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_excessive_belching;
 	var $gi_excessive_belching_text;
 	function get_gi_excessive_belching() {
@@ -3011,8 +3010,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_excessive_belching_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_changed_bowel_habits;
 	var $gi_changed_bowel_habits_text;
 	function get_gi_changed_bowel_habits() {
@@ -3035,8 +3034,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_changed_bowel_habits_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_excessive_flatulence;
 	var $gi_excessive_flatulence_text;
 	function get_gi_excessive_flatulence() {
@@ -3059,8 +3058,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_excessive_flatulence_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_hematemesis;
 	var $gi_hematemesis_text;
 	function get_gi_hematemesis() {
@@ -3083,8 +3082,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_hematemesis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_hemorrhoids;
 	var $gi_hemorrhoids_text;
 	function get_gi_hemorrhoids() {
@@ -3107,8 +3106,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_hemorrhoids_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_hepatitis;
 	var $gi_hepatitis_text;
 	function get_gi_hepatitis() {
@@ -3131,8 +3130,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_hepatitis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_jaundice;
 	var $gi_jaundice_text;
 	function get_gi_jaundice() {
@@ -3155,8 +3154,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_jaundice_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_lactose_intolerance;
 	var $gi_lactose_intolerance_text;
 	function get_gi_lactose_intolerance() {
@@ -3179,8 +3178,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_lactose_intolerance_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_chronic_laxative_use;
 	var $gi_chronic_laxative_use_text;
 	function get_gi_chronic_laxative_use() {
@@ -3203,8 +3202,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_chronic_laxative_use_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_melena;
 	var $gi_melena_text;
 	function get_gi_melena() {
@@ -3227,8 +3226,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_melena_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_frequent_nausea;
 	var $gi_frequent_nausea_text;
 	function get_gi_frequent_nausea() {
@@ -3251,8 +3250,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_frequent_nausea_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_rectal_bleeding;
 	var $gi_rectal_bleeding_text;
 	function get_gi_rectal_bleeding() {
@@ -3275,8 +3274,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_rectal_bleeding_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_rectal_pain;
 	var $gi_rectal_pain_text;
 	function get_gi_rectal_pain() {
@@ -3299,8 +3298,8 @@ class FormROS2 extends ORDataObject {
 			$this->gi_rectal_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $gi_stool_caliber_change;
 	var $gi_stool_caliber_change_text;
 	function get_gi_stool_caliber_change() {
@@ -3323,7 +3322,7 @@ class FormROS2 extends ORDataObject {
 			$this->gi_stool_caliber_change_text = $data;
 		}
 	}
-	
+
 	// ----- pallor -----
 
 	var $integument_pallor;
@@ -3348,8 +3347,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_pallor_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_diaphoresis;
 	var $integument_diaphoresis_text;
 	function get_integument_diaphoresis() {
@@ -3372,8 +3371,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_diaphoresis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_rash;
 	var $integument_rash_text;
 	function get_integument_rash() {
@@ -3396,8 +3395,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_rash_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_itching;
 	var $integument_itching_text;
 	function get_integument_itching() {
@@ -3420,8 +3419,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_itching_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_ulcers;
 	var $integument_ulcers_text;
 	function get_integument_ulcers() {
@@ -3444,8 +3443,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_ulcers_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_abscess;
 	var $integument_abscess_text;
 	function get_integument_abscess() {
@@ -3468,8 +3467,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_abscess_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_nodules;
 	var $integument_nodules_text;
 	function get_integument_nodules() {
@@ -3492,8 +3491,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_nodules_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_acne;
 	var $integument_acne_text;
 	function get_integument_acne() {
@@ -3516,8 +3515,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_acne_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_recurrent_boils;
 	var $integument_recurrent_boils_text;
 	function get_integument_recurrent_boils() {
@@ -3540,8 +3539,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_recurrent_boils_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_chronic_eczema;
 	var $integument_chronic_eczema_text;
 	function get_integument_chronic_eczema() {
@@ -3564,8 +3563,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_chronic_eczema_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_changing_moles;
 	var $integument_changing_moles_text;
 	function get_integument_changing_moles() {
@@ -3588,8 +3587,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_changing_moles_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_nail_abnormalities;
 	var $integument_nail_abnormalities_text;
 	function get_integument_nail_abnormalities() {
@@ -3612,8 +3611,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_nail_abnormalities_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_psoriasis;
 	var $integument_psoriasis_text;
 	function get_integument_psoriasis() {
@@ -3636,8 +3635,8 @@ class FormROS2 extends ORDataObject {
 			$this->integument_psoriasis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $integument_recurrent_hives;
 	var $integument_recurrent_hives_text;
 	function get_integument_recurrent_hives() {
@@ -3660,7 +3659,7 @@ class FormROS2 extends ORDataObject {
 			$this->integument_recurrent_hives_text = $data;
 		}
 	}
-	
+
 	// ----- deformity -----
 
 	var $musculoskeletal_deformity;
@@ -3685,8 +3684,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_deformity_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_edema;
 	var $musculoskeletal_edema_text;
 	function get_musculoskeletal_edema() {
@@ -3709,8 +3708,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_edema_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_pain;
 	var $musculoskeletal_pain_text;
 	function get_musculoskeletal_pain() {
@@ -3733,8 +3732,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_limited_rom;
 	var $musculoskeletal_limited_rom_text;
 	function get_musculoskeletal_limited_rom() {
@@ -3757,8 +3756,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_limited_rom_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_gait;
 	var $musculoskeletal_gait_text;
 	function get_musculoskeletal_gait() {
@@ -3781,8 +3780,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_gait_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_arthritis;
 	var $musculoskeletal_arthritis_text;
 	function get_musculoskeletal_arthritis() {
@@ -3805,8 +3804,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_arthritis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_neck_pain;
 	var $musculoskeletal_neck_pain_text;
 	function get_musculoskeletal_neck_pain() {
@@ -3829,8 +3828,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_neck_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_mid_back_pain;
 	var $musculoskeletal_mid_back_pain_text;
 	function get_musculoskeletal_mid_back_pain() {
@@ -3853,8 +3852,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_mid_back_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_low_back_pain;
 	var $musculoskeletal_low_back_pain_text;
 	function get_musculoskeletal_low_back_pain() {
@@ -3877,8 +3876,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_low_back_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_bursitis;
 	var $musculoskeletal_bursitis_text;
 	function get_musculoskeletal_bursitis() {
@@ -3901,8 +3900,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_bursitis_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_gout;
 	var $musculoskeletal_gout_text;
 	function get_musculoskeletal_gout() {
@@ -3925,8 +3924,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_gout_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_joint_injury;
 	var $musculoskeletal_joint_injury_text;
 	function get_musculoskeletal_joint_injury() {
@@ -3949,8 +3948,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_joint_injury_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_joint_pain;
 	var $musculoskeletal_joint_pain_text;
 	function get_musculoskeletal_joint_pain() {
@@ -3973,8 +3972,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_joint_pain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_joint_swelling;
 	var $musculoskeletal_joint_swelling_text;
 	function get_musculoskeletal_joint_swelling() {
@@ -3997,8 +3996,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_joint_swelling_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_myalgias;
 	var $musculoskeletal_myalgias_text;
 	function get_musculoskeletal_myalgias() {
@@ -4021,8 +4020,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_myalgias_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_sciatica;
 	var $musculoskeletal_sciatica_text;
 	function get_musculoskeletal_sciatica() {
@@ -4045,8 +4044,8 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_sciatica_text = $data;
 		}
 	}
-	
-	
+
+
 	var $musculoskeletal_scoliosis;
 	var $musculoskeletal_scoliosis_text;
 	function get_musculoskeletal_scoliosis() {
@@ -4069,7 +4068,7 @@ class FormROS2 extends ORDataObject {
 			$this->musculoskeletal_scoliosis_text = $data;
 		}
 	}
-	
+
 	// ----- Anemia -----
 
 	var $hematological_anemia;
@@ -4094,8 +4093,8 @@ class FormROS2 extends ORDataObject {
 			$this->hematological_anemia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $hematological_pallor;
 	var $hematological_pallor_text;
 	function get_hematological_pallor() {
@@ -4118,8 +4117,8 @@ class FormROS2 extends ORDataObject {
 			$this->hematological_pallor_text = $data;
 		}
 	}
-	
-	
+
+
 	var $hematological_bleeding_tendencies;
 	var $hematological_bleeding_tendencies_text;
 	function get_hematological_bleeding_tendencies() {
@@ -4142,8 +4141,8 @@ class FormROS2 extends ORDataObject {
 			$this->hematological_bleeding_tendencies_text = $data;
 		}
 	}
-	
-	
+
+
 	var $hematological_bruising;
 	var $hematological_bruising_text;
 	function get_hematological_bruising() {
@@ -4166,7 +4165,7 @@ class FormROS2 extends ORDataObject {
 			$this->hematological_bruising_text = $data;
 		}
 	}
-	
+
 	// ----- Thyroid Problems -----
 
 	var $endocrine_thyroid_problems;
@@ -4191,8 +4190,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_thyroid_problems_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_enlarged_thyroid;
 	var $endocrine_enlarged_thyroid_text;
 	function get_endocrine_enlarged_thyroid() {
@@ -4215,8 +4214,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_enlarged_thyroid_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_hyperglycemia;
 	var $endocrine_hyperglycemia_text;
 	function get_endocrine_hyperglycemia() {
@@ -4239,8 +4238,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_hyperglycemia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_hypoglycemia;
 	var $endocrine_hypoglycemia_text;
 	function get_endocrine_hypoglycemia() {
@@ -4263,8 +4262,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_hypoglycemia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_cold_intolerance;
 	var $endocrine_cold_intolerance_text;
 	function get_endocrine_cold_intolerance() {
@@ -4287,8 +4286,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_cold_intolerance_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_heat_intolerance;
 	var $endocrine_heat_intolerance_text;
 	function get_endocrine_heat_intolerance() {
@@ -4311,8 +4310,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_heat_intolerance_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_early_awakening;
 	var $endocrine_early_awakening_text;
 	function get_endocrine_early_awakening() {
@@ -4335,8 +4334,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_early_awakening_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_fatigue_unexplained;
 	var $endocrine_fatigue_unexplained_text;
 	function get_endocrine_fatigue_unexplained() {
@@ -4359,8 +4358,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_fatigue_unexplained_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_weight_gain;
 	var $endocrine_weight_gain_text;
 	function get_endocrine_weight_gain() {
@@ -4383,8 +4382,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_weight_gain_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_weight_loss;
 	var $endocrine_weight_loss_text;
 	function get_endocrine_weight_loss() {
@@ -4407,8 +4406,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_weight_loss_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_premenstrual_symptoms;
 	var $endocrine_premenstrual_symptoms_text;
 	function get_endocrine_premenstrual_symptoms() {
@@ -4431,8 +4430,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_premenstrual_symptoms_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_hair_no_change_or_no_loss;
 	var $endocrine_hair_no_change_or_no_loss_text;
 	function get_endocrine_hair_no_change_or_no_loss() {
@@ -4455,8 +4454,8 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_hair_no_change_or_no_loss_text = $data;
 		}
 	}
-	
-	
+
+
 	var $endocrine_hot_flashes;
 	var $endocrine_hot_flashes_text;
 	function get_endocrine_hot_flashes() {
@@ -4479,7 +4478,7 @@ class FormROS2 extends ORDataObject {
 			$this->endocrine_hot_flashes_text = $data;
 		}
 	}
-	
+
 	// ----- Swollen lymph nodes -----
 
 	var $lymphatic_swollen_lymph_nodes;
@@ -4504,8 +4503,8 @@ class FormROS2 extends ORDataObject {
 			$this->lymphatic_swollen_lymph_nodes_text = $data;
 		}
 	}
-	
-	
+
+
 	var $lymphatic_swollen_extremities;
 	var $lymphatic_swollen_extremities_text;
 	function get_lymphatic_swollen_extremities() {
@@ -4528,7 +4527,7 @@ class FormROS2 extends ORDataObject {
 			$this->lymphatic_swollen_extremities_text = $data;
 		}
 	}
-	
+
 	// ----- Compulsions -----
 
 	var $psychiatric_compulsions;
@@ -4553,8 +4552,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_compulsions_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_depression;
 	var $psychiatric_depression_text;
 	function get_psychiatric_depression() {
@@ -4577,8 +4576,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_depression_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_fear;
 	var $psychiatric_fear_text;
 	function get_psychiatric_fear() {
@@ -4601,8 +4600,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_fear_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_anxiety;
 	var $psychiatric_anxiety_text;
 	function get_psychiatric_anxiety() {
@@ -4625,8 +4624,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_anxiety_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_hallucinations;
 	var $psychiatric_hallucinations_text;
 	function get_psychiatric_hallucinations() {
@@ -4649,8 +4648,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_hallucinations_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_loss_of_interest;
 	var $psychiatric_loss_of_interest_text;
 	function get_psychiatric_loss_of_interest() {
@@ -4673,8 +4672,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_loss_of_interest_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_memory_loss;
 	var $psychiatric_memory_loss_text;
 	function get_psychiatric_memory_loss() {
@@ -4697,8 +4696,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_memory_loss_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_mood_swings;
 	var $psychiatric_mood_swings_text;
 	function get_psychiatric_mood_swings() {
@@ -4721,8 +4720,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_mood_swings_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_pananoia;
 	var $psychiatric_pananoia_text;
 	function get_psychiatric_pananoia() {
@@ -4745,8 +4744,8 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_pananoia_text = $data;
 		}
 	}
-	
-	
+
+
 	var $psychiatric_insomnia;
 	var $psychiatric_insomnia_text;
 	function get_psychiatric_insomnia() {
@@ -4769,7 +4768,7 @@ class FormROS2 extends ORDataObject {
 			$this->psychiatric_insomnia_text = $data;
 		}
 	}
-							
+
 }	// end of Form
 
 ?>

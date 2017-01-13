@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormROM.class.php");
 

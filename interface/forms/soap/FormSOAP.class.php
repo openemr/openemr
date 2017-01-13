@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -35,7 +34,7 @@ class FormSOAP extends ORDataObject {
 	var $objective;
 	var $assessment;
 	var $plan;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -48,7 +47,7 @@ class FormSOAP extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_soap";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -59,7 +58,7 @@ class FormSOAP extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -97,7 +96,7 @@ class FormSOAP extends ORDataObject {
 	function get_activity() {
 		return $this->activity;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -146,7 +145,7 @@ class FormSOAP extends ORDataObject {
 			$this->plan = $data;
 		}
 	}
-	
+
 	function persist() {
 		parent::persist();
 	}

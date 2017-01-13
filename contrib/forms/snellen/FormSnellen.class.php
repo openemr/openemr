@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once(dirname(__FILE__) . "/../../../library/classes/ORDataObject.class.php");
 
 define("EVENT_VEHICLE",1);
 define("EVENT_WORK_RELATED",2);
@@ -39,7 +38,7 @@ class FormSnellen extends ORDataObject {
 	var $left_2;
 	var $right_1;
 	var $right_2;
-	 
+
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -52,7 +51,7 @@ class FormSnellen extends ORDataObject {
 			$id = "";
 			$this->date = date("Y-m-d H:i:s");
 		}
-		
+
 		$this->_table = "form_snellen";
 		$this->activity = 1;
 		$this->pid = $GLOBALS['pid'];
@@ -63,7 +62,7 @@ class FormSnellen extends ORDataObject {
 	}
 	function populate() {
 		parent::populate();
-		//$this->temp_methods = parent::_load_enum("temp_locations",false);		
+		//$this->temp_methods = parent::_load_enum("temp_locations",false);
 	}
 
 	function toString($html = false) {
@@ -93,7 +92,7 @@ class FormSnellen extends ORDataObject {
 	function get_pid() {
 		return $this->pid;
 	}
-	
+
 	function get_date() {
 		return $this->date;
 	}
@@ -141,7 +140,7 @@ class FormSnellen extends ORDataObject {
 		return $this->left_2;
 	}
 
-	
+
 	function set_right_1($tf) {
 		$this->right_1 = $tf;
 	}

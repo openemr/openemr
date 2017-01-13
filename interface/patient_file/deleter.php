@@ -31,7 +31,6 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
-require_once dirname(__FILE__) . '/../../library/classes/CouchDB.class.php';
 
  $patient     = $_REQUEST['patient'];
  $encounterid = $_REQUEST['encounterid'];
@@ -189,8 +188,8 @@ function popup_close() {
 	  	window.close();
 	 }
 	 else {
-	  	parent.$.fn.fancybox.close(); 
-	 }	  
+	  	parent.$.fn.fancybox.close();
+	 }
 }
 </script>
 </head>

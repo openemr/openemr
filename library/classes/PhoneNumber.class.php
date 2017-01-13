@@ -14,7 +14,6 @@ define("TYPE_CELL",3);
 define("TYPE_EMERGENCY",4);
 define("TYPE_FAX",5);
 
-require_once("ORDataObject.class.php");
 
 /**
  * class Address
@@ -120,7 +119,7 @@ class PhoneNumber extends ORDataObject{
 	function get_prefix () {
 		return $this->prefix;
 	}
-	
+
 	function get_phone_display() {
 		if (is_numeric($this->area_code) && is_numeric($this->prefix) && is_numeric($this->number)) {
 			// return  "(" . $this->area_code . ") " . $this->prefix . "-" . $this->number;
@@ -147,13 +146,13 @@ class PhoneNumber extends ORDataObject{
 			$nums[0] = substr($num,1,3);
 			$nums[1] = substr($num,6,3);
 			$nums[2] = substr($num,10,4);
-			
+
 			foreach ($nums as $n) {
 				if (!is_numeric($n)) {
 					return false;
 				}
 			}
-			
+
 			if (count($nums) == 3) {
 				$this->area_code = $nums[0];
 				$this->prefix = $nums[1];

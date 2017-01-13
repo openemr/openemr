@@ -31,7 +31,6 @@ require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/classes/Document.class.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
