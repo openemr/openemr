@@ -14,21 +14,21 @@
 		<link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<!-- <link href="../assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" /> -->
 		<link href="styles/style.css" rel="stylesheet" />
-		<link href="../assets/bootstrap/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="../assets/bootstrap/css/datepicker.css" rel="stylesheet" />
-		<link href="../assets/bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
 		<link href="../assets/bootstrap/css/bootstrap-timepicker.min.css" rel="stylesheet" />
-		<link href="../assets/bootstrap/css/bootstrap-combobox.css" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/css/bootstrap-combobox.css" rel="stylesheet" />
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
-			$LAB.script("../assets/js/jquery-1.11.3.min.js").wait()
+			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js").wait()
 				.script("../assets/bootstrap/js/bootstrap.min.js")
-				.script("../assets/bootstrap/js/moment.min.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("../assets/bootstrap/js/bootstrap-datepicker.js")
 				.script("../assets/bootstrap/js/bootstrap-timepicker.min.js")
-				.script("../assets/bootstrap/js/bootstrap-combobox.js")
-				.script("../assets/bootstrap/js/bootstrap-datetimepicker.min.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/js/bootstrap-combobox.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/js/bootstrap-datetimepicker.min.js")
 				.script("scripts/libs/underscore-min.js").wait()
 				.script("scripts/libs/underscore.date.min.js")
 				.script("scripts/libs/backbone-min.js")
