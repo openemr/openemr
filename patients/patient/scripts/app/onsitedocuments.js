@@ -390,7 +390,7 @@ var page = {
 			page.onsiteDocument.set('denialReason','Open')
 			
 		app.showProgress('modelLoader');
-		var isLink = $('#patientSignature').attr( 'src').indexOf('signhere');		
+		var isLink = $('#patientSignature').attr( 'src') ? $('#patientSignature').attr( 'src').indexOf('signhere') : -1
 		if(isLink != -1 )
 			$('#patientSignature').attr( 'src',signhere);
 		var ptsignature = $('#patientSignature').attr( 'src');
