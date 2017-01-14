@@ -122,7 +122,7 @@
 					<li data-toggle="pill"><a href="#lists" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
 					</a></li>
-					<li><a href="patient/onsitedocuments?pid=<?php echo text($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
+					<li><a href="./patient/onsitedocuments?pid=<?php echo text($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
 					</a></li>
 					<li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>

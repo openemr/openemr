@@ -3,7 +3,7 @@
 	$this->assign('title','Patient Portal | PatientData');
 	$this->assign('nav','patientdata');
 
-	echo "<script>var recid='" . $this->recid . "';var cpid='" . $this->cpid . "';var cuser='" .$this->cuser . "';</script>";
+	echo "<script>var recid='" . $this->recid . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . $this->cpid . "';var cuser='" .$this->cuser . "';</script>";
 	$_SESSION['whereto'] = 'profilepanel';
 
 	$this->display('_modalFormHeader.tpl.php');
@@ -576,30 +576,7 @@ Revert Edits button changes everything back to chart values and you may make cha
 	<div id="modelAlert"></div>
 	<div id="patientCollectionContainer" class="collectionContainer"></div><!--  -->
 	<div id="patientModelContainer" class="modelContainer"></div>
-<!--
-<div class="modal fade" id="patientDetailDialog" tabindex="-1" role="dialog"	aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Edit Profile</h4>
-			</div>
-		</div>
-		<div class="modal-body">
-			<div id="modelAlert"></div>
-			<div id="patientModelContainer"></div>
-		</div>
-		<div class="modal-footer">
-			<button class="btn" data-dismiss="modal" >Cancel</button>
-			<button id="savePatientButton" class="btn btn-primary btn-sm">Save Changes</button>
-			<a href="../home.php?>" class="btn btn-primary btn-sm">Cancel or Return</a>
-		</div>
-	</div>
-</div>
--->
-<!-- <p id="saveButtonContainer" class="buttonContainer pull-right">
-		<button id="savePatientButton" class="btn btn-primary btn-sm">Save Changes</button>
-		<a href="../home.php?>" class="btn btn-primary btn-sm">Cancel or Return</a>
-	</p> -->
+
 </div> <!-- /container -->
 <?php //$this->display('_Footer.tpl.php');?>
 
