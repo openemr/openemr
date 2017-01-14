@@ -17,6 +17,7 @@
   "dependencies": {
     "AnythingSlider-1-9-4": "AnythingSlider#1.9.4",
     "angular-1-5-8": "angular#1.5.8",
+    "angular-sanitize-1-5-8": "angular-sanitize#1.5.8",
     "angular-summernote-0-8-1": "angular-summernote#0.8.1",
     "bootstrap-3-3-4": "bootstrap#3.3.4",
     "bootstrap-rtl-3-3-4": "bootstrap-rtl#3.3.4",
