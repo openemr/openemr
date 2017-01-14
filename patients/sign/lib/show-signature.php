@@ -52,13 +52,13 @@ $status = 'filed';
 $lastmod = date ( 'Y-m-d H:i:s' );
 if ($type == 'admin-signature') {
     $pid = 0;
-    $statement = $db->prepare ( "SELECT pid,status, sig_image,type,user FROM signatures WHERE user = :user && type=:type" );
+    $statement = $db->prepare ( "SELECT pid,status, sig_image,type,user FROM onsite_signatures WHERE user = :user && type=:type" );
     $statement->execute ( array (
             ':user' => $user,
             ':type' => $type
     ) );
 } else {
-    $statement = $db->prepare ( "SELECT pid,status, sig_image,type,user FROM signatures WHERE pid = :pid" );
+    $statement = $db->prepare ( "SELECT pid,status, sig_image,type,user FROM onsite_signatures WHERE pid = :pid" );
     $statement->execute ( array (
             ':pid' => $pid
     ) );
@@ -66,7 +66,7 @@ if ($type == 'admin-signature') {
 $row = $statement->fetch ();
 if ( !$row ['pid'] && !$row ['user']) {
     $status = 'waiting';
-    $qstr = "INSERT INTO signatures (pid,lastmod,status,type,user,signator,created) VALUES (:pid ,:lastmod,:status,:type,:user,:signator,:created) ";
+    $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator,created) VALUES (:pid ,:lastmod,:status,:type,:user,:signator,:created) ";
     $pstm = $db->prepare ( $qstr );
     $pstm->bindValue ( ':pid', $pid, PDO::PARAM_INT );
     $pstm->bindValue ( ':lastmod', $lastmod, PDO::PARAM_STR );

@@ -93,7 +93,7 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         $status = 'filed';
         $lastmod = date( 'Y-m-d H:i:s' );
 
-        $qstr = "UPDATE signatures SET pid=:pid,lastmod=:lastmod,status=:status, user=:user,
+        $qstr = "UPDATE onsite_signatures SET pid=:pid,lastmod=:lastmod,status=:status, user=:user,
                         signature=:signature , sig_hash=:sig_hash , ip=:ip,sig_image=:sig_image
                  WHERE pid=:pid && user=:user";
         $pstm = $db->prepare( $qstr );
@@ -114,7 +114,7 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         }
         $rcnt = $pstm->rowCount();
         if( $rcnt == 0 ){
-            $qstr = "INSERT INTO signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (:pid , :lastmod, :status,
+            $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (:pid , :lastmod, :status,
                             :type, :user, :signator, :signature, :sig_hash, :ip, :created, :sig_image) ";
             $pstm = $db->prepare( $qstr );
             $pstm->bindValue( ':pid', $pid, PDO::PARAM_INT );
