@@ -4868,6 +4868,126 @@ CREATE TABLE `onotes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `onsite_documents`
+--
+
+DROP TABLE IF EXISTS `onsite_documents`;
+CREATE TABLE `onsite_documents` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `facility` int(10) UNSIGNED DEFAULT NULL,
+  `provider` int(10) UNSIGNED DEFAULT NULL,
+  `encounter` int(10) UNSIGNED DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `doc_type` varchar(255) NOT NULL,
+  `patient_signed_status` smallint(5) UNSIGNED NOT NULL,
+  `patient_signed_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authorize_signed_time` datetime DEFAULT NULL,
+  `accept_signed_status` smallint(5) NOT NULL,
+  `authorizing_signator` varchar(50) NOT NULL,
+  `review_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `denial_reason` varchar(255) NOT NULL,
+  `authorized_signature` text,
+  `patient_signature` text,
+  `full_document` blob,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_messages`
+--
+
+DROP TABLE IF EXISTS `onsite_messages`;
+CREATE TABLE `onsite_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `message` longtext,
+  `ip` varchar(15) NOT NULL,
+  `date` datetime NOT NULL,
+  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+  `recip_id` int(11) NOT NULL DEFAULT '0' COMMENT 'who to id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_online`
+--
+
+DROP TABLE IF EXISTS `onsite_online`;
+CREATE TABLE `onsite_online` (
+  `hash` varchar(32) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `last_update` datetime NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `userid` int(11) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_portal_activity`
+--
+
+DROP TABLE IF EXISTS `onsite_portal_activity`;
+CREATE TABLE `onsite_portal_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `patient_id` bigint(20) DEFAULT NULL,
+  `activity` varchar(255) DEFAULT NULL,
+  `require_audit` tinyint(1) DEFAULT '1',
+  `pending_action` varchar(255) DEFAULT NULL,
+  `action_taken` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `narrative` longtext,
+  `table_action` longtext,
+  `table_args` longtext,
+  `action_user` int(11) DEFAULT NULL,
+  `action_taken_time` datetime DEFAULT NULL,
+  `checksum` longtext,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onsite_signatures`
+--
+
+DROP TABLE IF EXISTS `onsite_signatures`;
+CREATE TABLE `onsite_signatures` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `status` varchar(128) NOT NULL DEFAULT 'waiting',
+  `type` varchar(128) NOT NULL,
+  `created` int(11) NOT NULL,
+  `lastmod` datetime NOT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) NOT NULL DEFAULT '0',
+  `authorized` tinyint(4) DEFAULT NULL,
+  `signator` varchar(255) NOT NULL,
+  `sig_image` text,
+  `signature` text,
+  `sig_hash` varchar(128) NOT NULL,
+  `ip` varchar(46) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`,`user`),
+  KEY `encounter` (`encounter`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `openemr_module_vars`
 --
 
