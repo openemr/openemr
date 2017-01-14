@@ -29,17 +29,17 @@
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
-<link href="assets/bootstrap/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
 <link href="sign/css/signer.css" rel="stylesheet" type="text/css" />
 <link href="sign/assets/signpad.css" rel="stylesheet">
 
-<script src="assets/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script src="assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="sign/assets/signpad.js" type="text/javascript"></script>
 <script src="sign/assets/signer.js" type="text/javascript"></script>
-<script type="text/javascript" src="assets/js/eModal.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
 
 </head>
 <body class="skin-blue fixed">

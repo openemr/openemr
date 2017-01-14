@@ -52,7 +52,7 @@ foreach ( $result as $iter ) {
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="" />
-<link href="assets/bootstrap/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" type="text/css" rel="stylesheet">
 <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
 <style type="text/css">
@@ -336,10 +336,10 @@ foreach ( $result as $iter ) {
 
 	<script type='text/javascript'>var messages = <?php echo json_encode($arr);?>;</script>
 
-	<script type='text/javascript' src="assets/js/jquery-1.11.3.min.js"></script>
+	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
 	<script type='text/javascript' src="assets/bootstrap/js/bootstrap.min.js"></script>
-	<script type='text/javascript' src="assets/js/angular-1.5.8.min.js"></script>
-	<script type='text/javascript' src="assets/js/angular-sanitize.min.js"></script>
+	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-1-5-8/angular.min.js"></script>
+	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize-1-5-8/angular-sanitize.min.js"></script>
 	<script type='text/javascript' src="assets/js/msgapp.js"></script>
 
 </body>

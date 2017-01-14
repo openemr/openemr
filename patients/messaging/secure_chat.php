@@ -482,18 +482,18 @@ $msgApp = new Controller();
 
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
 
-    <script type='text/javascript' src="../assets/js/jquery-1.11.3.min.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
 
     <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
     <script type='text/javascript' src="../assets/bootstrap/js/bootstrap.min.js"></script>
 
-    <link rel="stylesheet" href="../assets/medit/summernote.css" />
-    <script type='text/javascript' src="../assets/medit/summernote.js"></script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" />
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.js"></script>
 
-    <script type='text/javascript' src="../assets/js/angular-1.5.8.min.js"></script>
-    <script type='text/javascript' src="../assets/medit/angular-summernote.js"></script>
-     <script type='text/javascript' src="../assets/js/angular-sanitize.min.js"></script>
-    <script src='../assets/js/checklist-model.js'></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-1-5-8/angular.min.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-summernote-0-8-1/dist/angular-summernote.js"></script>
+     <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize-1-5-8/angular-sanitize.min.js"></script>
+    <script src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model-0-10-0/checklist-model.js'></script>
 
 </head>
 <script type="text/javascript">
