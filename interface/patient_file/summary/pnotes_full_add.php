@@ -235,7 +235,6 @@ $urlparms = "docid=$docid&orderid=$orderid";
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:</b>
    <select name='assigned_to'>
-    <option value=''>** <?php echo htmlspecialchars( xl('Close'), ENT_NOQUOTES); ?> **</option>
 <?php
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
