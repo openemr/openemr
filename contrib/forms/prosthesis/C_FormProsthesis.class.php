@@ -8,9 +8,9 @@ require_once("FormProsthesis.class.php");
 class C_FormProsthesis extends Controller {
 
 	var $template_dir;
-	
-    function C_FormProsthesis($template_mod = "general") {
-    	parent::Controller();
+
+    function __construct($template_mod = "general") {
+    	parent::__construct();
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/prosthesis/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);

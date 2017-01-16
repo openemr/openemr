@@ -7,9 +7,9 @@ require_once("FormHpTjePrimary.class.php");
 class C_FormHpTje extends Controller {
 
 	var $template_dir;
-	
-    function C_FormHPTje($template_mod = "general") {
-    	parent::Controller();
+
+    function __construct($template_mod = "general") {
+    	parent::__construct();
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/hp_tje/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);

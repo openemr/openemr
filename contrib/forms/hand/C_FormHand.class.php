@@ -13,8 +13,8 @@ class C_FormHand extends Controller {
 
   var $template_dir;
 
-  function C_FormHand($template_mod = "general") {
-    parent::Controller();
+  function __construct($template_mod = "general") {
+    parent::__construct();
     $this->template_mod = $template_mod;
     $this->template_dir = dirname(__FILE__) . "/templates/";
     $this->assign("FORM_ACTION", $GLOBALS['web_root']);

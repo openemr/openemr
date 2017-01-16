@@ -8,9 +8,8 @@ require_once("FormEvaluation.class.php");
 class C_FormEvaluation extends Controller {
 
 	var $template_dir;
-	
-    function C_FormEvaluation($template_mod = "general") {
-    	parent::Controller();
+    function __construct($template_mod = "general") {
+    	parent::__construct();
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/evaluation/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
