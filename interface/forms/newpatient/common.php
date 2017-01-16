@@ -198,7 +198,7 @@ function cancelClicked() {
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
   // Show Thrapy group category only if global enable_group_therapy is true
-  if($catid == 1000 && !$GLOBALS['enable_group_therapy'])continue;
+  if($catid == 1000 && !$GLOBALS['enable_group_therapy']) continue;
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='" . attr($catid) . "'";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
@@ -455,6 +455,7 @@ if (!$viewmode) { ?>
   })
 
   function sel_group() {
+      top.restoreSession();
       var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
       dlgopen(url, '_blank', 500, 400);
   }

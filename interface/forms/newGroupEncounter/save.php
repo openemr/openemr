@@ -3,7 +3,9 @@
  * Encounter form save script.
  *
  * Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
- *
+ * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
+
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -18,6 +20,9 @@
  * @package OpenEMR
  * @author  Brady Miller <brady@sparmy.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Amiel Elboim <amielel@matrix.co.il>
+ * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
+ *
  * @link    http://www.open-emr.org
  */
 

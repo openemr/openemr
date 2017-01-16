@@ -1031,7 +1031,8 @@ td { font-size:0.8em; }
 
  // This invokes the find-group popup.
  function sel_group() {
-  dlgopen('find_group_popup.php', '_blank', 500, 400);
+     top.restoreSession();
+     dlgopen('find_group_popup.php', '_blank', 500, 400);
  }
 
  // Do whatever is needed when a new event category is selected.

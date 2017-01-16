@@ -2,8 +2,8 @@
 /**
  * Encounter form report function.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shachar058@gmail.com>
- * Copyright (C) 2016 Amiel Elboim <amielboim@gmail.com>
+ * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,13 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Amiel Elboim <amielboim@gmail.com>
+ * @author  Amiel Elboim <amielel@matrix.co.il>
  * @author  Brady Miller <brady@sparmy.com>
  * @link    http://www.open-emr.org
  */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 include_once(dirname(__file__)."/../../globals.php");
 require_once("$srcdir/group.inc");

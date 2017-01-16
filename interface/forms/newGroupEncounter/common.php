@@ -2,8 +2,8 @@
 /**
  * Common script for the encounter form (new and view) scripts.
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shachar058@gmail.com>
- * Copyright (C) 2016 Amiel Elboim <amielboim@gmail.com>
+ * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Amiel Elboim <amielboim@gmail.com>
+ * @author  Amiel Elboim <amielel@matrix.co.il>
  * @author  Brady Miller <brady@sparmy.com>
  * @link    http://www.open-emr.org
  */
@@ -192,7 +192,7 @@ function cancelClicked() {
    <table>
 
     <tr>
-     <td class='bold' nowrap><?php echo xlt('Visit Category:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Visit Category'); ?>:</td>
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
 	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
@@ -214,7 +214,7 @@ function cancelClicked() {
     </tr>
 
     <tr>
-     <td class='bold' nowrap><?php echo xlt('Facility:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Facility'); ?>:</td>
      <td class='text'>
       <select name='facility_id' onChange="bill_loc()">
 <?php
@@ -279,7 +279,7 @@ if ($fres) {
  if ($sensitivities && count($sensitivities)) {
   usort($sensitivities, "sensitivity_compare");
 ?>
-     <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Sensitivity'); ?>:</td>
      <td class='text'>
       <select name='form_sensitivity'>
 <?php
@@ -316,7 +316,7 @@ if ($fres) {
     </tr>
 
     <tr>
-     <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Date of Service'); ?>:</td>
      <td class='text' nowrap>
       <input type='text' size='10' name='form_date' id='form_date' <?php echo $disabled ?>
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
@@ -369,7 +369,7 @@ Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_f
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);

@@ -8551,18 +8551,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
-('groupstat', '-', '- None', '1', '0', '0', 'FEFDCF|0'),
-('groupstat', '=', '= Took Place', '2', '0', '0', 'FF2414|0'),
-('groupstat', '>', '> Did Not Take Place', '3', '0', '0', 'BFBFBF|0'),
-('groupstat', '<', '< Not Reported', '4', '0', '0', 'FEFDCF|0');
+('groupstat', '-', '- None', '10', '0', '0', 'FEFDCF|0'),
+('groupstat', '=', '= Took Place', '20', '0', '0', 'FF2414|0'),
+('groupstat', '>', '> Did Not Take Place', '30', '0', '0', 'BFBFBF|0'),
+('groupstat', '<', '< Not Reported', '40', '0', '0', 'FEFDCF|0');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'attendstat', 'Group Attendance Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES
-('attendstat', '-', '- Not Reported', '1', '0', '0', 'FEFDCF|0', '0'),
-('attendstat', '@', '@ Attended', '2', '0', '0', 'FF2414|0', '1'),
-('attendstat', '?', '? Did Not Attend', '3', '0', '0', 'BFBFBF|0', '1'),
-('attendstat', '~', '~ Late Arrival', '4', '0', '0', 'BFBFBF|0', '1'),
-('attendstat', 'x', 'x Cancelled', '5', '0', '0', 'FEFDCF|0', '0');
+('attendstat', '-', '- Not Reported', '10', '0', '0', 'FEFDCF|0', '0'),
+('attendstat', '@', '@ Attended', '20', '0', '0', 'FF2414|0', '1'),
+('attendstat', '?', '? Did Not Attend', '30', '0', '0', 'BFBFBF|0', '1'),
+('attendstat', '~', '~ Late Arrival', '40', '0', '0', 'BFBFBF|0', '1'),
+('attendstat', 'x', 'x Cancelled', '50', '0', '0', 'FEFDCF|0', '0');
 -- --------------------------------------------------------
 
 -- --------------------------------------------------------

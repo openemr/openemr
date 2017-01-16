@@ -1,1 +1,1 @@
-New Patient Form
+New Group Encounter Form

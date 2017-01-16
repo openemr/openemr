@@ -200,13 +200,13 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 <div id="searchCriteria">
     <form method='post' name='theform' id="theform"
           action='find_group_popup.php?<?php if (isset($_GET['pflag'])) echo "pflag=0"; ?>'>
-        <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
+        <?php echo htmlspecialchars(xl('Search by'), ENT_NOQUOTES) . ':'; ?>
         <select name='searchby'>
             <option value="Name"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
             <option
                 value="ID"<?php if ($searchby == 'ID') echo ' selected' ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
         </select>
-        <?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?>
+        <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES) . ':'; ?>
         <input type='text' id='searchparm' name='searchparm' size='12'
                value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'
                title='<?php echo htmlspecialchars(xl(''), ENT_QUOTES); ?>'>

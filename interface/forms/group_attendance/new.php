@@ -2,8 +2,8 @@
 /**
  * interface/forms/group_attendance/new.php
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shachar058@gmail.com>
- * Copyright (C) 2016 Amiel Elboim <amielboim@gmail.com>
+ * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Shachar Zilbershlag <shachar058@gmail.com>
- * @author  Amiel Elboim <amielboim@gmail.com>
+ * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
 
