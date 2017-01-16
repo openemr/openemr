@@ -67,7 +67,7 @@
                     <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
                     <?php foreach ($statuses as $status):?>
                         <?php if($status != $statuses[10]): ?>
-                            <option value="<?php echo xla($status);?>"><?php echo xlt($status) ;?></option>
+                            <option value="<?php echo attr($status);?>"><?php echo xlt($status) ;?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <option value="all"><?php echo xlt("all");?></option>
@@ -258,6 +258,7 @@
 
         /* --------- Reset Filters ------ */
         $('#clear_filters').click(function(){
+            top.restoreSession();
             location.reload();
         });
     });
