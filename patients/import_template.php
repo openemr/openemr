@@ -37,7 +37,7 @@ else if($_POST['mode'] == 'delete'){
 	exit(true);
 }
 // so it is an import
-define("UPLOAD_DIR", dirname( __FILE__ ) ."/patient_documents/templates/");
+define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/');
 
 if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];

@@ -349,10 +349,7 @@ if ($encounter) {
     "encounter = ?", array($pid, $encounter));
 }
 
-//$form_filename = strip_escape_custom($_REQUEST['form_filename']);
-//$form_filename = strip_escape_custom($template);
-$templatedir   = dirname( __FILE__ ) ."/../patient_documents/templates";
-//$templatedir   = "$OE_SITE_DIR/documents/doctemplates";
+$templatedir   = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates';
 $templatepath  = "$templatedir/$form_filename";
 
 // Create a temporary file to hold the output.

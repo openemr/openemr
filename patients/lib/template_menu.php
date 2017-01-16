@@ -22,7 +22,7 @@
  */
 
 $froot = $GLOBALS['fileroot'];
-foreach (glob($froot."/patients/patient_documents/templates/*.tpl") as $filename) {
+foreach (glob($GLOBALS['OE_SITE_DIR'] . "/onsite_portal_documents/templates/*.tpl") as $filename) {
     $basefile = basename($filename,".tpl");
     $btnname = str_replace('_', ' ',$basefile);
     $btnfile = $basefile . '.tpl';

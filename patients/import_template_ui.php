@@ -25,7 +25,7 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 require_once("../interface/globals.php");
 
-$tdir = $GLOBALS['fileroot'] . "/patients/patient_documents/templates/";
+$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/';
 function getTemplateList($dir){
 	//$finfo = finfo_open(FILEINFO_MIME_TYPE);
 	$retval = array();
