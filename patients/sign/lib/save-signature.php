@@ -38,10 +38,10 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         exit();
         // $errors ['output'] = true;
     }
-
+/* Don't need at present
     if( $pid > 0 ) $resizedFile = './../../patient_documents/signed/current/' . $pid . '_master.png';
     else $resizedFile = './../../patient_documents/signed/current/' . $signer . '_master.png';
-
+ */
     $svgsig = '';
     if( empty( $errors ) ){
         try{
@@ -64,7 +64,7 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
             $image = ob_get_contents();
             ob_clean();
             $image_png = smart_resize_image( null, $image, $svg->max[0], 75, true, 'return', false, false, 100, false );
-            imagepng( $image_png, $resizedFile, 0 );
+            //imagepng( $image_png, $resizedFile, 0 );
             imagepng( $image_png );
             $image = ob_get_contents();
             ob_end_clean();
