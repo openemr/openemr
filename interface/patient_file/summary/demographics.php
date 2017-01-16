@@ -1475,7 +1475,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . "'>";
             echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'],ENT_NOQUOTES) . " ) </span>";
             echo htmlspecialchars(xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "\n";
-            if($row['pc_catid'] == 1000) echo "<br><span>" . xlt('Group name') .": " . getGroup($row['pc_gid'])['group_name'] . "</span>\n";
+            if($row['pc_catid'] == 1000) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
             if ($row['pc_hometext']) echo " <span style='color:green'> Com</span>";
             echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES);
             echo $row['pc_catid'] != 1000 ? '</a>' : '<span>';

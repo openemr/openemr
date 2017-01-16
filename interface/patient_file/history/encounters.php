@@ -409,10 +409,11 @@ if ($issue) {
 }
 if($attendant_type == 'pid') {
     $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
+    $sqlBindArray[] = $pid;
 } else {
     $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
+    $sqlBindArray[] = $_SESSION['therapy_group'];
 }
-$sqlBindArray[] = $attendant_type == 'pid' ? $pid : $_SESSION['therapy_group'];
 
 $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
         "ORDER BY fe.date DESC, fe.id DESC";
@@ -617,7 +618,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     $counselors .= getUserNameById($userId) . ', ';
                 }
                 $counselors = rtrim($counselors, ", ");
-                echo "<td>$counselors</td>\n";
+                echo "<td>" . text($counselors) . "</td>\n";
             }
 
 
@@ -780,7 +781,7 @@ while ($result4 = sqlFetchArray($res4)) {
             $encounter_type = sqlQuery("SELECT pc_catname FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
             echo "<td>".$encounter_type['pc_catname']."</td>\n";
             $group_name = $result4['pc_catid'] == 1000 ? getGroup($result4['external_id'])['group_name']  : "";
-            echo "<td>".$group_name."</td>\n";
+            echo "<td>". text($group_name) . "</td>\n";
         }
 
         echo "</tr>\n";

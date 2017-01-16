@@ -57,14 +57,14 @@
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($group_types as $type):?>
-                        <option value="<?php echo xla($type);?>"><?php echo xlt($type) ;?></option>
+                        <option value="<?php echo attr($type);?>"><?php echo xlt($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xlt('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value="<?php echo xla($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
+                    <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
                     <?php foreach ($statuses as $status):?>
                         <?php if($status != $statuses[10]): ?>
                             <option value="<?php echo xla($status);?>"><?php echo xlt($status) ;?></option>

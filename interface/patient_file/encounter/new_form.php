@@ -140,7 +140,14 @@ function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
     "unpackaged, date FROM registry WHERE ";
   // select different forms for groups
-  $sql .= $attendant_type == 'pid' ? "patient_encounter = 1 AND " : "therapy_group_encounter = 1 AND ";
+  if($attendant_type == 'pid' )
+  {
+    $sql .= "patient_encounter = 1 AND ";
+  }
+  else
+  {
+    $sql .= "therapy_group_encounter = 1 AND ";
+  }
   $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
   if ($limit != "unlimited") $sql .= " limit $limit, $offset";
   $res = sqlStatement($sql);
