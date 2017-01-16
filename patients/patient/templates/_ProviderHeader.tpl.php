@@ -13,14 +13,14 @@
 		<!-- Styles -->
 		<link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" />
 		<link href="styles/style.css" rel="stylesheet" />
-		<link href="../assets/bootstrap/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="../sign/css/signer.css" rel="stylesheet" type="text/css" />
 		<link href="../sign/assets/signpad.css" rel="stylesheet">
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
-			$LAB.script("../assets/js/jquery-1.11.3.min.js")
+			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
 				//.script("../sign/assets/signpad.js")
 				.script("../sign/assets/signer.js")
 				.script("../assets/bootstrap/js/bootstrap.min12px.js")

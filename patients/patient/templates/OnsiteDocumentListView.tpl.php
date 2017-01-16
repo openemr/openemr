@@ -27,21 +27,21 @@
 
 		<link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../assets/css/style.css" rel="stylesheet" />
-		<link href="../assets/bootstrap/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="../sign/css/signer.css" rel="stylesheet" type="text/css" />
 		<link href="../sign/assets/signpad.css" rel="stylesheet">
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
-			$LAB.script("../assets/js/jquery-1.11.3.min.js")
+			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
 				.script("../sign/assets/signpad.js").wait()
 				.script("../sign/assets/signer.js").wait()
 				.script("../assets/bootstrap/js/bootstrap.min.js")
 				.script("scripts/libs/underscore-min.js")
 				.script("scripts/libs/underscore.date.min.js")
 				.script("scripts/libs/backbone-min.js")
-				.script("../assets/js/eModal.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
 				.script("scripts/app.js")
 				.script("scripts/model.js").wait()
 				.script("scripts/view.js").wait()
