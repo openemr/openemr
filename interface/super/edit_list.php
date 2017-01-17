@@ -822,7 +822,7 @@ else {
     "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
     "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
     "ld.lang_id = '$lang_id' " .
-    "WHERE lo.list_id = 'lists' " .
+    "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
     "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
 }
 
@@ -1002,8 +1002,14 @@ if ($list_id) {
     }
   }
   else {
-    $res = sqlStatement("SELECT * FROM list_options WHERE " .
-      "list_id = '$list_id' ORDER BY seq,title");
+    /*
+     *  Add edit options to show or hide in list management
+     */
+    $res = sqlStatement("SELECT lo.* 
+                         FROM list_options as lo 
+                         right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.edit_options = 1
+                         WHERE lo.list_id = '{$list_id}' AND lo.edit_options = 1
+                         ORDER BY seq,title");
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
         $row['is_default'], $row['option_value'], $row['mapping'],
