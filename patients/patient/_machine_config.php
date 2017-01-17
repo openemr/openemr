@@ -9,6 +9,10 @@
  *
  * This file should not be added to version control, rather a template
  * file should be added instead and then copied for each install
+ *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  */
 /* */
 

@@ -20,8 +20,6 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-$sanitize_all_escapes=true;
-$fake_register_globals=false;
 ?>
 
 <div id="openModal" class="modal right fade" role="dialog">
@@ -29,7 +27,7 @@ $fake_register_globals=false;
         <div class="modal-content">
             <!-- <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Sign</h4>
+                <h4 class="modal-title"><?php echo xlt('Sign'); ?></h4>
             </div> -->
             <div class="modal-body clearfix" >
 
@@ -51,7 +49,7 @@ $fake_register_globals=false;
                     </div>
                     <input type="hidden" name="type" id="type"
                         value="patient-signature">
-                    <button type="button" onclick="signDoc(this)"><?php echo xlt('I accept the terms of    this agreement'); ?>.</button>
+                    <button type="button" onclick="signDoc(this)"><?php echo xlt('I accept the terms of this agreement'); ?>.</button>
                 </form>
                 
             </div><!-- Modal body -->

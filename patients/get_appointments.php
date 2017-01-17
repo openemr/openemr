@@ -71,22 +71,22 @@ if (sqlNumRows ( $res ) > 0) {
 echo '</tbody></table>';
 ?>
 <div style='margin: 5px 0 5px'>
-	<a href='#' onclick="editAppointment('add',<?php echo $pid; ?>)"><button
+	<a href='#' onclick="editAppointment('add',<?php echo attr($pid); ?>)"><button
 			class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button></a>
 </div>
 <script>
 	function editAppointment(mode,deid){
 		if(mode == 'add'){
-			var title = 'Request New Appointment';
+			var title = '<?php echo xla('Request New Appointment'); ?>';
 			var mdata = {pid:deid};
 		}
 		else{
-			var title = 'Edit Appointment';
+			var title = '<?php echo xla('Edit Appointment'); ?>';
 			var mdata = {eid:deid};
 		}
 		var params = {
 			buttons: [
-			   { text: 'Cancel', close: true, style: 'default' },
+			   { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default' },
 			   //{ text: 'Print', close: false, style: 'success', click: showCustom }
 			],
 			title: title,

@@ -1,4 +1,26 @@
 <?php
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
+
 	//require_once ("./../verify_session.php");
 	$this->assign('title','Patient Portal | PatientData');
 	$this->assign('nav','patientdata');
@@ -27,13 +49,10 @@
 	<!-- Could add/manage table list here -->
 	<script type="text/template" id="patientModelTemplate"> <!-- -->
 		<div id='profileHelp' class='well' style='display:none;width: 650px; margin: 0 auto;'>
-			<p><?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply:<br>
-Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before commiting them to chart.
-During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue
-and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent.
-Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.')?>
+			<p><?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:<br>
+<?php echo xlt('Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before commiting them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.'); ?>
 </p>
-			<button class="btn btn-primary btn-xs" type="button"  id='dismissHelp'>Dismiss</button>
+			<button class="btn btn-primary btn-xs" type="button"  id='dismissHelp'><?php echo xlt('Dismiss'); ?></button>
 		</div>
 		<form class="form-inline" onsubmit="return false;">
 			<fieldset>
@@ -45,14 +64,14 @@ Revert Edits button changes everything back to chart values and you may make cha
 					</div>
 				</div> -->
 			<div class="form-group inline" id="titleInputContainer">
-				<label class="control-label" for="title">Title</label>
+				<label class="control-label" for="title"><?php echo xlt('Title'); ?></label>
 				<div class="controls inline-inputs">
 					<select class="form-control" id="title" value="<%= _.escape(item.get('title') || '') %>">
-						<option value=''>Unassigned</option>
-						<option value="Mr.">Mr.</option>
-						<option value="Mrs.">Mrs.</option>
-						<option value="Ms.">Ms.</option>
-						<option value="Dr.">Dr.</option>
+						<option value=''><?php echo xlt('Unassigned'); ?></option>
+						<option value="Mr."><?php echo xlt('Mr.'); ?></option>
+						<option value="Mrs."><?php echo xlt('Mrs.'); ?></option>
+						<option value="Ms."><?php echo xlt('Ms.'); ?></option>
+						<option value="Dr."><?php echo xlt('Dr.'); ?></option>
 					</select>
 					<span class="help-inline"></span>
 				</div>
@@ -66,29 +85,29 @@ Revert Edits button changes everything back to chart values and you may make cha
 					</div>
 				</div> -->
 				<div class="form-group inline" id="fnameInputContainer">
-					<label class="control-label" for="fname"><?php echo xl('First')?></label>
+					<label class="control-label" for="fname"><?php echo xlt('First')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="fname" placeholder="Fname" value="<%= _.escape(item.get('fname') || '') %>">
+						<input type="text" class="form-control" id="fname" placeholder="<?php echo xla('Fname'); ?>" value="<%= _.escape(item.get('fname') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="mnameInputContainer">
-					<label class="control-label" for="mname"><?php echo xl('Middle')?></label>
+					<label class="control-label" for="mname"><?php echo xlt('Middle')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="mname" placeholder="Mname" value="<%= _.escape(item.get('mname') || '') %>">
+						<input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Mname'); ?>" value="<%= _.escape(item.get('mname') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="lnameInputContainer">
-					<label class="control-label" for="lname"><?php echo xl('Last')?></label>
+					<label class="control-label" for="lname"><?php echo xlt('Last')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="lname" placeholder="Lname" value="<%= _.escape(item.get('lname') || '') %>">
+						<input type="text" class="form-control" id="lname" placeholder="<?php echo xla('Lname'); ?>" value="<%= _.escape(item.get('lname') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 
 				<div class="form-group inline" id="dobInputContainer">
-					<label class="control-label" for="dob"><?php echo xl('Birth Date')?></label>
+					<label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
 					<div class="controls inline-inputs">
 						<div class="input-group date date-picker" data-date-format="yyyy-mm-dd">
 							<input id="dob" type="text" class="form-control" value="<%= item.get('dob') %>" />
@@ -98,32 +117,32 @@ Revert Edits button changes everything back to chart values and you may make cha
 					</div>
 				</div>
 				<div class="form-group inline" id="sexInputContainer">
-					<label class="control-label" for="sex"><?php echo xl('Sex')?></label>
+					<label class="control-label" for="sex"><?php echo xlt('Sex')?></label>
 					<div class="controls inline-inputs">
 						<select class="form-control" id="sex"  value="<%= _.escape(item.get('sex') || '') %>">
-							<option value=''>Unassigned</option>
-							<option value='Female'>Female</option>
-							<option value='Male'>Male</option>
+							<option value=''><?php echo xlt('Unassigned'); ?></option>
+							<option value='Female'><?php echo xlt('Female'); ?></option>
+							<option value='Male'><?php echo xlt('Male'); ?></option>
 						</select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="streetInputContainer">
-					<label class="control-label" for="street"><?php echo xl('Street')?></label>
+					<label class="control-label" for="street"><?php echo xlt('Street')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="street" placeholder="Street" value="<%= _.escape(item.get('street') || '') %>">
+						<input type="text" class="form-control" id="street" placeholder="<?php echo xla('Street'); ?>" value="<%= _.escape(item.get('street') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 			<div class="form-group inline" id="cityInputContainer">
-					<label class="control-label" for="city"><?php echo xl('City')?></label>
+					<label class="control-label" for="city"><?php echo xlt('City')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="city" placeholder="City" value="<%= _.escape(item.get('city') || '') %>">
+						<input type="text" class="form-control" id="city" placeholder="<?php echo xla('City'); ?>" value="<%= _.escape(item.get('city') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 			<div class="form-group inline" id="stateInputContainer">
-				<label class="control-label" for="state"><?php echo xl('State')?></label>
+				<label class="control-label" for="state"><?php echo xlt('State')?></label>
 				<div class="controls inline-inputs">
 					<select class="form-control" id="state" value="<%= _.escape(item.get('state') || '') %>">
 						<option value='AK'>Alaska</option>
@@ -181,52 +200,52 @@ Revert Edits button changes everything back to chart values and you may make cha
 				</div>
 			</div>
 			<div class="form-group inline" id="countryCodeInputContainer">
-					<label class="control-label" for="countryCode"><?php echo xl('Country Code')?></label>
+					<label class="control-label" for="countryCode"><?php echo xlt('Country Code')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="countryCode" placeholder="Country Code" value="<%= _.escape(item.get('countryCode') || '') %>">
+						<input type="text" class="form-control" id="countryCode" placeholder="<?php echo xla('Country Code'); ?>" value="<%= _.escape(item.get('countryCode') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="postalCodeInputContainer">
-					<label class="control-label" for="postalCode"><?php echo xl('Postal Code')?></label>
+					<label class="control-label" for="postalCode"><?php echo xlt('Postal Code')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="postalCode" placeholder="Postal Code" value="<%= _.escape(item.get('postalCode') || '') %>">
+						<input type="text" class="form-control" id="postalCode" placeholder="<?php echo xla('Postal Code'); ?>" value="<%= _.escape(item.get('postalCode') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="countyInputContainer">
-					<label class="control-label" for="county"><?php echo xl('County')?></label>
+					<label class="control-label" for="county"><?php echo xlt('County')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="county" placeholder="County" value="<%= _.escape(item.get('county') || '') %>">
+						<input type="text" class="form-control" id="county" placeholder="<?php echo xla('County'); ?>" value="<%= _.escape(item.get('county') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 
 				<div class="form-group inline" id="phoneHomeInputContainer">
-					<label class="control-label" for="phoneHome"><?php echo xl('Home Phone')?></label>
+					<label class="control-label" for="phoneHome"><?php echo xlt('Home Phone')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="phoneHome" placeholder="Phone Home" value="<%= _.escape(item.get('phoneHome') || '') %>">
+						<input type="text" class="form-control" id="phoneHome" placeholder="<?php echo xla('Phone Home'); ?>" value="<%= _.escape(item.get('phoneHome') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="phoneBizInputContainer">
-					<label class="control-label" for="phoneBiz"><?php echo xl('Business Phone')?></label>
+					<label class="control-label" for="phoneBiz"><?php echo xlt('Business Phone')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="phoneBiz" placeholder="Phone Biz" value="<%= _.escape(item.get('phoneBiz') || '') %>">
+						<input type="text" class="form-control" id="phoneBiz" placeholder="<?php echo xla('Phone Biz'); ?>" value="<%= _.escape(item.get('phoneBiz') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="phoneContactInputContainer">
-					<label class="control-label" for="phoneContact"><?php echo xl('Phone Contact')?></label>
+					<label class="control-label" for="phoneContact"><?php echo xlt('Phone Contact')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="phoneContact" placeholder="Phone Contact" value="<%= _.escape(item.get('phoneContact') || '') %>">
+						<input type="text" class="form-control" id="phoneContact" placeholder="<?php echo xla('Phone Contact'); ?>" value="<%= _.escape(item.get('phoneContact') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="phoneCellInputContainer">
-					<label class="control-label" for="phoneCell"><?php echo xl('Phone Cell')?></label>
+					<label class="control-label" for="phoneCell"><?php echo xlt('Phone Cell')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="phoneCell" placeholder="Phone Cell" value="<%= _.escape(item.get('phoneCell') || '') %>">
+						<input type="text" class="form-control" id="phoneCell" placeholder="<?php echo xla('Phone Cell'); ?>" value="<%= _.escape(item.get('phoneCell') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
@@ -238,24 +257,24 @@ Revert Edits button changes everything back to chart values and you may make cha
 					</div>
 				</div>-->
 			<div class="form-group inline" id="statusInputContainer">
-				<label class="control-label" for="status"><?php echo xl('Marital Status')?></label>
+				<label class="control-label" for="status"><?php echo xlt('Marital Status')?></label>
 				<div class="controls inline-inputs">
 					<select class="form-control" id="status"
-						placeholder="Marital Status" value="<%= _.escape(item.get('status') || '') %>">
-						<option value=''>Unassigned</option>
-						<option value='married'>Married</option>
-						<option value='single'>Single</option>
-						<option value='divorced'>Divorced</option>
-						<option value='widowed'>Widowed</option>
-						<option value='separated'>Separated</option>
-						<option value='domestic partner'>Domestic Partner</option>
+						placeholder="<?php echo xla('Marital Status'); ?>" value="<%= _.escape(item.get('status') || '') %>">
+						<option value=''><?php echo xlt('Unassigned'); ?></option>
+						<option value='married'><?php echo xlt('Married'); ?></option>
+						<option value='single'><?php echo xlt('Single'); ?></option>
+						<option value='divorced'><?php echo xlt('Divorced'); ?></option>
+						<option value='widowed'><?php echo xlt('Widowed'); ?></option>
+						<option value='separated'><?php echo xlt('Separated'); ?></option>
+						<option value='domestic partner'><?php echo xlt('Domestic Partner'); ?></option>
 					</select> <span class="help-inline"></span>
 				</div>
 			</div>
 			<div class="form-group inline" id="contactRelationshipInputContainer">
-					<label class="control-label" for="contactRelationship"><?php echo xl('Contact Relationship')?></label>
+					<label class="control-label" for="contactRelationship"><?php echo xlt('Contact Relationship')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="contactRelationship" placeholder="Contact Relationship" value="<%= _.escape(item.get('contactRelationship') || '') %>">
+						<input type="text" class="form-control" id="contactRelationship" placeholder="<?php echo xla('Contact Relationship'); ?>" value="<%= _.escape(item.get('contactRelationship') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
@@ -271,72 +290,72 @@ Revert Edits button changes everything back to chart values and you may make cha
 				</div>-->
 
 				<div class="form-group inline" id="provideridInputContainer">
-					<label class="control-label" for="providerid"><?php echo xl('Provider')?></label>
+					<label class="control-label" for="providerid"><?php echo xlt('Provider')?></label>
 					<div class="controls inline-inputs">
 						<select class="form-control" id="providerid"  value="<%= _.escape(item.get('providerid') || '') %>"></select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="refProvideridInputContainer">
-					<label class="control-label" for="refProviderid"><?php echo xl('Referral Provider')?></label>
+					<label class="control-label" for="refProviderid"><?php echo xlt('Referral Provider')?></label>
 					<div class="controls inline-inputs">
 						<select  disabled class="form-control" id="refProviderid"  value="<%= _.escape(item.get('refProviderid') || '') %>"></select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="emailInputContainer">
-					<label class="control-label" for="email"><?php echo xl('Email')?></label>
+					<label class="control-label" for="email"><?php echo xlt('Email')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="email" placeholder="Email" value="<%= _.escape(item.get('email') || '') %>">
+						<input type="text" class="form-control" id="email" placeholder="<?php echo xla('Email'); ?>" value="<%= _.escape(item.get('email') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="emailDirectInputContainer">
-					<label class="control-label" for="emailDirect"><?php echo xl('Email Direct')?></label>
+					<label class="control-label" for="emailDirect"><?php echo xlt('Email Direct')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="emailDirect" placeholder="Direct Email " value="<%= _.escape(item.get('emailDirect') || '') %>">
+						<input type="text" class="form-control" id="emailDirect" placeholder="<?php echo xla('Direct Email'); ?>" value="<%= _.escape(item.get('emailDirect') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="languageInputContainer">
-					<label class="control-label" for="language"><?php echo xl('Language')?></label>
+					<label class="control-label" for="language"><?php echo xlt('Language')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="language" placeholder="Language" value="<%= _.escape(item.get('language') || '') %>">
+						<input type="text" class="form-control" id="language" placeholder="<?php echo xla('Language'); ?>" value="<%= _.escape(item.get('language') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 			<div class="form-group inline" id="raceInputContainer">
-				<label class="control-label" for="race"><?php echo xl('Race')?></label>
+				<label class="control-label" for="race"><?php echo xlt('Race')?></label>
 				<div class="controls inline-inputs">
-					<select class="form-control" id="race" placeholder="Race" value="<%= _.escape(item.get('race') || '') %>">
-						<option value=''>Unassigned</option>
-						<option value='declne_to_specfy'>Declined To Specify</option>
-						<option value='amer_ind_or_alaska_native'>American Indian or Alaska Native</option>
-						<option value='Asian'>Asian</option>
-						<option value='black_or_afri_amer'>Black or African American</option>
-						<option value='native_hawai_or_pac_island'>Native Hawaiian or Other Pacific Islander</option>
-						<option value='white'>White</option>
+					<select class="form-control" id="race" placeholder="<?php echo xla('Race'); ?>" value="<%= _.escape(item.get('race') || '') %>">
+						<option value=''><?php echo xlt('Unassigned'); ?></option>
+						<option value='declne_to_specfy'><?php echo xlt('Declined To Specify'); ?></option>
+						<option value='amer_ind_or_alaska_native'><?php echo xlt('American Indian or Alaska Native'); ?></option>
+						<option value='Asian'><?php echo xlt('Asian'); ?></option>
+						<option value='black_or_afri_amer'><?php echo xlt('Black or African American'); ?></option>
+						<option value='native_hawai_or_pac_island'><?php echo xlt('Native Hawaiian or Other Pacific Islander'); ?></option>
+						<option value='white'><?php echo xlt('White'); ?></option>
 					</select>
 					<span class="help-inline"></span>
 				</div>
 			</div>
 			<div class="form-group inline" id="ethnicityInputContainer">
-					<label class="control-label" for="ethnicity"><?php echo xl('Ethnicity')?></label>
+					<label class="control-label" for="ethnicity"><?php echo xlt('Ethnicity')?></label>
 					<div class="controls inline-inputs">
-						<select class="form-control" id="ethnicity" placeholder="Ethnicity" value="<%= _.escape(item.get('ethnicity') || '') %>">
-							<option value=''>Unassigned</option>
-							<option value='declne_to_specfy'>Declined To Specify</option>
-							<option value='hisp_or_latin'>Hispanic or Latino</option>
-							<option value='not_hisp_or_latin'>Not Hispanic or Latino</option>
+						<select class="form-control" id="ethnicity" placeholder="<?php echo xla('Ethnicity'); ?>" value="<%= _.escape(item.get('ethnicity') || '') %>">
+							<option value=''><?php echo xlt('Unassigned'); ?></option>
+							<option value='declne_to_specfy'><?php echo xlt('Declined To Specify'); ?></option>
+							<option value='hisp_or_latin'><?php echo xlt('Hispanic or Latino'); ?></option>
+							<option value='not_hisp_or_latin'><?php echo xlt('Not Hispanic or Latino'); ?></option>
 						</select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 			<div class="form-group inline" id="religionInputContainer">
-				<label class="control-label" for="religion"><?php echo xl('Religion')?></label>
+				<label class="control-label" for="religion"><?php echo xlt('Religion')?></label>
 				<div class="controls inline-inputs">
-					<select class="form-control" id="religion" placeholder="Religion"	value="<%= _.escape(item.get('religion') || '') %>">
-						<option value=''>Unassigned</option>
+					<select class="form-control" id="religion" placeholder="<?php echo xla('Religion'); ?>"	value="<%= _.escape(item.get('religion') || '') %>">
+						<option value=''><?php echo xlt('Unassigned'); ?></option>
 						<option value='adventist'>Adventist</option>
 						<option value='african_religions'>African Religions</option>
 						<option value='afro-caribbean_religions'>Afro-Caribbean Religions</option>
@@ -426,85 +445,85 @@ Revert Edits button changes everything back to chart values and you may make cha
 				</div>
 			</div>
 			<div class="form-group inline" id="familySizeInputContainer">
-					<label class="control-label" for="familySize"><?php echo xl('Family Size')?></label>
+					<label class="control-label" for="familySize"><?php echo xlt('Family Size')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="familySize" placeholder="Family Size" value="<%= _.escape(item.get('familySize') || '') %>">
+						<input type="text" class="form-control" id="familySize" placeholder="<?php echo xla('Family Size'); ?>" value="<%= _.escape(item.get('familySize') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 
 				<div class="form-group inline" id="hipaaMailInputContainer">
-					<label class="control-label" for="hipaaMail"><?php echo xl('Allow Hipaa Mail')?></label>
+					<label class="control-label" for="hipaaMail"><?php echo xlt('Allow Hipaa Mail')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO"<% if (item.get('hipaaMail')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES"<% if (item.get('hipaaMail')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value=""<% if (item.get('hipaaMail')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail0" name="hipaaMail" type="radio" value="NO"<% if (item.get('hipaaMail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail1" name="hipaaMail" type="radio" value="YES"<% if (item.get('hipaaMail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaMail2" name="hipaaMail" type="radio" value=""<% if (item.get('hipaaMail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="hipaaVoiceInputContainer">
-					<label class="control-label" for="hipaaVoice"><?php echo xl('Allow Hipaa Voice')?></label>
+					<label class="control-label" for="hipaaVoice"><?php echo xlt('Allow Hipaa Voice')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO"<% if (item.get('hipaaVoice')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES"<% if (item.get('hipaaVoice')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value=""<% if (item.get('hipaaVoice')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice0" name="hipaaVoice" type="radio" value="NO"<% if (item.get('hipaaVoice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice1" name="hipaaVoice" type="radio" value="YES"<% if (item.get('hipaaVoice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaVoice2" name="hipaaVoice" type="radio" value=""<% if (item.get('hipaaVoice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="hipaaNoticeInputContainer">
-					<label class="control-label" for="hipaaNotice"><?php echo xl('Allow Hipaa Notice')?></label>
+					<label class="control-label" for="hipaaNotice"><?php echo xlt('Allow Hipaa Notice')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO"<% if (item.get('hipaaNotice')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES"<% if (item.get('hipaaNotice')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value=""<% if (item.get('hipaaNotice')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice0" name="hipaaNotice" type="radio" value="NO"<% if (item.get('hipaaNotice')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice1" name="hipaaNotice" type="radio" value="YES"<% if (item.get('hipaaNotice')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaNotice2" name="hipaaNotice" type="radio" value=""<% if (item.get('hipaaNotice')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="hipaaMessageInputContainer">
-					<label class="control-label" for="hipaaMessage"><?php echo xl('Hipaa Message')?></label>
+					<label class="control-label" for="hipaaMessage"><?php echo xlt('Hipaa Message')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="hipaaMessage" placeholder="Hipaa Message" value="<%= _.escape(item.get('hipaaMessage') || '') %>">
+						<input type="text" class="form-control" id="hipaaMessage" placeholder="<?php echo xla('Hipaa Message'); ?>" value="<%= _.escape(item.get('hipaaMessage') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="hipaaAllowsmsInputContainer">
-					<label class="control-label" for="hipaaAllowsms"><?php echo xl('Allow Hipaa SMS')?></label>
+					<label class="control-label" for="hipaaAllowsms"><?php echo xlt('Allow Hipaa SMS')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO"<% if (item.get('hipaaAllowsms')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES"<% if (item.get('hipaaAllowsms')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value=""<% if (item.get('hipaaAllowsms')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms0" name="hipaaAllowsms" type="radio" value="NO"<% if (item.get('hipaaAllowsms')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms1" name="hipaaAllowsms" type="radio" value="YES"<% if (item.get('hipaaAllowsms')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowsms2" name="hipaaAllowsms" type="radio" value=""<% if (item.get('hipaaAllowsms')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="hipaaAllowemailInputContainer">
-					<label class="control-label" for="hipaaAllowemail"><?php echo xl('Allow Hipaa Email')?></label>
+					<label class="control-label" for="hipaaAllowemail"><?php echo xlt('Allow Hipaa Email')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO"<% if (item.get('hipaaAllowemail')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES"<% if (item.get('hipaaAllowemail')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value=""<% if (item.get('hipaaAllowemail')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail0" name="hipaaAllowemail" type="radio" value="NO"<% if (item.get('hipaaAllowemail')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail1" name="hipaaAllowemail" type="radio" value="YES"<% if (item.get('hipaaAllowemail')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="hipaaAllowemail2" name="hipaaAllowemail" type="radio" value=""<% if (item.get('hipaaAllowemail')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="referralSourceInputContainer">
-					<label class="control-label" for="referralSource"><?php echo xl('Referral Source')?></label>
+					<label class="control-label" for="referralSource"><?php echo xlt('Referral Source')?></label>
 					<div class="controls inline-inputs">
 						<select class="form-control" id="referralSource"  value="<%= _.escape(item.get('referralSource') || '') %>">
-<option value=''>Unassigned</option>
-<option value='Patient'>Patient</option>
-<option value='Employee'>Employee</option>
-<option value='Walk-In'>Walk-In</option>
-<option value='Newspaper'>Newspaper</option>
-<option value='Radio'>Radio</option>
-<option value='T.V.'>T.V.</option>
-<option value='Direct Mail'>Direct Mail</option>
-<option value='Coupon'>Coupon</option>
-<option value='Referral Card'>Referral Card</option>
-<option value='Other'>Other</option></select>
+<option value=''><?php echo xlt('Unassigned'); ?></option>
+<option value='Patient'><?php echo xlt('Patient'); ?></option>
+<option value='Employee'><?php echo xlt('Employee'); ?></option>
+<option value='Walk-In'><?php echo xlt('Walk-In'); ?></option>
+<option value='Newspaper'><?php echo xlt('Newspaper'); ?></option>
+<option value='Radio'><?php echo xlt('Radio'); ?></option>
+<option value='T.V.'><?php echo xlt('T.V.'); ?></option>
+<option value='Direct Mail'><?php echo xlt('Direct Mail'); ?></option>
+<option value='Coupon'><?php echo xlt('Coupon'); ?></option>
+<option value='Referral Card'><?php echo xlt('Referral Card'); ?></option>
+<option value='Other'><?php echo xlt('Other'); ?></option></select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="regdateInputContainer">
-					<label class="control-label" for="regdate"><?php echo xl('Registration Date')?></label>
+					<label class="control-label" for="regdate"><?php echo xlt('Registration Date')?></label>
 					<div class="controls inline-inputs">
 						<div class="input-group date  date-picker" data-date-format="yyyy-mm-dd">
 							<input disabled id="regdate" type="text" class="form-control" value="<%= item.get('regdate') %>" />
@@ -514,55 +533,55 @@ Revert Edits button changes everything back to chart values and you may make cha
 					</div>
 				</div>
 				<div class="form-group inline" id="mothersnameInputContainer">
-					<label class="control-label" for="mothersname"><?php echo xl('Mothers Name')?></label>
+					<label class="control-label" for="mothersname"><?php echo xlt('Mothers Name')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="mothersname" placeholder="Mothersname" value="<%= _.escape(item.get('mothersname') || '') %>">
+						<input type="text" class="form-control" id="mothersname" placeholder="<?php echo xla('Mothersname'); ?>" value="<%= _.escape(item.get('mothersname') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="guardiansnameInputContainer">
-					<label class="control-label" for="guardiansname"><?php echo xl('Guardians Name')?></label>
+					<label class="control-label" for="guardiansname"><?php echo xlt('Guardians Name')?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="guardiansname" placeholder="Guardiansname" value="<%= _.escape(item.get('guardiansname') || '') %>">
+						<input type="text" class="form-control" id="guardiansname" placeholder="<?php echo xla('Guardiansname'); ?>" value="<%= _.escape(item.get('guardiansname') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="allowImmRegUseInputContainer">
-					<label class="control-label" for="allowImmRegUse"><?php echo xl('Allow Imm Reg Use')?></label>
+					<label class="control-label" for="allowImmRegUse"><?php echo xlt('Allow Imm Reg Use')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO"<% if (item.get('allowImmRegUse')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES"<% if (item.get('allowImmRegUse')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value=""<% if (item.get('allowImmRegUse')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse0" name="allowImmRegUse" type="radio" value="NO"<% if (item.get('allowImmRegUse')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse1" name="allowImmRegUse" type="radio" value="YES"<% if (item.get('allowImmRegUse')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmRegUse2" name="allowImmRegUse" type="radio" value=""<% if (item.get('allowImmRegUse')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="allowImmInfoShareInputContainer">
-					<label class="control-label" for="allowImmInfoShare"><?php echo xl('Allow Imm Info Share')?></label>
+					<label class="control-label" for="allowImmInfoShare"><?php echo xlt('Allow Imm Info Share')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO"<% if (item.get('allowImmInfoShare')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES"<% if (item.get('allowImmInfoShare')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value=""<% if (item.get('allowImmInfoShare')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare0" name="allowImmInfoShare" type="radio" value="NO"<% if (item.get('allowImmInfoShare')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare1" name="allowImmInfoShare" type="radio" value="YES"<% if (item.get('allowImmInfoShare')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowImmInfoShare2" name="allowImmInfoShare" type="radio" value=""<% if (item.get('allowImmInfoShare')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="allowHealthInfoExInputContainer">
-					<label class="control-label" for="allowHealthInfoEx"><?php echo xl('Allow Health Info Ex')?></label>
+					<label class="control-label" for="allowHealthInfoEx"><?php echo xlt('Allow Health Info Ex')?></label>
 					<div class="controls inline-inputs">
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO"<% if (item.get('allowHealthInfoEx')=="NO") { %> checked="checked"<% } %>>NO</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES"<% if (item.get('allowHealthInfoEx')=="YES") { %> checked="checked"<% } %>>YES</label>
-							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value=""<% if (item.get('allowHealthInfoEx')=="") { %> checked="checked"<% } %>>Unassigned</label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx0" name="allowHealthInfoEx" type="radio" value="NO"<% if (item.get('allowHealthInfoEx')=="NO") { %> checked="checked"<% } %>><?php echo xlt('NO'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx1" name="allowHealthInfoEx" type="radio" value="YES"<% if (item.get('allowHealthInfoEx')=="YES") { %> checked="checked"<% } %>><?php echo xlt('YES'); ?></label>
+							<label class="btn btn-default btn-gradient btn-sm"><input id="allowHealthInfoEx2" name="allowHealthInfoEx" type="radio" value=""<% if (item.get('allowHealthInfoEx')=="") { %> checked="checked"<% } %>><?php echo xlt('Unassigned'); ?></label>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="careTeamInputContainer">
-					<label class="control-label" for="careTeam"><?php echo xl('Care Team')?></label>
+					<label class="control-label" for="careTeam"><?php echo xlt('Care Team')?></label>
 					<div class="controls inline-inputs">
-						<select class="form-control" id="careTeam" placeholder="Care Team" value="<%= _.escape(item.get('careTeam') || '') %>"></select>
+						<select class="form-control" id="careTeam" placeholder="<?php echo xla('Care Team'); ?>" value="<%= _.escape(item.get('careTeam') || '') %>"></select>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="noteInputContainer">
-					<label class="control-label" style="color:green" for="note"><?php echo xl('Message to Reviewer')?></label>
+					<label class="control-label" style="color:green" for="note"><?php echo xlt('Message to Reviewer')?></label>
 					<div class="controls inline-inputs">
 						<textarea class="form-control" id="note" rows="1" style='min-width:180px'><%= _.escape("To Admin: ") %></textarea>
 						<span class="help-inline"></span>

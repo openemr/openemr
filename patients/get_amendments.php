@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Patient Portal Amendments
  *
  * Copyright (C) 2014 Ensoftek
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +19,7 @@
  *
  * @package OpenEMR
  * @author  Hema Bandaru <hemab@drcloudemr.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
 require_once("verify_session.php");

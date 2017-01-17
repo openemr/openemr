@@ -1,25 +1,30 @@
 
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ *
+ * Modified from interface/main/calendar/add_edit_event.php for
+ * the patient portal.
+ *
+ * Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
 
- // The event editor looks something like this:
-
- //------------------------------------------------------------//
- // Category __________________V   O All day event             //
- // Date     _____________ [?]     O Time     ___:___ __V      //
- // Title    ___________________     duration ____ minutes     //
- // Patient  _(Click_to_select)_                               //
- // Provider __________________V   X Repeats  ______V ______V  //
- // Status   __________________V     until    __________ [?]   //
- // Comments ________________________________________________  //
- //                                                            //
- //       [Save]  [Find Available]  [Delete]  [Cancel]         //
- //------------------------------------------------------------//
 
 // continue session
 session_start();
@@ -672,7 +677,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../library/topdialog.js"></script>
-<script type="text/javascript" src="../library/dialog.js"></script>
+<script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/textformat.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>

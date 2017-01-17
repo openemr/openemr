@@ -10,6 +10,10 @@
  * For the most part the settings here shouldn't be changed.  The static
  * properties can be changed in either _app_config.php or _machine_config.php
  * depending on whether the setting is application-wide or machine-specific
+ *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  */
 
 /**

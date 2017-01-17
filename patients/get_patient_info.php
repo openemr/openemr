@@ -82,6 +82,7 @@ $logit = new ApplicationTable();
             // keep the current session language token
     }
 
+
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
     DEFINE("COL_PID","pid");

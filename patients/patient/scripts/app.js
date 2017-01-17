@@ -1,5 +1,9 @@
 /**
  * Application logic available globally throughout the app
+ *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  */
 var app = {
 
