@@ -132,6 +132,12 @@ function doSubs($s) {
         $sigfld .= '</span>';
         $s = keyReplace($s,$sigfld);
     }
+    else if (keySearch($s, '{smTextInput}')) {
+    	$sigfld = '<span>';
+    	$sigfld .= '<input class="templateInput" type="text" style="color:black;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
+    	$sigfld .= '</span>';
+    	$s = keyReplace($s,$sigfld);
+    }
     else if (keySearch($s, '{CheckMark}')) {
         $ckcnt++;
         $sigfld = '<span class="checkMark" data-id="check'.$ckcnt.'">';
