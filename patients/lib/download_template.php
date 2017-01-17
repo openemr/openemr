@@ -325,12 +325,6 @@ function doSubs($s) {
 
   return $s;
 }
-//function populate_template($template){
-/*     global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
-    global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
-    global $tcnt,$grcnt,$ckcnt; */
-// if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
-
 // Get patient demographic info.
 $ptrow = sqlQuery("SELECT pd.*, " .
   "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " .
@@ -351,6 +345,10 @@ if ($encounter) {
 
 $templatedir   = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates';
 $templatepath  = "$templatedir/$form_filename";
+// test if this is folder with template, if not, must be for a specific patient
+if( ! file_exists($templatepath) ){
+	$templatepath  = "$templatedir/" . $pid . "/$form_filename";
+}
 
 // Create a temporary file to hold the output.
 $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
@@ -411,25 +409,5 @@ else {
   $html = nl2br($edata);
 }
 echo  $html;
-//return $html;
-//}
-// Compute a download name like "filename_lastname_pid.odt
-/* $pi = pathinfo($form_filename);
-$dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid;
-if ($pi['extension'] !== '') $dlname .= '.' . $pi['extension'];
 
-header('Content-Description: File Transfer');
-header('Content-Transfer-Encoding: binary');
-header('Expires: 0');
-header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-header('Pragma: public');
-// attachment, not inline
-header("Content-Disposition: attachment; filename=\"$dlname\"");
-header("Content-Type: $mimetype");
-header("Content-Length: " . filesize($fname));
-ob_clean();
-flush();
-readfile($fname);
-
-unlink($fname); */
 ?>
