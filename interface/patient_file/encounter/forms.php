@@ -629,7 +629,7 @@ if ( $esign->isButtonViewable() ) {
         }
 
         if (acl_check('admin', 'super') ) {
-            if ( $formdir != 'newpatient' || $formdir != 'newGroupEncounter') {
+            if ( $formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
                 echo "<a target='_parent'" .
                     " href='$rootdir/patient_file/encounter/delete_form.php?" .
