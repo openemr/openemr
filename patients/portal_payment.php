@@ -1204,7 +1204,7 @@ if (typeof jsondata !== 'undefined') {
                                 <label label-default="label-default" class="control-label"><?php echo xlt('Name on Card');?></label>
                                 <div class="controls">
                                     <input name="name" id="ccname" type="text" class="form-control"
-                                        pattern="\w+ \w+.*" title="Fill your first and last name"
+                                        pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>"
                                         required value="" />
                                 </div>
                             </div>
@@ -1215,8 +1215,8 @@ if (typeof jsondata !== 'undefined') {
                                     <div class="col-sm-12">
                                             <input name="cc_number" id="cc_number" type="text" class="form-control inline col-sm-3"
                                                 autocomplete="off" maxlength="19" pattern="\d" onchange="validateCC()"
-                                                title="Card Number" required value="" />
-                                            <input disabled name="cardtype" id="cardtype" type="text" class="form-control inline" title="Card Type" style="max-width:160px;font-weight:bold;color:red;" value="" />
+                                                title="<?php echo xla('Card Number'); ?>" required value="" />
+                                            <input disabled name="cardtype" id="cardtype" type="text" class="form-control inline" title="<?php echo xla('Card Type'); ?>" style="max-width:160px;font-weight:bold;color:red;" value="" />
                                         </div>
                                     </div>
                                 </div>
@@ -1227,24 +1227,24 @@ if (typeof jsondata !== 'undefined') {
                                     <div class="row">
                                         <div class="col-md-4">
                                             <select name="month" id="ccmonth" class="form-control">
-                                            	<option value="">Select Month</option>
-                                                <option value="01">January</option>
-                                                <option value="02">February</option>
-                                                <option value="03">March</option>
-                                                <option value="04">April</option>
-                                                <option value="05">May</option>
-                                                <option value="06">June</option>
-                                                <option value="07">July</option>
-                                                <option value="08">August</option>
-                                                <option value="09">September</option>
-                                                <option value="10">October</option>
-                                                <option value="11">November</option>
-                                                <option value="12">December</option>
+                                            	<option value=""><?php echo xlt('Select Month'); ?></option>
+                                                <option value="01"><?php echo xlt('January'); ?></option>
+                                                <option value="02"><?php echo xlt('February'); ?></option>
+                                                <option value="03"><?php echo xlt('March'); ?></option>
+                                                <option value="04"><?php echo xlt('April'); ?></option>
+                                                <option value="05"><?php echo xlt('May'); ?></option>
+                                                <option value="06"><?php echo xlt('June'); ?></option>
+                                                <option value="07"><?php echo xlt('July'); ?></option>
+                                                <option value="08"><?php echo xlt('August'); ?></option>
+                                                <option value="09"><?php echo xlt('September'); ?></option>
+                                                <option value="10"><?php echo xlt('October'); ?></option>
+                                                <option value="11"><?php echo xlt('November'); ?></option>
+                                                <option value="12"><?php echo xlt('December'); ?></option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
                                             <select name="year" id="ccyear" class="form-control">
-                                            	<option value="">Select Year</option>
+                                            	<option value=""><?php echo xlt('Select Year'); ?></option>
                                                 <option value="2017">2017</option>
                                                 <option value="2018">2018</option>
                                                 <option value="2019">2019</option>
@@ -1265,7 +1265,7 @@ if (typeof jsondata !== 'undefined') {
                                         <div class="col-md-3">
                                             <input name="pin" id="pin" type="text" class="form-control"
                                                 autocomplete="off" maxlength="4" pattern="\d{3}" onfocus="validateCC()"
-                                                title="Three or four digits at back of your card" required value="" />
+                                                title="<?php echo xlt('Three or four digits at back of your card'); ?>" required value="" />
                                         </div>
                                         <div class="col-md-3">
                                             <img src='./images/img_cvc.png' style='height: 58px; width: auto'>

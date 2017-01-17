@@ -3,7 +3,26 @@
  * This template is not currently used
  * The support script and controller are however
  * Leave in place - eventually will use for log review gui
- * */
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
 	$this->assign('title','Patient Portal | OnsitePortalActivities');
 	$this->assign('nav','onsiteportalactivities');
 
@@ -25,12 +44,12 @@
 <div class="container">
 
 <h1>
-	<i class="icon-th-list"></i> OnsitePortalActivities
+	<i class="icon-th-list"></i> <?php echo xlt('OnsitePortalActivities'); ?>
 	<span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
 			<div class="col-sm-3 col-md-3 pull-right">
 		<form class="navbar-form" role="search">
 		<div class="input-group">
-			<input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+			<input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term">
 			<div class="input-group-btn">
 				<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
 			</div>
@@ -44,14 +63,14 @@
 		<table class="collection table table-bordered table-hover">
 		<thead>
 			<tr>
-				<th id="header_Id">Id<% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_Date">Date<% if (page.orderBy == 'Date') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_PatientId">Patient Id<% if (page.orderBy == 'PatientId') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_Activity">Activity<% if (page.orderBy == 'Activity') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_RequireAudit">Require Audit<% if (page.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_PendingAction">Pending Action<% if (page.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_ActionTaken">Action Taken<% if (page.orderBy == 'ActionTaken') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_Status">Status<% if (page.orderBy == 'Status') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_Id"><?php echo xlt('Id'); ?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_Date"><?php echo xlt('Date'); ?><% if (page.orderBy == 'Date') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_PatientId"><?php echo xlt('Patient Id'); ?><% if (page.orderBy == 'PatientId') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_Activity"><?php echo xlt('Activity'); ?><% if (page.orderBy == 'Activity') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_RequireAudit"><?php echo xlt('Require Audit'); ?><% if (page.orderBy == 'RequireAudit') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_PendingAction"><?php echo xlt('Pending Action'); ?><% if (page.orderBy == 'PendingAction') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_ActionTaken"><?php echo xlt('Action Taken'); ?><% if (page.orderBy == 'ActionTaken') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_Status"><?php echo xlt('Status'); ?><% if (page.orderBy == 'Status') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
 <!-- UNCOMMENT TO SHOW ADDITIONAL COLUMNS
 				<th id="header_Narrative">Narrative<% if (page.orderBy == 'Narrative') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
 				<th id="header_TableAction">Table Action<% if (page.orderBy == 'TableAction') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
@@ -94,14 +113,14 @@
 		<form class="form-inline" onsubmit="return false;">
 			<fieldset>
 				<div class="form-group inline" id="idInputContainer">
-					<label class="control-label" for="id">Id</label>
+					<label class="control-label" for="id"><?php echo xlt('Id'); ?></label>
 					<div class="controls inline-inputs">
 						<span class="form-control uneditable-input" id="id"><%= _.escape(item.get('id') || '') %></span>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="dateInputContainer">
-					<label class="control-label" for="date">Date</label>
+					<label class="control-label" for="date"><?php echo xlt('Date'); ?></label>
 					<div class="controls inline-inputs">
 						<div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
 							<input id="date" type="text" value="<%= _date(app.parseDate(item.get('date'))).format('YYYY-MM-DD') %>" />
@@ -115,21 +134,21 @@
 					</div>
 				</div>
 				<div class="form-group inline" id="patientIdInputContainer">
-					<label class="control-label" for="patientId">Patient Id</label>
+					<label class="control-label" for="patientId"><?php echo xlt('Patient Id'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="patientId" placeholder="Patient Id" value="<%= _.escape(item.get('patientId') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="activityInputContainer">
-					<label class="control-label" for="activity">Activity</label>
+					<label class="control-label" for="activity"><?php echo xlt('Activity'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="activity" placeholder="Activity" value="<%= _.escape(item.get('activity') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="requireAuditInputContainer">
-					<label class="control-label" for="requireAudit">Require Audit</label>
+					<label class="control-label" for="requireAudit"><?php echo xlt('Require Audit'); ?></label>
 					<div class="controls inline-inputs">
 						<div class="radio-inline">
 							<label class="radio-inline"><input id="requireAudit0" name="requireAudit" type="radio" value=0<% if (item.get('requireAudit')==0) { %> checked="checked"<% } %>>No</label>
@@ -139,56 +158,56 @@
 					</div>
 				</div>
 				<div class="form-group inline" id="pendingActionInputContainer">
-					<label class="control-label" for="pendingAction">Pending Action</label>
+					<label class="control-label" for="pendingAction"><?php echo xlt('Pending Action'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="pendingAction" placeholder="Pending Action" value="<%= _.escape(item.get('pendingAction') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="actionTakenInputContainer">
-					<label class="control-label" for="actionTaken">Action Taken</label>
+					<label class="control-label" for="actionTaken"><?php echo xlt('Action Taken'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="actionTaken" placeholder="Action Taken" value="<%= _.escape(item.get('actionTaken') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="statusInputContainer">
-					<label class="control-label" for="status">Status</label>
+					<label class="control-label" for="status"><?php echo xlt('Status'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="status" placeholder="Status" value="<%= _.escape(item.get('status') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="narrativeInputContainer">
-					<label class="control-label" for="narrative">Narrative</label>
+					<label class="control-label" for="narrative"><?php echo xlt('Narrative'); ?></label>
 					<div class="controls inline-inputs">
 						<textarea class="form-control" id="narrative" rows="3"><%= _.escape(item.get('narrative') || '') %></textarea>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="tableActionInputContainer">
-					<label class="control-label" for="tableAction">Table Action</label>
+					<label class="control-label" for="tableAction"><?php echo xlt('Table Action'); ?></label>
 					<div class="controls inline-inputs">
 						<textarea class="form-control" id="tableAction" rows="3"><%= _.escape(item.get('tableAction') || '') %></textarea>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="tableArgsInputContainer">
-					<label class="control-label" for="tableArgs">Table Args</label>
+					<label class="control-label" for="tableArgs"><?php echo xlt('Table Args'); ?></label>
 					<div class="controls inline-inputs">
 						<textarea class="form-control" id="tableArgs" rows="3"><%= _.escape(item.get('tableArgs') || '') %></textarea>
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="actionUserInputContainer">
-					<label class="control-label" for="actionUser">Action User</label>
+					<label class="control-label" for="actionUser"><?php echo xlt('Action User'); ?></label>
 					<div class="controls inline-inputs">
 						<input type="text" class="form-control" id="actionUser" placeholder="Action User" value="<%= _.escape(item.get('actionUser') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="actionTakenTimeInputContainer">
-					<label class="control-label" for="actionTakenTime">Action Taken Time</label>
+					<label class="control-label" for="actionTakenTime"><?php echo xlt('Action Taken Time'); ?></label>
 					<div class="controls inline-inputs">
 						<div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
 							<input id="actionTakenTime" type="text" value="<%= _date(app.parseDate(item.get('actionTakenTime'))).format('YYYY-MM-DD') %>" />
@@ -202,7 +221,7 @@
 					</div>
 				</div>
 				<div class="form-group inline" id="checksumInputContainer">
-					<label class="control-label" for="checksum">Checksum</label>
+					<label class="control-label" for="checksum"><?php echo xlt('Checksum'); ?></label>
 					<div class="controls inline-inputs">
 						<textarea class="form-control" id="checksum" rows="3"><%= _.escape(item.get('checksum') || '') %></textarea>
 						<span class="help-inline"></span>
@@ -217,10 +236,10 @@
 				<div class="form-group">
 					<label class="control-label"></label>
 					<div class="controls">
-						<button id="deleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> Delete OnsitePortalActivity</button>
+						<button id="deleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> <?php echo xlt('Delete OnsitePortalActivity'); ?></button>
 						<span id="confirmDeleteOnsitePortalActivityContainer" class="hide">
-							<button id="cancelDeleteOnsitePortalActivityButton" class="btn btn-mini">Cancel</button>
-							<button id="confirmDeleteOnsitePortalActivityButton" class="btn btn-mini btn-danger">Confirm</button>
+							<button id="cancelDeleteOnsitePortalActivityButton" class="btn btn-mini"><?php echo xlt('Cancel'); ?></button>
+							<button id="confirmDeleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm'); ?></button>
 						</span>
 					</div>
 				</div>
@@ -233,7 +252,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
-                <h3><i class="icon-edit"></i> Edit OnsitePortalActivity
+                <h3><i class="icon-edit"></i> <?php echo xlt('Edit OnsitePortalActivity'); ?>
 					<span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
 				</h3>
             </div>
@@ -242,8 +261,8 @@
                 <div id="onsitePortalActivityModelContainer"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="saveOnsitePortalActivityButton" class="btn btn-primary">Save Changes</button>
+                <button class="btn" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                <button id="saveOnsitePortalActivityButton" class="btn btn-primary"><?php echo xlt('Save Changes'); ?></button>
             </div>
         </div>
     </div>
@@ -252,7 +271,7 @@
 	<div id="collectionAlert"></div>
 	<div id="onsitePortalActivityCollectionContainer" class="collectionContainer"></div>
 	<p id="newButtonContainer" class="buttonContainer">
-		<button id="newOnsitePortalActivityButton" class="btn btn-primary">Add OnsitePortalActivity</button>
+		<button id="newOnsitePortalActivityButton" class="btn btn-primary"><?php echo xlt('Add OnsitePortalActivity'); ?></button>
 	</p>
 
 </div> <!-- /container -->

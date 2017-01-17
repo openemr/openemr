@@ -12,6 +12,10 @@
  * No settings should be added to this file that would need to be changed
  * on a per-machine basic (ie local, staging or production).  Any
  * machine-specific settings should be added to _machine_config.php
+ *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  */
 
 /**

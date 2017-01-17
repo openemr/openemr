@@ -171,13 +171,13 @@ foreach ( $result as $iter ) {
 							</div>
 							<div class="col-md-8">
 								<blockquote class="bg-info small">
-									<span>Message id:{{selected.id}} From:</span> <strong>{{selected.user}}</strong>
-									&lt;{{selected.title}}&gt; on {{selected.date | date:'yyyy-MM-dd hh:mm'}}
+									<span><?php echo xlt('Message id'); ?>:{{selected.id}} <?php echo xlt('From'); ?>:</span> <strong>{{selected.user}}</strong>
+									&lt;{{selected.title}}&gt; <?php echo xlt('on'); ?> {{selected.date | date:'yyyy-MM-dd hh:mm'}}
 								</blockquote>
 							</div>
 							<div class="col-md-4">
 								<div class="btn-group btn-group pull-right">
-									<button class="btn btn-primary" title="Reply to this message"
+									<button class="btn btn-primary" title="<?php echo xla('Reply to this message'); ?>"
 										data-toggle="modal" data-mode="reply"
 										data-whoto={{selected.user}} data-mtitle={{selected.title}}
 										data-target="#modalCompose">
@@ -200,7 +200,7 @@ foreach ( $result as $iter ) {
 								<div class="spacer5 pull-right"></div>
 								<button class="btn btn-md btn-primary pull-right"
 									ng-click="deleteItem(selected.$index)"
-									title="Delete this message" data-toggle="tooltip">
+									title="<?php echo xla('Delete this message'); ?>" data-toggle="tooltip">
 									<i class="fa fa-trash-o fa-1x"></i>
 								</button>
 							</div>
@@ -277,10 +277,10 @@ foreach ( $result as $iter ) {
 									<label class="col-sm-2" for="selSendto"><?php echo xlt('To'); ?></label>
 									<div class="col-sm-10">
 										<select class="form-control" id="selSendto" name="selSendto">
-											<option selected="selected" value="<?php echo($_SESSION['providerUName'])?>"><?php echo $_SESSION['providerName'];?></option>
-											<option>Admin</option>
-											<option>Nursing</option>
-											<option>Billing</option>
+											<option selected="selected" value="<?php echo attr($_SESSION['providerUName'])?>"><?php echo text($_SESSION['providerName']);?></option>
+											<option value="Admin"><?php echo xlt('Admin'); ?></option>
+											<option value="Nursing"><?php echo xlt('Nursing'); ?></option>
+											<option value="Billing"><?php echo xlt('Billing'); ?></option>
 											<option></option>
 										</select>
 									</div>

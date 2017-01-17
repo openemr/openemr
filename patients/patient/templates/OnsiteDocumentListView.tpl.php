@@ -1,4 +1,26 @@
 <?php
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
+
 	$this->assign('title','Patient Portal | Patient Documents');
 	$this->assign('nav','onsitedocuments');
 
@@ -21,7 +43,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>OpenEMR Portal | Documents</title>
+<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Documents'); ?></title>
 <meta	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
@@ -202,20 +224,20 @@ body {
 			<aside class="col-sm-2 col-xs-3" id="sidebar-pills"> 
 				<ul class="nav nav-pills  nav-stacked" id="sidebar">
 					<li data-toggle="pill" class="bg-info"><a id="signTemplate"  href="#openSignModal"
-						data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xl('Signature');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xl('Save');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xl('Print');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xl('Download');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xl('Send for Review');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xl('Save to Chart');?></span></a></li>
-					<li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xl('Download');?></span></a></li>
-					<li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"	onclick='window.location.replace("./../home.php")'><?php echo xl('Return Home');?></a></li>
+						data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xlt('Signature');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Save to Chart');?></span></a></li>
+					<li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+					<li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"	onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
 				</ul>
 			</aside>
 			<div class="col-sm-8  col-xs-8 nopadding">
 				<span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
 				<div class="panel panel-primary" id="docpanel">
-					<header class="panel-heading" id='docPanelHeader'><?php echo xl('Patient Document');?></header>
+					<header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
 					<div id="loader" style="display:none;"></div>
 					<form id='template' name='template' role="form"	action="./../lib/doc_lib.php" method="POST" >
 						<div id="loader" style="display:none;"></div>
@@ -235,10 +257,10 @@ body {
 				<div class="form-group">
 					<label class="control-label"></label>
 					<div class="controls">
-						<button id="deleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i><?php echo xl('Delete Document');?></button>
+						<button id="deleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document');?></button>
 						<span id="confirmDeleteOnsiteDocumentContainer">
-							<button id="cancelDeleteOnsiteDocumentButton" class="btn btn-mini"><?php echo xl('Cancel');?></button>
-							<button id="confirmDeleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><?php echo xl('Confirm');?></button>
+							<button id="cancelDeleteOnsiteDocumentButton" class="btn btn-mini"><?php echo xlt('Cancel');?></button>
+							<button id="confirmDeleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm');?></button>
 						</span>
 					</div>
 				</div>
@@ -259,7 +281,7 @@ body {
 			<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='../images/logo-full-con.png'/>
 			<ul class="nav nav-pills"  style='margin-top:5px'>
 
-				<li class="bg-danger"><a href="#"	 onclick='window.location.replace("./../home.php")'><?php echo xl('Return Home');?></a></li>
+				<li class="bg-danger"><a href="#"	 onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
 					<?php require_once(dirname( __FILE__ ) . '/../../lib/template_menu.php');?>
 			</ul>
 			<div id="collectionAlert"></div>
@@ -267,13 +289,13 @@ body {
 		<table class="collection table table-hover">
 		<thead>
 			<tr class='bg-primary' style='cursor:pointer'>
-				<th id="header_Id"><?php echo xl('Doc Id');?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_DocType"><?php echo xl('Document');?><% if (page.orderBy == 'DocType') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_CreateDate"><?php echo xl('Create Date');?><% if (page.orderBy == 'CreateDate') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_ReviewDate"><?php echo xl('Reviewed Date');?><% if (page.orderBy == 'ReviewDate') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_DenialReason"><?php echo xl('Review Status');?><% if (page.orderBy == 'DenialReason') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_PatientSignedStatus"><?php echo xl('Patient Signed');?><% if (page.orderBy == 'PatientSignedStatus') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
-				<th id="header_PatientSignedTime"><?php echo xl('Patient Signed Date');?><% if (page.orderBy == 'PatientSignedTime') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_Id"><?php echo xlt('Doc Id');?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_DocType"><?php echo xlt('Document');?><% if (page.orderBy == 'DocType') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_CreateDate"><?php echo xlt('Create Date');?><% if (page.orderBy == 'CreateDate') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_ReviewDate"><?php echo xlt('Reviewed Date');?><% if (page.orderBy == 'ReviewDate') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_DenialReason"><?php echo xlt('Review Status');?><% if (page.orderBy == 'DenialReason') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_PatientSignedStatus"><?php echo xlt('Patient Signed');?><% if (page.orderBy == 'PatientSignedStatus') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
+				<th id="header_PatientSignedTime"><?php echo xlt('Patient Signed Date');?><% if (page.orderBy == 'PatientSignedTime') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -300,10 +322,10 @@ body {
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<div class="input-group">
 					<span class="input-group-addon"
-						onclick="getSignature(document.getElementById('patientSignaturemodal'))"><em><?php echo xlt('Show
-							Current Signature On File');?><br><?php echo xlt('As will appear on documents.');?></em>
+						onclick="getSignature(document.getElementById('patientSignaturemodal'))"><em><?php echo xlt('Show Current Signature On File');?><br>
+						<?php echo xlt('As will appear on documents.');?></em>
 					</span> <img class="signature form-control" type="patient-signature" id="patientSignaturemodal"
-						onclick="getSignature(this)" alt="Signature On File" src="">
+						onclick="getSignature(this)" alt="<?php echo xla('Signature On File'); ?>" src="">
 					<!-- <span class="input-group-addon" onclick="clearSig(this)"><i class="glyphicon glyphicon-trash"></i></span> -->
 				</div>
 				<!-- <h4 class="modal-title">Sign</h4> -->
@@ -314,7 +336,7 @@ body {
 					<ul class="sigNav">
 						<li style='display: none;'><input style="display: none"
 							type="checkbox" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Examiner Signature');?></li>
-						<li class="clearButton"><a href="#clear"><button><?php echo xl('Clear Pad');?></button></a></li>
+						<li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Pad');?></button></a></li>
 					</ul>
 					<div class="sig sigWrapper">
 						<div class="typed"></div>
@@ -338,7 +360,7 @@ body {
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
-                <h3><i class="icon-edit"></i> <?php echo xl('Edit Document');?>
+                <h3><i class="icon-edit"></i> <?php echo xlt('Edit Document');?>
 					<span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
 				</h3>
             </div>
@@ -346,8 +368,8 @@ body {
                 <div id="modelAlert"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="saveOnsiteDocumentButton" class="btn btn-primary"><?php echo xl('Save Changes');?></button>
+                <button class="btn" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                <button id="saveOnsiteDocumentButton" class="btn btn-primary"><?php echo xlt('Save Changes');?></button>
             </div>
         </div>
     </div>

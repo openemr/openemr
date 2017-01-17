@@ -66,6 +66,7 @@
     $plain_code= $_POST['pass'];
 
 
+
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
     DEFINE("COL_PID","pid");

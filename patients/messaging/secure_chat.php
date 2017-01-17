@@ -48,12 +48,6 @@ else {
     define('IS_PORTAL', false);
     $_SERVER[REMOTE_ADDR] = 'admin::' . $_SERVER[REMOTE_ADDR];
 }
-/*$ignoreAuth = true;
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
-require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
-define('IS_PORTAL', isset( $_SESSION['patient_portal_onsite'] ) ? $_SESSION['pid'] : false);
-define('IS_DASHBOARD', $_SESSION['authUserID']);*/
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 

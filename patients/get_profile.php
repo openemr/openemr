@@ -88,9 +88,9 @@ $N = 7;
         <div class="panel panel-primary" >
                 <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
                 <?php if( $pending )
-                    echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">Pending Review</button>';
+                    echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
                 else
-                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">Revise</button>';
+                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
                         ?>
                 </header>
                 <div class="panel-body " id="dempanel">
