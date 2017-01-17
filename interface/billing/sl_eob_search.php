@@ -59,13 +59,11 @@ if( (isset($GLOBALS['portal_onsite_enable'])) || ($GLOBALS['portal_onsite_enable
 		}
 		else return false;
 	}
-	function notify_portal($thispid, array $invoices, $template){
-		//$inv = file_get_contents($template);
+	function notify_portal($thispid, array $invoices, $template, $invid){
 		$builddir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $thispid;
 		if( ! is_dir($builddir) )
 			mkdir($builddir, 0755, true);
-		// file_put_contents($builddir.'/invoice.tpl', $inv);
-		fixup_invoice($template, $builddir.'/invoice.tpl');
+		fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl');
 		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
 		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
 		addPnote($thispid, $note,1,1,xlt('Bill/Collect'),'-patient-');
@@ -73,11 +71,7 @@ if( (isset($GLOBALS['portal_onsite_enable'])) || ($GLOBALS['portal_onsite_enable
 	}
 	function fixup_invoice($template, $ifile){
 		$data = file_get_contents($template);
-		$old = "<pre>"; // temporary stuff
-		$newdata = str_replace($old, "", $data);
-		$old = "</pre>";
-		$newdata = str_replace($old, "", $newdata);
-		file_put_contents($ifile, $newdata);
+		file_put_contents($ifile, $data);
 	}
 	function SavePatientAudit( $pid, $invs ){
 		$appsql = new ApplicationTable();
@@ -347,11 +341,8 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     	$pvoice[] = $stmt;
     	$c = count($form_cb);
     	if($inv_count == $c){
-    		//$bkflag = $GLOBALS['statement_appearance'];
-    		//$GLOBALS['statement_appearance'] = "0";
     		fwrite($fhprint, make_statement($stmt));
-    		//$GLOBALS['statement_appearance'] = $bkflag;
-    		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE) )
+    		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter']))
     			$alertmsg = xlt('Notification FAILED!!');
     	}
     	else{
