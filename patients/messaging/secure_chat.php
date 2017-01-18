@@ -57,8 +57,11 @@ define('IS_DASHBOARD', $_SESSION['authUserID']);*/
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
-if(isset($_POST['fullscreen']))
+if(isset($_REQUEST['fullscreen'])){
     $_SESSION['whereto'] = 'messagespanel';
+    define('IS_FULLSCREEN', true);
+}
+else define('IS_FULLSCREEN', false);
 
 define('DB_USERNAME',    $GLOBALS['login']);
 define('DB_PASSWORD',    $GLOBALS['pass']);
@@ -241,6 +244,10 @@ abstract class Controller
     {
         return IS_PORTAL;
     }
+    public function getIsFullScreen()
+    {
+    	return IS_FULLSCREEN;
+    }
     public function getModel()
     {
         if ($this->_defaultModel && class_exists($this->_defaultModel)) {
@@ -288,11 +295,11 @@ class Model extends SMA_Common\Model
         while($row = $response->fetch_object()) {
             if(IS_PORTAL){
                 $u = json_decode( $row->recip_id, true );
-                if( (false !== array_search(C_USER,$u)) || $row->sender_id == C_USER ){
-                     $result[] = $row;
+                if( (in_array(C_USER,$u)) || $row->sender_id == C_USER ){
+                     $result[] = $row; // only current patient messages
                 }
             }
-            else $result[] = $row;
+            else $result[] = $row; // admin gets all
         }
         $response->free();
         return $result;
@@ -547,8 +554,9 @@ $msgApp = new Controller();
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
         //$scope.recip = null; // last message recip id
-        $scope.user = "<?php echo $msgApp->sanitize($msgApp->getUser()); ?>"; // current user - dashboard user is from session authUserID
-        $scope.isPortal = "<?php echo $msgApp->sanitize($msgApp->getIsPortal()); ?>";
+        $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : $_SESSION['authUser'];?>" // current user - dashboard user is from session authUserID
+        $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
+        $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
         $scope.me = {
@@ -920,7 +928,8 @@ background:#fff;
                         <div class="clearfix">
                             <a class="btn btn-sm btn-primary pull-right ml10" href=""
                                 data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
-                            <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home Please'); ?></a> <!-- -->
+                            <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home Please'); ?></a>
+                            <a class="btn btn-sm btn-success pull-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home Please'); ?></a>
                         </div>
                     </div>
                     <div class="panel-body">
