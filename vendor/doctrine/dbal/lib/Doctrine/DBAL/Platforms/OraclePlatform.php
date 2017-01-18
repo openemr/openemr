@@ -655,25 +655,27 @@ LEFT JOIN user_cons_columns r_cols
 
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
-        $ownerCondition = '';
+        $tabColumnsOwnerCondition = '';
+        $colCommentsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
-            $ownerCondition = "AND c.owner = " . $database;
+            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
         return "SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   $colCommentsTableName d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . " $ownerCondition
+                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
                 ORDER BY c.column_name";
     }
 
@@ -972,24 +974,29 @@ LEFT JOIN user_cons_columns r_cols
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        $limit = (int) $limit;
-        $offset = (int) $offset;
+        if ($limit === null && $offset === null) {
+            return $query;
+        }
 
         if (preg_match('/^\s*SELECT/i', $query)) {
             if (!preg_match('/\sFROM\s/i', $query)) {
                 $query .= " FROM dual";
             }
-            if ($limit > 0) {
-                $max = $offset + $limit;
-                $column = '*';
-                if ($offset > 0) {
-                    $min = $offset + 1;
-                    $query = 'SELECT * FROM (SELECT a.' . $column . ', rownum AS doctrine_rownum FROM (' .
-                            $query .
-                            ') a WHERE rownum <= ' . $max . ') WHERE doctrine_rownum >= ' . $min;
-                } else {
-                    $query = 'SELECT a.' . $column . ' FROM (' . $query . ') a WHERE ROWNUM <= ' . $max;
-                }
+
+            $columns = array('a.*');
+
+            if ($offset > 0) {
+                $columns[] = 'ROWNUM AS doctrine_rownum';
+            }
+
+            $query = sprintf('SELECT %s FROM (%s) a', implode(', ', $columns), $query);
+
+            if ($limit !== null) {
+                $query .= sprintf(' WHERE ROWNUM <= %d', $offset + $limit);
+            }
+
+            if ($offset > 0) {
+                $query = sprintf('SELECT * FROM (%s) WHERE doctrine_rownum >= %d', $query, $offset + 1);
             }
         }
 
