@@ -58,8 +58,8 @@ $(document).ready(function(){
 	});
 	$("#appointmentslist").load("./get_appointments.php", { 'embeddedScreen' : true  }, function() {
 		$("#reports").load("./report/portal_patient_report.php?pid='<?php echo $pid ?>'", { 'embeddedScreen' : true  }, function() {
-	    $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
-			});
+	   /*  $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
+			}); */
 		});
 	});
 	$("#medicationlist").load("./get_medications.php", { 'embeddedScreen' : true  }, function() {
