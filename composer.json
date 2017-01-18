@@ -44,7 +44,15 @@
             "library/date_functions.php",
             "library/validation/validate_core.php",
             "library/translation.inc.php"
-        ]
+        ],
+        "psr-4": {
+            "common\\": "common",
+            "common\\database\\": "common/database",
+            "common\\logging\\": "common/logging",
+            "entities\\": "entities",
+            "services\\": "services",
+            "repositories\\": "repositories"
+        }
     },
     "config": {
         "preferred-install": {

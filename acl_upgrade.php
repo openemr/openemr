@@ -14,7 +14,7 @@
 * $upgrade_acl = <acl_version_here>;
 * if ($acl_version < $upgrade_acl) {
 *   echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
-* 
+*
 *   //Collect the ACL ID numbers.
 *   echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
 *
@@ -336,7 +336,7 @@ if ($acl_version < $upgrade_acl) {
 
   //Collect the ACL ID numbers.
   echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
-  
+
   //Add new object Sections
   echo "<BR/><B>Adding new object sections</B><BR/>";
 
@@ -436,7 +436,12 @@ if ($acl_version < $upgrade_acl) {
 */
 
 //All done
-set_acl_version($acl_version);
-echo "DONE upgrading access controls";
+$response = set_acl_version($acl_version);
+
+if ($response) {
+  echo "DONE upgrading access controls";
+} else {
+  echo "ERROR upgrading access control version";
+}
 
 ?>

@@ -3212,7 +3212,11 @@ return array(
     'Zend\\XmlRpc\\Value\\Nil' => $vendorDir . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Nil.php',
     'Zend\\XmlRpc\\Value\\Struct' => $vendorDir . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Struct.php',
     'Zend\\XmlRpc\\Value\\Text' => $vendorDir . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Text.php',
+    'common\\database\\Auditor' => $baseDir . '/common/database/auditor.php',
+    'common\\database\\Connector' => $baseDir . '/common/database/connector.php',
+    'common\\logging\\Logger' => $baseDir . '/common/logging/logger.php',
     'eFPDF' => $baseDir . '/library/classes/PDF_Label.php',
+    'entities\\Version' => $baseDir . '/entities/version.php',
     'html2text' => $baseDir . '/library/classes/html2text.class.php',
     'ntlm_sasl_client_class' => $vendorDir . '/phpmailer/phpmailer/extras/ntlm_sasl_client.php',
     'phpmailerException' => $vendorDir . '/phpmailer/phpmailer/class.phpmailer.php',
@@ -3240,4 +3244,6 @@ return array(
     'phpseclib\\Net\\SSH2' => $vendorDir . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
     'phpseclib\\System\\SSH\\Agent' => $vendorDir . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
     'phpseclib\\System\\SSH\\Agent\\Identity' => $vendorDir . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
+    'repositories\\VersionRepository' => $baseDir . '/repositories/version_repository.php',
+    'services\\VersionService' => $baseDir . '/services/version_service.php',
 );
