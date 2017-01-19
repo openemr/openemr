@@ -21,6 +21,9 @@
  * @link http://www.open-emr.org
  */
  
+$sanitize_all_escapes=true;
+$fake_register_globals=false;
+
 $ignoreAuth = true;
 require_once ( "../../../interface/globals.php" );
 require_once 'sigconvert.php';
@@ -36,7 +39,6 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
 
     if( ! json_decode( $output ) ){
         exit();
-        // $errors ['output'] = true;
     }
 /* Don't need at present
     if( $pid > 0 ) $resizedFile = './../../patient_documents/signed/current/' . $pid . '_master.png';
@@ -58,7 +60,6 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
                             $svg->max[1]
                     )
             ) );
-
             ob_start();
             imagepng( $img );
             $image = ob_get_contents();
@@ -71,66 +72,29 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
             imagedestroy( $img );
             imagedestroy( $image_png );
             $image_data = base64_encode( $image );
-
-            // $escimg = mysql_real_escape_string ( $image_data );
         } catch( Exception $e ){
             die( $e->getMessage() );
         }
     }
     // No validation errors exist, so we can start the database stuff
     if( empty( $errors ) ){
-        $dsn = "mysql:dbname=" . $GLOBALS['dbase'] . ";host=" . $GLOBALS['host'] . ";port=" . $GLOBALS['port'];
-        $userdsn = $GLOBALS['login'];
-        $pass = $GLOBALS['pass'];
-        $db = new PDO( $dsn, $userdsn, $pass );
-        $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-        $db->setAttribute( PDO::MYSQL_ATTR_FOUND_ROWS, TRUE );
-        $db->exec( 'SET NAMES utf8' );
-
         $sig_hash = sha1( $output );
         $created = time();
         $ip = $_SERVER['REMOTE_ADDR'];
         $status = 'filed';
         $lastmod = date( 'Y-m-d H:i:s' );
 
-        $qstr = "UPDATE onsite_signatures SET pid=:pid,lastmod=:lastmod,status=:status, user=:user,
-                        signature=:signature , sig_hash=:sig_hash , ip=:ip,sig_image=:sig_image
-                 WHERE pid=:pid && user=:user";
-        $pstm = $db->prepare( $qstr );
-        $pstm->bindValue( ':pid', $pid, PDO::PARAM_INT );
-        $pstm->bindValue( ':lastmod', $lastmod, PDO::PARAM_STR );
-        $pstm->bindValue( ':status', $status, PDO::PARAM_STR );
-        // $pstm->bindValue ( ':type', $type, PDO::PARAM_STR );
-        $pstm->bindValue( ':user', $user, PDO::PARAM_STR );
-        // $pstm->bindValue ( ':signator', $signer, PDO::PARAM_STR );
-        $pstm->bindValue( ':signature', $svgsig, PDO::PARAM_STR );
-        $pstm->bindValue( ':sig_hash', $sig_hash, PDO::PARAM_STR );
-        $pstm->bindValue( ':ip', $ip, PDO::PARAM_STR );
-        $pstm->bindValue( ':sig_image', $image_data, PDO::PARAM_STR );
-        try{
-            $pstm->execute();
-        } catch( PDOException $e ){
+        $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
+       try{
+       	$rcnt = sqlQuery( $qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user) );
+        } catch( Exception $e ){
             print $e . message;
         }
-        $rcnt = $pstm->rowCount();
-        if( $rcnt == 0 ){
-            $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (:pid , :lastmod, :status,
-                            :type, :user, :signator, :signature, :sig_hash, :ip, :created, :sig_image) ";
-            $pstm = $db->prepare( $qstr );
-            $pstm->bindValue( ':pid', $pid, PDO::PARAM_INT );
-            $pstm->bindValue( ':lastmod', $lastmod, PDO::PARAM_STR );
-            $pstm->bindValue( ':status', $status, PDO::PARAM_STR );
-            $pstm->bindValue( ':type', $type, PDO::PARAM_STR );
-            $pstm->bindValue( ':user', $user, PDO::PARAM_STR );
-            $pstm->bindValue( ':signator', $signer, PDO::PARAM_STR );
-            $pstm->bindValue( ':signature', $svgsig, PDO::PARAM_STR );
-            $pstm->bindValue( ':sig_hash', $sig_hash, PDO::PARAM_STR );
-            $pstm->bindValue( ':ip', $ip, PDO::PARAM_STR );
-            $pstm->bindValue( ':created', $created, PDO::PARAM_INT );
-            $pstm->bindValue( ':sig_image', $image_data, PDO::PARAM_STR );
+        if( $rcnt == false ){
+            $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
             try{
-                $pstm->execute();
-            } catch( PDOException $e ){
+            	sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
+            } catch( Exception $e ){
                 print $e . message;
             }
         }
