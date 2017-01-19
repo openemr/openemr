@@ -32,6 +32,9 @@ $desiredVersion->setPatch($v_patch);
 $desiredVersion->setMinor($v_minor);
 $desiredVersion->setMajor($v_major);
 
+// Force logging off
+$GLOBALS["enable_auditlog"]=0;
+
 $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version']));
 ?>
 
