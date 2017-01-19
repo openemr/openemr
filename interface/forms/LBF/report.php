@@ -13,7 +13,7 @@ include_once($GLOBALS["srcdir"] . "/api.inc");
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
 
-function lbf_report($pid, $encounter, $cols, $id, $formname) {
+function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false) {
   require_once($GLOBALS["srcdir"] . "/options.inc.php");
   $arr = array();
   $shrow = getHistoryData($pid);
@@ -33,7 +33,10 @@ function lbf_report($pid, $encounter, $cols, $id, $formname) {
     if ($currvalue === '') continue;
     // $arr[$field_id] = $currvalue;
     // A previous change did this instead of the above, not sure if desirable? -- Rod
-    $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+    // $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+    // Hi Rod content width issue in Encounter Summary - epsdky
+    if($no_wrap) $arr[$field_id] = $currvalue; // Making wordwrap selectable - epsdky 2017
+    else $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
   }
   echo "<table>\n";
   display_layout_rows($formname, $arr);
