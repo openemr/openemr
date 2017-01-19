@@ -1004,8 +1004,10 @@ if ($list_id) {
   else {
     /*
      *  Add edit options to show or hide in list management
-     *  If the edit_options setting of the main list entry is set to 0,
-     *  then none of the list items will show.
+     *   If the edit_options setting of the main list entry is set to 0,
+     *    then none of the list items will show.
+     *   If the edit_options setting of the main list entry is set to 1,
+     *    then the list items with edit_options set to 1 will show.
      */
     $res = sqlStatement("SELECT lo.* 
                          FROM list_options as lo 
