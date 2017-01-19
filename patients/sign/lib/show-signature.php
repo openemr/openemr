@@ -60,7 +60,7 @@ if ($row ['status'] == 'filed') {
     header ( "Content-Type: image/png" );
     echo $row ['sig_image'];
     return;
-} else if ($row ['status'] == 'waiting') {
+} else if ($row ['status'] == 'waiting' || $status  == 'waiting') {
     echo 'waiting';
     return;
 }

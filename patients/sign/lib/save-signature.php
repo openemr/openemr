@@ -32,11 +32,10 @@ $signer = filter_input( INPUT_POST, 'signer', FILTER_SANITIZE_STRING );
 $type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_STRING );
 $pid = filter_input( INPUT_POST, 'pid', FILTER_SANITIZE_STRING );
 $output = filter_input( INPUT_POST, 'output', FILTER_UNSAFE_RAW );
+$user = filter_input( INPUT_POST, 'user', FILTER_UNSAFE_RAW );
 
 if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
     if( $type == 'admin-signature' ) $signer = $user;
-    //else $user = $pid;
-
     if( ! json_decode( $output ) ){
         exit();
     }
