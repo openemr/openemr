@@ -193,7 +193,11 @@ require_once (dirname(__FILE__) . "/../library/sql.inc");
 require_once (dirname(__FILE__) . "/../version.php");
 
 // The logging level for common/logging/logger.php
-$GLOBALS["log_level"] = "OFF"; // (value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF)
+// Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
+//    - DEBUG/INFO are great for development
+//    - INFO/WARN/ERROR are great for production
+//    - TRACE is useful when debugging hard to spot bugs
+$GLOBALS["log_level"] = "OFF";
 
 // Should Doctrine make use of connection pooling? Database connection pooling is a method
 // used to keep database connections open so they can be reused by others. (The only reason

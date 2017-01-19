@@ -5,10 +5,9 @@
 
  * A *nix user can run the following command to see the logs:
  * <code>
- *     > tail -f /var/www/openemr/logs/2016_11_24_openemr_application.log
+ *     > tail -f /var/www/openemr/logs/2016_11_24_application.log
  *     2016-11-24 20:15:07 [TRACE] \common\database\Connector - Connecting with pooled mode
  *     2016-11-24 20:15:07 [TRACE] \common\database\Connector - Wiring up Doctrine entities
- *     2016-11-24 20:15:07 [TRACE] \common\database\Connector - Database isn't in development mode
  *     2016-11-24 20:15:07 [TRACE] \common\database\Connector - Creating connection
  *     2016-11-24 20:15:07 [INFO] \some\other\Class - Some info message
  *     2016-11-24 20:18:01 [WARN] \some\other\Class - Some field is missing
@@ -50,25 +49,27 @@ class Logger {
     private $logFile;
 
     /**
-     * Default constructor.
+     * Default constructor. Only continues with instance creation
+     * if logging is enabled.
      *
      * @param $classContext - provided when a class uses the logger.
      */
     public function __construct($classContext="UnknownClassContext") {
-        $this->classContext = $classContext;
-        $this->determineLogFilePath();
+        if (isset($GLOBALS["log_level"]) && $GLOBALS["log_level"] !== "OFF") {
+            $this->classContext = $classContext;
+            $this->determineLogFilePath();
+        }
     }
 
     /**
      * Sets the log file on the operating system's temporary directory. Format is:
-     * [log area] + FILE_SEP + YYYY_MM_DD_openemr_application.log
+     * [log area] + FILE_SEP + YYYY_MM_DD_application.log
      *
      * On *nix, the file will be stored in /home/current_user/openemr/ (if writable). On Windows, it will
      * be stored in C:\Users\current_user\openemr\ (if writable).
      */
     private function determineLogFilePath() {
-        global $openemr_name;
-        $fileName = date("Y_m_d") . "_" . $openemr_name . "_application.log";
+        $fileName = date("Y_m_d") . "_application.log";
 
         global $webserver_root;
         $currentDir = $webserver_root;
@@ -102,19 +103,19 @@ class Logger {
      * @return boolean that represents if log entry should be made
      */
     private function isLogLevelInDesiredHierarchy($level) {
-        if ($GLOBALS["log_level"] == "OFF") {
+        if (empty($GLOBALS["log_level"]) || $GLOBALS["log_level"] === "OFF") {
             return false;
         }
 
-        if ($GLOBALS["log_level"] == "TRACE") {
+        if ($GLOBALS["log_level"] === "TRACE") {
             return true;
-        } else if ($GLOBALS["log_level"] == "DEBUG" && in_array($level, array("DEBUG", "INFO", "WARN", "ERROR"))) {
+        } else if ($GLOBALS["log_level"] === "DEBUG" && in_array($level, array("DEBUG", "INFO", "WARN", "ERROR"))) {
             return true;
-        } else if ($GLOBALS["log_level"] == "INFO" && in_array($level, array("INFO", "WARN", "ERROR"))) {
+        } else if ($GLOBALS["log_level"] === "INFO" && in_array($level, array("INFO", "WARN", "ERROR"))) {
             return true;
-        } else if ($GLOBALS["log_level"] == "WARN" && in_array($level, array("WARN", "ERROR"))) {
+        } else if ($GLOBALS["log_level"] === "WARN" && in_array($level, array("WARN", "ERROR"))) {
             return true;
-        } else if ($GLOBALS["log_level"] == "ERROR" && $level == "ERROR") {
+        } else if ($GLOBALS["log_level"] === "ERROR" && $level === "ERROR") {
             return true;
         } else {
             return false;

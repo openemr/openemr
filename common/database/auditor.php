@@ -43,10 +43,17 @@ final class Auditor implements SQLLogger {
     public $currentQueryIndex = 0;
 
     /**
+     * Logger for noting sql query information.
+     */
+    private $logger;
+
+    /**
      * Default constructor. This is here for completeness, it is
      * essentially a no-op.
      */
-    public function __construct() {}
+    public function __construct() {
+      $this->logger = new \common\logging\Logger("\common\database\Auditor");
+    }
 
     /**
      * Intercepts the SQL query to be performed by the ORM.
@@ -57,6 +64,7 @@ final class Auditor implements SQLLogger {
      */
     public function startQuery($sql, array $params = null, array $types = null) {
         $this->queries[++$this->currentQueryIndex] = array('sql' => $sql, 'params' => $params);
+        $this->logger->trace("sql: " . $sql);
     }
 
     /**
