@@ -215,7 +215,7 @@ function show_date_fun(){
   }
   return;
 }
-
+var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 </script>
 
 <body class="body_top">
