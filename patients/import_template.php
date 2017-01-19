@@ -22,7 +22,7 @@
  */
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
-require_once("../interface/globals.php"); // there must be better way!
+require_once("../interface/globals.php"); 
 
 if($_POST['mode'] == 'get'){
 	echo file_get_contents($_POST['docid']);
@@ -37,12 +37,21 @@ else if($_POST['mode'] == 'delete'){
 	exit(true);
 }
 // so it is an import
-define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/');
+if(!isset($_POST['up_dir'])){
+	define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/');
+}
+else {
+	if($_POST['up_dir'] > 0)
+		define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/'. $_POST['up_dir'] . '/');
+	else 
+		define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/');
+}
 
 if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];
 
     if ($tplFile["error"] !== UPLOAD_ERR_OK) {
+    	header( "refresh:2;url= import_template_ui.php" );
         echo "<p>". xl("An error occurred: Missing file to upload: Use back button!") . "</p>";
         exit;
     }

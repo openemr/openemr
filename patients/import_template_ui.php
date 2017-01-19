@@ -24,10 +24,27 @@
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
 require_once("../interface/globals.php");
+$getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
+if( $getdir > 0){
+	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $getdir . '/';
+	if(!is_dir($tdir)){
+		if (!mkdir($tdir, 0755, true)) {
+			die(xl('Failed to create folder'));
+		}
+	}
+}
+else
+	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/';
 
-$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/';
+function getAuthUsers(){
+	$response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
+	$resultpd = array ();
+	while( $row = sqlFetchArray($response) ){
+		$resultpd[] = $row;
+	}
+	return $resultpd;
+}
 function getTemplateList($dir){
-	//$finfo = finfo_open(FILEINFO_MIME_TYPE);
 	$retval = array();
 	if(substr($dir, -1) != "/") $dir .= "/";
 	$d = @dir($dir) or die("File List: Failed opening directory $dir for reading");
@@ -86,7 +103,7 @@ var tsave = function() {
 	};
 	
 var tdelete = function(docname) {
-	var delok = confirm("You are about to delete template: "+docname+"\nIs this Okay?");
+	var delok = confirm("You are about to delete template: "+docname+"Is this Okay?");
 	if(delok === true) getDocument(docname, 'delete', '')
 	return false;
 	};	
@@ -122,7 +139,7 @@ var tdelete = function(docname) {
 	}
 </script>
 <style>
-
+/*  looks okay to me! */
 </style>
 <body class="skin-blue">
 <div  class='container' style='display:block;'>
@@ -134,12 +151,29 @@ var tdelete = function(docname) {
 <input class="btn btn-info" type="file" name="tplFile">
 <br>
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xl('Home'); ?></button>
-<input class="btn btn-success" type="submit" value="Upload">
+<input type='hidden' name="up_dir" value='<?php global $getdir; echo $getdir;?>' />
+<input class="btn btn-success" type="submit" name="upload_submit" value="Upload">
 </form>
-
-<div class='col col-md col-lg'>
+<div class='row'>
 <h3><?php echo xlt('Active Templates'); ?></h3>
+<div class='col col-md col-lg'>
+<form id = "edit_form" name = "edit_form" class="form-inline" action="" method="post">
+ <div class="form-group">
+ <label for="sel_pt"><?php echo xlt('Patient'); ?></label>
+ <select class="form-control" id="sel_pt" name="sel_pt">
+<option value='0'><?php echo xl("Global All Patients")?></option>
 <?PHP
+$ppt = getAuthUsers();
+global $getdir;
+foreach ($ppt as $pt){
+	if($getdir != $pt['pid'])
+		echo "<option value=".$pt['pid'].">".$pt['ptname']."</option>";
+	else 
+		echo "<option value='".$pt['pid']."' selected='selected'>".$pt['ptname']."</option>";
+}
+echo "</select></div>";
+echo '<button type="submit" class="btn btn-default">Refresh</button>';
+echo '</form></div>';
 $dirlist = getTemplateList($tdir);
   echo "<table  class='table table-striped table-bordered'>";
   echo "<thead>";
@@ -159,8 +193,6 @@ $dirlist = getTemplateList($tdir);
   echo "</table>";
 ?>
 </div>
-</div>
-
    <div class="modal fade" id="popeditor">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
