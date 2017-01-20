@@ -103,7 +103,7 @@ var tsave = function() {
 	};
 	
 var tdelete = function(docname) {
-	var delok = confirm("You are about to delete template: "+docname+"Is this Okay?");
+	var delok = confirm('<?php echo xlt("You are about to delete template:") ?>'+docname+'<?php echo xlt(" Is this Okay?")?>');
 	if(delok === true) getDocument(docname, 'delete', '')
 	return false;
 	};	
@@ -147,12 +147,12 @@ var tdelete = function(docname) {
 <h3><?php echo xlt('Patient Document Template Upload'); ?></h3>
 <h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br><?php echo xlt('Automatically applies correct extension on successfull upload'); ?>.<br> 
 <?php echo xlt('Example Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents'); ?>.</em></h4>
-<form class="form" action="import_template.php" method="post" enctype="multipart/form-data">
+<form id="form_upload" class="form" action="import_template.php" method="post" enctype="multipart/form-data">
 <input class="btn btn-info" type="file" name="tplFile">
 <br>
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xl('Home'); ?></button>
 <input type='hidden' name="up_dir" value='<?php global $getdir; echo $getdir;?>' />
-<input class="btn btn-success" type="submit" name="upload_submit" value="Upload">
+<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit">Upload Template for <span style="font-size:14px;" class="label label-default" id='ptstatus'></span></button>
 </form>
 <div class='row'>
 <h3><?php echo xlt('Active Templates'); ?></h3>
@@ -183,8 +183,8 @@ $dirlist = getTemplateList($tdir);
   foreach($dirlist as $file) {
   	$t = "'".$file['pathname']."'";
   	echo "<tr>";
-    echo '<td><button id="tedit" class="btn btn-sm btn-primary" onclick="tedit('.$t.')" type="button">'. $file['name'].'</button>
- 		<button id="tdelete" class="btn btn-xs btn-danger" onclick="tdelete('.$t.')" type="button">'.  xl("Delete") .'</button></td>';
+    echo '<td><button id="tedit'.$t.'" class="btn btn-sm btn-primary" onclick="tedit('.$t.')" type="button">'. $file['name'].'</button>
+ 		<button id="tdelete'.$t.'" class="btn btn-xs btn-danger" onclick="tdelete('.$t.')" type="button">'.  xl("Delete") .'</button></td>';
     echo "<td>{$file['size']}</td>";
     echo "<td>",date('r', $file['lastmod']),"</td>";
     echo "</tr>";
@@ -192,6 +192,14 @@ $dirlist = getTemplateList($tdir);
   echo "</tbody>";
   echo "</table>";
 ?>
+<script>
+$(document).ready(function(){
+$("#sel_pt").change(function(){
+	$("#edit_form").submit();
+}); 
+$("#ptstatus").text($("#sel_pt").find(":selected").text())
+});
+</script>
 </div>
    <div class="modal fade" id="popeditor">
         <div class="modal-dialog modal-lg">
