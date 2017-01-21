@@ -89,6 +89,9 @@ class VersionService {
      */
     public function canRealPatchBeApplied(Version $version) {
         $this->logger->debug("Determining if a real patch can be applied");
-        return !empty($version->getRealPatch()) && ($version->getRealPatch() != "") && ($version->getRealPatch() > 0);
+        //Collected below function call to a variable, since unable to directly include
+        // function calls within empty() in php versions < 5.5 .
+        $version_getrealpatch = $version->getRealPatch();
+        return !empty($version_getrealpatch) && ($version->getRealPatch() != "") && ($version->getRealPatch() > 0);
     }
 }
