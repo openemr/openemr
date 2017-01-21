@@ -417,7 +417,10 @@ $version = $versionService->fetch();
 if (!empty($version)) {
     //Version tag
     $patch_appending = "";
-    if ( ($version->getRealPatch() != '0') && (!(empty($version->getRealPatch()))) ) {
+    //Collected below function call to a variable, since unable to directly include
+    // function calls within empty() in php versions < 5.5 .
+    $version_getrealpatch = $version->getRealPatch();
+    if ( ($version->getRealPatch() != '0') && (!(empty($version_getrealpatch))) ) {
         $patch_appending = " (".$version->getRealPatch().")";
     }
 
