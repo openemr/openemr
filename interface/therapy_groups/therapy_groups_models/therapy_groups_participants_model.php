@@ -72,8 +72,9 @@ class Therapy_groups_participants{
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE pid = ? AND group_id = ?";
 
-        $result = sqlStatement($sql, array($pid, $groupId));
-        $count = sqlFetchArray($result);
+//        $result = sqlStatement($sql, array($pid, $groupId));
+//        $count = sqlFetchArray($result);
+        $count = sqlQuery($sql, array($pid, $groupId));
         return($count['count'] > 0) ? true : false;
     }
 

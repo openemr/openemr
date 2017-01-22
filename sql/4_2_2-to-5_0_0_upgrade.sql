@@ -2283,3 +2283,17 @@ INSERT INTO registry (name, state, directory, id, sql_run, unpackaged, date, pri
 #IfNotRow2D registry directory newGroupEncounter id 23
 INSERT INTO registry (name, state, directory, id, sql_run, unpackaged, date, priority, category, nickname, patient_encounter, therapy_group_encounter) VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
 #EndIf
+
+#IfNotTable form_therapy_groups_attendance
+CREATE TABLE `form_therapy_groups_attendance` (
+  id	bigint(20) auto_increment,
+  date	date,
+  group_id	int(11),
+  user	varchar(255),
+  groupname	varchar(255),
+  authorized	tinyint(4),
+  encounter_id	int(11),
+  activity	tinyint(4),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB ;
+#EndIf

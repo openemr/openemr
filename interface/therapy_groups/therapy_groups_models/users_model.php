@@ -54,12 +54,8 @@ class Users{
     public function getUserNameById($uid){
         $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
 
-        $result = sqlStatement($sql, array($uid));
-        while($u = sqlFetchArray($result)){
-            $user_name[] = $u;
-        }
-
-        $user_full_name = $user_name[0]['fname'] . "   " . $user_name[0]['lname'];
+        $user_name = sqlQuery($sql, array($uid));
+        $user_full_name = $user_name['fname'] . "   " . $user_name['lname'];
 
         return $user_full_name;
 
@@ -101,11 +97,11 @@ class Users{
     private function checkIfMultiple($eid){
 
         $sql = "SELECT pc_multiple FROM " . SELF::EVENTS_TABLE . " WHERE pc_eid = ?";
-        $result = sqlStatement($sql, array($eid));
-        if($result->fields['pc_multiple'] == 0){
+        $result = sqlQuery($sql, array($eid));
+        if($result['pc_multiple'] == 0){
             return false;
         }
-        return $result->fields['pc_multiple'];
+        return $result['pc_multiple'];
 
     }
 }

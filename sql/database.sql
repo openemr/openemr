@@ -9688,3 +9688,16 @@ CREATE TABLE `form_groups_encounter` (
   KEY `pid_encounter` (`group_id`, `encounter`),
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
+CREATE TABLE `form_therapy_groups_attendance` (
+  id	bigint(20) auto_increment,
+  date	date,
+  group_id	int(11),
+  user	varchar(255),
+  groupname	varchar(255),
+  authorized	tinyint(4),
+  encounter_id	int(11),
+  activity	tinyint(4),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB ;

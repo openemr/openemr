@@ -44,8 +44,7 @@ class Therapy_Groups{
 
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ?";
 
-        $result = sqlStatement($sql, array($groupId));
-        $group = sqlFetchArray($result);
+        $group = sqlQuery($sql, array($groupId));
 
         return $group;
     }
@@ -81,8 +80,9 @@ class Therapy_Groups{
             $conditions[] = $groupId;
         }
 
-        $result = sqlStatement($sql, $conditions);
-        $count = sqlFetchArray($result);
+//        $result = sqlStatement($sql, $conditions);
+//        $count = sqlFetchArray($result);
+        $count = sqlQuery($sql, $conditions);
         return($count['count'] > 0) ? true : false;
     }
 
