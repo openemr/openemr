@@ -85,7 +85,7 @@
 		<% items.each(function(item) { %>
 			<tr id="<%= _.escape(item.get('id')) %>">
 				<td><%= _.escape(item.get('id') || '') %></td>
-				<td><%if (item.get('date')) { %><%= _date(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
+				<td><%if (item.get('date')) { %><%= moment(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('patientId') || '') %></td>
 				<td><%= _.escape(item.get('activity') || '') %></td>
 				<td><%= _.escape(item.get('requireAudit') || '') %></td>
@@ -97,7 +97,7 @@
 				<td><%= _.escape(item.get('tableAction') || '') %></td>
 				<td><%= _.escape(item.get('tableArgs') || '') %></td>
 				<td><%= _.escape(item.get('actionUser') || '') %></td>
-				<td><%if (item.get('actionTakenTime')) { %><%= _date(app.parseDate(item.get('actionTakenTime'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
+				<td><%if (item.get('actionTakenTime')) { %><%= moment(app.parseDate(item.get('actionTakenTime'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('checksum') || '') %></td>
 -->
 			</tr>
@@ -123,11 +123,11 @@
 					<label class="control-label" for="date"><?php echo xlt('Date'); ?></label>
 					<div class="controls inline-inputs">
 						<div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
-							<input id="date" type="text" value="<%= _date(app.parseDate(item.get('date'))).format('YYYY-MM-DD') %>" />
+							<input id="date" type="text" value="<%= moment(app.parseDate(item.get('date'))).format('YYYY-MM-DD') %>" />
 							<span class="add-on"><i class="icon-calendar"></i></span>
 						</div>
 						<div class="input-append bootstrap-timepicker-component">
-							<input id="date-time" type="text" class="timepicker-default  form-control-small" value="<%= _date(app.parseDate(item.get('date'))).format('h:mm A') %>" />
+							<input id="date-time" type="text" class="timepicker-default  form-control-small" value="<%= moment(app.parseDate(item.get('date'))).format('h:mm A') %>" />
 							<span class="add-on"><i class="icon-time"></i></span>
 						</div>
 						<span class="help-inline"></span>
@@ -210,11 +210,11 @@
 					<label class="control-label" for="actionTakenTime"><?php echo xlt('Action Taken Time'); ?></label>
 					<div class="controls inline-inputs">
 						<div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
-							<input id="actionTakenTime" type="text" value="<%= _date(app.parseDate(item.get('actionTakenTime'))).format('YYYY-MM-DD') %>" />
+							<input id="actionTakenTime" type="text" value="<%= moment(app.parseDate(item.get('actionTakenTime'))).format('YYYY-MM-DD') %>" />
 							<span class="add-on"><i class="icon-calendar"></i></span>
 						</div>
 						<div class="input-append bootstrap-timepicker-component">
-							<input id="actionTakenTime-time" type="text" class="timepicker-default  form-control-small" value="<%= _date(app.parseDate(item.get('actionTakenTime'))).format('h:mm A') %>" />
+							<input id="actionTakenTime-time" type="text" class="timepicker-default  form-control-small" value="<%= moment(app.parseDate(item.get('actionTakenTime'))).format('h:mm A') %>" />
 							<span class="add-on"><i class="icon-time"></i></span>
 						</div>
 						<span class="help-inline"></span>

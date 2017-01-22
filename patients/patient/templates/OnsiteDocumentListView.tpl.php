@@ -61,7 +61,7 @@
 				.script("../sign/assets/signer.js").wait()
 				.script("../assets/bootstrap/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
-				.script("scripts/libs/underscore.date.min.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
 				.script("scripts/app.js")
