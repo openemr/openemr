@@ -9638,3 +9638,16 @@ CREATE TABLE `codes_history` (
   `update_by` varchar(255),
    PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
+
+-- Table to store multiple db connection details
+DROP TABLE IF EXISTS `zf_multiple_db`;
+CREATE TABLE `zf_multiple_db` (
+    `id` int(11) NOT NULL,
+    `namespace` varchar(255) NOT NULL,
+    `username` varchar(255) NOT NULL,
+    `password` text NOT NULL,
+    `dbname` varchar(255) NOT NULL,
+    `host` varchar(255) NOT NULL DEFAULT 'localhost',
+    `port` smallint(4) NOT NULL DEFAULT '3306',
+    `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
