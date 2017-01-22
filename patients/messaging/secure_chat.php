@@ -57,10 +57,6 @@ if(isset($_REQUEST['fullscreen'])){
 }
 else define('IS_FULLSCREEN', false);
 
-define('DB_USERNAME',    $GLOBALS['login']);
-define('DB_PASSWORD',    $GLOBALS['pass']);
-define('DB_HOST',              $GLOBALS['host']);
-define('DB_NAME',             $GLOBALS['dbase']);
 define('CHAT_HISTORY',      '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
@@ -71,7 +67,7 @@ abstract class Model
 
     public function __construct()
     {
-        $this->db = new \mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
+        //$this->db = new \mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
     }
 }
 
@@ -260,43 +256,41 @@ abstract class Helper
 
 }
 
-
 namespace SMA_Msg;
 use SMA_Common;
 class Model extends SMA_Common\Model
 {
     public function getAuthUsers(){
-        $response = $this->db->query( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
+        $response = sqlStatementNoLog( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
         $resultpd = array ();
-        while( $row = $response->fetch_object() ){
+        while( $row = sqlFetchArray($response) ){
             $resultpd[] = $row;
         }
-        $response->free();
-        $response = $this->db->query( "SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
+        $response = sqlStatementNoLog( "SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
         $result = array ();
-        while( $row = $response->fetch_object() ){
+        while( $row = sqlFetchArray($response) ){
             $result[] = $row;
         }
-        $response->free();
+        
         return json_encode( array_merge($result,$resultpd) );
     }
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
-        $response = $this->db->query("(SELECT * FROM onsite_messages
+        $response = sqlStatementNoLog("(SELECT * FROM onsite_messages
             ORDER BY `date` DESC LIMIT {$limit}) ORDER BY `date` ASC");
 
         $result = array();
-        while($row = $response->fetch_object()) {
+        while($row = sqlFetchArray($response)) {
             if(IS_PORTAL){
-                $u = json_decode( $row->recip_id, true );
+                $u = json_decode( $row['recip_id'], true );
                 if(!is_array($u)) continue;
-                if( (in_array(C_USER,$u)) || $row->sender_id == C_USER ){
+                if( (in_array(C_USER,$u)) || $row['sender_id'] == C_USER ){
                      $result[] = $row; // only current patient messages
                 }
             }
             else $result[] = $row; // admin gets all
         }
-        $response->free();
+
         return $result;
     }
 
@@ -305,54 +299,52 @@ class Model extends SMA_Common\Model
         $username = addslashes($username);
         $message = addslashes($message);
 
-        return (bool) $this->db->query("INSERT INTO onsite_messages
-            VALUES (NULL, '{$username}', '{$message}', '{$ip}', NOW(),'$senderid','$recipid')");
+        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, '{$username}', '{$message}', '{$ip}', NOW(),'$senderid','$recipid')");
     }
 
     public function removeMessages()
     {
-        return (bool) $this->db->query("TRUNCATE TABLE onsite_messages");
+        return sqlQueryNoLog("TRUNCATE TABLE onsite_messages");
     }
 
     public function removeOldMessages($limit = CHAT_HISTORY)
     {
-        return (bool) $this->db->query("DELETE FROM onsite_messages
+    /* @todo Patched out to replace with soft delete. Besides this query won't work with current ado(or any) */
+        /* return sqlStatementNoLog("DELETE FROM onsite_messages
             WHERE id NOT IN (SELECT id FROM onsite_messages
-                ORDER BY date DESC LIMIT {$limit})");
+                ORDER BY date DESC LIMIT {$limit})"); */
     }
 
     public function getOnline($count = true, $timeRange = CHAT_ONLINE_RANGE)
     {
         if ($count) {
-            $response = $this->db->query("SELECT count(*) as total FROM onsite_online");
-            return $response->fetch_object();
+            $response = sqlStatementNoLog("SELECT count(*) as total FROM onsite_online");
+            return sqlFetchArray($response);
         }
-        $response = $this->db->query("SELECT * FROM onsite_online");
+        $response = sqlStatementNoLog("SELECT * FROM onsite_online");
         $result = array();
-        while($row = $response->fetch_object()) {
+        while($row = sqlFetchArray($response)) {
             $result[] = $row;
         }
-        $response->free();
+        
         return $result;
     }
 
     public function updateOnline($hash, $ip, $username='', $userid=0)
     {
-        return (bool) $this->db->query("REPLACE INTO onsite_online
+        return sqlStatementNoLog("REPLACE INTO onsite_online
             VALUES ( '{$hash}', '{$ip}', NOW(), '{$username}', '{$userid}' )") or die(mysql_error());
     }
 
     public function clearOffline($timeRange = CHAT_ONLINE_RANGE)
     {
-        return (bool) $this->db->query("DELETE FROM onsite_online
+        return sqlStatementNoLog("DELETE FROM onsite_online
             WHERE last_update <= (NOW() - INTERVAL {$timeRange} MINUTE)");
     }
 
     public function __destruct()
     {
-        if ($this->db) {
-            $this->db->close();
-        }
+
     }
 
 }
@@ -462,7 +454,7 @@ class Controller extends SMA_Common\Controller
             $userid = IS_DASHBOARD;
         $this->getModel()->updateOnline($hash, $ip, $user, $userid);
         $this->getModel()->clearOffline();
-        $this->getModel()->removeOldMessages();
+       // $this->getModel()->removeOldMessages(); // @todo For soft delete when I decide. DO NOT REMOVE
 
         $onlines = $this->getModel()->getOnline();
 
@@ -481,8 +473,6 @@ $msgApp = new Controller();
 
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com">
-
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
 
     <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
 
@@ -548,7 +538,6 @@ $msgApp = new Controller();
         $scope.lastMessageId = null;
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
-        //$scope.recip = null; // last message recip id
         $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : $_SESSION['authUser'];?>" // current user - dashboard user is from session authUserID
         $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
@@ -581,7 +570,8 @@ $msgApp = new Controller();
              }
         };
         $scope.recipChecked = function(user){
-            var test = pusers.indexOf(user.recip_id);
+            return false
+            var test = $scope.pusers.indexOf(user.recip_id);
         	if(test > 0)
             	return
             else
@@ -691,7 +681,6 @@ $msgApp = new Controller();
                 var lastMessageId = lastMessage && lastMessage.id;
 
                 if ($scope.lastMessageId !== lastMessageId) {
-                    //$scope.recip = lastMessage.sender_id;
                     $scope.onNewMessage(wasListingForMySubmission);
                 }
                 $scope.lastMessageId = lastMessageId;
