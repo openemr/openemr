@@ -278,7 +278,7 @@ class Model extends SMA_Common\Model
             $resultpd[] = $row;
         }
         $response->free();
-        $response = $this->db->query( "SELECT users.id as recip_id, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
+        $response = $this->db->query( "SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
         $result = array ();
         while( $row = $response->fetch_object() ){
             $result[] = $row;
@@ -295,6 +295,7 @@ class Model extends SMA_Common\Model
         while($row = $response->fetch_object()) {
             if(IS_PORTAL){
                 $u = json_decode( $row->recip_id, true );
+                if(!is_array($u)) continue;
                 if( (in_array(C_USER,$u)) || $row->sender_id == C_USER ){
                      $result[] = $row; // only current patient messages
                 }
@@ -567,15 +568,31 @@ $msgApp = new Controller();
         };
 
        $scope.checkAll = function() {
-           $scope.pusers = [];
+    	   $scope.pusers = [];
+    	   $scope.pusers = $scope.chatusers.map(function(item) { return item.recip_id; });
+    	   $scope.getAuthUsers();
+           /* $scope.pusers = [];
            angular.forEach($filter('unique')($scope.chatusers, "recip_id"), function (m, k) {
                $scope.pusers.push(m.recip_id);
-           });
+           }); */
          };
         $scope.uncheckAll = function() {
               $scope.pusers = [];
+              $scope.getAuthUsers(); 
          };
-
+        $scope.makeCurrent = function(sel) {
+             if( !sel.me ){ 
+            	$scope.pusers.splice(0, $scope.pusers.length); 
+             	$scope.pusers.push(sel.sender_id);
+             }
+        };
+        $scope.recipChecked = function(user){
+            var test = pusers.indexOf(user.recip_id);
+        	if(test > 0)
+            	return
+            else
+        		$scope.pusers.push(user.recip_id);
+        }
         $scope.pageTitleNotificator = {
             vars: {
                 originalTitle: window.document.title,
@@ -710,6 +727,7 @@ $msgApp = new Controller();
             });
         };
         $scope.getAuthUsers = function() {
+        	$scope.chatusers = [];
             return $http.post($scope.urlGetAuthUsers, {}).success(function(data) {
                 $scope.chatusers = data;
             });
@@ -908,18 +926,18 @@ background:#fff;
         <!-- <h2 class="hidden-xs">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h4 class="label label-info"><?php echo xlt('Current Reply'); ?></h4>
+                <h4 class="label label-info"><?php echo xlt('Send to Recipients'); ?></h4>
 
-                <label ng-repeat="message in messages | unique : 'username'">
-                    <input type="checkbox" data-checklist-model="pusers" data-checklist-value="message.sender_id"> {{message.username}}
-                </label>
-                <h4><span class="label label-info" ng-show="!isPortal"><?php echo xlt('Authorized Recipients'); ?></span></h4>
-                <!-- <span>
-                    <button id="chkall" class="btn btn-xs btn-success" ng-click="checkAll()" type="button">All</button>
-                    <button id="chknone" class="btn btn-xs btn-success" ng-click="uncheckAll()" type="button">None</button>
-                </span> -->
-                <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal">
+                <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
+                </label>
+                <h4><span class="label label-info"><?php echo xlt('Authorized Recipients'); ?></span></h4>
+                <!--  --><span>
+                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button">All</button>
+                    <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button">None</button>
+                </span>
+                <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
+                    <input type="checkbox" ng-click="recipChecked(user)" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
             </div>
             <div class="col-md-8 fixed-panel">
@@ -941,11 +959,14 @@ background:#fff;
                                         <span class="direct-chat-timestamp "
                                         ng-class="{'pull-left':!message.me, 'pull-right':message.me}">{{message.date }}</span>
                                 </div>
-                                <img class="direct-chat-img"
-                                    src="http://upload.wikimedia.org/wikipedia/en/e/ee/Unknown-person.gif"
+                                <img class="direct-chat-img" ng-show="!message.me"
+                                    src="./../images/Unknown-person.gif"
+                                    alt="">
+                                <img class="direct-chat-img" ng-show="message.me")
+                                    src="./../images/favicon-32x32.png"
                                     alt="">
                                 <div class="direct-chat-text right">
-                                    <div style="padding-left: 0px; padding-right: 0px;" ng-click="openModal(this)" ng-bind-html=renderMessageBody(message.message)></div>
+                                    <div style="padding-left: 0px; padding-right: 0px;" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>
                             </div>
                         </div>
