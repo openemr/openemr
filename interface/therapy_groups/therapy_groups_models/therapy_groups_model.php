@@ -65,7 +65,8 @@ class Therapy_Groups{
             $sql .= $key . '=?,';
         }
         $sql = substr($sql,0, -1);
-        $sql .= ' WHERE group_id = ' . $groupData['group_id'];
+        $sql .= ' WHERE group_id = ?';
+        array_push($groupData, $groupData['group_id']);
         $result = sqlStatement($sql, $groupData);
         return !$result ? false :true;
     }
