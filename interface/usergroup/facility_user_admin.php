@@ -36,8 +36,6 @@ $fake_register_globals=false;
 
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 
@@ -87,11 +85,11 @@ function submitform() {
 	}
 	if(flag == 0){
 		document.forms[0].submit();
-		parent.$.fn.fancybox.close(); 
+		parent.$.fn.fancybox.close();
 	}
-	
-	
-	
+
+
+
 }
 
 $(document).ready(function(){
@@ -172,7 +170,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                        "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']) );
                 echo "<td><span class='text'>" . generate_form_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
-                ?> 
+                ?>
 	</td>
   </tr>
 <?php } ?>

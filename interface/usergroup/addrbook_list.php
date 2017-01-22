@@ -28,9 +28,7 @@
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
- require_once("$srcdir/formdata.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  $popup = empty($_GET['popup']) ? 0 : 1;
 
@@ -201,7 +199,7 @@ function refreshme() {
 
 // Process click to pop up the add window.
 function doedclick_add(type) {
- top.restoreSession(); 
+ top.restoreSession();
  dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
 }
 

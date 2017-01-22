@@ -28,10 +28,8 @@ $sanitize_all_escapes=true;
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
-require_once("$srcdir/classes/CouchDB.class.php");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -371,7 +369,7 @@ input     { font-size:10pt; }
 
 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
 <span style='float: right;'>
-    <input name='srch_desc' size='20' 
+    <input name='srch_desc' size='20'
         value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
     <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
 </span>
@@ -418,7 +416,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== FALSE)) {
         $srch_cl = 'class="srch"';
     }
-    
+
     // Most parameters will have a single value, but some will be arrays.
     // Here we cater to both possibilities.
     $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .

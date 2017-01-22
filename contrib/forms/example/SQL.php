@@ -4,7 +4,6 @@ include_once("../../../interface/globals.php");
 echo "Building Statement<br>";
 flush();
 
-$sqlLibPath = "../../../library/sql.inc";
 $tablename = "example";
 //our first six columns are NEEDED for operation of the suite
 $create = "
@@ -19,11 +18,9 @@ $create = "
 		`cats` longtext
 	) ENGINE=InnoDB
 	";
-	
+
 echo "Connecting To SQL<br>";
 flush();
-if (!include_once($sqlLibPath))
-	die("failed!");
 
 echo "Creating Tables<br>";
 flush();

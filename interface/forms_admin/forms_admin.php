@@ -1,4 +1,4 @@
-<?php 
+<?php
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -7,7 +7,6 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
-include_once("$srcdir/sql.inc");
 if ($_GET['method'] == "enable"){
 	updateRegistered ( $_GET['id'], "state=1" );
 }
@@ -65,7 +64,7 @@ if ($err)
 <span class=bold><?php xl('Registered','e');?></span><br>
 <form method=POST action ='./forms_admin.php'>
 <i><?php xl('click here to update priority, category and nickname settings','e'); ?></i>
-<input type=submit name=update value='<?php xl('update','e'); ?>'><br> 
+<input type=submit name=update value='<?php xl('update','e'); ?>'><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 	<tr>
 		<td> </td>
@@ -86,10 +85,10 @@ foreach($bigdata as $registry)
 	?>
 	<tr>
 		<td bgcolor="<?php echo $color?>" width="2%">
-			<span class=text><?php echo $registry['id'];?></span> 
+			<span class=text><?php echo $registry['id'];?></span>
 		</td>
 		<td bgcolor="<?php echo $color?>" width="30%">
-			<span class=bold><?php echo xl_form_title($registry['name']); ?></span> 
+			<span class=bold><?php echo xl_form_title($registry['name']); ?></span>
 		</td>
 		<?php
 			if ($registry['sql_run'] == 0)
@@ -106,8 +105,8 @@ foreach($bigdata as $registry)
 				echo xl('PHP extracted','e');
 			else
 				echo xl('PHP compressed','e');
-			
-			?></span> 
+
+			?></span>
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%">
 			<?php
@@ -115,7 +114,7 @@ foreach($bigdata as $registry)
 				echo "<span class=text>".xl('DB installed')."</span>";
 			else
 				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db'>".xl('install DB')."</a>";
-			?> 
+			?>
 		</td>
 		<?php
 			echo "<td><input type=text size=4 name=priority_".$registry['id']." value='".$priority_category['priority']."'></td>";
@@ -162,7 +161,7 @@ foreach ( $inDir as $fname )
         // added 8-2009 by BM - do not show the metric vitals form as option since deprecated
 	//  also added a toggle in globals.php in case user wants the option to add this deprecated form
         if (($fname == "vitalsM") && ($GLOBALS['disable_deprecated_metrics_form'])) continue;
-    
+
 	if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz"))
 		$phpState = "PHP compressed";
 	else
@@ -170,7 +169,7 @@ foreach ( $inDir as $fname )
 	?>
 	<tr>
 		<td bgcolor="<?php echo $color?>" width="1%">
-			<span class=text> </span> 
+			<span class=text> </span>
 		</td>
 		<td bgcolor="<?php echo $color?>" width="20%">
 	        <?php
@@ -180,7 +179,7 @@ foreach ( $inDir as $fname )
                         else
                                 $form_title = $fname;
                 ?>
-			<span class=bold><?php echo xl_form_title($form_title); ?></span> 
+			<span class=bold><?php echo xl_form_title($form_title); ?></span>
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%"><?php
 			if ($phpState == "PHP extracted")
@@ -189,10 +188,10 @@ foreach ( $inDir as $fname )
 				echo '<span class=text>' . xl('n/a') . '</span>';
 		?></td>
 		<td bgcolor="<?php echo $color?>" width="20%">
-			<span class=text><?php echo xl($phpState); ?></span> 
+			<span class=text><?php echo xl($phpState); ?></span>
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%">
-			<span class=text><?php xl('n/a','e'); ?></span> 
+			<span class=text><?php xl('n/a','e'); ?></span>
 		</td>
 	</tr>
 	<?php

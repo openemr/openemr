@@ -6,8 +6,15 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => $vendorDir . '/symfony/polyfill-mbstring/bootstrap.php',
     'bf9f5270ae66ac6fa0290b4bf47867b7' => $vendorDir . '/adodb/adodb-php/adodb.inc.php',
     'd5fa61a7f6cbc1df09dd4df84549a2dc' => $vendorDir . '/rospdf/pdf-php/src/Cpdf.php',
     '2d15964294879de66053d54f6bde65d7' => $vendorDir . '/rospdf/pdf-php/src/Cezpdf.php',
     'decc78cc4436b1292c6c0d151b19445c' => $vendorDir . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+    'ce966aaf9a7a6ac4e4663ee998e4282d' => $baseDir . '/library/htmlspecialchars.inc.php',
+    'e503b8ca58d1a18c65b5632ecd5a76b4' => $baseDir . '/library/formdata.inc.php',
+    '90ddd4120fc0e77b06a383f880188d79' => $baseDir . '/library/sanitize.inc.php',
+    '7f8090c4c03d2da09b90683b7b7b64f3' => $baseDir . '/library/date_functions.php',
+    '50df9e87484b37f614378efa1c994e18' => $baseDir . '/library/validation/validate_core.php',
+    '26894f783baf7dc8ebf76b94d69f85d4' => $baseDir . '/library/translation.inc.php',
 );

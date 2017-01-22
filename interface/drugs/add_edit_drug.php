@@ -13,8 +13,6 @@ $fake_register_globals = false;
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formdata.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  $alertmsg = '';
  $drug_id = $_REQUEST['drug'];

@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2011 Ensoftek 
+ // Copyright (C) 2011 Ensoftek
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@ require_once("../interface/globals.php");
 require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
-require_once("../library/classes/PQRIXml.class.php");
 
 //To improve performance and not freeze the session when running this
 // report, turn off session writing. Note that php session variables
@@ -41,13 +40,13 @@ if (!empty($GLOBALS['cdr_report_nice'])) {
 }
 
 function getLabelNumber($label) {
-	
+
 	if ( strlen($label) == 0) {
 		return "1";
 	}
 
 	$tokens = explode(" ", $label);
-	
+
 	$num_tokens = sizeof($tokens);
 	if ( $tokens[$num_tokens-1] != null ) {
 		if ( is_numeric($tokens[$num_tokens-1])) {
@@ -56,7 +55,7 @@ function getLabelNumber($label) {
 	}
 
 	return "1";
-	
+
 }
 
 function getMeasureNumber($row) {
@@ -152,7 +151,7 @@ foreach ($dataSheet as $row) {
 	     }
 	     $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date ));
 	     $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
-	     
+
        	 $xml->open_provider($physician_ids);
 	     $firstProviderFlag = FALSE;
 	     $existProvider = TRUE;
@@ -167,14 +166,14 @@ foreach ($dataSheet as $row) {
     	 		$xml->close_measure_group();
     	 	}
     	}
-   	
+
     	 if ( $nested == 'true' ){
     	 	$xml->open_measure_group($row['cqm_measure_group']);
     	 }
 	     $firstPlanFlag = FALSE;
        	 $firstProviderFlag = TRUE; // Reset the provider flag
    }
- 	 	
+
 }
 
 if ( $existProvider == TRUE ){
@@ -183,13 +182,13 @@ if ( $existProvider == TRUE ){
 }
 
 $xml->close_submission();
- 
+
 ?>
 
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>        
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo htmlspecialchars( xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
 </head>

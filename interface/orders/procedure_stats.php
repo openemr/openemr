@@ -28,7 +28,6 @@ require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 
 // Might want something different here.
 //

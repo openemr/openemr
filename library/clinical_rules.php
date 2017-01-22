@@ -30,7 +30,6 @@
 
 require_once(dirname(__FILE__) . "/patient.inc");
 require_once(dirname(__FILE__) . "/forms.inc");
-require_once(dirname(__FILE__) . "/formdata.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
@@ -1859,13 +1858,17 @@ function lists_check($patient_id,$filter,$dateTarget) {
  * @param  string   $table            selected mysql table
  * @param  string   $column           selected mysql column
  * @param  string   $data_comp        data comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $data             selected data in the mysql database
+ * @param  string   $data             selected data in the mysql database (1)(2)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
  * @param  integer  $intervalValue    searched for within this many times of the interval type
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
+ *
+ * (1) If data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
+ * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
+ *
  */
 function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='') {
 
@@ -1914,6 +1917,13 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
       "WHERE " . add_escape_custom($patient_id_label)  . "=? " . $customSQL, array($patient_id) );
   }
   else {
+      // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
+  	  if ( (substr($data,-2)=='**') && (($compSql == "=") || ($compSql == "!=")) ) {
+  	  	$compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+  	  	$data = substr_replace($data, '', -2);
+  	  } else {
+  	  	$compSql = $compSql . "? ";
+  	  }
       if ($whereTables=="" && strpos($table, 'form_')!== false){
           //To handle standard forms starting with form_
           //In this case, we are assuming the date field is "date"
@@ -1923,17 +1933,22 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
               "LEFT JOIN `" . add_escape_custom($table) . "` " . " b ".
               "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
               "WHERE a.deleted != '1' ".
-              "AND b.`" .add_escape_custom($column) ."`" . $compSql . "? " .
+              "AND b.`" .add_escape_custom($column) ."`" . $compSql .
               "AND b."  . add_escape_custom($patient_id_label)  . "=? " . $customSQL
               . str_replace("`date`", "b.`date`", $dateSql)
               ,array($data, $patient_id));
       }
       else {
+          // This allows to enter the wild card #CURDATE# in the CDR Demographics filter criteria  at the value field
+          // #CURDATE# is replace by the Current date allowing a dynamic date filtering
+          if ($data=='#CURDATE#') {
+              $data = date("Y-m-d");
+          }
           // search for number of specific items
           $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
               "FROM `" . add_escape_custom($table) . "` " .
               " " . $whereTables . " " .
-              "WHERE `" . add_escape_custom($column) . "`" . $compSql . "? " .
+              "WHERE `" . add_escape_custom($column) . "`" . $compSql .
               "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
               $dateSql, array($data, $patient_id));
       }
@@ -1950,13 +1965,16 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
  * @param  string   $proc_title       procedure title
  * @param  string   $proc_code        procedure identifier code (array of <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.)
  * @param  string   $results_comp     results comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $result_data      results data
+ * @param  string   $result_data      results data (1)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
  * @param  integer  $intervalValue    searched for within this many times of the interval type
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
+ * 
+ * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
+ * 
  */
 function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$result_data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='') {
 
@@ -2016,8 +2034,15 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
                   "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
     array_push($sqlBindArray,$tem,$tem);
   }
+  // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
+  if ( (substr($result_data,-2)=='**') && (($compSql == "=") || ($compSql == "!=")) ) {
+  	$compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+  	$result_data = substr_replace($result_data, '', -2);
+  } else {
+  	$compSql = $compSql . "? ";
+  }
   $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .
-                "AND procedure_result.result " . $compSql . " ? " .
+                "AND procedure_result.result " . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
   array_push($sqlBindArray,$proc_title,$result_data,$patient_id);
 
@@ -2104,9 +2129,12 @@ function exist_lifestyle_item($patient_id,$lifestyle,$status,$dateTarget) {
  *
  * @param  string  $patient_id  pid of selected patient.
  * @param  string  $type        type (medical_problem, allergy, medication, etc)
- * @param  string  $value       value searching for
+ * @param  string  $value       value searching for (1)
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s).
  * @return boolean              true if check passed, otherwise false
+ * 
+ * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
+ * 
  */
 function exist_lists_item($patient_id,$type,$value,$dateTarget) {
 
@@ -2121,12 +2149,21 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
     $code_type = $value_array[0];
     $code = $value_array[1];
 
+    // Modify $code for both 'CUSTOM' and diagnosis searches
+    // Note: Diagnosis is always 'LIKE' and should not have '**'
+    if (substr($code,-2)=='**') {
+    	$sqloper = " LIKE CONCAT('%',?,'%') ";
+    	$code = substr_replace($code, '', -2);
+    } else {
+    	$sqloper = "=?";
+    }
+
     if ($code_type=='CUSTOM') {
       // Deal with custom code type first (title column in lists table)
       $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
         "WHERE `type`=? " .
         "AND `pid`=? " .
-        "AND `title`=? " .
+        "AND `title` $sqloper " .
         "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
         "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget) );
       if (!empty($response)) return true;
@@ -2145,16 +2182,25 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
   else { // count($value_array) == 1
     // Search the title column in lists table
     //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
+      	
+  	// Check for '**'
+  	if (substr($value,-2)=='**') {
+  		$sqloper = " LIKE CONCAT('%',?,'%') ";
+  		$value = substr_replace($value, '', -2);
+  	} else {
+  		$sqloper = "=?";
+  	}
+  	
     $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
       "WHERE `type`=? " .
       "AND `pid`=? " .
-      "AND `title`=? ".
+      "AND `title` $sqloper ".
       "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
       "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget) );
     if (!empty($response)) return true;
 
     if($type == 'medication'){ // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
-        $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` = ? and `date_added` <= ?", array($patient_id,$value,$dateTarget));
+        $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
         if(!empty($response)) return true;
     }
   }

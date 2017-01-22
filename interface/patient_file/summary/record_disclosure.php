@@ -33,7 +33,6 @@ $fake_register_globals=false;
 
 
 require_once("../../globals.php");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/options.inc.php");
 
 //if the edit button for editing disclosure is set.
@@ -52,12 +51,12 @@ if (isset($_GET['editlid']))
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript">
 //function to validate fields in record disclosure page
-function submitform() 
-{           
+function submitform()
+{
 	if (document.forms[0].dates.value.length<=0)
-      	
+
 	{document.forms[0].dates.focus();document.forms[0].dates.style.backgroundColor="red";
-	}      
+	}
         else if (document.forms[0].recipient_name.value.length<=0)
         {
 	document.forms[0].dates.style.backgroundColor="white";
@@ -68,11 +67,11 @@ function submitform()
 	document.forms[0].recipient_name.style.backgroundColor="white";
 	document.forms[0].desc_disc.focus();document.forms[0].desc_disc.style.backgroundColor="red";
 	}
-	else  if (document.forms[0].dates.value.length>0 && document.forms[0].recipient_name.value.length>0 && document.forms[0].desc_disc.value.length>0) 
+	else  if (document.forms[0].dates.value.length>0 && document.forms[0].recipient_name.value.length>0 && document.forms[0].desc_disc.value.length>0)
         {
 	top.restoreSession();
         document.forms[0].submit();
-	}    
+	}
 }
 </script>
 </head>
@@ -97,24 +96,24 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 	<br>
 	<tr>
 		<td><span class='text'><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?>:</span></td>
-		<td><!--retrieve disclosures from extended_log table for modifications--> 
-		<?php 
+		<td><!--retrieve disclosures from extended_log table for modifications-->
+		<?php
 		if($editlid){
 			$dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid) );
                        $description=$dres{"description"};
 			$app_event=$dres{"event"};
 			$disc_date=$dres{"date"};
                        $recipient_name=$dres{"recipient"};
-		 ?> 
-			<input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid,ENT_QUOTES); ?>"> 
-			<input type=hidden name=updatemode value="disclosure_update"> 
+		 ?>
+			<input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid,ENT_QUOTES); ?>">
+			<input type=hidden name=updatemode value="disclosure_update">
 			<input type='entry' size='20' name='dates' id='dates' readonly='readonly' value='<?php echo htmlspecialchars($disc_date,ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
 		}
 		else {
 			?> <input type='entry' size='20' name='dates' id='dates' value='' readonly="readonly" style="background-color:white"/>&nbsp;
 			<?php }
-			?> 
-		<!-- image for date/time picker --> 
+			?>
+		<!-- image for date/time picker -->
 		<img src="../../../interface/pic/show_calendar.gif" id="img_date"
 			width="24" height="22" align="absbottom" style="cursor: pointer;"
 			title="<?php echo htmlspecialchars(xl('Date selector'),ENT_QUOTES);?>" /></td>
@@ -139,7 +138,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 		<td><span class=text><?php echo htmlspecialchars(xl('Recipient of the Disclosure'),ENT_NOQUOTES); ?>:
 		</span></td>
 		<td class='text'>
-		<?php 
+		<?php
 		if($editlid){
 			?> <input type=entry name=recipient_name size=20 value="<?php echo htmlspecialchars($recipient_name,ENT_QUOTES); ?>"></td>
 			<?php
@@ -150,7 +149,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 		<?php
 		}?>
 	</tr>
-	<tr>   
+	<tr>
 		<td>
 		<span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'),ENT_NOQUOTES); ?>:</span></td>
 		<?php if($editlid)

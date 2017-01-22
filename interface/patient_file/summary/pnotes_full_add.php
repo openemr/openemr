@@ -18,7 +18,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/gprelations.inc.php");
 
 if ($_GET['set_pid']) {
@@ -236,7 +235,6 @@ $urlparms = "docid=$docid&orderid=$orderid";
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:</b>
    <select name='assigned_to'>
-    <option value=''>** <?php echo htmlspecialchars( xl('Close'), ENT_NOQUOTES); ?> **</option>
 <?php
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";

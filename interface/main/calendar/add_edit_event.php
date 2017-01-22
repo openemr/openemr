@@ -85,7 +85,6 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -159,7 +158,7 @@ function DOBandEncounter()
 	 }
 
     // Manage tracker status.
-    // And auto-create a new encounter if appropriate.	 
+    // And auto-create a new encounter if appropriate.
     if (!empty($_POST['form_pid'])) {
      if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))
      {
@@ -341,7 +340,7 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
                     );
 
     //
-    if($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit) 
+    if($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
       if($_POST['old_repeats'] == 2) {
         if($_POST['rt2_flag2']) $recurrspec['rt2_pf_flag'] = "1";
       } else $recurrspec['rt2_pf_flag'] = "1";
@@ -853,8 +852,8 @@ if ($_POST['form_action'] == "save") {
 	          ));
         } else {
           $pref_facility = sqlFetchArray(sqlStatement("
-            SELECT u.facility_id, 
-	          f.name as facility 
+            SELECT u.facility_id,
+	          f.name as facility
             FROM users u
             LEFT JOIN facility f on (u.facility_id = f.id)
             WHERE u.id = ?
@@ -1293,7 +1292,7 @@ $classpati='';
             <?php echo xlt('Time'); ?>
         </td>
         <td width='1%' nowrap id='tdallday3'>
-            <span>   
+            <span>
                 <input type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
                  title='<?php echo xla('Event start time'); ?>' /> :
                 <input type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
@@ -1442,7 +1441,7 @@ if  ($GLOBALS['select_multi_providers']) {
     echo '</select>';
 
 // =======================================
-// single provider 
+// single provider
 // =======================================
 } else {
 

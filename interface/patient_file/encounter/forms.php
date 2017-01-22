@@ -7,7 +7,6 @@ use ESign\Api;
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
@@ -637,7 +636,7 @@ if ( $esign->isButtonViewable() ) {
         //
         if (substr($formdir,0,3) == 'LBF') {
           include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-          call_user_func("lbf_report", $pid, $encounter, 2, $iter['form_id'], $formdir);
+          call_user_func("lbf_report", $pid, $encounter, 2, $iter['form_id'], $formdir, true);
         }
         else  {
           include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");

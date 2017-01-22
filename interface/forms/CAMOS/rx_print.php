@@ -1,8 +1,6 @@
 <?php
 include_once ('../../globals.php');
-include_once ('../../../library/sql.inc');
 include_once ('../../../library/classes/Prescription.class.php');
-include_once("../../../library/formdata.inc.php");
 //practice data
 $physician_name = '';
 $practice_fname = '';
@@ -301,7 +299,7 @@ else {
 	 font-size: 12pt;
 	 background: white;
 	 color: black;
-	}	
+	}
 	.paddingdiv {
 	 width: 524pt;
 	 padding: 0pt;
@@ -309,13 +307,13 @@ else {
 	}
 	.navigate {
 	 margin-top: 2.5em;
-	}	
+	}
 	@media print {
 	 .navigate {
 	  display: none;
-	 }	
-	}	
-	</style>	
+	 }
+	}
+	</style>
 	<title><?php xl('Letter','e'); ?></title>
 	</head>
         <body>
@@ -442,12 +440,12 @@ function cycle_engine(cb,seed) {
     if (cbc[2].innerHTML == 'prescriptions') {
       if (cbc[1].checked == true) {
         cbc[1].checked = false;
-        count_turnoff++;   
+        count_turnoff++;
       } else {
         if ((count_turnoff > 0 || seed == 1) && count_turnon < 4) {
           cbc[1].checked = true;
-          count_turnon++;   
-        } 
+          count_turnon++;
+        }
       }
     }
   }
@@ -466,7 +464,7 @@ function cycle_engine(cb,seed) {
 <?php if ($_GET['letterhead']) { ?>
 <input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
 <?php } ?>
-	
+
 <input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
 <?php
 
@@ -512,54 +510,54 @@ foreach($rxarray as $val) {
     $val->drug . ':' . $val->start_date . "<br/>\n";
 }
 ?>
-	
+
 <?php if ($_GET['letterhead']) { ?>
 <input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
 <?php } ?>
-	
+
 <input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
 </form>
 <h1><?php xl('Update User Information','e'); ?></h1>
 <form method=POST name='pick_items'>
 <table>
 <tr>
-  <td> <?php xl('First Name','e'); ?>: </td> 
+  <td> <?php xl('First Name','e'); ?>: </td>
   <td> <input type=text name=practice_fname value ='<?php echo htmlspecialchars($practice_fname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Last Name','e'); ?>: </td> 
+  <td> <?php xl('Last Name','e'); ?>: </td>
   <td> <input type=text name=practice_lname value ='<?php echo htmlspecialchars($practice_lname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Title','e'); ?>: </td> 
+  <td> <?php xl('Title','e'); ?>: </td>
   <td> <input type=text name=practice_title value ='<?php echo htmlspecialchars($practice_title,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Street Address','e'); ?>: </td> 
+  <td> <?php xl('Street Address','e'); ?>: </td>
   <td> <input type=text name=practice_address value ='<?php echo htmlspecialchars($practice_address,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('City','e'); ?>: </td> 
+  <td> <?php xl('City','e'); ?>: </td>
   <td> <input type=text name=practice_city value ='<?php echo htmlspecialchars($practice_city,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('State','e'); ?>: </td> 
+  <td> <?php xl('State','e'); ?>: </td>
   <td> <input type=text name=practice_state value ='<?php echo htmlspecialchars($practice_state,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Zip','e'); ?>: </td> 
+  <td> <?php xl('Zip','e'); ?>: </td>
   <td> <input type=text name=practice_zip value ='<?php echo htmlspecialchars($practice_zip,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Phone','e'); ?>: </td> 
+  <td> <?php xl('Phone','e'); ?>: </td>
   <td> <input type=text name=practice_phone value ='<?php echo htmlspecialchars($practice_phone,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('Fax','e'); ?>: </td> 
+  <td> <?php xl('Fax','e'); ?>: </td>
   <td> <input type=text name=practice_fax value ='<?php echo htmlspecialchars($practice_fax,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-  <td> <?php xl('DEA','e'); ?>: </td> 
+  <td> <?php xl('DEA','e'); ?>: </td>
   <td> <input type=text name=practice_dea value ='<?php echo htmlspecialchars($practice_dea,ENT_QUOTES); ?>'> </td>
 </tr>
 </table>

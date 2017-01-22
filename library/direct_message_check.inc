@@ -24,14 +24,12 @@
  */
 
 require_once(dirname(__FILE__) . "/log.inc");
-require_once(dirname(__FILE__) . "/sql.inc");
 require_once(dirname(__FILE__) . "/pnotes.inc");
-require_once(dirname(__FILE__) . "/../controllers/C_Document.class.php");
 require_once(dirname(__FILE__) . "/documents.php");
 require_once(dirname(__FILE__) . "/gprelations.inc.php");
 
 /**
- * Connect to a phiMail Direct Messaging server 
+ * Connect to a phiMail Direct Messaging server
  */
 
 function phimail_connect(&$phimail_error) {
@@ -47,7 +45,7 @@ function phimail_connect(&$phimail_error) {
    $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
       . '/documents/phimail_server_pem/phimail_server.pem';
    if (!file_exists($phimail_cafile)) $phimail_cafile='';
-   
+
    $phimail_secure = true;
    switch ($phimail_server['scheme']) {
        case "tcp":
@@ -76,7 +74,7 @@ function phimail_connect(&$phimail_error) {
       $fp = false;
       while ($socket_tries < 3 && !$fp) {
          $socket_tries++;
-         $fp = @stream_socket_client($server, $err1, $err2, 10, 
+         $fp = @stream_socket_client($server, $err1, $err2, 10,
             STREAM_CLIENT_CONNECT, $context);
       }
       if (!$fp) {
@@ -134,8 +132,8 @@ function phimail_check() {
 	  if (($msg=sqlFetchArray($res))===FALSE) {
 	     //no match, so log it and move on (should never happen)
 	     phimail_logit(0,"NO MATCH: ".$ret);
-	     $ret = phimail_write_expect_OK($fp,"OK\n"); 
-	     if($ret!==TRUE) return; else continue; 
+	     $ret = phimail_write_expect_OK($fp,"OK\n");
+	     if($ret!==TRUE) return; else continue;
 	  }
 
           //if we get here, $msg contains the matching outgoing message record
@@ -172,7 +170,7 @@ function phimail_check() {
              $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
                 . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
 	     phimail_notify( xl('Direct Messaging Send Failure.'), $fail_notice);
-             $pnote_id = addPnote($msg['patient_id'], 
+             $pnote_id = addPnote($msg['patient_id'],
                 xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
                 0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
           }
@@ -182,7 +180,7 @@ function phimail_check() {
 	  if($ret!==TRUE) {
              phimail_close($fp);
 	     return;
-          } 
+          }
 
       }
 
@@ -203,7 +201,7 @@ function phimail_check() {
 
 	 //get message headers
          $hdrs="";
-         while (($next_hdr = fgets($fp,1024)) != "\n") 
+         while (($next_hdr = fgets($fp,1024)) != "\n")
             $hdrs .= $next_hdr;
 
 	 $mime_type=fgets($fp,512);
@@ -244,15 +242,15 @@ function phimail_check() {
 	  if ($mime_type_main != "text/plain") {
 	     $name = uniqid("dm-message-") . phimail_extension($mime_type_main);
              $doc_id = phimail_store($name,$mime_type_main,$body);
-             if (!$doc_id) { 
+             if (!$doc_id) {
 		phimail_close($fp);
 		return;
 	     }
-	     $idnum=$doc_id['doc_id']; 
+	     $idnum=$doc_id['doc_id'];
              $all_doc_ids[] = $idnum;
-	     $url=$doc_id['url']; 
+	     $url=$doc_id['url'];
 	     $url=substr($url,strrpos($url,"/")+1);
-             $att_detail = "\n" . xl ("Document") . " $idnum (\"$url\"; $mime_type_main; " . 
+             $att_detail = "\n" . xl ("Document") . " $idnum (\"$url\"; $mime_type_main; " .
 		filesize($body) . " bytes) Main message body";
 	  }
 
@@ -283,20 +281,20 @@ function phimail_check() {
 	     $attinfo[$attnum]['mime'] = explode(";",trim($attinfo[$attnum]['mime']));
 	     $attmime = strtolower($attinfo[$attnum]['mime'][0]);
 	     $att_doc_id = phimail_store($req_name, $attmime, $attdata);
-             if (!$att_doc_id) { 
+             if (!$att_doc_id) {
 		phimail_close($fp);
 		return;
 	     }
 	     $attinfo[$attnum]['doc_id']=$att_doc_id;
-	     $idnum=$att_doc_id['doc_id']; 
+	     $idnum=$att_doc_id['doc_id'];
              $all_doc_ids[] = $idnum;
-	     $url=$att_doc_id['url']; 
+	     $url=$att_doc_id['url'];
 	     $url=substr($url,strrpos($url,"/")+1);
-             $att_detail = $att_detail . "\n" . xl ("Document") . " $idnum (\"$url\"; $attmime; " . 
+             $att_detail = $att_detail . "\n" . xl ("Document") . " $idnum (\"$url\"; $attmime; " .
 		 filesize($attdata) . " bytes) " . trim($attinfo[$attnum]['desc']);
 	 }
 
-	 if ($att_detail != "") 
+	 if ($att_detail != "")
 	   $att_detail = "\n\n" . xl("The following documents were attached to this Direct message:") . $att_detail;
 
 	 $ret2 = phimail_write_expect_OK($fp,"DONE\n"); //we'll check for failure after logging.
@@ -328,9 +326,9 @@ function phimail_check() {
 
 	 foreach ($all_doc_ids as $doc_id) setGpRelation(1, $doc_id, 6, $pnote_id);
 
-	 if ($ret2!==TRUE) { 
+	 if ($ret2!==TRUE) {
 	    phimail_close();
-	    return; 
+	    return;
          }
 
       }
@@ -338,7 +336,7 @@ function phimail_check() {
           phimail_logit(0, "problem checking messages " . $ret);
           phimail_close($fp);
           return;
-      } 
+      }
    }
 }
 
@@ -414,7 +412,7 @@ function phimail_read_blob($fp,$len) {
 function phimail_extension($mime) {
   $m=explode("/",$mime);
   switch($mime) {
-	case 'text/plain': 
+	case 'text/plain':
 		return (".txt");
 	default:
   }

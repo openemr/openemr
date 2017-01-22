@@ -12,7 +12,6 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 require_once($GLOBALS['srcdir'] . "/report_database.inc");
@@ -86,7 +85,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
       <span class="text"><?php echo htmlspecialchars(xl('Total inactivated reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_inactivated_reminders'];?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unchanged reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_unchanged_reminders'];?></span><br>
 
-   <?php if ($results_log['type'] != "process_reminders") { ?> 
+   <?php if ($results_log['type'] != "process_reminders") { ?>
     <br><span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been sent'), ENT_NOQUOTES) . ":"?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders before sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_pre_unsent_reminders'];?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders after sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_post_unsent_reminders'];?></span><br>

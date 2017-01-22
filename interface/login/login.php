@@ -88,7 +88,10 @@ require_once("../globals.php");
 
         function init() {
             $("#authUser").focus();
-            $("#login_form").submit(function(){return imsubmitted();});
+        }
+
+        function transmit_form() {
+            document.forms[0].submit();
         }
 
         function imsubmitted() {
@@ -106,9 +109,9 @@ require_once("../globals.php");
 </head>
 <body class="login">
     <div class="container">
-        <form method="POST" id="loginForm"
+        <form method="POST" id="login_form"
             action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
-            target="_top" name="login_form">
+            target="_top" name="login_form" onsubmit="return imsubmitted();">
             <div class="row">
                 <div class="col-sm-12">
                     <div>
@@ -284,7 +287,7 @@ require_once("../globals.php");
                         </div>
                     <?php endif; // End language menu block ?>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-block btn-large"><i class="fa fa-sign-in"></i>&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-block btn-large" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
                 <div class="col-sm-12 text-right">

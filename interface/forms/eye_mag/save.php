@@ -57,9 +57,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 $returnurl = 'encounter_top.php';
@@ -728,7 +725,7 @@ if ($_REQUEST["mode"] == "new")             {
     if (!$_POST['confused']) $fields['confused'] = '0';
     if (!$_POST['PUPIL_NORMAL']) $fields['PUPIL_NORMAL'] = '0';
     if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
-    if (!$_POST['ACT']) $fields['ACT'] = '0';
+    if (!$_POST['ACT']) $fields['ACT'] = 'off';
     if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
     if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
     if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';

@@ -23,14 +23,19 @@
 * @link      http://www.open-emr.org
 */
 
+// Making global to be accessed in subsequent function scopes
+global $versionService;
+$versionService = new \services\VersionService();
+
 /**
  * Returns the current access control version.
  *
  * @return  integer  The current access control version.
  */
 function get_acl_version() {
-  $acl_version = sqlQuery("SELECT `v_acl` FROM `version`");
-  return $acl_version['v_acl'];
+  global $versionService;
+  $version = $versionService->fetch();
+  return $version->getAcl();
 }
 
 /**
@@ -39,7 +44,11 @@ function get_acl_version() {
  * @param  integer  $acl_version  access control version
  */
 function set_acl_version($acl_version) {
-  sqlStatement("UPDATE `version` SET `v_acl` = ?", array($acl_version) );
+  global $versionService;
+  $version = $versionService->fetch();
+  $version->setAcl($acl_version);
+  $response = $versionService->update($version);
+  return $response;
 }
 
 /**

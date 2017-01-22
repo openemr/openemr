@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * QRDA Ajax Download 
+ * QRDA Ajax Download
  *
  * Copyright (C) 2015 Ensoftek, Inc
  *
@@ -26,8 +26,6 @@ $fake_register_globals=false;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/report_database.inc");
-require_once("$srcdir/sanitize.inc.php");
-require_once("../library/classes/QRDAXml.class.php");
 require_once("../ccr/uuid.php");
 require_once("qrda_category1_functions.php");
 require_once("qrda_category1.inc");

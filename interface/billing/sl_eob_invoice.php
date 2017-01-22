@@ -31,7 +31,6 @@
   require_once("$srcdir/sl_eob.inc.php");
   require_once("$srcdir/invoice_summary.inc.php");
   require_once("../../custom/code_types.inc.php");
-  require_once("$srcdir/formdata.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
 

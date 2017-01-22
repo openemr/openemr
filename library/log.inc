@@ -1,7 +1,4 @@
 <?php
-#require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once(dirname(__FILE__). "/sql.inc");
-require_once(dirname(__FILE__). "/formdata.inc.php");
 
 function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0) {
     $adodb = $GLOBALS['adodb']['db'];
@@ -34,7 +31,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
                 log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?,'Patient Portal', ?, ?, ?, ?, ?, ?, ?,?, ?)";
         $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
     } else {
-    
+
     /* More details added to the log */
     $sql = "insert into log ( date, event,category, user, groupname, success, comments, crt_user, patient_id) " .
             "values ( NOW(), " . $adodb->qstr($event) . ",". $adodb->qstr($category) . "," . $adodb->qstr($user) .
@@ -534,7 +531,6 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
  */
 function auditSQLEvent($statement, $outcome, $binds=NULL)
 {
-
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
    if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog']))
@@ -610,7 +606,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
                     "claims" => "patient-record",
                     "employer_data" => "patient-record",
                     "forms" => "patient-record",
-		    "form_encounter" => "patient-record",
+                    "form_encounter" => "patient-record",
                     "form_dictation" => "patient-record",
                     "form_misc_billing_options" => "patient-record",
                     "form_reviewofs" => "patient-record",
@@ -621,15 +617,15 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
                     "immunizations" => "patient-record",
                     "insurance_data" => "patient-record",
                     "issue_encounter" => "patient-record",
-		    "lists" => "patient-record",
+                    "lists" => "patient-record",
                     "patient_data" => "patient-record",
                     "payments" => "patient-record",
                     "pnotes" => "patient-record",
-		    "onotes" => "patient-record",
+                    "onotes" => "patient-record",
                     "prescriptions" => "order",
                     "transactions" => "patient-record",
-					"amendments" => "patient-record",
-					"amendments_history" => "patient-record",
+                    "amendments" => "patient-record",
+                    "amendments_history" => "patient-record",
                     "facility" => "security-administration",
                     "pharmacies" => "security-administration",
                     "addresses" => "security-administration",
@@ -641,38 +637,37 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
                     "users" => "security-administration",
                     "groups" => "security-administration",
                     "openemr_postcalendar_events" => "scheduling",
-    				"openemr_postcalendar_categories" => "security-administration",
-    				"openemr_postcalendar_limits" => "security-administration",
-    				"openemr_postcalendar_topics" => "security-administration",
-    				"gacl_acl" => "security-administration",
-    				"gacl_acl_sections" => "security-administration",
-    				"gacl_acl_seq" => "security-administration",
-    				"gacl_aco" => "security-administration",
-    				"gacl_aco_map" => "security-administration",
-    				"gacl_aco_sections" => "security-administration",
-    				"gacl_aco_sections_seq" => "security-administration",
-    				"gacl_aco_seq" => "security-administration",
-    				"gacl_aro" => "security-administration",
-    				"gacl_aro_groups" => "security-administration",
-    				"gacl_aro_groups_id_seq" => "security-administration",
-    				"gacl_aro_groups_map" => "security-administration",
-    				"gacl_aro_map" => "security-administration",
-    				"gacl_aro_sections" => "security-administration",
-    				"gacl_aro_sections_seq" => "security-administration",
-    				"gacl_aro_seq" => "security-administration",
-    				"gacl_axo" => "security-administration",
-    				"gacl_axo_groups" => "security-administration",
-    				"gacl_axo_groups_map" => "security-administration",
-    				"gacl_axo_map" => "security-administration",
-    				"gacl_axo_sections" => "security-administration",
-    				"gacl_groups_aro_map" => "security-administration",
-    				"gacl_groups_axo_map" => "security-administration",
-    				"gacl_phpgacl" => "security-administration",
-    				"procedure_order" => "lab-order",
-    			    "procedure_order_code" => "lab-order",
-    				"procedure_report" => "lab-results",
-    				"procedure_result" => "lab-results" 
-                  );
+                    "openemr_postcalendar_categories" => "security-administration",
+                    "openemr_postcalendar_limits" => "security-administration",
+                    "openemr_postcalendar_topics" => "security-administration",
+                    "gacl_acl" => "security-administration",
+                    "gacl_acl_sections" => "security-administration",
+                    "gacl_acl_seq" => "security-administration",
+                    "gacl_aco" => "security-administration",
+                    "gacl_aco_map" => "security-administration",
+                    "gacl_aco_sections" => "security-administration",
+                    "gacl_aco_sections_seq" => "security-administration",
+                    "gacl_aco_seq" => "security-administration",
+                    "gacl_aro" => "security-administration",
+                    "gacl_aro_groups" => "security-administration",
+                    "gacl_aro_groups_id_seq" => "security-administration",
+                    "gacl_aro_groups_map" => "security-administration",
+                    "gacl_aro_map" => "security-administration",
+                    "gacl_aro_sections" => "security-administration",
+                    "gacl_aro_sections_seq" => "security-administration",
+                    "gacl_aro_seq" => "security-administration",
+                    "gacl_axo" => "security-administration",
+                    "gacl_axo_groups" => "security-administration",
+                    "gacl_axo_groups_map" => "security-administration",
+                    "gacl_axo_map" => "security-administration",
+                    "gacl_axo_sections" => "security-administration",
+                    "gacl_groups_aro_map" => "security-administration",
+                    "gacl_groups_axo_map" => "security-administration",
+                    "gacl_phpgacl" => "security-administration",
+                    "procedure_order" => "lab-order",
+                    "procedure_order_code" => "lab-order",
+                    "procedure_report" => "lab-results",
+                    "procedure_result" => "lab-results");
 
     /* When searching for table names, truncate the SQL statement,
      * removing any WHERE, SET, or VALUE clauses.
@@ -939,7 +934,7 @@ function logCommentEncryptData($log_id){
 
 /**
  * Function used to determine category of the event
- * 
+ *
  */
 function eventCategoryFinder($sql,$event,$table){
 	if($event == 'delete'){
@@ -977,7 +972,7 @@ function eventCategoryFinder($sql,$event,$table){
 	else if($table == 'procedure_order' || $table == 'procedure_order_code') return "Lab Order";
 	else if($table == 'procedure_report' || $table == 'procedure_result') return "Lab Result";
 	else if($event == 'security-administration') return "Security";
-	
+
 	return $event;
 }
 ?>

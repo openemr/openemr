@@ -11,14 +11,11 @@
  * @brief This file contains the C_AbstractClickmap class, used to control smarty.
  */
 
-/* for encounter','fileroot','pid','srcdir','style','webroot'] 
+/* for encounter','fileroot','pid','srcdir','style','webroot']
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
 require_once(dirname(__FILE__).'/../globals.php');
-
-/* For Controller, the class we're extending. */
-require_once ($GLOBALS['srcdir'] . '/classes/Controller.class.php');
 
 /* For the addform() function */
 require_once ($GLOBALS['srcdir'] . '/forms.inc');
@@ -55,7 +52,7 @@ abstract class C_AbstractClickmap extends Controller {
 
     /**
      * @brief Override this abstract function with your implementation of createModel.
-     * 
+     *
      * @param $form_id
      *  An optional id of a form, to populate data from.
      *
@@ -66,7 +63,7 @@ abstract class C_AbstractClickmap extends Controller {
 
     /**
      * @brief Override this abstract function with your implememtation of getImage
-     * 
+     *
      * @return The path to the image backing this form relative to the webroot.
      */
     abstract function getImage();

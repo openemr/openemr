@@ -85,3 +85,10 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+
+
+#IfMissingColumn list_options edit_options
+  ALTER TABLE `list_options` ADD `edit_options` TINYINT(1) NOT NULL DEFAULT '1';
+#Endif
+
+

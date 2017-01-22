@@ -1,6 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSOAP.class.php");
 
@@ -22,7 +21,7 @@ class C_FormSOAP extends Controller {
     	$this->assign("data",$form);
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
-	
+
 	function view_action($form_id) {
 		if (is_numeric($form_id)) {
     		$form = new FormSOAP($form_id);
@@ -31,19 +30,19 @@ class C_FormSOAP extends Controller {
     		$form = new FormSOAP();
     	}
     	$dbconn = $GLOBALS['adodb']['db'];
-    	
+
     	$this->assign("data",$form);
-    	    	   	
+
 		return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
 	}
-	
+
 	function default_action_process() {
 		if ($_POST['process'] != "true")
 			return;
 		$this->form = new FormSOAP($_POST['id']);
 		parent::populate_object($this->form);
-		
+
 		$this->form->persist();
 		if ($GLOBALS['encounter'] == "") {
 			$GLOBALS['encounter'] = date("Ymd");
@@ -55,7 +54,7 @@ class C_FormSOAP extends Controller {
 		}
 		return;
 	}
-    
+
 }
 
 

@@ -25,10 +25,8 @@
 //----------THINGS WE ALWAYS DO
 
 require_once("{$GLOBALS['srcdir']}/log.inc");
-require_once("{$GLOBALS['srcdir']}/sql.inc");
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/authentication/login_operations.php");
 
 $incoming_site_id = '';
@@ -36,7 +34,7 @@ $incoming_site_id = '';
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['clearPass']) && isset($_POST['authProvider']))
 {
-    $clearPass=$_POST['clearPass'];    
+    $clearPass=$_POST['clearPass'];
     // set the language
     if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = $_POST['languageChoice'];
@@ -45,15 +43,15 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
         $_SESSION['language_choice'] = 1;
     }
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
-    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']  ); 
-    
+    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']  );
+
     if(!validate_user_password($_POST['authUser'],$clearPass,$_POST['authProvider']) ||  !verify_user_gacl_group($_POST['authUser']))
     {
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
 //If password expiration option is enabled call authCheckExpired() to check whether login user password is expired or not
-    
+
     if($GLOBALS['password_expiration_days'] != 0){
     	if(authCheckExpired($_POST['authUser']))
         {
@@ -109,7 +107,7 @@ if (!isset($_SESSION["last_update"])) {
     } else {
         // Have a mechanism to skip the timeout reset mechanism if a skip_timeout_reset parameter exists. This
         //  can be used by scripts that continually request information from the server; for example the Messages
-        //  and Reminders automated intermittent requests that happen in the Messages Center script and in 
+        //  and Reminders automated intermittent requests that happen in the Messages Center script and in
         //  the left navigation menu script.
         if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) $_SESSION["last_update"] = time();
     }
@@ -125,13 +123,13 @@ function authCheckSession ()
         $authDB = privQuery("select ".implode(",",array(TBL_USERS.".".COL_ID,
                                                         TBL_USERS.".".COL_UNM,
                                                         TBL_USERS_SECURE.".".COL_PWD,
-                                                        TBL_USERS_SECURE.".".COL_ID)) 
-                . " FROM ". implode(",",array(TBL_USERS,TBL_USERS_SECURE)) 
+                                                        TBL_USERS_SECURE.".".COL_ID))
+                . " FROM ". implode(",",array(TBL_USERS,TBL_USERS_SECURE))
                 . " WHERE ". TBL_USERS.".".COL_ID." = ? "
                 . " AND ". TBL_USERS.".".COL_UNM . "=" . TBL_USERS_SECURE.".".COL_UNM
-                . " AND ". TBL_USERS.".".COL_ACTIVE . "=1" 
+                . " AND ". TBL_USERS.".".COL_ACTIVE . "=1"
                 ,array($_SESSION['authId']));
-        if ($_SESSION['authUser'] == $authDB['username'] 
+        if ($_SESSION['authUser'] == $authDB['username']
             && $_SESSION['authPass'] == $authDB['password'] )
         {
             return true;
@@ -186,7 +184,7 @@ function authLoginScreen($timed_out = false)
 function authCheckExpired($user)
 {
   $result = sqlStatement("select pwd_expiration_date from users where username = ?",array($user));
-  if($row = sqlFetchArray($result)) 
+  if($row = sqlFetchArray($result))
   {
     $pwd_expires = $row['pwd_expiration_date'];
   }
@@ -303,7 +301,7 @@ function UpdatePasswordHistory($userid,$pwd)
         sqlStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$userid));
 	}
         return true;
-    } 
+    }
     else {
         return false;
     }

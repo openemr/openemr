@@ -813,6 +813,9 @@ $use_validate_js=$GLOBALS['new_validate'];
 		$("#submit_btn").attr("name","btnSubmit");
 		$("#submit_btn").attr("id","btnSubmit");
 		$("#btnSubmit").click(function( event ) {
+
+      top.restoreSession();
+
 			if(!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)){
 				event.preventDefault();
 				return;
@@ -824,7 +827,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 			$mflist = "";
 			$mfres = sqlStatement("SELECT field_id FROM layout_options " .
 				"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-				"edit_options LIKE '%D%' " .
+				"(edit_options LIKE '%D%' OR edit_options LIKE '%E%')  " .
 				"ORDER BY group_name, seq");
 			while ($mfrow = sqlFetchArray($mfres)) {
 				$field_id  = $mfrow['field_id'];

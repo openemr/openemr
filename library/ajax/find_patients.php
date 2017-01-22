@@ -6,7 +6,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This file is used to find patient(s) that match the given
 // criteria passed in
 //
@@ -15,8 +15,6 @@
 // Important - Ensure that display_errors=Off in php.ini settings.
 //
 require_once("../../interface/globals.php");
-require_once("{$GLOBALS['srcdir']}/sql.inc");
-require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 function myGetValue($fldname) {
   $val = formData($fldname, 'G', true);

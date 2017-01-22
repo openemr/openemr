@@ -29,7 +29,6 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once("$include_root/cmsportal/portal.inc.php");

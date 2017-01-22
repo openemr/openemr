@@ -5,7 +5,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormHand.class.php");
 
@@ -13,8 +12,8 @@ class C_FormHand extends Controller {
 
   var $template_dir;
 
-  function C_FormHand($template_mod = "general") {
-    parent::Controller();
+  function __construct($template_mod = "general") {
+    parent::__construct();
     $this->template_mod = $template_mod;
     $this->template_dir = dirname(__FILE__) . "/templates/";
     $this->assign("FORM_ACTION", $GLOBALS['web_root']);

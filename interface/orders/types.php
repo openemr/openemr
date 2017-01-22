@@ -10,7 +10,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 
 // This script can be run either inside the OpenEMR frameset for order catalog
 // maintenance, or as a popup window for selecting an item to order.  In the

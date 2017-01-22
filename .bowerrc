@@ -1,13 +1,20 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "angular",
     "bootstrap",
     "datatables",
+    "datatables.net-bs",
+    "datatables.net-dt",
     "datatables.net-jqui",
+    "datatables.net-colreorder",
     "datatables.net-scroller",
     "datatables.net",
     "jquery",
     "imagesloaded",
-    "react"
+    "moment",
+    "react",
+    "summernote",
+    "underscore"
   ]
 }

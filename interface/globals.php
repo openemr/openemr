@@ -176,30 +176,33 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-// Include the translation engine. This will also call sql.inc to
-//  open the openemr mysql connection.
-require_once (dirname(__FILE__) . "/../library/translation.inc.php");
-
-// Include convenience functions with shorter names than "htmlspecialchars" (for security)
-require_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
-
-// Include sanitization/checking functions (for security)
-require_once (dirname(__FILE__) . "/../library/formdata.inc.php");
-
-// Include sanitization/checking function (for security)
-require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
-
-// Includes functions for date internationalization
-require_once (dirname(__FILE__) . "/../library/date_functions.php");
-
-// Includes compoaser autoload
+// Includes composer autoload
+// Note this also brings in following library files:
+//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
+//  library/formdata.inc.php - Include sanitization/checking functions (for security)
+//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
+//  library/date_functions.php - Includes functions for date internationalization
+//  library/validation/validate_core.php - Includes functions for page validation
+//  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
-// Includes functions for page validation
-require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
+// This will open the openemr mysql connection.
+require_once (dirname(__FILE__) . "/../library/sql.inc");
 
 // Include the version file
 require_once (dirname(__FILE__) . "/../version.php");
+
+// The logging level for common/logging/logger.php
+// Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
+//    - DEBUG/INFO are great for development
+//    - INFO/WARN/ERROR are great for production
+//    - TRACE is useful when debugging hard to spot bugs
+$GLOBALS["log_level"] = "OFF";
+
+// Should Doctrine make use of connection pooling? Database connection pooling is a method
+// used to keep database connections open so they can be reused by others. (The only reason
+// to not use connection pooling is if your server has limited resources.)
+$GLOBALS["doctrine_connection_pooling"] = true;
 
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
@@ -408,12 +411,24 @@ if (!empty($special_timeout)) {
   $timeout = intval($special_timeout);
 }
 
-//Version tag
-$patch_appending = "";
-if ( ($v_realpatch != '0') && (!(empty($v_realpatch))) ) {
-$patch_appending = " (".$v_realpatch.")";
+$versionService = new \services\VersionService();
+$version = $versionService->fetch();
+
+if (!empty($version)) {
+    //Version tag
+    $patch_appending = "";
+    //Collected below function call to a variable, since unable to directly include
+    // function calls within empty() in php versions < 5.5 .
+    $version_getrealpatch = $version->getRealPatch();
+    if ( ($version->getRealPatch() != '0') && (!(empty($version_getrealpatch))) ) {
+        $patch_appending = " (".$version->getRealPatch().")";
+    }
+
+    $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
+    $openemr_version .= $version->getTag() . $patch_appending;
+} else {
+    $openemr_version = xl('Unknown version');
 }
-$openemr_version = "$v_major.$v_minor.$v_patch".$v_tag.$patch_appending;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

@@ -1,9 +1,7 @@
 <?php
 include_once("../../globals.php");
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/calendar.inc");
-require_once("$srcdir/classes/Pharmacy.class.php");
 ?>
 <html>
 <head>
@@ -45,7 +43,7 @@ require_once("$srcdir/classes/Pharmacy.class.php");
   <td style="width:45%; vertical-align:middle; white-space: nowrap; text-align:left">
 
   <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
-   
+
    <span style="font-size:0.7em;">(<?php echo $info ?>)</span>
   </td>
   <td style="width:35%; vertical-align:middle; white-space: nowrap; text-align:center">

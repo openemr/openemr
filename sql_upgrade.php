@@ -16,8 +16,21 @@ ini_set('max_execution_time', '0');
 $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
-require_once('library/sql.inc');
 require_once('library/sql_upgrade_fx.php');
+
+$versionService = new \services\VersionService();
+
+// Fetching current version because it was updated by the sql_upgrade_fx
+// script and this script will further modify it.
+$currentVersion = $versionService->fetch();
+
+$desiredVersion = $currentVersion;
+$desiredVersion->setDatabase($v_database);
+$desiredVersion->setTag($v_tag);
+$desiredVersion->setRealPatch($v_realpatch);
+$desiredVersion->setPatch($v_patch);
+$desiredVersion->setMinor($v_minor);
+$desiredVersion->setMajor($v_major);
 
 // Force logging off
 $GLOBALS["enable_auditlog"]=0;
@@ -87,14 +100,19 @@ if (!empty($_POST['form_submit'])) {
   require("acl_upgrade.php");
   echo "<br />\n";
 
-  echo "<font color='green'>Updating version indicators...</font><br />\n";
-  sqlStatement("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', " .
-    "v_patch = '$v_patch', v_tag = '$v_tag', v_database = '$v_database'");
+  $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+  $line = "Updating version indicators";
 
-  if ( (!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0) ) {
-    // This release contains a patch file, so update patch indicator.
-    echo "<font color='green'>Patch was also installed, so update version patch indicator...</font><br />\n";
-    sqlStatement("UPDATE version SET v_realpatch = '$v_realpatch'");
+  if ($canRealPatchBeApplied) {
+      $line = $line . ". Patch was also installed, updating version patch indicator";
+  }
+
+  echo "<font color='green'>" . $line . "...</font><br />\n";
+  $result = $versionService->update($desiredVersion);
+
+  if (!$result) {
+      echo "<font color='red'>Version could not be updated</font><br />\n";
+      exit();
   }
 
   echo "<p><font color='green'>Database and Access Control upgrade finished.</font></p>\n";

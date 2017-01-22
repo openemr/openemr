@@ -201,7 +201,6 @@ my $save_php=<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
-require_once("$srcdir/formdata.inc.php");
 
 //process form variables here
 //create an array of all of the existing field names

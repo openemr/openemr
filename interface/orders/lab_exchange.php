@@ -9,7 +9,6 @@ require_once("../globals.php");
 require_once("$srcdir/lab_exchange_api.php");
 require_once("lab_exchange_tools.php");
 require_once("../main/messages/lab_results_messages.php");
-include_once("$srcdir/formdata.inc.php");
 
 $lab_query_report = "";
 $lab_patient_success = array();

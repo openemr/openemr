@@ -34,8 +34,6 @@
 * Then export as a CSV file and read it into your favorite spreadsheet app.
 */
 
-require_once("$srcdir/classes/Address.class.php");
-require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$webserver_root/custom/code_types.inc.php");
 
 function hl7Text($s) {

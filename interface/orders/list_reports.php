@@ -26,10 +26,8 @@ require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
@@ -380,7 +378,7 @@ foreach (array(
   <!-- <td><?php echo xlt('Reviewed'   ); ?></td> -->
  </tr>
 
-<?php 
+<?php
 $selects =
   "po.patient_id, po.procedure_order_id, po.date_ordered, po.date_transmitted, " .
   "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, pc.do_not_send, " .

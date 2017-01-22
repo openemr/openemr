@@ -1,10 +1,4 @@
 <?php
-	require_once (dirname(__FILE__) ."/../sql.inc");
-        require_once (dirname(__FILE__) ."/../formdata.inc.php");
-	require_once("Patient.class.php");
-	require_once("Person.class.php");
-	require_once("Provider.class.php");
-	require_once("Pharmacy.class.php");
 
 /**
  * class ORDataObject
@@ -19,7 +13,7 @@ class ORDataObject {
 	function __construct() {
 	  $this->_db = $GLOBALS['adodb']['db'];
 	}
-	
+
 	function persist() {
 		$sql = "REPLACE INTO " . $_prefix . $this->_table . " SET ";
 		//echo "<br><br>";
@@ -40,7 +34,7 @@ class ORDataObject {
 					$val = strip_escape_custom($val);
 				        //DEBUG LINE - error_log("ORDataObject persist after strip: ".$val, 0);
 				}
-			    
+
 				if (in_array($field,$pkeys)  && empty($val)) {
 					$last_id = generate_id();
 					call_user_func(array(&$this,"set_".$field),$last_id);
@@ -111,19 +105,19 @@ class ORDataObject {
 	 *
 	 * @param string $field_name name of the enumeration in this objects table
 	 * @param boolean $blank optional value to include a empty element at position 0, default is true
-	 * @return array array of values as name to index pairs found in the db enumeration of this field  
+	 * @return array array of values as name to index pairs found in the db enumeration of this field
 	 */
 	function _load_enum($field_name,$blank = true) {
 		if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
 			&& is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
 			&& !empty($this->_table)) 												{
-				
+
 			return $GLOBALS['static']['enums'][$this->_table][$field_name];
 		}
 		else {
 			$cols = $this->_db->MetaColumns($this->_table);
 			if ($cols && !$cols->EOF) {
-				//why is there a foreach here? at some point later there will be a scheme to autoload all enums 
+				//why is there a foreach here? at some point later there will be a scheme to autoload all enums
 				//for an object rather than 1x1 manually as it is now
 				foreach($cols as $col) {
 	  		      if ($col->name == $field_name && $col->type == "enum") {
@@ -137,7 +131,7 @@ class ORDataObject {
 	  		      }
 			    }
 			   array_unshift($enum," ");
-			   
+
 			   //keep indexing consistent whether or not a blank is present
 			   if (!$blank) {
 			     unset($enum[0]);
@@ -148,7 +142,7 @@ class ORDataObject {
 			return $enum;
 		}
 	}
-	
+
 	function _utility_array($obj_ar,$reverse=false,$blank=true, $name_func="get_name", $value_func="get_id") {
 		$ar = array();
 		if ($blank) {

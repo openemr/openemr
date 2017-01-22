@@ -5,7 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This file use is used specifically to look up drug names when
 // writing a prescription. See the file:
 //    templates/prescriptions/general_edit.html
@@ -14,8 +14,6 @@
 // Important - Ensure that display_errors=Off in php.ini settings.
 //
 include_once("../../interface/globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
-include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 $q = formData("q","G",true);
 if (!$q) return;

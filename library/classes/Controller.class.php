@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../formdata.inc.php");
 
 
 class Controller extends Smarty {
@@ -51,11 +50,11 @@ class Controller extends Smarty {
 			       //modified 01-2010 by BGM to centralize to formdata.inc.php
 			       // have place several debug statements to allow standardized testing over next several months
                                if (!is_array($var)) {
-				       //DEBUG LINE - error_log("Controller populate before strip: ".$var, 0); 
+				       //DEBUG LINE - error_log("Controller populate before strip: ".$var, 0);
                                        $var = strip_escape_custom($var);
 				       //DEBUG LINE - error_log("Controller populate after strip: ".$var, 0);
                                }
-			   
+
                                call_user_func_array(array(&$obj,$func),array($var, $_POST));
                        }
                }

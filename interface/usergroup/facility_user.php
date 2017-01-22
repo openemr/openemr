@@ -33,8 +33,6 @@ $fake_register_globals=false;
 
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 
@@ -82,7 +80,7 @@ $(document).ready(function(){
 
     // fancy box
     enable_modals();
-    
+
     // special size for
 	$(".iframe_small").fancybox( {
 		'overlayOpacity' : 0.0,
@@ -90,7 +88,7 @@ $(document).ready(function(){
 		'frameHeight' : 300,
 		'frameWidth' : 500
 	});
-	
+
 	$(function(){
 		// add drag and drop functionality to fancybox
 		$("#fancy_outer").easydrag();
@@ -134,7 +132,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 	 </tr>
 	</table>
     </div>
-	
+
 	<div style="width:400px;">
 		<div>
 
@@ -163,7 +161,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                                                             "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']) );
                                      echo "<td><span class='text'>" . generate_display_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
                                    }
-                                   ?>  
+                                   ?>
 				</tr>
 				<?php
 				}}

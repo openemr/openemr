@@ -6,10 +6,8 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -81,7 +79,7 @@ if (isset($mode)) {
 				}
 				$sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  ."') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
 			}
-		
+
 		}
 		if (!empty($sql)) {
 			foreach ($sql as $q) {

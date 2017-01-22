@@ -15,22 +15,22 @@
  * For both calling methods, this script guarantees that each active
  * background service function: (1) will not be called again before it has completed,
  * and (2) will not be called any more frequently than at the specified interval
- * (unless the force execution flag is used).  A service function that is already running 
+ * (unless the force execution flag is used).  A service function that is already running
  * will not be called a second time even if the force execution flag is used.
  *
  * Notes for the default background behavior:
  * 1. If the Ajax method is used, services will only be checked while
  * Ajax requests are being received, which is currently only when users are
- * logged in. 
+ * logged in.
  * 2. All services are checked and called sequentially in the order specified
- * by the sort_order field in the background_services table. Service calls that are "slow" 
+ * by the sort_order field in the background_services table. Service calls that are "slow"
  * should be given a higher sort_order value.
  * 3. The actual interval between two calls to a given background service may be
  * as long as the time to complete that service plus the interval between
  * n+1 calls to this script where n is the number of other services preceding it
  * in the array, even if the specified minimum interval is shorter, so plan
  * accordingly. Example: with a 5 min cron interval, the 4th service on the list
- * may not be started again for up to 20 minutes after it has completed if 
+ * may not be started again for up to 20 minutes after it has completed if
  * services 1, 2, and 3 take more than 15, 10, and 5 minutes to complete,
  * respectively.
  *
@@ -72,7 +72,6 @@ if (!$isAjaxCall) {
 
 //an additional require file can be specified for each service in the background_services table
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../sql.inc");
 
 //Remove time limit so script doesn't time out
 set_time_limit(0);
@@ -88,15 +87,15 @@ ignore_user_abort(1);
  * This function reads a list of available services from the background_services table
  * For each service that is not already running and is due for execution, the associated
  * background function is run.
- * 
+ *
  * Note: Each service must do its own logging, as appropriate, and should disable itself
- * to prevent continued service calls if an error condition occurs which requires 
+ * to prevent continued service calls if an error condition occurs which requires
  * administrator intervention. Any service function return values and output are ignored.
  */
 
 function execute_background_service_calls() {
   /**
-   * Note: The global $service_name below is set to the name of the service currently being 
+   * Note: The global $service_name below is set to the name of the service currently being
    * processed before the actual service function call, and is unset after normal
    * completion of the loop. If the script exits abnormally, the shutdown_function
    * uses the value of $service_name to do any required clean up.
@@ -144,7 +143,7 @@ function execute_background_service_calls() {
 
 /**
  * Catch unexpected failures.
- * 
+ *
  * if the global $service_name is still set, then a die() or exit() occurred during the execution
  * of that service's function call, and we did not complete the foreach loop properly,
  * so we need to reset the is_running flag for that service before quitting
@@ -153,7 +152,7 @@ function execute_background_service_calls() {
 function background_shutdown() {
   global $service_name;
   if (isset($service_name)) {
-    
+
     $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
     $res = sqlStatementNoLog($sql, array($service_name));
 

@@ -1,10 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Pharmacy.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceCompany.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceNumbers.class.php");
 
 class C_PracticeSettings extends Controller {
 

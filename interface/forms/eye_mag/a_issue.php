@@ -28,12 +28,9 @@ require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['srcdir'].'/sql.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 

@@ -10,7 +10,6 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/formdata.inc.php");
 
 $ptid     = $_GET['ptid'] + 0;
 $encid    = $_GET['encid'] + 0;

@@ -25,7 +25,6 @@ $sanitize_all_escapes  = true;
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/classes/html2text.class.php");
 
 $h2t =& new html2text($_POST['comments']);
 $h2t->width = 0;
