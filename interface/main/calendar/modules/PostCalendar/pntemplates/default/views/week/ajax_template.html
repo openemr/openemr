@@ -158,9 +158,9 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 echo "   <a id='prevweek' href='$PREV_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Previous Week") . "'>
             <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
-echo date('d M Y', strtotime($atmp[0]));
+echo date('d', strtotime($atmp[0])) . " " . xl(date('M', strtotime($atmp[0]))) . " " . date('Y', strtotime($atmp[0]));
 echo " - ";
-echo date('d M Y', strtotime($atmp[count($atmp)-1]));
+echo date('d', strtotime($atmp[count($atmp)-1])) . " " . xl(date('M', strtotime($atmp[count($atmp)-1]))) . " " . date('Y', strtotime($atmp[count($atmp)-1]));
 echo "   <a id='nextweek' href='$NEXT_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Next Week") . "'>
             <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
 [-/php-]
