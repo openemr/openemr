@@ -104,7 +104,7 @@
 		<tbody>
 		<% items.each(function(item) { %>
 			<tr id="<%= _.escape(item.get('id')) %>">
-				<td><%if (item.get('date')) { %><%= _date(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
+				<td><%if (item.get('date')) { %><%= moment(app.parseDate(item.get('date'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('patientId') || '') %></td>
 				<td><%= _.escape(item.get('fname') || '') %></td>
 				<td><%= _.escape(item.get('mname') || '') %></td>
@@ -120,10 +120,10 @@
 				<td><%= _.escape(item.get('tableAction') || '') %></td>
 				<td><%= _.escape(item.get('tableArgs') || '') %></td>
 				<td><%= _.escape(item.get('actionUser') || '') %></td>
-				<td><%if (item.get('actionTakenTime')) { %><%= _date(app.parseDate(item.get('actionTakenTime'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
+				<td><%if (item.get('actionTakenTime')) { %><%= moment(app.parseDate(item.get('actionTakenTime'))).format('MMM D, YYYY h:mm A') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('checksum') || '') %></td>
 				<td><%= _.escape(item.get('title') || '') %></td>
-				<td><%if (item.get('dob')) { %><%= _date(app.parseDate(item.get('dob'))).format('MMM D, YYYY') %><% } else { %>NULL<% } %></td>
+				<td><%if (item.get('dob')) { %><%= moment(app.parseDate(item.get('dob'))).format('MMM D, YYYY') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('ss') || '') %></td>
 				<td><%= _.escape(item.get('street') || '') %></td>
 				<td><%= _.escape(item.get('postalCode') || '') %></td>

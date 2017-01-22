@@ -673,7 +673,7 @@
 					<label class="control-label" for="financialReview">Financial Review</label>
 					<div class="controls inline-inputs">
 						<div class="input-group date date-time-picker" data-date-format="yyyy-mm-dd hh:mm A">
-							<input id="financialReview" type="text" class="form-control" value="<%= _date(app.parseDate(item.get('financialReview'))).format('YYYY-MM-DD hh:mm A') %>" />
+							<input id="financialReview" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('financialReview'))).format('YYYY-MM-DD hh:mm A') %>" />
 							<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 						</div>
 						<span class="help-inline"></span>
@@ -748,7 +748,7 @@
 					<label class="control-label" for="deceasedDate">Deceased Date</label>
 					<div class="controls inline-inputs">
 						<div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-							<input id="deceasedDate" type="text" class="form-control" value="<%= _date(app.parseDate(item.get('deceasedDate'))).format('YYYY-MM-DD hh:mm A') %>" />
+							<input id="deceasedDate" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('deceasedDate'))).format('YYYY-MM-DD hh:mm A') %>" />
 							<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 						</div>
 						<span class="help-inline"></span>
@@ -779,7 +779,7 @@
 					<label class="control-label" for="contrastart">Contrastart</label>
 					<div class="controls inline-inputs">
 						<div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-							<input id="contrastart" type="text" class="form-control" value="<%= _date(app.parseDate(item.get('contrastart'))).format('YYYY-MM-DD hh:mm A') %>" />
+							<input id="contrastart" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('contrastart'))).format('YYYY-MM-DD hh:mm A') %>" />
 							<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 						</div>
 						<span class="help-inline"></span>
@@ -798,7 +798,7 @@
 					<label class="control-label" for="adReviewed">Ad Reviewed</label>
 					<div class="controls inline-inputs">
 						<div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-							<input id="adReviewed" type="text" class="form-control" value="<%= _date(app.parseDate(item.get('adReviewed'))).format('YYYY-MM-DD hh:mm A') %>" />
+							<input id="adReviewed" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('adReviewed'))).format('YYYY-MM-DD hh:mm A') %>" />
 							<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 						</div>
 						<span class="help-inline"></span>
