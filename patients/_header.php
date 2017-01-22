@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *
@@ -56,10 +56,10 @@
 				<ul class="nav navbar-nav">
 					<li class="dropdown messages-menu"><a href="#"
 						class="dropdown-toggle" data-toggle="dropdown"> <i
-							class="fa fa-envelope"></i> <span class="label label-success"> <?php echo $newcnt?></span>
+							class="fa fa-envelope"></i> <span class="label label-success"> <?php echo text($newcnt); ?></span>
 					</a>
 						<ul class="dropdown-menu">
-							<li class="header"><?php echo xlt('You have'); ?> <?php echo $newcnt?> <?php echo xlt('new messages'); ?></li>
+							<li class="header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></li>
 							<li>
 								<!-- inner menu: contains the actual data -->
 								<ul class="menu">
@@ -67,8 +67,8 @@
 								 foreach ( $msgs as $i ) {
 								  	if($i['message_status']=='New'){
 										echo "<li><a href='#'>
-											<h4>".$i['title']."</h4>
-											<p>".$i['body']."</p></a></li>";
+											<h4>" . text($i['title']) . "</h4>
+											<p>" . text($i['body']) . "</p></a></li>";
 									}
 								}
 								?>
@@ -85,7 +85,7 @@
 						<ul class="dropdown-menu dropdown-custom dropdown-menu-right">
 							<li class="dropdown-header text-center"><?php echo xlt('Account'); ?></li>
 							<li><a href="./messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
-									<span class="badge badge-danger pull-right"> <?php echo $msgcnt?></span> <?php echo xlt('Messages'); ?></a></li>
+									<span class="badge badge-danger pull-right"> <?php echo text($msgcnt); ?></span> <?php echo xlt('Messages'); ?></a></li>
 							<li class="divider"></li>
 							<li><a href="./messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
 								<a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i
@@ -110,7 +110,7 @@
 					<div class="pull-left image">
 						<i class="fa fa-user"></i>
 					</div>
-					<div class="pull-left info"><?php xl(''); ?>
+					<div class="pull-left info">
 						<p><?php echo xlt('Welcome') . ' ' . text($result['fname']." ".$result['lname']); ?></p>
 						<a href="#"><i class="fa fa-circle text-success"></i> <?php echo xlt('Online'); ?></a>
 					</div>
@@ -122,7 +122,7 @@
 					<li data-toggle="pill"><a href="#lists" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
 					</a></li>
-					<li><a href="./patient/onsitedocuments?pid=<?php echo text($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
+					<li><a href="./patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
 					</a></li>
 					<li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
@@ -152,7 +152,7 @@
 						</ul></li>
 
 					<li><a href="./messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
-							<span><?php echo xl('Secure Messaging'); ?></span>
+							<span><?php echo xlt('Secure Messaging'); ?></span>
 					</a></li>
 					<li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>

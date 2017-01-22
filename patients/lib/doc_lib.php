@@ -51,11 +51,11 @@ require_once ( "$srcdir/html2pdf/vendor/autoload.php" );
 require_once (dirname( __FILE__ )."/appsql.class.php" );
 
 $logit = new ApplicationTable();
-$htmlin = strip_escape_custom( $_REQUEST['content'] );
-$dispose = strip_escape_custom( $_POST['handler'] );
+$htmlin = $_REQUEST['content'];
+$dispose = $_POST['handler'];
 
 try{
-    $form_filename = strip_escape_custom( $_REQUEST['docid'] ) . '_' . $GLOBALS['pid'] . '.pdf';
+    $form_filename = $_REQUEST['docid'] . '_' . $GLOBALS['pid'] . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/../../patients/patient_documents";
     $templatepath = "$templatedir/$form_filename";
     $htmlout = '';
@@ -91,7 +91,7 @@ try{
 }
 catch(Exception $e){
     echo 'Message: ' .$e->getMessage();
-    die("no signature in document");
+    die(xlt("no signature in document"));
 }
 function doc_toDoc( $htmlin ){
     header( "Content-type: application/vnd.oasis.opendocument.text" );

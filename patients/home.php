@@ -39,7 +39,7 @@
  	if($i['message_status']=='New') $newcnt += 1;
  }
 
- echo "<script>var cpid='" . $pid . "';var cuser='" . $user . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . $_SESSION['ptName'] . "';</script>";
+ echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
 
  require_once '_header.php';
 ?>
@@ -57,7 +57,7 @@ $(document).ready(function(){
 	 		    });
 	});
 	$("#appointmentslist").load("./get_appointments.php", { 'embeddedScreen' : true  }, function() {
-		$("#reports").load("./report/portal_patient_report.php?pid='<?php echo $pid ?>'", { 'embeddedScreen' : true  }, function() {
+		$("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", { 'embeddedScreen' : true  }, function() {
 	   /*  $("#payment").load("./portal_payment.php", { 'embeddedScreen' : true  }, function() {
 			}); */
 		});
@@ -85,15 +85,15 @@ $(document).ready(function(){
         $("#doc_form").submit();
     });
 	 function showProfileModal(){
-		 var title = 'Demographics Legend Red: Charted Values. Blue: Patient Edits ';
+		 var title = '<?php echo xla('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> ';
 		 var params = {
 	                buttons: [
-					   { text: 'Help', close: false, style: 'info',id: 'formHelp'},
-				   	   { text: 'Cancel', close: true, style: 'default'},
-				   	   { text: 'Revert Edits', close: false, style: 'danger',id: 'replaceAllButton'},
-	                   { text: 'Send for Review', close: false, style: 'success', id: 'donePatientButton'}],
+					   { text: '<?php echo xla('Help'); ?>', close: false, style: 'info',id: 'formHelp'},
+				   	   { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
+				   	   { text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger',id: 'replaceAllButton'},
+	                   { text: '<?php echo xla('Send for Review'); ?>', close: false, style: 'success', id: 'donePatientButton'}],
 	               size: eModal.size.xl,
-	               subtitle: 'Changes take effect after provider review.',
+	               subtitle: '<?php echo xla('Changes take effect after provider review.'); ?>',
 	               title: title,
 	               useBin: false,
 	                url: './patient/patientdata?pid='+cpid+'&user='+cuser
@@ -180,7 +180,7 @@ $(document).ready(function(){
 						<div class="panel-footer"></div>
 					</div>
 					<div class="panel panel-primary">
-						<header class="panel-heading"><?php echo xlt(' Amendment List'); ?> </header>
+						<header class="panel-heading"><?php echo xlt('Amendment List'); ?> </header>
 						<div id="amendmentslist" class="panel-body"></div>
 
 						<div class="panel-footer"></div>
@@ -265,7 +265,7 @@ $(document).ready(function(){
 						<header class="panel-heading"><?php echo xlt('Ledger');?> </header>
 						<div id="patledger" class="panel-body"></div>
 						<div class="panel-footer">
-						  <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo $pid;?>" width="100%" height="475" scrolling="yes"></iframe>
+						  <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" width="100%" height="475" scrolling="yes"></iframe>
 						</div>
 					</div>
 				</div><!-- /.col -->
@@ -296,8 +296,8 @@ $(document).ready(function(){
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<div class="input-group">
 						<span class="input-group-addon"
-							onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show
-							Current Signature On File');?><br><?php echo xlt('As appears on documents');?>.</em></span> <img
+							onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show Current Signature On File');?><br>
+							<?php echo xlt('As appears on documents');?>.</em></span> <img
 							class="signature form-control" type="patient-signature"
 							id="patientSignaturem" onclick="getSignature(this)"
 							alt="Signature On File" src="">
@@ -310,8 +310,7 @@ $(document).ready(function(){
 					<input type="hidden" name="name" id="name" class="name">
 					<ul class="sigNav">
 						<label style='display: none;'><input style='display: none;'
-							type="checkbox" class="" id="isAdmin" name'="isAdmin" /><?php echo xlt('Is
-							Examiner Signature');?></label>
+							type="checkbox" class="" id="isAdmin" name'="isAdmin" /><?php echo xlt('Is Examiner Signature');?></label>
 						<li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Signature');?></button></a></li>
 					</ul>
 					<div class="sig sigWrapper">

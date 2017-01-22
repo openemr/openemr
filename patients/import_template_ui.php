@@ -47,7 +47,7 @@ function getAuthUsers(){
 function getTemplateList($dir){
 	$retval = array();
 	if(substr($dir, -1) != "/") $dir .= "/";
-	$d = @dir($dir) or die("File List: Failed opening directory $dir for reading");
+	$d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
 	while(false !== ($entry = $d->read())) {
 		if($entry[0] == "." || substr($entry,-3) != 'tpl') continue;
 		
@@ -103,7 +103,7 @@ var tsave = function() {
 	};
 	
 var tdelete = function(docname) {
-	var delok = confirm('<?php echo xlt("You are about to delete template:") ?>'+docname+'<?php echo xlt(" Is this Okay?")?>');
+	var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
 	if(delok === true) getDocument(docname, 'delete', '')
 	return false;
 	};	
@@ -145,14 +145,14 @@ var tdelete = function(docname) {
 <div  class='container' style='display:block;'>
 <hr>
 <h3><?php echo xlt('Patient Document Template Upload'); ?></h3>
-<h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br><?php echo xlt('Automatically applies correct extension on successfull upload'); ?>.<br> 
+<h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br><?php echo xlt('Automatically applies correct extension on successful upload'); ?>.<br> 
 <?php echo xlt('Example Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents'); ?>.</em></h4>
 <form id="form_upload" class="form" action="import_template.php" method="post" enctype="multipart/form-data">
 <input class="btn btn-info" type="file" name="tplFile">
 <br>
-<button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xl('Home'); ?></button>
+<button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Home'); ?></button>
 <input type='hidden' name="up_dir" value='<?php global $getdir; echo $getdir;?>' />
-<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit">Upload Template for <span style="font-size:14px;" class="label label-default" id='ptstatus'></span></button>
+<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span style="font-size:14px;" class="label label-default" id='ptstatus'></span></button>
 </form>
 <div class='row'>
 <h3><?php echo xlt('Active Templates'); ?></h3>
@@ -177,14 +177,14 @@ echo '</form></div>';
 $dirlist = getTemplateList($tdir);
   echo "<table  class='table table-striped table-bordered'>";
   echo "<thead>";
-  echo "<tr><th>" . xl("Template") . " - <i>" . xl("Click to edit") . "</i></th><th>" . xl("Size") . "</th><th>" . xl("Last Modified") . "</th></tr>";
+  echo "<tr><th>" . xlt("Template") . " - <i>" . xlt("Click to edit") . "</i></th><th>" . xlt("Size") . "</th><th>" . xlt("Last Modified") . "</th></tr>";
   echo "</thead>";
   echo "<tbody>";
   foreach($dirlist as $file) {
   	$t = "'".$file['pathname']."'";
   	echo "<tr>";
-    echo '<td><button id="tedit'.$t.'" class="btn btn-sm btn-primary" onclick="tedit('.$t.')" type="button">'. $file['name'].'</button>
- 		<button id="tdelete'.$t.'" class="btn btn-xs btn-danger" onclick="tdelete('.$t.')" type="button">'.  xl("Delete") .'</button></td>';
+    echo '<td><button id="tedit'.attr($t).'" class="btn btn-sm btn-primary" onclick="tedit('.attr($t).')" type="button">'. text($file['name']).'</button>
+ 		<button id="tdelete'.attr($t).'" class="btn btn-xs btn-danger" onclick="tdelete('.attr($t).')" type="button">'.  xlt("Delete") .'</button></td>';
     echo "<td>{$file['size']}</td>";
     echo "<td>",date('r', $file['lastmod']),"</td>";
     echo "</tr>";
@@ -207,16 +207,16 @@ $("#ptstatus").text($("#sel_pt").find(":selected").text())
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xl('Close'); ?></span>
+                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
                         </button>
-                        <h4 class="modal-title"><?php echo xl('Edit Template'); ?></h4>
+                        <h4 class="modal-title"><?php echo xlt('Edit Template'); ?></h4>
                     </div>
                     <div class="modal-body">
                         <div class="edittpl" id="templatecontent"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><?php echo xl('Dismiss'); ?></button>
-                        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="tsave()"><?php echo xl('Save'); ?></button>
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
+                        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
                     </div>                
             </div>
         </div>

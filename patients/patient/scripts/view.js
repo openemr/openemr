@@ -1,6 +1,11 @@
 /**
  * View logic for the application.  Defines generic views for collections and
  * models as well as helper methods for template generation
+ *
+ * Derived from phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
+ *
  */
 var view = {
 	

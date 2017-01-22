@@ -25,11 +25,7 @@
 // This module downloads a specified document template to the browser after
 // substituting relevant patient data into its variables.
 require_once ( dirname( __file__ ) . "/../verify_session.php" );
-/* $ignoreAuth = true;
-$sanitize_all_escapes = true;
-$fake_register_globals = false; */
 
-//require_once(dirname( __FILE__ ) .'/../../interface/globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['srcdir'] . '/htmlspecialchars.inc.php');
 require_once($GLOBALS['srcdir'] . '/formdata.inc.php');
@@ -37,8 +33,8 @@ require_once($GLOBALS['srcdir'] . '/formatting.inc.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
-$form_filename = strip_escape_custom($_POST['docid']);
-$pid = strip_escape_custom($_POST['pid']);
+$form_filename = $_POST['docid'];
+$pid = $_POST['pid'];
 //$user = strip_escape_custom($_POST['user']);
 
 $nextLocation = 0;      // offset to resume scanning
@@ -114,7 +110,7 @@ function doSubs($s) {
         $fn = $GLOBALS['web_root'] . '/patients/sign/assets/signhere.png';
         $sigfld = '<span>';
         $sigfld .= '<img style="cursor:pointer;color:red" class="signature" type="patient-signature" id="patientSignature" onclick="getSignature(this)"'.
-        'alt="Click in signature on file" src="'.$fn.'">';
+        'alt="' . xla("Click in signature on file") . '" src="'.$fn.'">';
         $sigfld .= '</span>';
         $s = keyReplace($s,$sigfld);
     }
@@ -122,7 +118,7 @@ function doSubs($s) {
         //$fn = "document.getElementById('adminSignature')";
         $sigfld = '<span>';
         $sigfld .= '<img style="cursor:pointer;color:red" class="signature" type="admin-signature" id="adminSignature" onclick="getSignature(this)"'.
-        'alt="Click in signature on file" src="'.$fn.'">';
+        'alt="' . xla("Click in signature on file") . '" src="'.$fn.'">';
         $sigfld .= '</span>';
         $s = keyReplace($s,$sigfld);
     }
