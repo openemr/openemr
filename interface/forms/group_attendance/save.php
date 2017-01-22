@@ -21,10 +21,11 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
-require_once("functions.php");
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
+require_once("../../globals.php");
+require_once("functions.php");
 
 //Get relevant data from group appt (the appt that created the group encounter)
 $appt_data = get_appt_data($encounter);
