@@ -580,9 +580,9 @@ function writeFieldLine($linedata) {
           "A = " . xla('Age') .
         ", B = " . xla('Gestational Age') .
         ", C = " . xla('Capitalize') .
-        ", D = " . xla('Dup Check New') .
-        ", E = " . xla('Dup Check addon Edit') .
-        ", W = " . xla('Dup Check addon New') .
+        ", D = " . xla('Dup Check') .
+        ", E = " . xla('Dup Check on only Edit') .
+        ", W = " . xla('Dup Check on only New') .
         ", G = " . xla('Graphable') .
         ", L = " . xla('Lab Order') .
         ", N = " . xla('New Patient Form') .
