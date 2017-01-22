@@ -827,7 +827,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 			$mflist = "";
 			$mfres = sqlStatement("SELECT field_id FROM layout_options " .
 				"WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-				"edit_options LIKE '%D%' " .
+				"(edit_options LIKE '%D%' OR edit_options LIKE '%E%')  " .
 				"ORDER BY group_name, seq");
 			while ($mfrow = sqlFetchArray($mfres)) {
 				$field_id  = $mfrow['field_id'];
