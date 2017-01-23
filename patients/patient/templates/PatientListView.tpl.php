@@ -467,9 +467,9 @@
                     </div>
                 </div> -->
                 <!-- <div class="form-group inline" id="interpretterInputContainer">
-                    <label class="control-label" for="interpretter"><?php echo xlt('Interpretter')?></label>
+                    <label class="control-label" for="interpretter"><?php echo xlt('Interpreter')?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="interpretter" placeholder="<?php echo xla('Interpretter')?>" value="<%= _.escape(item.get('interpretter') || '') %>">
+                        <input type="text" class="form-control" id="interpretter" placeholder="<?php echo xla('Interpreter')?>" value="<%= _.escape(item.get('interpretter') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
