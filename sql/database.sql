@@ -9633,8 +9633,8 @@ CREATE TABLE `therapy_groups` (
 
 DROP TABLE IF EXISTS `therapy_groups_participants`;
 CREATE TABLE `therapy_groups_participants` (
-  `group_id` int(11) NULL,
-  `pid` int(11) NULL ,
+  `group_id` int(11) NOT NULL,
+  `pid` int(11) NOT NULL ,
   `group_patient_status` int(11) NOT NULL,
   `group_patient_start` date NOT NULL ,
   `group_patient_end` date,
