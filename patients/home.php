@@ -310,7 +310,7 @@ $(document).ready(function(){
 					<input type="hidden" name="name" id="name" class="name">
 					<ul class="sigNav">
 						<label style='display: none;'><input style='display: none;'
-							type="checkbox" class="" id="isAdmin" name'="isAdmin" /><?php echo xlt('Is Examiner Signature');?></label>
+							type="checkbox" class="" id="isAdmin" name'="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></label>
 						<li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Signature');?></button></a></li>
 					</ul>
 					<div class="sig sigWrapper">

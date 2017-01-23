@@ -335,7 +335,7 @@ body {
 					<input type="hidden" name="name" id="name" class="name">
 					<ul class="sigNav">
 						<li style='display: none;'><input style="display: none"
-							type="checkbox" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Examiner Signature');?></li>
+							type="checkbox" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></li>
 						<li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Pad');?></button></a></li>
 					</ul>
 					<div class="sig sigWrapper">
