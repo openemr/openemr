@@ -371,7 +371,7 @@ class Controller extends SMA_Common\Controller
         $this->setHeader(array('Content-Type' => 'application/json'));
         $messages = $this->getModel()->getMessages();
         foreach($messages as &$message) {
-            $message->me = $this->getServer('REMOTE_ADDR') === $message->ip;
+            $message['me'] = $this->getServer('REMOTE_ADDR') === $message['ip'];
         }
         return json_encode($messages);
     }
@@ -569,14 +569,6 @@ $msgApp = new Controller();
              	$scope.pusers.push(sel.sender_id);
              }
         };
-        $scope.recipChecked = function(user){
-            return false
-            var test = $scope.pusers.indexOf(user.recip_id);
-        	if(test > 0)
-            	return
-            else
-        		$scope.pusers.push(user.recip_id);
-        }
         $scope.pageTitleNotificator = {
             vars: {
                 originalTitle: window.document.title,
@@ -910,7 +902,6 @@ background:#fff;
         <div class="row">
             <div class="col-md-2 sidebar">
                 <h4 class="label label-info"><?php echo xlt('Send to Recipients'); ?></h4>
-
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
@@ -920,7 +911,7 @@ background:#fff;
                     <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button">None</button>
                 </span>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
-                    <input type="checkbox" ng-click="recipChecked(user)" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
+                    <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
             </div>
             <div class="col-md-8 fixed-panel">
