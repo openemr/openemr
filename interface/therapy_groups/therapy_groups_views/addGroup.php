@@ -38,7 +38,7 @@
                 <div class="col-md-7 col-sm-6">
                     <div class="row">
                         <div class="col-md-3 col-sm-5">
-                            <span class="bold"><?php echo xlt('Group’s name') ?>:</span>
+                            <span class="bold"><?php echo xlt('Group\'s name') ?>:</span>
                         </div>
                         <div class="col-md-9 col-sm-7">
                             <input type="text" name="group_name" class="full-width" value="<?php echo attr($groupData['group_name']);?>">
