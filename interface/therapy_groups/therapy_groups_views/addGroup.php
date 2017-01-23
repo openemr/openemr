@@ -153,9 +153,17 @@
 </main>
 <script>
     $(document).ready(function(){
-       $('.datepicker').datepicker({
-           dateFormat: "yy-mm-dd"
-       });
+
+        $('.datepicker').datepicker({
+            dateFormat: "yy-mm-dd",
+            //currentText: '', // set today text
+            monthNames: ['<?=xls('January')?>','<?=xls('February')?>','<?=xls('March')?>','<?=xls('April')?>','<?=xls('May')?>','<?=xls('June')?>','<?=xls('July')?>','<?=xls('August')?>','<?=xls('September')?>','<?=xls('October')?>','<?=xls('November')?>','<?=xls('December')?>'],
+            //monthNamesShort: [], // set short month names
+            //dayNames: [], // set days names
+            //dayNamesShort: [], // set short day names
+            dayNamesMin: ['<?=xls('Su')?>','<?=xls('Mo')?>','<?=xls('Tu')?>','<?=xls('We')?>','<?=xls('Th')?>','<?=xls('Fr')?>','<?=xls('Sa')?>'], // set more short days names
+
+        });
     });
     $('#cancel-save').on('click', function(e){
         e.preventDefault();
