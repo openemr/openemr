@@ -227,7 +227,6 @@ $today = date("Y-m-d");
   // Print or download statements if requested.
   //
 if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
-
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
   $sqlBindArray = array();
   $where = "";
@@ -236,7 +235,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     array_push($sqlBindArray, $key);
   }
   $where = substr($where, 4);
-
+  // need to only use summary invoice for multi visits
+  foreach ($_POST['form_invpids'] as $key => $v) {
+  	$inv_pid[$key] = key($v);
+  }
   $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note " .
@@ -345,13 +347,17 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     	}
     	$inv_count += 1;
     	$pvoice[] = $stmt;
-    	$c = count($form_cb);
-    	if($inv_count == $c){
+    	// we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
+    	if($inv_pid[$inv_count] != $inv_pid[$inv_count+1]){ 
     		fwrite($fhprint, make_statement($stmt));
-    		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter']))
+    		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])){
     			$alertmsg = xlt('Notification FAILED');
+    			break;
+    		}
+    		flush();
+    		ftruncate($fhprint,0);
     	}
-    	else	continue;
+    	else continue;
     }
     else
     	fwrite($fhprint, make_statement($stmt));
@@ -782,7 +788,9 @@ while ($row = sqlFetchArray($t_res)) {
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
      <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
-     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){ echo ' PPt'; $is_portal = true;}?>
+     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){ 
+     	echo(' PPt');	echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />"); $is_portal = true;
+     	}?>
    </td>
    <?php } ?>
  </tr>
