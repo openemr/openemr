@@ -63,7 +63,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
                             if($event['pc_recurrtype'] > 0)
-                                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
+                                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".xla("Repeating event")."' alt='".xla("Repeating event")."'>";
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
                         </br>
                         <span><?php echo text($event['pc_catname']);?></span>
