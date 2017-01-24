@@ -270,7 +270,12 @@ $ignoreAuth = 1;
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
+<?php } ?>
+
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
