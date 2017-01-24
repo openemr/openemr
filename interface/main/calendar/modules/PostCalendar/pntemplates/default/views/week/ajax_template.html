@@ -14,6 +14,7 @@
 
 [-*Values used in setting timeslot and event heights*-]
 [-php-]
+require_once($GLOBALS['srcdir'] . "/formatting.inc.php");
 /* if you change these be sure to change their matching values in
  * the CSS for the calendar, found in interface/themes/ajax_calendar.css
  */
@@ -421,7 +422,7 @@ foreach ($providers as $provider) {
         if ($Date == $dateFmt) { $currclass= "week_currday"; }
         echo "<td align='center' class='week_dateheader $currclass' style='width:".$colWidth."%;' >";
         echo "<a href='$gotoURL'>";
-        echo xl(date("D", strtotime($date))) . " " . date("m/d", strtotime($date));
+        echo xl(date("D", strtotime($date))) . " " . oeFormatShortDate($date);
         echo "</a></td>";
     }
     echo " </tr>\n";
