@@ -44,9 +44,32 @@ class PatientController extends AppBaseController{
 		$this->Assign( 'cpid', $pid );
 		$this->Assign( 'cuser', $user );
 		$this->Assign( 'encounter', $encounter );
+		$ptdata = $this->startupQuery($pid);
+		foreach( $ptdata[0] as $key => $v){
+			$trow[lcfirst($key)] = $v;
+		}
+		$this->Assign( 'trow', $trow);
 		$this->Render();
 	}
-
+	/**
+	 * API Method queries for startup Patient records and return as php
+	 */
+	public function startupQuery($pid){
+		try{
+			$criteria = new PatientCriteria();
+			$recnum = ( int ) $pid;
+			$criteria->Pid_Equals = $recnum;
+	
+			$output = new stdClass();
+			// return row
+			$patientdata = $this->Phreezer->Query( 'PatientReporter', $criteria );
+			$output->rows = $patientdata->ToObjectArray( false, $this->SimpleObjectParams() );
+			$output->totalResults = count( $output->rows );
+			return $output->rows;				
+		} catch( Exception $ex ){
+			$this->RenderExceptionJSON( $ex );
+		}
+	}
 	/**
 	 * API Method queries for Patient records and render as JSON
 	 */
