@@ -31,13 +31,13 @@
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
-<!-- <link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" /> -->
+<!-- <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" /> -->
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/css/bootstrap-datetimepicker.min.css"	rel="stylesheet" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/css/bootstrap-combobox.css" rel="stylesheet" />
 
 <!--<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
- <script type="text/javascript" src="../assets/bootstrap/js/bootstrap.min12px.js"></script>-->
+ <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>-->
 <link href="styles/style.css" rel="stylesheet" />
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/js/bootstrap-combobox.js"></script>

@@ -35,7 +35,7 @@
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
 <!-- Styles -->
-<link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
@@ -48,7 +48,7 @@
 <script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js").wait()
-				.script("../assets/bootstrap/js/bootstrap.min12px.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/js/bootstrap-combobox.js")
