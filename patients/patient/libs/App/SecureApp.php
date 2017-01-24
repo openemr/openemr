@@ -13,6 +13,9 @@ require_once("util/password.php");
  * A better approach is to use one of your existing model classes and implement
  * IAuthenticatable inside that class.
  *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  * @package Example::App
  * @author ClassBuilder
  * @version 1.0

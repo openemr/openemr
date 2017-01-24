@@ -10,6 +10,9 @@ require_once (dirname( __FILE__ )."/../../../lib/appsql.class.php" );
  * class or any code, however you may use if for application-wide
  * functions such as authentication
  *
+ * From phreeze package
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ *
  * @package Patient Portal::Controller
  * @author ClassBuilder
  * @version 1.0
