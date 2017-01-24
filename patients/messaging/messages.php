@@ -22,14 +22,14 @@
  */
 
 
-require_once ("verify_session.php");
+require_once ("./../verify_session.php");
 $_SESSION ['whereto'] = 'profilepanel';
 
 require_once ("$srcdir/acl.inc");
 require_once ("$srcdir/patient.inc");
 require_once ("$srcdir/options.inc.php");
 require_once ("$srcdir/classes/Document.class.php");
-require_once ("./lib/portal_pnotes.inc"); // rem to fix pnotes pd.id in mainline codebase
+require_once ("./../lib/portal_pnotes.inc"); // rem to fix pnotes pd.id in mainline codebase
 
 $docid = empty ( $_REQUEST ['docid'] ) ? 0 : intval ( $_REQUEST ['docid'] );
 $orderid = empty ( $_REQUEST ['orderid'] ) ? 0 : intval ( $_REQUEST ['orderid'] );
@@ -68,7 +68,7 @@ foreach ( $result as $iter ) {
 	<ng ng-app="emrMessageApp">
 	<div class="container">
 		<div class='header logo'>
-		<h2><img style='width:25%;height:auto;' class='logo' src='./images/logo-full-con.png'/>  <?php echo xlt('Patient Messaging'); ?></h2>
+		<h2><img style='width:25%;height:auto;' class='logo' src='./../images/logo-full-con.png'/>  <?php echo xlt('Patient Messaging'); ?></h2>
 		</div>
 		<!-- -->
 		<div class="row" ng-controller="inboxCtrl">
@@ -84,7 +84,7 @@ foreach ( $result as $iter ) {
 					<li data-toggle="pill" class="bg-info"><a href="#"><span class="badge pull-right">0</span><?php echo xlt('Drafts'); ?></a></li>
 					<li data-toggle="pill" class="bg-info"><a href="#"><span class="badge pull-right">0</span><?php echo xlt('Deleted'); ?></a></li>
 					<li data-toggle="pill" class="bg-danger"><a href="javascript:;"
-									onclick='window.location.replace("./home.php")'><?php echo xlt('Exit Mail'); ?></a></li>
+									onclick='window.location.replace("./../home.php")'><?php echo xlt('Exit Mail'); ?></a></li>
 				</ul>
 			</aside>
 			<div class="col-md-10">
@@ -111,7 +111,7 @@ foreach ( $result as $iter ) {
 								<li><a href="" data-mode="add" data-toggle="modal"
 									data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a></li>
 								<li><a href="javascript:;"
-									onclick='window.location.replace("./home.php")'
+									onclick='window.location.replace("./../home.php")'
 									class="text-muted"><?php echo xlt('Return Home'); ?></a></li>
 							</ul>
 						</div>
@@ -344,7 +344,261 @@ foreach ( $result as $iter ) {
 	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-1-5-8/angular.min.js"></script>
 	<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize-1-5-8/angular-sanitize.min.js"></script>
-	<script type='text/javascript' src="assets/js/msgapp.js"></script>
+	<!-- <script type='text/javascript' src="./../assets/js/msgapp.js"></script> -->
+<script>
+var app = angular.module("emrMessageApp",['ngSanitize']);
+app.controller('inboxCtrl', ['$scope', '$filter','$http', function ($scope, $filter,$http) {
+ 	$scope.date = new Date;
+    $scope.sortingOrder = 'id';
+    $scope.pageSizes = [5,10,20,50,100];
+    $scope.reverse = false;
+    $scope.filteredItems = [];
+    $scope.groupedItems = [];
+    $scope.itemsPerPage = 5;
+    $scope.pagedItems = [];
+    $scope.currentPage = 0;
+    $scope.sentItems = [];
+    $scope.allItems = [];
+    $scope.inboxItems = [];
+    
+    $scope.init = function () {
+       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+       $scope.inboxItems = messages;
+       $scope.getSentMessages();
+       $scope.getAllMessages();
+       $scope.isInboxSelected();
+       $scope.search();
+    }
 
+    var searchMatch = function (haystack, needle) {
+        if (!needle) {
+          return true;
+        }
+        return haystack.toLowerCase().indexOf(needle.toLowerCase()) !== -1;
+    };
+    
+    // filter the items
+    $scope.search = function () {
+        $scope.filteredItems = $filter('filter')($scope.items, function (item) {
+          for(var attr in item) {
+            if (searchMatch(item[attr], $scope.query))
+              return true;
+          }
+          return false;
+        });
+        $scope.currentPage = 0;
+        // now group by pages
+        $scope.groupToPages();
+    };
+    
+    // calculate page in place
+    $scope.groupToPages = function () {
+        $scope.selected = null;
+        $scope.pagedItems = [];
+        
+        for (var i = 0; i < $scope.filteredItems.length; i++) {
+          if (i % $scope.itemsPerPage === 0) {
+            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.filteredItems[i] ];
+          } else {
+            $scope.pagedItems[Math.floor(i / $scope.itemsPerPage)].push($scope.filteredItems[i]);
+          }
+        }
+    };
+    
+    $scope.range = function (start, end) {
+        var ret = [];
+        if (!end) {
+          end = start;
+          start = 0;
+        }
+        for (var i = start; i < end; i++) {
+          ret.push(i);
+        }
+        return ret;
+    };
+    
+    $scope.prevPage = function () {
+        if ($scope.currentPage > 0) {
+            $scope.currentPage--;
+        }
+        return false;
+    };
+    
+    $scope.nextPage = function () {
+        if ($scope.currentPage < $scope.pagedItems.length - 1) {
+            $scope.currentPage++;
+        }
+        return false;
+    };
+    
+    $scope.setPage = function () {
+        $scope.currentPage = this.n;
+    };
+    
+    $scope.deleteItem = function (idx) {
+        var itemToDelete = $scope.pagedItems[$scope.currentPage][idx];
+        var idxInItems = $scope.items.indexOf(itemToDelete);
+        $scope.items.splice(idxInItems,1);
+        $scope.search();
+        
+        return false;
+    };
+    
+    $scope.isMessageSelected = function () {
+        if (typeof $scope.selected!=="undefined" && $scope.selected!==null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    $scope.isSentSelected = function () { 
+    	$scope.items = $scope.sentItems;
+    	$scope.search();
+    	return true;
+    }
+    $scope.isInboxSelected = function () { 
+    	$scope.items = $scope.inboxItems;
+    	$scope.search();
+    	return true;
+    }
+    $scope.isAllSelected = function () { 
+    	$scope.items = $scope.allItems;
+    	$scope.search();
+    	return true;
+    }
+    $scope.readMessage = function (idx) {
+        $scope.selected = $scope.items[idx];
+        if( $scope.items[idx].message_status == 'New'){// mark pnote read
+        	$http.post('handle_note.php', $.param({'task':'setread','noteid':$scope.items[idx].id}))
+        	.success(function(data, status, headers, config) {
+        		if(data == 'done')
+        			$scope.items[idx].message_status = 'Read';
+        		else alert('whoops : '+ data);
+        	}).error(function(data, status, headers, config) {
+        		alert('Failed Status: '+ data);
+        	});
+        }
+    };
+    
+    $scope.readAll = function () {
+        for (var i in $scope.items) {
+            $scope.items[i].read = true;
+        }
+    };
+    
+    $scope.closeMessage = function () {
+        $scope.selected = null;
+    };
+    
+    $scope.renderMessageBody = function(html)
+    {
+        return html;
+    };
+    
+    $scope.getAllMessages = function () {
+        $http.post('handle_note.php', $.param({'task':'getall'}))
+        .success(function(data, status, headers, config) {
+        	if(data){
+        	  $scope.allItems = data;
+        	 // $scope.search();
+        	}
+        	else alert('whoops : '+ data);
+        }).error(function(data, status, headers, config) {
+        	alert('Failed Status: '+data);
+        });
+    };
+    
+    $scope.getSentMessages = function () {
+        $http.post('handle_note.php', $.param({'task':'getsent'}))
+        .success(function(data, status, headers, config) {
+            $scope.sentItems = data;
+        }).error(function(data, status, headers, config) {
+        	alert('Failed Status: '+data);
+        });
+    }
+    /* end inbox functions */
+    
+    // initialize
+    $scope.init();
+    
+}])// end inboxCtrl
+.controller('messageCtrl', ['$scope', function ($scope) {
+    
+    $scope.message = function(idx) {
+        return items(idx);
+    };
+    
+}]);// end messageCtrl
+
+$(document).ready(function(){	    
+ 
+	function goHome(){
+    	window.location.replace("./../home.php");
+    }
+	
+	 $("#pnotesend").on("submit", function(e) {
+		 	// re-enable title for submit
+		 	$(e.currentTarget).find('select[name="title"]').prop( "disabled", false );
+		 	var towho = $(e.currentTarget).find('select[name="selSendto"]').val();
+		 	var mode = $(e.currentTarget).find('input[name="task"]').val();
+		 	if(mode == 'add')
+		 		$(e.currentTarget).find('input[name="sendto"]').val(towho);
+	        var postData = $(this).serializeArray();
+	        var formURL = $(this).attr("action");
+	        $.ajax({
+	            url: formURL,
+	            type: "POST",
+	            data: postData,
+	            success: function(data, textStatus, jqXHR) {
+	                /*$('#modalCompose .modal-header .modal-title').html("Result");
+	                $('#modalCompose .modal-body').html(data);*/
+	            	$("#submitForm").remove();
+	            	$("#modalCompose").modal('hide');
+	            	window.location.replace("./messages.php");
+	            },
+	            error: function(jqXHR, status, error) {
+	                console.log(status + ": " + error);
+	            }
+	        });
+	        e.preventDefault();
+	    });
+	     
+	    $("#submitForm").on('click', function() {
+	        $("#pnotesend").submit();
+	    });
+	    $('#modalCompose').on('show.bs.modal', function(e) {
+	        //get data attributes of the clicked element
+	        var mode = $(e.relatedTarget).data('mode');
+	        var towho = $(e.relatedTarget).data('whoto');
+	        var title = $(e.relatedTarget).data('mtitle');
+	        var exists = false;
+        	$('#title option').each(function(){
+        	    if (this.value == title) {
+        	        exists = true;
+        	        return false;
+        	    }
+        	});
+	        //populate the hidden action 
+	        $(e.currentTarget).find('input[name="task"]').val(mode);
+	        if(mode == 'reply'){
+	        	$('#modalCompose .modal-header .modal-title').html("Compose Reply Message");
+	        	$(e.currentTarget).find('input[name="sendto"]').val(towho);
+	        	$(e.currentTarget).find('select[name="selSendto"]').prop( "disabled", true );
+	        	if(exists == false){
+	        		$(e.currentTarget).find('select[name="title"]').prepend('<option>'+title);
+	        	}
+	        	$(e.currentTarget).find('select[name="title"]').val(title);
+	        	$(e.currentTarget).find('select[name="title"]').prop( "disabled", true );
+	        }
+	        else{
+	        	$('#modalCompose .modal-header .modal-title').html("Compose New Message");
+	        	$(e.currentTarget).find('select[name="selSendto"]').prop( "disabled", false );
+	        	$(e.currentTarget).find('select[name="title"]').prop( "disabled", false );
+	        	$(e.currentTarget).find('input[name="sendto"]').val(towho);
+	        }
+	    });
+});
+</script>
 </body>
 </html>

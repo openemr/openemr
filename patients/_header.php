@@ -80,7 +80,7 @@
 								?>
 								</ul>
 							</li>
-							<li class="footer"><a href="./messages.php"><?php echo xlt('See All Messages'); ?></a></li>
+							<li class="footer"><a href="./messaging/messages.php"><?php echo xlt('See All Messages'); ?></a></li>
 						</ul></li>
 
 					<li class="dropdown user user-menu"><a href="#"
@@ -90,7 +90,7 @@
 					</a>
 						<ul class="dropdown-menu dropdown-custom dropdown-menu-right">
 							<li class="dropdown-header text-center"><?php echo xlt('Account'); ?></li>
-							<li><a href="./messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
+							<li><a href="./messaging/messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
 									<span class="badge badge-danger pull-right"> <?php echo text($msgcnt); ?></span> <?php echo xlt('Messages'); ?></a></li>
 							<li class="divider"></li>
 							<li><a href="./messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
@@ -157,7 +157,7 @@
 							</a></li>
 						</ul></li>
 
-					<li><a href="./messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
+					<li><a href="./messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
 							<span><?php echo xlt('Secure Messaging'); ?></span>
 					</a></li>
 					<li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
