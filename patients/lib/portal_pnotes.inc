@@ -9,7 +9,7 @@
  *
  */
 
-require_once("../library/pnotes.inc");
+require_once("$srcdir/pnotes.inc");
 
 function addPortalMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1',
 		$title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New",$master_note = '0')

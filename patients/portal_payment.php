@@ -329,7 +329,7 @@ function goHome(){
 function notifyPatient(){
 	var pid = <?php echo attr($pid);?>;
 	var note = $('#pop_receipt').text();
-    var formURL = 'handle_note.php';
+    var formURL = './messaging/handle_note.php';
     $.ajax({
         url: formURL,
         type: "POST",
