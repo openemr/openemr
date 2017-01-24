@@ -30,7 +30,13 @@
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
+<?php } ?>
+
+
 <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
 <link href="sign/css/signer.css" rel="stylesheet" type="text/css" />
 <link href="sign/assets/signpad.css" rel="stylesheet">
