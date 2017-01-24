@@ -53,23 +53,6 @@ $logit = new ApplicationTable();
         }
     //
 
-    //SANITIZE ALL ESCAPES
-    $fake_register_globals=false;
-
-    //STOP FAKE REGISTER GLOBALS
-    $sanitize_all_escapes=true;
-
-    //Settings that will override globals.php
-        $ignoreAuth = 1;
-    //
-
-    //Authentication (and language setting)
-    require_once('../interface/globals.php');
-    require_once("$srcdir/authentication/common_operations.php");
-    require_once("$srcdir/user.inc");
-    $password_update=isset($_SESSION['password_update']);
-    unset($_SESSION['password_update']);
-    $plain_code= $_POST['pass'];
     // set the language
     if (!empty($_POST['languageChoice'])) {
             $_SESSION['language_choice'] = $_POST['languageChoice'];
@@ -82,6 +65,23 @@ $logit = new ApplicationTable();
             // keep the current session language token
     }
 
+    //SANITIZE ALL ESCAPES
+    $fake_register_globals=false;
+
+    //STOP FAKE REGISTER GLOBALS
+    $sanitize_all_escapes=true;
+
+    //Settings that will override globals.php
+        $ignoreAuth = 1;
+    //
+
+    //Authentication
+    require_once('../interface/globals.php');
+    require_once("$srcdir/authentication/common_operations.php");
+    require_once("$srcdir/user.inc");
+    $password_update=isset($_SESSION['password_update']);
+    unset($_SESSION['password_update']);
+    $plain_code= $_POST['pass'];
 
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");

@@ -293,7 +293,16 @@ if (!empty($glrow)) {
             $rtl_override = true;
         }
     }
+    else if (isset( $_SESSION['language_choice'] )) {
+        //this will support the onsite patient portal which will have a language choice but not yet a set language direction
+        $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
+        if ( $_SESSION['language_direction'] == 'rtl' &&
+        !strpos($GLOBALS['css_header'], 'rtl')) {
 
+            // the $css_header_value is set above
+            $rtl_override = true;
+        }
+    }
     else {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
