@@ -219,10 +219,8 @@ $(document).ready(function(){
 				<div class="col-sm-12">
 					<div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
 						<!-- <header class="panel-heading"><?php //echo xlt('Secure Chat'); ?>  </header>-->
-						<div id="messages" class="panel-body" style="padding:0 0 0 0;" >
-						<iframe src="./messaging/secure_chat.php" width="100%" height="600"></iframe><!--  -->
-						</div>
-						<div class="panel-footer">
+						<div id="messages" class="panel-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;" >
+						<iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe><!--  -->
 						</div>
 					</div>
 				</div><!-- /.col -->

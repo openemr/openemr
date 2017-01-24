@@ -730,6 +730,10 @@ $msgApp = new Controller();
             $scope.pidMessages = window.setInterval($scope.listMessages, 6000);
             $scope.pidPingServer = window.setInterval($scope.pingServer, 10000);
             $scope.getAuthUsers();
+        	$("#popeditor").on("show.bs.modal", function() {
+      		  var height = $(window).height() - 200;
+      		  $(this).find(".modal-body").css("max-height", height);
+      		});
         };
 
         $scope.scrollDown = function() {
@@ -743,11 +747,12 @@ $msgApp = new Controller();
         $scope.clearHistory = function() {
             var lastMessage = $scope.getLastMessage();
             var lastMessageId = lastMessage && lastMessage.id;
+            lastMessageId = (lastMessageId-1 >= 2) ? lastMessageId -1 : lastMessageId;
             lastMessageId && ($scope.historyFromId = lastMessageId);
         };
 
         $scope.openModal = function(e) {
-            var mi = $('#popeditor').modal('show');
+            var mi = $('#popeditor').modal({backdrop: "static"});
            // $('.summernote').summernote({focus: true});
            $scope.editmsg();
         };
@@ -805,7 +810,8 @@ $msgApp = new Controller();
     -o-transform:translate(0,0);
     transform:translate(0,0);
     padding: 5px;
-    height: 400px;
+    height: calc(100vh - 175px);
+    /* height: 400px; */
     /*height:100%; */
     overflow:auto;
     word-wrap: break-word;
@@ -898,6 +904,12 @@ font-size:16px;
 margin-bottom:2px;
 background:#fff;
 }
+.modal.modal-wide .modal-dialog {
+  width: 75%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
 </style>
 
 <body ng-controller="MsgAppCtrl">
@@ -973,7 +985,7 @@ background:#fff;
             </div>
     </div>
 
-    <div class="modal fade" id="popeditor">
+    <div class="modal modal-wide fade" id="popeditor">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form>
@@ -985,8 +997,6 @@ background:#fff;
                         <h4 class="modal-title"><?php echo xlt('Style your messsage and/or add Image/Video'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <!-- <label class="radio">Editor</label> -->
-                        <!-- <input class="form-control" ng-model="me.message" autofocus="autofocus"> -->
                         <summernote focus height="200"></summernote>
                     </div>
                     <div class="modal-footer">

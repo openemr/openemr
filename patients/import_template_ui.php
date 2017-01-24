@@ -129,7 +129,7 @@ var tdelete = function(docname) {
 						//console.log("File get..."+templateHtml);
 						$('#templatecontent').summernote('destroy');
 						$('#templatecontent').empty().append(templateHtml);
-						$('#popeditor').modal('show');
+						$('#popeditor').modal({backdrop: "static"});
 						$('#templatecontent').summernote({focus: true});
 						}
 					else if(mode == 'save'){
@@ -144,7 +144,12 @@ var tdelete = function(docname) {
 	}
 </script>
 <style>
-/*  looks okay to me! */
+.modal.modal-wide .modal-dialog {
+  width: 75%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
 </style>
 <body class="skin-blue">
 <div  class='container' style='display:block;'>
@@ -199,14 +204,18 @@ $dirlist = getTemplateList($tdir);
 ?>
 <script>
 $(document).ready(function(){
-$("#sel_pt").change(function(){
-	$("#edit_form").submit();
-}); 
-$("#ptstatus").text($("#sel_pt").find(":selected").text())
+	$("#popeditor").on("show.bs.modal", function() {
+		  var height = $(window).height() - 200;
+		  $(this).find(".modal-body").css("max-height", height);
+		});	
+	$("#sel_pt").change(function(){
+		$("#edit_form").submit();
+	}); 
+	$("#ptstatus").text($("#sel_pt").find(":selected").text())
 });
 </script>
 </div>
-   <div class="modal fade" id="popeditor">
+   <div class="modal modal-wide fade" id="popeditor">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                     <div class="modal-header">
