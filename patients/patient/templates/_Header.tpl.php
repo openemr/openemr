@@ -34,8 +34,8 @@
 		<meta name="author" content="Form | sjpadgett@gmail.com" />
 
 		<!-- Styles -->
-		<link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<!-- <link href="../assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" /> -->
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" />
+
 		<link href="styles/style.css" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="../assets/bootstrap/css/datepicker.css" rel="stylesheet" />
@@ -46,7 +46,7 @@
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js").wait()
-				.script("../assets/bootstrap/js/bootstrap.min.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("../assets/bootstrap/js/bootstrap-datepicker.js")
 				.script("../assets/bootstrap/js/bootstrap-timepicker.min.js")
