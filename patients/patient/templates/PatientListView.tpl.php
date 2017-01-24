@@ -67,11 +67,11 @@
                 </div> -->
             <div class="form-group inline" id="titleInputContainer">
                 <label class="control-label" for="title"><?php echo xlt('Title')?></label><br>
-                <div class="form-control">
+                <div class="controls inline-inputs">
                  <?php
                   # Generate drop down list for Title
                   $trow = "";
-                  echo generate_select_list('title', 'titles',$trow, xl('Title'));
+                  echo generate_select_list('title', 'titles',$trow, xl('Title'),'Unassigned',"form-control");
                  ?>
                     <span class="help-inline"></span>
                 </div>
@@ -118,11 +118,11 @@
                 </div>
                 <div class="form-group inline" id="sexInputContainer">
                     <label class="control-label" for="sex"><?php echo xlt('Sex')?></label><br>
-                    <div class="form-control">
+                    <div class="controls inline-inputs">
                      <?php
                       # Generate drop down list for Sex
                       $trow = "";
-                      echo generate_select_list('sex', 'sex',$trow, xl('Sex'));
+                      echo generate_select_list('sex', 'sex',$trow, xl('Sex'),'Unassigned',"form-control");
                      ?>         
                         <span class="help-inline"></span>
                     </div>
@@ -143,11 +143,11 @@
                 </div>
             <div class="form-group inline" id="stateInputContainer">
                 <label class="control-label" for="state"><?php echo xlt('State')?></label><br>
-                <div class="form-control">
+                <div class="controls inline-inputs">
                  <?php
                   # Generate drop down list for State
                   $trow = "";
-                  echo generate_select_list('state', 'state',$trow, xl('State'));
+                  echo generate_select_list('state', 'state',$trow, xl('State'),'Unassigned',"form-control");
                  ?>
                     <span class="help-inline"></span>
                 </div>
@@ -211,11 +211,11 @@
                 </div>-->
             <div class="form-group inline" id="statusInputContainer">
                 <label class="control-label" for="status"><?php echo xlt('Marital Status')?></label><br>
-                <div class="form-control">
+                <div class="controls inline-inputs">
                  <?php
                   # Generate drop down list for Marital Status
                   $trow = "";
-                  echo generate_select_list('status', 'marital',$trow, xl('Marital Status'));
+                  echo generate_select_list('status', 'marital',$trow, xl('Marital Status'),'Unassigned',"form-control");
                  ?>
                  <span class="help-inline"></span>
                 </div>
@@ -275,33 +275,33 @@
                 </div>
             <div class="form-group inline" id="raceInputContainer">
                 <label class="control-label" for="race"><?php echo xlt('Race')?></label><br>
-                <div class="form-control">
+                <div class="controls inline-inputs">
                  <?php
                   # Generate drop down list for Race
                   $trow = "";
-                  echo generate_select_list('race', 'race',$trow, xl('Race'));
+                  echo generate_select_list('race', 'race',$trow, xl('Race'),'Unassigned',"form-control");
                  ?>
                 <span class="help-inline"></span>
                 </div>
 
             <div class="form-group inline" id="ethnicityInputContainer">
                     <label class="control-label" for="ethnicity"><?php echo xlt('Ethnicity')?></label><br>
-                    <div class="form-control">
+                    <div class="controls inline-inputs">
                      <?php
                       # Generate drop down list for Ethnicity
                       $trow = "";
-                      echo generate_select_list('ethnicity', 'ethnicity',$trow, xl('Ethnicity'));
+                      echo generate_select_list('ethnicity', 'ethnicity',$trow, xl('Ethnicity'),'Unassigned',"form-control");
                      ?>
                         <span class="help-inline"></span>
                     </div>
                 </div>
             <div class="form-group inline" id="religionInputContainer">
                 <label class="control-label" for="religion"><?php echo xlt('Religion')?></label><br>
-                <div class="form-control">
+                <div class="controls inline-inputs">
                  <?php
                   # Generate drop down list for Religion
                   $trow = "";
-                  echo generate_select_list('religion', 'religious_affiliation',$trow, xl('Religion'));
+                  echo generate_select_list('religion', 'religious_affiliation',$trow, xl('Religion'),'Unassigned',"form-control");
                  ?>
                      <span class="help-inline"></span>
                 </div>
@@ -368,11 +368,11 @@
                 </div>
                 <div class="form-group inline" id="referralSourceInputContainer">
                     <label class="control-label" for="referralSource"><?php echo xlt('Referral Source')?></label><br>
-                    <div class="form-control">
+                    <div class="controls inline-inputs">
                      <?php
                       # Generate drop down list for Referral Source
                       $trow = "";
-                      echo generate_select_list('referralSource', 'refsource',$trow, xl('Referral Source'));
+                      echo generate_select_list('referralSource', 'refsource',$trow, xl('Referral Source'),'Unassigned',"form-control");
                      ?>
                         <span class="help-inline"></span>
                     </div>
@@ -456,12 +456,12 @@
 
                 <!-- <div class="form-group inline" id="ethnoracialInputContainer">
                     <label class="control-label" for="ethnoracial"><?php echo xlt('Ethnoracial')?></label><br>
-                    <div class="form-control">
+                    <div class="controls inline-inputs">
                         
                      <?php
                       # Generate drop down list for Ethnoracial
                       $trow = "";
-                      echo generate_select_list('ethnoracial', 'ethrace',$trow, xl('Ethnoracial'));
+                      echo generate_select_list('ethnoracial', 'ethrace',$trow, xl('Ethnoracial'),'Unassigned',"form-control");
                      ?>
                         <span class="help-inline"></span>
                     </div>
