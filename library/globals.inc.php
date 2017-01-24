@@ -278,6 +278,18 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Enable Fees In Left Menu')
     ),
+    'enable_batch_payment_in_left_menu' => array(
+      xl('Enable Batch Payment In Left Menu'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Batch Payment')
+    ),
+    'enable_posting_in_left_menu' => array(
+      xl('Enable Posting In Left Menu'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Posting')
+    ),
     // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
       xl('Enable EDI History In Left Menu'),
