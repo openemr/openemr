@@ -82,20 +82,16 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         $ip = $_SERVER['REMOTE_ADDR'];
         $status = 'filed';
         $lastmod = date( 'Y-m-d H:i:s' );
-
-        $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-       try{
-       	$rcnt = sqlQuery( $qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user) );
-        } catch( Exception $e ){
-            print $e . message;
+        $r = sqlStatement( "SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array ($pid, $user) );
+        $c = sqlFetchArray( $r );
+        $isit = $c['x'] * 1;
+        if($isit){
+       		$qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
+       		$rcnt = sqlStatement( $qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user) );
         }
-        if( $rcnt == FALSE ){
+        else{
             $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-            try{
-            	sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
-            } catch( Exception $e ){
-                print $e . message;
-            }
+		 	sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
         }
     }
     print json_encode( 'Done' );
