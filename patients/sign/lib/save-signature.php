@@ -89,7 +89,7 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         } catch( Exception $e ){
             print $e . message;
         }
-        if( $rcnt == false ){
+        if( $rcnt == FALSE ){
             $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
             try{
             	sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
