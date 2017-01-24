@@ -34,7 +34,7 @@
 		<meta name="author" content="Dashboard | sjpadgett@gmail.com" />
 
 		<!-- Styles -->
-		<link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" type="text/css" />
+		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
@@ -50,7 +50,7 @@
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
 				//.script("../sign/assets/signpad.js")
 				.script("../sign/assets/signer.js")
-				.script("../assets/bootstrap/js/bootstrap.min12px.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
