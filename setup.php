@@ -19,8 +19,16 @@
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Scott Wakefield <scott@npclinics.com.au>
  * @link http://www.open-emr.org
- * 
+ *
 **/
+
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
 require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php');
@@ -141,7 +149,6 @@ function cloneClicked() {
 <span class="title">OpenEMR Setup</span>
 <br><br>
 <span class="text">
-
 <?php
  if (strtolower(ini_get('register_globals')) != 'off' && (bool) ini_get('register_globals')) {
   echo "It appears that you have register_globals enabled in your php.ini\n" .
@@ -149,7 +156,7 @@ function cloneClicked() {
    "turn it off before continuing with installation.\n";
   exit(1);
  }
- 
+
  if(!extension_loaded("xml")) {
    echo "Error: PHP XML extension missing. To continue, install PHP XML extension, then restart web server.";
    exit(1);
@@ -175,10 +182,10 @@ function cloneClicked() {
      OpenEMR's admin->acl menu.</li>
  <li>Reviewing <?php echo $OE_SITE_DIR; ?>/config.php is a good idea. This file
      contains some settings that you may want to change.</li>
- <li>There's much information and many extra tools bundled within the OpenEMR installation directory. 
+ <li>There's much information and many extra tools bundled within the OpenEMR installation directory.
      Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
- <li>To ensure a consistent look and feel through out the application using
-     <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> is recommended.</li>
+ <li>To ensure a consistent look and feel throughout the application,
+     <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
  <li>The OpenEMR project home page, documentation, and forums can be found at <a href = "http://www.open-emr.org" target="_blank">http://www.open-emr.org</a></li>
  <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:president@oemr.org">president@oemr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
 </ul>
@@ -208,7 +215,7 @@ if (($config == 1) && ($state < 4)) {
 }
 else {
   switch ($state) {
-    
+
   case 1:
     echo "<b>Step $state</b><br><br>\n";
     echo "Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use.  For me to create the database, you will need to supply the MySQL root password.\n
@@ -222,7 +229,7 @@ else {
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
     break;
-    
+
   case 2:
     echo "<b>Step $state</b><br><br>\n";
     echo "Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.
@@ -307,7 +314,7 @@ else {
       echo " <td class='text'>(Clone the source site's database instead of creating a fresh one.)</td>\n";
       echo "</tr>\n";
     }
-    
+
     echo "<TR VALIGN='TOP' class='noclone'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
     echo "<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
 <TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User Password:</span></TD><TD><INPUT SIZE='30' TYPE='PASSWORD' NAME='iuserpass' VALUE=''></TD><TD><span class='text'>(This is the password for the initial user account above.)</span></TD></TR>
@@ -378,7 +385,7 @@ else {
       echo "Click Back in browser to re-enter.<br>\n";
       break;
     }
-    
+
     echo "<b>Step $state</b><br><br>\n";
     echo "Configuring OpenEMR...<br><br>\n";
 
@@ -467,7 +474,7 @@ else {
       echo "OK.<br>\n";
       flush();
     }
-    
+
     // Load the database files
     $dump_results = $installer->load_dumpfiles();
     if ( ! $dump_results ) {
@@ -525,7 +532,7 @@ else {
       echo "OK<br>\n";
       flush();
     }
-    
+
     if ( ! empty($installer->clone_database) ) {
       // Database was cloned, skip ACL setup.
       echo "Click 'continue' for further instructions.";
@@ -535,7 +542,7 @@ else {
       echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
       $next_state = 4;
     }
-    
+
     echo "
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='$next_state'>
@@ -552,7 +559,7 @@ else {
   case 4:
     echo "<b>Step $state</b><br><br>\n";
     echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";
-    
+
     if ( ! $installer->install_gacl() ) {
       echo $installer->error_message;
       break;
@@ -563,20 +570,20 @@ else {
     }
 
     echo "Gave the '$installer->iuser' user (password is '$installer->iuserpass') administrator access.<br><br>";
-    
+
     echo "Done installing and configuring access controls (php-GACL).<br>";
     echo "Next step will configure PHP.";
-    
+
     echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
-<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n	
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
     break;
-    
+
   case 5:
     echo "<b>Step $state</b><br><br>\n";
     echo "Configuration of PHP...<br><br>\n";

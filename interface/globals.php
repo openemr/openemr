@@ -1,5 +1,13 @@
 <?php
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/../common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 // Default values for optional variables that are allowed to be set by callers.
 
 // Unless specified explicitly, apply Auth functions
