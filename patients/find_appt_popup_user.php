@@ -270,14 +270,14 @@ $ignoreAuth = 1;
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script type="text/javascript" src="../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
-<script src="assets/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <!-- for ajax-y stuff
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script> -->
 

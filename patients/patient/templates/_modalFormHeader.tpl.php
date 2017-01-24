@@ -31,8 +31,7 @@
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
-<!-- <link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" />
-<link href="../assets/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />-->
+<!-- <link href="../assets/bootstrap/css/bootstrap.min12px.css" rel="stylesheet" /> -->
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/css/bootstrap-datetimepicker.min.css"	rel="stylesheet" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/css/bootstrap-combobox.css" rel="stylesheet" />
@@ -57,7 +56,7 @@ $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 <!-- * Don't need script load order or waits here ???
 <script type="text/javascript">
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js").wait()
-				.script("assets/bootstrap/js/bootstrap.min.js")
+				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("assets/bootstrap/js/bootstrap-datepicker.js")
 				.script("assets/bootstrap/js/bootstrap-timepicker.min.js")
