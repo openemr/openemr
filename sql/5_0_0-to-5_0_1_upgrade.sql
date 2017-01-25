@@ -91,17 +91,17 @@
   ALTER TABLE `list_options` ADD `edit_options` TINYINT(1) NOT NULL DEFAULT '1';
 #Endif
 
-#IfNotTable zf_multiple_db
-  CREATE TABLE `zf_multiple_db` (
+#IfNotTable multiple_db
+  CREATE TABLE `multiple_db` (
     `id` int(11) NOT NULL,
     `namespace` varchar(255) NOT NULL,
     `username` varchar(255) NOT NULL,
-    `password` text NOT NULL,
+    `password` text,
     `dbname` varchar(255) NOT NULL,
     `host` varchar(255) NOT NULL DEFAULT 'localhost',
     `port` smallint(4) NOT NULL DEFAULT '3306',
     `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  ) ENGINE=InnoDB
 #EndIf
 
 

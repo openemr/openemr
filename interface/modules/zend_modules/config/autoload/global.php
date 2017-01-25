@@ -14,6 +14,8 @@
  *
  */
 
+$utf8 =  ($GLOBALS['disable_utf8_flag']) ? array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\'') : array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\'');
+
 // Sets default factory using the default database
 $factories = array(
     'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
@@ -27,7 +29,7 @@ $factories = array(
 // Open pdo connection
 $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
 $adapters = array();
-$res = $dbh->prepare('SELECT * FROM zf_multiple_db');
+$res = $dbh->prepare('SELECT * FROM multiple_db');
 if($res->execute()){
     foreach ($res->fetchAll() as $row) {
 
@@ -35,9 +37,7 @@ if($res->execute()){
         $adapters[$row['namespace']] = array(
             'driver' => 'Pdo',
             'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
-            'driver_options' => array(
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
-            ),
+            'driver_options' => $utf8,
             'port' => $row['port'],
             'username' => $row['username'],
             'password' => my_decrypt($row['password']),
@@ -54,7 +54,7 @@ if($res->execute()){
 $dbh = null; // Close pdo connection
 
 // If to use utf-8 or not in my sql query
-$utf8 =  ($GLOBALS['disable_utf8_flag']) ? array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\'') : array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\'');
+
 return array(
     'db' => array(
         'driver'         => 'Pdo',

@@ -1615,11 +1615,11 @@ $GLOBALS_METADATA = array(
       '1',
       xl('New form validation')
      ),
-      'safe_key' => array(
-          xl('Safe key'),
+      'safe_key_database' => array(
+          xl('Safe key database'),
           'text',                           // data type
           '',                               // default
-          xl('Safe key for security database password')
+          xl('Allow connection to other databases')
       ),
   ),
 
