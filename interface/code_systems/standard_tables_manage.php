@@ -21,6 +21,7 @@
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -76,13 +77,31 @@ if ($db == 'RXNORM') {
             echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
-        }
-    } else { //$version is not "US Extension"
-        if (!snomed_import(false)) {
-            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+         } else {
+             drop_old_sct2();
+             chg_ct_external_torf1;
+         }
+    }
+    if (strncmp($version, "RF2", 3) == 0 ) {
+        $version = ltrim($version, "RF2");  
+        if (!snomedRF2_import()) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
+        } else {
+            drop_old_sct();
+            chg_ct_external_torf2();
         }
+    }
+    else { //$version is not "US Extension"
+        if (!snomed_import(FALSE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+         } else {
+             drop_old_sct2();
+             chg_ct_external_torf1();
+         }
     }
 } else if ($db == 'CQM_VALUESET') {
     if (!valueset_import($db)) {

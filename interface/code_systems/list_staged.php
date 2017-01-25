@@ -187,6 +187,16 @@ if (is_dir($mainPATH)) {
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
+                } else if (preg_match("/SnomedCT_RF2Release_INT_([0-9]{8}).zip/",$file,$matches)) {
+
+                    // Hard code the version SNOMED feed to be International:English
+                    //  (if add different SNOMED types/versions/languages, then can use this)
+                    //
+                    $version = "RF2International:English";
+                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+                    array_push($revisions,$temp_date);
+                    $supported_file = 1;
                 } else {
                     // nothing
                 }

@@ -141,6 +141,11 @@ define_external_table($code_external_tables, 5, 'icd9_sg_code', 'formatted_sg_co
 
 // For generic concepts, use the fully specified description (DescriptionType=3) so we can tell the difference between them.
 define_external_table($code_external_tables, 7, 'sct_descriptions', 'ConceptId', 'Term', 'Term', array("DescriptionStatus=0","DescriptionType=3"), "");
+define_external_table($code_external_tables,10,'sct2_description','conceptId','term','term',array("active=1","term LIKE '%(disorder)'"),"");
+//define_external_table($code_external_tables,10,'sct2_description','conceptId','term','term',array("active=1"),"");
+define_external_table($code_external_tables,11,'sct2_description','conceptId','term','term',array("active=1"),"");
+//define_external_table($code_external_tables,12,'sct2_description','conceptId','term','term',array("active=1"),"");
+define_external_table($code_external_tables,12,'sct2_description','conceptId','term','term',array("active=1","term LIKE '%(procedure)'"),"");
 
 
 // To determine codes, we need to evaluate data in both the sct_descriptions table, and the sct_concepts table.
@@ -178,7 +183,10 @@ $cd_external_options = array(
   '6' => xl('ICD10 Procedure/Service'),
   '2' => xl('SNOMED (RF1) Diagnosis'),
   '7' => xl('SNOMED (RF1) Clinical Term'),
-  '9' => xl('SNOMED (RF1) Procedure')
+  '9' => xl('SNOMED (RF1) Procedure'),
+  '10' => xl('SNOMED (RF2) Diagnosis'),
+  '11' => xl('SNOMED (RF2) Clinical Term'),
+  '12' => xl('SNOMED (RF2) Procedure')
 );
 
 /**
