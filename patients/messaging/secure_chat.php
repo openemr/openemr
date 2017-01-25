@@ -923,8 +923,8 @@ background:#fff;
                 </label>
                 <h4><span class="label label-info"><?php echo xlt('Authorized Recipients'); ?></span></h4>
                 <!--  --><span>
-                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button">All</button>
-                    <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button">None</button>
+                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All'); ?></button>
+                    <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None'); ?></button>
                 </span>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
@@ -953,7 +953,7 @@ background:#fff;
                                     src="./../images/Unknown-person.gif"
                                     alt="">
                                 <img class="direct-chat-img" ng-show="message.me")
-                                    src="./../images/favicon-32x32.png"
+                                    src="<?php echo $GLOBALS['images_static_relative']; ?>/favicon-32x32.png"
                                     alt="">
                                 <div class="direct-chat-text right">
                                     <div style="padding-left: 0px; padding-right: 0px;" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>

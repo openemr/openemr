@@ -21,7 +21,7 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title','Patient Portal | Patient Documents');
+	$this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
 	$this->assign('nav','onsitedocuments');
 
 	$pid = $this->cpid;
@@ -35,8 +35,8 @@
 	$isnew = false;
 	$ptName = isset ($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
 	$cuser = isset ( $_SESSION ['sessionUser'] ) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
-	echo "<script>var cpid='" . $pid . "';var cuser='" . $cuser . "';var ptName='" . $ptName . "';</script>";
-	echo "<script>var recid='" . $recid . "';var docid='" . $docid . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . $isnew . "';</script>"
+	echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
+	echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>"
 
 ?>
 <!DOCTYPE html>
@@ -52,25 +52,25 @@
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
 
-		<link href="../assets/css/style.css" rel="stylesheet" />
+		<link href="../assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
-		<link href="../sign/css/signer.css" rel="stylesheet" type="text/css" />
-		<link href="../sign/assets/signpad.css" rel="stylesheet">
+		<link href="../sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+		<link href="../sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
-				.script("../sign/assets/signpad.js").wait()
-				.script("../sign/assets/signer.js").wait()
+				.script("../sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("../sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
-				.script("scripts/app.js")
-				.script("scripts/model.js").wait()
-				.script("scripts/view.js").wait()
+				.script("scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 
 		</script>
 	</head>
@@ -282,7 +282,7 @@ body {
 	<div class="container">
 		<div class="row">
 		<div class="nav navbar-fixed-top" id="topnav">
-			<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='../images/logo-full-con.png'/>
+			<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>
 			<ul class="nav nav-pills"  style='margin-top:5px'>
 
 				<li class="bg-danger"><a href="#"	 onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>

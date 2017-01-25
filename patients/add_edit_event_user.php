@@ -674,11 +674,11 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <head>
 <?php //html_header_show(); ?>
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
-<link href="assets/css/style.css" rel="stylesheet" type="text/css" />
+<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <style type="text/css">@import url(../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../library/topdialog.js"></script>
+<script type="text/javascript" src="../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/textformat.js"></script>
+<script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>

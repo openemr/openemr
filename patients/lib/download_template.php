@@ -144,8 +144,8 @@ function doSubs($s) {
     else if (keySearch($s, '{ynRadioGroup}')) {
         $grcnt++;
         $sigfld = '<span class="ynuGroup" data-value="N/A" data-id="'.$grcnt.'" id="rgrp'.$grcnt.'">';
-        $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio'.$grcnt.'" data-id="'.$grcnt.'" value="Yes">Yes</label>';
-          $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio'.$grcnt.'" data-id="'.$grcnt.'" value="No">No</label>';
+        $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio'.$grcnt.'" data-id="'.$grcnt.'" value="Yes">'.xlt("Yes").'</label>';
+          $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio'.$grcnt.'" data-id="'.$grcnt.'" value="No">'.xlt("No").'</label>';
         $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio'.$grcnt.'" checked="checked" data-id="'.$grcnt.'" value="N/A">N/A</label>';
         $sigfld .= '</span>';
         $s = keyReplace($s,$sigfld);

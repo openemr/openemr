@@ -21,14 +21,14 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title','Patient Portal | Onsite Activity Views');
+	$this->assign('title', xlt('Patient Portal') . ' | ' . xlt('Onsite Activity Views'));
 	$this->assign('nav','onsiteactivityviews');
 
 	$this->display('_FormsHeader.tpl.php');
 	echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script type="text/javascript">
-	$LAB.script("scripts/app/onsiteactivityviews.js").wait(function(){
+	$LAB.script("scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 		$(document).ready(function(){
 			actpage.init();
 		});

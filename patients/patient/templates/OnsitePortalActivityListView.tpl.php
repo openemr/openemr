@@ -23,14 +23,14 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-	$this->assign('title','Patient Portal | OnsitePortalActivities');
+	$this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
 	$this->assign('nav','onsiteportalactivities');
 
 	$this->display('_Header.tpl.php');
 ?>
 
 <script type="text/javascript">
-	$LAB.script("scripts/app/onsiteportalactivities.js").wait(function(){
+	$LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 		$(document).ready(function(){
 			page.init();
 		});
@@ -44,7 +44,7 @@
 <div class="container">
 
 <h1>
-	<i class="icon-th-list"></i> <?php echo xlt('OnsitePortalActivities'); ?>
+	<i class="icon-th-list"></i> <?php echo xlt('Onsite Portal Activities'); ?>
 	<span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
 			<div class="col-sm-3 col-md-3 pull-right">
 		<form class="navbar-form" role="search">
@@ -136,14 +136,14 @@
 				<div class="form-group inline" id="patientIdInputContainer">
 					<label class="control-label" for="patientId"><?php echo xlt('Patient Id'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="patientId" placeholder="Patient Id" value="<%= _.escape(item.get('patientId') || '') %>">
+						<input type="text" class="form-control" id="patientId" placeholder="<?php echo xla('Patient Id'); ?>" value="<%= _.escape(item.get('patientId') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="activityInputContainer">
 					<label class="control-label" for="activity"><?php echo xlt('Activity'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="activity" placeholder="Activity" value="<%= _.escape(item.get('activity') || '') %>">
+						<input type="text" class="form-control" id="activity" placeholder="<?php echo xla('Activity'); ?>" value="<%= _.escape(item.get('activity') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
@@ -160,21 +160,21 @@
 				<div class="form-group inline" id="pendingActionInputContainer">
 					<label class="control-label" for="pendingAction"><?php echo xlt('Pending Action'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="pendingAction" placeholder="Pending Action" value="<%= _.escape(item.get('pendingAction') || '') %>">
+						<input type="text" class="form-control" id="pendingAction" placeholder="<?php echo xla('Pending Action'); ?>" value="<%= _.escape(item.get('pendingAction') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="actionTakenInputContainer">
 					<label class="control-label" for="actionTaken"><?php echo xlt('Action Taken'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="actionTaken" placeholder="Action Taken" value="<%= _.escape(item.get('actionTaken') || '') %>">
+						<input type="text" class="form-control" id="actionTaken" placeholder="<?php echo xla('Action Taken'); ?>" value="<%= _.escape(item.get('actionTaken') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="form-group inline" id="statusInputContainer">
 					<label class="control-label" for="status"><?php echo xlt('Status'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="status" placeholder="Status" value="<%= _.escape(item.get('status') || '') %>">
+						<input type="text" class="form-control" id="status" placeholder="<?php echo xla('Status'); ?>" value="<%= _.escape(item.get('status') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
@@ -202,7 +202,7 @@
 				<div class="form-group inline" id="actionUserInputContainer">
 					<label class="control-label" for="actionUser"><?php echo xlt('Action User'); ?></label>
 					<div class="controls inline-inputs">
-						<input type="text" class="form-control" id="actionUser" placeholder="Action User" value="<%= _.escape(item.get('actionUser') || '') %>">
+						<input type="text" class="form-control" id="actionUser" placeholder="<?php echo xla('Action User'); ?>" value="<%= _.escape(item.get('actionUser') || '') %>">
 						<span class="help-inline"></span>
 					</div>
 				</div>
@@ -236,7 +236,7 @@
 				<div class="form-group">
 					<label class="control-label"></label>
 					<div class="controls">
-						<button id="deleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> <?php echo xlt('Delete OnsitePortalActivity'); ?></button>
+						<button id="deleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> <?php echo xlt('Delete Onsite Portal Activity'); ?></button>
 						<span id="confirmDeleteOnsitePortalActivityContainer" class="hide">
 							<button id="cancelDeleteOnsitePortalActivityButton" class="btn btn-mini"><?php echo xlt('Cancel'); ?></button>
 							<button id="confirmDeleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm'); ?></button>
@@ -252,7 +252,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
-                <h3><i class="icon-edit"></i> <?php echo xlt('Edit OnsitePortalActivity'); ?>
+                <h3><i class="icon-edit"></i> <?php echo xlt('Edit Onsite Portal Activity'); ?>
 					<span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
 				</h3>
             </div>
@@ -271,7 +271,7 @@
 	<div id="collectionAlert"></div>
 	<div id="onsitePortalActivityCollectionContainer" class="collectionContainer"></div>
 	<p id="newButtonContainer" class="buttonContainer">
-		<button id="newOnsitePortalActivityButton" class="btn btn-primary"><?php echo xlt('Add OnsitePortalActivity'); ?></button>
+		<button id="newOnsitePortalActivityButton" class="btn btn-primary"><?php echo xlt('Add Onsite Portal Activity'); ?></button>
 	</p>
 
 </div> <!-- /container -->

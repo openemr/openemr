@@ -88,7 +88,7 @@ function getTemplateList($dir){
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
 
-<link href="assets/css/style.css" rel="stylesheet" type="text/css" />
+<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" />
@@ -171,18 +171,18 @@ var tdelete = function(docname) {
  <div class="form-group">
  <label for="sel_pt"><?php echo xlt('Patient'); ?></label>
  <select class="form-control" id="sel_pt" name="sel_pt">
-<option value='0'><?php echo xl("Global All Patients")?></option>
+<option value='0'><?php echo xlt("Global All Patients")?></option>
 <?PHP
 $ppt = getAuthUsers();
 global $getdir;
 foreach ($ppt as $pt){
 	if($getdir != $pt['pid'])
-		echo "<option value=".$pt['pid'].">".$pt['ptname']."</option>";
+		echo "<option value=".attr($pt['pid']).">".text($pt['ptname'])."</option>";
 	else 
-		echo "<option value='".$pt['pid']."' selected='selected'>".$pt['ptname']."</option>";
+		echo "<option value='".attr($pt['pid'])."' selected='selected'>".text($pt['ptname'])."</option>";
 }
 echo "</select></div>";
-echo '<button type="submit" class="btn btn-default">Refresh</button>';
+echo '<button type="submit" class="btn btn-default">'.xlt('Refresh').'</button>';
 echo '</form></div>';
 $dirlist = getTemplateList($tdir);
   echo "<table  class='table table-striped table-bordered'>";
