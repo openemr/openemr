@@ -38,7 +38,7 @@
 
     // set the language
     if (!empty($_POST['languageChoice'])) {
-            $_SESSION['language_choice'] = $_POST['languageChoice'];
+            $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
     }
     else if (empty($_SESSION['language_choice'])) {
             // just in case both are empty, then use english
