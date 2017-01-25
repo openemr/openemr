@@ -272,22 +272,22 @@ $GLOBALS_METADATA = array(
 
     // TajEmo Work BY CB 2012/06/21 10:42:31 AM added option to Hide Fees
     'enable_fees_in_left_menu' => array(
-      xl('Enable Fees'),
+      xl('Enable Fees Submenu'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Enable Fees')
+      xl('Enable Fees Submenu')
     ),
     'enable_batch_payment' => array(
       xl('Enable Batch Payment'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Batch Payment')
+      xl('Enable Batch Payment')
     ),
     'enable_posting' => array(
       xl('Enable Posting'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Posting')
+      xl('Enable Posting')
     ),
     // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
