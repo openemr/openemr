@@ -17,16 +17,26 @@ function oeFormatMoney($amount, $symbol=false) {
   return $s;
 }
 
-function oeFormatShortDate($date='today') {
+function oeFormatShortDate($date='today', $showYear = true) {
   if ($date === 'today') $date = date('Y-m-d');
   if (strlen($date) == 10) {
     // assume input is yyyy-mm-dd
     if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy
-      $date = substr($date, 5, 2) . '/' . substr($date, 8, 2) . '/' . substr($date, 0, 4);
+      $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
     else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy
-      $date = substr($date, 8, 2) . '/' . substr($date, 5, 2) . '/' . substr($date, 0, 4);
+      $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+
+    //if should show year as well
+    if($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2){
+        if($showYear){
+            $newDate .= '/' . substr($date, 0, 4);
+        }
+    }
+    elseif(!$showYear) //if format is yyyy-mm-dd and don''t want to show year
+      $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+
   }
-  return $date;
+  return $newDate;
 }
 
 // 0 - Time format 24 hr
