@@ -273,14 +273,26 @@ $GLOBALS_METADATA = array(
 
     // TajEmo Work BY CB 2012/06/21 10:42:31 AM added option to Hide Fees
     'enable_fees_in_left_menu' => array(
-      xl('Enable Fees In Left Menu'),
+      xl('Enable Fees'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Enable Fees In Left Menu')
+      xl('Enable Fees')
+    ),
+    'enable_batch_payment' => array(
+      xl('Enable Batch Payment'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Batch Payment')
+    ),
+    'enable_posting' => array(
+      xl('Enable Posting'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Posting')
     ),
     // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
-      xl('Enable EDI History In Left Menu'),
+      xl('Enable EDI History'),
       'bool',                           // data type
       '1',                              // default = true
       xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
