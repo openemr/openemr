@@ -21,22 +21,31 @@ function oeFormatShortDate($date='today', $showYear = true) {
   if ($date === 'today') $date = date('Y-m-d');
   if (strlen($date) == 10) {
     // assume input is yyyy-mm-dd
-    if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy
+    if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy, note year is added below
       $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
-    else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy
+    else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy, note year is added below
       $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
 
-    //if should show year as well
-    if($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2){
-        if($showYear){
+    // process the year (add for formats 1 and 2; remove for format 0)
+    if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
+        if ($showYear) {
             $newDate .= '/' . substr($date, 0, 4);
         }
     }
-    elseif(!$showYear) //if format is yyyy-mm-dd and don''t want to show year
-      $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+    else if (!$showYear) { // $GLOBALS['date_display_format'] == 0
+      // need to remove the year
+      $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
+    }
+    else { // $GLOBALS['date_display_format'] == 0
+      // keep the year (so will simply be the original $date)
+      $newDate = $date;
+    }
 
+    return $newDate;
   }
-  return $newDate;
+
+  // this is case if the $date does not have 10 characters
+  return $date;
 }
 
 // 0 - Time format 24 hr
@@ -47,13 +56,13 @@ function oeFormatTime( $time, $format = "" )
 	if ( $format == "" ) {
 		$format = $GLOBALS['time_display_format'];
 	}
-	
+
 	if ( $format == 0 ) {
 		$formatted = date( "H:i", strtotime( $time ) );
 	} else if ( $format == 1 ) {
 		$formatted = date( "g:i a", strtotime( $time ) );
 	}
-	
+
 	return $formatted;
 }
 
@@ -107,7 +116,7 @@ function DateToYYYYMMDD($DateValue)
 	 {
 	  return '';
 	 }
-	 
+
 	if($GLOBALS['date_display_format']==0)
 	 {
 	  return $DateValue;
