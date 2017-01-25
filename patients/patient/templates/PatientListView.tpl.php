@@ -24,7 +24,7 @@
  
     //require_once ("./../verify_session.php");
     require_once ( "../../library/options.inc.php" );
-    $this->assign('title','Patient Portal | PatientData');
+    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
     $this->assign('nav','patientdata');
     /*
      *  row keys are js underscore camelcase and follow the underscores varables used in this template
@@ -33,14 +33,14 @@
     $row = Array();
     $row = $this->trow;
     
-    echo "<script>var recid='" . $this->recid . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . $this->cpid . "';var cuser='" .$this->cuser . "';</script>";
+    echo "<script>var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
     $_SESSION['whereto'] = 'profilepanel';
 
     $this->display('_modalFormHeader.tpl.php');
 ?>
 
 <script type="text/javascript">
-    $LAB.script("scripts/app/patientdata.js").wait(function(){
+    $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
         $(document).ready(function(){
             page.init();
         });

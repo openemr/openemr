@@ -39,7 +39,7 @@
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
 
-		<link href="styles/style.css" rel="stylesheet" />
+		<link href="styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-combobox-1-1-7/css/bootstrap-combobox.css" rel="stylesheet" />
@@ -53,9 +53,9 @@
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/eonasdan-bootstrap-datetimepicker-3-1-3/build/js/bootstrap-datetimepicker.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js").wait()
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
-				.script("scripts/app.js")
-				.script("scripts/model.js").wait()
-				.script("scripts/view.js").wait()
+				.script("scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 		</script>
 	</head>
 

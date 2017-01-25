@@ -419,7 +419,7 @@ body {
 }
 </style>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator-1-1-0/jquery.creditCardValidator.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
 var mypcc = '1';
@@ -1148,12 +1148,12 @@ echo htmlspecialchars( $patdata['fname'], ENT_QUOTES ) . " " . htmlspecialchars(
         echo '<div class="col-xs-12 col-md-4 col-lg-4">
         <div class="panel panel-default height">';
         if( ! isset( $_SESSION['authUserID'] ) )
-            echo '<div class="panel-heading">Payment Information<span style="color:#cc0000"><em> Pending Auth since: </em>'.$edata["date"].'</span></div>';
+            echo '<div class="panel-heading">'.xlt("Payment Information").'<span style="color:#cc0000"><em> '.xlt("Pending Auth since").': </em>'.text($edata["date"]).'</span></div>';
         else
-            echo '<div class="panel-heading">Payment Information <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">Authorize</button></div>';
+            echo '<div class="panel-heading">'.xlt("Payment Information").' <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">'.xlt("Authorize").'</button></div>';
     }
     else{
-        echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6"><div class="panel panel-default height"><div class="panel-heading">Payment Information </div>';
+        echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6"><div class="panel panel-default height"><div class="panel-heading">'.xlt("Payment Information").' </div>';
     }
     ?>
                      <div class="panel-body">

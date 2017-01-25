@@ -37,20 +37,20 @@
 <?php } ?>
 
 
-<link href="assets/css/style.css" rel="stylesheet" type="text/css" />
-<link href="sign/css/signer.css" rel="stylesheet" type="text/css" />
-<link href="sign/assets/signpad.css" rel="stylesheet">
+<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+<link href="sign/css/signer.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+<link href="sign/assets/signpad.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet">
 
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="sign/assets/signpad.js" type="text/javascript"></script>
-<script src="sign/assets/signer.js" type="text/javascript"></script>
+<script src="sign/assets/signpad.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="sign/assets/signer.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
 
 </head>
 <body class="skin-blue fixed">
 	<header class="header">
-		<a href="home.php" class="logo"><img src='./images/logo-full-con.png'/></a>
+		<a href="home.php" class="logo"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></a>
 		<nav class="navbar navbar-static-top" role="navigation">
 			<!-- Sidebar toggle button-->
 			<a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas"

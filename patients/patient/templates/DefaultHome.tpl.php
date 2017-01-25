@@ -21,7 +21,7 @@
  * @link http://www.open-emr.org
  */
 
-$this->assign( 'title', 'Patient Portal | Home' );
+$this->assign( 'title', xlt('Patient Portal') . " | " . xlt('Home'));
 $this->assign( 'nav', 'home' );
 
 $this->display( '_Header.tpl.php' );

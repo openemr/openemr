@@ -68,7 +68,7 @@ foreach ( $result as $iter ) {
 	<ng ng-app="emrMessageApp">
 	<div class="container">
 		<div class='header logo'>
-		<h2><img style='width:25%;height:auto;' class='logo' src='./../images/logo-full-con.png'/>  <?php echo xlt('Patient Messaging'); ?></h2>
+		<h2><img style='width:25%;height:auto;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>  <?php echo xlt('Patient Messaging'); ?></h2>
 		</div>
 		<!-- -->
 		<div class="row" ng-controller="inboxCtrl">
@@ -96,7 +96,7 @@ foreach ( $result as $iter ) {
 							onclick='window.location.replace("./messages.php")'> <span
 							class="fa fa-refresh fa-lg"></span>
 						</a>
-						<button class="btn btn-default btn-lg" title="New Note"
+						<button class="btn btn-default btn-lg" title="<?php echo xla('New Note'); ?>"
 							data-mode="add" data-toggle="modal" data-target="#modalCompose">
 							<span class="fa fa-edit fa-lg"></span>
 						</button>

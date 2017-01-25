@@ -21,13 +21,13 @@
  * @link http://www.open-emr.org
  */
 
-$this->assign( 'title', 'Portal Dashboard | Home' );
+$this->assign( 'title', xlt("Portal Dashboard") . " | " . xlt("Home"));
 $this->assign( 'nav', 'home' );
 $this->display( '_ProviderHeader.tpl.php' );
-echo "<script>var cpid='" . $this->cpid . "';var cuser='" .$this->cuser . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
+echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
 ?>
 <script>
-$LAB.script("../sign/assets/signpad.js").wait(function(){
+$LAB.script("../sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 $(document).ready(function(){
 	  $('#openSignModal').on('show.bs.modal', function(e) {
 			$('.sigPad').signaturePad({
