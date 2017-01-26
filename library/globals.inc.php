@@ -868,6 +868,14 @@ $GLOBALS_METADATA = array(
       xl('Observation Results in Immunization')
     ),
 
+    'submit_changes_for_all_appts_at_once' => array(
+      xl('Submit Changes For All Appts At Once'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enables to submit changes for all appointments of a recurrence at once.')
+    ),
+
+
    ),
     // Report Tab
     //
