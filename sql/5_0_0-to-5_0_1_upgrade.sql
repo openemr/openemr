@@ -91,4 +91,7 @@
   ALTER TABLE `list_options` ADD `edit_options` TINYINT(1) NOT NULL DEFAULT '1';
 #Endif
 
+#IfMissingColumn list_options timestamp
+ALTER TABLE `list_options` ADD `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+#Endif
 
