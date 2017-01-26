@@ -39,25 +39,24 @@
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
 
-		<link href="styles/style.css" rel="stylesheet" />
+		<link href="styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
-		<link href="../sign/css/signer.css" rel="stylesheet" type="text/css" />
-		<link href="../sign/assets/signpad.css" rel="stylesheet">
+		<link href="../sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+		<link href="../sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
 				//.script("../sign/assets/signpad.js")
-				.script("../sign/assets/signer.js")
+				.script("../sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
-
-				.script("scripts/app.js")
-				.script("scripts/model.js").wait()
-				.script("scripts/view.js").wait()
+				.script("scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 		</script>
 	</head>
 

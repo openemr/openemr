@@ -115,7 +115,7 @@
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/js/jquery.gritter.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/css/jquery.gritter.css" />
-    <link rel="stylesheet" type="text/css" href="assets/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
 
     <script type="text/javascript">
         function process() {
@@ -280,7 +280,7 @@
 	</form>
 
         <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR</div>
-      </div><div><img src='./images/logo-full-con.png'/></div>
+      </div><div><img src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/></div>
     <?php } ?>
 
     </center>

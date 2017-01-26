@@ -21,7 +21,7 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title','Patient Portal Secure');
+	$this->assign('title', xlt("Patient Portal Secure"));
 	$this->assign('nav','secureapp');
 
 	$this->display('_Header.tpl.php');

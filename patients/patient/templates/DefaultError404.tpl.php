@@ -21,7 +21,7 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title','Patient Portal | File Not Found');
+	$this->assign('title', xlt("Patient Portal") . " | " . xlt("File Not Found"));
 	$this->assign('nav','home');
 
 	$this->display('_Header.tpl.php');
