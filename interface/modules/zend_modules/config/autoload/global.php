@@ -14,6 +14,7 @@
  *
  */
 
+// If to use utf-8 or not in my sql query
 $utf8 =  ($GLOBALS['disable_utf8_flag']) ? array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\'') : array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\'');
 
 // Sets default factory using the default database
@@ -26,34 +27,38 @@ $factories = array(
     }
 );
 
-// Open pdo connection
-$dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
-$adapters = array();
-$res = $dbh->prepare('SELECT * FROM multiple_db');
-if($res->execute()){
-    foreach ($res->fetchAll() as $row) {
+// This settings can be change in the global settings under security tab
+if($GLOBALS['allow_multiple_databases']){
 
-        // Create new adapters using data from database
-        $adapters[$row['namespace']] = array(
-            'driver' => 'Pdo',
-            'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
-            'driver_options' => $utf8,
-            'port' => $row['port'],
-            'username' => $row['username'],
-            'password' => my_decrypt($row['password']),
-        );
+    // Open pdo connection
+    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
+    $adapters = array();
+    $res = $dbh->prepare('SELECT * FROM multiple_db');
+    if($res->execute()){
+        foreach ($res->fetchAll() as $row) {
 
-        // Create new factories using data from custom database
-        $factories[$row['namespace']] = function ($serviceManager) use ($row) {
-            $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
-            $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager,'',$row['namespace']);
-            return $adapter;
-        };
+            // Create new adapters using data from database
+            $adapters[$row['namespace']] = array(
+                'driver' => 'Pdo',
+                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
+                'driver_options' => $utf8,
+                'port' => $row['port'],
+                'username' => $row['username'],
+                'password' => my_decrypt($row['password']),
+            );
+
+            // Create new factories using data from custom database
+            $factories[$row['namespace']] = function ($serviceManager) use ($row) {
+                $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
+                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager,'',$row['namespace']);
+                return $adapter;
+            };
+        }
     }
-}
-$dbh = null; // Close pdo connection
+    $dbh = null; // Close pdo connection
 
-// If to use utf-8 or not in my sql query
+}
+
 
 return array(
     'db' => array(

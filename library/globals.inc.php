@@ -1615,11 +1615,17 @@ $GLOBALS_METADATA = array(
       '1',
       xl('New form validation')
      ),
+      'allow_multiple_databases' => array(
+          xl('Allow multiple databases'),
+          'bool',
+          '0',
+          xl('Allow to use with multiple database')
+      ),
       'safe_key_database' => array(
           xl('Safe key database'),
           'text',                           // data type
           '',                               // default
-          xl('Allow connection to other databases')
+          xl('Key for multiple database credentials encryption')
       ),
   ),
 
