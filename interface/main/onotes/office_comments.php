@@ -19,11 +19,12 @@
  */
 
 include_once("../../globals.php");
-include_once("$srcdir/onotes.inc");
 include_once("$srcdir/formatting.inc.php");
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
+
+$oNoteService = new \services\ONoteService();
 ?>
 
 <html>
@@ -45,28 +46,30 @@ $N = 10;
 
 <?php
 
+$notes = $oNoteService->getNotes(1, 0, ($N + 1));
+
 //retrieve all active notes
-if($result = getOnoteByDate("", 1, "date,body,user","all",0)) {
+if($notes) {
 
 $notes_count = 0;//number of notes so far displayed
-foreach ($result as $iter) {
+foreach ($notes as $note) {
     if ($notes_count >= $N) {
         //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
-        print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert' onclick='top.restoreSession()'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
+        print "<tr><td colspan=3 align=center><a href='office_comments_full.php?active=-1' class='alert' onclick='top.restoreSession()'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
         break;
     }
 
-    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
-    $date=oeFormatShortDate($date);
+    $date = $note->getDate()->format('Y-m-d');
+    $date = oeFormatShortDate($date);
 
-    if (getdate() == strtotime($iter{"date"})) {
+    $todaysDate = new DateTime();
+    if ($todaysDate->format('Y-m-d') == $date) {
         $date_string = xl("Today") . ", " . $date;
     } else {
         $date_string = $date;
     }
 
-    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($iter{"user"}).")</font><br>" . "<font class='text'>" . text($iter{"body"}) . "</font></td></tr>\n";
-
+    print "<tr><td width=20% valign=top><font class='bold'>".text($date_string)."</font> <font class='bold'>(".text($note->getUser()->getUsername()).")</font><br>" . "<font class='text'>" . text($note->getBody()) . "</font></td></tr>\n";
 
     $notes_count++;
 }
