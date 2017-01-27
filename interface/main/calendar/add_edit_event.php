@@ -1717,7 +1717,9 @@ if ($repeatexdate != "") {
 <div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
 <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
 <br>
-<input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+<?php if($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+    <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+<?php } ?>
 <input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
 <input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
 <input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
