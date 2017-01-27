@@ -1540,6 +1540,14 @@ $GLOBALS_METADATA = array(
       xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
     ),
 
+    'submit_changes_for_all_appts_at_once' => array(
+      xl('Submit Changes For All Appts At Once'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enables to submit changes for all appointments of a recurrence at once.')
+    ),
+
+
   ),
 
   // Security Tab
