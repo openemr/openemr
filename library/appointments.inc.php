@@ -128,7 +128,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     }
 
     $query = "SELECT " .
-    "e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, " .
+    "e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, e.pc_gid, " .
     "e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
     "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
     "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
@@ -329,7 +329,8 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0 )
+//Support for therapy group appointments added by shachar z.
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null)
 {
 	$sqlBindArray = array();
 
@@ -343,6 +344,10 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	if ( $patient_id ) {
 		$where .= " AND e.pc_pid = ?";
 		array_push($sqlBindArray, $patient_id);
+	} elseif( $group_id ) {
+		//if $group_id this means we want only the group events
+		$where .= " AND e.pc_gid = ? AND e.pc_pid = ''";
+		array_push($sqlBindArray, $group_id);
 	} else {
 		$where .= " AND e.pc_pid != ''";
 	}
@@ -377,11 +382,12 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	return $appointments;
 }
 
-function fetchNextXAppts($from_date, $patient_id, $nextX = 1) {
+//Support for therapy group appointments added by shachar z.
+function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null) {
 
   $appts = array();
   $nextXAppts = array();
-  $appts = fetchAppointments( $from_date, null, $patient_id, null, null, null, null, null, null, false, $nextX );
+  $appts = fetchAppointments( $from_date, null, $patient_id, null, null, null, null, null, null, false, $nextX, $group_id);
   if($appts) {
     $appts = sortAppointments($appts);
     $nextXAppts = array_slice($appts, 0, $nextX);
@@ -498,11 +504,10 @@ function compareAppointments( $appointment1, $appointment2 )
 {
 	global $appointment_sort_order;
 	$comparisonOrder = getComparisonOrder( $appointment_sort_order );
-	foreach ( $comparisonOrder as $comparison )
-	{
-		$cmp_function = getCompareFunction( $comparison );
-		$result = $cmp_function( $appointment1, $appointment2 );
-		if ( 0 != $result ) {
+	foreach ($comparisonOrder as $comparison) {
+		$cmp_function = getCompareFunction($comparison);
+		$result = $cmp_function($appointment1, $appointment2);
+		if (0 != $result) {
 			return $result;
 		}
 	}
@@ -610,7 +615,9 @@ function compareAppointmentsByCompletedDrugScreen( $appointment1, $appointment2 
 function fetchAppointmentCategories()
 {
      $catSQL= " SELECT pc_catid as id, pc_catname as category "
-            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";
+            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0";
+	if($GLOBALS['enable_group_therapy']) $catSQL .= " OR pc_cattype=3";
+    $catSQL .= "  ORDER BY category";
      return sqlStatement($catSQL);
 }
 

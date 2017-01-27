@@ -86,6 +86,7 @@ define('SHARING_GLOBAL',       3);
 define('TYPE_ON_PATIENT',        0);
 define('TYPE_ON_PROVIDER',        1);
 define('TYPE_ON_CLINIC',        2);
+define('TYPE_ON_THERAPY_GROUP', 3);
 // admin defines
 define('_ADMIN_ACTION_APPROVE',   0);
 define('_ADMIN_ACTION_HIDE',      1);

@@ -37,6 +37,7 @@ $fake_register_globals=false;
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
  require_once("$srcdir/options.js.php");
+ require_once("$srcdir/group.inc");
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
@@ -1356,7 +1357,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         //
         if($mode1) $extraAppts = 1;
         else $extraAppts = 6;
-        $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + $extraAppts);
+        $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + $extraAppts, true);
         //////
         if($events) {
           $selectNum = 0;
@@ -1432,6 +1433,12 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         //
         $toggleSet = true;
         $priorDate = "";
+        $therapyGroupCategories = array();
+        $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1");
+        while ($result = sqlFetchArray($query)){
+            $therapyGroupCategories[] = $result['pc_catid'];
+        }
+
         //
         foreach($events as $row) { //////
             $count++;
@@ -1460,15 +1467,22 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             }
             //////
             echo "<div " . $apptStyle . ">";
-            echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+            if(!in_array($row['pc_catid'], $therapyGroupCategories)){
+                echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+            } else {
+                echo "<span title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+            }
             echo "<b>" . htmlspecialchars($row['pc_eventDate'],ENT_NOQUOTES) . ", ";
             echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname),ENT_NOQUOTES)  . ")</b> ";
             if ($row['pc_recurrtype']) echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . "'>";
             echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'],ENT_NOQUOTES) . " ) </span>";
             echo htmlspecialchars(xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "\n";
+            if(in_array($row['pc_catid'], $therapyGroupCategories)) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
             if ($row['pc_hometext']) echo " <span style='color:green'> Com</span>";
-            echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES) . "</a></div>\n";
+            echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES);
+            echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
+            echo "</div>\n";
             //////
         }
         if ($resNotNull) { //////
