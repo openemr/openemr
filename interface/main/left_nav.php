@@ -103,7 +103,7 @@ use ESign\Api;
  // chosen.  Each element value is an array of 3 values:
  //
  // * Name to appear in the navigation table
- // * Usage: 0 = global, 1 = patient-specific, 2 = encounter-specific
+ // * Usage: 0 = global, 1 = patient-specific, 2 = encounter-specific, 3 = therapy group-specific, 4 = therapy group encounter - specific
  // * The URL relative to the interface directory
  //
 
@@ -162,6 +162,14 @@ use ESign\Api;
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
+ }
+
+ if($GLOBALS['enable_group_therapy']){
+  $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
+  $primary_docs['gdg'] = array(xl('')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
+  $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+  $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
+  $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
  }
 
  $esignApi = new Api();
@@ -429,6 +437,8 @@ function genFindBlock() {
  var active_pid = 0;
  var active_encounter = 0;
  var encounter_locked = false;
+ //therapy group id
+ var active_gid = 0;
 
  // Current selections in the top and bottom frames.
  var topName = '';
@@ -463,15 +473,19 @@ function genFindBlock() {
  // frame as the default; the url must be relative to interface.
  function loadFrame2(fname, frame, url) {
   var usage = fname.substring(3);
-  if (active_pid == 0 && usage > '0') {
-   alert('<?php xl('You must first select or add a patient.','e') ?>');
+  if (active_pid == 0 && active_gid == 0  && (usage > '0' && usage < '5')){
+   <?php if($GLOBALS['enable_group_therapy']) { ?>
+      alert('<?php xl('You must first select or add a patient or therapy group.','e') ?>');
+   <?php } else { ?>
+      alert('<?php xl('You must first select or add a patient.','e') ?>');
+  <?php } ?>
    return false;
   }
-  if (active_encounter == 0 && usage > '1') {
+  if (active_encounter == 0 && (usage > '1' && usage < '3')) {
    alert('<?php xl('You must first select or create an encounter.','e') ?>');
    return false;
   }
-  if (encounter_locked && usage > '1') {
+  if (encounter_locked && usage > '1' && (usage > '1' && usage < '3')) {
    alert('<?php echo xls('This encounter is locked. No new forms can be added.') ?>');
    return false;
   }
@@ -579,6 +593,24 @@ function genFindBlock() {
     ?>
     lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
    }
+   //for therapy groups menu
+    <?php if($GLOBALS['enable_group_therapy']) { ?>
+      if (usage == '3' || usage == '4') {
+          var da = false;
+          if (active_gid == 0) da = true;
+          if (active_encounter == 0 && usage > '3') da = true;
+          if (encounter_locked && usage > '3') da = true;
+          <?php
+          if ($GLOBALS['menu_styling_vertical'] == 0){
+              $color = "'#0000ff'";
+          }else{ // ($GLOBALS['menu_styling_vertical'] == 1)
+              $color = "'#000000'";
+          }
+          ?>
+          lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
+      }
+   <?php } ?>
+
   }
   f.popups.disabled = (active_pid == 0);
  }
@@ -592,18 +624,21 @@ function goHome() {
 function clearactive() {
 	top.restoreSession();
 	//Ajax call to clear active patient in session
+    var method = (active_pid > 0) ? 'unset_pid' : 'unset_gid';
 	$.ajax({
 	  type: "POST",
 	  url: "<?php echo $GLOBALS['webroot'] ?>/library/ajax/unset_session_ajax.php",
-	  data: { func: "unset_pid"},
+	  data: { func: method},
 	  success:function( msg ) {
 		clearPatient();
+		clearTherapyGroup();
 		top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
 		top.frames['RBot'].location='messages/messages.php?form_active=1';
 	  }
 	});
     
 	$(parent.Title.document.getElementById('clear_active')).hide();
+	$(parent.Title.document.getElementById('clear_active_group')).hide();
 }
  // Reference to the search.php window.
  var my_window;
@@ -745,6 +780,7 @@ function clearactive() {
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, pubpid, frname, str_dob) {
+  clearTherapyGroup();
   var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
@@ -769,7 +805,41 @@ function clearactive() {
   }
 
   $(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+  $(parent.Title.document.getElementById('clear_active_group')).hide();//To hide Clear Active group button on selecting a patient
+
  }
+
+ // Call this to announce that the therapy group has changed.  You must call this
+ // if you change the session 'therapy_group', so that the navigation frame will show the
+ // correct group.
+ function setTherapyGroup(group_id, group_name) {
+     clearPatient();
+
+     $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
+     setTitleContent('current_patient', '<span><?php echo xls('Therapy Group -');?> <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
+     if (group_id == active_gid) return;
+    setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+     active_gid = group_id;
+     active_encounter = 0;
+     encounter_locked = false;
+     syncRadios();
+     $(parent.Title.document.getElementById('current_patient_block')).show();
+     var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+     $(encounter_block).hide();
+
+     // zero out the encounter frame, replace it with the encounter list frame
+     var f = document.forms[0];
+     if ( f.cb_top.checked && f.cb_bot.checked ) {
+         var encounter_frame = getEncounterTargetFrame('enc');
+         if ( encounter_frame != undefined )  {
+             loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
+         }
+     }
+
+     $(parent.Title.document.getElementById('clear_active_group')).show();//To display Clear Active group button on selecting a patient
+     $(parent.Title.document.getElementById('clear_active')).hide();//To hide Clear Active Patient button on selecting a patient
+ }
+
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
  //This function lists all encounters of the patient.
  //This function writes the drop down in the top frame.
@@ -791,6 +861,10 @@ function loadCurrentPatientFromTitle() {
     top.restoreSession();
     top.frames['RTop'].location='../patient_file/summary/demographics.php';
 }
+ function loadCurrentGroupFromTitle(gid) {
+     top.restoreSession();
+     top.frames['RTop'].location='../therapy_groups/index.php?method=groupDetails&group_id=' + gid;
+ }
 
 function getEncounterTargetFrame( name ) {
     var bias = <?php echo $primary_docs[ 'enc'  ][ 1 ]?>;
@@ -877,6 +951,22 @@ function isEncounterLocked( encounterId ) {
   $(parent.Title.document.getElementById('current_encounter_block')).hide();
   reloadPatient('');
   syncRadios();
+ }
+
+ // You must call this if you delete the active therapy group so that
+ // the appearance of the navigation frame will be correct and so that any
+ // stale content will be reloaded.
+ function clearTherapyGroup() {
+     if (active_gid == 0) return;
+     var f = document.forms[0];
+     active_gid = 0;
+     active_encounter = 0;
+     encounter_locked = false;
+     setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
+     $(parent.Title.document.getElementById('current_patient_block')).hide();
+     top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
+     $(parent.Title.document.getElementById('current_encounter_block')).hide();
+     syncRadios();
  }
 
  // You must call this if you delete the active encounter (or if for any other
@@ -973,7 +1063,7 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#pfb0").prepend('<i class="fa fa-fw fa-list-alt"></i>&nbsp;');
     $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-envelope-o"></i>&nbsp;');
     $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
-    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-users"></i>&nbsp;');
     $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-area-chart"></i>&nbsp;');
     $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-dollar"></i>&nbsp;');
     $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-list-ol"></i>&nbsp;');
@@ -1118,6 +1208,23 @@ if (!empty($reg)) {
 
     </ul>
   </li>
+  <?php if($GLOBALS['enable_group_therapy']) : ?>
+      <li class="open"><a class="expanded" id="patimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
+          <ul>
+              <?php genMiscLink('RTop','gfn','0',xl('Groups'),'therapy_groups/index.php?method=listGroups'); ?>
+              <?php genTreeLink('RTop','gng', xl('New')); ?>
+              <?php genTreeLink('RTop','gdg',xl('Group Details')); ?>
+              <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
+                  <ul>
+                      <?php genTreeLink('RBot','gcv',xl('Create Visit')); ?>
+                      <?php genTreeLink('RBot','gce',xl('Current')); ?>
+                      <?php genTreeLink('RBot','gvh',xl('Visit History')); ?>
+                  </ul>
+              </li>
+
+          </ul>
+      </li>
+  <?php endif ?>
   <?php // TajEmo Work by CB 2012/06/21 10:41:15 AM hides fees if disabled in globals ?>
   <?php if(!isset($GLOBALS['enable_fees_in_left_menu']) || $GLOBALS['enable_fees_in_left_menu'] == 1){ ?>
   <li><a class="collapsed" id="feeimg" ><span><?php xl('Fees','e') ?></span></a>

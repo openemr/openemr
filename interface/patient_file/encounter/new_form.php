@@ -21,7 +21,7 @@ $esignApi = new Esign\Api();
 function openNewForm(sel) {
   top.restoreSession();
   FormNameValueArray = sel.split('formname=');
-  if(FormNameValueArray[1] == 'newpatient')
+  if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
   {
     parent.location.href = sel;
   }
@@ -141,9 +141,19 @@ function findPosX(id)
 include_once("$srcdir/registry.inc");
 
 function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
+    global $attendant_type;
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date FROM registry WHERE " .
-    "state LIKE \"$state\" ORDER BY category, priority, name";
+    "unpackaged, date FROM registry WHERE ";
+  // select different forms for groups
+  if($attendant_type == 'pid' )
+  {
+    $sql .= "patient_encounter = 1 AND ";
+  }
+  else
+  {
+    $sql .= "therapy_group_encounter = 1 AND ";
+  }
+  $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
   if ($limit != "unlimited") $sql .= " limit $limit, $offset";
   $res = sqlStatement($sql);
   if ($res) {

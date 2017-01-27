@@ -4,8 +4,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once("$srcdir/../interface/globals.php");
-require_once("$srcdir/log.inc");
+require_once(dirname(__FILE__). "/../interface/globals.php");
+require_once(dirname(__FILE__)."/log.inc");
 
 // Function called to set the global session variable for patient id (pid) number.
 function setpid($new_pid) {
@@ -24,6 +24,11 @@ function setpid($new_pid) {
   if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
     $_SESSION['encounter'] = $encounter = 0;
   }
+  // unset therapy_group session when set session for patient
+  if($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])){
+    unset($_SESSION['therapy_group']);
+  }
+
 
   // Set pid to the escaped pid
   $_SESSION['pid'] = $new_pid_int;

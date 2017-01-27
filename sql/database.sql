@@ -1755,6 +1755,7 @@ CREATE TABLE `forms` (
   `authorized` tinyint(4) default NULL,
   `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
   `formdir` longtext,
+  `therapy_group_id` INT(11) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `form_id` (`form_id`)
@@ -4984,6 +4985,8 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (12, 'Health and Behavioral
 INSERT INTO `openemr_postcalendar_categories` VALUES (13, 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13);
 
 INSERT INTO `openemr_postcalendar_categories` VALUES (14, 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14);
+INSERT INTO `openemr_postcalendar_categories` VALUES (1000, 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 1000);
+
 -- --------------------------------------------------------
 
 --
@@ -4997,6 +5000,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_multiple` int(10) unsigned NOT NULL,
   `pc_aid` varchar(30) default NULL,
   `pc_pid` varchar(11) default NULL,
+  `pc_gid` int(11) default 0,
   `pc_title` varchar(150) default NULL,
   `pc_time` datetime default NULL,
   `pc_hometext` text,
@@ -5632,6 +5636,8 @@ CREATE TABLE `registry` (
   `priority` int(11) default '0',
   `category` varchar(255) default NULL,
   `nickname` varchar(255) default NULL,
+  `patient_encounter` TINYINT NOT NULL DEFAULT '1',
+  `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 ;
 
@@ -5639,20 +5645,22 @@ CREATE TABLE `registry` (
 -- Dumping data for table `registry`
 --
 
-INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '');
-INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '');
-INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '');
-INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '');
-INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '');
+INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0);
+INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0);
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0);
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0);
+INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0);
+INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
+INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
 
 -- --------------------------------------------------------
 
@@ -7952,6 +7960,14 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{group_name:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, group_patient_start:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
+
+
+
 
 -- list_options for `form_eye_mag`
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLManufacturer', 'Eye Contact Lens Manufacturer list', 1, 0);
@@ -8563,6 +8579,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','plan_of_care','Plan of Care','1','0','0','','INT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','procedure','Procedure','3','0','0','','RQO','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','test_or_order','Test/Order','2','0','0','','RQO','','1','0','0','');
+
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
+('groupstat', '-', '- None', '10', '0', '0', 'FEFDCF|0'),
+('groupstat', '=', '= Took Place', '20', '0', '0', 'FF2414|0'),
+('groupstat', '>', '> Did Not Take Place', '30', '0', '0', 'BFBFBF|0'),
+('groupstat', '<', '< Not Reported', '40', '0', '0', 'FEFDCF|0');
+
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'attendstat', 'Group Attendance Statuses', '1', '0');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `toggle_setting_1`) VALUES
+('attendstat', '-', '- Not Reported', '10', '0', '0', 'FEFDCF|0', '0'),
+('attendstat', '@', '@ Attended', '20', '0', '0', 'FF2414|0', '1'),
+('attendstat', '?', '? Did Not Attend', '30', '0', '0', 'BFBFBF|0', '1'),
+('attendstat', '~', '~ Late Arrival', '40', '0', '0', 'BFBFBF|0', '1'),
+('attendstat', 'x', 'x Cancelled', '50', '0', '0', 'FEFDCF|0', '0');
 
 -- --------------------------------------------------------
 
@@ -9640,3 +9671,92 @@ CREATE TABLE `codes_history` (
   `update_by` varchar(255),
    PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
+
+-- -------------------------------------------------------
+--
+-- Tables for therapy groups
+--
+DROP TABLE IF EXISTS `therapy_groups`;
+CREATE TABLE `therapy_groups` (
+  `group_id` int(11) NOT NULL auto_increment,
+  `group_name` varchar(255) NOT NULL ,
+  `group_start_date` date NOT NULL ,
+  `group_end_date` date,
+  `group_type` tinyint NOT NULL,
+  `group_participation` tinyint NOT NULL,
+  `group_status` int(11) NOT NULL,
+  `group_notes` text,
+  `group_guest_counselors` varchar(255),
+  PRIMARY KEY  (`group_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_participants`;
+CREATE TABLE `therapy_groups_participants` (
+  `group_id` int(11) NOT NULL,
+  `pid` int(11) NOT NULL ,
+  `group_patient_status` int(11) NOT NULL,
+  `group_patient_start` date NOT NULL ,
+  `group_patient_end` date,
+  `group_patient_comment` text,
+  PRIMARY KEY (`group_id`,`pid`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
+CREATE TABLE `therapy_groups_participant_attendance` (
+  `form_id` int(11) NOT NULL ,
+  `pid` int(11) NOT NULL ,
+  `meeting_patient_comment` text ,
+  `meeting_patient_status` varchar(15),
+  PRIMARY KEY (`form_id`,`pid`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `therapy_groups_counselors`;
+CREATE TABLE `therapy_groups_counselors`(
+	`group_id` int(11) NOT NULL,
+	`user_id` int(11) NOT NULL,
+	PRIMARY KEY (`group_id`,`user_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_groups_encounter`;
+CREATE TABLE `form_groups_encounter` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `reason` longtext,
+  `facility` longtext,
+  `facility_id` int(11) NOT NULL default '0',
+  `group_id` bigint(20) default NULL,
+  `encounter` bigint(20) default NULL,
+  `onset_date` datetime default NULL,
+  `sensitivity` varchar(30) default NULL,
+  `billing_note` text,
+  `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
+  `last_level_billed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
+  `last_level_closed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
+  `last_stmt_date`    date DEFAULT NULL,
+  `stmt_count`        int  NOT NULL DEFAULT 0,
+  `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
+  `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
+  `invoice_refno` varchar(31) NOT NULL DEFAULT '',
+  `referral_source` varchar(31) NOT NULL DEFAULT '',
+  `billing_facility` INT(11) NOT NULL DEFAULT 0,
+  `external_id` VARCHAR(20) DEFAULT NULL,
+  `pos_code` tinyint(4) default NULL,
+  `counselors` VARCHAR (255),
+  `appt_id` INT(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `pid_encounter` (`group_id`, `encounter`),
+  KEY `encounter_date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `form_therapy_groups_attendance`;
+CREATE TABLE `form_therapy_groups_attendance` (
+  id	bigint(20) auto_increment,
+  date	date,
+  group_id	int(11),
+  user	varchar(255),
+  groupname	varchar(255),
+  authorized	tinyint(4),
+  encounter_id	int(11),
+  activity	tinyint(4),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB ;
