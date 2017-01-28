@@ -95,7 +95,7 @@ $menu_json='[
       {"label":"Calendar","menu_id":"adm0","target":"adm","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"],"global_req":"!disable_calendar"},
       {"label":"Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/logview.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"eRx Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/erx_logview.php","children":[],"requirement":0,"global_req":["erx_enable","newcrop_user_role"]},
-      {"label":"Database","menu_id":"adm0","target":"adm","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
+      {"label":"Database","menu_id":"dba0","target":"dba","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
       {"label":"Certificates","menu_id":"adm0","target":"adm","url":"/interface/usergroup/ssl_certificates_admin.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"Native Data Loads","menu_id":"adm0","target":"adm","url":"/interface/super/load_codes.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"External Data Loads","menu_id":"adm0","target":"adm","url":"/interface/code_systems/dataloads_ajax.php","children":[],"requirement":0,"acl_req":["admin","super"]},
