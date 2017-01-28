@@ -11,8 +11,10 @@
     "datatables.net-scroller",
     "datatables.net",
     "jquery",
+    "jquery-mousewheel",
     "imagesloaded",
     "moment",
+    "php-date-formatter",
     "react",
     "summernote",
     "underscore"
