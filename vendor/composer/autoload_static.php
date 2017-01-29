@@ -3607,6 +3607,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/connector.php',
         'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/logger.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
+        'entities\\ONote' => __DIR__ . '/../..' . '/entities/onote.php',
+        'entities\\User' => __DIR__ . '/../..' . '/entities/user.php',
         'entities\\Version' => __DIR__ . '/../..' . '/entities/version.php',
         'html2text' => __DIR__ . '/../..' . '/library/classes/html2text.class.php',
         'ntlm_sasl_client_class' => __DIR__ . '/..' . '/phpmailer/phpmailer/extras/ntlm_sasl_client.php',
@@ -3635,7 +3637,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
+        'repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/onote_repository.php',
+        'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/user_repository.php',
         'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/version_repository.php',
+        'services\\ONoteService' => __DIR__ . '/../..' . '/services/onote_service.php',
+        'services\\UserService' => __DIR__ . '/../..' . '/services/user_service.php',
         'services\\VersionService' => __DIR__ . '/../..' . '/services/version_service.php',
     );
 
