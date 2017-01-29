@@ -103,6 +103,10 @@ class ONoteRepository extends EntityRepository {
      * @return list of office notes.
      */
     public function getNotes($activity, $offset, $limit) {
+        if (!is_numeric($offset) || !is_numeric($limit)) {
+            return null;
+        }
+
         $criteria = array();
 
         if ($activity == 1) {
