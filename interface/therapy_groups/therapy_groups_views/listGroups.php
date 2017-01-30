@@ -86,19 +86,19 @@
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_start_date_filter"><?php echo xlt('Starting Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datetimepicker" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_start_date_filter"><?php echo xlt('Starting Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datetimepicker" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_end_date_filter"><?php echo xlt('End Date From');?>:</label>
-                <input type="text" class="form-control" id="group_from_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datetimepicker" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_end_date_filter"><?php echo xlt('End Date To');?>:</label>
-                <input type="text" class="form-control" id="group_to_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datetimepicker" id="group_to_end_date_filter" placeholder="" >
             </div>
 
         </div>
@@ -162,13 +162,12 @@
 
 //        var lang = '<?php //echo $lang ?>//';//get language support for filters
 
-        /* Initialise Datetime Pickers */
-        $('#group_from_start_date_filter').datetimepicker();
-        $('#group_to_start_date_filter').datetimepicker();
-
-        $('#group_from_end_date_filter').datetimepicker();
-        $('#group_to_end_date_filter').datetimepicker();
-
+        /* Initialise Datetime Picker */
+        $('.datetimepicker').datetimepicker({
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            format: 'Y-m-d H:i',
+            timepicker:true
+        });
 
         /* Initialise Datatable */
         var table = $('#therapy_groups_list').DataTable({
