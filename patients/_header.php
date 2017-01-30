@@ -72,9 +72,7 @@
 								<?php
 								 foreach ( $msgs as $i ) {
 								  	if($i['message_status']=='New'){
-										echo "<li><a href='#'>
-											<h4>" . text($i['title']) . "</h4>
-											<p>" . text($i['body']) . "</p></a></li>";
+										echo "<li><a href='./messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
 									}
 								}
 								?>

@@ -79,7 +79,13 @@ $(document).ready(function(){
 			</h4>
 			<a class="btn btn-success btn-sm" href="./onsiteactivityviews"><?php echo xlt('Review Audits') ?> »</a>
 		</div>
-				<div class="col-sm-3 col-md-3">
+		<div class="col-sm-3 col-md-3">
+			<h4>
+				<i class="icon-cogs"></i><?php echo xlt('Patient Mail') ?>
+			</h4>
+			<a class="btn btn-success btn-sm" href="./../messaging/messages.php"><?php echo xlt('Mail') ?> »</a>
+		</div>
+		<div class="col-sm-3 col-md-3">
 			<h4>
 				<i class="icon-cogs"></i><?php echo xlt('Patient Chat') ?>
 			</h4>

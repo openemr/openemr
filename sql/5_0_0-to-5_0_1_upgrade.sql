@@ -111,6 +111,31 @@ CREATE TABLE `onsite_documents` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
+#IfNotTable onsite_mail
+CREATE TABLE `onsite_mail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `owner` bigint(20) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `header` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `body` longtext,
+  `recipient_id` varchar(128) DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `sender_id` varchar(128) DEFAULT NULL,
+  `sender_name` varchar(255) DEFAULT NULL,
+  `assigned_to` varchar(255) DEFAULT NULL,
+  `deleted` tinyint(4) DEFAULT '0' COMMENT 'flag indicates note is deleted',
+  `message_status` varchar(20) NOT NULL DEFAULT 'New',
+  `mail_chain` varchar(255) DEFAULT NULL,
+  `is_msg_encrypted` tinyint(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
 #IfNotTable onsite_messages
 CREATE TABLE `onsite_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

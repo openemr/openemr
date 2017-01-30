@@ -28,7 +28,6 @@
 
 		<title><?php $this->eprint($this->title); ?></title>
 		<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-		<meta http-equiv="X-Frame-Options" content="deny">
 		<base href="<?php $this->eprint($this->ROOT_URL); ?>" />
 		<meta name="description" content="Provider Portal" />
 		<meta name="author" content="Dashboard | sjpadgett@gmail.com" />

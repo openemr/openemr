@@ -917,14 +917,14 @@ background:#fff;
         <!-- <h2 class="hidden-xs">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h4 class="label label-info"><?php echo xlt('Send to Recipients'); ?></h4>
+                <h4><span class="label label-danger"><?php echo xlt('Send to Recipients'); ?></span></h4>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h4><span class="label label-info"><?php echo xlt('Authorized Recipients'); ?></span></h4>
-                <!--  --><span>
-                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All'); ?></button>
-                    <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None'); ?></button>
+                <h4><span class="label label-danger"><?php echo xlt('Authorized Recipients'); ?></span></h4>
+                <span>
+                    <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button">All</button>
+                    <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button">None</button>
                 </span>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
