@@ -35,14 +35,20 @@
         $date       = date('Y/m/d H:i:s', strtotime($value['date']));
         $editLang   = $translate->z_xlt('Edit');
         $removeLang = $translate->z_xlt('Remove');
+        $id = $this->escapeHtml($value['id']);
+        $namespace = $this->escapeHtml($value['namespace']);
+        $username = $this->escapeHtml($value['username']);
+        $dbname = $this->escapeHtml($value['dbname']);
+        $host = $this->escapeHtml($value['host']);
+        $port = $this->escapeHtml($value['port']);
         $html .= <<<html
     <tr>
-        <td><a href="multipledb/edit?id={$value['id']}">{$editLang}</a> | <a href="multipledb/remove?id={$value['id']}"  onclick="save($(this),'{$value['namespace']}')">{$removeLang}</a></td>
-        <td>{$value['namespace']}</td>
-        <td>{$value['username']}</td>
-        <td>{$value['dbname']}</td>
-        <td>{$value['host']}</td>
-        <td>{$value['port']}</td>
+        <td><a href="multipledb/edit?id={$id}">{$editLang}</a> | <a href="multipledb/remove?id={$id}"  onclick="save($(this),'{$namespace}')">{$removeLang}</a></td>
+        <td>{$namespace}</td> 
+        <td>{$username}</td>
+        <td>{$dbname}</td>
+        <td>{$host}</td>
+        <td>{$port}</td>
         <td>{$date}</td>
 
     </tr>
