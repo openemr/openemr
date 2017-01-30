@@ -19,7 +19,7 @@ include_once('../globals.php');
 </style>
 
 <script type="text/javascript" language="javascript">
-function toencounter(rawdata) {
+function toencounter(rawdata, isTherapyGroup) {
 //This is called in the on change event of the Encounter list.
 //It opens the corresponding pages.
 	document.getElementById('EncounterHistory').selectedIndex=0;
@@ -29,7 +29,13 @@ function toencounter(rawdata) {
 	 }
 	else if(rawdata=='New Encounter')
 	 {
-	 	top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=')
+	    if( parent.left_nav.active_gid == 0){
+	        // for patient
+            top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=');
+        } else {
+	        //for therapy group
+            top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+        }
 		return true;
 	 }
 	else if(rawdata=='Past Encounter List')
@@ -95,6 +101,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
     <td style="vertical-align:text-bottom;">
             <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
+    </td>
+    <td style="vertical-align:text-bottom;">
+        <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active_group' onClick="javascript:parent.left_nav.clearactive();return false;">
+            <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE THERAPY GROUP'), ENT_QUOTES); ?></span></a>
     </td>
 </tr>
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>

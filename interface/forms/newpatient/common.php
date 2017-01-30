@@ -19,6 +19,9 @@
  */
 
 require_once("$srcdir/options.inc.php");
+if($GLOBALS['enable_group_therapy']){
+    require_once("$srcdir/group.inc");
+}
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
@@ -193,6 +196,8 @@ function cancelClicked() {
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
+  // Show Thrapy group category only if global enable_group_therapy is true
+  if($catid == 1000 && !$GLOBALS['enable_group_therapy']) continue;
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='" . attr($catid) . "'";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
@@ -305,6 +310,17 @@ if ($fres) {
      </td>
     </tr>
 
+    <?php if($GLOBALS['enable_group_therapy']) { ?>
+        <!-- select group name - showing just if therapy group type is selected -->
+    <tr id="therapy_group_name" style="display: none">
+        <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
+        <td>
+            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? getGroup($result['external_id'])['group_name'] : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+            <input type='hidden' name='form_gid' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? $result['external_id'] : '' ?>' />
+        </td>
+    </tr>
+
+    <?php }?>
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>
@@ -429,6 +445,33 @@ if (!$viewmode) { ?>
   }
 }
 ?>
+
+<?php if($GLOBALS['enable_group_therapy']) { ?>
+/* hide / show group name input */
+  $('#pc_catid').on('change', function () {
+      if($(this).val() == 1000){
+          $('#therapy_group_name').show();
+      } else {
+          $('#therapy_group_name').hide();
+      }
+  })
+
+  function sel_group() {
+      top.restoreSession();
+      var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
+      dlgopen(url, '_blank', 500, 400);
+  }
+  // This is for callback by the find-group popup.
+  function setgroup(gid, name) {
+     var f = document.forms[0];
+     f.form_group.value = name;
+     f.form_gid.value = gid;
+  }
+
+  <?php if($viewmode && $result['pc_catid'] == 1000) {?>
+    $('#therapy_group_name').show();
+  <?php } ?>
+<?php } ?>
 </script>
 
 

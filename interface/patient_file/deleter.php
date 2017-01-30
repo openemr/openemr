@@ -116,6 +116,7 @@ function delete_drug_sales($patient_id, $encounter_id=0) {
 //
 function form_delete($formdir, $formid) {
   $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
+  $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
   if (substr($formdir,0,3) == 'LBF') {
     row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
   }
