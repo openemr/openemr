@@ -21,6 +21,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
 require_once("../globals.php");
@@ -46,7 +47,8 @@ $eraname = '';
 $eracount = 0;
 /* Load dependencies only if we need them */
 if( ( isset($GLOBALS['portal_onsite_enable'])) || ($GLOBALS['portal_onsite_enable']) ){
-	require_once("$srcdir/pnotes.inc");
+	/*  Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
+	require_once("../../patients/lib/portal_mail.inc");
 	require_once("../../patients/lib/appsql.class.php");
 	
 	function is_auth_portal( $pid = 0){
@@ -64,7 +66,9 @@ if( ( isset($GLOBALS['portal_onsite_enable'])) || ($GLOBALS['portal_onsite_enabl
 		if( fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl') != true ) return false; 
 		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
 		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
-		addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
+		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) != 1)
+			return false;;
+		//addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
 		return true;
 	}
 	function fixup_invoice($template, $ifile){
@@ -352,6 +356,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     			$alertmsg = xlt('Notification FAILED');
     			break;
     		}
+    		$pvoice = array();
     		flush();
     		ftruncate($fhprint,0);
     	}
