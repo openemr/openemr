@@ -23,7 +23,7 @@
 
 session_start();
 if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite'] ) ){
-	$pid = $_SESSION['pid'];
+	$owner = $_SESSION['pid'];
 	$ignoreAuth = true;
 	$fake_register_globals=false;
 	$sanitize_all_escapes=true;
@@ -41,60 +41,72 @@ if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite'] ) ){
 	}
 }
 
-require_once (dirname( __FILE__ ) . "/../lib/portal_pnotes.inc");
+require_once (dirname( __FILE__ ) . "/../lib/portal_mail.inc");
 
-$pid = $_SESSION ['pid'] ? $_SESSION ['pid'] : $_POST ['pid'];
 $task = $_POST ['task'];
 if (! $task)
 	return 'no task';
+
 $noteid = $_POST ['noteid'] ? $_POST ['noteid'] : 0;
+$owner = isset($_POST ['owner']) ? $_POST ['owner'] : $_SESSION ['pid'];
 $note = $_POST ['inputBody'];
 $title = $_POST ['title'];
-$to = $_POST ['sendto']?$_POST ['sendto']:$_SESSION ['providerUName'];
+$sid=(int)$_POST ['sender_id'];
+$sn=$_POST ['sender_name'];
+$rid=(int)$_POST ['recipient_id'];
+$rn=$_POST ['recipient_name'];
+$header = '';
 
 switch ($task) {
 	case "add" :
 		{
-			sendMail ( $pid, $note, $title, $to, $noteid );
-			echo 'done';
+			sendMail ( $owner, $note, $title, $header, $noteid,$sid,$sn,$rid,$rn );
+			//echo 'done';
 		}
 		break;
 	case "reply" :
 		{
-			sendMail ( $pid, $note, $title, $to, $noteid );
-			echo 'done';
+			sendMail ( $owner, $note, $title, $header, $noteid,$sid,$sn,$rid,$rn );
+			//echo 'done';
 		}
 		break;
 	case "setread" :
 		{
 			if ($noteid > 0) {
-				updatePortalPnoteMessageStatus ( $noteid, 'Read' );
-				echo 'done';
+				updatePortalMailMessageStatus ( $noteid, 'Read' );
+				//echo 'done';
 			} else
 				echo 'missing note id';
 		}
 		break;
+		case "getinbox" :
+			{
+				if ($owner) {
+					$result = getMails($owner,'inbox','','');
+					echo json_encode($result);
+				} else
+					echo 'error';
+			}
+			break;
 	case "getsent" :
 		{
-			if ($pid) {
-				$result = getMails($pid,'sent','','');
+			if ($owner) {
+				$result = getMails($owner,'sent','','');
 				echo json_encode($result);
-				
 			} else
 				echo 'error';
 		}
 		break;
 		case "getall" :
 			{
-				if ($pid) {
-					$iresult = getMails($pid,'inbox','','');
-					$sresult = getMails($pid,'sent','','');
-					$result = array_merge((array)$iresult,(array)$sresult);
+				if ($owner) {
+					$result = getMails($owner,'all','','');
 					echo json_encode($result);
 				} else
 					echo 'error';
 			}
 			break;		
 }
-
+if(isset($_REQUEST["submit"]))
+	header("Location: {$_REQUEST["submit"]}");
 ?>
