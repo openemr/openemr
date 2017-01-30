@@ -154,15 +154,10 @@
 <script>
     $(document).ready(function(){
 
-        $('.datepicker').datepicker({
-            dateFormat: "yy-mm-dd",
-            //currentText: '', // set today text
-            monthNames: ['<?=xls('January')?>','<?=xls('February')?>','<?=xls('March')?>','<?=xls('April')?>','<?=xls('May')?>','<?=xls('June')?>','<?=xls('July')?>','<?=xls('August')?>','<?=xls('September')?>','<?=xls('October')?>','<?=xls('November')?>','<?=xls('December')?>'],
-            //monthNamesShort: [], // set short month names
-            //dayNames: [], // set days names
-            //dayNamesShort: [], // set short day names
-            dayNamesMin: ['<?=xls('Su')?>','<?=xls('Mo')?>','<?=xls('Tu')?>','<?=xls('We')?>','<?=xls('Th')?>','<?=xls('Fr')?>','<?=xls('Sa')?>'], // set more short days names
-
+        $('.datepicker').datetimepicker({
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            format: 'Y-m-d',
+            timepicker:false
         });
     });
     $('#cancel-save').on('click', function(e){
