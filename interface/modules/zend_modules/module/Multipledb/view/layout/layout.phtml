@@ -13,7 +13,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see
 * http://www.gnu.org/licenses/licenses.html#GPL
-*    @author  Dror Golan <drorgo@matrix.co.il>
+*    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
 * +------------------------------------------------------------------------------+
  *
  */
@@ -36,7 +36,6 @@
         $this->headLink()->appendStylesheet( $GLOBALS['assets_static_relative']  . $file);
     }
     $this->headLink()->appendStylesheet( $this->basePath()  . '/css/multipledb/multipledb.css');
-    $this->headLink()->appendStylesheet( $this->basePath()  . '/css/multipledb/multipledb.css');
     echo $this->headLink();
     ?>
 
@@ -45,7 +44,6 @@
     foreach($this->jsFiles as $file){
 
         $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
-        $this->headScript()->appendFile( $this->basePath()  . '/js/multipledb/jquery.validate.min.js');
     }
     echo  $this->headScript() ;
     ?>

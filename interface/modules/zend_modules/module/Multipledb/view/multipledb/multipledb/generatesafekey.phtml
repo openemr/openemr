@@ -29,15 +29,15 @@
 
 
 <div class="safekey">
-            <label class="yoursafekey"><?=$translate->z_xlt('Your safe key is:')?></label>
+            <label class="yoursafekey"><?php echo $translate->z_xlt('Your safe key is')?>:</label>
 
             <div class="box">
-                <h1><?=$randomSafeKey?></h1>
+                <h1><?php echo $this->escapeHtml($randomSafeKey)?></h1>
             </div>
-            <p>Store your safe key at settings globals in security tab</p>
+            <p><?php echo $translate->z_xlt('Store your safe key at settings globals in security tab')?></p>
 
-            <input type="button" name="back" value="<?=$translate->z_xlt('Back')?>" onclick="back()" />
-            <input type="button" name="back" value="<?=$translate->z_xlt('Generate new key')?>" onclick="newkey()" />
+            <input type="button" name="back" value="<?php echo $translate->z_xlt('Back')?>" onclick="back()" />
+            <input type="button" name="back" value="<?php echo $translate->z_xlt('Generate new key')?>" onclick="newkey()" />
 
 </div>
 

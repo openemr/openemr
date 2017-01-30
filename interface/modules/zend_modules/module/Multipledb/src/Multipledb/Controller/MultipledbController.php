@@ -13,7 +13,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see
 * http://www.gnu.org/licenses/licenses.html#GPL
-*    @author  Dror Golan <drorgo@matrix.co.il>
+*    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
 * +------------------------------------------------------------------------------+
  *
  */
@@ -67,6 +67,7 @@ class MultipledbController extends BaseController{
     {
 
         $id = substr((int)$_REQUEST['id'], 0, 11);
+        $_SESSION['multiple_edit_id'] = $id;
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
@@ -91,7 +92,7 @@ class MultipledbController extends BaseController{
 
     public function saveAction(){
 
-            $id = substr((int)$_REQUEST['id'], 0, 11);
+        $id = substr((int)$_SESSION['multiple_edit_id'], 0, 11);
         $db = array();
         if($_REQUEST['db']){
             foreach($_REQUEST['db'] as $key => $value){
@@ -100,6 +101,10 @@ class MultipledbController extends BaseController{
 
             $this->getMultipledbTable()->storeMultipledb($id,$db);
         }
+
+        // remove session data
+        $_SESSION['multiple_edit_id'] = 0; // In case session not destroyed
+        unset($_SESSION['multiple_edit_id']);
 
         return $this->redirect()->toRoute('multipledb', array(
             'action' => 'index'

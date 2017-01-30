@@ -23,37 +23,36 @@
     <?php endif;?>
 </script>
 <form id="editForm" action="save" method="POST">
-    <input type="hidden" name="id" value="<?=$db->id?>" />
     <ul class="form-style-1">
         <li>
-            <label><?=$translate->z_xlt('Namespace')?> <span class="required">*</span></label>
-            <input type="text" value="<?=$db->namespace?>" name="db[namespace]" required class="field-divided" placeholder="<?=$translate->z_xlt('Namespace')?>" />
+            <label><?php echo $translate->z_xlt('Namespace')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo $this->escapeHtml($db->namespace)?>" name="db[namespace]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Namespace')?>" />
 
         </li>
         <li>
-            <label><?=$translate->z_xlt('Username')?> <span class="required">*</span></label>
-            <input type="text" value="<?=$db->username?>" name="db[username]" required class="field-divided" placeholder="<?=$translate->z_xlt('Username')?>" />
+            <label><?php echo $translate->z_xlt('Username')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo $this->escapeHtml($db->username)?>" name="db[username]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Username')?>" />
 
         </li>
         <li>
-            <label><?=$translate->z_xlt('Database name')?></label>
-            <input type="text" value="<?=$db->dbname?>" name="db[dbname]" required class="field-divided" placeholder="<?=$translate->z_xlt('Database name')?>" />
+            <label><?php echo $translate->z_xlt('Database name')?></label>
+            <input type="text" value="<?php echo $this->escapeHtml($db->dbname)?>" name="db[dbname]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Database name')?>" />
         </li>
         <li>
-            <label><?=$translate->z_xlt('Password')?> <span class="required">*</span></label>
-            <input type="password"  name="db[password]" class="field-divided" <?=($db->password) ? '' : 'required' ?> placeholder="<?=($db->password) ? '****' : $translate->z_xlt('Password') ?>" />
+            <label><?php echo $translate->z_xlt('Password')?> <span class="required">*</span></label>
+            <input type="password"  name="db[password]" class="field-divided" <?php echo ($db->password) ? '' : 'required' ?> placeholder="<?php echo ($db->password) ? '****' : $translate->z_xlt('Password') ?>" />
         </li>
         <li>
-            <label><?=$translate->z_xlt('Host')?> <span class="required">*</span></label>
-            <input type="text" value="<?=($db->host) ? $db->host : 'localhost' ?>" name="db[host]" required class="field-divided" placeholder="<?=$translate->z_xlt('Host')?>" />
+            <label><?php echo $translate->z_xlt('Host')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo ($db->host) ? $this->escapeHtml($db->host) : 'localhost' ?>" name="db[host]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Host')?>" />
         </li>
         <li>
-            <label><?=$translate->z_xlt('Port')?> <span class="required">*</span></label>
-            <input type="text" value="<?=($db->port) ? $db->port : '3306' ?>" name="db[port]" required class="field-divided" placeholder="<?=$translate->z_xlt('Port')?>" onkeypress="return onlynumber(event,this);" />
+            <label><?php echo $translate->z_xlt('Port')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo ($db->port) ? $this->escapeHtml($db->port) : '3306' ?>" name="db[port]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Port')?>" onkeypress="return onlynumber(event,this);" />
         </li>
         <li>
-            <input type="button" name="back" value="<?=$translate->z_xlt('Back')?>" onclick=" window.location.href = window.history.back(1);" />
-            <input type="submit" value="<?=$translate->z_xlt('Save')?>" />
+            <input type="button" name="back" value="<?php echo $translate->z_xlt('Back')?>" onclick=" window.location.href = window.history.back(1);" />
+            <input type="submit" value="<?php echo $translate->z_xlt('Save')?>" />
         </li>
     </ul>
 </form>

@@ -26,8 +26,8 @@
     endif;
     ?>
 </script>
-<a href="multipledb/edit"><input type="submit" value="<?= $translate->z_xlt('Add new database') ?>"></a>
-<a href="multipledb/generatesafekey"><input type="submit" value="<?= $translate->z_xlt('Generate safe key') ?>"></a>
+<a href="multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
+<a href="multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
 <table class="responstable">
     <?php
     $html = null;
@@ -58,16 +58,16 @@ html;
     }
     ?>
     <tr>
-        <th><?= $translate->z_xlt('Options') ?></th>
-        <th><?= $translate->z_xlt('Namespace') ?></th>
-        <th><span><?= $translate->z_xlt('Username') ?></span></th>
-        <th><?= $translate->z_xlt('Database name') ?></th>
-        <th><?= $translate->z_xlt('Host') ?></th>
-        <th><?= $translate->z_xlt('Port') ?></th>
-        <th><?= $translate->z_xlt('Date') ?></th>
+        <th><?php echo $translate->z_xlt('Options') ?></th>
+        <th><?php echo $translate->z_xlt('Namespace') ?></th>
+        <th><span><?php echo $translate->z_xlt('Username') ?></span></th>
+        <th><?php echo $translate->z_xlt('Database name') ?></th>
+        <th><?php echo $translate->z_xlt('Host') ?></th>
+        <th><?php echo $translate->z_xlt('Port') ?></th>
+        <th><?php echo $translate->z_xlt('Date') ?></th>
     </tr>
 
-    <?= $html ?>
+    <?php echo $html ?>
 
 </table>
 
@@ -76,7 +76,7 @@ html;
         var href = box.prop('href');
         event.preventDefault()
 
-        var answer = confirm('<?= $translate->z_xlt('Are you sure you want to remove namespace') ?>' + ' ' + table + '?');
+        var answer = confirm('<?php echo  $translate->z_xlt('Are you sure you want to remove namespace') ?>' + ' ' + table + '?');
         if (answer) {
             window.location = href;
         }

@@ -13,7 +13,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see
 * http://www.gnu.org/licenses/licenses.html#GPL
-*    @author  Dror Golan <drorgo@matrix.co.il>
+*    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
 * +------------------------------------------------------------------------------+
  *
  */
@@ -37,6 +37,7 @@ class BaseController extends AbstractActionController
         '/jquery-min-1-9-1/index.js',
         //bootstrap
         '/bootstrap-3-3-4/dist/js/bootstrap.min.js',
+        '/jquery-validation-1-13-0/dist/jquery.validate.min.js',
 
     );
 
