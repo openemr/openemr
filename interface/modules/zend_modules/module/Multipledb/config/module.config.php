@@ -52,6 +52,8 @@ return array(
     'view_manager' => array(
         'template_path_stack' => array(
             'multipledb' => __DIR__ . '/../view',
-        ),
-    ),
+        ),'template_map' => array(
+            'multipledb/layout/layout' => __DIR__ . '/../view/layout/layout.phtml',
+        )
+    )
 );
