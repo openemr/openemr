@@ -47,6 +47,7 @@
     <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
     <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
     <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>
+    <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
 </target>
 
 
