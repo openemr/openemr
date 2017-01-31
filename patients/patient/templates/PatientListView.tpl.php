@@ -40,10 +40,9 @@
 ?>
 
 <script type="text/javascript">
-var xlMonths = ["<?php echo xla('January'); ?>","<?php echo xla('February'); ?>", "<?php echo xla('March'); ?>", "<?php echo xla('April'); ?>", "<?php echo xla('May'); ?>", "<?php echo xla('June'); ?>", "<?php echo xla('July'); ?>", "<?php echo xla('August'); ?>", "<?php echo xla('September'); ?>", "<?php echo xla('October'); ?>", "<?php echo xla('November'); ?>", "<?php echo xla('December'); ?>"];
-var xlDayofwkshort= ["<?php echo xla('Sun'); ?>", "<?php echo xla('Mon'); ?>", "<?php echo xla('Tue'); ?>", "<?php echo xla('Wed'); ?>", "<?php echo xla('Thu'); ?>", "<?php echo xla('Fri'); ?>", "<?php echo xla('Sat'); ?>"];
-var xlDayofwk= ["<?php echo xla('Sunday'); ?>", "<?php echo xla('Monday'); ?>", "<?php echo xla('Tuesday'); ?>", "<?php echo xla('Wednesday'); ?>", "<?php echo xla('Thursday'); ?>", "<?php echo xla('Friday'); ?>", "<?php echo xla('Saturday'); ?>"];
-var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>
+
+    // bring in the datepicker and datetimepicker localization and setting elements
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
     $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
         $(document).ready(function(){
@@ -119,8 +118,7 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                     <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                     <div class="controls inline-inputs">
                         <div class="input-group" >
-                            <input id="dob" type="text" class="form-control date-picker" value="<%= item.get('dob') %>" />
-                            
+                            <input id="dob" type="text" class="form-control jquery-date-picker" value="<%= item.get('dob') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -236,9 +234,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
             <!--    <div class="form-group inline" id="dateInputContainer">
                     <label class="control-label" for="date"><?php echo xlt('Date')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-time-picker" data-date-format="yyyy-mm-dd hh:mm A">
-                            <input disabled id="date" type="text" class="form-control" value="<%= item.get('date') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input disabled id="date" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('date') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -383,9 +380,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                 <div class="form-group inline" id="regdateInputContainer">
                     <label class="control-label" for="regdate"><?php echo xlt('Registration Date')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date  date-picker" data-date-format="yyyy-mm-dd">
-                            <input disabled id="regdate" type="text" class="form-control" value="<%= item.get('regdate') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input disabled id="regdate" type="text" class="form-control jquery-date-picker" value="<%= item.get('regdate') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -532,9 +528,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                 <div class="form-group inline" id="financialReviewInputContainer">
                     <label class="control-label" for="financialReview"><?php //echo xlt('Financial Review')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-time-picker" data-date-format="yyyy-mm-dd hh:mm A">
-                            <input id="financialReview" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('financialReview'))).format('YYYY-MM-DD hh:mm A') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input id="financialReview" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('financialReview') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -607,9 +602,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                 <div class="form-group inline" id="deceasedDateInputContainer">
                     <label class="control-label" for="deceasedDate"><?php //echo xlt('Deceased Date')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-                            <input id="deceasedDate" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('deceasedDate'))).format('YYYY-MM-DD hh:mm A') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input id="deceasedDate" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('deceasedDate') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -638,9 +632,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                         <!--        <div class="form-group inline" id="contrastartInputContainer">
                     <label class="control-label" for="contrastart"><?php //echo xlt('Contrastart')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-                            <input id="contrastart" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('contrastart'))).format('YYYY-MM-DD hh:mm A') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input id="contrastart" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('contrastart') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
@@ -657,9 +650,8 @@ var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "fals
                 <div class="form-group inline" id="adReviewedInputContainer">
                     <label class="control-label" for="adReviewed"><?php //echo xlt('Ad Reviewed')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-picker" data-date-format="yyyy-mm-dd hh:mm A">
-                            <input id="adReviewed" type="text" class="form-control" value="<%= moment(app.parseDate(item.get('adReviewed'))).format('YYYY-MM-DD hh:mm A') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group">
+                            <input id="adReviewed" type="text" class="form-control jquery-date-time-picker" value="<%= item.get('adReviewed') %>" />
                         </div>
                         <span class="help-inline"></span>
                     </div>
