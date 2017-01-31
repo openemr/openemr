@@ -155,9 +155,10 @@
     $(document).ready(function(){
 
         $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            format: 'Y-m-d',
-            timepicker:false
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
     $('#cancel-save').on('click', function(e){
