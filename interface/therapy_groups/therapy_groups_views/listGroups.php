@@ -164,9 +164,10 @@
 
         /* Initialise Datetime Picker */
         $('.datetimepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = true; ?>
+            <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            format: 'Y-m-d H:i',
-            timepicker:true
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
 
         /* Initialise Datatable */

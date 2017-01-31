@@ -1,6 +1,23 @@
 <?php
 /**
  *
+ * This is to allow internationalization by OpenEMR of the jquery-datetimepicker.
+ * (with and without a time selector)
+ *
+ * Example code in script:
+ *  $('.datetimepicker').datetimepicker({
+ *    $datetimepicker_timepicker = true; (php variable)
+ *    $datetimepicker_formatInput = false; (php variable)
+ *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
+ *    can add any additional settings to datetimepicker here; need to prepend first setting with a comma
+ *  });
+ *
+ * $datetimepicker_timepicker - this will set whether to use the timepicker
+ * $datetimepicker_formatInput - this will set whether to format the input to
+ *  the user selected date format within globals.(TODO: this setting has not
+ *  yet been supported, but will be supported after more testing)
+ *
+ *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,3 +49,10 @@
         },
     },
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
+    <?php if ($datetimepicker_timepicker) { ?>
+        format: 'Y-m-d H:i',
+        timepicker:true
+    <?php } else { ?>
+        format: 'Y-m-d',
+        timepicker:false
+    <?php } ?>
