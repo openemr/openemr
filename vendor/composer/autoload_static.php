@@ -21,9 +21,27 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixLengthsPsr4 = array (
+        's' => 
+        array (
+            'services\\' => 9,
+        ),
+        'r' => 
+        array (
+            'repositories\\' => 13,
+        ),
         'p' => 
         array (
             'phpseclib\\' => 10,
+        ),
+        'e' => 
+        array (
+            'entities\\' => 9,
+        ),
+        'c' => 
+        array (
+            'common\\logging\\' => 15,
+            'common\\database\\' => 16,
+            'common\\' => 7,
         ),
         'Z' => 
         array (
@@ -49,9 +67,33 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     );
 
     public static $prefixDirsPsr4 = array (
+        'services\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/services',
+        ),
+        'repositories\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/repositories',
+        ),
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
+        'entities\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/entities',
+        ),
+        'common\\logging\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common/logging',
+        ),
+        'common\\database\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common/database',
+        ),
+        'common\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common',
         ),
         'Zend\\' => 
         array (
@@ -3353,7 +3395,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Zend\\XmlRpc\\Value\\Nil' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Nil.php',
         'Zend\\XmlRpc\\Value\\Struct' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Struct.php',
         'Zend\\XmlRpc\\Value\\Text' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Text.php',
+        'common\\database\\Auditor' => __DIR__ . '/../..' . '/common/database/auditor.php',
+        'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/connector.php',
+        'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/logger.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
+        'entities\\Version' => __DIR__ . '/../..' . '/entities/version.php',
         'html2text' => __DIR__ . '/../..' . '/library/classes/html2text.class.php',
         'ntlm_sasl_client_class' => __DIR__ . '/..' . '/phpmailer/phpmailer/extras/ntlm_sasl_client.php',
         'phpmailerException' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmailer.php',
@@ -3381,6 +3427,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
+        'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/version_repository.php',
+        'services\\VersionService' => __DIR__ . '/../..' . '/services/version_service.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

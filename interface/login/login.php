@@ -116,7 +116,7 @@ require_once("../globals.php");
                 <div class="col-sm-12">
                     <div>
                         <div class="center-block" style="max-width:400px">
-                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['webroot']?>/public/images/login-logo.png" />
+                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
                         </div>
 
                         <input type='hidden' name='new_login_session_management' value='1' />

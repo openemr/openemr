@@ -2910,6 +2910,8 @@ CREATE TABLE `list_options` (
   `toggle_setting_2` tinyint(1) NOT NULL default '0',
   `activity` TINYINT DEFAULT 1 NOT NULL,
   `subtype` varchar(31) NOT NULL DEFAULT '',
+  `edit_options` tinyint(1) NOT NULL DEFAULT '1',
+  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY  (`list_id`,`option_id`)
 ) ENGINE=InnoDB;
 

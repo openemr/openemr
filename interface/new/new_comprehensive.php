@@ -827,7 +827,7 @@ enable_modals();
         $mflist = "";
         $mfres = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-            "edit_options LIKE '%D%' " .
+            "(edit_options LIKE '%D%' OR  edit_options LIKE '%W%' )" .
             "ORDER BY group_name, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];

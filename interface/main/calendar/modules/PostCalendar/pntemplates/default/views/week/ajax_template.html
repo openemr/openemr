@@ -14,6 +14,7 @@
 
 [-*Values used in setting timeslot and event heights*-]
 [-php-]
+require_once($GLOBALS['srcdir'] . "/formatting.inc.php");
 /* if you change these be sure to change their matching values in
  * the CSS for the calendar, found in interface/themes/ajax_calendar.css
  */
@@ -158,9 +159,9 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 echo "   <a id='prevweek' href='$PREV_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Previous Week") . "'>
             <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
-echo date('d M Y', strtotime($atmp[0]));
+echo date('d', strtotime($atmp[0])) . " " . xl(date('M', strtotime($atmp[0]))) . " " . date('Y', strtotime($atmp[0]));
 echo " - ";
-echo date('d M Y', strtotime($atmp[count($atmp)-1]));
+echo date('d', strtotime($atmp[count($atmp)-1])) . " " . xl(date('M', strtotime($atmp[count($atmp)-1]))) . " " . date('Y', strtotime($atmp[count($atmp)-1]));
 echo "   <a id='nextweek' href='$NEXT_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Next Week") . "'>
             <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
 [-/php-]
@@ -421,7 +422,7 @@ foreach ($providers as $provider) {
         if ($Date == $dateFmt) { $currclass= "week_currday"; }
         echo "<td align='center' class='week_dateheader $currclass' style='width:".$colWidth."%;' >";
         echo "<a href='$gotoURL'>";
-        echo xl(date("D", strtotime($date))) . " " . date("m/d", strtotime($date));
+        echo xl(date("D", strtotime($date))) . " " . oeFormatShortDate($date, false);
         echo "</a></td>";
     }
     echo " </tr>\n";

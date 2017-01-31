@@ -85,6 +85,13 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+#IfMissingColumn list_options edit_options
+  ALTER TABLE `list_options` ADD `edit_options` TINYINT(1) NOT NULL DEFAULT '1';
+#Endif
+
+#IfMissingColumn list_options timestamp
+ALTER TABLE `list_options` ADD `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+#Endif
 
 #IfNotTable multiple_db
   CREATE TABLE `multiple_db` (
@@ -98,5 +105,3 @@
     `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   ) ENGINE=InnoDB;
 #EndIf
-
-

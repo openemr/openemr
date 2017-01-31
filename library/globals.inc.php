@@ -273,14 +273,26 @@ $GLOBALS_METADATA = array(
 
     // TajEmo Work BY CB 2012/06/21 10:42:31 AM added option to Hide Fees
     'enable_fees_in_left_menu' => array(
-      xl('Enable Fees In Left Menu'),
+      xl('Enable Fees Submenu'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Enable Fees In Left Menu')
+      xl('Enable Fees Submenu')
+    ),
+    'enable_batch_payment' => array(
+      xl('Enable Batch Payment'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Enable Batch Payment')
+    ),
+    'enable_posting' => array(
+      xl('Enable Posting'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Enable Posting')
     ),
     // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
-      xl('Enable EDI History In Left Menu'),
+      xl('Enable EDI History'),
       'bool',                           // data type
       '1',                              // default = true
       xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
@@ -1527,6 +1539,14 @@ $GLOBALS_METADATA = array(
       '0',                       // default
       xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
     ),
+
+    'submit_changes_for_all_appts_at_once' => array(
+      xl('Submit Changes For All Appts At Once'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enables to submit changes for all appointments of a recurrence at once.')
+    ),
+
 
   ),
 
