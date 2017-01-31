@@ -99,18 +99,19 @@ var page = {
 		this.modelView.on('rendered',function(){ // model rendered
 			
 			$(function (){
-				$('.date-picker').datetimepicker({
+				$('.jquery-date-picker').datetimepicker({
 					i18n:{
 				        en: {
-				            months: xlMonths,
-				            dayOfWeekShort: xlDayofwkshort,
-				            dayOfWeek: xlDayofwk
+				            months: datepicker_xlMonths,
+				            dayOfWeekShort: datepicker_xlDayofwkshort,
+				            dayOfWeek: datepicker_xlDayofwk
 				        },
 				    },
-				    rtl: rtl,   
-				        format: "Y-m-d",
-				        timepicker:false
-	             });
+				    yearStart: datepicker_yearStart,
+				    rtl: datepicker_rtl,
+				    format: datepicker_format,
+				    timepicker:false
+	            });
 			});
 			// initialize any special controls
 			// populate the dropdown options for provider and referer
@@ -186,10 +187,19 @@ var page = {
 			$(".controls .inline-inputs").find(':input:checked').parent('.btn').addClass('active');
 			
 			$(function (){
-				$('.date-time-picker').datetimepicker({
-					defaultDate: moment(),
-					sideBySide: false,
-					format: 'YYYY-MM-DD hh:mm'
+				$('.jquery-date-time-picker').datetimepicker({
+					i18n:{
+				        en: {
+				            months: datetimepicker_xlMonths,
+				            dayOfWeekShort: datetimepicker_xlDayofwkshort,
+				            dayOfWeek: datetimepicker_xlDayofwk
+				        },
+				    },
+				    yearStart: datetimepicker_yearStart,
+				    rtl: datetimepicker_rtl,
+				    format: datetimepicker_format,
+				    step: datetimepicker_step,
+				    timepicker:true
 				});
 			});
 			 document.getElementById('title').value =page.patient.get('title')
