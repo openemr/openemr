@@ -1649,6 +1649,36 @@ $GLOBALS_METADATA = array(
       ),
   ),
 
+  // Active Directory Tab
+  //
+  'Active Directory' => array(
+    
+    'use_active_directory' => array(
+      xl('Use Active Directory'),
+      'bool',
+      '0',
+      xl('If enabled, uses the specified active directory for login and authentication.')
+     ),
+    'account_suffix' => array(
+      xl('Suffix Of Account'),
+      'text',
+      '',
+      xl('The suffix of the account.')
+     ),
+    'base_dn' => array(
+      xl('Domains Base'),
+      'text',
+      '',
+      xl('Users is the standard windows CN, replace the DC stuff with your domain.')
+     ),
+    'domain_controllers' => array(
+      xl('Domains Controllers'),
+      'text',
+      '',
+      xl('The IP address of your domain controller(s).')
+     ), 
+  ),
+
   // Notifications Tab
   //
   'Notifications' => array(
