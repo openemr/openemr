@@ -130,7 +130,7 @@ function authCheckSession ()
                 . " AND ". TBL_USERS.".".COL_ACTIVE . "=1"
                 ,array($_SESSION['authId']));
         if ($_SESSION['authUser'] == $authDB['username']
-            && $_SESSION['authPass'] == $authDB['password'] )
+            && ($_SESSION['authPass'] == $authDB['password'] || $_SESSION['active_directory_auth']))
         {
             return true;
         }
