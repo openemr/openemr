@@ -61,20 +61,22 @@ switch ($task) {
 	case "add" :
 		{
 			sendMail ( $owner, $note, $title, $header, $noteid,$sid,$sn,$rid,$rn );
-			//echo 'done';
 		}
 		break;
 	case "reply" :
 		{
 			sendMail ( $owner, $note, $title, $header, $noteid,$sid,$sn,$rid,$rn );
-			//echo 'done';
+		}
+		break;
+	case "delete" :
+		{
+			updatePortalMailMessageStatus ( $noteid, 'Delete' );
 		}
 		break;
 	case "setread" :
 		{
 			if ($noteid > 0) {
 				updatePortalMailMessageStatus ( $noteid, 'Read' );
-				//echo 'done';
 			} else
 				echo 'missing note id';
 		}
@@ -105,7 +107,16 @@ switch ($task) {
 				} else
 					echo 'error';
 			}
-			break;		
+			break;
+			case "getdeleted" :
+				{
+					if ($owner) {
+						$result = getMails($owner,'deleted','','');
+						echo json_encode($result);
+					} else
+						echo 'error';
+				}
+				break;
 }
 if(isset($_REQUEST["submit"]))
 	header("Location: {$_REQUEST["submit"]}");
