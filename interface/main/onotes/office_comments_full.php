@@ -22,14 +22,15 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
-include_once("$srcdir/onotes.inc");
 include_once("$srcdir/formatting.inc.php");
+
+$oNoteService = new \services\ONoteService();
 
 //the number of records to display per screen
 $N = 10;
 
 $offset = (isset($_REQUEST['offset'])) ? $_REQUEST['offset'] : 0;
-$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : "all";
+$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : -1;
 
 //this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($_POST['mode'])) {
@@ -37,11 +38,15 @@ if (isset($_POST['mode'])) {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
                 $id = str_replace("act","",$var);
-                if ($val == "true") {reappearOnote($id);}elseif($val=="false"){disappearOnote($id);};
+                if ($val == "true") {
+                    $result = $oNoteService->enableNoteById($id);
+                } elseif($val=="false") {
+                    $oNoteService->disableNoteById($id);
+                }
             }
         }
     } elseif ($_POST['mode'] == "new") {
-        addOnote($_POST["note"]);
+        $oNoteService->add($_POST["note"]);
     }
 }
 ?>
@@ -84,13 +89,13 @@ else { $backurl="../main_info.php"; }
 
 <?php //change the view on the current mode, whether all, active, or inactive
 $all_class="link"; $active_class="link"; $inactive_class="link";
-if ($active=="all") { $all_class="link_selected"; }
-elseif ($active==1) { $active_class="link_selected"; }
-elseif ($active==0) { $inactive_class="link_selected"; }
+if ($active==="-1") { $all_class="link_selected"; }
+elseif ($active==="1") { $active_class="link_selected"; }
+elseif ($active==="0") { $inactive_class="link_selected"; }
 ?>
 
 <span class="text"><?php echo xlt('View:'); ?> </span>
-<a href="office_comments_full.php?offset=0&active=all" class="<?php echo attr($all_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('All'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=-1" class="<?php echo attr($all_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('All'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=1" class="<?php echo attr($active_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Active'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=0" class="<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Inactive'); ?>]</a>
 
@@ -104,32 +109,33 @@ elseif ($active==0) { $inactive_class="link_selected"; }
 <?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 
-//retrieve all notes
-if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offset)) {
+$notes = $oNoteService->getNotes($active, $offset, $N);
+
 $result_count = 0;
-foreach ($result as $iter) {
+//retrieve all notes
+if ($notes) {
+foreach ($notes as $note) {
     $result_count++;
 
-    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
-    $date=oeFormatShortDate($date);
+    $date = $note->getDate()->format('Y-m-d');
+    $date = oeFormatShortDate($date);
 
-    if (getdate() == strtotime($iter{"date"})) {
+    $todaysDate = new DateTime();
+    if ($todaysDate->format('Y-m-d') == $date) {
         $date_string = xl("Today") . ", " . $date;
     } else {
         $date_string = $date;
     }
 
-    if ($iter{"activity"}) { $checked = "checked"; }
+    if ($note->getActivity()) { $checked = "checked"; }
     else { $checked = ""; }
 
-    print "<tr><td><input type=hidden value='' name='act".attr($iter{"id"})."' id='act".attr($iter{"id"})."'>";
-    print "<input name='box".attr($iter{"id"})."' id='box".attr($iter{"id"})."' onClick='javascript:document.update_activity.act".attr($iter{"id"}).".value=this.checked' type=checkbox $checked></td>";
-    print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
-    print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
-    print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
+    print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
+    print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
+    print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
+    print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
+    print "<td><label for='box".attr($note->getId())."' class='text'>" . text($note->getBody()) . "&nbsp;</label></td></tr>\n";
 
-
-    $notes_count++;
 }
 }else{
 //no results

@@ -127,6 +127,7 @@ final class Connector {
 
         $this->logger->trace("Wiring up Doctrine entities");
         $configuration = Setup::createAnnotationMetadataConfiguration($entityPath, false, null, null, false);
+        $configuration->setAutoGenerateProxyClasses(true);
 
         $this->logger->trace("Creating connection");
         $this->entityManager = EntityManager::create($connection, $configuration);
