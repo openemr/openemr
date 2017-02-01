@@ -371,6 +371,7 @@ function getAuthPortalUsers(){
 	    	$http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 		 	// re-enable title for submit
 		 	$("#title").prop( "disabled", false )
+		 	$("#selSendto").prop( "disabled", false )
 		 	compose.inputBody = $("#inputBody").summernote('code');
 		 	compose.owner = $scope.cUserId
 			compose.sender_id=$scope.cUserId
@@ -381,7 +382,6 @@ function getAuthPortalUsers(){
 			}
 		 	if( compose.task == 'add' ){
 				compose.recipient_id=$scope.selrecip;
-				//compose.recipient_name=$scope.selrecip.username; // no workie-is it not an object?
 				compose.recipient_name=$("#selSendto option:selected").text();
 		 	}
 	        return true; // okay to submit - add some validation
@@ -399,9 +399,9 @@ function getAuthPortalUsers(){
 		        var title = $(e.relatedTarget).attr('data-mtitle');
 		        var uname = $(e.relatedTarget).attr('data-username');
 	        	$(e.currentTarget).find('select[id="selSendto"]').val(recipId)
-	        	//$(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", true );
-	        	$(e.currentTarget).find('select[name="title"]').val(title);
-	        	$(e.currentTarget).find('select[name="title"]').prop( "disabled", true );
+	        	$(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", true );
+	        	$(e.currentTarget).find('input[name="title"]').val(title);
+	        	$(e.currentTarget).find('input[name="title"]').prop( "disabled", true );
 	        	$scope.compose.title = title;
 	        	$scope.selrecip = recipId;
 	        	$scope.selrecip.username = uname;
@@ -416,9 +416,9 @@ function getAuthPortalUsers(){
 	        	$('#modalCompose .modal-header .modal-title').html("Compose New Message");
 	        	$scope.compose.task = 'add';
 	        	$(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", false );
-	        	$(e.currentTarget).find('select[name="title"]').prop( "disabled", false );
+	        	$(e.currentTarget).find('input[name="title"]').prop( "disabled", false );
 	        }
-	    }); // on modal - do the pelim to save
+	    }); // on modal - do the prelim to save
 	    
 	    $('#modalCompose').on('hidden.bs.modal', function(e){
 	    	// cleanup
@@ -610,14 +610,14 @@ function getAuthPortalUsers(){
 								<div class="form-group">
 									<label class="col-sm-1 col-md-1" for="title"><?php echo xlt('Subject'); ?></label>
 									<div class="col-sm-6 col-md-6">
-									<input type='text' ... list='listid' name='title' id='title' class="form-control" ng-model='compose.title'>
+									<input type='text' list='listid' name='title' id='title' class="form-control" ng-model='compose.title'>
 									<datalist id='listid'>
 										<option><?php echo xlt('Unassigned'); ?></option>
 										<option label='<?php echo xlt('Insurance'); ?>' value='<?php echo xlt('Insurance'); ?>'/>
 										<option label='<?php echo xlt('Prior Auth'); ?>' value='<?php echo xlt('Prior Auth'); ?>'/>
 										<option label='<?php echo xlt('Bill/Collect'); ?>' value='<?php echo xlt('Bill/Collect'); ?>'/>
 										<option label='<?php echo xlt('Referral'); ?>' value='<?php echo xlt('Referral'); ?>'/>
-										<option label='<?php echo xlt('Pharmacy'); ?>' value='<?php echo xlt('Pharmacy'); ?>'/>
+										<option label='<?php echo xlt('Medication'); ?>' value='<?php echo xlt('Medication'); ?>'/>
 									</datalist>
 									</div>
 								 </div>
