@@ -371,7 +371,7 @@ class Controller extends SMA_Common\Controller
         $this->setHeader(array('Content-Type' => 'application/json'));
         $messages = $this->getModel()->getMessages();
         foreach($messages as &$message) {
-            $message['me'] = $this->getServer('REMOTE_ADDR') === $message['ip'];
+            $message['me'] = C_USER === $message['sender_id']; // $this->getServer('REMOTE_ADDR') === $message['ip'];
         }
         return json_encode($messages);
     }
