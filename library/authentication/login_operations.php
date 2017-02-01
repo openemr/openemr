@@ -151,6 +151,8 @@ function verify_user_gacl_group($user)
 /* Validation of user and password using active directory. */
 function active_directory_validation($user, $pass)
 {
+    $valid = false;
+
     // Create class instance
     $ad = new Adldap\Adldap();
 
@@ -175,8 +177,15 @@ function active_directory_validation($user, $pass)
     $ad->addProvider($config);
 
     // If a successful connection is made, the provider will be returned.
-    $connection = $ad->connect();
-    $valid = $connection->auth()->attempt($user, $pass);
+    try
+    {
+        $prov = $ad->connect();
+        $valid = $prov->auth()->attempt($user, $pass);
+    }
+    catch(Exception $e)
+    {
+        
+    }
     return $valid;
 }
 
