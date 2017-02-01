@@ -4922,6 +4922,8 @@ CREATE TABLE `onsite_mail` (
   `sender_name` varchar(255) DEFAULT NULL,
   `assigned_to` varchar(255) DEFAULT NULL,
   `deleted` tinyint(4) DEFAULT '0' COMMENT 'flag indicates note is deleted',
+  `delete_date` datetime DEFAULT NULL,
+  `mtype` varchar(128) DEFAULT NULL,
   `message_status` varchar(20) NOT NULL DEFAULT 'New',
   `mail_chain` varchar(255) DEFAULT NULL,
   `is_msg_encrypted` tinyint(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
