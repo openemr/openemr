@@ -36,10 +36,10 @@ function ProductRegistrationController() {
     };
 
     var _displayFormView = function() {
-         // Workaround to get i18n keys
-         var buttonObject = {};
-         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
-         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
+        // Workaround to get i18n keys
+        var buttonObject = {};
+        buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
+        buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
 
         jQuery('.product-registration-modal').dialog({
             resizable: false,
@@ -79,20 +79,21 @@ function ProductRegistrationController() {
 
     // If we are on the about_page, show the registration data.
     self.displayRegistrationInformationIfDivExists = function(data) {
-      if (jQuery('.product-registration').size() > 0) {
-          jQuery('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
-          jQuery('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registration_id);
-      }
+        if (jQuery('.product-registration').size() > 0) {
+            jQuery('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
+            jQuery('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registration_id);
+        }
     };
 
     var _formCancellationHandler = function() {
-      _closeModal();
+        _closeModal();
 
-      // Note: not checking output here (don't want to bug the user more this session
-      // after they said "no thanks" to the modal). If anything goes wrong, it will be silent.
-      // The only reasons why this would fail would be because of no connection or our server
-      // is down.
-      _productRegistrationService.submitRegistration(false);
+        // Note: not checking output here (don't want to bug the user more this session
+        // after they said "no thanks" to the modal). If anything goes wrong, it will be silent.
+        // The only reasons why this would fail would be because of no connection or our server
+        // is down.
+        var _noop = function() {};
+        _productRegistrationService.submitRegistration(false, _noop);
     };
 
     var _registrationCreatedHandler = function(data) {
@@ -113,8 +114,8 @@ function ProductRegistrationController() {
     };
 
     var _closeModal = function(closeWaitTimeMilliseconds) {
-      setTimeout(function() {
-        jQuery('.product-registration-modal').dialog('close');
-      }, closeWaitTimeMilliseconds || 0);
+        setTimeout(function() {
+            jQuery('.product-registration-modal').dialog('close');
+        }, closeWaitTimeMilliseconds || 0);
     };
 }
