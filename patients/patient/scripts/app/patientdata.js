@@ -100,11 +100,17 @@ var page = {
 			
 			$(function (){
 				$('.date-picker').datetimepicker({
-					defaultDate: moment(),
-					sideBySide: false,
-					format: 'YYYY-MM-DD'
-				});
-				
+					i18n:{
+				        en: {
+				            months: xlMonths,
+				            dayOfWeekShort: xlDayofwkshort,
+				            dayOfWeek: xlDayofwk
+				        },
+				    },
+				    rtl: rtl,   
+				        format: "Y-m-d",
+				        timepicker:false
+	             });
 			});
 			// initialize any special controls
 			// populate the dropdown options for provider and referer
