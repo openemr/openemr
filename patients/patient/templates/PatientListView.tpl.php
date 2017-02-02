@@ -40,6 +40,11 @@
 ?>
 
 <script type="text/javascript">
+var xlMonths = ["<?php echo xla('January'); ?>","<?php echo xla('February'); ?>", "<?php echo xla('March'); ?>", "<?php echo xla('April'); ?>", "<?php echo xla('May'); ?>", "<?php echo xla('June'); ?>", "<?php echo xla('July'); ?>", "<?php echo xla('August'); ?>", "<?php echo xla('September'); ?>", "<?php echo xla('October'); ?>", "<?php echo xla('November'); ?>", "<?php echo xla('December'); ?>"];
+var xlDayofwkshort= ["<?php echo xla('Sun'); ?>", "<?php echo xla('Mon'); ?>", "<?php echo xla('Tue'); ?>", "<?php echo xla('Wed'); ?>", "<?php echo xla('Thu'); ?>", "<?php echo xla('Fri'); ?>", "<?php echo xla('Sat'); ?>"];
+var xlDayofwk= ["<?php echo xla('Sunday'); ?>", "<?php echo xla('Monday'); ?>", "<?php echo xla('Tuesday'); ?>", "<?php echo xla('Wednesday'); ?>", "<?php echo xla('Thursday'); ?>", "<?php echo xla('Friday'); ?>", "<?php echo xla('Saturday'); ?>"];
+var rtl = <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>
+
     $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
         $(document).ready(function(){
             page.init();
@@ -113,9 +118,9 @@
                 <div class="form-group inline" id="dobInputContainer">
                     <label class="control-label" for="dob"><?php echo xlt('Birth Date')?></label>
                     <div class="controls inline-inputs">
-                        <div class="input-group date date-picker" data-date-format="yyyy-mm-dd">
-                            <input id="dob" type="text" class="form-control" value="<%= item.get('dob') %>" />
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <div class="input-group" >
+                            <input id="dob" type="text" class="form-control date-picker" value="<%= item.get('dob') %>" />
+                            
                         </div>
                         <span class="help-inline"></span>
                     </div>
