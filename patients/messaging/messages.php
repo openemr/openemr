@@ -125,7 +125,7 @@ function getAuthPortalUsers(){
 		$scope.reverse = false;
 		$scope.filteredItems = [];
 		$scope.groupedItems = [];
-		$scope.itemsPerPage = 10;
+		$scope.itemsPerPage = 50;
 		$scope.pagedItems = [];
 		$scope.compose = [];
 		$scope.selrecip = [];
@@ -287,9 +287,7 @@ function getAuthPortalUsers(){
 	    	$scope.search();
 	    	return true;
 	    }
-	    
 	    $scope.readMessage = function (idx) {
-	        $scope.selected = $scope.items[idx];
 	        if( $scope.items[idx].message_status == 'New'){ // mark mail read else ignore
 	        	$http.post('handle_note.php', $.param({'task':'setread','noteid':$scope.items[idx].id}))
 	        	.success(function(data, status, headers, config) {
@@ -297,7 +295,15 @@ function getAuthPortalUsers(){
 	        	}).error(function(data, status, headers, config) {
 	        		alert('Failed Status: '+ data);
 	        	});
-	        } // status update
+	        }
+	        idx = $filter('getById')($scope.allItems,this.item.id);
+	    	$scope.isAll = true; $scope.isTrash = $scope.isSent = $scope.isInbox = false;
+	    	$scope.items = $scope.allItems;
+	    	$scope.selected = $scope.items[idx];
+	    };
+	    $scope.selMessage = function (idx) {
+	        $scope.selected = $scope.allItems[idx];
+	       
 	    };
     
 	    $scope.readAll = function () {
@@ -394,7 +400,8 @@ function getAuthPortalUsers(){
 		         $('#modalCompose .modal-header .modal-title').html("Compose Reply Message");
 	        	 $scope.compose.task = mode;
 		        //get data attributes of the clicked element (selected recipient) for replies only
-		        var chain = $(e.relatedTarget).attr('data-noteid');
+		        var chain = $(e.relatedTarget).attr('data-mailchain');
+		        if(chain == '0') chain = $(e.relatedTarget).attr('data-noteid');
 	        	var recipId = $(e.relatedTarget).attr('data-whoto');
 		        var title = $(e.relatedTarget).attr('data-mtitle');
 		        var uname = $(e.relatedTarget).attr('data-username');
@@ -427,7 +434,33 @@ function getAuthPortalUsers(){
 	    if(!$scope.isInit)
 	    		$scope.init();
 	}])  /* end inbox functions */
-	
+	.filter('Chained', function () {
+	    return function (input, id) {
+	        var output = [];
+	        if (isNaN(id)) {
+	            output = input;
+	        }
+	        else {
+	            angular.forEach(input, function (item) {
+	                if (item.mail_chain == id) {
+	                    output.push(item)
+	                }
+	            });
+	        }
+	        return output;
+	    }
+	})
+	.filter('getById', function() {
+  return function(input, id) {
+    var i=0, len=input.length;
+    for (; i<len; i++) {
+      if (+input[i].id == +id) {
+        return i;
+      }
+    }
+    return null;
+  }
+})
 	.controller('messageCtrl', ['$scope', function ($scope) {
 	    $scope.message = function(idx) {
 	        return items(idx);
@@ -498,8 +531,8 @@ function getAuthPortalUsers(){
 									<span class="col-sm-2" ng-click="readMessage($index)"><span	ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
 									<span class="col-sm-3" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span></span>
 									<span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
-									<span class="col-sm-4" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind-html='(renderMessageBody(item.body)| limitTo:40)'></span></span>
-									<!-- <span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.mail_chain}}</span></span> -->
+									<span class="col-sm-4" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind-html='(renderMessageBody(item.body)| limitTo:35)'></span></span>
+									<!-- <span class="col-sm-0" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.mail_chain}}</span></span> -->
 									<!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span
 										ng-show="item.attachment"
 										class="glyphicon glyphicon-paperclip pull-right"></span> <span ng-show="item.priority==1"
@@ -528,7 +561,7 @@ function getAuthPortalUsers(){
 							<div class="col-md-3">
 								<div class="btn-group btn-group pull-right">
 									<button ng-show="selected.sender_id != cUserId" class="btn btn-primary" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid={{selected.id}}
-										data-whoto={{selected.sender_id}} data-mtitle={{selected.title}}	data-username={{selected.sender_name}} data-target="#modalCompose">
+										data-whoto={{selected.sender_id}} data-mtitle={{selected.title}} data-username={{selected.sender_name}} data-mailchain={{selected.mail_chain}} data-target="#modalCompose">
 										<i class="fa fa-reply"></i> <?php echo xlt('Reply'); ?></button>
 									<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="More options"><i class="fa fa-angle-down"></i></button>
 									<ul class="dropdown-menu pull-right">
@@ -548,7 +581,7 @@ function getAuthPortalUsers(){
 									<table	class="table table-striped refresh-container pull-down">
 										<thead><?php //echo xlt('Associated Notes.');?></thead>
 										<tbody>
-										<tr class="animate-repeat" ng-repeat="item in pagedItems[currentPage]"><!--  | filter: {selected.id}  | filter: {mail_chain: selected.id}orderBy:sortingOrder:reverse -->
+										<tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
 											<td>
 												<span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span></span>
 												<span class="col-sm-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
@@ -556,7 +589,8 @@ function getAuthPortalUsers(){
 												<span class="col-sm-1" ng-click="readMessage($index)"><span>{{item.message_status}}</span></span>
 												<span class="col-sm-3" ng-click="readMessage($index)"><span>{{item.sender_name}} to {{item.recipient_name}}</span></span>
 												<span class="col-sm-1" ng-click="readMessage($index)"><span>{{item.title}}</span></span>
-												<!-- <span class="col-sm-1" style="max-width:8px;">{{item.mail_chain}}</span> -->
+												<span class="col-sm-4" ng-click="readMessage($index)"><span ng-bind-html='(renderMessageBody(item.body)| limitTo:35)'></span></span>
+												<!--<span class="col-sm-1" style="max-width:8px;">{{item.mail_chain}}</span>  -->
 												<div class='col-sm-10 well' ng-show="selected.id == item.id" style='margin:5px 5px;padding:5px 5px;border-color:black;'>
 														<span ng-bind-html=renderMessageBody(selected.body)></span>
 												</div>
@@ -626,7 +660,7 @@ function getAuthPortalUsers(){
 								<div class="row container-fluid">
 									<div class="col-sm-12 col-md-12"  id="inputBody" ng-model="compose.inputBody"></div>
 								</div></fieldset>
-								<input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" value={{selected.id}} />
+								<input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" />
 								<input type='hidden' name='owner' ng-value='compose.owner' />
 								<input type='hidden' name='recipient_id' ng-value='compose.recipient_id' />
 								<input type='hidden' name='recipient_name' ng-value='compose.recipient_name' />

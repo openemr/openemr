@@ -18,7 +18,10 @@ function addPortalMailboxMail($owner, $newtext, $authorized = '0', $activity = '
 	if ($message_status == "Done") $activity = 0;
 	
 	$body = $newtext;
-
+	if($master_note == '0'){
+		$n = sqlQueryNoLog("SELECT MAX(id) as newid from onsite_mail");
+		$master_note = $n['newid']+1;
+	}
 	return sqlInsert("INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
 			"authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn) );
