@@ -48,6 +48,7 @@
             ]
         },
     },
+    yearStart: '1900',
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
     <?php if ($datetimepicker_timepicker) { ?>
         format: 'Y-m-d H:i:s',
