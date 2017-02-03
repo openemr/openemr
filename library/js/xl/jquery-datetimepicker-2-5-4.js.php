@@ -52,7 +52,8 @@
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
     <?php if ($datetimepicker_timepicker) { ?>
         format: 'Y-m-d H:i:s',
-        timepicker:true
+        timepicker:true,
+        step: '30'
     <?php } else { ?>
         format: 'Y-m-d',
         timepicker:false
