@@ -270,21 +270,17 @@ $ignoreAuth = 1;
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 
 <!-- for the pop up calendar -->
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<!-- for ajax-y stuff
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script> -->
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
 
@@ -365,13 +361,8 @@ form {
    <?php xl('Start date:','e'); ?>
 
 
-   <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
-
-   <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
 
    <?php xl('for','e'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
@@ -457,18 +448,22 @@ form {
 </form>
 </body>
 
-<!-- for the pop up calendar -->
 <script language='JavaScript'>
- Calendar.setup({inputField:"startdate", ifFormat:"%Y-%m-%d", button:"img_date"});
 
 // jQuery stuff to make the page a little easier to use
-
 $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
-    //$(".event").dblclick(function() { EditEvent(this); });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
 });
 
 </script>
