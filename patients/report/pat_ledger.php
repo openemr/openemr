@@ -280,10 +280,13 @@ if ($_REQUEST['form_csvexport']) {
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-5/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script type="text/javascript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 var pt_name;
@@ -308,8 +311,6 @@ function sel_patient() {
 }
 </script>
 
-<link rel="stylesheet" href="<?php //echo $css_header;?>" type="text/css">
-<?php //html_header_show();?>
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -354,10 +355,14 @@ function sel_patient() {
 <title><?php echo xlt('Patient Ledger by Date') ?></title>
 
 <script>
- $(document).ready(function() {
- // var win = top.printLogSetup ? top : opener.top;
- // win.printLogSetup(document.getElementById('printbutton'));
- });
+  $(document).ready(function() {
+    $('.datepicker').datetimepicker({
+      <?php $datetimepicker_timepicker = false; ?>
+      <?php $datetimepicker_formatInput = false; ?>
+      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+  });
 </script>
 
 </head>
@@ -407,15 +412,13 @@ function sel_patient() {
 <?php } ?>
       <td colspan="2">
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-        <img src='./../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xla("Click here to choose a date"); ?>'>
+        <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
       <td class='label'>
         <?php echo xlt('To'); ?>:
       </td>
       <td>
-        <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-        <img src='./../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xla("Click here to choose a date"); ?>'>
+        <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>
       </td>
       <?php if($type_form == '0') { ?>
       <td><span class='label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
@@ -725,18 +728,6 @@ if (!$_REQUEST['form_refresh'] && !$_REQUEST['form_csvexport']) { ?>
 </form>
 </body>
 
-<!-- stuff for the popup calendar -->
-
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-<script>
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
- //top.restoreSession();
-</script>
 </html>
 <?php
 } // End not csv export
