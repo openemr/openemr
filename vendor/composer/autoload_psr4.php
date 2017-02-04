@@ -11,6 +11,7 @@ return array(
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'entities\\' => array($baseDir . '/entities'),
     'common\\logging\\' => array($baseDir . '/common/logging'),
+    'common\\http\\' => array($baseDir . '/common/http'),
     'common\\database\\' => array($baseDir . '/common/database'),
     'common\\' => array($baseDir . '/common'),
     'Zend\\' => array($vendorDir . '/zendframework/zendframework/library/Zend'),
