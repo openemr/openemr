@@ -18,15 +18,31 @@
  * @link    http://www.open-emr.org
  */
 
+namespace common\http;
 
 class HttpResponseHelper {
     public static function send($statusCode, $payload, $serializationStrategy) {
         $response = null;
 
+        if (method_exists($payload, 'toSerializedObject')) {
+            $payload = $payload->toSerializedObject();
+        }
+
         switch ($serializationStrategy) {
             case 'JSON':
+                $messageObject = null;
+                if (is_string($payload)) {
+                    $messageObject = new \stdClass();
+                    $messageObject->message = $payload;
+                }
+
                 header("Content-Type: application/json; charset=utf-8");
-                $response = json_encode($payload);
+                if (!empty($messageObject)) {
+                    $response = json_encode($messageObject);
+                } else {
+                    $response = json_encode($payload);
+                }
+
                 break;
         }
 

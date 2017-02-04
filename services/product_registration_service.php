@@ -18,29 +18,48 @@
  * @link    http://www.open-emr.org
  */
 
+namespace services;
+
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
 class ProductRegistrationService {
-    public function __construct() {}
+    /**
+     * Logger used primarily for logging events that are of interest to
+     * developers.
+     */
+    private $logger;
+
+    /**
+     * The product registration repository to be used for db CRUD operations.
+     */
+    private $repository;
+
+    /**
+     * Default constructor.
+     */
+    public function __construct() {
+        $this->logger = new \common\logging\Logger("\services\ProductRegistrationService");
+        $database = \common\database\Connector::Instance();
+        $entityManager = $database->entityManager;
+        $this->repository = $entityManager->getRepository('\entities\ProductRegistration');
+    }
 
     public function getProductStatus() {
-        $row = sqlQuery('SELECT * FROM product_registration LIMIT 1');
-
-        $payload = new stdClass();
+        $this->logger->debug('Getting current product registration status');
+        $row = $this->repository->findFirst();
 
         if (empty($row)) {
-            $payload->status = 'UNREGISTERED';
-        } else if (!(empty($row['registration_id']))) {
-            $payload->status = 'REGISTERED';
-            $payload->email = $row['email'];
-            $payload->registration_id = $row['registration_id'];
-        } else if (!(empty($row['opt_out'])) && $row['opt_out'] == true) {
-            $payload->status = 'OPT_OUT';
+            $row = new \entities\ProductRegistration();
+            $row->setStatusAsString('UNREGISTERED');
+        } else if (!(empty($row->getRegistrationId()))) {
+            $row->setStatusAsString('REGISTERED');
+        } else if (!(empty($row->getOptOut())) && $row->getOptOut() == true) {
+            $row->setStatusAsString('OPT_OUT');
         }
 
-        return $payload;
+        return $row;
     }
 
     public function registerProduct($email) {
@@ -53,6 +72,7 @@ class ProductRegistrationService {
     }
 
     private function optInStrategy($email) {
+        $this->logger->debug('Attempting to register product with email ' . $email);
         $curl = curl_init('https://reg.open-emr.org/api/registration');
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query(array('email' => $email)));
@@ -61,29 +81,40 @@ class ProductRegistrationService {
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
+        $this->logger->debug('Raw response from remote server: ' . $responseBodyRaw);
         switch ($responseCode) {
             case 201:
                 $responseBodyParsed = json_decode($responseBodyRaw);
-                sqlStatement('INSERT INTO product_registration (registration_id, email, opt_out) VALUES (?, ?, ?)', array(
-                    $responseBodyParsed->productId, $email, false)
-                );
 
-                return $responseBodyParsed->productId;
+                $entry = new \entities\ProductRegistration();
+                $entry->setRegistrationId($responseBodyParsed->productId);
+                $entry->setEmail($email);
+                $entry->setOptOut(false);
+
+                $newId = $this->repository->save($entry);
+                $this->logger->debug('Successfully registered product ' . $newId);
+
+                return $newId;
                 break;
             case 400:
-                throw new InvalidEmailException($email . ' ' . xl("is not a valid email address"));
+                throw new \InvalidEmailException($email . ' ' . xl("is not a valid email address"));
                 break;
             case 409:
-                throw new DuplicateRegistrationException(xl("Already registered"));
+                throw new \DuplicateRegistrationException(xl("Already registered"));
                 break;
             default:
-                throw new GenericProductRegistrationException(xl("Server error: try again later"));
+                throw new \GenericProductRegistrationException(xl("Server error: try again later"));
         }
     }
 
     // void... don't bother checking for success/failure.
     private function optOutStrategy() {
-        sqlStatement('INSERT INTO product_registration (registration_id, email, opt_out) VALUES (?, ?, ?)',
-                     array('', null, true));
+        $this->logger->debug('Attempting to opt out of product registration');
+        $entry = new \entities\ProductRegistration();
+        $entry->setRegistrationId('null');
+        $entry->setEmail(null);
+        $entry->setOptOut(true);
+
+        $this->repository->save($entry);
     }
 }

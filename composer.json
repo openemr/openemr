@@ -50,6 +50,7 @@
             "common\\": "common",
             "common\\database\\": "common/database",
             "common\\logging\\": "common/logging",
+            "common\\http\\": "common/http",
             "entities\\": "entities",
             "services\\": "services",
             "repositories\\": "repositories"
