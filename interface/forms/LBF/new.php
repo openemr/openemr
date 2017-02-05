@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2009-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2009-2017 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -101,6 +101,21 @@ $tmp = sqlQuery("SELECT title, option_value, notes FROM list_options WHERE " .
   "list_id = 'lbfnames' AND option_id = ? AND activity = 1", array($formname));
 $formtitle = $tmp['title'];
 $formhistory = 0 + $tmp['option_value'];
+
+// Extract parameters from this form's list item entry.
+$jobj = json_decode($tmp['notes'], true);
+if (!empty($jobj['columns'])) $CPR = intval($jobj['columns']);
+if (!empty($jobj['issue'  ])) $LBF_ISSUE_TYPE = $jobj['issue'];
+if (!empty($jobj['aco'    ])) $LBF_ACO = explode('|', $jobj['aco']);
+
+// Check access control.
+if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
+  $auth_aco_write   = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write'  );
+  $auth_aco_addonly = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
+  if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
+    die(xlt('Access denied'));
+  }
+}
 
 if (empty($is_lbf)) {
   $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";

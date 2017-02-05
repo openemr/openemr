@@ -233,12 +233,20 @@ if ( $encounterLocked === false ) {
       if(!$StringEcho){
         $StringEcho= '<ul id="sddm">';
       }
-      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >".xl('Layout Based') ."</a><div id='lbf' ><table border='0'  cellspacing='0' cellpadding='0'>";
+      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
+        xl('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
       while ($lrow = sqlFetchArray($lres)) {
-      $option_id = $lrow['option_id']; // should start with LBF
-      $title = $lrow['title'];
-      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname='
-    				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        // Check ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+          $tmp = explode('|', $jobj['aco']);
+          if (!acl_check($tmp[0], $tmp[1])) continue;
+        }
+        $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
+          $rootdir . '/patient_file/encounter/load_form.php?formname=' .
+          urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
       }
     }
 }

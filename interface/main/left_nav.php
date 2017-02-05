@@ -1083,13 +1083,17 @@ $(document).ready(function(){
 
 $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-if (sqlNumRows($lres)) {
-  while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
-    genMiscLink('RBot','cod','2',xl_form_title($title),
-      "patient_file/encounter/load_form.php?formname=$option_id");
+while ($lrow = sqlFetchArray($lres)) {
+  $option_id = $lrow['option_id']; // should start with LBF
+  $title = $lrow['title'];
+  // Check ACO attribute, if any, of this LBF.
+  $jobj = json_decode($lrow['notes'], true);
+  if (!empty($jobj['aco'])) {
+    $tmp = explode('|', $jobj['aco']);
+    if (!acl_check($tmp[0], $tmp[1])) continue;
   }
+  genMiscLink('RBot','cod','2',xl_form_title($title),
+    "patient_file/encounter/load_form.php?formname=$option_id");
 }
 include_once("$srcdir/registry.inc");
 $reg = getRegistered();
@@ -1390,6 +1394,12 @@ if (!empty($reg)) {
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
+    // Check ACO attribute, if any, of this LBF.
+    $jobj = json_decode($lrow['notes'], true);
+    if (!empty($jobj['aco'])) {
+      $tmp = explode('|', $jobj['aco']);
+      if (!acl_check($tmp[0], $tmp[1])) continue;
+    }
     genPopLink($title, "../forms/LBF/printable.php?formname=$option_id");
   }
 ?>
