@@ -1,27 +1,29 @@
 <?php
 /*
  *  Daily Summary Report. (/interface/reports/daily_summary_report.php)
- *  
+ *
  *
  *  This report shows date wise numbers of the Appointments Scheduled,
  *  New Patients, Visited patients, Total Charges, Total Co-pay and Balance amount for the selected facility & providers wise.
- * 
+ *
  * Copyright (C) 2016 Rishabh Software
- * 
- * LICENSE: This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 3 
- * of the License, or (at your option) any later version. 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU General Public License for more details. 
- * You should have received a copy of the GNU General Public License 
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
- * 
- * @package OpenEMR 
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
  * @author Rishabh Software
- * @link http://www.open-emr.org 
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @link http://www.open-emr.org
  *
  */
 
@@ -46,8 +48,11 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
     <head>
         <?php html_header_show(); ?>
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <script type="text/javascript" src="../../library/textformat.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+        <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
         <script type="text/javascript">
 
 
@@ -74,6 +79,16 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                     $("#report_form").submit();
                 }
             }
+
+            $( document ).ready(function(){
+                $('.datepicker').datetimepicker({
+                    <?php $datetimepicker_timepicker = false; ?>
+                    <?php $datetimepicker_formatInput = false; ?>
+                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                });
+            });
+
         </script>
 
     </head>
@@ -81,7 +96,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
     <body class="body_top">
 
         <span class='title'><?php echo xlt('Daily Summary Report'); ?></span>
-        <!-- start of search parameters --> 
+        <!-- start of search parameters -->
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
             <div id="report_parameters">
                 <table class="tableonly">
@@ -91,26 +106,20 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                 <table class='text'>
                                     <tr>
                                         <td class='label'><?php echo xlt('Facility'); ?>:</td>
-                                        <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>				
+                                        <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>
                                         <td class='label'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
+                                                   class='datepicker'
                                                    size='10' value='<?php echo attr($from_date) ?>'
-                                                   onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)'
-                                                   title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
-                                                   align='absbottom' width='24' height='22' id='img_from_date'
-                                                   border='0' alt='[?]' style='cursor: pointer'
-                                                   title='<?php echo xla('Click here to choose a date'); ?>'>
+                                                   title='yyyy-mm-dd'>
                                         </td>
                                         <td class='label'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
+                                                   class='datepicker'
                                                    size='10' value='<?php echo attr($to_date) ?>'
-                                                   onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)'
-                                                   title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
-                                                   align='absbottom' width='24' height='22' id='img_to_date'
-                                                   border='0' alt='[?]' style='cursor: pointer'
-                                                   title='<?php echo xla('Click here to choose a date'); ?>'>
+                                                   title='yyyy-mm-dd'>
                                         </td>
                                 </table>
                             </div>
@@ -129,7 +138,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                         <div style='margin-left: 15px'>
                                             <a href='#' class='css_button' onclick='return submitForm();'>
                                                 <span> <?php echo xlt('Submit'); ?> </span>
-                                            </a> 
+                                            </a>
                                             <a href='' class="css_button" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
                                                <span><?php echo xlt('Reset'); ?></span>
                                             </a>
@@ -143,7 +152,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             </div>
         </form>
-        <!-- end of search parameters --> 
+        <!-- end of search parameters -->
 
         <?php
         $dateSet = $facilitySet = 0;
@@ -188,7 +197,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             array_push($sqlBindArrayPaid, date("Y-m-d"));
         }
 
-        // if search based on facility then append condition for facility search 
+        // if search based on facility then append condition for facility search
         if (1 === $facilitySet) {
             $facilityID = $selectedFacility;
             $whereNewPatientConditions .= ' AND `f`.`id` = ?';
@@ -201,7 +210,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             array_push($sqlBindArrayPaid, $selectedFacility);
         }
 
-        // if date range wise search then append condition for date search 
+        // if date range wise search then append condition for date search
         if (1 === $dateSet) {
             $whereNewPatientConditions .= ' AND DATE(`OPE`.`pc_eventDate`) BETWEEN ? AND ?';
             array_push($sqlBindArrayNewPatient, $selectedFromDate, $selectedToDate);
@@ -226,11 +235,11 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             array_push($sqlBindArrayPaid, $selectedProvider);
         }
 
-        // pass last parameter as Boolean,  which is getting the facility name in the resulted array 
+        // pass last parameter as Boolean,  which is getting the facility name in the resulted array
         $totalAppointmentSql = fetchAppointments($from_date, $to_date, null, $providerID, $facilityID);
         if (count($totalAppointmentSql) > 0) { // check if $totalAppointmentSql array has value
             foreach ($totalAppointmentSql as $appointment) {
-                
+
                 $eventDate = $appointment['pc_eventDate'];
                 $facility = $appointment['name'];
                 $providerName = $appointment['ufname'] . ' ' . $appointment['ulname'];
@@ -253,7 +262,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 $totalAppointment[$eventDate][$facility][$providerName]['appointments']++;
             }
         }
-        
+
         //Count Total New Patient
         $newPatientSql = sqlStatement("SELECT `OPE`.`pc_eventDate` , `f`.`name` AS facility_Name , count( * ) AS totalNewPatient, `PD`.`providerID`, CONCAT( `u`.`fname`, ' ', `u`.`lname` ) AS provider_name
                                         FROM `patient_data` AS PD
@@ -289,7 +298,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                                     LEFT JOIN `form_encounter` AS fe ON ( `fe`.`facility_id` = `f`.`id` )
                                                                     LEFT JOIN `billing` AS b ON ( `fe`.`encounter` = `b`.`encounter` )
                                                                     LEFT JOIN `users` AS u ON ( `fe`.`provider_id` = `u`.`id` )
-                                                                    WHERE `b`.`activity` =1 AND 
+                                                                    WHERE `b`.`activity` =1 AND
                                                                     $whereTotalPaymentConditions
                                                                     GROUP BY `b`.`encounter`,Date,provider_name ORDER BY Date ASC", $sqlBindArrayTotalPayment);
 
@@ -334,7 +343,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                 <?php
                 if (count($dailySummaryReport) > 0) { // check if daily summary array has value
                     foreach ($dailySummaryReport as $date => $dataValue) { //   daily summary array which consists different/dynamic values
-                        foreach ($facilities as $facility) { // facility array 
+                        foreach ($facilities as $facility) { // facility array
                             if (isset($dataValue[$facility])) {
                                 foreach ($dataValue[$facility] as $provider => $information) { // array which consists different/dynamic values
                                     ?>
@@ -395,15 +404,5 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
             </table>
         </div>
     </body>
-
-    <!-- stuff for the popup calendar -->
-    <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-    <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-    <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-    <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-    <script type="text/javascript">
-        Calendar.setup({inputField: "form_from_date", ifFormat: "%Y-%m-%d", button: "img_from_date"});
-        Calendar.setup({inputField: "form_to_date", ifFormat: "%Y-%m-%d", button: "img_to_date"});
-    </script>
 
 </html>
