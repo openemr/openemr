@@ -40,10 +40,10 @@
                         <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
 
                         <?php if($readonly == ''): ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Update');?></button>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                                                 <span class="bold"><?php echo xlt('Status'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <select name="group_status" class="full-width"  value="<?php echo $groupData['group_status'];?>" <?php echo $readonly; ?>>
+                                                <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>" <?php echo $readonly; ?>>
                                                     <?php foreach($statuses as $key => $status): ?>
                                                         <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
@@ -112,7 +112,7 @@
                                                 <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                                             </div>
                                             <div class="col-md-offset1 col-md-6 col-sm-6">
-                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo $groupData['group_start_date'];?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -122,7 +122,7 @@
                                                 <span class="bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : $groupData['group_end_date'] ;?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr($groupData['group_end_date']) ;?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -217,7 +217,7 @@
     }
     //parent.left_nav.clearPatient();
     $(parent.Title.document.getElementById('clear_active')).hide();
-    parent.left_nav.setTherapyGroup(<?php echo $groupData['group_id']?>,'<?php echo $groupData['group_name']?>');
+    parent.left_nav.setTherapyGroup(<?php echo attr($groupData['group_id'])?>,'<?php echo attr($groupData['group_name'])?>');
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php

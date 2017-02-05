@@ -2,6 +2,7 @@
 /**
  * interface/main/calendar/find_group_popup.php
  *
+ * Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
  *
@@ -17,6 +18,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
+ 
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org

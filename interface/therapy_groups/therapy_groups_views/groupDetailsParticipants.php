@@ -32,17 +32,17 @@
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupId; ?>"><?php echo xlt('General data');?></a></li>
-                            <li class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . $groupId; ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupId); ?>"><?php echo xlt('General data');?></a></li>
+                            <li class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <button onclick="newGroup()">Add encounter</button>
+                        <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                         <?php if($readonly == ''): ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . $groupId; ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . $groupId; ?>'"><?php echo xlt('Update');?></button>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -50,8 +50,8 @@
                     <div class="col-md-12">
                         <div id="component-border">
                             <div  class="row">
-                                <form  id="add-participant-form" name="add-participant-form" class="<?php echo isset($addStatus) ? 'showAddForm' : '' ?>" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . $groupId?>" method="post">
-                                    <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? $participant_data['pid']: ''?>">
+                                <form  id="add-participant-form" name="add-participant-form" class="<?php echo isset($addStatus) ? 'showAddForm' : '' ?>" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . attr($groupId)?>" method="post">
+                                    <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']): ''?>">
                                     <div class="col-md-12">
                                         <div class="row">
                                             <div class="col-md-offset-1 col-md-5">
@@ -112,8 +112,8 @@
                                         <table  id="participants_table" class="dataTable display">
                                             <thead>
                                             <tr>
-                                                <th><?php echo xlt('Participant’s name'); ?></th>
-                                                <th><?php echo xlt('Patient’s number'); ?></th>
+                                                <th><?php echo xlt("Participant's name"); ?></th>
+                                                <th><?php echo xlt("Patient's number"); ?></th>
                                                 <th><?php echo xlt('Status in the group'); ?></th>
                                                 <th><?php echo xlt('Date of registration'); ?></th>
                                                 <th><?php echo xlt('Date of exit'); ?></th>
