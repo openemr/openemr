@@ -165,8 +165,8 @@ use ESign\Api;
  }
 
  if($GLOBALS['enable_group_therapy']){
-  $primary_docs['gng'] = array(xl('New Group')    , 0, 'therapy_groups/index.php?method=addGroup');
-  $primary_docs['gdg'] = array(xl('')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
+  $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
+  $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
   $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
   $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
   $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
