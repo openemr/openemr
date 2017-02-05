@@ -64,11 +64,11 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 $ignoreAuth = 1;
 ?>
 
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 input[type="checkbox"], input[type="radio"] {
@@ -242,14 +242,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
       </td>
       <td>
         <input type='text' size='10' name='Start' id='Start'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+         class='datepicker'
          title='<?php echo xla('yyyy-mm-dd'); ?>' />
-        <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_start' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php echo xla('Click here to choose a date'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
-        </script>
       </td>
       <td>
         &nbsp;
@@ -257,14 +251,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
       </td>
       <td>
         <input type='text' size='10' name='End' id='End'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+         class='datepicker'
          title='<?php echo xla('yyyy-mm-dd'); ?>' />
-        <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_end' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php echo xla('Click here to choose a date'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
-        </script>
       </td>
     </tr>
   </table>
@@ -828,6 +816,13 @@ initReport = function(){
 }; // end initReport
 $( document ).ready(function(){
 		initReport();
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 // select/deselect the Forms related to the selected Encounter

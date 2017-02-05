@@ -483,7 +483,7 @@ function getAuthPortalUsers(){
 					<li data-toggle="pill" class="bg-info"><a href="#"><span class="badge pull-right">0</span><?php echo xlt('Drafts'); ?></a></li>
 					<li data-toggle="pill" class="bg-info"><a href="javascript:;" ng-click="isTrashSelected()"><span class="badge pull-right">{{deletedItems.length}}</span><?php echo xlt('Trash'); ?></a></li>
 					<li class="pill bg-danger"><a href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a></li>
-					<li data-toggle="pill" class="bg-danger"><a href="javascript:;" onclick='window.location.replace("./../home.php")' ng-show="isPortal"><?php echo xlt('Exitl'); ?></a></li>
+					<li data-toggle="pill" class="bg-danger"><a href="javascript:;" onclick='window.location.replace("./../home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a></li>
 				</ul>
 			</aside>
 			<div class="col-md-11">
