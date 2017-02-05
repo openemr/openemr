@@ -1,10 +1,23 @@
 <?php
- // Copyright (C) 2011 Brady Miller <brady@sparmy.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ *
+ * Copyright (C) 2011-2017 Brady Miller <brady@sparmy.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -34,13 +47,15 @@ $provider  = trim($_POST['form_provider']);
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -49,6 +64,13 @@ $provider  = trim($_POST['form_provider']);
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = true; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
  function send_sum(patient_id,transaction_id) {
@@ -73,7 +95,7 @@ $provider  = trim($_POST['form_provider']);
  function send_sum_elec(patient_id,transaction_id) {
    if ( $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).attr('checked') ) {
      if ( !$('#send_sum_flag_' + patient_id + '_' + transaction_id).attr('checked') ) {
-       $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).removeAttr("checked");  
+       $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).removeAttr("checked");
        alert("<?php echo xls('Can not set this unless the Summary of Care Sent toggle is set.'); ?>");
        return false;
      }
@@ -166,7 +188,7 @@ $provider  = trim($_POST['form_provider']);
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - 
+<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> -
 
 <?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></span>
 
@@ -187,10 +209,8 @@ $provider  = trim($_POST['form_provider']);
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
-                            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                         <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                            id='img_begin_date' border='0' alt='[?]' style='cursor:pointer'
-                            title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                            class='datepicker'
+                            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                  </tr>
 
@@ -200,10 +220,8 @@ $provider  = trim($_POST['form_provider']);
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo htmlspecialchars( $end_date, ENT_QUOTES); ?>'
-                                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                                id='img_end_date' border='0' alt='[?]' style='cursor:pointer'
-                                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                                class='datepicker'
+                                title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
 
@@ -223,7 +241,7 @@ $provider  = trim($_POST['form_provider']);
                         </td>
                 </tr>
 
-                <tr>      
+                <tr>
 			<td class='label'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
@@ -333,7 +351,7 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php 
+   <?php
      if ($rule == "provide_rec_pat_amc") {
        echo htmlspecialchars( xl('Medical Records Sent'), ENT_NOQUOTES);
      }
@@ -403,17 +421,6 @@ $provider  = trim($_POST['form_provider']);
 </form>
 
 </body>
-
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"form_begin_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:'true'});
- Calendar.setup({inputField:"form_end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:'true'});
-
-</script>
 
 </html>
 

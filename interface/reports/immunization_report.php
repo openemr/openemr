@@ -1,12 +1,26 @@
 <?php
-// Copyright (C) 2011 Ensoftek Inc.
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This report lists  patient immunizations for a given date range.
+ *
+ * Copyright (C) 2011 Ensoftek Inc.
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
-// This report lists  patient immunizations for a given date range.
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -43,7 +57,7 @@ function format_cvx_code($cvx_code) {
 	if ( $cvx_code < 10 ) {
 		return "0$cvx_code";
 	}
-	
+
 	return $cvx_code;
 }
 
@@ -125,7 +139,7 @@ function format_ethnicity($ethnicity) {
   $query .= "i.patient_id=p.pid and ".
   $query_codes .
   "i.cvx_code = c.code and ";
-  
+
   //do not show immunization added erroneously
   $query .=  "i.added_erroneously = 0";
 
@@ -159,7 +173,7 @@ if ($_POST['form_get_hl7']==='true') {
     $content .= "PID|" . // [[ 3.72 ]]
         "|" . // 1. Set id
         "|" . // 2. (B)Patient id
-        $r['patientid']. "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|". // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test. 
+        $r['patientid']. "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . "|". // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test.
         "|" . // 4. (B) Alternate PID
         $r['patientname']."|" . // 5.R. Name
         "|" . // 6. Mather Maiden Name
@@ -224,7 +238,7 @@ if ($_POST['form_get_hl7']==='true') {
         "|" . // 20.Completion Status
         "A" . // 21.Action Code - RXA
         "$D" ;
-        
+
 }
 
   // send the header here
@@ -241,24 +255,29 @@ if ($_POST['form_get_hl7']==='true') {
 <head>
 <?php html_header_show();?>
 <title><?php xl('Immunization Registry','e'); ?></title>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = false; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
 </script>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {
@@ -334,26 +353,18 @@ onsubmit='return top.restoreSession()'>
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
+            class='datepicker'
             size='10' value='<?php echo $form_from_date ?>'
-            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' 
             title='yyyy-mm-dd'>
-            <img src='../pic/show_calendar.gif' align='absbottom' 
-            width='24' height='22' id='img_from_date' border='0' 
-            alt='[?]' style='cursor:pointer'
-            title='<?php xl('Click here to choose a date','e'); ?>'>
           </td>
           <td class='label'>
             <?php xl('To','e'); ?>:
           </td>
           <td>
-            <input type='text' name='form_to_date' id="form_to_date" 
+            <input type='text' name='form_to_date' id="form_to_date"
+            class='datepicker'
             size='10' value='<?php echo $form_to_date ?>'
-            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' 
             title='yyyy-mm-dd'>
-            <img src='../pic/show_calendar.gif' align='absbottom' 
-            width='24' height='22' id='img_to_date' border='0' 
-            alt='[?]' style='cursor:pointer'
-            title='<?php xl('Click here to choose a date','e'); ?>'>
           </td>
         </tr>
       </table>
@@ -364,10 +375,10 @@ onsubmit='return top.restoreSession()'>
       <tr>
         <td>
           <div style='margin-left:15px'>
-            <a href='#' class='css_button' 
+            <a href='#' class='css_button'
             onclick='
-            $("#form_refresh").attr("value","true"); 
-            $("#form_get_hl7").attr("value","false"); 
+            $("#form_refresh").attr("value","true");
+            $("#form_get_hl7").attr("value","false");
             $("#theform").submit();
             '>
             <span>
@@ -382,7 +393,7 @@ onsubmit='return top.restoreSession()'>
               </a>
               <a href='#' class='css_button' onclick=
               "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
-                     $('#form_get_hl7').attr('value','true'); 
+                     $('#form_get_hl7').attr('value','true');
                      $('#theform').submit();
               }">
                 <span>
@@ -459,11 +470,6 @@ onsubmit='return top.restoreSession()'>
 </div>
 <?php } ?>
 </form>
-
-<script language='JavaScript'>
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 
 </body>
 </html>

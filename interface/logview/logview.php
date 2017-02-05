@@ -1,4 +1,23 @@
 <?php
+/**
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
 require_once("$srcdir/formatting.inc.php");
@@ -6,14 +25,10 @@ require_once("$srcdir/formatting.inc.php");
 <html>
 <head>
 <?php html_header_show();?>
-<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 #logview {
     width: 100%;
@@ -42,6 +57,11 @@ require_once("$srcdir/formatting.inc.php");
     color: #336699;
 }
 </style>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script>
 //function to disable the event type field if the event name is disclosure
 function eventTypeChange(eventname)
@@ -51,7 +71,7 @@ function eventTypeChange(eventname)
           }
          else {
             document.theform.type_event.disabled = false;
-         }              
+         }
 }
 
 // VicarePlus :: This invokes the find-patient popup.
@@ -71,7 +91,7 @@ function eventTypeChange(eventname)
 <body class="body_top">
 <font class="title"><?php  xl('Logs Viewer','e'); ?></font>
 <br>
-<?php 
+<?php
 $err_message=0;
 if ($_GET["start_date"])
 $start_date = formData('start_date','G');
@@ -132,14 +152,12 @@ $direction = formData('direction','G') ;
 <tr><td>
 <span class="text"><?php  xl('Start Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
-<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
+<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" />
 </td>
 <td>
 <span class="text"><?php  xl('End Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
-<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
+<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" />
 </td>
 <!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
 <td>
@@ -173,7 +191,7 @@ echo "</select>\n";
 <span class='text'><?php  xl('Name of Events','e'); ?>: </span>
 </td>
 <td>
-<?php 
+<?php
 $res = sqlStatement("select distinct event from log order by event ASC");
 $ename_list=array(); $j=0;
 while ($erow = sqlFetchArray($res)) {
@@ -221,7 +239,7 @@ echo "</select>\n";
 <td>
 &nbsp;&nbsp;<span class='text'><?php  xl('Type of Events','e'); ?>: </span>
 </td><td>
-<?php 
+<?php
 $event_types=array("select", "update", "insert", "delete", "replace");
 $lcount=count($event_types);
 if($eventname=="disclosure"){
@@ -298,7 +316,7 @@ if($eventname != "" && $type_event != "")
 {
 	$getevent=$eventname."-".$type_event;
 }
-      
+
 	if(($eventname == "") && ($type_event != ""))
     {	$tevent=$type_event;
     }
@@ -308,7 +326,7 @@ if($eventname != "" && $type_event != "")
  	{$gev = "";}
  else
     {$gev = $getevent;}
-    
+
 if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
 
 
@@ -316,21 +334,21 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
     //translate comments
     $patterns = array ('/^success/','/^failure/','/ encounter/');
 	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
-	
+
 	$log_id = $iter['id'];
 	$commentEncrStatus = "No";
 	$logEncryptData = logCommentEncryptData($log_id);
 	if(count($logEncryptData) > 0){
 		$commentEncrStatus = $logEncryptData['encrypt'];
 	}
-	
+
 	//July 1, 2014: Ensoftek: Decrypt comment data if encrypted
 	if($commentEncrStatus == "Yes"){
 		$trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
 	}else{
 		$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
 	}
-	
+
 ?>
  <TR class="oneresult">
   <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
@@ -410,20 +428,21 @@ $(document).ready(function(){
     $("#sortby_success").click(function() { set_sort_direction(); $("#sortby").val("success"); $("#theform").submit(); });
     $("#sortby_comments").click(function() { set_sort_direction(); $("#sortby").val("comments"); $("#theform").submit(); });
     $("#sortby_checksum").click(function() { set_sort_direction(); $("#sortby").val("checksum"); $("#theform").submit(); });
+
+    $('.datetimepicker').datetimepicker({
+       <?php $datetimepicker_timepicker = true; ?>
+       <?php $datetimepicker_formatInput = false; ?>
+       <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+       <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 function set_sort_direction(){
-	if($('#direction').val() == 'asc') 
-		$('#direction').val('desc'); 
-	else 
+	if($('#direction').val() == 'asc')
+		$('#direction').val('desc');
+	else
 		$('#direction').val('asc');
 }
-
-
-
-/* required for popup calendar */
-Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:true});
-Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:true});
 
 function validatelog(){
 	 var img = document.getElementById('log_loading');
@@ -454,7 +473,7 @@ function validatelog(){
 	                alert('<?php echo xls("Audit Log Validation Failed"); ?>');
 	        }
 	 });
-		 
+
 }
 </script>
 

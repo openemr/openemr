@@ -1,28 +1,45 @@
 <?php
- // Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/*
+ * This report cross-references appointments with encounters.
+ * For a given date, show a line for each appointment with the
+ * matching encounter, and also for each encounter that has no
+ * matching appointment.  This helps to catch these errors:
+ *
+ * * Appointments with no encounter
+ * * Encounters with no appointment
+ * * Codes not justified
+ * * Codes not authorized
+ * * Procedure codes without a fee
+ * * Fees assigned to diagnoses (instead of procedures)
+ * * Encounters not billed
+ *
+ * For decent performance the following indexes are highly recommended:
+ *   openemr_postcalendar_events.pc_eventDate
+ *   forms.encounter
+ *   billing.pid_encounter
+ *
+ *
+ * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @link http://www.open-emr.org
+ *
+ */
 
- // This report cross-references appointments with encounters.
- // For a given date, show a line for each appointment with the
- // matching encounter, and also for each encounter that has no
- // matching appointment.  This helps to catch these errors:
- //
- // * Appointments with no encounter
- // * Encounters with no appointment
- // * Codes not justified
- // * Codes not authorized
- // * Procedure codes without a fee
- // * Fees assigned to diagnoses (instead of procedures)
- // * Encounters not billed
- //
- // For decent performance the following indexes are highly recommended:
- //   openemr_postcalendar_events.pc_eventDate
- //   forms.encounter
- //   billing.pid_encounter
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -145,6 +162,8 @@ function postError($msg) {
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -173,8 +192,9 @@ function postError($msg) {
 </style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -182,6 +202,13 @@ $(document).ready(function() {
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 });
 
 </script>
@@ -234,21 +261,15 @@ $(document).ready(function() {
 			   <?php xl('DOS','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
+			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
 				title='Date of appointments mm/dd/yyyy' >
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
 			</td>
 			<td class='label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
+			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
 				title='Optional end date mm/dd/yyyy' >
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
 			</td>
 		</tr>
 		<tr>
@@ -515,16 +536,5 @@ $(document).ready(function() {
 <?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 </script>
 </body>
-
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 
 </html>
