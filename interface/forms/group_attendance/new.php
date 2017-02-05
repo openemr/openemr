@@ -100,8 +100,8 @@ else{//new form
     <table id="group_attendance_form_table">
         <thead>
         <tr>
-            <th align="center"><?php echo xlt('Participant’s name'); ?></th>
-            <th align="center"><?php echo xlt('Patient’s number'); ?></th>
+            <th align="center"><?php echo xlt("Participant's name"); ?></th>
+            <th align="center"><?php echo xlt("Patient's number"); ?></th>
             <th align="center"><?php echo xlt('Status in the meeting'); ?></th>
             <th align="center"><?php echo xlt('Comment'); ?></th>
         </tr>
