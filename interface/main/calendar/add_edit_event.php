@@ -200,7 +200,7 @@ function DOBandEncounter($pc_eid)
              }
      }
     }
-    // auto create encounter fot therapy group
+    // auto create encounter for therapy group
     if(!empty($_POST['form_gid'])){
                                                                                 // status Took Place is the check in of therapy group
         if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {

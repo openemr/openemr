@@ -112,7 +112,7 @@ else{//new form
                 <td ><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
-                    <select class="status_select" name="<?php echo "patientData[" . $participant['pid'] . "][status]" ;?>">
+                    <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>">
                         <?php foreach ($statuses_in_meeting as $status_in_meeting){?>
                             <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if($participant['meeting_patient_status'] == $status_in_meeting['option_id']) echo 'selected';?> > <?php echo xlt($status_in_meeting['title']); ?></option>
                         <?php } ?>

@@ -315,8 +315,8 @@ if ($fres) {
     <tr id="therapy_group_name" style="display: none">
         <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
         <td>
-            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? getGroup($result['external_id'])['group_name'] : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
-            <input type='hidden' name='form_gid' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? $result['external_id'] : '' ?>' />
+            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+            <input type='hidden' name='form_gid' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? attr($result['external_id']) : '' ?>' />
         </td>
     </tr>
 
