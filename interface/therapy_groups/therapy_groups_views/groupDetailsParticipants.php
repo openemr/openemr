@@ -165,8 +165,11 @@
 </main>
 <script>
     $(document).ready(function(){
-        $('.datepicker').datepicker({
-            dateFormat: "yy-mm-dd"
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
 
         var table = $('#participants_table').DataTable({

@@ -37,7 +37,7 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <button onclick="newGroup()">Add encounter</button>
+                        <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
 
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>'"><?php echo xlt('Cancel');?></button>
@@ -191,8 +191,11 @@
 </main>
 <script>
     $(document).ready(function(){
-        $('.datepicker').datepicker({
-            dateFormat: "yy-mm-dd"
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
     $('#cancel-save').on('click', function(e){
