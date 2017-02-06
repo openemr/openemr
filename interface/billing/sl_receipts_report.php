@@ -9,6 +9,7 @@
  *
  * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,9 +19,10 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Terry Hill <terry@lillysystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://open-emr.org
  */
- 
+
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
@@ -76,6 +78,10 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
+
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {
@@ -93,7 +99,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 }
 
 /* specifically exclude some from the screen */
-@media screen {      N
+@media screen {
     #report_parameters_daterange {
         visibility: hidden;
         display: none;
@@ -102,8 +108,9 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -111,6 +118,13 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
 // This is for callback by the find-code popup.
@@ -203,21 +217,15 @@ function sel_diagnosis() {
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
+			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
 				title='<?php echo xla('Date of appointments mm/dd/yyyy'); ?>' >
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php echo xla('Click here to choose a date'); ?>'>
 			</td>
 			<td class='label'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr($form_to_date); ?>'
+			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr($form_to_date); ?>'
 				title='<?php echo xla('Optional end date mm/dd/yyyy'); ?>' >
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php echo xla('Click here to choose a date'); ?>'>
 			</td>
 			<td>&nbsp;</td>
 		</tr>
@@ -227,7 +235,7 @@ function sel_diagnosis() {
 			</td>
 			<td>
 			   <input type='text' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
-				title='<?php echo xla('Optional procedure/service code'); ?>' 
+				title='<?php echo xla('Optional procedure/service code'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
 
@@ -245,15 +253,15 @@ function sel_diagnosis() {
 			   <input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) echo " checked"; ?>><?php echo xlt('Procedures')?>
 			</td>
 		</tr>
-        
+
 	</table>
 
 	</div>
 
   </td>
-  
+
   <td align='left' valign='middle' height="100%">
-  
+
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
@@ -672,17 +680,5 @@ function sel_diagnosis() {
 
 </form>
 </body>
-
-<!-- stuff for the popup calendar -->
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-<?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 
 </html>

@@ -1,9 +1,10 @@
 <?php
 /**
- * This is a report of sales by item description. 
+ * This is a report of sales by item description.
  *
  * Copyright (C) 2015-2016 Terry Hill <terry@lillysystems.com>
  * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +20,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Terry Hill <terry@lillysystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -56,7 +58,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
   $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
   $rowamount = sprintf('%01.2f', $amount);
-  
+
    $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.postal_code, " .
@@ -64,9 +66,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   "p.phone_biz, p.phone_cell, p.hipaa_notice " .
   "FROM patient_data AS p " .
   "WHERE p.pid = ? LIMIT 1", array($patient_id));
-  
+
   $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
-  
+
   if (empty($rowcat)) $rowcat = xl('None');
   $rowproduct = $description;
   if (! $rowproduct) $rowproduct = xl('Unknown');
@@ -191,7 +193,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td>
    <?php echo text($pat_name); ?>
   </td>
-   <?php } ?>  
+   <?php } ?>
   <td class="detail">
   <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
    <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter_id); ?>'>
@@ -269,6 +271,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <html>
 <head>
 <?php html_header_show();?>
+
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -304,8 +310,9 @@ table.mymaintable td {
 
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -313,6 +320,13 @@ $(document).ready(function() {
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 });
 
 </script>
@@ -346,21 +360,15 @@ $(document).ready(function() {
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-                <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-                <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-                title='<?php echo xla('Click here to choose a date'); ?>'>
+                <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+                title='yyyy-mm-dd'>
             </td>
             <td class='label'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
-                <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-                <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-                title='<?php echo xla('Click here to choose a date'); ?>'>
+                <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+                title='yyyy-mm-dd'>
             </td>
         </tr>
     </table>
@@ -455,20 +463,20 @@ $(document).ready(function() {
   </th>
   <?php } ?>
   <th>
-   <?php 
+   <?php
    if($GLOBALS['sales_report_invoice'] == 0) {
     if ($form_details) echo ' ';
    ?>
   </th>
   <th>
-   <?php 
+   <?php
    if ($form_details) echo xlt('Invoice');  }
     if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) {
      if ($form_details) echo xlt('Name');
     } ?>
   </th>
   <th>
-   <?php 
+   <?php
    if($GLOBALS['sales_report_invoice'] == 2) {
     if ($form_details) echo xlt('Invoice');
    }
@@ -606,7 +614,7 @@ $(document).ready(function() {
   <?php } ?>
   <td align="right">
    &nbsp;
-  </td>  
+  </td>
   <td align="right"><b>
    <?php echo text($catqty); ?>
   </b></td>
@@ -626,7 +634,7 @@ $(document).ready(function() {
   <?php } ?>
   <td align="right">
    &nbsp;
-  </td>  
+  </td>
   <td align="right"><b>
    <?php echo text($grandqty); ?>
   </b></td>
@@ -659,18 +667,6 @@ $(document).ready(function() {
 </form>
 
 </body>
-
-<!-- stuff for the popup calendar -->
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 
 </html>
 <?php
