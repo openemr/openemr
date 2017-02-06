@@ -939,35 +939,37 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
   <td><b><?php 
-		  if ($list_id == 'language') {
-		  	xl('ISO 639-2 Code','e');
-		  } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route'){
-                        xl('HL7-V3 Concept Code','e');
-                  } else if ($list_id == 'Immunization_Completion_Status'){
-                        xl('Treatment Completion Status','e');
-                  } else if ($list_id == 'race') {
-                        xl('CDC Code','e');
-                  } else if ($list_id == 'Immunization_Manufacturer') {
-                        xl('MVX Code','e');
-                  } else if ($list_id == 'marital') {
-                        xl('Marital Status','e');
-                  } else if ( $list_id == 'county' ) {
-                        xl('INCITS Code','e'); //International Committee for Information Technology Standards
-                  }else if ( $list_id == 'immunization_registry_status' || $list_id == 'imm_vac_eligibility_results' ) {
-                        xl('IIS Code','e');
-                  }else if ( $list_id == 'publicity_code' ) {
-                        xl('CDC Code','e');
-                  }else if ( $list_id == 'immunization_refusal_reason' || $list_id == 'immunization_informationsource' ) {
-                        xl('CDC-NIP Code','e');
-                  }else if ( $list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
-                        xl('HL7 Code','e');
-                  }else if ( $list_id == 'immunization_observation' ) {
-                        xl('LOINC Code','e');
-                  }else if ( $list_id == 'page_validation' ) {
-                              xl('Page Validation','e');
-          } else {
-		  	xl('Notes','e');
-		  }
+    if ($list_id == 'language') {
+      echo xlt('ISO 639-2 Code');
+    } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
+      echo xlt('HL7-V3 Concept Code');
+    } else if ($list_id == 'Immunization_Completion_Status') {
+      echo xlt('Treatment Completion Status');
+    } else if ($list_id == 'race') {
+      echo xlt('CDC Code');
+    } else if ($list_id == 'Immunization_Manufacturer') {
+      echo xlt('MVX Code');
+    } else if ($list_id == 'marital') {
+      echo xlt('Marital Status');
+    } else if ($list_id == 'county') {
+      echo xlt('INCITS Code'); //International Committee for Information Technology Standards
+    } else if ($list_id == 'immunization_registry_status' || $list_id == 'imm_vac_eligibility_results') {
+      echo xlt('IIS Code');
+    } else if ($list_id == 'publicity_code') {
+      echo xlt('CDC Code');
+    } else if ($list_id == 'immunization_refusal_reason' || $list_id == 'immunization_informationsource') {
+      echo xlt('CDC-NIP Code');
+    } else if ($list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
+      echo xlt('HL7 Code');
+    } else if ($list_id == 'immunization_observation') {
+      echo xlt('LOINC Code');
+    } else if ($list_id == 'page_validation') {
+      echo xlt('Page Validation');
+    } else if ($list_id == 'lbfnames') {
+      echo xlt('Attributes');
+    } else {
+      echo xlt('Notes');
+    }
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>

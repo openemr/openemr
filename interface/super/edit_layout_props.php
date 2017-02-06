@@ -25,15 +25,13 @@ $fake_register_globals = false;
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$phpgacl_location/gacl_api.class.php");
 
 $info_msg = "";
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) die(xlt('Not authorized'));
 
 $opt_line_no = intval($_GET['lineno']);
 ?>
@@ -47,8 +45,8 @@ $opt_line_no = intval($_GET['lineno']);
 td { font-size:10pt; }
 </style>
 
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -148,12 +146,12 @@ function submitProps() {
     asort($list_aco_objects[$seckey]);
     $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
     $aco_section_title = $aco_section_data[3];
-    echo " <optgroup label='" . xls($aco_section_title) . "'>\n";
+    echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
     foreach($list_aco_objects[$seckey] as $acokey) {
       $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
       $aco_data = $gacl->get_object_data($aco_id, 'ACO');
       $aco_title = $aco_data[0][3];
-      echo "  <option value='" . attr("$seckey|$acokey") . "'>" . xls($aco_title) . "</option>\n";
+      echo "  <option value='" . attr("$seckey|$acokey") . "'>" . xlt($aco_title) . "</option>\n";
     }
     echo " </optgroup>\n";
   }
