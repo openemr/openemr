@@ -76,22 +76,13 @@ $logit = new ApplicationTable();
     //
 
     //Authentication
-<<<<<<< HEAD
-	require_once('../interface/globals.php');
-=======
     require_once('../interface/globals.php');
->>>>>>> 42b0798f594e230e1b885d369bb5d626e26b0388
     require_once("$srcdir/authentication/common_operations.php");
     require_once("$srcdir/user.inc");
     $password_update=isset($_SESSION['password_update']);
     unset($_SESSION['password_update']);
     $plain_code= $_POST['pass'];
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 42b0798f594e230e1b885d369bb5d626e26b0388
     $authorizedPortal=false; //flag
     DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
     DEFINE("COL_PID","pid");
