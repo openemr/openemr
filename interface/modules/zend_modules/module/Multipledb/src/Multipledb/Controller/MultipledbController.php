@@ -112,6 +112,12 @@ class MultipledbController extends BaseController{
 
     }
 
+    public function checknamespacejsonAction(){
+        $namespace = $_REQUEST['namespace'];
+        echo $this->getMultipledbTable()->checknamespace($namespace);
+        exit();
+    }
+
     public function generatesafekeyAction(){
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $this->getJsFiles();
