@@ -93,14 +93,15 @@
 
 #IfNotTable multiple_db
   CREATE TABLE `multiple_db` (
-    `id` int(11) NOT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `namespace` varchar(255) NOT NULL,
     `username` varchar(255) NOT NULL,
     `password` text,
     `dbname` varchar(255) NOT NULL,
     `host` varchar(255) NOT NULL DEFAULT 'localhost',
     `port` smallint(4) NOT NULL DEFAULT '3306',
-    `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     PRIMARY KEY (id)
   ) ENGINE=InnoDB;
 #EndIf
 
