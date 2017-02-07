@@ -1309,46 +1309,37 @@ function &postcalendar_userapi_pcGetEvents($args)
 // fill days with events (recurring is the challenge)
 //===========================
 function calculateEvents($days,$events,$viewtype) {
+  //
   $date =postcalendar_getDate();
   $cy = substr($date,0,4);
   $cm = substr($date,4,2);
   $cd = substr($date,6,2);
 
+  // here the start_date value is set to whatever comes in
+  // on postcalendar_getDate() which is not always the first
+  // date of the days array -- JRM
+  $start_date = "$cy-$cm-$cd";
+
+  // here we've made the start_date equal to the first date
+  // of the days array, makes sense, right? -- JRM
+  $days_keys = array_keys($days);
+  $start_date = $days_keys[0];
+  $day_number = count($days_keys);
+
+  // Optimization of the stop date to not be much later than required.
+  $tmpsecs = strtotime($start_date);
+  if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
+  else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
+  else if ($viewtype == 'month') {
+      if($day_number > 35) $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
+      else $tmpsecs = strtotime("+34 days", $tmpsecs);
+  }
+  else $tmpsecs += 367 * 24 * 3600;
+  $last_date = date('Y-m-d', $tmpsecs);
+
   foreach($events as $event) {
     // get the name of the topic
     $topicname = pcGetTopicName($event['topic']);
-
-    // parse the event start date
-    list($esY,$esM,$esD) = explode('-',$event['eventDate']);
-
-    // grab the recurring specs for the event
-    $event_recurrspec = @unserialize($event['recurrspec']);
-
-    // determine the stop date for this event
-    if($event['endDate'] == '0000-00-00') {
-      $stop = $end_date;  // <--- this isn't previously defined !!
-    } else {
-      $stop = $event['endDate'];
-    }
-   
-    // here the start_date value is set to whatever comes in
-    // on postcalendar_getDate() which is not always the first
-    // date of the days array -- JRM
-    $start_date = "$cy-$cm-$cd";
-
-    // here we've made the start_date equal to the first date
-    // of the days array, makes sense, right? -- JRM
-    $days_keys = array_keys($days);
-    $start_date = $days_keys[0];
-
-    // Optimization of the stop date to not be much later than required.
-    $tmpsecs = strtotime($start_date);
-    if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
-    else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
-    else if ($viewtype == 'month') $tmpsecs += 34 * 24 * 3600;
-    else $tmpsecs += 367 * 24 * 3600;
-    $tmp = date('Y-m-d', $tmpsecs);
-    if ($stop > $tmp) $stop = $tmp;
 
     $eventD = $event['eventDate'];
     $eventS = $event['startTime'];
@@ -1383,6 +1374,14 @@ function calculateEvents($days,$events,$viewtype) {
       //  Day,Week,Month,Year,MWF,TR,M-F,SS
       //==============================================================
       case REPEAT :
+      case REPEAT_DAYS:
+
+        // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
+        if($last_date > $event['endDate']) $stop = $event['endDate'];
+        else $stop = $last_date;
+
+        list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+        $event_recurrspec = @unserialize($event['recurrspec']);
 
         $rfreq = $event_recurrspec['event_repeat_freq'];
         $rtype = $event_recurrspec['event_repeat_freq_type'];
@@ -1435,6 +1434,13 @@ function calculateEvents($days,$events,$viewtype) {
       //  Every N Months
       //==============================================================
       case REPEAT_ON :
+
+        // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
+        if($last_date > $event['endDate']) $stop = $event['endDate'];
+        else $stop = $last_date;
+
+        list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+        $event_recurrspec = @unserialize($event['recurrspec']);
 
         $rfreq = $event_recurrspec['event_repeat_on_freq'];
         $rnum  = $event_recurrspec['event_repeat_on_num'];
@@ -1489,52 +1495,6 @@ function calculateEvents($days,$events,$viewtype) {
             }
           }
           $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-          list($ny,$nm,$nd) = explode('-',$occurance);
-        }
-
-        break;
-
-		case REPEAT_DAYS:
-			$rfreq = $event_recurrspec['event_repeat_freq'];
-			$rtype = $event_recurrspec['event_repeat_freq_type'];
-			$exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
-
-			// we should bring the event up to date to make this a tad bit faster
-			// any ideas on how to do that, exactly??? dateToDays probably.
-			$nm = $esM; $ny = $esY; $nd = $esD;
-			$occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-			while($occurance < $start_date) {
-				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-				list($ny,$nm,$nd) = explode('-',$occurance);
-			}
-		   	while($occurance <= $stop) {
-            if(isset($days[$occurance])) {
-            // check for date exceptions before pushing the event into the days array -- JRM
-            $excluded = false;
-            if (isset($exdate)) {
-                foreach (explode(",", $exdate) as $exception) {
-                    // occurrance format == yyyy-mm-dd
-                    // exception format == yyyymmdd
-                    if (preg_replace("/-/", "", $occurance) == $exception) {
-                        $excluded = true;
-                    }
-                }
-            }
-
-            // push event into the days array
-            if ($excluded == false) array_push($days[$occurance],$event);
-
-            if ($viewtype == "week") {
-                fillBlocks($occurance, $days);
-                //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
-                $gbt = getBlockTime($eventS);
-                $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
-                //echo "begin printing blocks for $eventD<br />";
-                //print_r($days[$occurance]['blocks']);
-                //echo "end printing blocks<br />";
-            }
-          }
-          $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
         break;
