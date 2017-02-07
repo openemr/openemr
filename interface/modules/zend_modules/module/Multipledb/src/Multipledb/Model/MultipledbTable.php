@@ -56,6 +56,16 @@ class MultipledbTable
         return $rsArray;
     }
 
+    public function checknamespace($namespace){
+        $rowset = $this->tableGateway->select(array('namespace' => $namespace));
+        $count = $rowset->count();
+
+        if($count AND $_SESSION['multiple_edit_id'] == 0){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
 
     public function storeMultipledb($id = 0,$db = array()){
 

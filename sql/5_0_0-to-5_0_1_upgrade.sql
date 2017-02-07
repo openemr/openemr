@@ -101,6 +101,7 @@
     `host` varchar(255) NOT NULL DEFAULT 'localhost',
     `port` smallint(4) NOT NULL DEFAULT '3306',
     `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     UNIQUE KEY `namespace` (namespace),
      PRIMARY KEY (id)
   ) ENGINE=InnoDB;
 #EndIf
