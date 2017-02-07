@@ -1331,8 +1331,8 @@ function calculateEvents($days,$events,$viewtype) {
   if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
   else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
   else if ($viewtype == 'month') {
-      if($day_number > 35) $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
-      else $tmpsecs = strtotime("+34 days", $tmpsecs);
+    if($day_number > 35) $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
+    else $tmpsecs = strtotime("+34 days", $tmpsecs);
   }
   else $tmpsecs += 367 * 24 * 3600;
   $last_date = date('Y-m-d', $tmpsecs);
