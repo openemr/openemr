@@ -396,7 +396,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   } else {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-      attr($notes) . "' size='25' maxlength='255' class='optin' ";
+      attr($notes) . "' size='25' class='optin' ";
     if ($list_id == 'lbfnames') {
       echo "onclick='edit_layout_props($opt_line_no)' ";
     }
