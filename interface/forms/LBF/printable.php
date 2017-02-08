@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2016 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2017 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,9 +22,22 @@ $CPR = 4; // cells per row
 // The form name is passed to us as a GET parameter.
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
-$tmp = sqlQuery("SELECT title FROM list_options WHERE " .
-  "list_id = 'lbfnames' AND option_id = ? AND activity = 1 LIMIT 1", array($formname) );
+$tmp = sqlQuery("SELECT title, notes FROM list_options WHERE " .
+  "list_id = 'lbfnames' AND option_id = ? AND activity = 1 LIMIT 1", array($formname));
 $formtitle = $tmp['title'];
+
+// Extract parameters from this form's list item entry.
+$jobj = json_decode($tmp['notes'], true);
+if (!empty($jobj['columns'])) $CPR = intval($jobj['columns']);
+if (!empty($jobj['size'   ])) $FONTSIZE = intval($jobj['size']);
+
+// Check access control.
+if (!empty($jobj['aco'])) $LBF_ACO = explode('|', $jobj['aco']);
+if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
+  if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+    die(xlt('Access denied'));
+  }
+}
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .

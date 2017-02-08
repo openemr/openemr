@@ -15,6 +15,20 @@ include_once($GLOBALS["srcdir"] . "/api.inc");
 
 function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false) {
   require_once($GLOBALS["srcdir"] . "/options.inc.php");
+
+  // Extract parameters from this form's list item entry.
+  $tmp = sqlQuery("SELECT notes FROM list_options WHERE " .
+    "list_id = 'lbfnames' AND option_id = ? AND activity = 1", array($formname));
+  $jobj = json_decode($tmp['notes'], true);
+
+  // Check access control.
+  if (!empty($jobj['aco'])) $LBF_ACO = explode('|', $jobj['aco']);
+  if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
+    if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+      die(xlt('Access denied'));
+    }
+  }
+
   $arr = array();
   $shrow = getHistoryData($pid);
   $fres = sqlStatement("SELECT * FROM layout_options " .

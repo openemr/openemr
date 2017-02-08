@@ -55,45 +55,51 @@ function update_modules_menu(&$menu_list)
        }
     }
 }
-function update_visit_forms(&$menu_list)
-{
-    $baseURL="/interface/patient_file/encounter/load_form.php?formname=";
-    $menu_list->children=array();
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-if (sqlNumRows($lres)) {
+
+// This creates menu entries for all encounter forms.
+//
+function update_visit_forms(&$menu_list) {
+  $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
+  $menu_list->children = array();
+  // LBF Visit forms
+  $lres = sqlStatement("SELECT * FROM list_options " .
+    "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
-    $formURL=$baseURL . urlencode($option_id);
-    $formEntry=new stdClass();
-    $formEntry->label=xl_form_title($title);
-    $formEntry->url=$formURL;
-    $formEntry->requirement=2;
-    $formEntry->target='enc';
-    array_push($menu_list->children,$formEntry);
+    $formURL = $baseURL . urlencode($option_id);
+    $formEntry = new stdClass();
+    $formEntry->label = xl_form_title($title);
+    $formEntry->url = $formURL;
+    $formEntry->requirement = 2;
+    $formEntry->target = 'enc';
+    // Plug in ACO attribute, if any, of this LBF.
+    $jobj = json_decode($lrow['notes'], true);
+    if (!empty($jobj['aco'])) {
+      $formEntry->acl_req = explode('|', $jobj['aco']);
+    }
+    array_push($menu_list->children, $formEntry);
+  }
+  // Traditional forms
+  $reg = getRegistered();
+  if (!empty($reg)) {
+    foreach ($reg as $entry) {
+      $option_id = $entry['directory'];
+      $title = trim($entry['nickname']);
+      if ($option_id == 'fee_sheet' ) continue;
+      if ($option_id == 'newpatient') continue;
+      if (empty($title)) $title = $entry['name'];
+      $formURL = $baseURL . urlencode($option_id);
+      $formEntry = new stdClass();
+      $formEntry->label = xl_form_title($title);
+      $formEntry->url = $formURL;
+      $formEntry->requirement = 2;
+      $formEntry->target = 'enc';
+      array_push($menu_list->children, $formEntry);
+    }
   }
 }
 
-    $reg = getRegistered();
-    if (!empty($reg)) {
-      foreach ($reg as $entry) {
-        $option_id = $entry['directory'];
-              $title = trim($entry['nickname']);
-        if ($option_id == 'fee_sheet' ) continue;
-        if ($option_id == 'newpatient') continue;
-        if (empty($title)) $title = $entry['name'];
-
-        $formURL=$baseURL . urlencode($option_id);
-        $formEntry=new stdClass();
-        $formEntry->label=xl_form_title($title);
-        $formEntry->url=$formURL;
-        $formEntry->requirement=2;
-        $formEntry->target='enc';
-        array_push($menu_list->children,$formEntry);
-      }
-    }
-}
 function menu_update_entries(&$menu_list)
 {
     global $menu_update_map;

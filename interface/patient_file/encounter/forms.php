@@ -550,11 +550,26 @@ if ( $esign->isButtonViewable() ) {
         // skip forms whose 'deleted' flag is set to 1
         if ($iter['deleted'] == 1) continue;
 
-        // Skip forms that we are not authorized to see.
-        if (($auth_notes_a) ||
-            ($auth_notes && $iter['user'] == $_SESSION['authUser']) ||
-            ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
-        else continue;
+        if (substr($formdir,0,3) == 'LBF') {
+          // Skip LBF forms that we are not authorized to see.
+          $lrow = sqlQuery("SELECT * FROM list_options WHERE " .
+            "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
+            array($formdir));
+          if (!empty($lrow)) {
+            $jobj = json_decode($lrow['notes'], true);
+            if (!empty($jobj['aco'])) {
+              $tmp = explode('|', $jobj['aco']);
+              if (!acl_check($tmp[0], $tmp[1])) continue;
+            }
+          }
+        }
+        else {
+          // Skip non-LBF forms that we are not authorized to see.
+          if (($auth_notes_a) ||
+              ($auth_notes && $iter['user'] == $_SESSION['authUser']) ||
+              ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
+          else continue;
+        }
 
         // $form_info = getFormInfoById($iter['id']);
         if (strtolower(substr($iter['form_name'],0,5)) == 'camos') {
