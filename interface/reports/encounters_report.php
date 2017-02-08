@@ -1,6 +1,6 @@
 <?php
 /*
- *  Encounters report. (/interface/reports/encounters_report.php
+ *  Encounters report.
  *
  *  This report shows past encounters with filtering and sorting,
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.

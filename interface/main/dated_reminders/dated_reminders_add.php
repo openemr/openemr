@@ -3,6 +3,7 @@
  * Used for adding dated reminders.
  *
  * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -151,13 +153,16 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 <html>
   <head>
     <title><?php echo xlt('Send a Reminder') ?></title>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js"></script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-4-3/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-calendar.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
     <script language="JavaScript">
       $(document).ready(function (){
 
@@ -245,6 +250,13 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
           // update word counter
           var messegeTextarea=$("#message")[0];
           limitText(messegeTextarea.form.message,messegeTextarea.form.countdown,<?php echo $max_reminder_words ?>);
+
+        $('.datepicker').datetimepicker({
+          <?php $datetimepicker_timepicker = false; ?>
+          <?php $datetimepicker_formatInput = false; ?>
+          <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+          <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
       })
 
         function sel_patient(){
@@ -321,7 +333,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
       <br />
 
     <fieldset>
-            <?php echo xlt('Due Date') ?> : <input type='text' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
+            <?php echo xlt('Due Date') ?> : <input type='text' class='datepicker' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
             <?php echo xlt('OR') ?>
             <?php echo xlt('Select a Time Span') ?> : <select id="timeSpan">
                                       <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
@@ -413,12 +425,4 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
         echo '</tbody></table>';
     ?>
   </body>
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
-  Calendar.setup({inputField:"dueDate", ifFormat:"%Y-%m-%d", button:"img_begin_date", showsTime:'false'});
-</script>
 </html>
