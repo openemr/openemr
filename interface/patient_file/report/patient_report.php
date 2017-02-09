@@ -1,10 +1,35 @@
 <?php
+/**
+ *
+ * Comprehensive Patient Report
+ *
+ * Copyright (C) 2016 OpenEMR
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  OpenEMR
+ * @link    http://www.open-emr.org
+ */
+
+// mdsupport - Added automated submit function for onsite portal use
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/pid.inc");
+require_once("$srcdir/encounter.inc");
 require_once("$srcdir/formatting.inc.php");
 
 // get various authorization levels
@@ -20,6 +45,94 @@ $cmsportal = false;
 if ($GLOBALS['gbl_portal_cms_enable']) {
   $ptdata = getPatientData($pid, 'cmsportal_login');
   $cmsportal = $ptdata['cmsportal_login'] !== '';
+}
+
+// May get directives from GET or POST
+$pauto = ($_SERVER['REQUEST_METHOD']=='GET' ? $_GET : $_POST);
+
+/* Expected directives are:
+ *  pid  = <patient id to override current $pid>
+ *  enc  = <limited to this encounter>
+ *  auto = [y]es for automated actions
+ *  sel  = [y]es to select checkboxes but do not generate the report
+ *  fee  = [y]es, [n]o
+ *  note = [y]es, [n]o
+ *  comm = [y]es, [n]o
+ *  mths = <number of months>
+*/
+
+foreach ($pauto as $key => $val) {
+  switch ($key) {
+    case 'pid':
+      setpid($pauto['pid']);
+      break;
+    case 'enc':
+      setencounter($pauto['enc']);
+      break;
+    case 'mths':
+      $pauto['dt_from'] = date("Y-m-d", strtotime("-".$pauto['mths']." months"));
+      $pauto['dt_to'] = date("Y-m-d");
+      break;
+    case 'sel':
+    case 'fee':
+    case 'note':
+    case 'comm':
+      if (substr($pauto[$key], 0, 1) != 'y') unset($pauto[$key]);
+      break;
+      
+    default:
+      // Skip unrecognized parameter
+    break;
+  }
+}
+
+$opt_chk = array(
+  'fee' => 'opt_fee',
+  'note'=> 'opt_note',
+  'comm'=> 'opt_comm'
+);
+
+$auto_js = '';
+$disp_none = false;
+if ($pauto['auto']) {
+  $auto_js = 'checkAll(true);';
+  foreach ($opt_chk as $key => $val) {
+    if (!isset($pauto[$key])) {
+      $auto_js .= "$('#$val').html('');";
+    }
+  }
+  if (!isset($pauto['sel'])) {
+    $auto_js .= 'formSubmit();';
+    $disp_none = true;
+  } 
+}
+$sql_enc = "SELECT f.encounter, f.form_id, f.form_name, f.formdir, f.date AS fdate, fe.date, fe.reason 
+    FROM forms f INNER JOIN form_encounter fe ON fe.pid = f.pid AND fe.encounter = f.encounter
+    WHERE f.pid=? AND f.deleted=0";
+$fil_enc = array($pid);
+$sql_po = "SELECT po.procedure_order_id, po.date_ordered, fe.date 
+    FROM procedure_order po LEFT JOIN forms f ON f.pid = po.patient_id AND f.form_id = po.procedure_order_id  
+    LEFT JOIN form_encounter fe ON fe.pid = f.pid AND fe.encounter = f.encounter 
+    WHERE po.patient_id = ? AND f.formdir = 'procedure_order' AND f.deleted = 0";
+$fil_po = array($pid);
+$sql_iss = "SELECT * FROM lists l WHERE pid=?";
+$fil_iss = array($pid);
+
+if (isset($pauto['enc'])) {
+  $sql_enc = "$sql_enc AND fe.encounter=?";
+  array_push($fil_enc, $encounter);
+  // If results from external labs (no encounter) are disallowed, remove following comments
+  // $sql_po = "$sql_po AND po.encounter_id=?";
+  // array_push($fil_po, $encounter);
+}
+
+if (isset($pauto['mths'])) {
+  $sql_enc = "$sql_enc AND fe.date>=? AND fe.date<=?";
+  array_push($fil_enc, $pauto['dt_from'], $pauto['dt_to']);
+  $sql_po = "$sql_po AND po.date_ordered>=? AND po.date_ordered<=?";
+  array_push($fil_po, $pauto['dt_from'], $pauto['dt_to']);
+  $sql_iss = "$sql_iss AND ((l.begdate>=? AND l.begdate<=?) OR (l.enddate>=? AND l.enddate<=?) OR (IFNULL(l.enddate,'')=''))";
+  array_push($fil_iss, $pauto['dt_from'], $pauto['dt_to'], $pauto['dt_from'], $pauto['dt_to']);
 }
 ?>
 <html>
@@ -60,7 +173,7 @@ function show_date_fun(){
 </head>
 
 <body class="body_top">
-<div id="patient_reports"> <!-- large outer DIV -->
+<div id="patient_reports" <?php echo ($disp_none ? 'style="display:none"':"") ?>> <!-- large outer DIV -->
 
 <p>
 <span class='title'><?php echo xlt('Patient Reports'); ?></span>
@@ -202,8 +315,8 @@ function show_date_fun(){
    <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
    -->
    <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
-   <input type='checkbox' name='include_billing' id='include_billing' value="billing"
-    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing','e'); ?><br>
+   <label id="opt_fee"><input type='checkbox' name='include_billing' id='include_billing' value="billing"
+    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing','e'); ?><br></label>
   </td>
   <td class='text'>
    <!--
@@ -214,9 +327,9 @@ function show_date_fun(){
    <!--
    <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
    -->
-   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br>
+   <label id='opt_note'><input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br></label>
    <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php xl('Transactions','e'); ?><br>
-   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
+   <label id='opt_comm'><input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br></label>
   </td>
      <td class="text">
          <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" ><?php echo  xlt('Recurrent Appointments'); ?><br>
@@ -225,12 +338,12 @@ function show_date_fun(){
 </table>
 
 <br>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="0" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="1" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
 <?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<input type="button" class="setpdf" data-pdf="2" value="<?php xl('Send to Portal','e'); ?>" />
 <?php } ?>
-<input type='hidden' name='pdf' value='0'>
+<input type='hidden' name='pdf' id='form-pdf' value='0'>
 <br>
 
 <!-- old ccr button position -->
@@ -254,8 +367,7 @@ function show_date_fun(){
 
 <?php
 // get issues
-$pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
-                    "ORDER BY type, begdate");
+$pres = sqlStatement("$sql_iss ORDER BY type, begdate", $fil_iss);
 $lasttype = "";
 while ($prow = sqlFetchArray($pres)) {
     if ($lasttype != $prow['type']) {
@@ -321,14 +433,7 @@ while ($prow = sqlFetchArray($pres)) {
 <?php
 
 $isfirst = 1;
-$res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
-                    "forms.formdir, forms.date AS fdate, form_encounter.date " .
-                    ",form_encounter.reason ".
-                    "FROM forms, form_encounter WHERE " .
-                    "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
-                    "form_encounter.encounter = forms.encounter " .
-                    " AND forms.deleted=0 ". // --JRM--
-                    "ORDER BY form_encounter.date DESC, fdate ASC");
+$res = sqlStatement("$sql_enc ORDER BY fe.date DESC, fdate ASC", $fil_enc);
 $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
 $registry_form_name = array();
@@ -404,10 +509,10 @@ foreach($registry_form_name as $var) {
   </td>
  </tr>
 </table>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="0" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="1" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
 <?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<input type="button" class="setpdf" data-pdf="2" value="<?php xl('Send to Portal','e'); ?>" />
 <?php } ?>
 
 <!-- Procedure Orders -->
@@ -420,14 +525,7 @@ foreach($registry_form_name as $var) {
   <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
  </tr>
 <?php
-$res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
-  "FROM procedure_order AS po " .
-  "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
-  "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
-  "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
-  "WHERE po.patient_id = ? " .
-  "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-  array($pid));
+$res = sqlStatement("$sql_po ORDER BY po.date_ordered DESC, po.procedure_order_id DESC", $fil_po);
 while($row = sqlFetchArray($res)) {
   $poid = $row['procedure_order_id'];
   echo " <tr>\n";
@@ -449,8 +547,8 @@ while($row = sqlFetchArray($res)) {
 }
 ?>
 </table>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+<input type="button" class="setpdf" data-pdf="0" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="1" value="<?php xl('Download PDF','e'); ?>" />
 
 <hr/>
 <span class="bold"><?php xl('Documents','e'); ?></span>:<br>
@@ -477,10 +575,10 @@ while ($result && !$result->EOF) {
 </ul>
 </form>
 
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="0" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="setpdf" data-pdf="1" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
 <?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<input type="button" class="setpdf" data-pdf="2" value="<?php xl('Send to Portal','e'); ?>" />
 <?php } ?>
 
 </div>  <!-- close patient_reports DIV -->
@@ -490,9 +588,12 @@ while ($result && !$result->EOF) {
 
 // jQuery stuff to make the page a little easier to use
 $(document).ready(function(){
-    $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
-    $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
-    $(".genportal").click(function() { top.restoreSession(); document.report_form.pdf.value = 2; $("#report_form").submit(); });
+  $(".setpdf").click( function() {
+	  var pdf = $(this).attr("data-pdf");
+	  $("#form-pdf").val(pdf); // Use this.data for jQuery >= 1.4.3
+	  formSubmit();
+	});
+
     $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
@@ -657,8 +758,9 @@ $(document).ready(function(){
                   });
                 }
         });
-<?php } ?>
-
+<?php } 
+  echo $auto_js;
+?>
 });
 
 // select/deselect the Forms related to the selected Encounter
@@ -693,6 +795,11 @@ function issueClick(issue) {
     });
 }
 
+function formSubmit() {
+  if (typeof(top.restoreSession) == "function") {
+    top.restoreSession();
+  } 
+  $("#report_form").submit(); 
+}
 </script>
-
 </html>
