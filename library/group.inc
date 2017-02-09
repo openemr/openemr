@@ -76,7 +76,7 @@ function getParticipants($gid){
 
 //Fetches group status name by status key
 function getTypeName($key){
-    $types_array = TherapyGroupsController::$group_types;
+    $types_array = TherapyGroupsController::prepareGroupTypesList();
     $types_name = $types_array[$key];
     return $types_name;
 }

@@ -33,27 +33,48 @@ class TherapyGroupsController extends BaseController{
 
     public $therapyGroupModel;
 
+    /* Note: Created functions to return arrays so that xl method can be used in array rendering. */
+
     //list of group statuses
-    public static $statuses = array(
-        '10' => 'active',
-        '20' => 'deleted',
-    );
+    public static function prepareStatusesList()
+    {
+        $statuses = array(
+            '10' => xl('active'),
+            '20' => xl('deleted')
+        );
+        return $statuses;
+    }
+
     //list of participant statuses
-    public static $participant_statuses = array(
-        '10' => 'active',
-        '20' => 'not active',
-    );
+    public static function prepareParticipantStatusesList()
+    {
+        $participant_statuses = array(
+                '10' => 'active',
+                '20' => 'not active'
+        ); 
+        return $participant_statuses; 
+    }
+    
     //list of group types
-    public static $group_types = array(
-        '1' => 'closed',
-        '2' => 'open',
-        '3' => 'training'
-    );
+    public static function prepareGroupTypesList()
+    {
+        $group_types = array(
+            '1' => 'closed',
+            '2' => 'open',
+            '3' => 'training'
+        );
+        return $group_types;
+    }
+
     //list of participation types
-    public static $group_participation = array(
-        '1' => 'mandatory',
-        '2' => 'optional'
-    );
+    public static function prepareGroupParticipationList()
+    {
+        $group_participation = array(
+            '1' => 'mandatory',
+            '2' => 'optional'
+        );
+        return $group_participation;
+    }
 
     //Max length of notes preview in groups list
     private $notes_preview_proper_length = 30;
@@ -83,7 +104,7 @@ class TherapyGroupsController extends BaseController{
         $data['users'] = $users;
 
         //Get statuses
-        $data['statuses'] = self::$statuses;
+        $data['statuses'] = self::prepareStatusesList();
 
         //print_r($_POST);die;
         if(isset($_POST['save'])){
@@ -221,9 +242,9 @@ class TherapyGroupsController extends BaseController{
         $data['therapyGroups'] = $this->prepareGroups($therapy_groups, $counselors);
 
         //Insert static arrays to send to view.
-        $data['statuses'] = SELF::$statuses;
-        $data['group_types'] = SELF::$group_types;
-        $data['group_participation'] = SELF::$group_participation;
+        $data['statuses'] = SELF::prepareStatusesList();
+        $data['group_types'] = SELF::prepareGroupTypesList();
+        $data['group_participation'] = SELF::prepareGroupParticipationList();
         $data['counselors'] = $this->prepareCounselorsList($counselors);
 
         //Send groups array to view.
