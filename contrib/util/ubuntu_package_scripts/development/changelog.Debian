@@ -1,6 +1,13 @@
+git-openemr (1.0.0-7) stable; urgency=low
+
+  * Added php-ldap.
+  * Removed /library/freeb directory.
+
+ -- Brady Miller <brady@sparmy.com>  Mon, 13 Feb 2017 22:47:06 -0800
+
 git-openemr (1.0.0-6) stable; urgency=low
 
-  * Fix to work with PHP7 and PhpMyAdmin..
+  * Fix to work with PHP7 and PhpMyAdmin.
 
  -- Brady Miller <brady@sparmy.com>  Fri, 13 May 2016 22:56:45 -0700
 
