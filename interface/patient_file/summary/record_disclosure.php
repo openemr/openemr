@@ -4,6 +4,7 @@
  * Patient disclosures main screen.
  *
  * Copyright (C) Visolve <vicareplus_engg@visolve.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,11 +45,12 @@ if (isset($_GET['editlid']))
 <html>
 <head>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <!-- supporting javascript code -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script type="text/javascript">
 //function to validate fields in record disclosure page
 function submitform()
@@ -73,6 +75,16 @@ function submitform()
         document.forms[0].submit();
 	}
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 </head>
 <body class="body_top">
@@ -107,20 +119,12 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 		 ?>
 			<input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid,ENT_QUOTES); ?>">
 			<input type=hidden name=updatemode value="disclosure_update">
-			<input type='entry' size='20' name='dates' id='dates' readonly='readonly' value='<?php echo htmlspecialchars($disc_date,ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
+			<input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date,ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
 		}
 		else {
-			?> <input type='entry' size='20' name='dates' id='dates' value='' readonly="readonly" style="background-color:white"/>&nbsp;
+			?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;
 			<?php }
 			?>
-		<!-- image for date/time picker -->
-		<img src="../../../interface/pic/show_calendar.gif" id="img_date"
-			width="24" height="22" align="absbottom" style="cursor: pointer;"
-			title="<?php echo htmlspecialchars(xl('Date selector'),ENT_QUOTES);?>" /></td>
-		<script type="text/javascript">
-		Calendar.setup({inputField:'dates', ifFormat:'%Y-%m-%d %H:%M:%S',
-		button:'img_date', showsTime:true});
-</script>
 	</tr>
 	<tr>
 		<td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'),ENT_NOQUOTES); ?>: </span></TD>
