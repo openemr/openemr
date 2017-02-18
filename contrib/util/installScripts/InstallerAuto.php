@@ -8,12 +8,12 @@
 //
 // This script is for automatic installation and ocnfiguration
 //   of OpenEMR.
-// 
+//
 // This script is meant to be run as php command line (php-cli),
 //  and needs to be first activated by removing the 'exit' line
 //  at top (via sed command).
 //
-// To activate script, need to comment out the exit command at top 
+// To activate script, need to comment out the exit command at top
 //   of script.
 //
 // Command ( Note that the ordering and number of custom settings
