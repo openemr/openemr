@@ -3,6 +3,7 @@
  * Add/Edit Amendments
  *
  * Copyright (C) 2014 Ensoftek
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Hema Bandaru <hemab@drcloudemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -123,12 +125,14 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 .highlight {
@@ -144,12 +148,6 @@ tr.selected {
   border: 1px solid #000;
 }
 </style>
-
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script type="text/javascript">
 
@@ -167,6 +165,16 @@ function formValidation() {
 
 	$("#add_edit_amendments").submit();
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 
 </head>
@@ -195,16 +203,15 @@ function formValidation() {
     <table border=0 cellpadding=1 cellspacing=1>
 		<tr>
 			<td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
-			<td ><input type='text' size='10' name="amendment_date" id="amendment_date" readonly
-						value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
-    		/>
+			<td>
 			<?php if ( ! $onlyRead ) { ?>
-         	<img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' width='24' height='22'
-    			id='img_amendment_date' valign="middle" border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    			title='<?php echo xlt('Click here to choose a date'); ?>'>
-			<script type="text/javascript">
-				Calendar.setup({inputField:"amendment_date", ifFormat:"<?php echo $DateFormat ?>", button:"img_amendment_date"});
-			</script>
+                <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
+	                value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                />
+			<?php } else  { ?>
+                <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
+                    value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                />
 			<?php } ?>
 			</td>
 		</tr>
