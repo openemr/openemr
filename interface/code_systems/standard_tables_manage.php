@@ -21,6 +21,7 @@
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
  * @author  Brady Miller <brady@sparmy.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -82,6 +83,13 @@ if ($db == 'RXNORM') {
             temp_dir_cleanup($db);
             exit;
          }
+    }
+    if ($version == "RF2International:English") {
+        if (!snomedRF2_import(FALSE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+        }
     }
     else { //$version is not "US Extension"
         if (!snomed_import(FALSE)) {
