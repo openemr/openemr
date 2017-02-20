@@ -108,6 +108,14 @@
 * @link      http://www.open-emr.org
 */
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
