@@ -69,21 +69,8 @@ $(document).ready(function() {
   "aoColumns": [ <?php echo $coljson; ?> ],
   "aLengthMenu": [ 10, 25, 50, 100 ],
   "iDisplayLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
-  // language strings are included so we can translate them
-  "oLanguage": {
-   "sSearch"      : "<?php echo xla('Search all columns'); ?>:",
-   "sLengthMenu"  : "<?php echo xla('Show') . ' _MENU_ ' . xla('entries'); ?>",
-   "sZeroRecords" : "<?php echo xla('No matching records found'); ?>",
-   "sInfo"        : "<?php echo xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
-   "sInfoEmpty"   : "<?php echo xla('Nothing to show'); ?>",
-   "sInfoFiltered": "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
-   "oPaginate": {
-    "sFirst"   : "<?php echo xla('First'); ?>",
-    "sPrevious": "<?php echo xla('Previous'); ?>",
-    "sNext"    : "<?php echo xla('Next'); ?>",
-    "sLast"    : "<?php echo xla('Last'); ?>"
-   }
-  }
+  <?php // Bring in the translations ?>
+  <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
  } );
 
  // This puts our custom HTML into the table header.
