@@ -1209,7 +1209,7 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php if($GLOBALS['enable_group_therapy']) : ?>
-      <li><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
+      <li><a class="collapsed" id="groupimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group','e') ?></span></a>
           <ul>
               <?php genMiscLink('RTop','gfn','0',xl('Groups'),'therapy_groups/index.php?method=listGroups'); ?>
               <?php genTreeLink('RTop','gng', xl('New')); ?>

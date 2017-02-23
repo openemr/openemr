@@ -27,6 +27,7 @@
 <?php require 'header.php'; ?>
 <main id="group-details">
     <div class="container-group">
+        <span class="hidden title"><?php echo $groupName;?></span>
         <div class="row">
             <div id="main-component" class="col-md-8 col-sm-12">
                 <div class="row">
@@ -265,8 +266,13 @@
     }
 
     function newGroup(){
+        <?php if ($GLOBALS['new_tabs_layout']) : ?>
+        parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
         top.restoreSession();
+        <?php else : ?>
         top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
+        top.restoreSession();
+        <?php endif; ?>
     }
    // parent.left_nav.setTherapyGroup(<?php echo attr($group_id);?>,'<?php echo 'test'?>');
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */

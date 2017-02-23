@@ -35,6 +35,7 @@ class ParticipantsController extends BaseController{
     public function __construct(){
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
         $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
+        $this->groupModel = $this->loadModel('therapy_groups');
     }
 
     public function index($groupId ,$data = array()){
@@ -72,6 +73,8 @@ class ParticipantsController extends BaseController{
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
         $data['statuses'] = TherapyGroupsController::prepareParticipantStatusesList();
         $data['groupId'] = $groupId;
+        $groupData = $this->groupModel->getGroup($groupId);
+        $data['groupName'] = $groupData['group_name'];
 
         if(isset($_GET['editParticipants'])){
             $data['readonly'] = '';

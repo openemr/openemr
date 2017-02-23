@@ -25,7 +25,7 @@
  */
 ?>
 <?php require 'header.php'; ?>
-
+<span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
     <!--------- ERRORS ----------->

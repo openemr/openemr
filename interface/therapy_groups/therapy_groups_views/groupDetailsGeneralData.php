@@ -27,6 +27,7 @@
 <?php require 'header.php'; ?>
 <main id="group-details">
     <div class="container-group">
+        <span class="hidden title"><?php echo $groupData['group_name'];?></span>
         <div class="row">
             <div id="main-component" class="col-md-8 col-sm-12">
                 <div class="row">
@@ -213,12 +214,20 @@
     }
 
     function newGroup(){
+        <?php if ($GLOBALS['new_tabs_layout']) : ?>
+        parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
+        top.restoreSession();
+        <?php else : ?>
         top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
+        top.restoreSession();
+        <?php endif; ?>
     }
     //parent.left_nav.clearPatient();
-    $(parent.Title.document.getElementById('clear_active')).hide();
     parent.left_nav.setTherapyGroup(<?php echo attr($groupData['group_id'])?>,'<?php echo attr($groupData['group_name'])?>');
+    <?php if (!$GLOBALS['new_tabs_layout']) : ?>
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
+    $(parent.Title.document.getElementById('clear_active')).hide();
+    <?php endif;?>
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
     $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".

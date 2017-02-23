@@ -148,6 +148,11 @@ function refreshPatient(data,evt)
     loadCurrentPatient();
 }
 
+function refreshGroup(data,evt)
+{
+    loadCurrentTherapyGroup();
+}
+
 function refreshEncounter(data,evt)
 {
     loadCurrentEncounter();
@@ -155,7 +160,7 @@ function refreshEncounter(data,evt)
 
 function setEncounter(id)
 {
-    app_view_model.application_data.patient().selectedEncounterID(id);
+    app_view_model.application_data[attendant_type]().selectedEncounterID(id);
 }
 
 function chooseEncounterEvent(data,evt)
@@ -187,12 +192,23 @@ function clickNewEncounter(data,evt)
     newEncounter();
 }
 
+function clickNewGroupEncounter(data,evt)
+{
+    newTherapyGroupEncounter();
+}
+
 function newEncounter()
 {
     var url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc='
     navigateTab(url,"enc");
     activateTabByName("enc",true);
+}
 
+function newTherapyGroupEncounter()
+{
+    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=='
+    navigateTab(url,"enc");
+    activateTabByName("enc",true);
 }
 
 function clickEncounterList(data,evt)
@@ -215,6 +231,13 @@ function loadCurrentPatient()
 
 }
 
+function loadCurrentTherapyGroup() {
+
+    var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session'
+    navigateTab(url,"gdg");
+    activateTabByName("gdg",true);
+}
+
 function loadCurrentEncounter()
 {
     var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php';
@@ -230,7 +253,7 @@ function menuActionClick(data,evt)
     {
         if(data.requirement===2)
         {
-            var encounterID=app_view_model.application_data.patient().selectedEncounterID();
+            var encounterID=app_view_model.application_data[attendant_type]().selectedEncounterID();
             if(isEncounterLocked(encounterID))
             {
                 alert(xl_strings_tabs_view_model.encounter_locked);
@@ -281,4 +304,25 @@ function clearPatient()
 
 	  }
 	});
+}
+
+
+function clearTherapyGroup()
+{
+    top.restoreSession();
+    app_view_model.application_data.therapy_group(null);
+    tabCloseByName('gdg');
+    tabCloseByName('enc');
+    navigateTab(webroot_url+'/interface/therapy_groups/index.php?method=listGroups','gfn');
+    activateTabByName('gfn',true);
+    //Ajax call to clear active patient in session
+    $.ajax({
+        type: "POST",
+        url: webroot_url+"/library/ajax/unset_session_ajax.php",
+        data: { func: "unset_gid"},
+        success:function( msg ) {
+
+
+        }
+    });
 }
