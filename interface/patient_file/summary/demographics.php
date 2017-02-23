@@ -1433,6 +1433,12 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         //
         $toggleSet = true;
         $priorDate = "";
+        $therapyGroupCategories = array();
+        $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3");
+        while ($result = sqlFetchArray($query)){
+            $therapyGroupCategories[] = $result['pc_catid'];
+        }
+
         //
         foreach($events as $row) { //////
             $count++;
@@ -1461,7 +1467,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             }
             //////
             echo "<div " . $apptStyle . ">";
-            if($row['pc_catid'] != 1000){
+            if(!in_array($row['pc_catid'], $therapyGroupCategories)){
                 echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
             } else {
                 echo "<span title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
@@ -1472,10 +1478,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . "'>";
             echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'],ENT_NOQUOTES) . " ) </span>";
             echo htmlspecialchars(xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "\n";
-            if($row['pc_catid'] == 1000) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
+            if(in_array($row['pc_catid'], $therapyGroupCategories)) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
             if ($row['pc_hometext']) echo " <span style='color:green'> Com</span>";
             echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES);
-            echo $row['pc_catid'] != 1000 ? '</a>' : '<span>';
+            echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
             echo "</div>\n";
             //////
         }

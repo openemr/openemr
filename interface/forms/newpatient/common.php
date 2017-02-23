@@ -192,12 +192,14 @@ function cancelClicked() {
       <select name='pc_catid' id='pc_catid'>
 	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
 <?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname " .
+ $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
+ $therapyGroupCategories = array();
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
+  if($crow['pc_cattype'] == 3)$therapyGroupCategories[] = $catid;
   // Show Thrapy group category only if global enable_group_therapy is true
-  if($catid == 1000 && !$GLOBALS['enable_group_therapy']) continue;
+  if($crow['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) continue;
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='" . attr($catid) . "'";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
@@ -315,8 +317,8 @@ if ($fres) {
     <tr id="therapy_group_name" style="display: none">
         <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
         <td>
-            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
-            <input type='hidden' name='form_gid' value='<?php echo $viewmode && $result['pc_catid'] == 1000 ? attr($result['external_id']) : '' ?>' />
+            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+            <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
         </td>
     </tr>
 
@@ -448,8 +450,9 @@ if (!$viewmode) { ?>
 
 <?php if($GLOBALS['enable_group_therapy']) { ?>
 /* hide / show group name input */
+  var groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
   $('#pc_catid').on('change', function () {
-      if($(this).val() == 1000){
+      if(groupCategories.indexOf($(this).val()) > -1){
           $('#therapy_group_name').show();
       } else {
           $('#therapy_group_name').hide();
@@ -468,7 +471,7 @@ if (!$viewmode) { ?>
      f.form_gid.value = gid;
   }
 
-  <?php if($viewmode && $result['pc_catid'] == 1000) {?>
+  <?php if($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
     $('#therapy_group_name').show();
   <?php } ?>
 <?php } ?>

@@ -109,7 +109,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
         $insert_sql =
             "INSERT INTO openemr_postcalendar_events " .
             "(pc_catid, pc_aid, pc_pid, pc_gid, pc_title, pc_informant, pc_eventDate, pc_recurrspec, pc_startTime, pc_sharing, pc_apptstatus) ".
-            "VALUES (1000, ?, ?, ?, 'Group Therapy', 1, ?, ?, ?, 0, ?); ";
+            "VALUES (15, ?, ?, ?, 'Group Therapy', 1, ?, ?, ?, 0, ?); ";
         $recurrspec = 'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}';
         $sqlBindArray = array();
         array_push($sqlBindArray, $pc_aid, $pid, $gid, $pc_eventDate, $recurrspec, $pc_startTime, $participantData['status']);
@@ -128,7 +128,7 @@ function insert_patient_appt($pid, $gid, $pc_aid, $pc_eventDate, $pc_startTime, 
  */
 function insert_patient_encounter($pid, $gid, $group_encounter_date, $participantData, $pc_aid){
     $select_sql = "SELECT id, encounter FROM form_encounter WHERE pid = ? AND external_id = ? AND pc_catid = ? AND date = ?; ";
-    $result = sqlStatement($select_sql, array($pid, $gid, 1000, $group_encounter_date));
+    $result = sqlStatement($select_sql, array($pid, $gid, 15, $group_encounter_date));
     $result_array = sqlFetchArray($result);
     if($result_array){
         $insert_sql = "UPDATE form_encounter SET reason = ? WHERE id = ?;";
@@ -138,7 +138,7 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
     else{
         $insert_encounter_sql =
             "INSERT INTO form_encounter (date, reason, pid, encounter, pc_catid, provider_id, external_id) ".
-            "VALUES (?, ?, ?, ?, 1000, ?, ?);";
+            "VALUES (?, ?, ?, ?, 15, ?, ?);";
         $enc_id = generate_id();
         $sqlBindArray = array();
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, $pc_aid, $gid);

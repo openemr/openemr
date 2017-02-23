@@ -777,9 +777,9 @@ while ($result4 = sqlFetchArray($res4)) {
         }
 
         if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0){
-            $encounter_type = sqlQuery("SELECT pc_catname FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+            $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
             echo "<td>".$encounter_type['pc_catname']."</td>\n";
-            $group_name = $result4['pc_catid'] == 1000 ? getGroup($result4['external_id'])['group_name']  : "";
+            $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
             echo "<td>". text($group_name) . "</td>\n";
         }
 

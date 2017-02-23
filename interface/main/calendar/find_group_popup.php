@@ -38,8 +38,7 @@ require_once("$srcdir/formdata.inc.php");
 require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 $info_msg = "";
-$group_types = TherapyGroupsController::$group_types;
-
+$group_types = TherapyGroupsController::prepareGroupTypesList();
 // If we are searching, search.
 //
 if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {

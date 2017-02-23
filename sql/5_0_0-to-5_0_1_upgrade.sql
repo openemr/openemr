@@ -254,3 +254,13 @@ CREATE TABLE `form_therapy_groups_attendance` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 #EndIf
+
+#IfNotRow2D openemr_postcalendar_categories pc_catid 15 pc_catname Group Therapy
+INSERT INTO openemr_postcalendar_categories (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_recurrspec`, `pc_duration` ,`pc_cattype` , `pc_active` , `pc_seq`)
+VALUES (15, 'Group Therapy' , '#BFBFBF' , 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', '3600', '3', '1', '90');
+#EndIf
+
+#IfRow2D openemr_postcalendar_categories pc_catid 1000 pc_catname Group Therapy
+DELETE FROM openemr_postcalendar_categories WHERE pc_catid = 1000;
+#EndIf
+
