@@ -4,8 +4,11 @@
  * This is to allow internationalization by OpenEMR of the datatables-net asset.
  *
  * Example code in script:
+ *    $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) (optional php command)
  *    require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); (php command)
  *
+ * Note there is a optional mechanism to override translations via the
+ *  $translationsDatatablesOverride array.
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
@@ -25,17 +28,31 @@
  * @link    http://www.open-emr.org
  */
 ?>
-"oLanguage": {
-    "sSearch"      : "<?php echo xla('Search all columns'); ?>:",
-    "sLengthMenu"  : "<?php echo xla('Show') . ' _MENU_ ' . xla('entries'); ?>",
-    "sZeroRecords" : "<?php echo xla('No matching records found'); ?>",
-    "sInfo"        : "<?php echo xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
-    "sInfoEmpty"   : "<?php echo xla('Nothing to show'); ?>",
-    "sInfoFiltered": "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
-    "oPaginate": {
-        "sFirst"   : "<?php echo xla('First'); ?>",
-        "sPrevious": "<?php echo xla('Previous'); ?>",
-        "sNext"    : "<?php echo xla('Next'); ?>",
-        "sLast"    : "<?php echo xla('Last'); ?>"
+"language": {
+    "emptyTable":     "<?php echo xla('No data available in table'); ?>",
+    "info":           "<?php echo xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
+    "infoEmpty":      "<?php echo xla('Showing 0 to 0 of 0 entries'); ?>",
+    "infoFiltered":   "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
+    "lengthMenu":     "<?php echo xla('Show') . ' _MENU_ ' . xla('entries'); ?>",
+    "loadingRecords": "<?php echo xla('Loading'); ?>...",
+    "processing":     "<?php echo xla('Processing'); ?>...",
+    "search":         "<?php echo xla('Search'); ?>:",
+    "zeroRecords":    "<?php echo xla('No matching records found'); ?>",
+    "paginate": {
+        "first":      "<?php echo xla('First'); ?>",
+        "last":       "<?php echo xla('Last'); ?>",
+        "next":       "<?php echo xla('Next'); ?>",
+        "previous":   "<?php echo xla('Previous'); ?>"
+    },
+    "aria": {
+        "sortAscending":  ": <?php echo xla('activate to sort column ascending'); ?>",
+        "sortDescending": ": <?php echo xla('activate to sort column descending'); ?>"
     }
+    <?php
+    if (!empty($translationsDatatablesOverride)) {
+        foreach ($translationsDatatablesOverride as $key => $value) {
+            echo ', "' . $key . '": "' . $value . '"';
+        }
+    }
+    ?>
 }
