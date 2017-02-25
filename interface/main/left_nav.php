@@ -111,6 +111,7 @@ use ESign\Api;
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
   'pfb' => array(xl('Patient Flow Board')  , 0, '../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'),
   'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
+  'aop' => array(xl('Portal Dashboard')  , 0, '../patients/patient/provider'),
   'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
   'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
   'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
@@ -1047,6 +1048,7 @@ $(document).ready(function(){
   <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','pfb',xl('Flow Board')); ?>
   <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
+  <?php if($GLOBALS['portal_onsite_enable'] && acl_check('patientportal','portal'))  genTreeLink('RTop','aop',xl('Portal Dashboard')); ?>
   <?php
     if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
       // genTreeLink('RTop','ppo',xl('WordPress Portal'));

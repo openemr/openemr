@@ -1,10 +1,27 @@
 <?php
- // Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ *
+ * Modified from main codebase for the patient portal.
+ *
+ * Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
 
 // Note from Rod 2013-01-22:
 // This module needs to be refactored to share the same code that is in
@@ -35,11 +52,11 @@ $ignoreAuth = 1;
  include_once("../interface/globals.php");
  include_once("$srcdir/patient.inc");
 
- // Exit if the modify calendar for portal flag is not set
- if (!($GLOBALS['portal_onsite_appt_modify'])) {
+ // Exit if the modify calendar for portal flag is not set patched out v5
+ /* if (!($GLOBALS['portal_onsite_appt_modify'])) {
    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
    exit;
- }
+ } */
 
  $input_catid = $_REQUEST['catid'];
 
@@ -109,7 +126,7 @@ $ignoreAuth = 1;
  $slotbase  = (int) ($slotstime / $slotsecs);
  $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range");
+ if ($slotcount <= 0 || $slotcount > 100000) die("Invalid date range.");
 
  $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
@@ -161,7 +178,7 @@ $ignoreAuth = 1;
 
     $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
     if ($endtime > $slotetime) $endtime = $slotetime;
-    
+
     $repeatix = 0;
     while ($thistime < $endtime) {
 
@@ -253,17 +270,19 @@ $ignoreAuth = 1;
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
+<?php } ?>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 
 <!-- for the pop up calendar -->
-<style type="text/css">@import url(../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../library/dynarch_calendar_setup.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
-<!-- for ajax-y stuff -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-
-<script language="JavaScript">
+<script>
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
@@ -286,25 +305,25 @@ form {
 #searchCriteria {
     text-align: center;
     width: 100%;
-    font-size: 0.8em;
-    background-color: #ddddff;
+   /* font-size: 0.8em; */
+    background-color: #bfe6ff;
     font-weight: bold;
     padding: 3px;
 }
-#searchResultsHeader { 
+#searchResultsHeader {
     width: 100%;
     background-color: lightgrey;
 }
-#searchResultsHeader table { 
+#searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
 #searchResultsHeader th {
-    font-size: 0.7em;
+   /* font-size: 0.7em; */
 }
 #searchResults {
     width: 100%;
-    height: 350px; 
+    height: 100%;
     overflow: auto;
 }
 
@@ -317,12 +336,12 @@ form {
     background-color: white;
 }
 #searchResults td {
-    font-size: 0.7em;
+   /* font-size: 0.7em; */
     border-bottom: 1px solid gray;
     padding: 1px 5px 1px 5px;
 }
 .highlight { background-color: #ff9; }
-.blue_highlight { background-color: #336699; color: white; }
+.blue_highlight { background-color: #BBCCDD; color: white; }
 #am {
     border-bottom: 1px solid lightgrey;
     color: #00c;
@@ -336,19 +355,14 @@ form {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
+<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
    <input type="hidden" name='bypatient' />
 
    <?php xl('Start date:','e'); ?>
 
 
-   <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search'/>
-    
-   <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
 
    <?php xl('for','e'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
@@ -360,7 +374,7 @@ form {
 <?php if (!empty($slots)) : ?>
 
 <div id="searchResultsHeader">
-<table>
+<table class='table table-bordered'>
  <tr>
   <th class="srDate"><?php xl ('Day','e'); ?></th>
   <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
@@ -369,7 +383,7 @@ form {
 </div>
 
 <div id="searchResults">
-<table> 
+<table class='table table-condensed table-inversed table-bordered'>
 <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
@@ -397,7 +411,7 @@ form {
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag
         }
-        
+
         $ampm = date('a', $utime);
         if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
         $ampmFlag = $ampm;
@@ -434,18 +448,22 @@ form {
 </form>
 </body>
 
-<!-- for the pop up calendar -->
 <script language='JavaScript'>
- Calendar.setup({inputField:"startdate", ifFormat:"%Y-%m-%d", button:"img_date"});
 
 // jQuery stuff to make the page a little easier to use
-
 $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
-    //$(".event").dblclick(function() { EditEvent(this); });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
 });
 
 </script>

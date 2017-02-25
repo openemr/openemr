@@ -200,18 +200,6 @@ require_once (dirname(__FILE__) . "/../library/sql.inc");
 // Include the version file
 require_once (dirname(__FILE__) . "/../version.php");
 
-// The logging level for common/logging/logger.php
-// Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
-//    - DEBUG/INFO are great for development
-//    - INFO/WARN/ERROR are great for production
-//    - TRACE is useful when debugging hard to spot bugs
-$GLOBALS["log_level"] = "OFF";
-
-// Should Doctrine make use of connection pooling? Database connection pooling is a method
-// used to keep database connections open so they can be reused by others. (The only reason
-// to not use connection pooling is if your server has limited resources.)
-$GLOBALS["doctrine_connection_pooling"] = true;
-
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
@@ -318,6 +306,7 @@ if (!empty($glrow)) {
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
         if ( $_SESSION['language_direction'] == 'rtl' &&
         !strpos($GLOBALS['css_header'], 'rtl')) {
+
             // the $css_header_value is set above
             $rtl_override = true;
         }
@@ -427,24 +416,12 @@ if (!empty($special_timeout)) {
   $timeout = intval($special_timeout);
 }
 
-$versionService = new \services\VersionService();
-$version = $versionService->fetch();
-
-if (!empty($version)) {
-    //Version tag
-    $patch_appending = "";
-    //Collected below function call to a variable, since unable to directly include
-    // function calls within empty() in php versions < 5.5 .
-    $version_getrealpatch = $version->getRealPatch();
-    if ( ($version->getRealPatch() != '0') && (!(empty($version_getrealpatch))) ) {
-        $patch_appending = " (".$version->getRealPatch().")";
-    }
-
-    $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
-    $openemr_version .= $version->getTag() . $patch_appending;
-} else {
-    $openemr_version = xl('Unknown version');
+//Version tag
+$patch_appending = "";
+if ( ($v_realpatch != '0') && (!(empty($v_realpatch))) ) {
+$patch_appending = " (".$v_realpatch.")";
 }
+$openemr_version = "$v_major.$v_minor.$v_patch".$v_tag.$patch_appending;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

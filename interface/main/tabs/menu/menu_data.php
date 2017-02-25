@@ -165,6 +165,7 @@ $menu_json='[
       {"label":"Direct Message Log","menu_id":"rep0","target":"rep","url":"/interface/reports/direct_message_log.php","children":[],"requirement":0}],"requirement":0,"acl_req":["admin","super"]}],"requirement":0},
   {"label":"Miscellaneous","menu_id":"misimg","children":[
     {"label":"Portal Activity","menu_id":"por0","target":"por","url":"/myportal/index.php","children":[],"requirement":0,"global_req_strict":["portal_offsite_enable","portal_offsite_address"],"acl_req":["patientportal","portal"]},
+	  {"label":"Portal Dashboard","menu_id":"por2","target":"por","url":"/patients/patient/provider","children":[],"requirement":0,"global_req_strict":"portal_onsite_enable","acl_req":["patientportal","portal"]},
     {"label":"CMS Portal","menu_id":"por1","target":"por","url":"/interface/cmsportal/list_requests.php","children":[],"requirement":0,"global_req":"gbl_portal_cms_enable","acl_req":["patientportal","portal"]},
     {"label":"Patient Education","menu_id":"ped0","target":"msc","url":"/interface/reports/patient_edu_web_lookup.php","children":[],"requirement":0},
     {"label":"Authorizations","menu_id":"aun0","target":"msc","url":"/interface/main/authorizations/authorizations.php","children":[],"requirement":0},
