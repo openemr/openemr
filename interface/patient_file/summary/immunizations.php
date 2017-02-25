@@ -1,4 +1,24 @@
 <?php
+/**
+ * Immunizations
+ *
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -307,14 +327,16 @@ function saveImmunizationObservationResults($id,$immunizationdata)
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/base/jquery-ui.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style>
 .highlight {
   color: green;
@@ -323,12 +345,6 @@ tr.selected {
   background-color: white;
 }
 </style>
-
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
 // required to validate date text boxes
@@ -386,15 +402,11 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
               <?php echo htmlspecialchars( xl('Date & Time Administered'), ENT_NOQUOTES); ?>            </span>          </td>
           <td><table border="0">
      <tr>
-       <td><input type='text' size='14' name="administered_date" id="administered_date"
+       <td><input type='text' size='14' class='datetimepicker' name="administered_date" id="administered_date"
     		value='<?php echo $administered_date ? htmlspecialchars( $administered_date, ENT_QUOTES) : date('Y-m-d H:i'); ?>'
     		title='<?php echo htmlspecialchars( xl('yyyy-mm-dd Hours(24):minutes'), ENT_QUOTES); ?>'
-    		onKeyUp='datekeyup(this,mypcc)' onBlur='dateblur(this,mypcc);'
     		/>
-         	<img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    			id='img_administered_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    			title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
-		</td>
+		   </td>
      </tr>
    </table></td>
         </tr>
@@ -407,14 +419,11 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         </tr>
         <tr>
           <td align="right"><span class="text"><?php echo htmlspecialchars( xl('Immunization Expiration Date'), ENT_NOQUOTES); ?></span></td>
-          <td class='text'><input type='text' size='10' name="immuniz_exp_date" id="immuniz_exp_date"
+          <td class='text'><input type='text' size='10' class='datepicker' name="immuniz_exp_date" id="immuniz_exp_date"
     value='<?php echo $immuniz_exp_date ? htmlspecialchars( $immuniz_exp_date, ENT_QUOTES) : ''; ?>'
     title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
     />
-          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_immuniz_exp_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'></td>
+          </td>
         </tr>
         <tr>
           <td align="right">
@@ -458,30 +467,22 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
           <td align="right" class="text">
               <?php echo htmlspecialchars( xl('Date Immunization Information Statements Given'), ENT_NOQUOTES); ?>          </td>
           <td>
-            <input type='text' size='10' name="education_date" id="education_date"
+            <input type='text' size='10' class='datepicker' name="education_date" id="education_date"
                     value='<?php echo $education_date? htmlspecialchars( $education_date, ENT_QUOTES) : date('Y-m-d'); ?>'
                     title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
-                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
             />
-            <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                id='img_education_date' border='0' alt='[?]' style='cursor:pointer;'
-                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'
-            />          </td>
+          </td>
         </tr>
         <tr>
           <td align="right" class="text">
               <?php echo htmlspecialchars( xl('Date of VIS Statement'), ENT_NOQUOTES); ?>
               (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo htmlspecialchars( xl('Help'), ENT_QUOTES); ?>" target="_blank">?</a>)          </td>
           <td>
-            <input type='text' size='10' name="vis_date" id="vis_date"
+            <input type='text' size='10' class='datepicker' name="vis_date" id="vis_date"
                     value='<?php echo $vis_date ? htmlspecialchars( $vis_date, ENT_QUOTES) : date('Y-m-d'); ?>'
                     title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
-                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
             />
-            <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                id='img_vis_date' border='0' alt='[?]' style='cursor:pointer;'
-                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'
-            />          </td>
+          </td>
         </tr>
         <tr>
           <td align="right" class='text'><?php echo htmlspecialchars( xl('Route'), ENT_NOQUOTES); ?></td>
@@ -625,16 +626,14 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                           <?php
                             $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars( $value['imo_vis_date_published'], ENT_QUOTES) : '';
                           ?>
-                          <input type="text" name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_<?php echo $key + 1 ;?>" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
-                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_published_<?php echo $key + 1 ;?>' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                          <input type="text" class='datepicker' name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_<?php echo $key + 1 ;?>" style="width:140px">
                         </td>
                         <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_<?php echo $key + 1 ;?>">
                           <label><?php echo htmlspecialchars( xl('Date VIS Presented'), ENT_QUOTES); ?></label>
                           <?php
                             $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars( $value['imo_vis_date_presented'], ENT_QUOTES) : '';
                           ?>
-                          <input type="text" name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_<?php echo $key + 1 ;?>" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
-                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_presented_<?php echo $key + 1 ;?>' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                          <input type="text" class='datepicker' name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_<?php echo $key + 1 ;?>" style="width:140px">
                         </td>
                         <?php if($key != 0 && $id != 0) {?>
                         <td>
@@ -683,16 +682,14 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                           <?php
                             $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars( $value['imo_vis_date_published'], ENT_QUOTES) : '';
                           ?>
-                          <input type="text" name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_1"  autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
-                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_published_1' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                          <input type="text" class='datepicker' name="vis_published_date[]" value="<?php if($id != 0 && $vis_published_dateval != 0) echo attr($vis_published_dateval);?>" id="vis_published_date_1" style="width:140px">
                         </td>
                         <td <?php if($value['imo_criteria'] != 'vaccine_type' || $id == 0) { ?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_1">
                           <label><?php echo htmlspecialchars( xl('Date VIS Presented'), ENT_QUOTES); ?></label>
                           <?php
                             $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars( $value['imo_vis_date_presented'], ENT_QUOTES) : '';
                           ?>
-                          <input type="text" name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_1" autocomplete="off" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);' style="width:140px">
-                          <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_immuniz_vis_date_presented_1' border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                          <input type="text" class='datepicker' name="vis_presented_date[]" value="<?php if($id != 0 && $vis_presented_dateval !=0) echo attr($vis_presented_dateval);?>" id="vis_presented_date_1" style="width:140px">
                         </td>
                       </tr>
                   <?php }?>
@@ -838,13 +835,6 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 
 <script language="javascript">
 var tr_count = $('#tr_count').val();
-/* required for popup calendar */
-Calendar.setup({inputField:"administered_date", ifFormat:"%Y-%m-%d %H:%M", button:"img_administered_date", showsTime:true});
-Calendar.setup({inputField:"immuniz_exp_date", ifFormat:"%Y-%m-%d", button:"img_immuniz_exp_date"});
-Calendar.setup({inputField:"education_date", ifFormat:"%Y-%m-%d", button:"img_education_date"});
-Calendar.setup({inputField:"vis_date", ifFormat:"%Y-%m-%d", button:"img_vis_date"});
-Calendar.setup({inputField:"vis_published_date_"+tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_published_"+tr_count});
-Calendar.setup({inputField:"vis_presented_date_"+tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_presented_"+tr_count});
 
 // jQuery stuff to make the page a little easier to use
 
@@ -879,6 +869,28 @@ $(document).ready(function(){
 			$("#cvx_code").change();
 		}
 	});
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  // special cases to deal with datepicker items that are added dynamically
+  $(document).on('focus','.datepicker_dynamic', function(){
+    $(this).datetimepicker({
+      <?php $datetimepicker_timepicker = false; ?>
+      <?php $datetimepicker_formatInput = false; ?>
+      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+  });
 });
 
 var PrintForm = function(typ) {
@@ -1101,10 +1113,10 @@ function addNewRow()
                '<input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden'+new_tr_count_3+'" /> '+
                '<input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden'+new_tr_count_3+'" value="" />'+
              '</td>'+
-             '<td id="vis_published_date_td_'+new_tr_count+'" class="vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" autocomplete=off onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc);" style="width:140px">'+
-             '<img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_immuniz_vis_date_published_'+new_tr_count+'" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="'+label6+'"></td>'+
-             '<td id="vis_presented_date_td_'+new_tr_count+'" class="vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" autocomplete=off onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc);" style="width:140px">'+
-             '<img src="../../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_immuniz_vis_date_presented_'+new_tr_count+'" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="'+label8+'"></td>'+
+             '<td id="vis_published_date_td_'+new_tr_count+'" class="vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" class="datepicker_dynamic" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" style="width:140px">'+
+             '</td>'+
+             '<td id="vis_presented_date_td_'+new_tr_count+'" class="vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" class="datepicker_dynamic" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" style="width:140px">'+
+             '</td>'+
              '<td><img src="../../pic/remove.png" id ="'+new_tr_count+'" onclick="RemoveRow(this.id);" align="absbottom" width="24" height="22" border="0" style="cursor:pointer;cursor:hand" title="'+label9+'"></td></tr>';
 
     $(".obs_res_table").append(str);
@@ -1128,9 +1140,6 @@ function addNewRow()
           alert("ajax error");
         }
     });
-
-    Calendar.setup({inputField:"vis_published_date_"+new_tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_published_"+new_tr_count});
-    Calendar.setup({inputField:"vis_presented_date_"+new_tr_count, ifFormat:"%Y-%m-%d", button:"img_immuniz_vis_date_presented_"+new_tr_count});
 }
 
 function sel_code(id)
