@@ -1434,7 +1434,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $toggleSet = true;
         $priorDate = "";
         $therapyGroupCategories = array();
-        $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3");
+        $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1");
         while ($result = sqlFetchArray($query)){
             $therapyGroupCategories[] = $result['pc_catid'];
         }

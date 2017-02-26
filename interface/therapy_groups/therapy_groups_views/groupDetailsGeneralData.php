@@ -27,14 +27,14 @@
 <?php require 'header.php'; ?>
 <main id="group-details">
     <div class="container-group">
-        <span class="hidden title"><?php echo $groupData['group_name'];?></span>
+        <span class="hidden title"><?php echo text($groupData['group_name']);?></span>
         <div class="row">
             <div id="main-component" class="col-md-8 col-sm-12">
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li  class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . $groupData['group_id']; ?>"><?php echo xlt('General data');?></a></li>
-                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . $groupData['group_id']; ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li  class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>"><?php echo xlt('General data');?></a></li>
+                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupData['group_id']); ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
@@ -215,16 +215,17 @@
 
     function newGroup(){
         <?php if ($GLOBALS['new_tabs_layout']) : ?>
+        top.restoreSession();
         parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
-        top.restoreSession();
         <?php else : ?>
-        top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
         top.restoreSession();
+        top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
         <?php endif; ?>
     }
-    //parent.left_nav.clearPatient();
+
     parent.left_nav.setTherapyGroup(<?php echo attr($groupData['group_id'])?>,'<?php echo attr($groupData['group_name'])?>');
     <?php if (!$GLOBALS['new_tabs_layout']) : ?>
+    top.restoreSession();
     parent.left_nav.loadFrame('enc2', 'RBot', '/patient_file/history/encounters.php');
     $(parent.Title.document.getElementById('clear_active')).hide();
     <?php endif;?>

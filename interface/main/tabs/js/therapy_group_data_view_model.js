@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Kevin Yeh <amielel@matrix.co.il>
+ * Copyright (C) 2017 Amiel Elboim <amielel@matrix.co.il>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

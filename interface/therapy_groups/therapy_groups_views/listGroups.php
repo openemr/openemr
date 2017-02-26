@@ -57,7 +57,7 @@
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($group_types as $type):?>
-                        <option value="<?php echo attr($type);?>"><?php echo xlt($type) ;?></option>
+                        <option value="<?php echo attr($type);?>"><?php echo text($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

@@ -27,7 +27,7 @@
 <?php require 'header.php'; ?>
 <main id="group-details">
     <div class="container-group">
-        <span class="hidden title"><?php echo $groupName;?></span>
+        <span class="hidden title"><?php echo text($groupName);?></span>
         <div class="row">
             <div id="main-component" class="col-md-8 col-sm-12">
                 <div class="row">
@@ -135,7 +135,7 @@
                                                     <td>
                                                         <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                                             <?php foreach ($statuses as $key => $status): ?>
-                                                                <option value="<?php echo attr($key);?>" <?php if($key == $participant['group_patient_status']) echo 'selected'; ?> > <?php echo xlt($status); ?> </option>
+                                                                <option value="<?php echo attr($key);?>" <?php if($key == $participant['group_patient_status']) echo 'selected'; ?> > <?php echo text($status); ?> </option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
@@ -267,11 +267,11 @@
 
     function newGroup(){
         <?php if ($GLOBALS['new_tabs_layout']) : ?>
+        top.restoreSession();
         parent.left_nav.loadFrame('gcv4','enc','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
-        top.restoreSession();
         <?php else : ?>
-        top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
         top.restoreSession();
+        top.frames['RBot'].location = '<?php echo $GLOBALS['web_root'] . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
         <?php endif; ?>
     }
    // parent.left_nav.setTherapyGroup(<?php echo attr($group_id);?>,'<?php echo 'test'?>');

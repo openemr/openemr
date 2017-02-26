@@ -163,7 +163,7 @@ function cancelClicked() {
 <span class=title><?php echo xlt('Group Encounter Form'); ?></span>
 <?php } else { ?>
 <input type='hidden' name='mode' value='new'>
-<span class='title'><?php echo xlt('New Encounter Form'); ?></span>
+<span class='title'><?php echo xlt('New Group Encounter Form'); ?></span>
 <?php } ?>
 </div>
 
@@ -197,14 +197,14 @@ function cancelClicked() {
       <select name='pc_catid' id='pc_catid'>
 	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
 <?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname " .
+ $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
-  if ($catid < 9 && $catid != 5) continue;
+  if ($crow['pc_cattype'] != 3) continue;
   echo "       <option value='" . attr($catid) . "'";
-  //Option selected is 'Group therapy' - id 1000
-  if(!$viewmode && $crow['pc_catid'] == 1000) echo " selected";
+  // mark therapy group's category as selected
+  if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
   echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
  }

@@ -62,6 +62,8 @@ left_nav.setTherapyGroup = function(group_id, group_name){
     {
         app_view_model.application_data.therapy_group().gname(group_name);
         app_view_model.application_data.therapy_group().gid(group_id);
+        navigateTab(webroot_url+"/interface/therapy_groups/index.php?method=listGroups","gfn");
+        activateTabByName('gdg',true);
         return;
     }
     var new_therapy_group=new therapy_group_view_model(group_id,group_name);
