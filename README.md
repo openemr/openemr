@@ -1,4 +1,4 @@
-![img](https://travis-ci.org/openemr/openemr.svg?branch=master)
+[![Build Status](https://travis-ci.org/openemr/openemr.svg?branch=master)](https://travis-ci.org/openemr/openemr)
 
 # OpenEMR
 
