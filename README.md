@@ -1,4 +1,4 @@
-![img](https://travis-ci.org/MatthewVita/openemr.svg?branch=ci)
+![img](https://travis-ci.org/openemr/openemr.svg?branch=master)
 
 # OpenEMR
 
