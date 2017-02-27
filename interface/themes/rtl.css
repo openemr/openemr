@@ -326,6 +326,7 @@ form#new_note div{
 form#new-encounter-form div{
     
     float: none !important;
+    display: inherit;
 }
 form#new-encounter-form a{
     margin-top: 4px;
