@@ -13,7 +13,7 @@
 
         "adldap2/adldap2": "7.0.4",
         "smarty/smarty": "2.6.29",
-        "adodb/adodb-php": "5.20.2",
+        "adodb/adodb-php": "5.20.9",
         "phpmailer/phpmailer": "5.2.16",
         "rospdf/pdf-php": "0.12.22",
         "phpseclib/phpseclib": "2.0.2",

@@ -38,6 +38,9 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
+if($GLOBALS['enable_group_therapy']) {
+    require_once("$srcdir/group.inc");
+}
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
@@ -252,7 +255,8 @@ if ($issue) {
   echo htmlspecialchars($tmp['title'], ENT_NOQUOTES);
 }
 else {
-  echo htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES);
+    //There isn't documents for therapy group yet
+  echo $attendant_type == 'pid' ? htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES) : htmlspecialchars(xl('Past Therapy Group Encounters'), ENT_NOQUOTES);
 }
 ?>
 </font>
@@ -334,11 +338,15 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
 <?php if ($billing_view) { ?>
   <th class='billing_note'><?php echo htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES); ?></th>
 <?php } else { ?>
-<?php if (!$issue) { ?>
+<?php if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues?>
   <th><?php echo htmlspecialchars( xl('Issue'), ENT_NOQUOTES);       ?></th>
 <?php } ?>
   <th><?php echo htmlspecialchars( xl('Reason/Form'), ENT_NOQUOTES); ?></th>
+  <?php if($attendant_type == 'pid') { ?>
   <th><?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES);    ?></th>
+  <?php } else { ?>
+        <th><?php echo htmlspecialchars( xl('Counselors'), ENT_NOQUOTES);    ?></th>
+    <?php } ?>
 <?php } ?>
 
 <?php if ($billing_view) { ?>
@@ -355,6 +363,11 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
   <th>&nbsp;<?php echo htmlspecialchars( (($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
+<?php if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) { ?>
+    <!-- Two new columns if therapy group is enable only in patient  encounter - encounter type and group name (empty if isn't group type) -->
+    <th><?php echo htmlspecialchars( xl('Encounter type'), ENT_NOQUOTES);    ?></th>
+    <th><?php echo htmlspecialchars( xl('Group name'), ENT_NOQUOTES);    ?></th>
+<?php }?>
  </tr>
 
 <?php
@@ -378,23 +391,33 @@ if (!$billing_view) {
 // $count = 0;
 
 $sqlBindArray = array();
+if($attendant_type == 'pid') {
+    $from = "FROM form_encounter AS fe " .
+        "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
+        "f.formdir = 'newpatient' AND f.deleted = 0 ";
+} else {
+    $from = "FROM form_groups_encounter AS fe " .
+        "JOIN forms AS f ON f.therapy_group_id = fe.group_id AND f.encounter = fe.encounter AND " .
+        "f.formdir = 'newGroupEncounter' AND f.deleted = 0 ";
+}
 
-$from = "FROM form_encounter AS fe " .
-  "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
-  "f.formdir = 'newpatient' AND f.deleted = 0 ";
 if ($issue) {
   $from .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
   array_push($sqlBindArray, $pid, $issue);
 }
-$from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
-$sqlBindArray[] = $pid;
+if($attendant_type == 'pid') {
+    $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
+    $sqlBindArray[] = $pid;
+} else {
+    $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
+    $sqlBindArray[] = $_SESSION['therapy_group'];
+}
 
 $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
         "ORDER BY fe.date DESC, fe.id DESC";
 
 $countQuery = "SELECT COUNT(*) as c " . $from;
-
 
 $countRes = sqlStatement($countQuery,$sqlBindArray);
 $count = sqlFetchArray($countRes);
@@ -421,7 +444,6 @@ if(($pagesize>0) && ($pagestart+$pagesize <= $numRes))
 {
     generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
 }
-
 
 
 $res4 = sqlStatement($query, $sqlBindArray);
@@ -463,7 +485,8 @@ while ($result4 = sqlFetchArray($res4)) {
         if (!$billing_view && $auth_sensitivity &&
             ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser'])))
         {
-            $encarr = getFormByEncounter($pid, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
+            $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+            $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
             $encounter_rows = count($encarr);
         }
 
@@ -493,7 +516,7 @@ while ($result4 = sqlFetchArray($res4)) {
         }
         else {
 
-          if (!$issue) { // only if listing for multiple issues
+          if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues
             // show issues for this encounter
             echo "<td>";
             if ($auth_med && $auth_sensitivity) {
@@ -528,7 +551,7 @@ while ($result4 = sqlFetchArray($res4)) {
             // see this encounter's notes.
 
             foreach ($encarr as $enc) {
-                if ($enc['formdir'] == 'newpatient') continue;
+                if ($enc['formdir'] == 'newpatient' || $enc['formdir'] == 'newGroupEncounter') continue;
             
                 // skip forms whose 'deleted' flag is set to 1 --JRM--
                 if ($enc['deleted'] == 1) continue;
@@ -576,14 +599,27 @@ while ($result4 = sqlFetchArray($res4)) {
             echo "</div>";
             echo "</td>\n";
 
-            // show user (Provider) for the encounter
-            $provname = '&nbsp;';
-            if (!empty($result4['lname']) || !empty($result4['fname'])) {
-              $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
-              if (!empty($result4['fname']) || !empty($result4['mname']))
-                $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
+            if($attendant_type == 'pid'){
+
+                // show user (Provider) for the encounter
+                $provname = '&nbsp;';
+                if (!empty($result4['lname']) || !empty($result4['fname'])) {
+                    $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
+                    if (!empty($result4['fname']) || !empty($result4['mname']))
+                        $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
+                }
+                echo "<td>$provname</td>\n";
+
+                // for therapy group view
+            } else {
+                $counselors ='';
+                foreach (explode(',',$result4['counselors']) as $userId){
+                    $counselors .= getUserNameById($userId) . ', ';
+                }
+                $counselors = rtrim($counselors, ", ");
+                echo "<td>" . text($counselors) . "</td>\n";
             }
-            echo "<td>$provname</td>\n";
+
 
         } // end not billing view
 
@@ -738,6 +774,13 @@ while ($result4 = sqlFetchArray($res4)) {
             }
       
             echo "<td>".$insured."</td>\n";
+        }
+
+        if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0){
+            $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+            echo "<td>".$encounter_type['pc_catname']."</td>\n";
+            $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
+            echo "<td>". text($group_name) . "</td>\n";
         }
 
         echo "</tr>\n";

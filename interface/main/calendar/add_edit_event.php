@@ -54,6 +54,7 @@ require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
@@ -98,12 +99,21 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
-$collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+if($_GET['group'] == true)
+    //groups tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
+elseif($_GET['prov'])
+    //providers tab
+    $collectthis = '';
+else
+    //patient tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+
 if (empty($collectthis)) {
     $collectthis = "undefined";
 }
 else {
-    $collectthis = $collectthis["theform"]["rules"];
+    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
 
@@ -122,6 +132,7 @@ function InsertEventFull()
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
+            $pc_eid = null;
             foreach ($_POST['form_provider'] as $provider) {
                 $args = $_POST;
                 // specify some special variables needed for the INSERT
@@ -133,10 +144,13 @@ function InsertEventFull()
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
-                InsertEvent($args);
+                $pc_eid_temp = InsertEvent($args);
+                if($pc_eid == null) $pc_eid = $pc_eid_temp;
             }
+            return $pc_eid;
 
-        // ====================================
+
+            // ====================================
         // single provider
         // ====================================
         } else {
@@ -149,10 +163,11 @@ function InsertEventFull()
             $args['starttime'] = $starttime;
             $args['endtime'] = $endtime;
             $args['locationspec'] = $locationspec;
-            InsertEvent($args);
+            $pc_eid = InsertEvent($args);
+            return $pc_eid;
         }
  }
-function DOBandEncounter()
+function DOBandEncounter($pc_eid)
  {
    global $event_date,$info_msg;
 	 // Save new DOB if it's there.
@@ -194,6 +209,17 @@ function DOBandEncounter()
                 manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
              }
      }
+    }
+    // auto create encounter for therapy group
+    if(!empty($_POST['form_gid'])){
+                                                                                // status Took Place is the check in of therapy group
+        if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
+            $encounter = todaysTherapyGroupEncounterCheck($_POST['form_gid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false, $pc_eid);
+            if ($encounter) {
+                $info_msg .= xl("New group encounter created with id");
+                $info_msg .= " $encounter";
+            }
+        }
     }
 
  }
@@ -369,8 +395,8 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 //=============================================================================================================================
 if ($_POST['form_action'] == "duplicate") {
 
-	InsertEventFull();
-	DOBandEncounter();
+	$eid = InsertEventFull();
+	DOBandEncounter($eid);
 
  }
 
@@ -651,13 +677,13 @@ if ($_POST['form_action'] == "save") {
          *                    INSERT NEW EVENT(S)
          * ======================================================*/
 
-		InsertEventFull();
+        $eid = InsertEventFull();
 
     }
 
     // done with EVENT insert/update statements
 
-		DOBandEncounter();
+		DOBandEncounter(isset($eid) ? $eid : null);
 
  }
 
@@ -757,8 +783,9 @@ if ($_POST['form_action'] == "save") {
   echo " if (opener && !opener.closed && opener.refreshme) {\n " .
        "  opener.refreshme();\n " . // This is for standard calendar page refresh
        " } else {\n " .
-       "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh
-       " };\n";
+       " if(window.opener.pattrk){" .
+      "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh}
+       " }};\n";
   echo " window.close();\n";
   echo "</script>\n</body>\n</html>\n";
   exit();
@@ -798,6 +825,11 @@ if ($_POST['form_action'] == "save") {
  $hometext = "";
  $row = array();
  $informant = "";
+ $groupid = '';
+ if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
+ $groupname = null;
+ $group_statuses = getGroupStatuses();
+
 
  // If we are editing an existing event, then get its data.
  if ($eid) {
@@ -815,6 +847,7 @@ if ($_POST['form_action'] == "save") {
   $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
   $userid = $row['pc_aid'];
   $patientid = $row['pc_pid'];
+  $groupid = $row['pc_gid'];
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
   $starttimem = substr($row['pc_startTime'], 3, 2);
   $repeats = $row['pc_recurrtype'];
@@ -836,6 +869,7 @@ if ($_POST['form_action'] == "save") {
       $repeattype = 6;
     }
   }
+  $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : NULL;
   $pcroom = $row['pc_room'];
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
@@ -885,6 +919,16 @@ if ($_POST['form_action'] == "save") {
   if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
  }
 
+ // If we have a group id, get group data
+ if ($groupid){
+  $group_data = getGroup($groupid);
+  $groupname = $group_data['group_name'];
+  $group_end_date = $group_data['group_end_date'];
+  if(!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00'){
+      $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
+  }
+ }
+
  // Get the providers list.
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
   "authorized != 0 AND active = 1 ORDER BY lname, fname");
@@ -929,6 +973,9 @@ td { font-size:0.8em; }
  $cattype=0;
  if($_GET['prov']==true){
   $cattype=1;
+ }
+ if($_GET['group'] == true){
+  $cattype=3;
  }
  $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
   "pc_recurrtype, pc_duration, pc_end_all_day " .
@@ -983,6 +1030,23 @@ td { font-size:0.8em; }
  // This invokes the find-patient popup.
  function sel_patient() {
   dlgopen('find_patient_popup.php', '_blank', 500, 400);
+ }
+
+ // This is for callback by the find-group popup.
+ function setgroup(gid, name, end_date) {
+     var f = document.forms[0];
+     f.form_group.value = name;
+     f.form_gid.value = gid;
+     if(f.form_enddate.value == ""){
+        f.form_enddate.value = end_date;
+     }
+
+ }
+
+ // This invokes the find-group popup.
+ function sel_group() {
+     top.restoreSession();
+     dlgopen('find_group_popup.php', '_blank', 500, 400);
  }
 
  // Do whatever is needed when a new event category is selected.
@@ -1238,10 +1302,14 @@ $classpati='';
 <table border='0' >
 <?php
 	$provider_class='';
+    $group_class='';
 	$normal='';
 	if($_GET['prov']==true){
 	$provider_class="class='current'";
 	}
+	elseif($_GET['group']==true){
+    $group_class="class='current'";
+    }
 	else{
 	$normal="class='current'";
 	}
@@ -1257,13 +1325,19 @@ $classpati='';
 	$cid=$_REQUEST["catid"];
 ?>
 		 <li <?php echo $normal;?>>
-		 <a href='add_edit_event.php?eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+		 <a href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Patient');?></a>
 		 </li>
 		 <li <?php echo $provider_class;?>>
-		 <a href='add_edit_event.php?prov=true&eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+		 <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Provider');?></a>
 		 </li>
+         <?php if($GLOBALS['enable_group_therapy']) :?>
+         <li <?php echo $group_class ;?>>
+            <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+            <?php echo xlt('Group');?></a>
+         </li>
+         <?php endif ?>
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
@@ -1386,7 +1460,7 @@ $classpati='';
 		</td>
 	</tr>
  <?php
- if($_GET['prov']!=true){
+ if($_GET['prov']!=true && $_GET['group']!=true){
  ?>
  <tr id="patient_details">
   <td nowrap>
@@ -1395,6 +1469,27 @@ $classpati='';
   <td nowrap>
    <input type='text' size='10' name='form_patient' id="form_patient" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
+  </td>
+  <td colspan='3' nowrap style='font-size:8pt'>
+   &nbsp;
+   <span class="infobox">
+   <?php if ($patienttitle != "") { echo text($patienttitle); } ?>
+   </span>
+  </td>
+ </tr>
+ <?php
+ }
+ ?>
+<?php
+ if($_GET['group']==true){
+ ?>
+ <tr id="group_details">
+  <td nowrap>
+   <b><?php echo xlt('Group'); ?>:</b>
+  </td>
+  <td nowrap>
+   <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($groupname) ? '' : attr($groupname); ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+   <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    &nbsp;
@@ -1408,7 +1503,7 @@ $classpati='';
  ?>
  <tr>
   <td nowrap>
-   <b><?php echo xlt('Provider'); ?>:</b>
+   <b><?php if($_GET['group']==true) echo xlt('Coordinating Counselors'); else echo xlt('Provider'); ?>:</b>
   </td>
   <td nowrap>
 
@@ -1624,8 +1719,14 @@ if  ($GLOBALS['select_multi_providers']) {
   <td nowrap>
 
 <?php
-generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'SKIP'), $row['pc_apptstatus']);
+if($_GET['group']!=true) {
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
+else{
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
 ?>
+
    <!--
     The following list will be invisible unless this is an In Office
     event, in which case form_apptstatus (above) is to be invisible.
@@ -1641,7 +1742,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'ap
   <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($row['pc_endDate']) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
+   <input type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
 <?php
 if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
@@ -1685,7 +1786,8 @@ if ($repeatexdate != "") {
  // to enter it right here.  We must display or hide this row dynamically
  // in case the patient-select popup is used.
  $patient_dob = trim($prow['DOB']);
- $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
+ $is_group = $groupname;
+ $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
   '' : 'none';
 ?>
  <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
@@ -1815,16 +1917,6 @@ function validateform(event,valu){
         }
     }
 
-    <?php
-    if($_GET['prov']==true){
-    ?>
-    //remove rule if it's provider event
-    if(collectvalidation.form_patient != undefined){
-        delete collectvalidation.form_patient;
-    }
-    <?php
-    }
-    ?>
 
     <?php
     if($GLOBALS['select_multi_providers']){
@@ -1838,6 +1930,7 @@ function validateform(event,valu){
 
     var submit = submitme(1, event, 'theform', collectvalidation);
     if(!submit)return $('#form_save').attr('disabled', false);;
+
 
     $('#form_action').val(valu);
 

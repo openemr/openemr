@@ -194,6 +194,13 @@ $GLOBALS_METADATA = array(
       xl('Application name for login page and main window title.')
     ),
 
+    'enable_group_therapy' => array(
+      xl('Enable Group Therapy'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Enables groups module in system.')
+    ),
+
     'full_new_patient_form' => array(
       xl('New Patient Form'),
 
@@ -1398,6 +1405,12 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
+    'number_of_group_appts_to_show' => array(
+      xl('Appointments - Group Summary - Number to Display'),
+      'num',
+      '10',
+      xl('Number of Appointments to display in the Group Summary')
+    ),
 
     'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),

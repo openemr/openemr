@@ -1,4 +1,4 @@
-  <?php
+<?php
 /** 
 * library/patient_tracker.inc.php Functions used in the Patient Flow Board. 
 * 

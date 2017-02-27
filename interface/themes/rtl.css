@@ -326,6 +326,7 @@ form#new_note div{
 form#new-encounter-form div{
     
     float: none !important;
+    display: inherit;
 }
 form#new-encounter-form a{
     margin-top: 4px;
@@ -574,6 +575,11 @@ form#pattrk #inanewwindow>span{
 
 #namecontainer_preminders {
     float: right !important;
+}
+
+/* Therapy Groups */
+#therapy_groups_list_container #clear_filters{
+    float: right;
 }
 
 #namecontainer_creminders {

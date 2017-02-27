@@ -183,7 +183,7 @@ if ($_POST['formaction']=='save' && $list_id) {
               if ($list_id == 'transactions' && substr($id,0,3) != 'LBT')
                 $id = "LBT$id";
 
-              if ($list_id == 'apptstat') {
+              if ($list_id == 'apptstat' || $list_id == 'groupstat') {
                 $notes = formTrim($iter['apptstat_color']) .'|'. formTrim($iter['apptstat_timealert']);
               }
               else
@@ -383,7 +383,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
         htmlspecialchars($mapping, ENT_QUOTES) . "' size='12' maxlength='15' class='optin' />";
     echo "</td>\n";
   }
-  else if($list_id == 'apptstat') {
+  else if($list_id == 'apptstat' || $list_id == 'groupstat') {
     list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' class='color' name='opt[$opt_line_no][apptstat_color]' value='" .
@@ -403,7 +403,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     echo "/>";
     echo "</td>\n";
   }
-  if($list_id == 'apptstat') {
+  if($list_id == 'apptstat' || $list_id == 'groupstat') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='checkbox' name='opt[$opt_line_no][toggle_setting_1]' value='1' " .
       "onclick='defClicked($opt_line_no)' class='optin'$checked_tog1 />";
@@ -880,7 +880,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Medical Problem','e'); ?></b></td>
   <td><b><?php xl('Drug'        ,'e'); ?></b></td>
   <td><b><?php xl('External'    ,'e'); ?></b></td>
-<?php } else if ($list_id == 'apptstat') { ?> 
+<?php } else if ($list_id == 'apptstat' || $list_id == 'groupstat') { ?>
   <td><b><?php  xl('ID'       ,'e'); ?></b></td>
   <td><b><?php xl('Title'     ,'e'); ?></b></td>   
   <td><b><?php xl('Order'     ,'e'); ?></b></td>

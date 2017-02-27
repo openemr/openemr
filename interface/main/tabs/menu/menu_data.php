@@ -43,6 +43,14 @@ $menu_json='[
     {"label":"Import","icon":"fa-caret-right","children":[
       {"label":"Upload","menu_id":"ccr0","target":"pat","url":"/interface/patient_file/ccr_import.php","children":[],"requirement":0},
       {"label":"Pending Approval","menu_id":"apr0","target":"pat","url":"/interface/patient_file/ccr_pending_approval.php","children":[],"requirement":0}],"requirement":0}],"requirement":0},
+    {"label":"Groups","menu_id":"groupimg","children":[
+  {"label":"Groups","menu_id":"gfn0","target":"gfn","url":"/interface/therapy_groups/index.php?method=listGroups","children":[],"requirement":0},
+    {"label":"New","menu_id":"gng0","target":"gng","url":"/interface/therapy_groups/index.php?method=addGroup","children":[],"requirement":0},
+    {"label":"Group Details","menu_id":"gdg4","target":"gdg","url":"/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session","children":[],"requirement":4},
+    {"label":"Visits","icon":"fa-caret-right","children":[
+    {"label":"Create Visit","menu_id":"gcv4","target":"enc","url":"/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==","children":[],"requirement":4},
+    {"label":"Current","menu_id":"enc5","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":5},
+    {"label":"Visit History","menu_id":"gvh4","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":4}],"requirement":0}],"requirement":0,"global_req":"enable_group_therapy"},
   {"label":"Fees","menu_id":"feeimg","children":[
     {"label":"Fee Sheet","menu_id":"cod2","target":"enc","url":"/interface/patient_file/encounter/load_form.php?formname=fee_sheet","children":[],"requirement":2},
     {"label":"Charges","menu_id":"cod1","target":"enc","url":"/interface/patient_file/encounter/encounter_bottom.php","children":[],"requirement":2,"global_req":"use_charges_panel"},

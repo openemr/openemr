@@ -85,6 +85,21 @@ menu_apply_restrictions($menu_parsed,$menu_restrictions);
             });
             
         }
+        else if(object.requirement===4)
+        {
+            self.enabled=ko.computed(function()
+            {
+                return app_view_model.application_data.therapy_group()!==null;
+            });
+        }
+        else if(object.requirement===5)
+        {
+            self.enabled=ko.computed(function()
+            {
+                return (app_view_model.application_data.therapy_group()!==null
+                && app_view_model.application_data.therapy_group().selectedEncounter()!=null);
+            });
+        }
         if(self.header)
         {
             self.children=ko.observableArray();
