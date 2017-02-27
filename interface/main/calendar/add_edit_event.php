@@ -1790,9 +1790,12 @@ function are_days_checked(){
 var collectvalidation = <?php echo($collectthis); ?>;
 function validateform(event,valu){
 
+    $('#form_save').attr('disabled', true);
+
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
         alert('<?php echo xls("Must choose at least one day!"); ?>');
+        $('#form_save').attr('disabled', false);
         return false;
     }
 
@@ -1834,7 +1837,7 @@ function validateform(event,valu){
 
 
     var submit = submitme(1, event, 'theform', collectvalidation);
-    if(!submit)return;
+    if(!submit)return $('#form_save').attr('disabled', false);;
 
     $('#form_action').val(valu);
 
@@ -1844,6 +1847,7 @@ function validateform(event,valu){
         DisableForm();
         // show the current/future/all DIV for the user to choose one
         $("#recurr_popup").css("visibility", "visible");
+        $('#form_save').attr('disabled', false);
         return false;
     }
     <?php endif; ?>
