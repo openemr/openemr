@@ -27,7 +27,6 @@ $fake_register_globals=false;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 
 // Specify if product or warehouse is the first column.
 $product_first = (!empty($_POST['form_by']) && $_POST['form_by'] == 'w') ? 0 : 1;

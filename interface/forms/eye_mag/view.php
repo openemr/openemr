@@ -34,7 +34,6 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/api.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
@@ -3443,7 +3442,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                        */
                                       echo "<input type='checkbox' class='TESTS' id='TEST_$counter' codetext='".attr($codetext)."' title='".attr($codedesc)."' name='TEST[]' $checked value='". attr($row['codes']) ."'> ";
                                       echo '<input type="text" title="'.xla('Modifier').'" style="width:20px;" id="TEST_'.$counter.'_modifier" value="'.$row['modifier'].'">';
-                                  
+
                                       $label = text(substr($codedesc,0,25));
                                       echo "<label for='TEST_$counter' class='input-helper input-helper--checkbox'>";
                                       echo $label."</label>";

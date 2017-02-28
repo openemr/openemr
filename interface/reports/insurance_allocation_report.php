@@ -24,7 +24,6 @@
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../library/acl.inc");
- require_once("../../library/formatting.inc.php");
 
  // Might want something different here.
  //

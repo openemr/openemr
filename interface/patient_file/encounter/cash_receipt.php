@@ -11,7 +11,6 @@ require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 
  $N = 6;
  $first_issue = 1;

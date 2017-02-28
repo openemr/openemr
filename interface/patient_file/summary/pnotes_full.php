@@ -32,7 +32,6 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
-require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
 if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');

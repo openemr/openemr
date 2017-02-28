@@ -5,7 +5,6 @@
 // of the License, or (at your option) any later version.
 
 require_once("{$GLOBALS['srcdir']}/acl.inc");
-require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 $patient_data_array = array(

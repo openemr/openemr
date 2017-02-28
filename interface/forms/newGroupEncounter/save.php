@@ -34,7 +34,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/formdata.inc.php");
 
 $group_id = $_SESSION['therapy_group'];

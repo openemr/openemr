@@ -19,7 +19,6 @@
  */
 
 include_once("../../globals.php");
-include_once("$srcdir/formatting.inc.php");
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;

@@ -13,7 +13,6 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formatting.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');

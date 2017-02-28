@@ -23,7 +23,6 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("../../orders/qoe.inc.php");
 require_once("../../orders/gen_hl7_order.inc.php");
 require_once("../../../custom/code_types.inc.php");
@@ -538,7 +537,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
 ?>
  <tr>
  <!--<td width='1%' valign='top'><b><?php echo xl('Procedure') . ' ' . ($i + 1); ?>:</b></td>-->
- <?php if(empty($formid) || empty($oprow['procedure_order_title'])) {?> 
+ <?php if(empty($formid) || empty($oprow['procedure_order_title'])) {?>
         <td width='1%' valign='top'><input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='Procedure'><b><?php echo xlt('Procedure');?></b></td>
     <?php } else {?>
      <td width='1%' valign='top'>
@@ -582,8 +581,8 @@ if ($qoe_init_javascript)
 <select name="procedure_type_names" id="procedure_type_names">
 	<?php foreach($procedure_order_type as $ordered_types){?>
 	<option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
-	<?php } ?>    
-</select> 
+	<?php } ?>
+</select>
 <input type='button' value='<?php echo xla('Add Procedure'); ?>' onclick="addProcLine()" />
 &nbsp;
 <input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' onclick='transmitting = false;' />

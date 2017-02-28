@@ -30,7 +30,6 @@ require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");

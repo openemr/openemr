@@ -59,7 +59,6 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 $currdecimals = $GLOBALS['currency_decimals'];
@@ -131,7 +130,7 @@ function generate_receipt($patient_id, $encounter=0) {
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
     $svcdate = substr($ferow['date'], 0, 10);
-    
+
     if ($GLOBALS['receipts_by_provider']){
       if (isset($ferow['provider_id']) ) {
         $encprovider = $ferow['provider_id'];
@@ -139,7 +138,7 @@ function generate_receipt($patient_id, $encounter=0) {
         $encprovider = $patdata['providerID'];
       } else { $encprovider = -1; }
     }
-    
+
     if ($encprovider){
       $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
         "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider) );
@@ -187,7 +186,7 @@ function generate_receipt($patient_id, $encounter=0) {
 </head>
 <body class="body_top">
 <center>
-<?php 
+<?php
   if ( $GLOBALS['receipts_by_provider'] && !empty($providerrow) ) { printProviderHeader($providerrow); }
   else { printFacilityHeader($frow); }
 ?>
@@ -974,7 +973,7 @@ else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
  computeTotals();
- 
+
 <?php
 if ($gcac_related_visit && !$gcac_service_provided) {
   // Skip this warning if the GCAC visit form is not allowed.

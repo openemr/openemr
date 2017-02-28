@@ -36,7 +36,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/invoice_summary.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
 if($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
@@ -103,7 +102,7 @@ function getDocListByEncID($encounter,$raw_encounter_date,$pid){
 				echo "(" . xlt('No access') . ")";
 			}
 
-			// Get the notes for this document and display as title for the link.					
+			// Get the notes for this document and display as title for the link.
 			$queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
 			$noteResultSet = sqlStatement($queryString,array($documentrow['id']));
 			$note = '';
@@ -119,7 +118,7 @@ function getDocListByEncID($encounter,$raw_encounter_date,$pid){
 		}
 	}
 }
- 
+
 // This is called to generate a line of output for a patient document.
 //
 function showDocument(&$drow) {
@@ -323,7 +322,7 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
             echo $pagesizes[$idx];
         }
         echo "</OPTION>";
-        
+
     }
 ?>
     </select>
@@ -541,10 +540,10 @@ while ($result4 = sqlFetchArray($res4)) {
 
             // show encounter reason/title
             echo "<td>".$reason_string;
-			
+
 			//Display the documents tagged to this encounter
 			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);
-			
+
             echo "<div style='padding-left:10px;'>";
 
             // Now show a line for each encounter form, if the user is authorized to
@@ -552,10 +551,10 @@ while ($result4 = sqlFetchArray($res4)) {
 
             foreach ($encarr as $enc) {
                 if ($enc['formdir'] == 'newpatient' || $enc['formdir'] == 'newGroupEncounter') continue;
-            
+
                 // skip forms whose 'deleted' flag is set to 1 --JRM--
                 if ($enc['deleted'] == 1) continue;
-    
+
                 // Skip forms that we are not authorized to see. --JRM--
                 // pardon the wonky logic
                 $formdir = $enc['formdir'];
@@ -772,7 +771,7 @@ while ($result4 = sqlFetchArray($res4)) {
             else {
                 $insured = " (".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
             }
-      
+
             echo "<td>".$insured."</td>\n";
         }
 
@@ -811,11 +810,11 @@ while ($drow /* && $count <= $N */) {
 $(document).ready(function(){
     $(".encrow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".encrow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".encrow").click(function() { toencounter(this.id); }); 
-    
+    $(".encrow").click(function() { toencounter(this.id); });
+
     $(".docrow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".docrow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".docrow").click(function() { todocument(this.id); }); 
+    $(".docrow").click(function() { todocument(this.id); });
 
     $(".billing_note_text").mouseover(function() { $(this).toggleClass("billing_note_text_highlight"); });
     $(".billing_note_text").mouseout(function() { $(this).toggleClass("billing_note_text_highlight"); });

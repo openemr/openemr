@@ -11,7 +11,6 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("../orders/lab_exchange_tools.php");
 
 // Indicates if we are entering in batch mode.
@@ -33,7 +32,7 @@ if ($_GET['set_pid'] && $form_review) {
   require_once("$srcdir/pid.inc");
   require_once("$srcdir/patient.inc");
   setpid($_GET['set_pid']);
-  
+
   $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
   ?>
   <script language='JavaScript'>
@@ -83,7 +82,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
       // Set the review status to reviewed.
       if ($form_review)
         $sets .= ", review_status = 'reviewed'";
-    
+
       if ($report_id) { // Report already exists.
         sqlStatement("UPDATE procedure_report SET $sets "  .
           "WHERE procedure_report_id = '$report_id'");
@@ -372,7 +371,7 @@ if ($form_batch) {
   <td><?php xl('?','e'); ?></td>
  </tr>
 
-<?php 
+<?php
 $selects =
   "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
   "pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .

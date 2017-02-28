@@ -32,7 +32,6 @@ $sanitize_all_escapes=true;
 
 
 require_once("../globals.php");
-require_once("$srcdir/formatting.inc.php");
 
 //Get the data to place on labels
 

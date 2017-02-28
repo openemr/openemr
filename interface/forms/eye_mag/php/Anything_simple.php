@@ -31,8 +31,7 @@
     include_once("$srcdir/acl.inc");
     include_once("$srcdir/lists.inc");
     include_once("$srcdir/api.inc");
-    require_once("$srcdir/formatting.inc.php");
-	require_once("$srcdir/forms.inc");
+  	require_once("$srcdir/forms.inc");
 
     $form_name = "Eye Form";
     $form_folder = "eye_mag";

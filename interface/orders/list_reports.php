@@ -27,7 +27,6 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 

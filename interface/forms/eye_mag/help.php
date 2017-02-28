@@ -31,7 +31,6 @@ include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/api.inc");
-require_once("$srcdir/formatting.inc.php");
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];

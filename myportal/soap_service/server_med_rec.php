@@ -65,7 +65,6 @@ class Userforms extends UserAudit{
 	require_once("../../library/acl.inc");
 	require_once("../../library/lists.inc");
 	require_once("../../library/report.inc");
-	require_once("../../library/formatting.inc.php");
 	require_once("../../custom/code_types.inc.php");
 	     foreach($repArr as $value){
 		    ob_start();

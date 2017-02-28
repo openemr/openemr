@@ -29,7 +29,6 @@ $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 
 require_once(__DIR__.'/../globals.php');
 require_once($srcdir.'/log.inc');
-require_once($srcdir.'/formatting.inc.php');
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 

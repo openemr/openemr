@@ -16,6 +16,7 @@ return array(
     'ce966aaf9a7a6ac4e4663ee998e4282d' => $baseDir . '/library/htmlspecialchars.inc.php',
     'e503b8ca58d1a18c65b5632ecd5a76b4' => $baseDir . '/library/formdata.inc.php',
     '90ddd4120fc0e77b06a383f880188d79' => $baseDir . '/library/sanitize.inc.php',
+    '951c5a12c68d1ae6e236a7a943586d62' => $baseDir . '/library/formatting.inc.php',
     '7f8090c4c03d2da09b90683b7b7b64f3' => $baseDir . '/library/date_functions.php',
     '50df9e87484b37f614378efa1c994e18' => $baseDir . '/library/validation/validate_core.php',
     '26894f783baf7dc8ebf76b94d69f85d4' => $baseDir . '/library/translation.inc.php',

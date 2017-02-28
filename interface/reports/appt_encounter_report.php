@@ -43,7 +43,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/billing.inc");
 

@@ -32,7 +32,6 @@ $sanitize_all_escapes=true;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 require_once("$srcdir/user.inc");
