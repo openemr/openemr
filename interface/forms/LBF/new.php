@@ -29,7 +29,6 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once("$include_root/cmsportal/portal.inc.php");
 }
@@ -351,7 +350,7 @@ function set_related(codetype, code, selector, codedesc) {
    if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
     return '<?php echo xl('A code of this type is already selected. Erase the field first if you need to replace it.') ?>';
    }
-  }     
+  }
   if (s.length > 0) {
    s  += ';';
    sd += ';';
@@ -594,7 +593,7 @@ function validate(f) {
 
     // First item is on the "left-border"
     $leftborder = true;
-    
+
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       end_cell();

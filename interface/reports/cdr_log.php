@@ -30,7 +30,6 @@ $fake_register_globals=false;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 ?>

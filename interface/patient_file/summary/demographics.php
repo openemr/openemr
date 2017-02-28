@@ -32,7 +32,6 @@ $fake_register_globals=false;
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
- require_once("$srcdir/formatting.inc.php");
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");

@@ -26,7 +26,6 @@
 
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once("{$GLOBALS['srcdir']}/appointments.inc.php");
-require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
 require_once("{$GLOBALS['srcdir']}/pid.inc");
 
 class TherapyGroupsController extends BaseController{
@@ -51,10 +50,10 @@ class TherapyGroupsController extends BaseController{
         $participant_statuses = array(
                 '10' => 'active',
                 '20' => 'not active'
-        ); 
-        return $participant_statuses; 
+        );
+        return $participant_statuses;
     }
-    
+
     //list of group types
     public static function prepareGroupTypesList()
     {

@@ -5,7 +5,6 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
-require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
 
 class C_Document extends Controller {
 
@@ -1011,7 +1010,7 @@ class C_Document extends Controller {
     function _rename_file($fname, $self=FALSE) {
     	// Allow same routine for new file name check
     	if (!file_exists($fname)) return($fname);
-    	
+
         $path = dirname($fname);
         $file = basename_international($fname);
 
@@ -1313,11 +1312,11 @@ function image_result_indication($doc_id,$encounter,$image_procedure_id = 0){
 
 /**  Function to accomodate the relocation of entire "documents" folder to another host or filesystem  **
  * Also usable for documents that may of been moved to different patients.
- * 
+ *
  * @param string $url - Current url string from database.
  * @param string $new_pid - Include pid corrections to receive corrected url during move operation.
  * @param string $new_name - Include name corrections to receive corrected url during rename operation.
- * 
+ *
  * @return string
  */
 function _check_relocation($url, $new_pid = null, $new_name = null) {

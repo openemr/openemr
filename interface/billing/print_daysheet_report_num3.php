@@ -1,26 +1,26 @@
 <?php
-/** 
-* interface/billing/print_daysheet_report.php Genetating an end of day report. 
-* 
+/**
+* interface/billing/print_daysheet_report.php Genetating an end of day report.
+*
 * Program for Generating an End of Day report
-* 
-* 
-* Copyright (C) 2014 Terry Hill <terry@lillysystems.com> 
-* 
-* LICENSE: This program is free software; you can redistribute it and/or 
-* modify it under the terms of the GNU General Public License 
-* as published by the Free Software Foundation; either version 3 
-* of the License, or (at your option) any later version. 
-* This program is distributed in the hope that it will be useful, 
-* but WITHOUT ANY WARRANTY; without even the implied warranty of 
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-* GNU General Public License for more details. 
-* You should have received a copy of the GNU General Public License 
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
-* 
-* @package OpenEMR 
+*
+*
+* Copyright (C) 2014 Terry Hill <terry@lillysystems.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
 * @author Terry Hill <terry@lillysystems.com>
-* @link http://www.open-emr.org 
+* @link http://www.open-emr.org
 */
 
 $fake_register_globals=false;
@@ -30,10 +30,9 @@ include_once("../globals.php");
 
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/../interface/reports/report.inc.php");
-require_once("$srcdir/formatting.inc.php");
 include_once("$srcdir/daysheet.inc.php");
 
-	
+
 //global variables:
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
@@ -83,7 +82,7 @@ if (!isset($_GET["mode"])) {
 <a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Day Sheet Report')?></font></a>
 <br>
 
-<?php 
+<?php
 if ($my_authorized === 'on' ) {
     $my_authorized = true;
 } else {
@@ -369,7 +368,7 @@ if ($totals_only != 1) {
         $name = getPatientData($iter{'pid'});
 
        // formats the displayed text
-	   // 
+	   //
 
  	     if ($old_pid == $new_old_pid) {
 			 if ($line_total != 0) {
@@ -384,12 +383,12 @@ if ($totals_only != 1) {
 			 $line_total = 0;
 			 $line_total_pay = 0;
 		 }
-	   
+
 	   if ($first_time) {
             print "<table border=0><tr>\n";     // small table
             $first_time=0;
         }
-		
+
 	    // Displays name
 
 		print "<tr><td colspan=10><hr><span class=bold>" . text($name{"fname"}) . " " . text($name{"lname"}) . "</span><br><br></td></tr><tr>\n";
@@ -421,16 +420,16 @@ if ($totals_only != 1) {
         //Next patient
 
 		$old_pid = $iter{'pid'};
-        
-	
+
+
     }
-    
+
 	// get dollar amounts to appear on pat,ins payments and copays
 
 	if ($iter{'code_type'} != 'payment_info') {
 	if ($iter{'code_type'} === 'COPAY' || $iter{'code_type'} === 'Patient Payment' || $iter{'code_type'} === 'Insurance Payment' ) {
 	   print "<td width=100><span class=text><center>" . "1". "</center>" ;
-	  
+
 	  // start fee output
 	  //    [pat_code] => 0.00
 	  //    [ins_code] => 0.00
@@ -529,7 +528,7 @@ if ($totals_only != 1) {
 	  }
 	 }
 	}
-	
+
     $res_count++;
 
     if ($res_count == $N) {
@@ -740,7 +739,7 @@ $user_info['patpay'][$k]  = $us19_patpay;
 }
 
 if ($totals_only != 1) {
-	    
+
 			 if ($line_total != 0) {
 			  print "<td width=100><br><span class=text><b><center>" . xlt('Total') . "</b></center>";
 			  Printf ("<br></span></td><td width=100><span class=text><center>"." %1\$.2f",text($line_total)). "</center></span></td>\n<br>";

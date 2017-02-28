@@ -31,7 +31,6 @@ $fake_register_globals=false;
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formatting.inc.php");
 
  // form parameter docid can be passed to restrict the display to a document.
  $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];

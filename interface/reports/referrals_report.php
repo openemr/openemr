@@ -29,7 +29,6 @@
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
- require_once("$srcdir/formatting.inc.php");
  require_once "$srcdir/options.inc.php";
 
  $from_date = (isset($_POST['form_from_date']))  ? fixDate($_POST['form_from_date'], date('Y-m-d')) : '';

@@ -48,7 +48,6 @@ $sanitize_all_escapes=true;
 require_once("../../globals.php");
 require_once(dirname(__FILE__) ."/../../../library/acl.inc");
 require_once(dirname(__FILE__) ."/../../../library/api.inc");
-require_once(dirname(__FILE__) ."/../../../library/formatting.inc.php");
 require_once(dirname(__FILE__) ."/../../../library/lists.inc");
 require_once(dirname(__FILE__) ."/../../../library/forms.inc");
 require_once(dirname(__FILE__) ."/../../../library/patient.inc");

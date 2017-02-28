@@ -20,7 +20,6 @@
 
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
-require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 <head>

@@ -37,7 +37,6 @@ $fake_register_globals=false;
 	require_once("$srcdir/patient.inc");
 	require_once("$srcdir/options.inc.php");
 	require_once("../drugs/drugs.inc.php");
-	require_once("$srcdir/formatting.inc.php");
   require_once("../../custom/code_types.inc.php");
 	$comarr = array('allow_sms'=>xl('Allow SMS'),'allow_voice'=>xl('Allow Voice Message'),'allow_mail'=>xl('Allow Mail Message'),'allow_email'=>xl('Allow Email'));
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {

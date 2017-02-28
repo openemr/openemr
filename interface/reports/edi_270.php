@@ -38,7 +38,6 @@
 	require_once("$srcdir/forms.inc");
 	require_once("$srcdir/billing.inc");
 	require_once("$srcdir/patient.inc");
-	require_once("$srcdir/formatting.inc.php");
 	require_once "$srcdir/options.inc.php";
 	include_once("$srcdir/calendar.inc");
 	include_once("$srcdir/edi.inc");

@@ -21,7 +21,6 @@
 
 require_once($GLOBALS["srcdir"] . "/acl.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
-require_once($GLOBALS["srcdir"] . "/formatting.inc.php");
 
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .

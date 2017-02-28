@@ -34,7 +34,6 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/invoice_summary.inc.php");
 require_once("../../library/sl_eob.inc.php");
-require_once("../../library/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 
 

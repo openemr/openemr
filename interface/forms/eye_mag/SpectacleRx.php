@@ -35,7 +35,6 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");

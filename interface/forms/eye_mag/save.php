@@ -49,7 +49,6 @@ require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("php/".$form_name."_functions.php");
-require_once("$srcdir/formatting.inc.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 require_once("$srcdir/patient.inc");

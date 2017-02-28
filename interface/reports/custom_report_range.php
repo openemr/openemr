@@ -27,7 +27,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/formatting.inc.php");
 
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {

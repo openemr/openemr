@@ -32,7 +32,6 @@
 	require_once("$srcdir/patient.inc");
 	require_once("$srcdir/options.inc.php");
 	require_once("../drugs/drugs.inc.php");
-	require_once("$srcdir/formatting.inc.php");
 	require_once("$srcdir/payment_jav.inc.php");
 
 	$DateFormat=DateFormatRead();

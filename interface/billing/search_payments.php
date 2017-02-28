@@ -35,7 +35,6 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/payment.inc.php");
 //===============================================================================
 //Deletion of payment and its corresponding distributions.

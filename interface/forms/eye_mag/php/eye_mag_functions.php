@@ -27,7 +27,6 @@
 $form_folder = "eye_mag";
 require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
-require_once(dirname(__FILE__)."/../../../../library/formatting.inc.php");
 global $PMSFH;
 
 /**
@@ -2584,17 +2583,17 @@ function display_draw_section($zone,$encounter,$pid,$side ='OU',$counter='') {
                         background-image: url(../../forms/eye_mag/images/pencil_white.png);
                         background-size: 40px 80px;
                         margin-right:50px;">
-                <input class="jscolor {mode:'HVS', 
+                <input class="jscolor {mode:'HVS',
                                 position:'right',
                                 borderColor:'#FFF #666 #666 #FFF',
                                 insetColor:'#666 #FFF #FFF #666',
-                                backgroundColor:'#CCC', 
+                                backgroundColor:'#CCC',
                                 hash:'true',
                                 styleElement:'sketch_tool_<?php echo attr($zone); ?>_color',
                                 valueElement: 'selColor_<?php echo attr($zone); ?>',
                                 refine:true
                             }"
-                id="sketch_tool_<?php echo attr($zone); ?>_color" 
+                id="sketch_tool_<?php echo attr($zone); ?>_color"
                 type="text" style="width: 38px;
 height: 20px;
 padding: 11px 0px;
@@ -2607,7 +2606,7 @@ background-image: none;" />
                 $sql = "SELECT * from documents where url like ?";
                 $doc = sqlQuery($sql,array("%". $base_name ."%"));
                 $base_filetoshow = $GLOBALS['web_root']."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-                
+
                 // random to not pull from cache.
                 if (file_exists($file_store) && ($doc['id'] > '0')) {
                     $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=".attr($pid)."&document_id=".attr($doc['id'])."&as_file=false&blahblah=".rand();
@@ -2616,14 +2615,14 @@ background-image: none;" />
                     $filetoshow = $base_filetoshow;
                 }
             ?>
-        
+
             <input type="hidden" id="url_<?php echo attr($zone); ?>" name="url_<?php echo attr($zone); ?>" value="<?php echo $filetoshow; ?>" />
             <input type="hidden" id="base_url_<?php echo attr($zone); ?>" name="base_url_<?php echo attr($zone); ?>" value="<?php echo $base_filetoshow; ?>" />
             <input type="hidden" id="selWidth_<?php echo attr($zone); ?>" value="1">
             <input type="hidden" id="selColor_<?php echo attr($zone); ?>" value="#000" />
-    
-            
-           
+
+
+
             <img id="sketch_tools_<?php echo attr($zone); ?>_1" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#1AA2E1");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_blue.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_2" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ff0");'  src="../../forms/<?php echo $form_folder; ?>/images/pencil_yellow.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_3" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#ffad00");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_orange.png" style="height:30px;width:15px;">
@@ -2631,7 +2630,7 @@ background-image: none;" />
             <img id="sketch_tools_<?php echo attr($zone); ?>_5" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#E10A17");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_red.png" style="height:30px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_6" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#000");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_black.png" style="height:50px;width:15px;">
             <img id="sketch_tools_<?php echo attr($zone); ?>_7" onclick='$("#selColor_<?php echo attr($zone); ?>").val("#fff");' src="../../forms/<?php echo $form_folder; ?>/images/pencil_white.png" style="height:30px;width:15px;">
-            
+
             <span style="min-width:1in;">&nbsp;</span>
             <!-- now to pencil size -->
             <img id="sketch_sizes_<?php echo attr($zone); ?>_1" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("1");' src="../../forms/<?php echo $form_folder; ?>/images/brush_1.png" style="height:20px;width:20px; border-bottom: 2pt solid black;">

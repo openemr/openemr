@@ -29,7 +29,6 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 require_once("../globals.php");
-require_once("$srcdir/formatting.inc.php");
 
 # This is based on session array.
 $pid_list = array();

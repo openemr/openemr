@@ -33,7 +33,6 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 include_once("$srcdir/../interface/reports/report.inc.php");//Criteria Section common php page
 require_once("$srcdir/billrep.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("adjustment_reason_codes.php");
 

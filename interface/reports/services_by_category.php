@@ -8,7 +8,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/formatting.inc.php");
 
 // Format dollars for display.
 //
@@ -149,7 +148,7 @@ table.mymaintable td, table.mymaintable th {
 </table>
 </div> <!-- end of parameters -->
 
-<?php 
+<?php
     if ($_POST['form_refresh']) {
 ?>
 

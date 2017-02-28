@@ -24,7 +24,6 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 
 function thisLineItem($row) {
