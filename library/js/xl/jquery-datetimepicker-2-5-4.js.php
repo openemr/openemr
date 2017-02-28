@@ -55,6 +55,10 @@
         timepicker:true,
         step: '30'
     <?php } else { ?>
-        format: 'Y-m-d',
+        <?php if ($datetimepicker_formatInput) { ?>
+            format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?>',
+        <?php } else { ?>
+            format: 'Y-m-d',
+        <?php } ?>
         timepicker:false
     <?php } ?>
