@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Scott Wakefield <scott.wakefield@gmail.com>
  * @author  ViCarePlus <visolve_emr@visolve.com>

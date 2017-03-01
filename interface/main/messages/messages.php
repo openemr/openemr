@@ -23,7 +23,7 @@
  * @author OpenEMR Support LLC
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
- * @author Brady Miller <brady@sparmy.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
  * @link http://www.open-emr.org
  */
 

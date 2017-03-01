@@ -6,7 +6,7 @@
 # (at your option) any later version.
 #
 # author Brady Miller
-# email  brady@sparmy.com
+# email  brady.g.miller@gmail.com
 # date   03/25/09
 #
 # This is a perl script that will collect unique constants within

@@ -7,7 +7,7 @@
 #
 # Copyright 2011-2014
 # authors: Amalu Obinna <amaluobinna@aol.com>
-#          Brady Miller <brady@sparmy.com>
+#          Brady Miller <brady.g.miller@gmail.com>
 #
 # Debian package post installation script steps:
 #  1) Collect setting from package configuration file

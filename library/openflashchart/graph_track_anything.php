@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
 // Modified 2011 Rod Roark <rod@sunsetsystems.com>
 // Modified 2014 Joe Slam <joe@produnis.de>
 //
