@@ -6,7 +6,7 @@
 # (at your option) any later version.
 #
 # author Brady Miller
-# email  brady@sparmy.com
+# email  brady.g.miller@gmail.com
 # date   04/03/09
 #
 # This is a perl script that will create a new ranslation spreadsheet

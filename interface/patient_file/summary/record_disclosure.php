@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

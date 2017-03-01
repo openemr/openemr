@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 2009-2013 Brady Miller <brady@sparmy.com>
+# Copyright (C) 2009-2013 Brady Miller <brady.g.miller@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# Author   Brady Miller <brady@sparmy.com>
+# Author   Brady Miller <brady.g.miller@gmail.com>
 # Author   Ramin Moshiri <raminmoshiri@gmail.com> 
 # 
 # This is a perl script that will build the language translation sql

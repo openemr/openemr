@@ -9,7 +9,7 @@
  * Functions for collection/displaying/sending patient reminders. This is
  * part of the CDR engine, which can be found at library/clinical_rules.php.
  *
- * Copyright (C) 2010-2012 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2010-2012 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
