@@ -14,8 +14,10 @@
  *
  * $datetimepicker_timepicker - this will set whether to use the timepicker
  * $datetimepicker_formatInput - this will set whether to format the input to
- *  the user selected date format within globals.(TODO: this setting has not
- *  yet been supported, but will be supported after more testing)
+ *  the user selected date format within globals. (This works with the following functions to fully
+ *  support internationalization of dates; note this setting does not yet work with the timepicker yet)
+ *   -oeFormatShortDate() function for when placing a default formatted date in the field
+ *   -DateToYYYYMMDD() function when insert the formatted date into database or codebase works on it
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
