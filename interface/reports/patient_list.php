@@ -34,10 +34,8 @@ function qescape($str) {
   return str_replace('"', '\\"', $str);
 }
 
- // $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
- // $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
- $from_date = fixDate($_POST['form_from_date'], '');
- $to_date   = fixDate($_POST['form_to_date'], '');
+ $from_date = DateToYYYYMMDD($_POST['form_from_date']);
+ $to_date   = DateToYYYYMMDD($_POST['form_to_date']);
  if (empty($to_date) && !empty($from_date)) $to_date = date('Y-12-31');
  if (empty($from_date) && !empty($to_date)) $from_date = date('Y-01-01');
 
@@ -74,7 +72,7 @@ $(document).ready(function() {
 
   $('.datepicker').datetimepicker({
    <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
+   <?php $datetimepicker_formatInput = true; ?>
    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -127,7 +125,9 @@ $(document).ready(function() {
 <span class='title'><?php xl('Report','e'); ?> - <?php xl('Patient List','e'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+<?php if (!(empty($to_date) && empty($from_date))) { ?>
+  <?php echo date("d F Y", strtotime($from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($to_date)); ?>
+<?php } ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='patient_list.php'>
@@ -157,15 +157,13 @@ $(document).ready(function() {
 			   <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
-			   <input class='datepicker' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input class='datepicker' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
 			</td>
 			<td class='label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input class='datepicker' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input class='datepicker' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
 			</td>
 		</tr>
 	</table>
