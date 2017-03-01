@@ -1,9 +1,12 @@
 Copyright 2017 sjpadgett@gmail.com
 
 # ccdaservice
-// root user ubuntu install stuff
+// Windows
 
 msiexec.exe /i node-v6.10.00-x64.msi INSTALLDIR="C:\Tools\NodeJS" /quiet
+
+// root user ubuntu install stuff
+
 apt-get remove --purge nodejs npm
 
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
