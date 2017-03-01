@@ -34,7 +34,6 @@
 	require_once("../drugs/drugs.inc.php");
 	require_once("$srcdir/payment_jav.inc.php");
 
-	$DateFormat=DateFormatRead();
 	$search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
 	$comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
 	$_POST['form_details'] = true;
@@ -306,8 +305,6 @@
 			</div>
 		<!-- end of parameters -->
 		<?php
-		//$sql_date_from=DateTimeToYYYYMMDD($sql_date_from);
-		//$sql_date_to=DateTimeToYYYYMMDD($sql_date_to);
 
 		// SQL scripts for the various searches
 		$sqlBindArray = array();
