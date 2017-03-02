@@ -4,6 +4,7 @@
  * Only Lab documents for now.
  *
  * Copyright (C) 2014 Ensoftek
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +19,7 @@
  *
  * @package OpenEMR
  * @author  Hema Bandaru <hemab@drcloudemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -30,14 +32,13 @@ require_once('../globals.php');
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment_jav.inc.php");
 
-$DateFormat = DateFormatRead();
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));
 $sub_date = date_format($curdate, 'Y-m-d');
 
 // Set the default dates for Lab document search
-$form_from_doc_date = ( $_GET['form_from_doc_date'] ) ? $_GET['form_from_doc_date'] : oeFormatShortDate(fixDate($_GET['form_from_doc_date'],$sub_date));
-$form_to_doc_date = ( $_GET['form_to_doc_date'] ) ? $_GET['form_to_doc_date'] : oeFormatShortDate(fixDate($_GET['form_to_doc_date'],date("Y-m-d")));
+$form_from_doc_date = ( $_GET['form_from_doc_date'] ) ? $_GET['form_from_doc_date'] : oeFormatShortDate($sub_date);
+$form_to_doc_date = ( $_GET['form_to_doc_date'] ) ? $_GET['form_to_doc_date'] : oeFormatShortDate(date("Y-m-d"));
 
 if($GLOBALS['date_display_format'] == 1) {
    $title_tooltip = "MM/DD/YYYY";
@@ -59,20 +60,19 @@ $display_collapse_msg = "display:inline;";
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href='<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.6.custom.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
-    var global_date_format = '<?php echo $DateFormat; ?>';
+    var global_date_format = '<?php echo DateFormatRead(); ?>';
 	$(document).ready(function() {
 		$("#docdiv a").each(function() {
 			$(this).qtip({
@@ -91,6 +91,13 @@ $display_collapse_msg = "display:inline;";
 				style: 'qtip-style'
 			})
 		})
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 	});
 
 	function validateDate(fromDate,toDate){
@@ -158,21 +165,13 @@ $display_collapse_msg = "display:inline;";
 	<table style="margin-left:10px; " width='40%'>
 		<tr>
 			<td scope="row" class='label'><?php echo xlt('From'); ?>:</td>
-			<td><input type='text' name='form_from_doc_date' id="form_from_doc_date"
-				size='10' value='<?php echo attr($form_from_doc_date) ?>' readonly="readonly" title='<?php echo attr($title_tooltip) ?>'>
-				<img alt="<?php echo xla("Date Selector"); ?>" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_doc_date'
-				border='0' alt='[?]' style='cursor: pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td>
-			<script>
-					Calendar.setup({inputField:"form_from_doc_date", ifFormat:global_date_format, button:"img_from_doc_date"});
-			</script>
+			<td><input type='text' class='datepicker' name='form_from_doc_date' id="form_from_doc_date"
+				size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
+			</td>
 			<td class='label'><?php echo xlt('To'); ?>:</td>
-			<td><input type='text' name='form_to_doc_date' id="form_to_doc_date"
-				size='10' value='<?php echo attr($form_to_doc_date) ?>' readonly="readonly" title='<?php echo attr($title_tooltip) ?>'>
-				<img alt="<?php xla("Date Selector"); ?>" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_doc_date'
-				border='0' alt='[?]' style='cursor: pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td>
-			<script>
-				Calendar.setup({inputField:"form_to_doc_date", ifFormat:global_date_format, button:"img_to_doc_date"});
-			</script>
+			<td><input type='text' class='datepicker' name='form_to_doc_date' id="form_to_doc_date"
+				size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
+			</td>
 			<td>
 				<span style='float: left;' id="docrefresh">
 					<a href='#' class='css_button'  onclick='return validateDate("form_from_doc_date","form_to_doc_date")'> <span><?php echo xlt('Refresh'); ?> </span></a>
