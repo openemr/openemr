@@ -1,6 +1,6 @@
 {
   "name": "ccdaservice",
-  "version": "0.1.pre-release",
+  "version": "0.1.0",
   "description": "ccdaservice",
   "main": "serveccda.njs",
   "scripts": {

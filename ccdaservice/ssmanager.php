@@ -1,8 +1,8 @@
 <?php
 $ignoreAuth = true;
-// require_once(dirname(__file__) . './../../interface/globals.php');
-require_once ( dirname( __FILE__ ) . "/../../library/log.inc" );
-require_once ( dirname( __FILE__ ) . "/../../library/sql.inc" );
+// require_once(dirname(__file__) . './../interface/globals.php');
+require_once ( dirname( __FILE__ ) . "/../library/log.inc" );
+require_once ( dirname( __FILE__ ) . "/../library/sql.inc" );
 set_time_limit( 0 );
 ob_implicit_flush();
 session_write_close(); // Release session lock to prevent freezing of other scripts
