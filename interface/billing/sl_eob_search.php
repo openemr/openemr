@@ -454,7 +454,16 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $
      <input type='submit' name='form_search' value='<?php xl("Search","e"); ?>'>
    </td>
  </tr>
+       <!-- Filter - only show those who have debt -->
+       <tr bgcolor='#ddddff'>
+           <td colspan='12'>
 
+               <span><?php echo xlt('Patients with debt');?>
+                <input <?php echo $_POST['only_with_debt']?'checked=checked':'';?> type="checkbox" name="only_with_debt"  />
+               </span>
+
+           </td>
+       </tr>
  <!-- Support for X12 835 upload -->
  <tr bgcolor='#ddddff'>
   <td colspan='12'>
@@ -593,6 +602,9 @@ if ($eracount && $num_invoices != $eracount) {
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
+  <td class="id">
+      <?php xl('id','e');?>
+  </td>
   <td class="dehead">
    &nbsp;<?php xl('Patient','e'); ?>
  </td>
@@ -632,6 +644,9 @@ $orow = -1;
 
 while ($row = sqlFetchArray($t_res)) {
   $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
+  //new filter only patients with debt.
+  if( $_POST['only_with_debt'] && $balance <= 0) continue;
+
 
   if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) continue;
 
@@ -673,6 +688,9 @@ while ($row = sqlFetchArray($t_res)) {
   $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
   ?>
   <tr bgcolor='<?php echo $bgcolor ?>'>
+      <td class="detail">
+        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['id'];?></a>
+      </td>
     <td class="detail">
      &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"
      ><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
