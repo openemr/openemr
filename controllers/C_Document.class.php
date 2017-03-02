@@ -321,7 +321,7 @@ class C_Document extends Controller {
 		if ( sqlNumRows($result_docs) > 0)
 		while($row_result_docs = sqlFetchArray($result_docs)) {
 		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
-			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . xl(text($row_result_docs['pc_catname']))."</option>";
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . xlt($row_result_docs['pc_catname']) . "</option>";
 		}
 		$this->assign("ENC_LIST", $encOptions);
 
