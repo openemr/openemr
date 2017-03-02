@@ -2,7 +2,7 @@
 /**
 * Encounter form for entering procedure orders.
 *
-* Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2010-2017 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -517,10 +517,13 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   if ($formid) {
     $opres = sqlStatement("SELECT " .
       "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
-      "pc.diagnoses,pc.procedure_order_title, pt.procedure_type_id " .
+      "pc.diagnoses, pc.procedure_order_title, " .
+      // In case of duplicate procedure codes this gets just one.
+      "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
+      "pt.procedure_type LIKE 'ord%' AND pt.lab_id = ? AND " .
+      "pt.procedure_code = pc.procedure_code ORDER BY " .
+      "pt.activity DESC, pt.procedure_type_id LIMIT 1) AS procedure_type_id " .
       "FROM procedure_order_code AS pc " .
-      "LEFT JOIN procedure_type AS pt ON pt.lab_id = ? AND " .
-      "pt.procedure_code = pc.procedure_code " .
       "WHERE pc.procedure_order_id = ? " .
       "ORDER BY pc.procedure_order_seq",
       array($row['lab_id'], $formid));
@@ -606,4 +609,3 @@ Calendar.setup({inputField:'form_date_collected', ifFormat:'%Y-%m-%d %H:%M',
 </form>
 </body>
 </html>
-
