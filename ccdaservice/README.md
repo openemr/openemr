@@ -31,9 +31,9 @@ sudo node winservice // don't be alarmed by filename as it is written for both o
 
 * navigate to: openemr/ccdaservice and run the following
 
-sudo npm install
+npm install
 
-sudo npm i node-window
+npm i node-window
 
 * The service will automatically be installed when OpenEMR is log into the first time and with both installs, ccda service is monitored by ssmanager started by background services.
 
