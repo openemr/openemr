@@ -6,6 +6,7 @@ var bb = require('blue-button');
 var bbg = require('blue-button-generate');
 var bbm = require('blue-button-model');
 
+var whereami = __dirname;
 var server = net.createServer();
 function setUp(server) {
 	server.on('connection', processConnection);
@@ -312,27 +313,28 @@ function populateDemographic(pd, g) {
 		} ],
 		"religion" : pd.religion,
 		"birthplace" : {
-			"city" : "Beaverton",
-			"state" : "OR",
-			"zip" : "97867",
-			"country" : "US"
+			"city" : "",
+			"state" : "",
+			"zip" : "",
+			"country" : ""
 		},
 		"guardians" : [ {
-			"relation" : "Parent",
+			"relation" : g.relation,
 			"addresses" : [ {
-				"street_lines" : [ "1357 Amber Drive" ],
-				"city" : "Beaverton",
-				"state" : "OR",
-				"zip" : "97867",
-				"country" : "US",
+				"street_lines" : [ g.address ],
+				"city" : g.city,
+				"state" : g.state,
+				"zip" : g.postalCode,
+				"country" : g.country,
 				"use" : "primary home"
 			} ],
 			"names" : [ {
-				"last" : "Jones",
-				"first" : "Ralph"
+				//"last" : "",
+				//"first" : ""
+				"name" : g.name
 			} ],
 			"phone" : [ {
-				"number" : "(816)276-6909",
+				"number" : g.telecom,
 				"type" : "primary home"
 			} ]
 		} ]
@@ -497,8 +499,8 @@ function populateMedication(pd) {
 function populateEncounter(pd) {
 	return {
 		"encounter" : {
-			"name" : "Fix This", //pd.encounter_procedures.procedures.text,
-			"code" : "Fix This", //pd.encounter_procedures.procedures.code,
+			"name" : "Broke in linux",//pd.encounter_procedures.procedures.text,
+			"code" : "Broke in linux",//pd.encounter_procedures.procedures.code, // these are undefine in linux????
 			"code_system_name" : "CPT",
 			"translations" : [ {
 				"name" : "NI",

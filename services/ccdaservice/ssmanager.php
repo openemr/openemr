@@ -25,14 +25,14 @@ function runCheck(){
 }
 function execInBackground( $cmd ){
 	if( substr( php_uname(), 0, 7 ) == "Windows" ){
-		chdir("\\xampp\\htdocs\\openemr\\services\\ccdaservice");
+		chdir(dirname(__FILE__));
 		$cmd = 'node winservice.js';
 		pclose( popen( $cmd, "r" ) ); 
 	} else{
-		chdir("//var//www//openemr//services//ccdaservice");
+		chdir(dirname(__FILE__));
         $cmd = 'node serveccda.njs';
 		//$cmd = 'node /var/www/openemr_demo/services/ccdaservice/serveccda.njs';
-		//$cmd = 'node winservice.js';
+		//$cmd = 'node winservice.js'; // linux service
 		exec( $cmd . " > /dev/null &" );
 	}
 }

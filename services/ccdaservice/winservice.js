@@ -1,8 +1,9 @@
 var isWin = /^win/.test(process.platform);
-var f =  '//var//www//openemr//services//ccdaservice//serveccda.njs';
+var f = __dirname +''//serveccda.njs';
+
 if( isWin ){
 	var Service = require('node-windows').Service;
-	f =  '\\xampp\\htdocs\\openemr\\services\\ccdaservice\\serveccda.njs';
+	//f =  '\\xampp\\htdocs\\openemr\\services\\ccdaservice\\serveccda.njs';
 }
 else{
 	var Service = require('node-linux').Service;
@@ -10,7 +11,7 @@ else{
 var svc = new Service({
 	name : 'CCDA Service',
 	description : 'The ccda document server.',
-	script : f,
+	script : require('path').join(__dirname,'serveccda.njs'),
 	user: "root",
     group: "root"
 });
