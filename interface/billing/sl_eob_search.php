@@ -689,7 +689,7 @@ while ($row = sqlFetchArray($t_res)) {
   ?>
   <tr bgcolor='<?php echo $bgcolor ?>'>
       <td class="detail">
-        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['id'];?></a>
+        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['pid'];?></a>
       </td>
     <td class="detail">
      &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"
