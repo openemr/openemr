@@ -51,6 +51,10 @@ function genCcda(pd) {
 	var count = 0;
 	var many = [];
 	var theone = {};
+	
+	// Header -  @todo pd may be too large- break down to subsections
+	var head = populateHeader(pd);
+	data.head = Object.assign(head);
 	// Demographics
 	var demographic = populateDemographic(pd.patient, pd.guardian);
 	data.demographics = Object.assign(demographic);
@@ -1255,4 +1259,241 @@ function populatePayer(pd) {
 			}
 		}
 	}
+}
+
+function populateHeader(pd){
+	var head = {
+            "identifiers": [
+                {
+                    "identifier": "2.16.840.1.113883.19.5.99999.1",
+                    "extension": "TT988"
+                }
+            ],
+            "confidentiality_code": {
+                "code": "N",
+                "name": "Normal",
+                "code_system_name": "Confidentiality Code"
+            },
+            "code": {
+                "name": "Continuity of Care Document",
+                "code": "34133-9",
+                "code_system_name": "LOINC"
+            },
+            "template": [
+                "2.16.840.1.113883.10.20.22.1.1",
+                "2.16.840.1.113883.10.20.22.1.2"
+            ],
+            "title": "Clinical: Health Summary",
+            "date_time": {
+                "point": {
+                    "date": pd.created_time_timezone,
+                    "precision": "minute"
+                }
+            },
+            "author": {
+                "author": [
+                    {
+                        "identifiers": [
+                            {
+                                "identifier": "2.16.840.1.113883.4.6",
+                                "extension": "99999999"
+                            }
+                        ],
+                        "name": [
+                            {
+                                "last": pd.author.lname,
+                                "first": pd.author.fname
+                            }
+                        ],
+                        "address": [
+                            {
+                                "street_lines": [
+                                	pd.author.streetAddressLine
+                                ],
+                                "city": pd.author.city,
+                                "state": pd.author.state,
+                                "zip": pd.author.postalCode,
+                                "country": pd.author.country
+                            }
+                        ],
+                        "phone": [
+                            {
+                                "number": pd.author.telecom,
+                                "type": "work place"
+                            }
+                        ],
+                        "code": [
+                            {
+                                "name": "UNK",
+                                "code": "NI"
+                            }
+                        ]
+                    }
+                ],
+                "date_time": {
+                    "point": {
+                        "date": "UNK",
+                        "precision": "second"
+                    }
+                }
+            },
+            "data_enterer": {
+                "identifiers": [
+                    {
+                        "identifier": "2.16.840.1.113883.4.6",
+                        "extension": "999999943252"
+                    }
+                ],
+                "name": [
+                    {
+                        "last": pd.data_enterer.lname,
+                        "first": pd.data_enterer.fname
+                    }
+                ],
+                "address": [
+                	{
+                        "street_lines": [
+                        	pd.data_enterer.streetAddressLine
+                        ],
+                        "city": pd.data_enterer.city,
+                        "state": pd.data_enterer.state,
+                        "zip": pd.data_enterer.postalCode,
+                        "country": pd.data_enterer.country
+                    }
+                ],
+                "phone": [
+                    {
+                        "number": pd.data_enterer.telecom,
+                        "type": "work place"
+                    }
+                ]
+            },
+            "informant": {
+                "identifiers": [
+                    {
+                        "identifier": "2.16.840.1.113883.19.5",
+                        "extension": "KP00017"
+                    }
+                ],
+                "name": [
+                    {
+                        "last": pd.informer.lname,
+                        "first": pd.informer.fname
+                    }
+                ],
+                "address": [
+                	{
+                        "street_lines": [
+                        	pd.informer.streetAddressLine
+                        ],
+                        "city": pd.informer.city,
+                        "state": pd.informer.state,
+                        "zip": pd.informer.postalCode,
+                        "country": pd.informer.country
+                    }
+                ],
+                "phone": [
+                    {
+                        "number": pd.informer.telecom,
+                        "type": "work place"
+                    }
+                ]
+            },
+            "service_event": {
+                "code": {
+                    "name": "NI",
+                    "code": "NI",
+                    "code_system_name": "SNOMED CT"
+                },
+                "date_time": {
+                    "low": {
+                        "date": "UNK",
+                        "precision": "minute"
+                    },
+                    "high": {
+                        "date": pd.created_time_timezone,
+                        "precision": "minute"
+                    }
+                },
+                "performer": [
+                    {
+                        "performer": [
+                            {
+                                "identifiers": [
+                                    {
+                                        "identifier": "2.16.840.1.113883.4.6",
+                                        "extension": "PseudoMD-1"
+                                    }
+                                ],
+                                "name": [ // Most likely not right - maybe should be provider
+                                    {
+                                        "last": pd.information_recipient.lname,
+                                        "first": pd.information_recipient.fname
+                                    }
+                                ],
+                                "address": [
+                                    {
+                                        "street_lines": [
+                                        	pd.information_recipient.streetAddressLine
+                                        ],
+                                        "city": pd.information_recipient.city,
+                                        "state": pd.information_recipient.state,
+                                        "zip": pd.information_recipient.postalCode,
+                                        "country": pd.information_recipient.country
+                                    }
+                                ],
+                                "phone": [
+                                    {
+                                        "number": pd.information_recipient.telecom,
+                                        "type": "work place"
+                                    }
+                                ],
+                                "organization": [
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "identifier": "2.16.840.1.113883.19.5.9999.1393"
+                                            }
+                                        ],
+                                        "name": [
+                                        	pd.encounter_provider.facility_name
+                                        ],
+                                        "address": [
+                                            {
+                                                "street_lines": [
+                                                   pd.encounter_provider.facility_street
+                                                ],
+                                                "city": pd.encounter_provider.facility_city,
+                                                "state": pd.encounter_provider.facility_state,
+                                                "zip": pd.encounter_provider.facility_postal_code,
+                                                "country": pd.encounter_provider.facility_country_code
+                                            }
+                                        ],
+                                        "phone": [
+                                            {
+                                                "number": pd.encounter_provider.facility_phone,
+                                                "type": "primary work"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "code": [
+                                    {
+                                        "name": "UNK",
+                                        "code": "NI",
+                                        "code_system_name": "Provider Codes"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "name": "Primary Performer",
+                            "code": "PP",
+                            "code_system_name": "Provider Role"
+                        }
+                    }
+                ]
+            }
+        }
+	return head;
 }

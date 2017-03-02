@@ -39,5 +39,6 @@ sudo npm i node-window
 
 ## Developing
 
+* Important to note that during developement strict error checking is not in place so after CCM sends xml, it waits to receive back document and if document generation errors for some reason either CCM waits till php timeout or you need to restart apache to clear that socket.
 
 ### Tools
