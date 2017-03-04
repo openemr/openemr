@@ -605,6 +605,12 @@ class Document extends ORDataObject{
       }
       // Filename modification to force valid characters and uniqueness.
       $filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", $filename);
+
+      $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
+      if (empty($fileExtension)) {
+        return xl('Your file doesn\'t have an extension');
+      }
+
       $fnsuffix = 0;
       $fn1 = $filename;
       $fn2 = '';
