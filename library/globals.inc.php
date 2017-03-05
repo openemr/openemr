@@ -1560,7 +1560,12 @@ $GLOBALS_METADATA = array(
       '7200',                           // default
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
-
+    'ignore_replacing_apostrophes' => array(
+       xl('Ignore replacing apostrophes'),
+       'bool',                           // data type
+       '0',                              // default
+       xl('This will stop replacing the apostrophe with the char `')
+    ),
     'secure_password' => array(
       xl('Require Strong Passwords'),
       'bool',                           // data type

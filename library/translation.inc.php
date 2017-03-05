@@ -36,12 +36,12 @@ function xl($constant,$mode='r',$prepend='',$append='') {
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
 
-    $apostrophe_direction = (($_SESSION['language_direction'] == "ltr") ? "`" : "'");
-
-    // remove dangerous characters and remove comments
-    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-    $replace = array (' ','',$apostrophe_direction,$apostrophe_direction,'');
-    $string = preg_replace($patterns, $replace, $string);
+    if($_SESSION['ignore_replacing_apostrophes'] == 0){
+        // remove dangerous characters and remove comments
+        $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+        $replace = array (' ','','`','`','');
+        $string = preg_replace($patterns, $replace, $string);
+    }
   }
 
   $string = "$prepend" . "$string" . "$append";
