@@ -132,8 +132,8 @@ $ures = sqlStatement($sqlQuery);
 ?>
 
 <?php
-$get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
-$get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
+$get_sdate=$start_date ? $start_date : date("Y-m-d H:i");
+$get_edate=$end_date ? $end_date : date("Y-m-d H:i");
 
 ?>
 
@@ -151,12 +151,12 @@ $direction = formData('direction','G') ;
 <tr><td>
 <span class="text"><?php  xl('Start Date','e'); ?>: </span>
 </td><td>
-<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" />
+<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" />
 </td>
 <td>
 <span class="text"><?php  xl('End Date','e'); ?>: </span>
 </td><td>
-<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" />
+<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" />
 </td>
 <!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
 <td>
@@ -430,6 +430,7 @@ $(document).ready(function(){
 
     $('.datetimepicker').datetimepicker({
        <?php $datetimepicker_timepicker = true; ?>
+       <?php $datetimepicker_showseconds = false; ?>
        <?php $datetimepicker_formatInput = false; ?>
        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
