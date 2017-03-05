@@ -449,6 +449,13 @@ $GLOBALS_METADATA = array(
       xl('This will allow selection of the debugging (\'dummy\') language.')
     ),
 
+    'translate_no_safe_apostrophe' => array(
+      xl('Do Not Use Safe Apostrophe'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
+    ),
+
     'translate_layout' => array(
       xl('Translate Layouts'),
       'bool',                           // data type
