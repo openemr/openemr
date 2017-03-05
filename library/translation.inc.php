@@ -41,10 +41,12 @@ if (!(function_exists('xl'))) {
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
 
-    // remove dangerous characters and remove comments
-    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-    $replace = array (' ','','`','`','');
-    $string = preg_replace($patterns, $replace, $string);
+    if($_SESSION['ignore_replacing_apostrophes'] == 0){
+        // remove dangerous characters and remove comments
+        $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+        $replace = array (' ','','`','`','');
+        $string = preg_replace($patterns, $replace, $string);
+    }
   }
 
   $string = "$prepend" . "$string" . "$append";
