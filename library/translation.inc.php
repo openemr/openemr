@@ -42,9 +42,17 @@ if (!(function_exists('xl'))) {
     if ($string == '') { $string = "$constant"; }
 
     // remove dangerous characters and remove comments
-    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-    $replace = array (' ','','`','`','');
-    $string = preg_replace($patterns, $replace, $string);
+    if ($GLOBALS['translate_no_safe_apostrophe']) {
+      $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
+      $replace = array (' ','','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
+    else {
+      // convert apostrophes and quotes to safe apostrophe
+      $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+      $replace = array (' ','','`','`','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
   }
 
   $string = "$prepend" . "$string" . "$append";
