@@ -1472,7 +1472,7 @@ $classpati='';
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    <span class="infobox">
-      <?PHP foreach($patienttitle as $value){
+      <?php foreach($patienttitle as $value){
           if ($value != "") {
               echo text(trim($value));
           }
@@ -1501,7 +1501,7 @@ $classpati='';
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
    <span class="infobox">
-      <?PHP foreach($patienttitle as $value){
+      <?php foreach($patienttitle as $value){
           if ($value != "") {
               echo trim($value);
           }
