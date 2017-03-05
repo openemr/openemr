@@ -773,8 +773,8 @@ foreach ($ar as $key => $val) {
                       "ORDER BY b.date",
                       array($pid, $form_encounter));
                     while ($brow=sqlFetchArray($bres)) {
-                        echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-                            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                        echo "<div class='bold' style='display: inline-block'>&nbsp;".xl('Procedure').": </div><div class='text' style='display: inline-block'>" .
+                            $brow['code'] . " " . $brow['code_text'] . "</div><br>\n";
                     }
                 }
 
