@@ -820,7 +820,7 @@ if ($_POST['form_action'] == "save") {
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
  $patientname = null;
- $patienttitle = "";
+ $patienttitle = Array();
  $pcroom = "";
  $hometext = "";
  $row = array();
@@ -915,8 +915,8 @@ if ($_POST['form_action'] == "save") {
   $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
    "FROM patient_data WHERE pid = ?", array($patientid) );
   $patientname = $prow['lname'] . ", " . $prow['fname'];
-  if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
-  if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
+  if ($prow['phone_home']) $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
+  if ($prow['phone_biz']) $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
  }
 
  // If we have a group id, get group data
@@ -1471,9 +1471,17 @@ $classpati='';
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;
    <span class="infobox">
-   <?php if ($patienttitle != "") { echo text($patienttitle); } ?>
+      <?PHP foreach($patienttitle as $value){
+          if ($value != "") {
+              echo text(trim($value));
+          }
+
+          if(count($patienttitle) > 1){
+              echo "<br />";
+          }
+      }
+      ?>
    </span>
   </td>
  </tr>
@@ -1492,9 +1500,17 @@ $classpati='';
    <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;
    <span class="infobox">
-   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+      <?PHP foreach($patienttitle as $value){
+          if ($value != "") {
+              echo trim($value);
+          }
+
+          if(count($patienttitle) > 1){
+              echo "<br />";
+          }
+      }
+      ?>
    </span>
   </td>
  </tr>
