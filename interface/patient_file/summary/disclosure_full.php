@@ -145,7 +145,7 @@ if ($n>0){?>
 			<a href='#' class='deletenote css_button_small'
 			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
 			<td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xlt('health care operations'); } else echo text($event[1]); ?>&nbsp;</td>
+            <td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xlt('health care operations'); } else echo xlt(text($event[1])); ?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{user_fullname});?></td>
 		</tr>
