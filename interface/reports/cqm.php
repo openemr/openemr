@@ -137,6 +137,7 @@ else {
 
   $('.datepicker').datetimepicker({
    <?php $datetimepicker_timepicker = true; ?>
+   <?php $datetimepicker_showseconds = true; ?>
    <?php $datetimepicker_formatInput = false; ?>
    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>

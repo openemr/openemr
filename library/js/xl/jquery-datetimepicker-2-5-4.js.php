@@ -7,12 +7,21 @@
  * Example code in script:
  *  $('.datetimepicker').datetimepicker({
  *    $datetimepicker_timepicker = true; (php variable)
+ *    $datetimepicker_showseconds = false; (php variable)
+ *    $datetimepicker_formatInput = false; (php variable)
+ *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
+ *    can add any additional settings to datetimepicker here; need to prepend first setting with a comma
+ *  });
+ *  $('.datepicker').datetimepicker({
+ *    $datetimepicker_timepicker = false; (php variable)
+ *    $datetimepicker_showseconds = false; (php variable)
  *    $datetimepicker_formatInput = false; (php variable)
  *    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); (php command)
  *    can add any additional settings to datetimepicker here; need to prepend first setting with a comma
  *  });
  *
  * $datetimepicker_timepicker - this will set whether to use the timepicker
+ * $datetimepicker_showseconds - this will show seconds if using the timepicker
  * $datetimepicker_formatInput - this will set whether to format the input to
  *  the user selected date format within globals. (This works with the following functions to fully
  *  support internationalization of dates; note this setting does not yet work with the timepicker yet)
@@ -53,7 +62,11 @@
     yearStart: '1900',
     rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
     <?php if ($datetimepicker_timepicker) { ?>
-        format: 'Y-m-d H:i:s',
+        <?php if ($datetimepicker_showseconds) { ?>
+            format: 'Y-m-d H:i:s',
+        <?php } else { ?>
+            format: 'Y-m-d H:i',
+        <?php } ?>
         timepicker:true,
         step: '30'
     <?php } else { ?>
