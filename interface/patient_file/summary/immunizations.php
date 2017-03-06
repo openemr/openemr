@@ -885,7 +885,7 @@ $(document).ready(function(){
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   // special cases to deal with datepicker items that are added dynamically
-  $(document).on('focus','.datepicker_dynamic', function(){
+  $(document).on('mouseover','.datepicker_dynamic', function(){
     $(this).datetimepicker({
       <?php $datetimepicker_timepicker = false; ?>
       <?php $datetimepicker_showseconds = false; ?>
