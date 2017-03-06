@@ -367,15 +367,6 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
     style='width:100%' readonly />
   </td>
  </tr>
- <tr class='resonly'>
-  <td nowrap><b><?php echo xlt('Followup Services'); ?>:</b></td>
-  <td>
-   <input type='text' size='50' name='form_related_code'
-    value='<?php echo $row['related_code'] ?>' onclick='sel_related("form_related_code")'
-    title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
-    style='width:100%' readonly />
-  </td>
- </tr>
  <tr>
      <td nowrap> &nbsp;</td>
   <td>
