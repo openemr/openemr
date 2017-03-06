@@ -154,6 +154,7 @@ if ($_POST['form_save']) {
     "`range` = "        . invalue('form_range')          . ", " .
     "standard_code = "  . invalue('form_standard_code')  . ", " .
     "related_code = "   . invalue('form_related_code')   . ", " .
+    "activity = "   . ( isset($_POST['form_activity'])?'1':'0' )  . ", " .
     "seq = "            . invalue('form_seq');
 
   if ($typeid) {
@@ -364,6 +365,26 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
     value='<?php echo $row['related_code'] ?>' onclick='sel_related("form_related_code")'
     title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
     style='width:100%' readonly />
+  </td>
+ </tr>
+ <tr class='resonly'>
+  <td nowrap><b><?php echo xlt('Followup Services'); ?>:</b></td>
+  <td>
+   <input type='text' size='50' name='form_related_code'
+    value='<?php echo $row['related_code'] ?>' onclick='sel_related("form_related_code")'
+    title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
+    style='width:100%' readonly />
+  </td>
+ </tr>
+ <tr>
+     <td nowrap> &nbsp;</td>
+  <td>
+      <label> 
+        <?php echo xlt('Activity'); ?>
+          <input type='checkbox'  name='form_activity' value='1' <?php if ($row['activity']) {
+              echo 'checked=""' ;
+          } ?>   />
+      </label>
   </td>
  </tr>
 
