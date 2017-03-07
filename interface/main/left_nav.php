@@ -1419,7 +1419,7 @@ if (!empty($reg)) {
       <?php genMiscLink('RTop','adm','0',xl('BatchCom'),'batchcom/batchcom.php'); ?>
       <?php $myrow = sqlQuery("SELECT state FROM registry WHERE directory = 'track_anything'");
       if($myrow['state']=='1') { genTreeLink('RTop','tan',xl('Configure Tracks')); } ?>
-      <?php genTreeLink('RTop','pwd',xl('Password')); ?>
+      <?php if(!$GLOBALS['use_active_directory']) { genTreeLink('RTop','pwd',xl('Password')); } ?>
       <?php genMiscLink('RTop','prf','0',xl('Preferences'),'super/edit_globals.php?mode=user'); ?>
       <?php if(acl_check('patients','docs')) genMiscLink('RTop','adm','0',xl('New Documents'),'../controller.php?document&list&patient_id=00'); ?>
       <?php if (acl_check('patients','docs')) genMiscLink('RTop','adm','0',xl('Document Templates'),'super/manage_document_templates.php'); ?>
