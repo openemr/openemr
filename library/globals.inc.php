@@ -1588,6 +1588,13 @@ $GLOBALS_METADATA = array(
       xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
     ),
 
+    'secure_upload' => array(
+      xl('Secure upload files'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Block all files types that not found in the white-list. interface to edit white-list locate under the administrator->files.')
+    ),
+
     'password_history' => array(
       xl('Require Unique Passwords'),
       'bool',                           // data type

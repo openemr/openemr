@@ -122,6 +122,56 @@ if(isset($_POST['generate_thumbnails'])) {
 }
 
 
+/**
+ * White list files.
+ * Security feature that enable to upload only file with mime-type from white list.
+ * Important to prevention upload of virus script.
+ * Dependence - turn on global setting 'secure_upload'
+ */
+
+if($GLOBALS['secure_upload']){
+
+    $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
+
+    // Get cURL resource
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_URL => 'https://cdn.rawgit.com/jshttp/mime-db/master/db.json'
+    ));
+   // Send the request & save response to $resp
+    $resp = curl_exec($curl);
+    if($resp){
+        $all_mime_types = json_decode($resp, true);
+        foreach ($all_mime_types as $name => $value){
+            $mime_types[] = $name;
+        }
+
+    } else {
+        error_log('Get list of mime-type error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+    }
+    curl_close($curl);
+
+    if(isset($_POST['submit_form'])){
+
+        $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
+
+        // truncate white list from list_options table
+        sqlStatement("DELETE FROM `list_options` WHERE `list_id` = 'files_white_list'");
+        foreach ($new_white_list as $mimetype){
+            sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", array($mimetype, $mimetype));
+        }
+
+        $white_list = $new_white_list;
+    } else {
+        $white_list = array();
+        $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
+        while ($lrow = sqlFetchArray($lres)) {
+           $white_list[] = $lrow['option_id'];
+        }
+    }
+}
 
 
 ?>
@@ -134,7 +184,7 @@ if(isset($_POST['generate_thumbnails'])) {
 <style type="text/css">
  .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
- #generate_thumb{
+ #generate_thumb, #file_type_whitelist{
      width: 95%;
      margin: 50px auto;
      border: 2px solid dimgrey;
@@ -148,6 +198,8 @@ if(isset($_POST['generate_thumbnails'])) {
      padding: 0 15px;
  }
 </style>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 
 <script language="JavaScript">
 // This is invoked when a filename selection changes in the drop-list.
@@ -265,6 +317,147 @@ function msfFileChanged() {
         </tr>
     </table>
 </div>
+
+<?php if($GLOBALS['secure_upload']) { ?>
+
+<div id="file_type_whitelist">
+    <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
+    <form id="whitelist_form" method="post">
+        <div class="subject-black-list">
+            <div class="top-list">
+               <h2><?php echo xlt('black-list'); ?></h2>
+               <b><?php echo xlt('Filter');?>:</b> <input type="text" id="filter-black-list" >
+            </div>
+            <select multiple="multiple" id='black-list' class="form-control">
+                <?php
+                    foreach ($mime_types as $type) {
+                        if(!in_array($type, $white_list)){
+                            echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+                    }
+                }
+                ?>
+            </select>
+        </div>
+
+        <div class="subject-info-arrows">
+            <input type="button" id="btnAllRight" value=">>" /><br />
+            <input type="button" id="btnRight" value=">" /><br />
+            <input type="button" id="btnLeft" value="<" /><br />
+            <input type="button" id="btnAllLeft" value="<<" />
+        </div>
+
+        <div class="subject-white-list">
+            <div class="top-list">
+                <h2><?php echo xlt('white-list'); ?></h2>
+                <b><?php echo xlt('Add manually');?>:</b> <input type="text" id="add-manually-input"> <input type="button" id="add-manually" value="+">
+            </div>
+            <select name="white_list[]" multiple="multiple" id='white-list' class="form-control">
+                <?php
+                foreach ($white_list as $type) {
+                    echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+                }
+                ?>
+            </select>
+        </div>
+        <div class="subject-info-save">
+            <input type="button" id="submit-whitelist" value="<?php echo xlt('Save'); ?>" />
+            <input type="hidden" name="submit_form" value="1" />
+        </div>
+    </form>
+
+</div>
+
+<script>
+
+    (function () {
+        $('#btnRight').click(function (e) {
+            var selectedOpts = $('#black-list option:selected');
+            if (selectedOpts.length == 0) {
+                e.preventDefault();
+            }
+
+            $('#white-list').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnAllRight').click(function (e) {
+            var selectedOpts = $('#black-list option');
+            if (selectedOpts.length == 0) {
+                e.preventDefault();
+            }
+
+            $('#white-list').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnLeft').click(function (e) {
+            var selectedOpts = $('#white-list option:selected');
+            if (selectedOpts.length == 0) {
+                e.preventDefault();
+            }
+
+            $('#black-list').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnAllLeft').click(function (e) {
+            var selectedOpts = $('#white-list option');
+            if (selectedOpts.length == 0) {
+                e.preventDefault();
+            }
+
+            $('#black-list').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        var storeElements = [];
+
+        $('#filter-black-list').on('keyup', function() {
+            var val = this.value.toLowerCase();
+
+            $('#black-list  option').each(function(){
+
+                if(this.value.toLowerCase().indexOf( val ) == -1){
+                    if(storeElements.indexOf(this) == -1){
+                        storeElements.unshift(this)
+                    }
+                    $(this).remove();
+                }
+            });
+
+            $(storeElements).each(function(key, element){
+
+                if(element.value.toLowerCase().indexOf( val ) > -1){
+
+                    $('#black-list').prepend(element);
+                    storeElements.splice(key, 1)
+                }
+
+            });
+
+        });
+
+        $('#add-manually').on('click', function () {
+            var new_type = $("#add-manually-input").val();
+            if(new_type.length < 1)return;
+            $('#white-list').prepend("<option value="+new_type+">"+new_type+"</option>")
+        })
+
+        $('#submit-whitelist').on('click', function () {
+            $('#white-list option').prop('selected', true);
+            $('#whitelist_form').submit();
+        })
+
+    }(jQuery));
+
+</script>
+
+
+<?php } ?>
 
 </body>
 </html>
