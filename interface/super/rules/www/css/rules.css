@@ -12,8 +12,7 @@ root {
 }
 
 .rule_container {
-    min-width: 524px;
-    width: 100%;
+    width: 40%;
 }
 .rule_row {
     padding-bottom: 2px;
@@ -25,17 +24,11 @@ root {
 }
 
 .rule_row .rule_title {
-    display: inline-block;
-}
-
-.rule_title{
-    width: 380px;
+    width: 90%;
 }
 
 .rule_row .rule_type {
-    display: inline-block;
-    padding-left: 10px;
-    min-width: 70px;
+    width: 10%;
 }
 
 .rule_row.header {
@@ -44,6 +37,7 @@ root {
 }
 
 .rule_container {
+
     margin-top: 10px;
 }
 

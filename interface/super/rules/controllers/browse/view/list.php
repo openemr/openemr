@@ -36,13 +36,14 @@
 
 <div class="rule_container text">
     <div class="rule_row header">
-        <div class="rule_type header_type"><?php echo out( xl( 'Type' ) ); ?></div>
-        <div class="rule_title header_title"><?php echo out( xl( 'Name' ) ); ?></div>
+        <span class="rule_title header_title"><?php echo out( xl( 'Name' ) ); ?></span>
+        <span class="rule_type header_type"><?php echo out( xl( 'Type' ) ); ?></span>
     </div>
 </div>
 
 <!-- template -->
 <div class="rule_row data template">
-    <div class="rule_type"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></div>
-    <div class="rule_title"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></div>
+    <span class="rule_title"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
+    <span class="rule_type"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
 </div>
+
