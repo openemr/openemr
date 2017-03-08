@@ -1,4 +1,26 @@
 <?php
+/**
+*
+* Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+*
+* @package   OpenEMR
+* @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @link      http://www.open-emr.org
+*/
+
 // Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -65,6 +87,8 @@ $fres = getLayoutRes();
 <?php html_header_show(); ?>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <style>
 body, td, input, select, textarea {
@@ -86,18 +110,14 @@ div.section {
 
 </style>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
@@ -581,21 +601,10 @@ if (! $GLOBALS['simplified_demographics']) {
       <span class='required'><?php xl('Effective Date','e'); ?>: </span>
      </td>
      <td>
-      <input type='entry' size='11' name='i<?php echo $i ?>effective_date'
+      <input type='entry' size='11' class='datepicker' name='i<?php echo $i ?>effective_date'
        id='i<?php echo $i ?>effective_date'
        value='<?php echo $result3['date'] ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
        title='yyyy-mm-dd' />
-
-      <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-      id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer'
-      title='<?php xl('Click here to choose a date','e'); ?>'>
-
-      <script LANGUAGE="JavaScript">
-      Calendar.setup({inputField:"i<?php echo $i ?>effective_date", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>effective_date"});
-      </script>
-
-
      </td>
     </tr>
 
@@ -678,20 +687,10 @@ if (! $GLOBALS['simplified_demographics']) {
    <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
 
    <span class=bold><?php xl('D.O.B.','e'); ?>: </span>
-   <input type='entry' size='11' name='i<?php echo $i?>subscriber_DOB'
+   <input type='entry' size='11' class='datepicker' name='i<?php echo $i?>subscriber_DOB'
     id='i<?php echo $i?>subscriber_DOB'
     value='<?php echo $result3['subscriber_DOB'] ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
-
-   <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
-    <script LANGUAGE="JavaScript">
-    Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>dob_date"});
-    </script>
-
 
    <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
@@ -877,6 +876,21 @@ while ($lrow = sqlFetchArray($lres)) {
   }
 }
 ?>
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 
 }); // end document.ready
 
