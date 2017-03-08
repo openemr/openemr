@@ -141,7 +141,7 @@
                     <td class="delete_btn">
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
-                        if($group['group_status'] != 20): ?>
+                        if($group['group_status'] == 10): ?>
                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
                         <?php endif; ?>
                     </td>

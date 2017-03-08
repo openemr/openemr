@@ -39,7 +39,8 @@ class TherapyGroupsController extends BaseController{
     {
         $statuses = array(
             '10' => xl('active'),
-            '20' => xl('deleted')
+            '20' => xl('finished'),
+            '30' => xl('canceled')
         );
         return $statuses;
     }
@@ -327,9 +328,9 @@ class TherapyGroupsController extends BaseController{
             $response['message'] = xl("Deletion failed because group has appointments or encounters");
         }
         else{
-            //Change group status to 'deleted'.
+            //Change group status to 'canceled'.
             $therapy_groups_model = $this->loadModel('Therapy_Groups');
-            $therapy_groups_model->changeGroupStatus($group_id, 20);
+            $therapy_groups_model->changeGroupStatus($group_id, 30);
             $response['success'] = 1;
         }
 
