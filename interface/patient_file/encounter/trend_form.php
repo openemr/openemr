@@ -25,7 +25,7 @@ if ($is_lbf) {
 //Bring in the style sheet
 ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<?php 
+<?php
 // Hide the current value css entries. This is currently specific
 //  for the vitals form but could use this mechanism for other
 //  forms.
@@ -51,7 +51,7 @@ if ($is_lbf) {
   }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <script type="text/javascript" src="../../../library/openflashchart/js/json/json2.js"></script>
 <script type="text/javascript" src="../../../library/openflashchart/js/swfobject.js"></script>
 <script type="text/javascript">
@@ -65,7 +65,7 @@ function open_flash_chart_data()
 {
   return JSON.stringify(data);
 }
-	
+
 // Show the selected chart in the 'chart' div element
 function show_graph(table_graph, name_graph, title_graph)
 {
@@ -88,7 +88,7 @@ function show_graph(table_graph, name_graph, title_graph)
 	   error: function() {
 	     // hide the chart div
 	     $('#chart').hide();
-	   }	
+	   }
         });
 }
 
@@ -123,7 +123,7 @@ $(document).ready(function(){
 <?php } ?>
 });
 </script>
-	
+
 <?php
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.

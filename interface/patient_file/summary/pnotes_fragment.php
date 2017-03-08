@@ -114,22 +114,25 @@ $fake_register_globals=false;
     <?php
     if ($has_note < 1 ) { ?>
         <span class='text'>
-            <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
-                  echo " ";
-	          echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
-	          echo htmlspecialchars(xl("To add notes, please click here"),ENT_NOQUOTES);
-	          echo "</a>."; ?>
+<?php
+    echo xlt("There are no notes on file for this patient.");
+    if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+      echo " ";
+      echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
+      echo xlt("To add notes, please click here");
+      echo "</a>.";
+    }
+?>
         </span>
-    <?php } else {
-        ?>
+<?php } else { ?>
         <br/>
         <span class='text'>
-	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?>
+<?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?>
 	    <b><?php echo $N;?></b><br>
-	    <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
-        </span>
-        <?php
-    } ?>
+	    <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
+      <?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
+      </span>
+<?php } ?>
 
     <br/>
     <br/>
@@ -187,14 +190,17 @@ $fake_register_globals=false;
     <?php
     if ($has_sent_note < 1 ) { ?>
         <span class='text'>
-            <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
-                  echo " ";
-	          echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
-	          echo htmlspecialchars(xl("To add notes, please click here"),ENT_NOQUOTES);
-	          echo "</a>."; ?>
+<?php
+    echo xlt("There are no notes on file for this patient.");
+    if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+      echo " ";
+      echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
+      echo xlt("To add notes, please click here");
+      echo "</a>.";
+    }
+?>
         </span>
-    <?php } else {
-        ?>
+<?php } else { ?>
         <br/>
         <span class='text'>
 	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'),ENT_NOQUOTES).":"; ?>
@@ -220,4 +226,3 @@ $(document).ready(function(){
 });
 
 </script>
-

@@ -89,8 +89,16 @@ if ($result != null){
 <?php
 if ( $has_disclosure == 0 ) //If there are no disclosures recorded
 { ?>
-	<span class='text'> <?php echo htmlspecialchars(xl("There are no disclosures recorded for this patient."),ENT_NOQUOTES);
-	echo " "; echo htmlspecialchars(xl("To record disclosures, please click"),ENT_NOQUOTES); echo " ";echo "<a href='disclosure_full.php'>"; echo htmlspecialchars(xl("here"),ENT_NOQUOTES);echo "</a>.";
+	<span class='text'>
+<?php
+  echo xlt("There are no disclosures recorded for this patient.");
+  if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
+    echo " ";
+    echo xlt("To record disclosures, please click");
+    echo " <a href='disclosure_full.php'>";
+    echo xlt("here");
+    echo "</a>.";
+  }
 ?>
 	</span>
 <?php
@@ -106,4 +114,3 @@ if ( $has_disclosure == 0 ) //If there are no disclosures recorded
 <br />
 <br />
 </div>
-
