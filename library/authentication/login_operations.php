@@ -1,7 +1,7 @@
 <?php
 /**
  * This is a library of commonly used functions for managing data for authentication
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@ require_once("$srcdir/authentication/common_operations.php");
 
 
 /**
- * 
+ *
  * @param type $username
  * @param type $password    password is passed by reference so that it can be "cleared out"
  *                          as soon as we are done with it.
@@ -34,7 +34,7 @@ require_once("$srcdir/authentication/common_operations.php");
 function validate_user_password($username,&$password,$provider)
 {
     $ip=$_SERVER['REMOTE_ADDR'];
-    
+
     $valid=false;
 
     //Active Directory Authentication added by shachar zilbershlag <shaharzi@matrix.co.il>
@@ -55,7 +55,7 @@ function validate_user_password($username,&$password,$provider)
             $phash=oemr_password_hash($password,$userSecure[COL_SALT]);
             if($phash!=$userSecure[COL_PWD])
             {
-                
+
                 return false;
             }
             $valid=true;
@@ -70,7 +70,7 @@ function validate_user_password($username,&$password,$provider)
                 {
                     return false;
                 }
-                    
+
                 $username=$userInfo['username'];
                 $dbPasswordLen=strlen($userInfo['password']);
                 if($dbPasswordLen==32)
@@ -94,14 +94,14 @@ function validate_user_password($username,&$password,$provider)
                     return false;
                 }
             }
-            
+
         }
     }
     $getUserSQL="select id, authorized, see_auth".
                         ", cal_ui, active ".
                         " from users where BINARY username = ?";
     $userInfo = privQuery($getUserSQL,array($username));
-    
+
     if ($userInfo['active'] != 1) {
         newEvent( 'login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
         $password='';
@@ -129,9 +129,9 @@ function validate_user_password($username,&$password,$provider)
             newEvent( 'login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
             $valid=false;
         }
-        
-        
-        
+
+
+
     }
     return $valid;
 }
@@ -184,7 +184,7 @@ function active_directory_validation($user, $pass)
     }
     catch(Exception $e)
     {
-        
+
     }
     return $valid;
 }
