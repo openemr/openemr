@@ -218,6 +218,8 @@ function menu_entry_from_jq(elem)
 var menu_entries=[];
 function analyze_menu()
 {
+    alert('I think you will never see this. --Rod'); // debugging
+
     if(!top.left_nav)
     {
         setTimeout(analyze_menu,1000);

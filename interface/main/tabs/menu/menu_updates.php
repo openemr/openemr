@@ -2,6 +2,7 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2017 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  */
 
@@ -124,6 +126,31 @@ function menu_update_entries(&$menu_list)
     }
 }
 
+// Permissions check for a particular acl_req array item.
+// Elements beyond the 2nd are ACL return values, one of which should be permitted.
+//
+function menu_acl_check($arr) {
+  if (isset($arr[2])) {
+    for ($i = 2; isset($arr[$i]); ++$i) {
+      if (substr($arr[0], 0, 1) == '!') {
+        if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return TRUE;
+      }
+      else {
+        if (acl_check($arr[0], $arr[1], '', $arr[$i])) return TRUE;
+      }
+    }
+  }
+  else {
+    if (substr($arr[0], 0, 1) == '!') {
+      if (!acl_check(substr($arr[0], 1), $arr[1])) return TRUE;
+    }
+    else {
+      if (acl_check($arr[0], $arr[1])) return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
 {
     for ($idx=0; $idx<count($menu_list_src); $idx++)
@@ -134,34 +161,14 @@ function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
         // If the entry has an ACL Requirements(currently only support loose), then test
         if (isset($srcEntry->acl_req))
         {
-
             if (is_array($srcEntry->acl_req[0]))
             {
                 $noneSet = true;
-
                 for ($aclIdx=0; $aclIdx<count($srcEntry->acl_req); $aclIdx++)
                 {
-                    $curSettingOne = $srcEntry->acl_req[$aclIdx][0];
-                    $curSettingTwo = $srcEntry->acl_req[$aclIdx][1];
-                    // ! at the start of the $curSettingOne means test the negation
-                    if (substr($curSettingOne,0,1) === '!')
-                    {
-                        $curSettingOne = substr($curSettingOne,1);
-                        // If the acl_check fails, then show it
-                        if (!acl_check($curSettingOne,$curSettingTwo))
-                        {
-                            $noneSet = false;
-                        }
+                    if (menu_acl_check($srcEntry->acl_req[$aclIdx])) {
+                        $noneSet = false;
                     }
-                    else
-                    {
-                        // If the acl_check passes, then show it
-                        if (acl_check($curSettingOne,$curSettingTwo))
-                        {
-                            $noneSet = false;
-                        }
-                    }
-
                 }
                 if ($noneSet)
                 {
@@ -170,7 +177,7 @@ function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
             }
             else
             {
-                if (!acl_check($srcEntry->acl_req[0],$srcEntry->acl_req[1]))
+                if (!menu_acl_check($srcEntry->acl_req))
                 {
                     $includeEntry = false;
                 }
