@@ -36,56 +36,66 @@ function validate_user_password($username,&$password,$provider)
     $ip=$_SERVER['REMOTE_ADDR'];
     
     $valid=false;
-    $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
-                       ." FROM ".TBL_USERS_SECURE
-                       ." WHERE BINARY ".COL_UNM."=?";
-                       // Use binary keyword to require case sensitive username match
-    $userSecure=privQuery($getUserSecureSQL,array($username));
-    if(is_array($userSecure))
+
+    //Active Directory Authentication added by shachar zilbershlag <shaharzi@matrix.co.il>
+    if($GLOBALS['use_active_directory'])
     {
-        $phash=oemr_password_hash($password,$userSecure[COL_SALT]);
-        if($phash!=$userSecure[COL_PWD])
-        {
-            
-            return false;
-        }
-        $valid=true;
+        $valid = active_directory_validation($username, $password);
+        $_SESSION['active_directory_auth'] = $valid;
     }
     else
     {
-        if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
+        $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
+                        ." FROM ".TBL_USERS_SECURE
+                        ." WHERE BINARY ".COL_UNM."=?";
+                        // Use binary keyword to require case sensitive username match
+        $userSecure=privQuery($getUserSecureSQL,array($username));
+        if(is_array($userSecure))
         {
-            $getUserSQL="select username,id, password from users where BINARY username = ?";
-            $userInfo = privQuery($getUserSQL,array($username));
-            if($userInfo===false)
+            $phash=oemr_password_hash($password,$userSecure[COL_SALT]);
+            if($phash!=$userSecure[COL_PWD])
             {
-                return false;
-            }
                 
-            $username=$userInfo['username'];
-            $dbPasswordLen=strlen($userInfo['password']);
-            if($dbPasswordLen==32)
-            {
-                $phash=md5($password);
-                $valid=$phash==$userInfo['password'];
-            }
-            else if($dbPasswordLen==40)
-            {
-                $phash=sha1($password);
-                $valid=$phash==$userInfo['password'];
-            }
-            if($valid)
-            {
-                $phash=initializePassword($username,$userInfo['id'],$password);
-                purgeCompatabilityPassword($username,$userInfo['id']);
-                $_SESSION['relogin'] = 1;
-            }
-            else
-            {
                 return false;
             }
+            $valid=true;
         }
-        
+        else
+        {
+            if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
+            {
+                $getUserSQL="select username,id, password from users where BINARY username = ?";
+                $userInfo = privQuery($getUserSQL,array($username));
+                if($userInfo===false)
+                {
+                    return false;
+                }
+                    
+                $username=$userInfo['username'];
+                $dbPasswordLen=strlen($userInfo['password']);
+                if($dbPasswordLen==32)
+                {
+                    $phash=md5($password);
+                    $valid=$phash==$userInfo['password'];
+                }
+                else if($dbPasswordLen==40)
+                {
+                    $phash=sha1($password);
+                    $valid=$phash==$userInfo['password'];
+                }
+                if($valid)
+                {
+                    $phash=initializePassword($username,$userInfo['id'],$password);
+                    purgeCompatabilityPassword($username,$userInfo['id']);
+                    $_SESSION['relogin'] = 1;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+        }
     }
     $getUserSQL="select id, authorized, see_auth".
                         ", cal_ui, active ".
@@ -137,4 +147,46 @@ function verify_user_gacl_group($user)
     }
     return true;
 }
+
+/* Validation of user and password using active directory. */
+function active_directory_validation($user, $pass)
+{
+    $valid = false;
+
+    // Create class instance
+    $ad = new Adldap\Adldap();
+
+    // Create a configuration array.
+    $config = array(
+        // Your account suffix, for example: jdoe@corp.acme.org
+        'account_suffix'        => $GLOBALS['account_suffix'],
+
+        // You can use the host name or the IP address of your controllers.
+        'domain_controllers'    => [$GLOBALS['domain_controllers']],
+
+        // Your base DN.
+        'base_dn'               => $GLOBALS['base_dn'],
+
+        // The account to use for querying / modifying users. This
+        // does not need to be an actual admin account.
+        'admin_username'        => $user,
+        'admin_password'        => $pass,
+    );
+
+    // Add a connection provider to Adldap.
+    $ad->addProvider($config);
+
+    // If a successful connection is made, the provider will be returned.
+    try
+    {
+        $prov = $ad->connect();
+        $valid = $prov->auth()->attempt($user, $pass);
+    }
+    catch(Exception $e)
+    {
+        
+    }
+    return $valid;
+}
+
 ?>
