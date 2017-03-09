@@ -54,8 +54,8 @@ function basename_international($path){
  * @param array|null $whiteList - array of mime types that allowed to upload.
  */
 $white_list = null;
-function isWhiteFile($file, &$white_list){
-
+function isWhiteFile($file){
+    global $white_list;
     if(is_null($white_list)){
         $white_list = array();
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
