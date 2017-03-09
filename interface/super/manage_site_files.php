@@ -138,18 +138,30 @@ if($GLOBALS['secure_upload']){
 
     curl_setopt_array($curl, array(
         CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://cdn.rawgit.com/jshttp/mime-db/master/db.json'
+        CURLOPT_URL => 'https://cdn.rawgit.com/jshttp/mime-db/master/db.json',
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 5
     ));
    // Send the request & save response to $resp
     $resp = curl_exec($curl);
-    if($resp){
+    $httpinfo = curl_getinfo($curl);
+    if($resp && $httpinfo['http_code'] == 200 && $httpinfo['content_type'] == 'application/json;charset=utf-8'){
         $all_mime_types = json_decode($resp, true);
         foreach ($all_mime_types as $name => $value){
             $mime_types[] = $name;
         }
-
     } else {
         error_log('Get list of mime-type error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+        $mime_types_list = array(
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'application/msword',
+            'application/vnd.oasis.opendocument.spreadsheet',
+            'text/plain'
+        );
+        $mime_types = array_merge($mime_types, $mime_types_list);
     }
     curl_close($curl);
 
