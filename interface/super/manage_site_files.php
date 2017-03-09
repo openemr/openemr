@@ -337,7 +337,7 @@ function msfFileChanged() {
     <form id="whitelist_form" method="post">
         <div class="subject-black-list">
             <div class="top-list">
-               <h2><?php echo xlt('black-list'); ?></h2>
+               <h2><?php echo xlt('Black list'); ?></h2>
                <b><?php echo xlt('Filter');?>:</b> <input type="text" id="filter-black-list" >
             </div>
             <select multiple="multiple" id='black-list' class="form-control">
@@ -360,7 +360,7 @@ function msfFileChanged() {
 
         <div class="subject-white-list">
             <div class="top-list">
-                <h2><?php echo xlt('white-list'); ?></h2>
+                <h2><?php echo xlt('White list'); ?></h2>
                 <b><?php echo xlt('Add manually');?>:</b> <input type="text" id="add-manually-input"> <input type="button" id="add-manually" value="+">
             </div>
             <select name="white_list[]" multiple="multiple" id='white-list' class="form-control">

@@ -1580,21 +1580,18 @@ $GLOBALS_METADATA = array(
       '7200',                           // default
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
-
-    'secure_password' => array(
-      xl('Require Strong Passwords'),
-      'bool',                           // data type
-      '0',                              // default
-      xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
-    ),
-
     'secure_upload' => array(
       xl('Secure upload files'),
       'bool',                           // data type
       '0',                              // default
       xl('Block all files types that not found in the white-list. interface to edit white-list locate under the administrator->files.')
     ),
-
+    'secure_password' => array(
+      xl('Require Strong Passwords'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
+    ),
     'password_history' => array(
       xl('Require Unique Passwords'),
       'bool',                           // data type
