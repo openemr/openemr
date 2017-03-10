@@ -1366,6 +1366,8 @@ return array(
     'OpenEMR\\Repositories\\ProductRegistrationRepository' => $baseDir . '/repositories/ProductRegistrationRepository.php',
     'OpenEMR\\Repositories\\UserRepository' => $baseDir . '/repositories/UserRepository.php',
     'OpenEMR\\Repositories\\VersionRepository' => $baseDir . '/repositories/VersionRepository.php',
+    'OpenEMR\\Rx\\Weno\\AdminProperties' => $baseDir . '/library/weno/src/AdminProperties.php',
+    'OpenEMR\\Rx\\Weno\\TransmitData' => $baseDir . '/library/weno/src/TransmitData.php',
     'OpenEMR\\Sample\\Event\\SampleEvent' => $baseDir . '/library/sample/src/Event/SampleEvent.php',
     'OpenEMR\\Sample\\Event\\SampleSubscriber' => $baseDir . '/library/sample/src/Event/SampleSubscriber.php',
     'OpenEMR\\Services\\ChartTrackerService' => $baseDir . '/services/ChartTrackerService.php',

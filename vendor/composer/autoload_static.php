@@ -67,6 +67,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         array (
             'OpenEMR\\Services\\' => 17,
             'OpenEMR\\Sample\\' => 15,
+            'OpenEMR\\Rx\\Weno\\' => 16,
             'OpenEMR\\Repositories\\' => 21,
             'OpenEMR\\Reminder\\' => 17,
             'OpenEMR\\Pdf\\' => 12,
@@ -189,6 +190,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Sample\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/sample/src',
+        ),
+        'OpenEMR\\Rx\\Weno\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/weno/src',
         ),
         'OpenEMR\\Repositories\\' => 
         array (
@@ -1705,6 +1710,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
         'OpenEMR\\Repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
         'OpenEMR\\Repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
+        'OpenEMR\\Rx\\Weno\\AdminProperties' => __DIR__ . '/../..' . '/library/weno/src/AdminProperties.php',
+        'OpenEMR\\Rx\\Weno\\TransmitData' => __DIR__ . '/../..' . '/library/weno/src/TransmitData.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
         'OpenEMR\\Services\\ChartTrackerService' => __DIR__ . '/../..' . '/services/ChartTrackerService.php',

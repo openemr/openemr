@@ -293,8 +293,8 @@ $(document).ready(function(){
         $(".rx_modal").fancybox( {
                 'overlayOpacity' : 0.0,
                 'showCloseButton' : true,
-                'frameHeight' : 500,
-                'frameWidth' : 800,
+                'frameHeight' : 600,
+                'frameWidth' : 1200,
             'centerOnScroll' : false,
             'callbackOnClose' : function()  {
                 refreshme();

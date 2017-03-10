@@ -67,6 +67,18 @@
         </div>
     </div>
     <div class="form-group">
+        <label for="npi" class="control-label col-sm-2">{xl t='NPI'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="npi" name="npi" class="form-control" value="{$pharmacy->get_npi()|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="ncpdp" class="control-label col-sm-2">{xl t='NCPDP'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="ncpdp" name="ncpdp" class="form-control" value="{$pharmacy->get_ncpdp()|escape:'html'}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-group">
         <label for="transmit_method" class="control-label col-sm-2">{xl t='Default Method'|escape:'html'}</label>
         <div class="col-sm-8">
             <select id="transmit_method" name="transmit_method" class="form-control">

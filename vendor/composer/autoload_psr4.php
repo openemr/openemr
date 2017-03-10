@@ -28,6 +28,7 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'OpenEMR\\Services\\' => array($baseDir . '/services'),
     'OpenEMR\\Sample\\' => array($baseDir . '/library/sample/src'),
+    'OpenEMR\\Rx\\Weno\\' => array($baseDir . '/library/weno/src'),
     'OpenEMR\\Repositories\\' => array($baseDir . '/repositories'),
     'OpenEMR\\Reminder\\' => array($baseDir . '/library/reminder/src'),
     'OpenEMR\\Pdf\\' => array($baseDir . '/library/pdf/src'),
