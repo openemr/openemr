@@ -580,6 +580,8 @@ if ( $esign->isButtonViewable() ) {
         // skip forms whose 'deleted' flag is set to 1
         if ($iter['deleted'] == 1) continue;
 
+        $aco_spec = false;
+
         if (substr($formdir,0,3) == 'LBF') {
           // Skip LBF forms that we are not authorized to see.
           $lrow = sqlQuery("SELECT * FROM list_options WHERE " .
@@ -588,17 +590,18 @@ if ( $esign->isButtonViewable() ) {
           if (!empty($lrow)) {
             $jobj = json_decode($lrow['notes'], true);
             if (!empty($jobj['aco'])) {
-              $tmp = explode('|', $jobj['aco']);
-              if (!acl_check($tmp[0], $tmp[1])) continue;
+              $aco_spec = explode('|', $jobj['aco']);
+              if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
             }
           }
         }
         else {
           // Skip non-LBF forms that we are not authorized to see.
-          if (($auth_notes_a) ||
-              ($auth_notes && $iter['user'] == $_SESSION['authUser']) ||
-              ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
-          else continue;
+          $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+          if (!empty($tmp['aco_spec'])) {
+            $aco_spec = explode('|', $tmp['aco_spec']);
+            if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
+          }
         }
 
         // $form_info = getFormInfoById($iter['id']);
@@ -632,16 +635,20 @@ if ( $esign->isButtonViewable() ) {
         if ( $esign->isLocked() ) {
             echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
         } else {
+          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
                     "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) .
                     "' onclick='top.restoreSession()'>";
             echo "<span>" . xlt('Edit') . "</span></a>";
+          }
         }
 
         if ( $esign->isButtonViewable() ) {
+          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
+          }
         }
 
         if (acl_check('admin', 'super') ) {

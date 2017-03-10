@@ -57,6 +57,11 @@ function getRegistryEntry ( $id, $cols = "*" )
 	return sqlQuery($sql);
 }
 
+function getRegistryEntryByDirectory($directory, $cols = "*") {
+	$sql = "select $cols from registry where directory = '$directory'";
+	return sqlQuery($sql);
+}
+
 function installSQL ( $dir )
 {
 	$sqltext = $dir."/table.sql";
