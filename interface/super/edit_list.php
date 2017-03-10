@@ -836,11 +836,16 @@ else {
     "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
 }
 
+$i = 0;
 while ($row = sqlFetchArray($res)) {
-  $key = $row['option_id'];
-  echo "<option value='$key'";
-  if ($key == $list_id) echo " selected";
-  echo ">" . $row['title'] . "</option>\n";
+    if($list_id == 'language' AND $i == 0) {
+        $list_id = $row['option_id'];
+        $i++;
+    }
+    $key = $row['option_id'];
+    echo "<option value='$key'";
+    if ($key == $list_id) echo " selected";
+    echo ">" . $row['title'] . "</option>\n";
 }
 
 ?>
