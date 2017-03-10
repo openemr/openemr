@@ -261,7 +261,9 @@ if ($fres) {
   <?php echo generate_select_list("erxrole", "newcrop_erx_role", '','','--Select Role--','','','',array('style'=>'width:120px')); ?>
 </td>
 </tr>
-
+<tr>
+<td><span class="text"><?php xl('Weno Provider ID','e'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;"  value="<?php echo $iter["weno_prov_id"]?>"></td>
+</tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>
  <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>

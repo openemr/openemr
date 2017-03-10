@@ -5545,6 +5545,8 @@ CREATE TABLE `pharmacies` (
   `name` varchar(255) default NULL,
   `transmit_method` int(11) NOT NULL default '1',
   `email` varchar(255) default NULL,
+  `ncpdp` int(12) DEFAULT NULL,
+  `npi` int(12) DEFAULT NULL.
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
