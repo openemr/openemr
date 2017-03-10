@@ -122,9 +122,9 @@ class C_Document extends Controller {
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occured while uploading file named") . ": " . $fname . "\n";
+                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
-                        $error .= xl("The system does not permit uploading files of with size 0") . ".\n";
+                        $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
                 }elseif($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])){
                        $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";

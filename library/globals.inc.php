@@ -1581,10 +1581,10 @@ $GLOBALS_METADATA = array(
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
     'secure_upload' => array(
-      xl('Secure upload files'),
+      xl('Secure Upload Files with White List'),
       'bool',                           // data type
       '0',                              // default
-      xl('Block all files types that not found in the white-list. interface to edit white-list locate under the administrator->files.')
+      xl('Block all files types that not found in the White List. Can find interface to edit White List at Administration->Files.')
     ),
     'secure_password' => array(
       xl('Require Strong Passwords'),
