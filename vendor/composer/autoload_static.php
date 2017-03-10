@@ -77,6 +77,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'O' => 
         array (
             'OpenEMR\\Sample\\' => 15,
+            'OpenEMR\\Rx\\Weno\\' => 16,
             'OpenEMR\\Reminder\\' => 17,
             'OpenEMR\\Menu\\' => 13,
             'OpenEMR\\Encounter\\Services\\' => 27,
@@ -195,6 +196,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Sample\\' => 
         array (
             0 => __DIR__ . '/../..' . '/library/sample/src',
+        ),
+        'OpenEMR\\Rx\\Weno\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/weno/src',
         ),
         'OpenEMR\\Reminder\\' => 
         array (
@@ -1674,6 +1679,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
         'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/src/MainMenuRole.php',
         'OpenEMR\\Reminder\\BirthdayReminder' => __DIR__ . '/../..' . '/library/reminder/src/BirthdayReminder.php',
+        'OpenEMR\\Rx\\Weno\\AdminProperties' => __DIR__ . '/../..' . '/library/weno/src/AdminProperties.php',
+        'OpenEMR\\Rx\\Weno\\TransmitData' => __DIR__ . '/../..' . '/library/weno/src/TransmitData.php',
         'OpenEMR\\Sample\\Event\\SampleEvent' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleEvent.php',
         'OpenEMR\\Sample\\Event\\SampleSubscriber' => __DIR__ . '/../..' . '/library/sample/src/Event/SampleSubscriber.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
