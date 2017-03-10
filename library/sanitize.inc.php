@@ -47,4 +47,32 @@ function basename_international($path){
   return $decoded_file_name;
 }
 
+
+/**
+ * This function detects a MIME type for a file and check if it in the white list of the allowed mime types.
+ * @param string $file - file location.
+ * @param array|null $whiteList - array of mime types that allowed to upload.
+ */
+$white_list = null;
+function isWhiteFile($file){
+    global $white_list;
+    if(is_null($white_list)){
+        $white_list = array();
+        $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
+        while ($lrow = sqlFetchArray($lres)) {
+            $white_list[] = $lrow['option_id'];
+        }
+    }
+
+    $mimetype  = mime_content_type($file);
+    if(in_array($mimetype, $white_list)){
+        return true;
+    } else {
+        $splitMimeType = explode('/', $mimetype);
+        $categoryType = $splitMimeType[0];
+        if(in_array($categoryType. '/*',  $white_list))return true;
+    }
+    return false;
+}
+
 ?>
