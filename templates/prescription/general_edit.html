@@ -19,6 +19,18 @@
 			// Close the window
 			window.self.close();
 		}
+		function validateForm() {
+    var x = document.forms["prescribe"]["dosage"].value;
+	var y = document.forms["prescribe"]["quantity"].value;
+    if (x == null || x == "") {
+        alert("Name must be filled out");
+        return false;
+    }
+	if (y == null || y == "") {
+        alert("Name must be filled out");
+        return false;
+    }
+}
 {/literal}
 </script>
 {literal}
@@ -45,6 +57,8 @@
   }
  }
 
+
+ 
  // Fill in default values when a drop-down drug is selected.
  function drugselected(sel) {
   var f = document.forms[0];
@@ -115,9 +129,9 @@
     <div style='float:left;margin:5px 5px 5px 5px;'>
       {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
       {if not $amcCollectReturn}
-        <input type="checkbox" id="escribe_flag" name="escribe_flag">
+        <input type="checkbox" id="escribe_flag" name="escribe_flag" checked="checked">
       {else}
-        <input type="checkbox" id="escribe_flag" name="escribe_flag" checked>
+        <input type="checkbox" id="escribe_flag" name="escribe_flag" checked="checked">
       {/if}
       <span class="text">{xl t='E-Prescription?'}</span><br>
 
@@ -152,6 +166,7 @@
 	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_select_date start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
+		<input type="hidden" name="start_date" value="{$prescription->start_date}">
 	</td>
 </tr>
 <tr>
@@ -164,7 +179,7 @@
 <tr>
 	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input type="input" size="20" name="drug" id="drug" value="{$prescription->drug}"/>
+            <input type="input" size="20" name="drug" id="drug" class="drug" value="{$prescription->drug}"/>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xl t='click here to search'})</a>
             <div id=hiddendiv style="display:none">&nbsp;</div>
@@ -258,7 +273,32 @@
 </form>
 {literal}
 <!-- for the fancy jQuery stuff -->
+<script type="text/javascript" src="./library/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="./library/js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="./library/js/jquery-ui.min.js"></script>
+
+<script type="text/javascript" charset="utf-8" src="./library/js/prism.js" ></script>
 <script type="text/javascript">
+
+$(function() {
+    
+    //Drug autocomplete
+    $(".drug").autocomplete({
+        source: "./library/ajax/drug_autocomplete/search.php",
+        minLength: 3
+    });                
+
+});
+$(function() {
+    
+    //Pharmacy autocomplete
+    $(".pharmacy").autocomplete({
+        source: "./library/ajax/pharmacy_autocomplete/search.php",
+        minLength: 3
+    });                
+
+});
+
 
 function submitfun() {
     top.restoreSession();
@@ -273,6 +313,13 @@ function submitfun() {
 function iframetopardiv(string){
     var name=string
     document.getElementById('drug').value=name;
+    $("#hiddendiv").html( "&nbsp;" );
+    $('#hiddendiv').hide();
+}
+
+function iframetopardiv(string){
+    var name=string
+    document.getElementById('pharmacy').value=name;
     $("#hiddendiv").html( "&nbsp;" );
     $('#hiddendiv').hide();
 }
@@ -311,10 +358,10 @@ function DoDrugLookup(eObj) {
 var CheckForErrors = function(eObj) {
     // REQUIRED FIELDS
     if (CheckRequired('drug') == false) { return false; }
-    //if (CheckRequired('quantity') == false) { return false; }
+    if (CheckRequired('quantity') == false) { return false; }
     //if (CheckRequired('unit') == false) { return false; }
     //if (CheckRequired('size') == false) { return false; }
-    //if (CheckRequired('dosage') == false) { return false; }
+    if (CheckRequired('dosage') == false) { return false; }
     //if (CheckRequired('form') == false) { return false; }
     //if (CheckRequired('route') == false) { return false; }
     //if (CheckRequired('interval') == false) { return false; }
@@ -327,7 +374,7 @@ function CheckRequired(objID) {
     // for text boxes
     if ($('#'+objID).is('input')) {
         if ($('#'+objID).val() == "") {
-            alert("{/literal}{xl t='Missing a required field'}{literal}");
+            alert("{/literal}{xl t='Missing a required field and will be highlighted'}{literal}");
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
