@@ -17,6 +17,7 @@
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @link      http://www.open-emr.org
 */
 
 require_once("../globals.php");
