@@ -48,10 +48,10 @@ for the sql database field name.  If you use a SQL reserved word, the form gener
 will fail and this program will notify you of the word(s) you used.
 
 The '::' is the standard delimiter that I use between items.  The second item on the line
-is the form widget type.  You can choose from: 
+is the form widget type.  You can choose from:
 
 textfield
-textarea 
+textarea
 checkbox
 checkbox_group
 radio_group
@@ -70,7 +70,7 @@ have the following line entered:
 
 chest pain, shortness of breath.  Negative for palpitations.
 
-The remaining items after the fieldname and the widget type  are the names for 
+The remaining items after the fieldname and the widget type  are the names for
 checkboxes or radio buttons or default text
 for a textfield or text area.  You can also start a line with a '#' as the first character and this
 will be an ignored comment line.  If you put html tags on their own lines, they will be integrated
@@ -93,7 +93,7 @@ Please send feedback to drleeds@gmail.com.
 
 START
 
-#info.txt 
+#info.txt
 my $info_txt=<<'START';
 FORM_NAME
 START
@@ -103,13 +103,24 @@ START
 #for the popup javascript calendar
 my $date_field_exists = 0;
 my $date_header =<<'START';
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language='JavaScript'> var mypcc = '1'; </script>
+<script language='JavaScript'>
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+</script>
 START
 
 #new.php
@@ -122,6 +133,7 @@ $returnurl = 'encounter_top.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
@@ -191,7 +203,7 @@ print "</tr><tr>\n";
 }
 print "</tr></table><hr>";
 }
-?> 
+?>
 START
 
 #save.php
@@ -220,7 +232,7 @@ foreach($field_names as $key=>$val)
 	{
 		if (array_key_exists($key,$negatives)) #a field requests reporting of negatives
 		{
-                  if ($_POST[$key]) 
+                  if ($_POST[$key])
                   {
 			foreach($_POST[$key] as $var) #check positives against list
 			{
@@ -230,17 +242,17 @@ foreach($field_names as $key=>$val)
 				}
 			}
                   }
-			if (is_array($negatives[$key]) && count($negatives[$key])>0) 
+			if (is_array($negatives[$key]) && count($negatives[$key])>0)
 			{
 				$neg = "Negative for ".implode(', ',$negatives[$key]).'.';
 			}
 		}
-		if (is_array($_POST[$key]) && count($_POST[$key])>0) 
+		if (is_array($_POST[$key]) && count($_POST[$key])>0)
 		{
 			$pos = implode(', ',$_POST[$key]);
 		}
 		if($pos) {$pos = 'Positive for '.$pos.'.  ';}
-		$field_names[$key] = $pos.$neg;	
+		$field_names[$key] = $pos.$neg;
 	}
 	else
 	{
@@ -250,7 +262,7 @@ foreach($field_names as $key=>$val)
         {
 //          $field_names[$key] .= '.';
           $field_names[$key] = preg_replace('/\s*,\s*([^,]+)\./',' and $1.',$field_names[$key]); // replace last comma with 'and' and ending period
-        } 
+        }
 }
 
 //end special processing
@@ -342,7 +354,7 @@ START
 my $preview_html =<<'START';
 <html><head>
 </head>
-<body> 
+<body>
 <form>
 <hr>
 <h1> FORM_NAME </h1>
@@ -424,7 +436,7 @@ my %negatives;               #key=field name: these are the fields that require 
 my @reserved_used;
 #strip outer spaces from field names and field types and change inner spaces to underscores
 #and check field names for SQL reserved words now
-for (@field_data) 
+for (@field_data)
 {
 	if ($_->[0] and $_->[1])	#$_->[0] is field name and $_->[1] is field type.  IE:  @field_data[4]->[0] and @field_data[4]->[1]
 	{
@@ -558,15 +570,15 @@ sub replace_save_php #a special case
 		{
 			push @fields, "'$_->[0]' => '$_->[1]'";
 			if ($negatives{$_->[0]})
-			{	
+			{
 				my @temp;
 				my $count = 3;
 				while ($count < scalar(@$_))
 				{
-					push @temp, "'$_->[$count]' => '$_->[$count]'"; 
+					push @temp, "'$_->[$count]' => '$_->[$count]'";
 					$count++;
 				}
-				push @negatives, "'$_->[0]' => array(".join(',', @temp).")";	
+				push @negatives, "'$_->[0]' => array(".join(',', @temp).")";
 			}
 		}
 	}
@@ -581,7 +593,7 @@ sub replace_sql #a special case
 {
 	my $text = shift;
 	my $replace = '';
-        for (grep{$_->[0] and $_->[1]} @_) 
+        for (grep{$_->[0] and $_->[1]} @_)
         {
 	  next if $_->[0] eq 'redirect';
 	  $replace .= $_->[0]." TEXT,\n" if $_->[1] !~ /^date$/;
@@ -605,15 +617,15 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 			  $selname = $1;
 			  goto go;
 			}
-	
+
 	  goto go if $_ =~ s/(<textarea\sname=")([\w\s]+)("[\w\s="]*>)/$1$2$3<?php \$result = chkdata_Txt(\$obj,"$2"); echo \$result;?>/;  #TEXTAREA
-		 
+
 	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value="<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>"/;               #TEXT
-		 
+
 	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)(\[\])("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5$6 <?php \$result = chkdata_CB(\$obj,"$2","$5"); echo \$result;?>/;   #CHECKBOX-GROUP
-		 
+
 	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_CB(\$obj,"$2","$4"); echo \$result;?>/; #CHECKBOX
-		 
+
 	  goto go if $_ =~ s/(<input\stype="radio"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_Radio(\$obj,"$2","$4"); echo \$result;?>/; #RADIO-GROUP
 
 	  goto go if $_ =~ s/(<option value=")([\w\s]+)(")/$1$2$3 <?php \$result = chkdata_PopOrScroll(\$obj,"$selname","$2"); echo \$result;?>/g; #SCROLLING-LISTS-BOTH & POPUP-MENU
@@ -708,7 +720,7 @@ START
 				my $mainfield = shift(@redirect);
 				my $field_constants;
 				if (@redirect) {
-					my %temp = @redirect;	
+					my %temp = @redirect;
 					foreach(keys %temp) {
 						$field_constants .= "'$_' => '".$temp{$_}."', ";
 					}
@@ -749,11 +761,11 @@ START
 			    $return .= '<br>'."\n";
 			  }
 
-			  $return .= $_->[0]."\n";	
-			  
-			  
+			  $return .= $_->[0]."\n";
+
+
 		}
-	}		
+	}
 	$return .= "<table>" if not $bigtable;
 	$return .= "</table>";
 	$return .= submit(-name=>'submit form');
@@ -777,13 +789,13 @@ sub xl_fix #make compliant with translation feature
 {
 	my $string = shift;
 	return $string if $noxl;
-	$string =~ s/(>{1,2})([^\s][^<>]+?)<\//$1 <\?php xl("$2",'e') \?> <\//gs; 
+	$string =~ s/(>{1,2})([^\s][^<>]+?)<\//$1 <\?php xl("$2",'e') \?> <\//gs;
         return $string;
 }
 sub xl_fix2 #make compliant with translation feature for report.php
 {
 	my $string = shift;
 	return $string if $noxl;
-	$string =~ s/\.(\$\w+)\./\.xl("$1")\./gs; 
+	$string =~ s/\.(\$\w+)\./\.xl("$1")\./gs;
         return $string;
 }
