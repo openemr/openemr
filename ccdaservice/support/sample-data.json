@@ -1,0 +1,995 @@
+{
+	"CCDA": {
+		"username": "jerry",
+		"password": "1234567",
+		"hie": "MyHealth",
+		"time": "1488031618",
+		"client_id": "12345",
+		"created_time": "20170225090658",
+		"created_time_timezone": "20170225090658-0500",
+		"send": "0",
+		"assignedEntity": {
+			"streetAddressLine": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": ""
+		},
+		"telecom": {
+			"$": {
+				"use": "WP",
+				"value": ""
+			}
+		},
+		"representedOrganization": {
+			"name": "",
+			"telecom": {
+				"$": {
+					"use": "WP",
+					"value": ""
+				}
+			},
+			"streetAddressLine": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": ""
+		},
+		"referral_reason": {
+			"text": ""
+		},
+		"patient": {
+			"id": "30",
+			"encounter": "",
+			"prefix": "Mr.",
+			"fname": "Jason",
+			"mname": "P.",
+			"lname": "Binder",
+			"street": "100 West Sepulveda",
+			"city": "Los Angeles",
+			"state": "CA",
+			"postalCode": "33456",
+			"country": "USA",
+			"ssn": "222-11-8888",
+			"dob": "19610914",
+			"gender": "Male",
+			"gender_code": "M",
+			"status": "single",
+			"status_code": "S",
+			"phone_home": "813-239-8654",
+			"religion": "Baptist",
+			"religion_code": "1009",
+			"race": "White",
+			"race_code": "2106-3",
+			"ethnicity": "Not Hispanic or Latino",
+			"ethnicity_code": "2186-5",
+			"language": "English",
+			"language_code": "eng"
+		},
+		"guardian": {
+			"fname": "",
+			"lname": "",
+			"code": "",
+			"display_name": "",
+			"street": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": "",
+			"telecom": ""
+		},
+		"encounter_provider": {
+			"facility_id": "3",
+			"facility_name": "Good Health Clinic",
+			"facility_phone": "000-000-0000",
+			"facility_fax": "000-000-0000",
+			"facility_street": "",
+			"facility_city": "",
+			"facility_state": "",
+			"facility_postal_code": "",
+			"facility_country_code": ""
+		},
+		"author": {
+			"streetAddressLine": "1106 E. Laural Street",
+			"city": "Plant City",
+			"state": "Fl",
+			"postalCode": "33543",
+			"country": "",
+			"telecom": " ",
+			"fname": "John",
+			"lname": "Gooddoc"
+		},
+		"data_enterer": {
+			"streetAddressLine": "1106 E. Laural Street",
+			"city": "Plant City",
+			"state": "Fl",
+			"postalCode": "33543",
+			"country": "",
+			"telecom": " ",
+			"fname": "John",
+			"lname": "Gooddoc"
+		},
+		"informer": {
+			"streetAddressLine": "1106 E. Laural Street",
+			"city": "Plant City",
+			"state": "Fl",
+			"postalCode": "33543",
+			"country": "",
+			"telecom": " ",
+			"fname": "John",
+			"lname": "Gooddoc",
+			"personal_informant": "Jerry"
+		},
+		"custodian": {
+			"streetAddressLine": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": "",
+			"telecom": "000-000-0000",
+			"name": "Good Health Clinic",
+			"organization": "Good Health Clinic"
+		},
+		"information_recipient": {
+			"fname": "John",
+			"lname": "Gooddoc",
+			"organization": "",
+			"street": "1106 E. Laural Street",
+			"city": "Plant City",
+			"state": "Fl",
+			"zip": "33543",
+			"phonew1": ""
+		},
+		"legal_authenticator": {
+			"streetAddressLine": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": "",
+			"telecom": "0",
+			"fname": "",
+			"lname": ""
+		},
+		"authenticator": {
+			"streetAddressLine": "",
+			"city": "",
+			"state": "",
+			"postalCode": "",
+			"country": "",
+			"telecom": "0",
+			"fname": "",
+			"lname": ""
+		},
+		"primary_care_provider": {
+			"provider": {
+				"0": {
+					"prefix": "Mr.",
+					"fname": "John",
+					"lname": "Gooddoc",
+					"speciality": "MD",
+					"organization": "",
+					"telecom": " ",
+					"addr": "",
+					"physician_type": "Occupational physician",
+					"physician_type_code": "158973009"
+				},
+				"1": {
+					"prefix": "",
+					"fname": "Jay",
+					"lname": "Pretender",
+					"speciality": "",
+					"organization": "",
+					"telecom": "0",
+					"addr": "",
+					"physician_type": "",
+					"physician_type_code": ""
+				}
+			}
+		},
+		"encounter_list": {
+			"encounter": {
+				"0": {
+					"extension": "ZGVmYXVsdDU=",
+					"sha_extension": "c9326e6ee7bf55d1274adeb2fb121cc12919b10e",
+					"encounter_id": "5",
+					"visit_category": "New Patient",
+					"performer": "John Fake Gooddoc",
+					"physician_type_code": "SNOMED-CT:158973009",
+					"physician_type": "",
+					"npi": "99999",
+					"fname": "John",
+					"mname": "Fake",
+					"lname": "Gooddoc",
+					"street": "1106 E. Laural Street",
+					"city": "Plant City",
+					"state": "Fl",
+					"zip": "33543",
+					"work_phone": "",
+					"location": "Good Health Clinic",
+					"location_details": ",,, ",
+					"date": "12/15/2016",
+					"date_formatted": "20161215",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "ebc047220c75b9e5f74f9c52a19bc40bd3249bb0",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"encounter_procedures": {
+						"procedures": {
+							"code": "99205",
+							"text": "New Exam (Comprehensive)"
+						}
+					},
+					"encounter_reason": "12/15/2016 - Initial Consult for evaluation"
+				},
+				"1": {
+					"extension": "ZGVmYXVsdDk=",
+					"sha_extension": "ca0b9f261cd5f94775fa99de8afa8b5b1a2efb59",
+					"encounter_id": "9",
+					"visit_category": "Established Patient",
+					"performer": "John Fake Gooddoc",
+					"physician_type_code": "SNOMED-CT:158973009",
+					"physician_type": "",
+					"npi": "99999",
+					"fname": "John",
+					"mname": "Fake",
+					"lname": "Gooddoc",
+					"street": "1106 E. Laural Street",
+					"city": "Plant City",
+					"state": "Fl",
+					"zip": "33543",
+					"work_phone": "",
+					"location": "Good Health Clinic",
+					"location_details": ",,, ",
+					"date": "02/18/2017",
+					"date_formatted": "20170218",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "ebc047220c75b9e5f74f9c52a19bc40bd3249bb0",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"encounter_procedures": {
+						"procedures": {
+							"code": "99215",
+							"text": "Established Patient (Comprehensive)"
+						}
+					},
+					"encounter_reason": "02/18/2017 - Pt here for 3 month follow up and labs. "
+				}
+			}
+		},
+		"allergies": {
+			"allergy": {
+				"0": {
+					"id": "ZGVmYXVsdDJJQ0QxMDpFMTEuOQ==",
+					"sha_id": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+					"title": "Sulfa [ICD10:E11.9]",
+					"diagnosis_code": "E11.9",
+					"diagnosis": "Type 2 diabetes mellitus without complications",
+					"rxnorm_code": "0",
+					"rxnorm_code_text": "NULL",
+					"snomed_code": "0",
+					"snomed_code_text": "NULL",
+					"status_table": "Active",
+					"status": "completed",
+					"allergy_status": "active",
+					"status_code": "55561003",
+					"outcome": "Mild",
+					"outcome_code": "255604002",
+					"startdate": "20160201",
+					"enddate": "00000000",
+					"reaction_text": "Nausea",
+					"reaction_code": "0",
+					"RxNormCode": "",
+					"RxNormCode_text": "Sulfa"
+				},
+				"1": {
+					"id": "ZGVmYXVsdDZJQ0QxMDpFMTEuOQ==",
+					"sha_id": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+					"title": "iodine [ICD10:E11.9]",
+					"diagnosis_code": "E11.9",
+					"diagnosis": "Type 2 diabetes mellitus without complications",
+					"rxnorm_code": "0",
+					"rxnorm_code_text": "NULL",
+					"snomed_code": "0",
+					"snomed_code_text": "NULL",
+					"status_table": "Active",
+					"status": "completed",
+					"allergy_status": "active",
+					"status_code": "55561003",
+					"outcome": "Unassigned",
+					"outcome_code": "0",
+					"startdate": "20150203",
+					"enddate": "00000000",
+					"reaction_text": "Unassigned",
+					"reaction_code": "0",
+					"RxNormCode": "",
+					"RxNormCode_text": "iodine"
+				}
+			}
+		},
+		"medications": {
+			"medication": {
+				"0": {
+					"id": "24",
+					"extension": "ZGVmYXVsdDI0",
+					"sha_extension": "cdbd33f0-6cde-11db-9fe1-0800200c9a66",
+					"performer_name": "John Fake Gooddoc",
+					"fname": "John",
+					"mname": "Fake",
+					"lname": "Gooddoc",
+					"title": "Mr.",
+					"npi": "99999",
+					"address": "1106 E. Laural Street",
+					"city": "Plant City",
+					"state": "Fl",
+					"zip": "33543",
+					"work_phone": "",
+					"drug": "Lipitor",
+					"direction": "10 mg  Per Oris 1 tablet a.m.",
+					"dosage": "1",
+					"size": "10",
+					"unit": "mg",
+					"unit_code": "NCI-CONCEPT-ID:C28253",
+					"form": "tablet",
+					"form_code": "C42998",
+					"route_code": "C38288",
+					"route": "Per Oris",
+					"interval": "a.m.",
+					"start_date": "20170218",
+					"start_date_formatted": "2017-02-18",
+					"end_date": "00000000",
+					"status": "active",
+					"indications": "NULL",
+					"indications_code": "0",
+					"instructions": "none",
+					"rxnorm": "23FD72",
+					"provider_id": "",
+					"provider_name": ""
+				},
+				"1": {
+					"id": "25",
+					"extension": "ZGVmYXVsdDI1",
+					"sha_extension": "cdbd33f0-6cde-11db-9fe1-0800200c9a66",
+					"performer_name": "John Fake Gooddoc",
+					"fname": "John",
+					"mname": "Fake",
+					"lname": "Gooddoc",
+					"title": "Mr.",
+					"npi": "99999",
+					"address": "1106 E. Laural Street",
+					"city": "Plant City",
+					"state": "Fl",
+					"zip": "33543",
+					"work_phone": "",
+					"drug": "Avandamet",
+					"direction": "20 mg  Per Oris 1 tablet b.i.d.",
+					"dosage": "1",
+					"size": "20",
+					"unit": "mg",
+					"unit_code": "NCI-CONCEPT-ID:C28253",
+					"form": "tablet",
+					"form_code": "C42998",
+					"route_code": "C38288",
+					"route": "Per Oris",
+					"interval": "b.i.d.",
+					"start_date": "20170218",
+					"start_date_formatted": "2017-02-18",
+					"end_date": "00000000",
+					"status": "active",
+					"indications": "NULL",
+					"indications_code": "0",
+					"instructions": "",
+					"rxnorm": "2ADDC2",
+					"provider_id": "",
+					"provider_name": ""
+				},
+				"2": {
+					"id": "26",
+					"extension": "ZGVmYXVsdDI2",
+					"sha_extension": "cdbd33f0-6cde-11db-9fe1-0800200c9a66",
+					"performer_name": "John Fake Gooddoc",
+					"fname": "John",
+					"mname": "Fake",
+					"lname": "Gooddoc",
+					"title": "Mr.",
+					"npi": "99999",
+					"address": "1106 E. Laural Street",
+					"city": "Plant City",
+					"state": "Fl",
+					"zip": "33543",
+					"work_phone": "",
+					"drug": "Hydrocodone",
+					"direction": "5 mg  Per Oris 1 tablet b.i.d.",
+					"dosage": "1",
+					"size": "5",
+					"unit": "mg",
+					"unit_code": "NCI-CONCEPT-ID:C28253",
+					"form": "tablet",
+					"form_code": "C42998",
+					"route_code": "C38288",
+					"route": "Per Oris",
+					"interval": "b.i.d.",
+					"start_date": "20170222",
+					"start_date_formatted": "2017-02-22",
+					"end_date": "00000000",
+					"status": "active",
+					"indications": "NULL",
+					"indications_code": "0",
+					"instructions": "",
+					"rxnorm": "4F7C99",
+					"provider_id": "",
+					"provider_name": ""
+				}
+			}
+		},
+		"problem_lists": {
+			"problem": {
+				"0": {
+					"extension": "ZGVmYXVsdDEw",
+					"sha_extension": "ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7",
+					"title": "Diabetes [ICD10:E11.9]",
+					"code": "E11.9",
+					"code_text": "Type 2 diabetes mellitus without complications\r",
+					"age": "55",
+					"start_date_table": "2017-02-19",
+					"start_date": "20170219",
+					"end_date": "0",
+					"status": "active",
+					"status_table": "Active",
+					"status_code": "55561003",
+					"observation": "Pending followup",
+					"observation_code": "0",
+					"diagnosis": "E11.9"
+				},
+				"1": {
+					"extension": "ZGVmYXVsdDEy",
+					"sha_extension": "ec8a6ff8-ed4b-4f7e-82c3-e98e58b45de7",
+					"title": "Asthma [ICD10:E11.9]",
+					"code": "E11.9",
+					"code_text": "Type 2 diabetes mellitus without complications\r",
+					"age": "55",
+					"start_date_table": "2017-02-01",
+					"start_date": "20170201",
+					"end_date": "0",
+					"status": "active",
+					"status_table": "Active",
+					"status_code": "55561003",
+					"observation": "Pending followup",
+					"observation_code": "0",
+					"diagnosis": "E11.9"
+				}
+			}
+		},
+		"procedures": {
+			"procedure": {
+				"0": {
+					"extension": "ZGVmYXVsdDE=",
+					"sha_extension": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
+					"description": "New Exam (Comprehensive)",
+					"code": "99205",
+					"date": "2016-12-15",
+					"npi": "",
+					"fname": "",
+					"mname": "",
+					"lname": "",
+					"address": "",
+					"city": "",
+					"state": "",
+					"zip": "",
+					"work_phone": "",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "c2ee9ee9-ae31-4628-a919-fec1cbb58686",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"procedure_date": "20161217"
+				},
+				"1": {
+					"extension": "ZGVmYXVsdDI=",
+					"sha_extension": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
+					"description": "Type 2 diabetes mellitus without complications\r",
+					"code": "E11.9",
+					"date": "2016-12-15",
+					"npi": "",
+					"fname": "",
+					"mname": "",
+					"lname": "",
+					"address": "",
+					"city": "",
+					"state": "",
+					"zip": "",
+					"work_phone": "",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "c2ee9ee9-ae31-4628-a919-fec1cbb58686",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"procedure_date": "20161217"
+				},
+				"2": {
+					"extension": "ZGVmYXVsdDM=",
+					"sha_extension": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
+					"description": "Established Patient (Comprehensive)",
+					"code": "99215",
+					"date": "2017-02-18",
+					"npi": "",
+					"fname": "",
+					"mname": "",
+					"lname": "",
+					"address": "",
+					"city": "",
+					"state": "",
+					"zip": "",
+					"work_phone": "",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "c2ee9ee9-ae31-4628-a919-fec1cbb58686",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"procedure_date": "20170116"
+				},
+				"3": {
+					"extension": "ZGVmYXVsdDQ=",
+					"sha_extension": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
+					"description": "Type 2 diabetes mellitus without complications\r",
+					"code": "E11.9",
+					"date": "2017-02-18",
+					"npi": "",
+					"fname": "",
+					"mname": "",
+					"lname": "",
+					"address": "",
+					"city": "",
+					"state": "",
+					"zip": "",
+					"work_phone": "",
+					"facility_extension": "ZGVmYXVsdDM=",
+					"facility_sha_extension": "c2ee9ee9-ae31-4628-a919-fec1cbb58686",
+					"facility_name": "Good Health Clinic",
+					"facility_address": "",
+					"facility_city": "",
+					"facility_state": "",
+					"facility_country": "",
+					"facility_zip": "",
+					"facility_phone": "000-000-0000",
+					"procedure_date": "20170116"
+				}
+			}
+		},
+		"results": {
+			"result": {
+				"0": {
+					"extension": "ZGVmYXVsdDE=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Leukocytes",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "leu_ul",
+						"result_code": "81003:0",
+						"result_desc": "Leukocytes",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"1": {
+					"extension": "ZGVmYXVsdDI=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Nitrites",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "Unit",
+						"result_code": "81003:1",
+						"result_desc": "Nitrites",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"2": {
+					"extension": "ZGVmYXVsdDM=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Urobilinogen",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "mg_dl",
+						"result_code": "81003:2",
+						"result_desc": "Urobilinogen",
+						"result_value": "0.2",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"3": {
+					"extension": "ZGVmYXVsdDQ=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Protein",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "mg_dl",
+						"result_code": "81003:3",
+						"result_desc": "Protein",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"4": {
+					"extension": "ZGVmYXVsdDU=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "pH",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "4.5 - 8",
+						"unit": "Unit",
+						"result_code": "81003:4",
+						"result_desc": "pH",
+						"result_value": "6.5",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"5": {
+					"extension": "ZGVmYXVsdDY=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Blood",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "ery-ul",
+						"result_code": "81003:5",
+						"result_desc": "Blood",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"6": {
+					"extension": "ZGVmYXVsdDc=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Specific Gravity",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "1.005 - 1.030",
+						"unit": "Unit",
+						"result_code": "81003:6",
+						"result_desc": "Specific Gravity",
+						"result_value": "1.030",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"7": {
+					"extension": "ZGVmYXVsdDg=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Ketones",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "mg_dl",
+						"result_code": "81003:7",
+						"result_desc": "Ketones",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"8": {
+					"extension": "ZGVmYXVsdDk=",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Bilirubin",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "mg_dl",
+						"result_code": "81003:8",
+						"result_desc": "Bilirubin",
+						"result_value": "Negative",
+						"result_time": "",
+						"abnormal_flag": "no"
+					}
+				},
+				"9": {
+					"extension": "ZGVmYXVsdDEw",
+					"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+					"date_ordered": "20161218",
+					"date_ordered_table": "2016-12-18",
+					"title": "Glucose",
+					"test_code": "",
+					"order_status_table": "",
+					"order_status": "completed",
+					"subtest": {
+						"extension": "ZGVmYXVsdA==",
+						"root": "7d5a02b0-67a4-11db-bd13-0800200c9a66",
+						"range": "Negative",
+						"unit": "mg_dl",
+						"result_code": "81003:9",
+						"result_desc": "Glucose",
+						"result_value": "200",
+						"result_time": "",
+						"abnormal_flag": "high"
+					}
+				}
+			}
+		},
+		"immunizations": {
+			"immunization": {
+				"extension": "ZGVmYXVsdDI=",
+				"sha_extension": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92",
+				"id": "2",
+				"cvx_code": "101",
+				"code_text": "typhoid Vi capsular polysaccharide vaccine",
+				"reaction": "",
+				"npi": "99999",
+				"administered_by": "",
+				"fname": "John",
+				"mname": "Fake",
+				"lname": "Gooddoc",
+				"title": "Mr.",
+				"address": "1106 E. Laural Street",
+				"city": "Plant City",
+				"state": "Fl",
+				"zip": "33543",
+				"work_phone": "",
+				"administered_on": "2017-02-18",
+				"administered_formatted": "20170218",
+				"note": "",
+				"route_of_administration": "",
+				"route_code": "",
+				"status": "completed",
+				"pd.": "Good Health Clinic",
+				"facility_phone": "000-000-0000"
+			}
+		},
+		"planofcare": {
+			"item": {
+				"code": "99213",
+				"code_text": "Established Patient (Detailed)",
+				"description": "Continue care",
+				"date": "2017-02-18",
+				"date_formatted": "20170218",
+				"status": "Pending",
+				"status_entry": "active",
+				"code_type": "2.16.840.1.113883.6.12",
+				"moodCode": ""
+			}
+		},
+		"functional_cognitive_status": "",
+		"clinical_instruction": "",
+		"progressNotes": "",
+		"hospitalCourse": {
+			"item": ""
+		},
+		"dischargediagnosis": {
+			"item": ""
+		},
+		"dischargemedication": {
+			"item": ""
+		},
+		"procedure_notes": {
+			"complications": {
+				"age": "55",
+				"item": ""
+			},
+			"procedure_diagnosis": {
+				"age": "55",
+				"item": ""
+			},
+			"procedure_description": {
+				"item": ""
+			},
+			"procedure_indications": {
+				"item": ""
+			}
+		},
+		"operative_notes": {
+			"anesthesia": {
+				"item": ""
+			},
+			"post_operative_diag": {
+				"item": ""
+			},
+			"pre_operative_diag": {
+				"item": ""
+			},
+			"blood_loss": {
+				"item": ""
+			},
+			"procedure_findings": {
+				"item": "",
+				"age": "55"
+			},
+			"procedure_specimens": {
+				"item": ""
+			}
+		},
+		"consultation_notes": {
+			"hp": {
+				"item": ""
+			},
+			"physical_exam": {
+				"item": ""
+			}
+		},
+		"history_physical": {
+			"chief_complaint": {
+				"item": ""
+			},
+			"general_status": {
+				"item": ""
+			},
+			"history_past_illness": {
+				"item": ""
+			},
+			"review_of_systems": {
+				"item": ""
+			},
+			"vitals_list": {
+				"vitals": {
+					"0": {
+						"extension": "ZGVmYXVsdDEw",
+						"sha_extension": "c6f88321-67ad-11db-bd13-0800200c9a66",
+						"date": "02/18/2017",
+						"effectivetime": "20170218000000",
+						"temperature": "98.60",
+						"extension_temperature": "ZGVmYXVsdDEwdGVtcGVyYXR1cmU=",
+						"bpd": "88",
+						"extension_bpd": "ZGVmYXVsdDEwYnBk",
+						"bps": "138",
+						"extension_bps": "ZGVmYXVsdDEwYnBz",
+						"head_circ": "0.00",
+						"extension_head_circ": "ZGVmYXVsdDEwaGVhZF9jaXJj",
+						"pulse": "64.00",
+						"extension_pulse": "ZGVmYXVsdDEwcHVsc2U=",
+						"height": "71.00",
+						"extension_height": "ZGVmYXVsdDEwaGVpZ2h0",
+						"unit_height": "in",
+						"oxygen_saturation": "99.00",
+						"extension_oxygen_saturation": "ZGVmYXVsdDEwb3h5Z2VuX3NhdHVyYXRpb24=",
+						"breath": "0",
+						"extension_breath": "ZGVmYXVsdDEwYnJlYXRo",
+						"weight": "224.00",
+						"extension_weight": "ZGVmYXVsdDEwd2VpZ2h0",
+						"unit_weight": "lb",
+						"BMI": "31.2",
+						"extension_BMI": "ZGVmYXVsdDEwQk1J"
+					},
+					"1": {
+						"extension": "ZGVmYXVsdDI3",
+						"sha_extension": "c6f88321-67ad-11db-bd13-0800200c9a66",
+						"date": "12/15/2016",
+						"effectivetime": "20161215000000",
+						"temperature": "98.70",
+						"extension_temperature": "ZGVmYXVsdDI3dGVtcGVyYXR1cmU=",
+						"bpd": "80",
+						"extension_bpd": "ZGVmYXVsdDI3YnBk",
+						"bps": "130",
+						"extension_bps": "ZGVmYXVsdDI3YnBz",
+						"head_circ": "14.00",
+						"extension_head_circ": "ZGVmYXVsdDI3aGVhZF9jaXJj",
+						"pulse": "60.00",
+						"extension_pulse": "ZGVmYXVsdDI3cHVsc2U=",
+						"height": "71.00",
+						"extension_height": "ZGVmYXVsdDI3aGVpZ2h0",
+						"unit_height": "in",
+						"oxygen_saturation": "98.00",
+						"extension_oxygen_saturation": "ZGVmYXVsdDI3b3h5Z2VuX3NhdHVyYXRpb24=",
+						"breath": "0",
+						"extension_breath": "ZGVmYXVsdDI3YnJlYXRo",
+						"weight": "210.00",
+						"extension_weight": "ZGVmYXVsdDI3d2VpZ2h0",
+						"unit_weight": "lb",
+						"BMI": "29.3",
+						"extension_BMI": "ZGVmYXVsdDI3Qk1J"
+					}
+				}
+			},
+			"social_history": {
+				"history_element": {
+					"0": {
+						"extension": "c21va2luZ2RlZmF1bHQy",
+						"sha_extension": "9b56c25d-9104-45ee-9fa4-e0f3afaa01c1",
+						"element": "Smoking",
+						"description": "Current every day smoker",
+						"status_code": "449868002",
+						"status": "completed",
+						"date": "02/24/2017",
+						"date_formatted": "20170224",
+						"code": "229819007"
+					},
+					"1": {
+						"extension": "YWxjb2hvbGRlZmF1bHQy",
+						"sha_extension": "37f76c51-6411-4e1d-8a37-957fd49d2cef",
+						"element": "Alcohol",
+						"description": "",
+						"status_code": "0",
+						"status": "completed",
+						"date": "0",
+						"date_formatted": "0",
+						"code": "160573003"
+					}
+				}
+			}
+		},
+		"document": ""
+	}
+}
