@@ -77,6 +77,12 @@
   //   docs        Documents (write,addonly optional)
   //   notes       Patient Notes (write,addonly optional)
   //   sign        Sign Lab Results (write,addonly optional)
+  //   reminder    Patient Reminders (write,addonly optional)
+  //   alert       Clinical Reminders/Alerts (write,addonly optional)
+  //   disclosure  Disclosures (write,addonly optional)
+  //   rx          Prescriptions (write,addonly optional)
+  //   amendment   Amendments (write,addonly optional)
+  //   lab         Lab Results (write,addonly optional)
   //
   // Section "encounters" (Encounter Information):
   //   auth        Authorize - my encounters
@@ -148,6 +154,11 @@
   function acl_check($section, $value, $user = '', $return_value = '') {
     if (! $user) $user = $_SESSION['authUser'];
 
+    // Superuser always gets access to everything.
+    if (($section != 'admin' || $value != 'super') && acl_check('admin', 'super', $user)) {
+      return TRUE;
+    }
+
     if ($GLOBALS['phpgacl_location_global']) {
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
@@ -210,11 +221,9 @@
 
       // Now decide whether user has access
       // (Note a denial takes precedence)
-      if ($deny) return FALSE;
-      if ($access) return TRUE;
+      if (!$deny && $access) return TRUE;
       return FALSE;
     }
-
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
     // users (providers) can do anything, and other users can do most things.

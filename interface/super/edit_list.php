@@ -3,6 +3,7 @@
  * Administration Lists Module.
  *
  * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017      Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +19,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Teny <teny@zhservices.com> 
+ * @author  Teny <teny@zhservices.com>
  * @link    http://www.open-emr.org
  */
 
@@ -28,7 +29,15 @@ require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
-$list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
+// Below allows the list to default to the first item on the list
+//   when list_id is blank.
+if (empty($_REQUEST['list_id'])) {
+    $list_id = 'language';
+    $blank_list_id = true;
+}
+else {
+    $list_id = $_REQUEST['list_id'];
+}
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
@@ -120,7 +129,7 @@ if ($_POST['formaction']=='save' && $list_id) {
         $it_abbr     = formTrim($iter['abbreviation']);
         $it_style    = formTrim($iter['style']);
         $it_fshow    = formTrim($iter['force_show']);
-        
+
         if ( (strlen($it_category) > 0) && (strlen($it_type) > 0) ) {
           sqlInsert("INSERT INTO issue_types ( " .
             "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show` " .
@@ -837,10 +846,18 @@ else {
 }
 
 while ($row = sqlFetchArray($res)) {
-  $key = $row['option_id'];
-  echo "<option value='$key'";
-  if ($key == $list_id) echo " selected";
-  echo ">" . $row['title'] . "</option>\n";
+
+    // This allows the list to default to the first item on the list
+    //   when the list_id request parameter is blank.
+    if( ($blank_list_id) && ($list_id == 'language') ) {
+        $list_id = $row['option_id'];
+        $blank_list_id = false;
+    }
+
+    $key = $row['option_id'];
+    echo "<option value='$key'";
+    if ($key == $list_id) echo " selected";
+    echo ">" . $row['title'] . "</option>\n";
 }
 
 ?>
@@ -882,12 +899,12 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('External'    ,'e'); ?></b></td>
 <?php } else if ($list_id == 'apptstat' || $list_id == 'groupstat') { ?>
   <td><b><?php  xl('ID'       ,'e'); ?></b></td>
-  <td><b><?php xl('Title'     ,'e'); ?></b></td>   
+  <td><b><?php xl('Title'     ,'e'); ?></b></td>
   <td><b><?php xl('Order'     ,'e'); ?></b></td>
   <td><b><?php xl('Default'   ,'e'); ?></b></td>
   <td><b><?php xl('Active','e'); ?></b></td>
-  <td><b><?php xl('Color'     ,'e'); ?></b></td> 
-  <td><b><?php xl('Alert Time','e'); ?></b></td> 
+  <td><b><?php xl('Color'     ,'e'); ?></b></td>
+  <td><b><?php xl('Alert Time','e'); ?></b></td>
   <td><b><?php xl('Check In'  ,'e');?>&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
   <td><b><?php xl('Check Out' ,'e'); ?></b></td>
   <td><b><?php xl('Code(s)'   ,'e');?></b></td>
@@ -915,11 +932,11 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php echo xlt('Force Show'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>
-  <td><b><?php xl('Title'  ,'e'); ?></b></td>	
-  <?php //show translation column if not english and the translation lists flag is set 
+  <td><b><?php xl('Title'  ,'e'); ?></b></td>
+  <?php //show translation column if not english and the translation lists flag is set
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
-  } ?>  
+  } ?>
   <td><b><?php xl('Order'  ,'e'); ?></b></td>
   <td><b><?php xl('Default','e'); ?></b></td>
   <td><b><?php xl('Active','e'); ?></b></td>
@@ -938,7 +955,7 @@ while ($row = sqlFetchArray($res)) {
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
-  <td><b><?php 
+  <td><b><?php
     if ($list_id == 'language') {
       echo xlt('ISO 639-2 Code');
     } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
@@ -973,14 +990,14 @@ while ($row = sqlFetchArray($res)) {
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>
-  <?php 
+  <?php
     if (preg_match('/_issue_list$/',$list_id)) { ?>
   <td><b><?php echo xlt('Subtype'); ?></b></td>
 <?php }
  } // end not fee sheet ?>
  </tr>
 
-<?php 
+<?php
 // Get the selected list's elements.
 if ($list_id) {
   if ($list_id == 'feesheet') {
@@ -1021,8 +1038,8 @@ if ($list_id) {
      *   If the edit_options setting of the main list entry is set to 1,
      *    then the list items with edit_options set to 1 will show.
      */
-    $res = sqlStatement("SELECT lo.* 
-                         FROM list_options as lo 
+    $res = sqlStatement("SELECT lo.*
+                         FROM list_options as lo
                          right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.edit_options = 1
                          WHERE lo.list_id = '{$list_id}' AND lo.edit_options = 1
                          ORDER BY seq,title");
@@ -1104,7 +1121,7 @@ $(document).ready(function(){
             }
         }
         $("#newlistname").val(validname);
-    
+
         // submit the form to add a new field to a specific group
         $("#formaction").val("addlist");
         $("#theform").submit();
@@ -1119,7 +1136,7 @@ $(document).ready(function(){
             $("#theform").submit();
         }
     };
-    
+
     // just hide the new list DIV
     var CancelNewList = function(btnObj) {
         // hide the list details DIV

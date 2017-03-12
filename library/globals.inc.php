@@ -1039,7 +1039,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
     ),
-  
+
       'billing_phone_number' => array(
       xl('Custom Billing Phone Number'),
       'text',                           // data type
@@ -1580,14 +1580,18 @@ $GLOBALS_METADATA = array(
       '7200',                           // default
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
-
+    'secure_upload' => array(
+      xl('Secure Upload Files with White List'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Block all files types that are not found in the White List. Can find interface to edit the White List at Administration->Files.')
+    ),
     'secure_password' => array(
       xl('Require Strong Passwords'),
       'bool',                           // data type
       '0',                              // default
       xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
     ),
-
     'password_history' => array(
       xl('Require Unique Passwords'),
       'bool',                           // data type
@@ -1649,24 +1653,56 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Email address, if any, to receive emergency login user activation messages.')
     ),
-     'new_validate' => array(
+
+    'new_validate' => array(
       xl('New form validation'),
       'bool',
       '1',
       xl('New form validation')
-     ),
-      'allow_multiple_databases' => array(
-          xl('Allow multiple databases'),
-          'bool',
-          '0',
-          xl('Allow to use with multiple database')
-      ),
-      'safe_key_database' => array(
-          xl('Safe key database'),
-          'text',                           // data type
-          '',                               // default
-          xl('Key for multiple database credentials encryption')
-      ),
+    ),
+
+    'allow_multiple_databases' => array(
+      xl('Allow multiple databases'),
+      'bool',
+      '0',
+      xl('Allow to use with multiple database')
+    ),
+
+    'safe_key_database' => array(
+      xl('Safe key database'),
+      'text',                           // data type
+      '',                               // default
+      xl('Key for multiple database credentials encryption')
+    ),
+
+    'use_active_directory' => array(
+      xl('Use Active Directory'),
+      'bool',
+      '0',
+      xl('If enabled, uses the specified active directory for login and authentication.')
+    ),
+
+    'account_suffix' => array(
+      xl('Active Directory - Suffix Of Account'),
+      'text',
+      '',
+      xl('The suffix of the account.')
+    ),
+
+    'base_dn' => array(
+      xl('Active Directory - Domains Base'),
+      'text',
+      '',
+      xl('Users is the standard windows CN, replace the DC stuff with your domain.')
+    ),
+
+    'domain_controllers' => array(
+      xl('Active Directory - Domains Controllers'),
+      'text',
+      '',
+      xl('The IP address of your domain controller(s).')
+    ),
+
   ),
 
   // Notifications Tab
