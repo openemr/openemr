@@ -1,3 +1,24 @@
+# contrib/util/docker/Dockerfile Automated setup of openemr in docker container
+#
+# Dockerfile providing environment to run openemr in for testing purposes.
+#
+# Copyright (C) 2017 Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>
+#
+# LICENSE: This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+#
+# @package OpenEMR
+# @author  Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>
+# @link    http://www.open-emr.org
+
 # Quick one-liner:
 # docker build -f contrib/util/docker/Dockerfile . -t openemr && docker run -it -p 9000:80 openemr
 # For debugging things: docker run -it -p 9000:80 openemr bash
