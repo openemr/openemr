@@ -267,3 +267,8 @@ CREATE TABLE `form_therapy_groups_attendance` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB ;
 #EndIf
+
+
+#IfNotRow2D list_options list_id lists option_id files_white_list
+INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
+#EndIf
