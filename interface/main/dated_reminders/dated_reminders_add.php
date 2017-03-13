@@ -363,7 +363,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
           <td valign="top" style="width:75%">
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
                 onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
-                style="width:100%; height:50px" name="message" id="message"><?php echo text($this_message['message']); ?></textarea>  
+                style="width:100%; height:50px" name="message" id="message"><?php echo text($this_message['dr_message_text']); ?></textarea>
                 <br />
                 <?php echo xlt('Characters Remaining') ?> : <input style="border:0; background:none;" readonly type="text" name="countdown" size="3" value="<?php echo $max_reminder_words ?>"> </font>
           </td>  
