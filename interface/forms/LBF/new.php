@@ -333,11 +333,6 @@ function set_related(codetype, code, selector, codedesc) {
  var s = frc.value;
  var sd = frcd ? frcd.value : s;
  if (code) {
-  if (codetype != 'PROD') {
-   if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
-    return '<?php echo xl('A code of this type is already selected. Erase the field first if you need to replace it.') ?>';
-   }
-  }     
   if (s.length > 0) {
    s  += ';';
    sd += ';';
