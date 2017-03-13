@@ -28,6 +28,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Configuration.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
 require_once $GLOBALS['srcdir'].'/ESign/Form/Log.php';
+require_once $GLOBALS['srcdir'].'/authentication/login_operations.php';
 
 class Form_Controller extends Abstract_Controller
 {
@@ -86,7 +87,14 @@ class Form_Controller extends Abstract_Controller
             $lock = ( $this->getRequest()->getParam( 'lock', '' ) == 'on' ) ? true : false;
         }
         $amendment = $this->getRequest()->getParam( 'amendment', '' );
-        if ( confirm_user_password( $_SESSION['authUser'], $password ) ) {
+
+        if($GLOBALS['use_active_directory']) {
+            $valid = active_directory_validation($_SESSION['authUser'], $password);
+        }else {
+            $valid = confirm_user_password($_SESSION['authUser'], $password);
+        }
+
+        if ($valid) {
             $factory = new Form_Factory( $formId, $formDir, $encounterId );
             $signable = $factory->createSignable();
             if ( $signable->sign( $_SESSION['authUserID'], $lock, $amendment ) ) {

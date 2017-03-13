@@ -26,6 +26,7 @@ $menu_parsed=load_menu("default");
 if(count($menu_parsed)==0)
 {
     $menu_parsed=json_decode($menu_json);
+    if (!$menu_parsed) die("\nJSON ERROR: " . json_last_error()); // debugging
 }
 
 menu_update_entries($menu_parsed);
