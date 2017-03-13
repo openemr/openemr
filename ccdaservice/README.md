@@ -24,6 +24,7 @@ Navigate to: openemr/ccdaservice and run the following to install requires depen
 -- sudo node winservice // For now, you may skip this step because ssmanager will run service as a process on Ubuntu. If started though, it is used.
 
 * If the service is not installed in last step the ssmanager, started by backgroud services, will still start and maintain ccda service.
+* For portal this is not necessarily true.
 
 ## Windows
 
@@ -38,9 +39,8 @@ Navigate to: openemr/ccdaservice and run the following
 * The service will automatically be installed when OpenEMR is log into the first time and with both installs, ccda service is monitored by ssmanager started by background services.
 
 ## Developing
-
-* Important to note that during developement strict error checking is not in place so after CCM sends xml, it waits to receive back document and if document generation errors for some reason either CCM waits till php timeout or you need to restart apache to clear that socket. 99% of the time this is not an issue however, currently CCM doesn't do any supervision on socket communication thus sends and waits. I hate timers but may be solution here.
-
+* Note that these scripts run in strict mode so javascript will hold you very much accountable with how objects and variables are handled.
+* Important to note that during developement error checking is relaxed, so after CCM sends xml, it waits to receive back document and if document generation errors for some reason either CCM waits till php timeout or you need to restart apache to clear that socket. 99% of the time this is not an issue however, currently CCM doesn't do any supervision on socket communication thus sends and waits. I hate timers but may be solution here.
 * For now node modules are run local to service directory so all support dependecies are installed there. I still have not decided best way to implement node into project.
 
 ### Tools

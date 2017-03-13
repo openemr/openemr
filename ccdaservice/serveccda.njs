@@ -1,5 +1,4 @@
 "use strict";
-
 var net = require('net');
 var to_json = require('xmljson').to_json;
 var bb = require('blue-button');
@@ -40,9 +39,12 @@ function fDate(str) {
 									// but, I'm a busy man..
 }
 function isOne(who) {
-	if (who !== null && typeof who === 'object') {
-		return who.hasOwnProperty('extension') ? 1 : Object.keys(who).length;
+	try{
+		if (who !== null && typeof who === 'object') {
+			return who.hasOwnProperty('extension') ? 1 : Object.keys(who).length;
+		}
 	}
+	catch(e){ return false;}
 	return 0;
 }
 function genCcda(pd) {
@@ -60,7 +62,9 @@ function genCcda(pd) {
 	data.demographics = Object.assign(demographic);
 	// vitals
 	many.vitals = [];
-	count = isOne(pd.history_physical.vitals_list.vitals);
+	try{
+		count = isOne(pd.history_physical.vitals_list.vitals);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.history_physical.vitals_list.vitals) {
 			theone = populateVital(pd.history_physical.vitals_list.vitals[i]);
@@ -75,7 +79,9 @@ function genCcda(pd) {
 	var meds = [];
 	var m = {};
 	meds.medications = [];
-	count = isOne(pd.medications.medication);
+	try{
+		count = isOne(pd.medications.medication);
+	}catch(e){count = 0}	
 	if (count > 1) {
 		for ( var i in pd.medications.medication) {
 			m[i] = populateMedication(pd.medications.medication[i]);
@@ -90,7 +96,9 @@ function genCcda(pd) {
 	var encs = [];
 	var enc = {};
 	encs.encounters = [];
-	count = isOne(pd.encounter_list.encounter);
+	try{
+		count = isOne(pd.encounter_list.encounter);
+	}catch(e){count = 0}	
 	if (count > 1) {
 		for ( var i in pd.encounter_list.encounter) {
 			enc[i] = populateEncounter(pd.encounter_list.encounter[i]);
@@ -105,7 +113,9 @@ function genCcda(pd) {
 	var allergies = [];
 	var allergy = {};
 	allergies.allergies = [];
-	count = isOne(pd.allergies.allergy);
+	try{
+		count = isOne(pd.allergies.allergy);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.allergies.allergy) {
 			allergy[i] = populateAllergy(pd.allergies.allergy[i]);
@@ -120,7 +130,9 @@ function genCcda(pd) {
 	var problems = [];
 	var problem = {};
 	problems.problems = [];
-	count = isOne(pd.problem_lists.problem);
+	try{
+		count = isOne(pd.problem_lists.problem);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.problem_lists.problem) {
 			problem[i] = populateProblem(pd.problem_lists.problem[i]);
@@ -135,7 +147,9 @@ function genCcda(pd) {
 	many = [];
 	theone = {};
 	many.procedures = [];
-	count = isOne(pd.procedures.procedure);
+	try{
+		count = isOne(pd.procedures.procedure);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.procedures.procedure) {
 			theone[i] = populateProcedure(pd.procedures.procedure[i]);
@@ -152,7 +166,9 @@ function genCcda(pd) {
 	many = [];
 	theone = {};
 	many.immunizations = [];
-	count = isOne(pd.immunizations.immunization);
+	try{
+		count = isOne(pd.immunizations.immunization);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.immunizations.immunization) {
 			theone[i] = populateImmunization(pd.immunizations.immunization[i]);
@@ -167,7 +183,9 @@ function genCcda(pd) {
 	many = [];
 	theone = {};
 	many.plan_of_care = [];
-	count = isOne(pd.planofcare); // ccm doesn't send array of items
+	try{
+		count = isOne(pd.planofcare); // ccm doesn't send array of items
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.planofcare.item) {
 			theone[i] = getPlanOfCare(pd.planofcare.item[i]);
@@ -178,12 +196,13 @@ function genCcda(pd) {
 		many.plan_of_care.push(theone);
 	}
 	data.plan_of_care = Object.assign(many.plan_of_care);
-
 	// Social History
 	many = [];
 	theone = {};
 	many.social_history = [];
-	count = isOne(pd.history_physical.social_history.history_element);
+	try{
+		count = isOne(pd.history_physical.social_history.history_element);
+	}catch(e){count = 0}
 	if (count > 1) {
 		for ( var i in pd.history_physical.social_history.history_element) {
 			theone[i] = populateSocialHistory(pd.history_physical.social_history.history_element[i]);
@@ -198,13 +217,14 @@ function genCcda(pd) {
 	// ------------------------------------------ End Sections -------------------------------------------------//
 
 	doc.data = Object.assign(data);
-	var valid = bbm.validator.validateDocumentModel(doc);
+	/*Below is almost never valid.. Here to help test validate for missing items*/
+/*	var valid = bbm.validator.validateDocumentModel(doc);
 	if (!valid) {
-		// var error = bbm.validator.getLastError();
-		// console.log(error);
-		// conn.write( String.fromCharCode(28) + "\r\r" + '' );
-		// conn.end();
-	}
+		 var error = bbm.validator.getLastError();
+		 console.log(error);
+		 conn.write( String.fromCharCode(28) + "\r\r" + '' ); // release distant end
+		 conn.end();
+	}*/
 	var xml = bbg.generateCCD(doc);
 	//console.log(xml)
 	return xml;
@@ -818,7 +838,9 @@ function getResultSet(results) {
 	var many = [];
 	var theone = {};
 	many.results = [];
-	var count = isOne(results.result);
+	try{
+		var count = isOne(results.result);
+	}catch(e){count = 0}	
 	if (count > 1) {
 		for ( var i in results.result) {
 			theone[i] = populateResult(results.result[i]);
