@@ -126,12 +126,24 @@
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
+                    <?php
+                    if($_SESSION['language_direction'] == 'rtl'){
+                        $date_start_date = date('d/m/Y',strtotime(text($group['group_start_date'])));
+                        $date_end_date = date('d/m/Y',strtotime(text($group['group_end_date'])));
+                    }else{
+                        $date_start_date = text($group['group_start_date']);
+                        $date_end_date = text($group['group_end_date']);
+                    }
+
+
+                    ?>
+
                     <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
-                    <td><?php echo text($group['group_start_date']);?></td>
-                    <td><?php echo $group['group_end_date'] == '0000-00-00' ? '' : text($group['group_end_date']) ; ?></td>
+                    <td><?php echo $date_start_date;?></td>
+                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : $date_end_date; ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo text($counselor) . " </br> ";
@@ -142,8 +154,8 @@
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if($group['group_status'] != 20): ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
-                        <?php endif; ?>
+                        <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
+                <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -164,9 +176,9 @@
 
         /* Initialise Datetime Picker */
         $('.datetimepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = true; ?>
-            <?php $datetimepicker_showseconds = true; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = (($_SESSION['language_direction'] == 'rtl') ? true : false); ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -213,9 +225,9 @@
         /* ------------ Toggle filter functions on keyup/change ----------- */
 
         /*
-        * Note: where there is an explicit extension made for the filter, just table.draw() was used.
-        * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
-        */
+         * Note: where there is an explicit extension made for the filter, just table.draw() was used.
+         * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
+         */
 
 
         /* ---- Datetimepickers ---- */
@@ -276,20 +288,54 @@
                 var iFini = document.getElementById('group_from_start_date_filter').value;
             }
             else{
-                var iFini = new Date(document.getElementById('group_from_start_date_filter').value);
+                var iFini_StartDateCol = document.getElementById('group_from_start_date_filter').value;
+                iFini_StartDateCol = iFini_StartDateCol.replace(/\//g,'-');
+
+                <?php
+                if($_SESSION['language_direction'] == 'rtl') {
+                    echo "var parts = iFini_StartDateCol.split('-');\n";
+                    echo "iFini_StartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+                }
+                ?>
+
+                iFini = new Date(iFini_StartDateCol);
             }
 
             if(document.getElementById('group_to_start_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_start_date_filter').value;
             }
             else{
-                var iFfin = new Date(document.getElementById('group_to_start_date_filter').value);
+                var iFfin_StartDateCol = document.getElementById('group_from_start_date_filter').value;
+                iFfin_StartDateCol = iFfin_StartDateCol.replace(/\//g,'-');
+
+                <?php
+                if($_SESSION['language_direction'] == 'rtl') {
+                    echo "var parts = iFfin_StartDateCol.split('-');\n";
+                    echo "iFfin_StartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+                }
+                ?>
+
+                iFfin = new Date(iFfin_StartDateCol);
             }
 
             var iStartDateCol = 4;
             var iEndDateCol = 4;
-            var datofini = new Date(aData[iStartDateCol]);
-            var datoffin = new Date(aData[iEndDateCol]);
+
+            iStartDateCol = aData[iStartDateCol].replace(/\//g,'-');
+            iEndDateCol = aData[iEndDateCol].replace(/\//g,'-');
+
+            <?php
+            if($_SESSION['language_direction'] == 'rtl'){
+                echo "var parts = iStartDateCol.split('-');\n";
+                echo "iStartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+
+                echo "var parts = iEndDateCol.split('-');\n";
+                echo "iEndDateCol = parts[2]  + '-' + parts[1] + '-' + parts[0];\n";
+            }
+            ?>
+
+            var datofini = new Date(iStartDateCol);
+            var datoffin = new Date(iEndDateCol);
 
 
             if ( iFini === "" && iFfin === "" )
@@ -320,20 +366,54 @@
                 var iFini = document.getElementById('group_from_end_date_filter').value;
             }
             else{
-                var iFini = new Date(document.getElementById('group_from_end_date_filter').value);
+                var iFini_EndDateCol = document.getElementById('group_from_end_date_filter').value;
+                iFini_EndDateCol = iFini_EndDateCol.replace(/\//g,'-');
+
+                <?php
+                if($_SESSION['language_direction'] == 'rtl') {
+                    echo "var parts = iFini_EndDateCol.split('-');\n";
+                    echo "iFini_EndDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+                }
+                ?>
+
+                iFini = new Date(iFini_EndDateCol);
             }
 
             if(document.getElementById('group_to_end_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_end_date_filter').value;
             }
             else{
-                var iFfin = new Date(document.getElementById('group_to_end_date_filter').value);
+                var iFfin_EndDateCol = document.getElementById('group_from_end_date_filter').value;
+                iFfin_EndDateCol = iFfin_EndDateCol.replace(/\//g,'-');
+
+                <?php
+                if($_SESSION['language_direction'] == 'rtl') {
+                    echo "var parts = iFfin_EndDateCol.split('-');\n";
+                    echo "iFfin_EndDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+                }
+                ?>
+
+                iFfin = new Date(iFfin_EndDateCol);
             }
 
             var iStartDateCol = 5;
             var iEndDateCol = 5;
-            var datofini = new Date(aData[iStartDateCol]);
-            var datoffin = new Date(aData[iEndDateCol]);
+
+            iStartDateCol = aData[iStartDateCol].replace(/\//g,'-');
+            iEndDateCol = aData[iEndDateCol].replace(/\//g,'-');
+
+            <?php
+            if($_SESSION['language_direction'] == 'rtl'){
+                echo "var parts = iStartDateCol.split('-');\n";
+                echo "iStartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+
+                echo "var parts = iEndDateCol.split('-');\n";
+                echo "iEndDateCol = parts[2]  + '-' + parts[1] + '-' + parts[0];\n";
+            }
+            ?>
+
+            var datofini = new Date(iStartDateCol);
+            var datoffin = new Date(iEndDateCol);
 
 
             if ( iFini === "" && iFfin === "" )
