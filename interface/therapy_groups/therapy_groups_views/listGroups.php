@@ -25,6 +25,7 @@
  */
 ?>
 <?php require 'header.php'; ?>
+<?php require_once("{$GLOBALS['srcdir']}/formatting.inc.php"); ?>
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
@@ -126,24 +127,12 @@
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
-                    <?php
-                    if($_SESSION['language_direction'] == 'rtl'){
-                        $date_start_date = date('d/m/Y',strtotime(text($group['group_start_date'])));
-                        $date_end_date = date('d/m/Y',strtotime(text($group['group_end_date'])));
-                    }else{
-                        $date_start_date = text($group['group_start_date']);
-                        $date_end_date = text($group['group_end_date']);
-                    }
-
-
-                    ?>
-
                     <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
-                    <td><?php echo $date_start_date;?></td>
-                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : $date_end_date; ?></td>
+                    <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
+                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo text($counselor) . " </br> ";
@@ -155,7 +144,7 @@
                         //Enable deletion only for groups that weren't yet deleted.
                         if($group['group_status'] != 20): ?>
                         <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
-                <?php endif; ?>
+                    <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -276,6 +265,21 @@
         });
     });
 
+    function oeFormatShortDate(value){
+        var value = value.replace(/\//g,'-');
+
+        <?php
+        echo "var parts = value.split('-');\n";
+
+        if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy, note year is added below
+            echo "value = parts[2] + '-' + parts[0]  + '-' + parts[1];\n";
+        else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy, note year is added below
+            echo "value = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
+        ?>
+
+        return value;
+    }
+
     /* ========= End Of Data Table & Filters Initialisation ========= */
 
     /* ======= DATATABLE FILTER EXTENSIONS ======== */
@@ -288,54 +292,21 @@
                 var iFini = document.getElementById('group_from_start_date_filter').value;
             }
             else{
-                var iFini_StartDateCol = document.getElementById('group_from_start_date_filter').value;
-                iFini_StartDateCol = iFini_StartDateCol.replace(/\//g,'-');
-
-                <?php
-                if($_SESSION['language_direction'] == 'rtl') {
-                    echo "var parts = iFini_StartDateCol.split('-');\n";
-                    echo "iFini_StartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
-                }
-                ?>
-
-                iFini = new Date(iFini_StartDateCol);
+                var iFini = new Date(oeFormatShortDate(document.getElementById('group_from_start_date_filter').value));
             }
 
             if(document.getElementById('group_to_start_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_start_date_filter').value;
             }
             else{
-                var iFfin_StartDateCol = document.getElementById('group_from_start_date_filter').value;
-                iFfin_StartDateCol = iFfin_StartDateCol.replace(/\//g,'-');
-
-                <?php
-                if($_SESSION['language_direction'] == 'rtl') {
-                    echo "var parts = iFfin_StartDateCol.split('-');\n";
-                    echo "iFfin_StartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
-                }
-                ?>
-
-                iFfin = new Date(iFfin_StartDateCol);
+                var iFfin = new Date(oeFormatShortDate(document.getElementById('group_to_start_date_filter').value));
             }
 
             var iStartDateCol = 4;
             var iEndDateCol = 4;
 
-            iStartDateCol = aData[iStartDateCol].replace(/\//g,'-');
-            iEndDateCol = aData[iEndDateCol].replace(/\//g,'-');
-
-            <?php
-            if($_SESSION['language_direction'] == 'rtl'){
-                echo "var parts = iStartDateCol.split('-');\n";
-                echo "iStartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
-
-                echo "var parts = iEndDateCol.split('-');\n";
-                echo "iEndDateCol = parts[2]  + '-' + parts[1] + '-' + parts[0];\n";
-            }
-            ?>
-
-            var datofini = new Date(iStartDateCol);
-            var datoffin = new Date(iEndDateCol);
+            var datofini = new Date(oeFormatShortDate(aData[iStartDateCol]));
+            var datoffin = new Date(oeFormatShortDate(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )
@@ -366,54 +337,23 @@
                 var iFini = document.getElementById('group_from_end_date_filter').value;
             }
             else{
-                var iFini_EndDateCol = document.getElementById('group_from_end_date_filter').value;
-                iFini_EndDateCol = iFini_EndDateCol.replace(/\//g,'-');
-
-                <?php
-                if($_SESSION['language_direction'] == 'rtl') {
-                    echo "var parts = iFini_EndDateCol.split('-');\n";
-                    echo "iFini_EndDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
-                }
-                ?>
-
-                iFini = new Date(iFini_EndDateCol);
+                var iFini = new Date(oeFormatShortDate(document.getElementById('group_from_end_date_filter').value));
             }
 
             if(document.getElementById('group_to_end_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_end_date_filter').value;
             }
             else{
-                var iFfin_EndDateCol = document.getElementById('group_from_end_date_filter').value;
-                iFfin_EndDateCol = iFfin_EndDateCol.replace(/\//g,'-');
-
-                <?php
-                if($_SESSION['language_direction'] == 'rtl') {
-                    echo "var parts = iFfin_EndDateCol.split('-');\n";
-                    echo "iFfin_EndDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
-                }
-                ?>
-
-                iFfin = new Date(iFfin_EndDateCol);
+                var iFfin = new Date(oeFormatShortDate(document.getElementById('group_to_end_date_filter').value));
             }
 
             var iStartDateCol = 5;
             var iEndDateCol = 5;
 
-            iStartDateCol = aData[iStartDateCol].replace(/\//g,'-');
-            iEndDateCol = aData[iEndDateCol].replace(/\//g,'-');
 
-            <?php
-            if($_SESSION['language_direction'] == 'rtl'){
-                echo "var parts = iStartDateCol.split('-');\n";
-                echo "iStartDateCol = parts[2] + '-' + parts[1]  + '-' + parts[0];\n";
 
-                echo "var parts = iEndDateCol.split('-');\n";
-                echo "iEndDateCol = parts[2]  + '-' + parts[1] + '-' + parts[0];\n";
-            }
-            ?>
-
-            var datofini = new Date(iStartDateCol);
-            var datoffin = new Date(iEndDateCol);
+            var datofini = new Date(oeFormatShortDate(aData[iStartDateCol]));
+            var datoffin = new Date(oeFormatShortDate(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )
