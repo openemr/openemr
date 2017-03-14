@@ -77,10 +77,6 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
     </div>
 </div>
 <script>
-    function refreshme() {
-        top.restoreSession();
-        location.reload();
-    }
 
     $('#addEvent').on('click', function(){
         top.restoreSession();

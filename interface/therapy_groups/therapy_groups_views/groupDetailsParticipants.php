@@ -263,7 +263,7 @@
 
     function refreshme() {
         top.restoreSession();
-        location.reload();
+        location.href = "<?php echo $GLOBALS['webroot'] . '/interface/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) ?>";
     }
 
     function newGroup(){
