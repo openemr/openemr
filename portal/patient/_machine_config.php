@@ -49,9 +49,12 @@ GlobalConfig::$CONNECTION_SETTING->DBName = $GLOBALS['dbase'];
 GlobalConfig::$CONNECTION_SETTING->Username = $GLOBALS['login'];
 GlobalConfig::$CONNECTION_SETTING->Password = $GLOBALS['pass'];
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
+if (!$disable_utf8_flag) {
+    GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
+}
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
-// GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET SQL_BIG_SELECTS=1";
+// Turn off STRICT SQL
+GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = ''";
 
 /**
  * the root url of the application with trailing slash, for example http://localhost/patient/
