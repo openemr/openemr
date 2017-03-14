@@ -86,19 +86,19 @@
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_start_date_filter"><?php echo xlt('Starting Date From');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_from_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_start_date_filter"><?php echo xlt('Starting Date To');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_to_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_end_date_filter"><?php echo xlt('End Date From');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_from_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_end_date_filter"><?php echo xlt('End Date To');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_to_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_to_end_date_filter" placeholder="" >
             </div>
 
         </div>
@@ -162,8 +162,8 @@
 
 //        var lang = '<?php //echo $lang ?>//';//get language support for filters
 
-        /* Initialise Datetime Picker */
-        $('.datetimepicker').datetimepicker({
+        /* Initialise Date Picker */
+        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
