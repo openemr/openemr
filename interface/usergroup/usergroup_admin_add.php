@@ -162,7 +162,11 @@ function authorized_clicked() {
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
 <td style="width:150px;"><span class="text"><?php xl('Username','e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
-<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type=entry style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+    <?php if(!$GLOBALS['use_active_directory']) { ?>
+<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+    <?php }else{ ?>
+        <td> <input type="hidden" value="124" name="stiltskin" /></td>
+    <?php } ?>
 </tr>
 <tr>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>

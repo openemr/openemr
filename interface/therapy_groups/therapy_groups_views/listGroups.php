@@ -86,19 +86,19 @@
         <div class="row">
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_start_date_filter"><?php echo xlt('Starting Date From');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_from_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_from_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_start_date_filter"><?php echo xlt('Starting Date To');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_to_start_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_to_start_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_from_end_date_filter"><?php echo xlt('End Date From');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_from_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_from_end_date_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_to_end_date_filter"><?php echo xlt('End Date To');?>:</label>
-                <input type="text" class="form-control datetimepicker" id="group_to_end_date_filter" placeholder="" >
+                <input type="text" class="form-control datepicker" id="group_to_end_date_filter" placeholder="" >
             </div>
 
         </div>
@@ -130,8 +130,8 @@
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
-                    <td><?php echo text($group['group_start_date']);?></td>
-                    <td><?php echo $group['group_end_date'] == '0000-00-00' ? '' : text($group['group_end_date']) ; ?></td>
+                    <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
+                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo text($counselor) . " </br> ";
@@ -144,6 +144,7 @@
                         if($group['group_status'] == 10): ?>
                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
                         <?php endif; ?>
+
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -162,11 +163,11 @@
 
 //        var lang = '<?php //echo $lang ?>//';//get language support for filters
 
-        /* Initialise Datetime Picker */
-        $('.datetimepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = true; ?>
-            <?php $datetimepicker_showseconds = true; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+        /* Initialise Date Picker */
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -213,9 +214,9 @@
         /* ------------ Toggle filter functions on keyup/change ----------- */
 
         /*
-        * Note: where there is an explicit extension made for the filter, just table.draw() was used.
-        * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
-        */
+         * Note: where there is an explicit extension made for the filter, just table.draw() was used.
+         * Otherwise 'table.columns(  ).search( this.value ).draw();' was used.
+         */
 
 
         /* ---- Datetimepickers ---- */
@@ -264,6 +265,9 @@
         });
     });
 
+    /* Bring in the DateToYYYYMMDD_js function */
+    <?php require($GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
+
     /* ========= End Of Data Table & Filters Initialisation ========= */
 
     /* ======= DATATABLE FILTER EXTENSIONS ======== */
@@ -276,20 +280,21 @@
                 var iFini = document.getElementById('group_from_start_date_filter').value;
             }
             else{
-                var iFini = new Date(document.getElementById('group_from_start_date_filter').value);
+                var iFini = new Date(DateToYYYYMMDD_js(document.getElementById('group_from_start_date_filter').value));
             }
 
             if(document.getElementById('group_to_start_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_start_date_filter').value;
             }
             else{
-                var iFfin = new Date(document.getElementById('group_to_start_date_filter').value);
+                var iFfin = new Date(DateToYYYYMMDD_js(document.getElementById('group_to_start_date_filter').value));
             }
 
             var iStartDateCol = 4;
             var iEndDateCol = 4;
-            var datofini = new Date(aData[iStartDateCol]);
-            var datoffin = new Date(aData[iEndDateCol]);
+
+            var datofini = new Date(DateToYYYYMMDD_js(aData[iStartDateCol]));
+            var datoffin = new Date(DateToYYYYMMDD_js(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )
@@ -320,20 +325,23 @@
                 var iFini = document.getElementById('group_from_end_date_filter').value;
             }
             else{
-                var iFini = new Date(document.getElementById('group_from_end_date_filter').value);
+                var iFini = new Date(DateToYYYYMMDD_js(document.getElementById('group_from_end_date_filter').value));
             }
 
             if(document.getElementById('group_to_end_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_end_date_filter').value;
             }
             else{
-                var iFfin = new Date(document.getElementById('group_to_end_date_filter').value);
+                var iFfin = new Date(DateToYYYYMMDD_js(document.getElementById('group_to_end_date_filter').value));
             }
 
             var iStartDateCol = 5;
             var iEndDateCol = 5;
-            var datofini = new Date(aData[iStartDateCol]);
-            var datoffin = new Date(aData[iEndDateCol]);
+
+
+
+            var datofini = new Date(DateToYYYYMMDD_js(aData[iStartDateCol]));
+            var datoffin = new Date(DateToYYYYMMDD_js(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )

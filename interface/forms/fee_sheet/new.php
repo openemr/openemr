@@ -870,6 +870,7 @@ echo " </tr>\n";
 <?php } // end encounter not billed ?>
 
 <table cellspacing='5'>
+ <?php if ($billresult) { ?>
  <tr>
   <td class='billcell'><b><?php echo xlt('Type');?></b></td>
   <td class='billcell'><b><?php echo xlt('Code');?></b></td>
@@ -895,7 +896,7 @@ echo " </tr>\n";
 <?php } ?>  
   <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
  </tr>
-
+ <?php } ?>
 <?php
 $justinit = "var f = document.forms[0];\n";
 

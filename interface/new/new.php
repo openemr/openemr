@@ -1,4 +1,22 @@
 <?php
+/**
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+*
+* @package   OpenEMR
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @link      http://www.open-emr.org
+*/
+
 include_once("../globals.php");
 
 if ($GLOBALS['full_new_patient_form']) {
@@ -32,12 +50,12 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 <head>
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
@@ -67,6 +85,23 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
   top.restoreSession();
   return true;
  }
+
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+      <?php $datetimepicker_timepicker = false; ?>
+      <?php $datetimepicker_showseconds = false; ?>
+      <?php $datetimepicker_formatInput = false; ?>
+      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+    $('.datetimepicker').datetimepicker({
+      <?php $datetimepicker_timepicker = true; ?>
+      <?php $datetimepicker_showseconds = false; ?>
+      <?php $datetimepicker_formatInput = false; ?>
+      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 
 </script>
 
@@ -183,16 +218,9 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('Birth Date','e');?>: </span>
   </td>
   <td>
-   <input type='text' size='10' name='DOB' id='DOB'
+   <input type='text' size='10' class='datepicker' name='DOB' id='DOB'
     value='<?php echo $form_dob; ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
-   <script LANGUAGE="JavaScript">
-    Calendar.setup({inputField:"DOB", ifFormat:"%Y-%m-%d", button:"img_dob"});
-   </script>
   </td>
  </tr>
 
@@ -201,16 +229,9 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('Registration Date','e');?>: </span>
   </td>
   <td>
-   <input type='text' size='10' name='regdate' id='regdate'
+   <input type='text' size='10' class='datepicker' name='regdate' id='regdate'
     value='<?php echo $form_regdate; ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_regdate' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
-   <script LANGUAGE="JavaScript">
-    Calendar.setup({inputField:"regdate", ifFormat:"%Y-%m-%d", button:"img_regdate"});
-   </script>
   </td>
  </tr>
 
