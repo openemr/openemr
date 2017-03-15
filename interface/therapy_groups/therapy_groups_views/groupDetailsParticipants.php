@@ -58,7 +58,7 @@
                                             <div class="col-md-offset-1 col-md-5">
                                                 <div class="row">
                                                     <div class="col-md-4">
-                                                        <span class="bold"><?php echo xlt('Participant’s name'); ?>:</span>
+                                                        <span class="bold"><?php echo xlt("Participant's name"); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
                                                         <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']): ''?>" readonly>
@@ -263,7 +263,7 @@
 
     function refreshme() {
         top.restoreSession();
-        location.reload();
+        location.href = "<?php echo $GLOBALS['webroot'] . '/interface/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) ?>";
     }
 
     function newGroup(){

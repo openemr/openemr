@@ -38,8 +38,9 @@ class TherapyGroupsController extends BaseController{
     public static function prepareStatusesList()
     {
         $statuses = array(
-            '10' => xl('active'),
-            '20' => xl('deleted')
+            '10' => xl('Active'),
+            '20' => xl('Finished'),
+            '30' => xl('Canceled')
         );
         return $statuses;
     }
@@ -48,8 +49,8 @@ class TherapyGroupsController extends BaseController{
     public static function prepareParticipantStatusesList()
     {
         $participant_statuses = array(
-                '10' => 'active',
-                '20' => 'not active'
+                '10' => xl('Active'),
+                '20' => xl('Not active')
         );
         return $participant_statuses;
     }
@@ -58,9 +59,9 @@ class TherapyGroupsController extends BaseController{
     public static function prepareGroupTypesList()
     {
         $group_types = array(
-            '1' => 'closed',
-            '2' => 'open',
-            '3' => 'training'
+            '1' => xl('Closed'),
+            '2' => xl('Open'),
+            '3' => xl('Training')
         );
         return $group_types;
     }
@@ -69,8 +70,8 @@ class TherapyGroupsController extends BaseController{
     public static function prepareGroupParticipationList()
     {
         $group_participation = array(
-            '1' => 'mandatory',
-            '2' => 'optional'
+            '1' => xl('Mandatory'),
+            '2' => xl('Optional')
         );
         return $group_participation;
     }
@@ -327,9 +328,9 @@ class TherapyGroupsController extends BaseController{
             $response['message'] = xl("Deletion failed because group has appointments or encounters");
         }
         else{
-            //Change group status to 'deleted'.
+            //Change group status to 'canceled'.
             $therapy_groups_model = $this->loadModel('Therapy_Groups');
-            $therapy_groups_model->changeGroupStatus($group_id, 20);
+            $therapy_groups_model->changeGroupStatus($group_id, 30);
             $response['success'] = 1;
         }
 
