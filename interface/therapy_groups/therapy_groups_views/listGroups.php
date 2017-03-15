@@ -25,7 +25,6 @@
  */
 ?>
 <?php require 'header.php'; ?>
-<?php require_once("{$GLOBALS['srcdir']}/formatting.inc.php"); ?>
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
@@ -265,7 +264,7 @@
         });
     });
 
-    function oeFormatShortDate(value){
+    function DateToYYYYMMDD_js(value){
         var value = value.replace(/\//g,'-');
         var parts = value.split('-');
         var date_display_format = <?php echo (empty($GLOBALS['date_display_format']) ? 0 : $GLOBALS['date_display_format']) ?>;
@@ -290,21 +289,21 @@
                 var iFini = document.getElementById('group_from_start_date_filter').value;
             }
             else{
-                var iFini = new Date(oeFormatShortDate(document.getElementById('group_from_start_date_filter').value));
+                var iFini = new Date(DateToYYYYMMDD_js(document.getElementById('group_from_start_date_filter').value));
             }
 
             if(document.getElementById('group_to_start_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_start_date_filter').value;
             }
             else{
-                var iFfin = new Date(oeFormatShortDate(document.getElementById('group_to_start_date_filter').value));
+                var iFfin = new Date(DateToYYYYMMDD_js(document.getElementById('group_to_start_date_filter').value));
             }
 
             var iStartDateCol = 4;
             var iEndDateCol = 4;
 
-            var datofini = new Date(oeFormatShortDate(aData[iStartDateCol]));
-            var datoffin = new Date(oeFormatShortDate(aData[iEndDateCol]));
+            var datofini = new Date(DateToYYYYMMDD_js(aData[iStartDateCol]));
+            var datoffin = new Date(DateToYYYYMMDD_js(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )
@@ -335,14 +334,14 @@
                 var iFini = document.getElementById('group_from_end_date_filter').value;
             }
             else{
-                var iFini = new Date(oeFormatShortDate(document.getElementById('group_from_end_date_filter').value));
+                var iFini = new Date(DateToYYYYMMDD_js(document.getElementById('group_from_end_date_filter').value));
             }
 
             if(document.getElementById('group_to_end_date_filter').value === ""){
                 var iFfin = document.getElementById('group_to_end_date_filter').value;
             }
             else{
-                var iFfin = new Date(oeFormatShortDate(document.getElementById('group_to_end_date_filter').value));
+                var iFfin = new Date(DateToYYYYMMDD_js(document.getElementById('group_to_end_date_filter').value));
             }
 
             var iStartDateCol = 5;
@@ -350,8 +349,8 @@
 
 
 
-            var datofini = new Date(oeFormatShortDate(aData[iStartDateCol]));
-            var datoffin = new Date(oeFormatShortDate(aData[iEndDateCol]));
+            var datofini = new Date(DateToYYYYMMDD_js(aData[iStartDateCol]));
+            var datoffin = new Date(DateToYYYYMMDD_js(aData[iEndDateCol]));
 
 
             if ( iFini === "" && iFfin === "" )
