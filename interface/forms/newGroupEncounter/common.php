@@ -279,7 +279,7 @@ if ($fres) {
  if ($sensitivities && count($sensitivities)) {
   usort($sensitivities, "sensitivity_compare");
 ?>
-     <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?>:</td>
+     <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
      <td class='text'>
       <select name='form_sensitivity'>
 <?php

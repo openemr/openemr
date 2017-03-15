@@ -38,9 +38,9 @@ class TherapyGroupsController extends BaseController{
     public static function prepareStatusesList()
     {
         $statuses = array(
-            '10' => xl('active'),
-            '20' => xl('finished'),
-            '30' => xl('canceled')
+            '10' => xl('Active'),
+            '20' => xl('Finished'),
+            '30' => xl('Canceled')
         );
         return $statuses;
     }
@@ -49,8 +49,8 @@ class TherapyGroupsController extends BaseController{
     public static function prepareParticipantStatusesList()
     {
         $participant_statuses = array(
-                '10' => xl('active'),
-                '20' => xl('not active')
+                '10' => xl('Active'),
+                '20' => xl('Not active')
         );
         return $participant_statuses;
     }
@@ -59,9 +59,9 @@ class TherapyGroupsController extends BaseController{
     public static function prepareGroupTypesList()
     {
         $group_types = array(
-            '1' => xl('closed'),
-            '2' => xl('open'),
-            '3' => xl('training')
+            '1' => xl('Closed'),
+            '2' => xl('Open'),
+            '3' => xl('Training')
         );
         return $group_types;
     }
@@ -70,8 +70,8 @@ class TherapyGroupsController extends BaseController{
     public static function prepareGroupParticipationList()
     {
         $group_participation = array(
-            '1' => xl('mandatory'),
-            '2' => xl('optional')
+            '1' => xl('Mandatory'),
+            '2' => xl('Optional')
         );
         return $group_participation;
     }
