@@ -345,7 +345,7 @@ if ($encounter) {
     "encounter = ?", array($pid, $encounter));
 }
 
-$templatedir   = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates';
+$templatedir   = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates';
 $templatepath  = "$templatedir/$form_filename";
 // test if this is folder with template, if not, must be for a specific patient
 if( ! file_exists($templatepath) ){

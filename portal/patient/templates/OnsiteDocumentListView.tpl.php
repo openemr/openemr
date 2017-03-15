@@ -36,8 +36,10 @@
 	$ptName = isset ($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
 	$cuser = isset ( $_SESSION ['sessionUser'] ) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
 	echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
-	echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>"
-
+	echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>";
+	echo "<script>var alertMsg1='" . xlt("Saved to Documents->Onsite Portal->Reviewed - Open there to move or rename.") . "';</script>";
+	echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
+	echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 ?>
 <!DOCTYPE html>
 <html>
@@ -76,8 +78,8 @@
 	</head>
 
 <script type="text/javascript">
-	$LAB.script("scripts/app/onsitedocuments.js?$$TIME$$").wait()
-		.script("scripts/app/onsiteportalactivities.js?$$TIME$$").wait(function(){
+	$LAB.script("scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+		.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 		$(document).ready(function(){
 			page.init();
 			pageAudit.init();
@@ -243,7 +245,7 @@ body {
 				<div class="panel panel-primary" id="docpanel">
 					<header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
 					<div id="loader" style="display:none;"></div>
-					<form id='template' name='template' role="form"	action="./../lib/doc_lib.php" method="POST" >
+					<form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
 						<div id="loader" style="display:none;"></div>
 						<div id="templatediv" class="panel-body" style="margin:0 auto; background:white">
 							<p id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></p>

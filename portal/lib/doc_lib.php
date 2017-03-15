@@ -21,7 +21,6 @@
  * @link http://www.open-emr.org
  */
 $ignoreAuth = true;
-//require_once ( dirname( __file__ ) . "/../verify_session.php" );
 session_start();
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
     $pid = $_SESSION['pid'];
@@ -56,7 +55,7 @@ $dispose = $_POST['handler'];
 
 try{
     $form_filename = $_REQUEST['docid'] . '_' . $GLOBALS['pid'] . '.pdf';
-    $templatedir = $GLOBALS['OE_SITE_DIR'] . "/../../portal/patient_documents";
+    $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
     $htmlout = '';
     $pdf = new HTML2PDF( $GLOBALS['pdf_layout'], $GLOBALS['pdf_size'], $GLOBALS['pdf_language'], true,
@@ -77,15 +76,11 @@ try{
         $data = $pdf->Output( $form_filename, 'S' );
         ob_start();
         $d = new Document();
-        $rc = $d->createDocument( $GLOBALS['pid'], 4, $form_filename, 'application/pdf', $data );
+        $rc = $d->createDocument( $GLOBALS['pid'], 29, $form_filename, 'application/pdf', $data );
         ob_clean();
         echo $rc;
         $logit->portalLog('chart document',$_SESSION['pid'],('document:'.$form_filename));
-        /* if(isset($_SERVER["HTTP_REFERER"])){
-          header("Location: {$_SERVER["HTTP_REFERER"]}");
-        } */
-    // $data = file_get_contents('out.pdf', $binary);
-    // readfile("$templatepath"); /**/
+
     exit(0);
     };
 }
@@ -93,6 +88,7 @@ catch(Exception $e){
     echo 'Message: ' .$e->getMessage();
     die(xlt("no signature in document"));
 }
+// not currently used but meant to be.
 function doc_toDoc( $htmlin ){
     header( "Content-type: application/vnd.oasis.opendocument.text" );
     header( "Content-Disposition: attachment;Filename=document_name.html" );
@@ -106,5 +102,4 @@ function doc_toDoc( $htmlin ){
     flush();
     readfile( $fname );
 };
-
 ?>

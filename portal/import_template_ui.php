@@ -26,7 +26,7 @@ $fake_register_globals=false;
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if( $getdir > 0){
-	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $getdir . '/';
+	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $getdir . '/';
 	if(!is_dir($tdir)){
 		if (!mkdir($tdir, 0755, true)) {
 			die(xl('Failed to create folder'));
@@ -34,7 +34,7 @@ if( $getdir > 0){
 	}
 }
 else
-	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/';
+	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/';
 
 function getAuthUsers(){
 	$response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
@@ -55,7 +55,6 @@ function getTemplateList($dir){
 			$retval[] = array(
 					'pathname' => "$dir$entry",
 					'name' => "$entry",
-					//'type' => filetype("$dir$entry"),
 					'size' => 0,
 					'lastmod' => filemtime("$dir$entry")
 			);
@@ -63,7 +62,6 @@ function getTemplateList($dir){
 			$retval[] = array(
 					'pathname' => "$dir$entry",
 					'name' => "$entry",
-					//'type' => ($finfo) ? finfo_file($finfo, "$dir$entry") : mime_content_type("$dir$entry"),
 					'size' => filesize("$dir$entry"),
 					'lastmod' => filemtime("$dir$entry")
 			);
@@ -82,12 +80,10 @@ function getTemplateList($dir){
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
 <?php } ?>
-
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
@@ -106,7 +102,6 @@ var tsave = function() {
 	var makrup = $('#templatecontent').summernote('code');
 	getDocument(currentEdit, 'save', makrup)
 	};
-
 var tdelete = function(docname) {
 	var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
 	if(delok === true) getDocument(docname, 'delete', '')

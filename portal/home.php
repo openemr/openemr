@@ -38,14 +38,10 @@
  foreach ( $msgs as $i ) {
  	if($i['message_status']=='New') $newcnt += 1;
  }
-
+require_once '_header.php';
  echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
-
- require_once '_header.php';
 ?>
-
 <script type="text/javascript">
-
 $(document).ready(function(){
 	$("#profilereport").load("./get_profile.php", { 'embeddedScreen' : true  }, function() {
 		$( "table" ).addClass( "table  table-responsive" );
@@ -124,7 +120,6 @@ $(document).ready(function(){
         }
     });
 });
-
 </script>
 	<!-- Right side column. Contains content of the page -->
 	<aside class="right-side">
@@ -283,7 +278,7 @@ $(document).ready(function(){
 					<input type="hidden" name="name" id="name" class="name">
 					<ul class="sigNav">
 						<label style='display: none;'><input style='display: none;'
-							type="checkbox" class="" id="isAdmin" name'="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></label>
+							type="checkbox" class="" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></label>
 						<li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Signature');?></button></a></li>
 					</ul>
 					<div class="sig sigWrapper">

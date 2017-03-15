@@ -109,9 +109,10 @@ var page = {
 		this.modelView.templateEl = $("#onsiteDocumentModelTemplate");
 // template rendered ready -------------------------------------------------------//
 		this.modelView.on('rendered',function(){
+			docid = page.onsiteDocument.get('docType');
 			if( cuser != '-patient-'){
 				function todocument(docid) {
-					  h = '/openemr/controller.php?document&view&patient_id=30&doc_id=' + docid;
+					  h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
 					  location.href = h;
 					}
 				$("#signTemplate").hide();
@@ -147,8 +148,7 @@ var page = {
                      });
 					 posting.done(function( rtn ){
 						 page.updateModel();
-						 eModal.alert("Saved to Chart Complete-Open in documents to move or rename.","Success");
-						// location.reload();
+						 eModal.alert(alertMsg1,"Success");
 					 });
 
 				  });
@@ -354,16 +354,6 @@ var page = {
 		app.hideProgress('modelLoader');
 
 		// initialize any special controls
-		try {
-			/*$('.date-picker')
-				.datepicker()
-				.on('changeDate', function(ev){
-					$('.date-picker').datepicker('hide');
-				});*/
-		} catch (error) {
-			// this happens if the datepicker input.value isn't a valid date
-			if (console) console.log('datepicker error: '+error.message);
-		}
 		if (showDeleteButton) {
 			// attach click handlers to the delete buttons
 			$('#confirmDeleteOnsiteDocumentContainer').hide('fast');
@@ -436,7 +426,7 @@ var page = {
 		}, {
 			wait: true,
 			success: function(){
-				setTimeout("app.appendAlert('Document was sucessfully " + (isNew ? "inserted" : "updated") + "','alert-success',2000,'collectionAlert')",500);
+				setTimeout("app.appendAlert('" + msgSuccess + "','alert-success',2000,'collectionAlert')",500);
 				app.hideProgress('modelLoader');
 				pageAudit.onsitePortalActivity.set('date',page.onsiteDocument.get('createDate'))
 				pageAudit.onsitePortalActivity.set('activity','document')
@@ -493,7 +483,7 @@ var page = {
 		page.onsiteDocument.destroy({
 			wait: true,
 			success: function(){
-				setTimeout("app.appendAlert('The OnsiteDocument record was deleted','alert-success',2000,'collectionAlert')",100);
+				setTimeout("app.appendAlert('"+msgDelete+"','alert-success',2000,'collectionAlert')",500);
 				app.hideProgress('modelLoader');
 				pageAudit.onsitePortalActivity.set('status','deleted')
 			    pageAudit.onsitePortalActivity.set('pendingAction','none')
