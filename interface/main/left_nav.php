@@ -764,7 +764,7 @@ function clearactive() {
      clearPatient();
 
      $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
-     setTitleContent('current_patient', '<span><?php echo xls('Therapy Group -');?> <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
+     setTitleContent('current_patient', '<span><?php echo xls('Therapy Group');?> - <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
      if (group_id == active_gid) return;
     setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
      active_gid = group_id;
