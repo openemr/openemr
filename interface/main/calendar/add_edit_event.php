@@ -1764,7 +1764,12 @@ if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
     if ($multiple_value) { $tmptitle .= " for one or more providers:\n"; }
     else { $tmptitle .= "\n"; }
+    $max = $GLOBALS['number_of_ex_appts_to_show'];
+
     $exdates = explode(",", $repeatexdate);
+    if(!empty($exdates)){
+        $exdates=array_slice($exdates,0,$max,true);
+    }
     foreach ($exdates as $exdate) {
         $tmptitle .= date("d M Y", strtotime($exdate))."\n";
     }
