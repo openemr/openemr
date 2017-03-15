@@ -156,9 +156,9 @@ function edih_disp_sftp_upload() {
 	// imaginary form and POST values
 	$str_html = '';
 	if (isset($_POST['post_sftp'])) {
-	$la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_SANITIZE_STRING);
-	$x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_SANITIZE_STRING);
-	//
+	$la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_SANITIZE_STRING)  : ;
+	$x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_SANITIZE_STRING) :;
+	// 
 	if (($la == 'get_sftp') && $x12ptnr) {
 		// yet to be written -- gets x12 partner info and does sftp download
 		$is_sftp = edih_sftp_connect($x12ptnr);

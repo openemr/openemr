@@ -217,7 +217,7 @@ function edih_835_accounting($segments, $delimiters) {
 	 * 
 	 */
 	 
-	if (is_array($segments) && count($segments) {
+	if (is_array($segments) && count($segments)) {
 		$acct = array();
 	} else {
 		csv_edihist_log("edih_835_accounting: invalid segments argument");
@@ -236,7 +236,7 @@ function edih_835_accounting($segments, $delimiters) {
 		if ( strncmp('TRN'.$de, $seg, 4) === 0 ) {
 			$sar = explode($de, $seg);
 			$ck = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : count($out);
-			$out[$ck]['gs_date'] = $gs_date
+			$out[$ck]['gs_date'] = $gs_date;
 			$out[$ck]['check_amount'] = $check_amount;
 			$out[$ck]['check_date'] = $check_date;
 			$out[$ck]['check_number'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : '';
@@ -268,7 +268,7 @@ function edih_835_accounting($segments, $delimiters) {
 			// The 835 spec calls this the "provider-assigned claim control
 			// number" and notes that it is specifically intended for
 			// identifying the claim in the provider's database.
-			$out[$ck]['clp'][$i][['our_claim_id'] = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
+			$out[$ck]['clp'][$i]['our_claim_id'] = (isset($sar[1]) && $sar[1]) ? trim($sar[1]) : "";
 			//
 			$out[$ck]['clp'][$i]['claim_status_code'] = (isset($sar[2]) && $sar[2]) ? trim($sar[2]) : "";
 			$out[$ck]['clp'][$i]['amount_charged']  = (isset($sar[3]) && $sar[3]) ? trim($sar[3]) : "";
@@ -367,7 +367,7 @@ function edih_835_accounting($segments, $delimiters) {
 				//Claim automatic forward case.
 				$out[$ck]['clp'][$i]['crossover'] = 1;
 			}
-		} elseif (strncmp('PER'.$de, $seg, 4) === 0 ) ($segid == 'PER' && $out['loopid'] == '2100') {
+		} elseif ((strncmp('PER'.$de, $seg, 4) === 0 ) && ($segid == 'PER' && $out['loopid'] == '2100')) {
 			  $sar = explode($de, $seg);
             $out['payer_insurance']  = trim($seg[2]);
             $out['warnings'] .= 'Claim contact information: '.$seg[4];
@@ -404,7 +404,8 @@ function edih_835_accounting($segments, $delimiters) {
 				}
 			}
 			}
-			 .= (isset($sar[3]) && $sar[3]) ? trim($sar[3]) : '0';
+			 $plbar .= (isset($sar[3]) && $sar[3]) ? trim($sar[3]) : '0';
+        // I am not sure that the assignment is corrent here, but based on the flow, I frame it. 
         }
 		}
 		if ( strncmp('SVC'.$de, $seg, 4) === 0 ) {
