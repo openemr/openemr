@@ -393,3 +393,11 @@ CREATE TABLE `onsite_signatures` (
   KEY `encounter` (`encounter`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
+
+#IfNotRow categories name Onsite Portal
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Onsite Portal', '', 1, rght, rght + 5 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Patient', '', (select id from categories where name = 'Onsite Portal'), rght + 1, rght + 2 from categories where name = 'Categories';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Reviewed', '', (select id from categories where name = 'Onsite Portal'), rght + 3, rght + 4 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 5 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf

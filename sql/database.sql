@@ -231,7 +231,7 @@ CREATE TABLE `categories` (
 --
 -- Dumping data for table `categories`
 --
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 51);
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 56);
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10);
@@ -257,7 +257,9 @@ INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42);
 INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44);
 INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46);
 INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48);
-
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56);
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53);
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55);
 -- --------------------------------------------------------
 
 --
