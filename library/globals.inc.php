@@ -1412,14 +1412,21 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
-    'number_of_group_appts_to_show' => array(
+      'number_of_group_appts_to_show' => array(
       xl('Appointments - Group Summary - Number to Display'),
       'num',
       '10',
       xl('Number of Appointments to display in the Group Summary')
     ),
+    'number_of_ex_appts_to_show' => array(
+          xl('Excluded Appointments - Tooltip - Number to Display'),
+          'num',
+          '15',
+          xl('Number of Excluded Appointments to display in the Tooltip')
+     ),
 
-    'patient_portal_appt_display_num' => array(
+
+      'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',
       '20',

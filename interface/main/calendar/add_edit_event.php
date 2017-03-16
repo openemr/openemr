@@ -473,12 +473,21 @@ if ($_POST['form_action'] == "save") {
             else if ($_POST['recurr_affect'] == 'future') {
                 // update all existing event records to
                 // stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
-                    // mod original event recur specs to end on this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_enddate = ? ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date,$provider,$row['pc_multiple']) );
+                    // In case of a change in the middle of the event
+                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        // mod original event recur specs to end on this date
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            " pc_enddate = ? " .
+                            " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date, $provider, $row['pc_multiple']));
+                    }
+                    // In case of a change in the event head
+                    else {
+                        sqlStatement("DELETE FROM openemr_postcalendar_events " .
+                            " WHERE pc_aid = ? AND pc_multiple=?" , array($provider, $row['pc_multiple']));
+                    }
+
                 }
 
                 // obtain the next available unique key to group multiple providers around some event
@@ -1764,7 +1773,12 @@ if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
     if ($multiple_value) { $tmptitle .= " for one or more providers:\n"; }
     else { $tmptitle .= "\n"; }
+    $max = $GLOBALS['number_of_ex_appts_to_show'];
+
     $exdates = explode(",", $repeatexdate);
+    if(!empty($exdates)){
+        $exdates=array_slice($exdates,0,$max,true);
+    }
     foreach ($exdates as $exdate) {
         $tmptitle .= date("d M Y", strtotime($exdate))."\n";
     }
