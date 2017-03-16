@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -523,7 +523,8 @@ if ($thisauth): ?>
         <?php endif; // eRX Enabled
         //Patient Portal
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
-        if($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']):
+        if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
+            ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
             $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
             if ($portalStatus['allow_patient_portal']=='YES'):
                 $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
@@ -744,7 +745,9 @@ if ($GLOBALS['patient_id_category_name']) {
         </div> <!-- required for expand_collapse_widget -->
        </td>
       </tr>
-      <?php } ?>
+<?php } ?>
+
+<?php if (acl_check('patients', 'demo')) { ?>
       <tr>
        <td>
 <?php
@@ -977,10 +980,11 @@ if ( $insurance_count > 0 ) {
 
 			</td>
 		</tr>
+<?php } // end if demographics authorized ?>
 
+<?php if (acl_check('patients', 'notes')) { ?>
 		<tr>
 			<td width='650px'>
-
 <?php
 // Notes expand collapse widget
 $widgetTitle = xl("Notes");
@@ -990,19 +994,20 @@ $widgetButtonLink = "pnotes_full.php?form_active=1";
 $widgetButtonClass = "";
 $linkMethod = "html";
 $bodyClass = "notab";
-$widgetAuth = true;
+$widgetAuth = acl_check('patients', 'notes', '', 'write');
 $fixedWidth = true;
 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
   $widgetAuth, $fixedWidth);
 ?>
-
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
 			</td>
 		</tr>
-                <?php if ( (acl_check('patients', 'med')) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) ) {
+<?php } // end if notes authorized ?>
+
+<?php if (acl_check('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) {
                 echo "<tr><td width='650px'>";
                 // patient reminders collapse widget
                 $widgetTitle = xl("Patient Reminders");
@@ -1012,7 +1017,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $widgetButtonClass = "";
                 $linkMethod = "html";
                 $bodyClass = "notab";
-                $widgetAuth = true;
+                $widgetAuth = acl_check('patients', 'reminder', '', 'write');
                 $fixedWidth = true;
                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                     <br/>
@@ -1020,8 +1025,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 </div>
                         </td>
                 </tr>
-                <?php } //end if prw is activated  ?>
+<?php } //end if prw is activated  ?>
 
+<?php if (acl_check('patients', 'disclosure')) { ?>
        <tr>
        <td width='650px'>
 <?php
@@ -1033,7 +1039,7 @@ $widgetButtonLink = "disclosure_full.php";
 $widgetButtonClass = "";
 $linkMethod = "html";
 $bodyClass = "notab";
-$widgetAuth = true;
+$widgetAuth = acl_check('patients', 'disclosure', '', 'write');
 $fixedWidth = true;
 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
@@ -1044,7 +1050,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 </div>
      </td>
     </tr>
-<?php if ($GLOBALS['amendments']) { ?>
+<?php } // end if disclosures authorized ?>
+
+<?php if ($GLOBALS['amendments'] && acl_check('patients', 'amendment')) { ?>
   <tr>
        <td width='650px'>
        	<?php // Amendments widget
@@ -1055,7 +1063,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	$widgetButtonClass = "iframe rx_modal";
     $linkMethod = "html";
     $bodyClass = "summary_item small";
-    $widgetAuth = true;
+    $widgetAuth = acl_check('patients', 'amendment', '', 'write');
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
        	$sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
@@ -1076,8 +1084,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   } ?>
   </td>
     </tr>
-<?php } ?>
- <?php // labdata ?>
+<?php } // end amendments authorized ?>
+
+<?php if (acl_check('patients', 'lab')) { ?>
     <tr>
      <td width='650px'>
 <?php // labdata expand collapse widget
@@ -1111,10 +1120,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       </div>
      </td>
     </tr>
-<?php  // end labdata ?>
-
-
-
+<?php } // end labs authorized ?>
 
 <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
     <tr>
@@ -1151,11 +1157,14 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   // This generates a section similar to Vitals for each LBF form that
   // supports charting.  The form ID is used as the "widget label".
   //
-  $gfres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+  $gfres = sqlStatement("SELECT option_id, title, notes FROM list_options WHERE " .
     "list_id = 'lbfnames' AND " .
     "option_value > 0 AND activity = 1 " .
     "ORDER BY seq, title");
   while($gfrow = sqlFetchArray($gfres)) {
+    $jobj = json_decode($gfrow['notes'], true);
+    $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
+    if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) continue;
 ?>
     <tr>
      <td width='650px'>
@@ -1168,11 +1177,14 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $widgetButtonClass = "";
     $linkMethod = "html";
     $bodyClass = "notab";
-    // check to see if any instances exist for this patient
-    $existVitals = sqlQuery(
-      "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
-      array($pid, $vitals_form_id));
-    $widgetAuth = $existVitals ? true : false;
+    $widgetAuth = false;
+    if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
+      // check to see if any instances exist for this patient
+      $existVitals = sqlQuery(
+        "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
+        array($pid, $vitals_form_id));
+      $widgetAuth = $existVitals;
+    }
     $fixedWidth = true;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
@@ -1315,9 +1327,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  echo "   <br />&nbsp;<br />\n";
 	}
 
-     // Show Clinical Reminders for any user that has rules that are permitted.
-     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
-     if ( (!empty($clin_rem_check)) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
+    // Show Clinical Reminders for any user that has rules that are permitted.
+    $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
+    if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
+        acl_check('patients', 'reminder'))
+    {
         // clinical summary expand collapse widget
         $widgetTitle = xl("Clinical Reminders");
         $widgetLabel = "clinical_reminders";
@@ -1326,21 +1340,20 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "";
         $linkMethod = "html";
         $bodyClass = "summary_item small";
-        $widgetAuth = true;
+        $widgetAuth = acl_check('patients', 'reminder', '', 'write');
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         echo "<br/>";
         echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
         echo "</div>";
-        } // end if crw
-
+    } // end if crw
 
       // Show current and upcoming appointments.
       //
       // Recurring appointment support and Appointment Display Sets
       // added to Appointments by Ian Jardine ( epsdky ).
       //
-      if (isset($pid) && !$GLOBALS['disable_calendar']) {
+      if (isset($pid) && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
       //
         $current_date2 = date('Y-m-d');
         $events = array();
@@ -1425,7 +1438,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "";
         $linkMethod = "javascript";
         $bodyClass = "summary_item small";
-        $widgetAuth = $resNotNull; // $resNotNull reflects state of query in fetchAppointments
+        $widgetAuth = $resNotNull // $resNotNull reflects state of query in fetchAppointments
+           && (acl_check('patients', 'appt', '', 'write') || acl_check('patients', 'appt', '', 'addonly'));
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
@@ -1496,9 +1510,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       } // End of Appointments.
 
 
-      /* Widget that shows recurrences for appointments. */
-     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget']) {
-
+    /* Widget that shows recurrences for appointments. */
+    if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget'] &&
+        acl_check('patients', 'appt'))
+    {
          $widgetTitle = xl("Recurrent Appointments");
          $widgetLabel = "recurrent_appointments";
          $widgetButtonLabel = xl("Add");
@@ -1543,33 +1558,31 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      }
      /* End of recurrence widget */
 
+    // Show PAST appointments.
+    // added by Terry Hill to allow reverse sorting of the appointments
+    $direction = "ASC";
+    if ($GLOBALS['num_past_appointments_to_show'] < 0) {
+        $direction = "DESC";
+        ($showpast = -1 * $GLOBALS['num_past_appointments_to_show']);
+    }
+    else {
+      $showpast = $GLOBALS['num_past_appointments_to_show'];
+    }
+    if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 &&
+      acl_check('patients', 'appt')) {
+      $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+        "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
+        "c.pc_catname, e.pc_apptstatus " .
+        "FROM openemr_postcalendar_events AS e, users AS u, " .
+        "openemr_postcalendar_categories AS c WHERE " .
+        "e.pc_pid = ? AND e.pc_eventDate < CURRENT_DATE AND " .
+        "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
+        "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " .
+        "LIMIT " . $showpast;
 
-	// Show PAST appointments.
-	// added by Terry Hill to allow reverse sorting of the appointments
- 	$direction = "ASC";
-	if ($GLOBALS['num_past_appointments_to_show'] < 0) {
-	   $direction = "DESC";
-	   ($showpast = -1 * $GLOBALS['num_past_appointments_to_show'] );
-	   }
-	   else
-	   {
-	   $showpast = $GLOBALS['num_past_appointments_to_show'];
-	   }
+      $pres = sqlStatement($query, array($pid) );
 
-	if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0) {
-	 $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-	  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
-	  "c.pc_catname, e.pc_apptstatus " .
-	  "FROM openemr_postcalendar_events AS e, users AS u, " .
-	  "openemr_postcalendar_categories AS c WHERE " .
-	  "e.pc_pid = ? AND e.pc_eventDate < CURRENT_DATE AND " .
-	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
-	  "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " .
-      "LIMIT " . $showpast;
-
-     $pres = sqlStatement($query, array($pid) );
-
-	// appointments expand collapse widget
+      // appointments expand collapse widget
         $widgetTitle = xl("Past Appointments");
         $widgetLabel = "past_appointments";
         $widgetButtonLabel = '';
@@ -1607,9 +1620,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         echo "</div>";
         }
     }
-// END of past appointments
-
-			?>
+    // END of past appointments
+?>
 		</div>
 
 		<div id='stats_div'>

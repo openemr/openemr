@@ -3,7 +3,7 @@
  * Script for the globals editor.
  *
  * Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

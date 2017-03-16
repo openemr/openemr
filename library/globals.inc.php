@@ -449,6 +449,13 @@ $GLOBALS_METADATA = array(
       xl('This will allow selection of the debugging (\'dummy\') language.')
     ),
 
+    'translate_no_safe_apostrophe' => array(
+      xl('Do Not Use Safe Apostrophe'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
+    ),
+
     'translate_layout' => array(
       xl('Translate Layouts'),
       'bool',                           // data type
@@ -1032,7 +1039,7 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
     ),
-  
+
       'billing_phone_number' => array(
       xl('Custom Billing Phone Number'),
       'text',                           // data type
@@ -1405,14 +1412,21 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
-    'number_of_group_appts_to_show' => array(
+      'number_of_group_appts_to_show' => array(
       xl('Appointments - Group Summary - Number to Display'),
       'num',
       '10',
       xl('Number of Appointments to display in the Group Summary')
     ),
+    'number_of_ex_appts_to_show' => array(
+          xl('Excluded Appointments - Tooltip - Number to Display'),
+          'num',
+          '15',
+          xl('Number of Excluded Appointments to display in the Tooltip')
+     ),
 
-    'patient_portal_appt_display_num' => array(
+
+      'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',
       '20',
@@ -1573,14 +1587,18 @@ $GLOBALS_METADATA = array(
       '7200',                           // default
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
-
+    'secure_upload' => array(
+      xl('Secure Upload Files with White List'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Block all files types that are not found in the White List. Can find interface to edit the White List at Administration->Files.')
+    ),
     'secure_password' => array(
       xl('Require Strong Passwords'),
       'bool',                           // data type
       '0',                              // default
       xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
     ),
-
     'password_history' => array(
       xl('Require Unique Passwords'),
       'bool',                           // data type
@@ -1642,24 +1660,56 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Email address, if any, to receive emergency login user activation messages.')
     ),
-     'new_validate' => array(
+
+    'new_validate' => array(
       xl('New form validation'),
       'bool',
       '1',
       xl('New form validation')
-     ),
-      'allow_multiple_databases' => array(
-          xl('Allow multiple databases'),
-          'bool',
-          '0',
-          xl('Allow to use with multiple database')
-      ),
-      'safe_key_database' => array(
-          xl('Safe key database'),
-          'text',                           // data type
-          '',                               // default
-          xl('Key for multiple database credentials encryption')
-      ),
+    ),
+
+    'allow_multiple_databases' => array(
+      xl('Allow multiple databases'),
+      'bool',
+      '0',
+      xl('Allow to use with multiple database')
+    ),
+
+    'safe_key_database' => array(
+      xl('Safe key database'),
+      'text',                           // data type
+      '',                               // default
+      xl('Key for multiple database credentials encryption')
+    ),
+
+    'use_active_directory' => array(
+      xl('Use Active Directory'),
+      'bool',
+      '0',
+      xl('If enabled, uses the specified active directory for login and authentication.')
+    ),
+
+    'account_suffix' => array(
+      xl('Active Directory - Suffix Of Account'),
+      'text',
+      '',
+      xl('The suffix of the account.')
+    ),
+
+    'base_dn' => array(
+      xl('Active Directory - Domains Base'),
+      'text',
+      '',
+      xl('Users is the standard windows CN, replace the DC stuff with your domain.')
+    ),
+
+    'domain_controllers' => array(
+      xl('Active Directory - Domains Controllers'),
+      'text',
+      '',
+      xl('The IP address of your domain controller(s).')
+    ),
+
   ),
 
   // Notifications Tab
@@ -2241,18 +2291,32 @@ $GLOBALS_METADATA = array(
   //
   'Portal' => array(
 
-    'portal_onsite_enable' => array(
-      xl('Enable Onsite Patient Portal'),
+    'portal_onsite_two_enable' => array(
+      xl('Enable Version 2 Onsite Patient Portal'),
       'bool',                           // data type
       '0',
-      xl('Enable Onsite Patient Portal.')
+      xl('Enable Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_two_address' => array(
+      xl('Version 2 Onsite Patient Portal Site Address'),
+      'text',                           // data type
+      'https://your_web_site.com/openemr/portal',
+      xl('Website link for the Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_enable' => array(
+      xl('Enable Version 1 Onsite Patient Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_address' => array(
-      xl('Onsite Patient Portal Site Address'),
+      xl('Version 1 Onsite Patient Portal Site Address'),
       'text',                           // data type
       'https://your_web_site.com/openemr/patients',
-      xl('Website link for the Onsite Patient Portal.')
+      xl('Website link for the Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_document_download' => array(
@@ -2704,7 +2768,7 @@ $GLOBALS_METADATA = array(
             'ka' => xl('Georgian'),
             'de' => xl('German'),
             'el' => xl('Greek, Modern'),
-            'gn' => xl('Guaraní'),
+            'gn' => xl('Guarani'),
             'gu' => xl('Gujarati'),
             'ht' => xl('Haitian- Haitian Creole'),
             'ha' => xl('Hausa'),
@@ -2754,7 +2818,7 @@ $GLOBALS_METADATA = array(
             'ms' => xl('Malay'),
             'ml' => xl('Malayalam'),
             'mt' => xl('Maltese'),
-            'mi' => xl('Māori'),
+            'mi' => xl('Maori'),
             'mr' => xl('Marathi (Marāṭhī)'),
             'mh' => xl('Marshallese'),
             'mn' => xl('Mongolian'),
@@ -2775,7 +2839,7 @@ $GLOBALS_METADATA = array(
             'or' => xl('Oriya'),
             'os' => xl('Ossetian, Ossetic'),
             'pa' => xl('Panjabi, Punjabi'),
-            'pi' => xl('Pāli'),
+            'pi' => xl('Pali'),
             'fa' => xl('Persian (Farsi)'),
             'pl' => xl('Polish'),
             'ps' => xl('Pashto, Pushto'),

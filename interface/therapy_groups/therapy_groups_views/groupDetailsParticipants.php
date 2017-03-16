@@ -58,7 +58,7 @@
                                             <div class="col-md-offset-1 col-md-5">
                                                 <div class="row">
                                                     <div class="col-md-4">
-                                                        <span class="bold"><?php echo xlt('Participant’s name'); ?>:</span>
+                                                        <span class="bold"><?php echo xlt("Participant's name"); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
                                                         <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']): ''?>" readonly>
@@ -168,6 +168,7 @@
     $(document).ready(function(){
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
@@ -262,7 +263,7 @@
 
     function refreshme() {
         top.restoreSession();
-        location.reload();
+        location.href = "<?php echo $GLOBALS['webroot'] . '/interface/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) ?>";
     }
 
     function newGroup(){

@@ -253,6 +253,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 
         $('.datepicker').datetimepicker({
           <?php $datetimepicker_timepicker = false; ?>
+          <?php $datetimepicker_showseconds = false; ?>
           <?php $datetimepicker_formatInput = false; ?>
           <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
@@ -374,7 +375,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
           <td valign="top" style="width:75%">
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
                 onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
-                style="width:100%; height:50px" name="message" id="message"><?php echo text($this_message['message']); ?></textarea>
+                style="width:100%; height:50px" name="message" id="message"><?php echo text($this_message['dr_message_text']); ?></textarea>
                 <br />
                 <?php echo xlt('Characters Remaining') ?> : <input style="border:0; background:none;" readonly type="text" name="countdown" size="3" value="<?php echo $max_reminder_words ?>"> </font>
           </td>

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
@@ -777,7 +777,7 @@ while ($result4 = sqlFetchArray($res4)) {
 
         if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0){
             $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
-            echo "<td>".$encounter_type['pc_catname']."</td>\n";
+            echo "<td>".xlt($encounter_type['pc_catname'])."</td>\n";
             $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
             echo "<td>". text($group_name) . "</td>\n";
         }

@@ -2,7 +2,8 @@
 /**
 * Encounter form for entering procedure orders.
 *
-* Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2010-2017 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Brady Miller <brady.g.miller@gmail.com>
 */
 
 require_once("../../globals.php");
@@ -211,6 +213,7 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
 <head>
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 
@@ -225,13 +228,10 @@ td {
 
 </style>
 
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language='JavaScript'>
 
@@ -369,6 +369,23 @@ function validate(f) {
  return true;
 }
 
+$(document).ready(function() {
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+});
+
 </script>
 
 </head>
@@ -422,14 +439,10 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
   <td width='1%' valign='top' nowrap><b><?php xl('Order Date','e'); ?>:</b></td>
   <td valign='top'>
 <?php
-    echo "<input type='text' size='10' name='form_date_ordered' id='form_date_ordered'" .
+    echo "<input type='text' size='10' class='datepicker' name='form_date_ordered' id='form_date_ordered'" .
       " value='" . $row['date_ordered'] . "'" .
       " title='" . xl('Date of this order') . "'" .
-      " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
-      " />" .
-      "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_date_ordered' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . xl('Click here to choose a date') . "' />";
+      " />";
 ?>
   </td>
  </tr>
@@ -438,14 +451,10 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
   <td width='1%' valign='top' nowrap><b><?php xl('Internal Time Collected','e'); ?>:</b></td>
   <td valign='top'>
 <?php
-    echo "<input type='text' size='16' name='form_date_collected' id='form_date_collected'" .
+    echo "<input type='text' size='16' class='datetimepicker' name='form_date_collected' id='form_date_collected'" .
       " value='" . substr($row['date_collected'], 0, 16) . "'" .
       " title='" . xl('Date and time that the sample was collected') . "'" .
-      // " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
-      " />" .
-      "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_date_collected' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . xl('Click here to choose a date and time') . "' />";
+      " />";
 ?>
   </td>
  </tr>
@@ -515,10 +524,13 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   if ($formid) {
     $opres = sqlStatement("SELECT " .
       "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
-      "pc.diagnoses,pc.procedure_order_title, pt.procedure_type_id " .
+      "pc.diagnoses, pc.procedure_order_title, " .
+      // In case of duplicate procedure codes this gets just one.
+      "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
+      "pt.procedure_type LIKE 'ord%' AND pt.lab_id = ? AND " .
+      "pt.procedure_code = pc.procedure_code ORDER BY " .
+      "pt.activity DESC, pt.procedure_type_id LIMIT 1) AS procedure_type_id " .
       "FROM procedure_order_code AS pc " .
-      "LEFT JOIN procedure_type AS pt ON pt.lab_id = ? AND " .
-      "pt.procedure_code = pc.procedure_code " .
       "WHERE pc.procedure_order_id = ? " .
       "ORDER BY pc.procedure_order_seq",
       array($row['lab_id'], $formid));
@@ -594,14 +606,6 @@ if ($qoe_init_javascript)
 
 </center>
 
-<script language='JavaScript'>
-Calendar.setup({inputField:'form_date_ordered', ifFormat:'%Y-%m-%d',
- button:'img_date_ordered'});
-Calendar.setup({inputField:'form_date_collected', ifFormat:'%Y-%m-%d %H:%M',
- button:'img_date_collected', showsTime:true});
-</script>
-
 </form>
 </body>
 </html>
-

@@ -17,7 +17,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 209;
+$v_database = 213;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -25,7 +25,7 @@ $v_database = 209;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 3;
+$v_acl = 4;
 
 //Offsite Portal SOAP functions version, which are at myportal directory.
 $v_offsite_portal='1.47';
@@ -35,7 +35,7 @@ $v_offsite_portal='1.47';
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-$v_js_includes = 19;
+$v_js_includes = 20;
 
 
 // Do note modify below

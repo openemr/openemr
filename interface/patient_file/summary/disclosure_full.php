@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -32,6 +32,7 @@ $fake_register_globals=false;
 
 require_once("../../globals.php");
 require_once("$srcdir/log.inc");
+require_once("$srcdir/options.inc.php");
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}) );
@@ -133,8 +134,6 @@ if ($n>0){?>
 		$result2[$iter] = $frow;
 	foreach($result2 as $iter)
 	{
-		$app_event=$iter{event};
-		$event=explode("-",$app_event);
 		$description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
 		?>
 		<!-- List the recipient name, description, date and edit and delete options-->
@@ -145,8 +144,8 @@ if ($n>0){?>
 			<a href='#' class='deletenote css_button_small'
 			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
 			<td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xlt('health care operations'); } else echo text($event[1]); ?>&nbsp;</td>
-			<td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
+            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type',$iter['event'])); ?>&nbsp;</td>
+            <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{user_fullname});?></td>
 		</tr>
 		<?php

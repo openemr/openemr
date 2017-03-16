@@ -3,7 +3,7 @@
  * Generic script to list stored reports. Part of the module to allow the tracking,
  * storing, and viewing of reports.
  *
- * Copyright (C) 2012-2017 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -59,6 +59,7 @@ require_once "$srcdir/report_database.inc";
     $( document ).ready(function(){
 	    $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = true; ?>
+            <?php $datetimepicker_showseconds = true; ?>
             <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>

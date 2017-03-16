@@ -17,7 +17,7 @@
  *
  * @package OpenEMR
  * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

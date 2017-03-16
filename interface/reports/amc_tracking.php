@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2011-2017 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -66,6 +66,7 @@ $provider  = trim($_POST['form_provider']);
 
   $('.datepicker').datetimepicker({
    <?php $datetimepicker_timepicker = true; ?>
+   <?php $datetimepicker_showseconds = true; ?>
    <?php $datetimepicker_formatInput = false; ?>
    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>

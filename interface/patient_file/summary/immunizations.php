@@ -872,20 +872,23 @@ $(document).ready(function(){
 
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   // special cases to deal with datepicker items that are added dynamically
-  $(document).on('focus','.datepicker_dynamic', function(){
+  $(document).on('mouseover','.datepicker_dynamic', function(){
     $(this).datetimepicker({
       <?php $datetimepicker_timepicker = false; ?>
+      <?php $datetimepicker_showseconds = false; ?>
       <?php $datetimepicker_formatInput = false; ?>
       <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
       <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>

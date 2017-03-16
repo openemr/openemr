@@ -16,7 +16,7 @@ use ESign\Api;
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Tony McCormick <tony@mi-squared.com>
  * @link    http://www.open-emr.org
@@ -773,8 +773,8 @@ foreach ($ar as $key => $val) {
                       "ORDER BY b.date",
                       array($pid, $form_encounter));
                     while ($brow=sqlFetchArray($bres)) {
-                        echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-                            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                        echo "<div class='bold' style='display: inline-block'>&nbsp;".xl('Procedure').": </div><div class='text' style='display: inline-block'>" .
+                            $brow['code'] . " " . $brow['code_text'] . "</div><br>\n";
                     }
                 }
 

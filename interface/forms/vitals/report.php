@@ -52,12 +52,12 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
             $value = "See Growth-Chart";
           }
         }
-        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
+        $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . xl($value) . "</span></td>";
       }
       elseif ($key == "Bps") {
         $bps = $value;
         if ($bpd) {
-          $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
           continue;
@@ -66,7 +66,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       elseif ($key == "Bpd") {
         $bpd = $value;
         if ($bps) {
-          $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
           continue;
@@ -95,49 +95,49 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
         $convValue = round(number_format($value*2.54,2),1);
         // show appropriate units
         if ($GLOBALS['units_of_measurement'] == 2) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('cm') . " (" . $value . " " . xl('in')  . ")</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('cm') . " (" . $value . " " . xl('in')  . ")</div></td>";
         }
         elseif ($GLOBALS['units_of_measurement'] == 3) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('in') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('in') . "</div></td>";
         }
         elseif ($GLOBALS['units_of_measurement'] == 4) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('cm') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('cm') . "</div></td>";
         }
         else { // = 1 or not set
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('in') . " (" . $convValue . " " . xl('cm')  . ")</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('in') . " (" . $convValue . " " . xl('cm')  . ")</div></td>";
         }
       }
       elseif ($key == "Temperature") {
         $convValue = number_format((($value-32)*0.5556),2);
         // show appropriate units
         if ($GLOBALS['units_of_measurement'] == 2) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('C') . " (" . $value . " " . xl('F')  . ")</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('C') . " (" . $value . " " . xl('F')  . ")</div></td>";
         }
         elseif ($GLOBALS['units_of_measurement'] == 3) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('F') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('F') . "</div></td>";
         }
         elseif ($GLOBALS['units_of_measurement'] == 4) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('C') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('C') . "</div></td>";
         }
         else { // = 1 or not set
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('F') . " (" . $convValue . " " . xl('C')  . ")</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('F') . " (" . $convValue . " " . xl('C')  . ")</div></td>";
         }
       }
 
       elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI") {
         $value = number_format($value,0);
         if ($key == "Oxygen Saturation") {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('%') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('%') . "</div></td>";
         }
         elseif ($key == "BMI") {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('kg/m^2') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('kg/m^2') . "</div></td>";
         }
         else { //pulse and respirations
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('per min') . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('per min') . "</div></td>";
         }
       }
       else {
-        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+        $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . text($value) . "</div></td>";
       }
 
       $count++;

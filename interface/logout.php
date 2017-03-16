@@ -16,7 +16,7 @@
  * @package OpenEMR
  * @author  Tony McCormick <tony@mi-squared.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

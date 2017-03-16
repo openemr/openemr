@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -79,6 +79,7 @@ function submitform()
 $(document).ready(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>

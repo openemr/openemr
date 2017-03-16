@@ -6,7 +6,7 @@
 # (at your option) any later version.
 #
 # author Brady Miller
-# email  brady@sparmy.com
+# email  brady.g.miller@gmail.com
 # date   05/21/09
 #
 # This is a perl script that will simply sort and remove redundant entries

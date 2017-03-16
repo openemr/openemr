@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -117,6 +117,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
    $('.datepicker').datetimepicker({
      <?php $datetimepicker_timepicker = false; ?>
+     <?php $datetimepicker_showseconds = false; ?>
      <?php $datetimepicker_formatInput = false; ?>
      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
@@ -413,7 +414,7 @@ while ($irow = sqlFetchArray($ires)) {
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);

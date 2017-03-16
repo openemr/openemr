@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -279,7 +279,7 @@ if ($fres) {
  if ($sensitivities && count($sensitivities)) {
   usort($sensitivities, "sensitivity_compare");
 ?>
-     <td class='bold' nowrap><?php echo xlt('Sensitivity'); ?>:</td>
+     <td class='bold' nowrap><?php echo xlt('Sensitivity:'); ?></td>
      <td class='text'>
       <select name='form_sensitivity'>
 <?php

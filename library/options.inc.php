@@ -368,24 +368,17 @@ function generate_form_field($frow, $currvalue) {
     if ($agestr) {
       echo "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
     }
-    echo "<input type='text' size='10' name='form_$field_id_esc' id='form_$field_id_esc'" .
+
+    $onchange_string = '';
+    if (!$disabled && $agestr) {
+      $onchange_string = "onchange=\"if (typeof(updateAgeString) == 'function') updateAgeString('$field_id','$age_asof_date', $age_format)\"";
+    }
+
+    echo "<input type='text' size='10' class='datepicker' name='form_$field_id_esc' id='form_$field_id_esc'" .
       " value='" . substr($currescaped, 0, 10) . "'";
     if (!$agestr) echo " title='$description'";
-    echo " $lbfonchange onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' $disabled />";
-    if (!$disabled) {
-      echo "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_$field_id_esc' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />";
-      $date_init .= " Calendar.setup({" .
-        "inputField:'form_$field_id', " .
-        "ifFormat:'%Y-%m-%d', ";
-      if ($agestr) {
-        $date_init .= "onUpdate: function() {" .
-          "if (typeof(updateAgeString) == 'function') updateAgeString('$field_id','$age_asof_date', $age_format);" .
-        "}, ";
-      }
-      $date_init .= "button:'img_$field_id'})\n";
-    }
+    echo " $onchange_string $lbfonchange $disabled />";
+
     // Optional display of age or gestational age.
     if ($agestr) {
       echo "</td></tr><tr><td id='span_$field_id' class='text'>" . text($agestr) . "</td></tr></table>";
@@ -1028,16 +1021,10 @@ function generate_form_field($frow, $currvalue) {
     if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
     echo " $disabled />" . xlt('Quit') . "&nbsp;</td>";
     // quit date
-    echo "<td class='text'><input type='text' size='6' name='date_$field_id_esc' id='date_$field_id_esc'" .
+    echo "<td class='text'><input type='text' size='6' class='datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
       " value='$resdate'" .
       " title='$description'" .
-      " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' $disabled />";
-    if (!$disabled) {
-      echo "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_$field_id_esc' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />";
-      $date_init .= " Calendar.setup({inputField:'date_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
-    }
+      " $disabled />";
     echo "&nbsp;</td>";
     // never
     echo "<td class='text'><input type='radio'" .
@@ -3024,7 +3011,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     }
     else {
       echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
-      if (!isset($_SESSION['patient_portal_onsite'])) {
+      if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two']) ) {
         // prevent an error from occuring when calling the function from the patient portal
         echo " onclick='top.restoreSession()'";
       }
@@ -3042,7 +3029,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
 
-  if (isset($_SESSION['patient_portal_onsite'])) {
+  if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
     // collapse all entries in the patient portal
     $text = xl('expand');
   }
@@ -3060,7 +3047,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     // Special case to force the widget to always be expanded
     $styling = "";
   }
-  else if (isset($_SESSION['patient_portal_onsite'])) {
+  else if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
     // collapse all entries in the patient portal
     $styling = "style='display:none'";
   }

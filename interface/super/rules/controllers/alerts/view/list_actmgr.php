@@ -2,7 +2,7 @@
 /**
  * Script to configure the Rules.
  *
- * Copyright (C) 2015 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2015 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

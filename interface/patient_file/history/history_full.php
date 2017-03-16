@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -50,6 +50,7 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 .control_label {
@@ -58,30 +59,25 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 }
 </style>
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
- 
+
  <?php
  $smoke_codes = getSmokeCodes();
-  
+
  foreach ($smoke_codes as $val => $code) {
             echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
       }
  ?>
-     
+
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function divclick(cb, divid) {
@@ -147,15 +143,15 @@ function radioChange(rbutton)
          if(code_options_js[rbutton]!="")
             $("#smoke_code").html(" ( "+code_options_js[rbutton]+" )");
          else
-             $("#smoke_code").html(""); 
+             $("#smoke_code").html("");
      }
      else
-        $("#smoke_code").html(""); 
+        $("#smoke_code").html("");
 }
 
 //function for selecting the smoking status in drop down list based on the selection in radio button.
-function smoking_statusClicked(cb) 
-{    
+function smoking_statusClicked(cb)
+{
      if (cb.value == 'currenttobacco')
      {
      document.getElementById('form_tobacco').selectedIndex = 1;
@@ -172,7 +168,7 @@ function smoking_statusClicked(cb)
      {
      document.getElementById('form_tobacco').selectedIndex = 6;
      }
-	 radioChange(document.getElementById('form_tobacco').value);	 
+	 radioChange(document.getElementById('form_tobacco').value);
 }
 
 // The ID of the input element to receive a found code.
@@ -209,6 +205,21 @@ $(document).ready(function(){
         }
     }
     tabbify();
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+    $('.datetimepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 </script>
 

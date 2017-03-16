@@ -4,7 +4,7 @@
  * AMC 314g_1_2_14 STAGE2
  *
  * Copyright (C) 2015 Ensoftek, Inc
- * Copyright (C) 2015 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2015 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

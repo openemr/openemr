@@ -113,6 +113,7 @@ class C_Document extends Controller {
         $sentUploadStatus = array();
         if( count($_FILES['file']['name']) > 0){
             $upl_inc = 0;
+
             foreach($_FILES['file']['name'] as $key => $value){
                 $fname = $value;
                 $err = "";
@@ -121,10 +122,12 @@ class C_Document extends Controller {
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = "Error number: " . $_FILES['file']['error'][$key] . " occured while uploading file named: " . $fname . "\n";
+                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
-                        $error .= "The system does not permit uploading files of with size 0.\n";
+                        $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
+                }elseif($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])){
+                       $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 }else{
                     $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
@@ -320,7 +323,7 @@ class C_Document extends Controller {
 		if ( sqlNumRows($result_docs) > 0)
 		while($row_result_docs = sqlFetchArray($result_docs)) {
 		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
-			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text($row_result_docs['pc_catname'])."</option>";
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
 		}
 		$this->assign("ENC_LIST", $encOptions);
 
@@ -1340,6 +1343,8 @@ function _check_relocation($url, $new_pid = null, $new_name = null) {
 	//Add full path and remaining nodes
 	return $url;
 }
+
+
 
 }
 ?>

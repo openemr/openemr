@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2007 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
