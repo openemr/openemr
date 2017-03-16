@@ -1,27 +1,46 @@
+<?php
+/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
+?>
 <!DOCTYPE html>
 <html>
 <head>
-<title>Weno Sample Code</title>
-<link rel="stylesheet" href="../themes/style_purple.css?v=15" type="text/css">
-<link rel="stylesheet" href="../../library/js/jquery-ui.min.css" type="text/css" />
+<title><?php xlt("Weno Sample Code") ?></title>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" type="text/css" />
 
 </head>
 
 <body>
 
-<h3>Convert a JavaScript object into a JSON string, and send it to the server.</h3>
+<h3><?php print xlt("Convert a JavaScript object into a JSON string, and send it to the server.") ?></h3>
 
   <div id="confirm">
   <br><br>
-      <input type='submit' id='confirm_btn' value='Confirm' >
+      <input type='submit' id='confirm_btn' value='<?php print xlt("Confirm") ?>' >
   </div>
    <div id="transmit">
-      <input type='submit' id='order' value='Transmit Order' >
+      <input type='submit' id='order' value='<?php print xlt("Transmit Order") ?>' >
   </div>
     <div id="success"></div>
 	
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
   
 <script>
@@ -33,7 +52,7 @@ $(document).ready(function(){
     $("#confirm_btn").click(function(){
      //
      //build a process that will create the code below for transmit.
-	 //each drug transmitted has to be separated
+	 //each drug transmitted has to be separate
 	 //
         $("#transmit").show();
 

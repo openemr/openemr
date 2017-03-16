@@ -245,12 +245,12 @@ $(document).ready(function(){
 {php} if ($GLOBALS['weno_rx_enable']) { {/php}	
 	 <td align="center"> 
 	 {if $prescription->ntx == 0}
-      <input class="check_list" id="NewRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('NewRx-{$prescription->id}');" title="Select to transmit">
+      <input class="check_list" id="NewRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('NewRx-{$prescription->id}');" title={xl t="Select to transmit"}>
      {/if}
      </td>
 	 <td align="center"> 
      {if $prescription->ntx == 1}
-      <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('RefillRx-{$prescription->id}');" title="Select to transmit">
+      <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('RefillRx-{$prescription->id}');" title={xl t="Select to transmit"}>
 	 {/if} 
      </td>
 	 <td id="{$prescription->id}" align="center"> 

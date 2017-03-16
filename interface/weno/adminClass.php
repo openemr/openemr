@@ -1,6 +1,23 @@
 <?php
 
 
+/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
 class adminProperties {
 
@@ -36,8 +53,8 @@ class adminProperties {
               "CREATE TABLE IF NOT EXISTS `drug_paid` (
                             `drugid` int(11) NOT NULL AUTO_INCREMENT,
                             `drug_label_name` varchar(45) NOT NULL,
-                            `AHFS_descr` varchar(45) NOT NULL,
-                            `NDC` bigint(12) NOT NULL,
+                            `ahfs_descr` varchar(45) NOT NULL,
+                            `ndc` bigint(12) NOT NULL,
                             `price_per_unit` decimal(5,2) NOT NULL,
                             `avg_price` decimal(6,2) NOT NULL,
                             `avg_price_paid` int(6) NOT NULL,
@@ -52,21 +69,21 @@ class adminProperties {
     	sqlStatement(
            "CREATE TABLE IF NOT EXISTS `pharmacies_weno` (
                         `id` int(5) NOT NULL AUTO_INCREMENT,
-                        `Last_Updated` varchar(21) DEFAULT NULL,
-                        `Store_Name` varchar(35) DEFAULT NULL,
-                        `NCPDP` int(10) DEFAULT NULL,
-                        `Active` varchar(3) DEFAULT NULL,
-                        `NPI` varchar(10) DEFAULT NULL,
-                        `Pharmacy_Phone` varchar(15) DEFAULT NULL,
-                        `Pharmacy_Fax` varchar(15) DEFAULT NULL,
-                        `Address_Line_1` varchar(35) DEFAULT NULL,
-                        `Address_Line_2` varchar(16) DEFAULT NULL,
-                        `City` varchar(16) DEFAULT NULL,
-                        `State` varchar(2) DEFAULT NULL,
-                        `ZipCode` int(5) DEFAULT NULL,
-                        `Retail` varchar(4) DEFAULT NULL,
-                        `Specialty` varchar(5) DEFAULT NULL,
-                        `Long_Term_Care` varchar(5) DEFAULT NULL,
+                        `last_updated` varchar(21) DEFAULT NULL,
+                        `store_name` varchar(35) DEFAULT NULL,
+                        `ncpdp` int(10) DEFAULT NULL,
+                        `active` varchar(3) DEFAULT NULL,
+                        `npi` varchar(10) DEFAULT NULL,
+                        `pharmacy_phone` varchar(15) DEFAULT NULL,
+                        `pharmacy_fax` varchar(15) DEFAULT NULL,
+                        `address_line_1` varchar(35) DEFAULT NULL,
+                        `address_line_2` varchar(16) DEFAULT NULL,
+                        `city` varchar(16) DEFAULT NULL,
+                        `state` varchar(2) DEFAULT NULL,
+                        `zipcode` int(5) DEFAULT NULL,
+                        `retail` varchar(4) DEFAULT NULL,
+                        `specialty` varchar(5) DEFAULT NULL,
+                        `long_term_care` varchar(5) DEFAULT NULL,
                         `Mail_Order` varchar(5) DEFAULT NULL,
                         `Mail_State_Codes` varchar(3) DEFAULT NULL,
                         `Mail_Address_Line_1` varchar(35) DEFAULT NULL,
@@ -78,12 +95,12 @@ class adminProperties {
                         `Mail_Fax` int(10) DEFAULT NULL,
                         `EPCS_Permitted` varchar(5) DEFAULT NULL,
                         `Accept_NewRx` varchar(4) DEFAULT NULL,
-                        `Accept_RefillResponse` varchar(5) DEFAULT NULL,
-                        `Accept_RxChangeResponse` varchar(5) DEFAULT NULL,
+                        `Accept_Refillresponse` varchar(5) DEFAULT NULL,
+                        `Accept_RxChangeresponse` varchar(5) DEFAULT NULL,
                         `Accept_Verify` varchar(5) DEFAULT NULL,
-                        `Accept_CancelRx` varchar(5) DEFAULT NULL,
-                        `Accept_RxHistoryRequest` varchar(5) DEFAULT NULL,
-                        `Accept_RxHistoryResponse` varchar(5) DEFAULT NULL,
+                        `Accept_Cancelrx` varchar(5) DEFAULT NULL,
+                        `Accept_RxHistoryrequest` varchar(5) DEFAULT NULL,
+                        `Accept_RxHistoryresponse` varchar(5) DEFAULT NULL,
                         `Accept_Census` varchar(5) DEFAULT NULL,
                         `Accept_Resupply` varchar(5) DEFAULT NULL,
                         PRIMARY KEY (`id`)

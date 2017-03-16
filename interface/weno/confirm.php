@@ -43,13 +43,13 @@ $mailOrder = $tData->mailOrderPharmacy();
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="../../library/js/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/dot-luv/jquery-ui.min.css" type="text/css" />
 
 <script type="text/javascript" charset="utf-8">
 function validate(){
 	var pharmacy = document.getElementById('pharm');
 	if(text.value.length == 0){
-		alert("Must select a pharmacy first");
+		alert('<?php print xlt("Must select a pharmacy first"); ?>');
 		return false;
 	}
 }
@@ -69,18 +69,17 @@ footer {
 </head>
 
 <body class="body_top">
-<h1>Prescription Transmit Review</h1>
+<h1><?php print xlt("Prescription Transmit Review"); ?></h1>
 <table>
-<th width="200px">Drug</th>
-<th width="100px">Quantity</th>
+<th width="200px"><?php print xlt("Drug"); ?></th>
+<th width="100px"><?php print xlt("Quantity"); ?></th>
 
 <?php
 //List drugs to be sent 
 
   $drug = array(); //list of records that need to updated with pharmacy information
 while($list = sqlFetchArray($send)){
-    //print "<tr align='center'><td>".$list['drug'] . " </td><td> " . $list['dosage'] . " </td><td> " . $list['quantity'] . "</td></tr>";
-	print "<tr align='center'><td>".$list['drug'] . " </td><td> " . $list['quantity'] . "</td></tr>";
+	print "<tr align='center'><td>". xlt(text($list['drug'])) . " </td><td> " . xlt(text($list['quantity'])) . "</td></tr>";
 	$drug[] = $list['id'];
 }
 
@@ -88,23 +87,23 @@ while($list = sqlFetchArray($send)){
 ?>
 </table>
 <?php if(empty($drug)){
-	echo "<br> <strong> <font color='red'>No prescriptions selected. </strong></font>";
+	echo "<br> <strong> <font color='red'>".xlt("No prescriptions selected"). "</strong></font>";
 	exit;
 }
 ?>
 <div id="fields">
 <h3>Select Pharmacy</h3>
 	    Patient Default <br>
-	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print $patientPharmacy['pharmacy_id'] ?>" checked="checked">
+	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
 	    <?php if(!$patientPharmacy['name']){
-                   print "<b>Please set pharmacy in patient's chart!</b><br> <br>";
+                   print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br> <br>";
                }else{
-	    	      print $patientPharmacy['name']; 
+	    	      print xlt(text($patientPharmacy['name'])); 
                } 
 	    	      ?><br> <br>
 	    	      
-        Mail Order <br>
-        <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print $mailOrder['id'] ?>">CCS Medical 	14255 49th Street, North, Clearwater, FL 33762<br> 
+        <?php print xlt("Mail Order") ?> <br>
+        <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print xlt("CCS Medical 	14255 49th Street, North, Clearwater, FL 33762")."<br>" ?> 
 	    <!-- removed from site but has future plans. 
 		<input type='text' size='10' name='city' id="city" value='' placeholder='Enter City First' title="type all or three letters of a city name">
 		<input type='text' size='30' name='address' id='address' value='' placeholder='Enter 3 #s or Letters of the Address' title="when searching by street name only put in the first three letters of the name"><br>
@@ -113,18 +112,16 @@ while($list = sqlFetchArray($send)){
 
   <div id="confirm">
   <br><br>
-      <input type='submit' id='confirm_btn' value='Aprove Order' >
+      <input type='submit' id='confirm_btn' value='<?php print xla("Approve Order"); ?>' >
   </div>
  
   <div id="transmit">
-      <input type='submit' id='order' value='Transmit Order' >
+      <input type='submit' id='order' value='<?php print xla("Transmit Order"); ?>' >
   </div> 
   <div id="success"></div>  
 </div>
-<script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../library/js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-ui.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="../../library/js/prism.js" ></script>
 <script type="text/javascript">
 
 <!-- This is not used right now but dont want to delete yet-->	
@@ -143,6 +140,7 @@ $(function() {
  
     });
 });
+<! ---- keep for now ---->
 
 $(document).ready(function(){
 
@@ -211,17 +209,9 @@ $(document).ready(function(){
 	
 	//Transmit order(s)
   $('#order').click(function(){
-
-  	$('<div id="overlay"/>').css({
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100&#37;',
-        height: $(window).height() + 'px',
-        background: 'white'
-    }).hide().appendTo('body');
-
-       $('#overlay').show();   
+     
+     $('#success').html("<img src='img/progress.gif'>");
+       
          $.each(jsonArray, function(index, value){
 		 var send = value;
 		 $.ajax({
@@ -233,8 +223,8 @@ $(document).ready(function(){
 		  success: function(response){
 			  console.log(response);
 			  
-			  $('#success').append('<p>'+response+'</p>');
-			  $('#overlay').hide();
+			  $('#success').html('<p>'+response+'</p>');
+			  
 		  },
 			error: function(xhr, status, error){
 				 console.log(xhr);
@@ -263,7 +253,7 @@ $(document).ready(function(){
 <br>
 <br>
 <footer>
-<p>Open Med Practice and its suppliers use their commercially reasonable efforts to provide the most current and complete data available to them concerning prescription histories, drug interactions and formularies, patient allergies and other factors, but by your use of this service you acknowledge that (1) the completeness and accuracy of such data depends upon the completeness and accuracy with which it is entered into connected electronic databases by physicians, physician’s offices, pharmaceutical benefits managers, electronic medical records firms, and other network participants, (2) such data is subject to error or omission in input, storage or retrieval, transmission and display, technical disruption, power or service outages, or other interruptions in electronic communication, any or all of which may be beyond the control of Open Med Practice and its suppliers, and (3) some information may be unavailable due to regulatory, contractual, privacy or other legal restrictions. You are responsible to use your clinical judgment at all times in rendering medical service and advice.</p>
+<p><?php print xlt("Open Med Practice and its suppliers use their commercially reasonable efforts to provide the most current and complete data available to them concerning prescription histories, drug interactions and formularies, patient allergies and other factors, but by your use of this service you acknowledge that (1) the completeness and accuracy of such data depends upon the completeness and accuracy with which it is entered into connected electronic databases by physicians, physician’s offices, pharmaceutical benefits managers, electronic medical records firms, and other network participants, (2) such data is subject to error or omission in input, storage or retrieval, transmission and display, technical disruption, power or service outages, or other interruptions in electronic communication, any or all of which may be beyond the control of Open Med Practice and its suppliers, and (3) some information may be unavailable due to regulatory, contractual, privacy or other legal restrictions. You are responsible to use your clinical judgment at all times in rendering medical service and advice."); ?></p>
 </footer>		
 </body>
 </html>

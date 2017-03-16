@@ -1,1 +1,0 @@
-SELECT id, Store_name, address_line_1, city, state FROM pharmacies_weno WHERE Store_name LIKE '%wal%' AND address_line_1 LIKE '%1%' AND city LIKE '%lubbock%'

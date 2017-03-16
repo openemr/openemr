@@ -2507,13 +2507,7 @@ $GLOBALS_METADATA = array(
       xl('Enable Weno eRx Service.') + ' ' +
       xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.') 
     ),
-    'weno_rx_cert_id' => array(
-      xl('Weno Certificatin ID - SanDemarco512'),
-      'bool',
-      '0',
-      xl('Weno Certificatin ID.') + ' ' +
-      xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.') 
-    ),	
+	
     'weno_account_id' => array(
       xl('Weno eRx Account Id'),
       'text',
@@ -2524,14 +2518,14 @@ $GLOBALS_METADATA = array(
       xl('Weno eRx Account Pass'),
       'text',
       '',
-      xl('Account Id issued for Weno eRx service.')
+      xl('Account password issued for Weno eRx service.')
     ),
 
     'weno_provider_id' => array(
       xl('Weno eRx Clinic ID'),
       'text',
       '',
-      xl('Account Id issued for Your clinics eRx service.')
+      xl('Provider ID issued for Your provider access to eRx services.')
     ),	
 	'weno_state_code' => array(
 	  xl('Select State'),

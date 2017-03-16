@@ -14,26 +14,32 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
+$fake_register_globals=false;
+
+$sanitize_all_escapes=true;	
 
 require_once('../../../interface/globals.php');
 
 
 if (isset($_GET['term'])){
+	
 	$return_arr = array();
-
+    $term    = filter_input(INPUT_GET, "term");
+    
 	try {
-		$sql = "SELECT drug_label_name, price_per_unit FROM drug_paid WHERE drug_label_name LIKE '%".$_GET['term']."%'";
-		$res = sqlstatement($sql);
+		$sql = "SELECT drug_label_name, price_per_unit FROM drug_paid WHERE drug_label_name LIKE ? ";
+		$val = array('%'.$term.'%');
+		$res = sqlstatement($sql, $val);
 		while($row = sqlFetchArray($res)){
 			$return_arr[] =  $row['drug_label_name'] . " - ". $row['price_per_unit'];
 		}
 
 	
 	} catch(PDOException $e) {
-	    echo 'ERROR: ' . $e->getMessage();
+	    echo 'ERROR: ' . text($e->getMessage());
 	}
 
 

@@ -14,13 +14,16 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
+$fake_register_globals=false;
+
+$sanitize_all_escapes=true;	
 
  require_once("../globals.php");
  
- echo "trying<BR>";
+ echo xlt("Trying")."<BR>";
 /* 
 $username = $GLOBALS['weno_account_id'];
 $partner_password = $GLOBALS['weno_account_pass'];
@@ -86,7 +89,7 @@ $zip->close();
  
  //if(!empty($find['ndc'])){
 	 sqlStatement("INSERT INTO `drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
-	 echo "Inserted ". $drugName ."<br> "; 	
+	 echo xlt("Inserted ") . xlt(text($drugName)) ."<br> "; 	
 	 //sqlStatement("UPDATE drug_paid SET price_per_unit = ? WHERE ndc = ?", array($price, $ndc));
 	 //echo "Updated!<br>";
 // }else{
