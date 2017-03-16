@@ -508,6 +508,18 @@ $msgApp = new Controller();
             });
         };
     });
+    MsgApp.directive('tooltip', function(e){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                $(element).hover(function(){
+                    $(element).tooltip('show');
+                }, function(){
+                    $(element).tooltip('hide');
+                });
+            }
+        };
+    });
     MsgApp.filter('unique', function() {
         return function(collection, keyname) {
            var output = [],
@@ -524,7 +536,6 @@ $msgApp = new Controller();
      });
 
     MsgApp.controller('MsgAppCtrl', ['$scope', '$http', '$filter', function($scope, $http, $filter) {
-
         $scope.urlListMessages = '?action=list'; // actions for restful
         $scope.urlSaveMessage = '?action=save';
         $scope.urlListOnlines = '?action=ping';
@@ -540,6 +551,7 @@ $msgApp = new Controller();
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
         $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : $_SESSION['authUser'];?>" // current user - dashboard user is from session authUserID
+        $scope.userid = "<?php echo IS_PORTAL ? $_SESSION['pid'] : $_SESSION['authUserID'];?>"
         $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
@@ -547,18 +559,27 @@ $msgApp = new Controller();
         $scope.me = {
             username: $scope.user,
             message: null,
-            sender_id: 0,
+            sender_id: $scope.userid,
             recip_id: 0
         };
-
+        $scope.options =  {
+	        height: 200,
+			focus: true,
+   			placeholder: 'Start typing your message...',
+   			//direction: 'rtl',
+   			toolbar: [
+   			    ['style', ['bold', 'italic', 'underline', 'clear']],
+   			    ['fontsize', ['fontsize']],
+   			    ['color', ['color']],
+   			    ['para', ['ul', 'ol', 'paragraph']],
+   			    ['insert', ['link','picture', 'video', 'hr']],
+   			    ['view', ['fullscreen', 'codeview']]
+   			]
+		};
        $scope.checkAll = function() {
     	   $scope.pusers = [];
     	   $scope.pusers = $scope.chatusers.map(function(item) { return item.recip_id; });
     	   $scope.getAuthUsers();
-           /* $scope.pusers = [];
-           angular.forEach($filter('unique')($scope.chatusers, "recip_id"), function (m, k) {
-               $scope.pusers.push(m.recip_id);
-           }); */
          };
         $scope.uncheckAll = function() {
               $scope.pusers = [];
@@ -594,15 +615,15 @@ $msgApp = new Controller();
         };
 
         $scope.editmsg = function() {
-            $('.summernote').summernote({focus: true});
+            $('.summernote').summernote();
         };
 
         $scope.saveedit = function() {
-                var makrup = $('.summernote').summernote('code');
-               $scope.me.message = makrup;
+             var makrup = $('.summernote').summernote('code');
+            $scope.me.message = makrup;
             $scope.saveMessage();
             $('.summernote').summernote('code', ''); //add this options to reset editor or not-default is persistant content
-            $('.summernote').summernote('destroy');
+            //$('.summernote').summernote('destroy');
         };
 
         $scope.saveMessage = function(form, callback) {
@@ -696,7 +717,6 @@ $msgApp = new Controller();
                 $scope.pageTitleNotificator.on('New message');
                 $scope.notifyLastMessage();
             }
-
             $scope.scrollDown();
             window.addEventListener('focus', function() {
                 $scope.pageTitleNotificator.off();
@@ -711,7 +731,6 @@ $msgApp = new Controller();
         $scope.pingServer = function(msgItem) {
             return $http.post($scope.urlListOnlines+'&username='+$scope.user, {}).success(function(data) {
                 $scope.online = data;
-                //$scope.getOnlines();
             });
 
         };
@@ -750,8 +769,7 @@ $msgApp = new Controller();
 
         $scope.openModal = function(e) {
             var mi = $('#popeditor').modal({backdrop: "static"});
-           // $('.summernote').summernote({focus: true});
-           $scope.editmsg();
+           //$scope.editmsg();
         };
 
         $scope.playAudio = function() {
@@ -800,7 +818,6 @@ $msgApp = new Controller();
     -o-transition:-o-transform .5s ease-in-out;
     transition:transform .5s ease-in-out;
 }
-
 .direct-chat-messages {
     -webkit-transform:translate(0,0);
     -ms-transform:translate(0,0);
@@ -879,14 +896,14 @@ input,button,.alert,.modal-content {
     margin-left:5px;
 }
 .sidebar{
-    background-color:ghostwhite;
+    background-color: lightgrey;
     height:100%;
     margin-top:5px;
     margin-right:0;
     padding-right:5px;
 }
 .rtsidebar{
-    background-color:ghostwhite;
+    background-color: lightgrey;
     height:100%;
     margin-top:5px;
     margin-right:0;
@@ -897,7 +914,7 @@ input,button,.alert,.modal-content {
 }
 label {display: block;}
 legend{
-font-size:16px;
+font-size:14px;
 margin-bottom:2px;
 background:#fff;
 }
@@ -914,11 +931,11 @@ background:#fff;
         <!-- <h2 class="hidden-xs">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h4><span class="label label-danger"><?php echo xlt('Send to Recipients'); ?></span></h4>
-                <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1">
+                <h4><span class="label label-danger"><?php echo xlt('In Current Chat'); ?></span></h4>
+                <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h4><span class="label label-danger"><?php echo xlt('Authorized Recipients'); ?></span></h4>
+                <h4><span class="label label-warning"><?php echo xlt('Authorized Users'); ?></span></h4>
                 <span>
                     <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All'); ?></button>
                     <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None'); ?></button>
@@ -933,8 +950,8 @@ background:#fff;
                         <div class="clearfix">
                             <a class="btn btn-sm btn-primary pull-right ml10" href=""
                                 data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
-                            <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home Please'); ?></a>
-                            <a class="btn btn-sm btn-success pull-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home Please'); ?></a>
+                            <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
+                            <a class="btn btn-sm btn-success pull-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
                         </div>
                     </div>
                     <div class="panel-body">
@@ -953,7 +970,7 @@ background:#fff;
                                     src="<?php echo $GLOBALS['images_static_relative']; ?>/favicon-32x32.png"
                                     alt="">
                                 <div class="direct-chat-text right">
-                                    <div style="padding-left: 0px; padding-right: 0px;" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
+                                    <div style="padding-left: 0px; padding-right: 0px;" title="<?php echo xlt('Click to make chat this current  recipient only...'); ?>" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>
                             </div>
                         </div>
@@ -966,9 +983,6 @@ background:#fff;
                                         <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
                                     </span>
                                 </div>
-                                <!--<button id="edit" class="btn btn-xs btn-primary" ng-click="editmsg()" type="button">Image</button>
-                                <button id="save" class="btn btn-xs btn-primary" ng-click="saveedit()" type="button">Save</button>
-                                 <pre>{{pusers|json}}</pre> <pre>{{messages|json}}</pre>-->
                             </form>
                         </div>
                 </div>
@@ -994,7 +1008,7 @@ background:#fff;
                         <h4 class="modal-title"><?php echo xlt('Style your messsage and/or add Image/Video'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <summernote focus height="200"></summernote>
+                        <summernote config="options"></summernote>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>

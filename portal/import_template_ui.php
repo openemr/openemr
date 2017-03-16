@@ -89,6 +89,7 @@ function getTemplateList($dir){
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" />
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.js"></script>
+<script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/plugin/nugget/summernote-ext-nugget.js"></script>
 </head>
 <script>
 var currentEdit = "";
@@ -125,7 +126,32 @@ var tdelete = function(docname) {
 						$('#templatecontent').summernote('destroy');
 						$('#templatecontent').empty().append(templateHtml);
 						$('#popeditor').modal({backdrop: "static"});
-						$('#templatecontent').summernote({focus: true});
+						$('#templatecontent').summernote({
+					       // height: 200,
+							focus: true,
+				   			placeholder: '',
+				   			toolbar: [
+				   			    ['style', ['bold', 'italic', 'underline', 'clear']],
+				   			    ['fontsize', ['fontsize']],
+				   			    ['color', ['color']],
+				   			    ['para', ['ul', 'ol', 'paragraph']],
+				   			    ['insert', ['link','picture', 'video', 'hr']],
+				   			    ['view', ['fullscreen', 'codeview']],
+				   			 	['insert', ['nugget']],
+				   			 	['edit',['undo','redo']]
+				   			 	],
+				   			    nugget: {
+				   			        list: [
+					   			        '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
+				   			            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
+				   			            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+				   			        ],
+				   			        label: 'Tags / Directives',
+				   			    	tooltip: 'Insert Tag or Directive at current cursor location.'
+				   			    },
+				   			 options:{'label': 'Tags/Directives',
+					   			    'tooltip': 'Insert Tag or Directive'}
+				   			});
 						}
 					else if(mode == 'save'){
 						$('#templatecontent').summernote('destroy');
