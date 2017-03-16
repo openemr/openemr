@@ -231,7 +231,7 @@ CREATE TABLE `categories` (
 --
 -- Dumping data for table `categories`
 --
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 56);
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57);
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10);
@@ -276,7 +276,7 @@ CREATE TABLE `categories_seq` (
 -- Dumping data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (26);
+INSERT INTO `categories_seq` VALUES (29);
 
 -- --------------------------------------------------------
 
@@ -3475,6 +3475,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, toggle_setting_2 ) VALUES ('apptstat','>'       ,'> Checked out'       ,55,0,'FEFDCF|0','1');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','$'       ,'$ Coding done'       ,60,0,'C0FF96|0');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','%'       ,'% Canceled < 24h'    ,65,0,'BFBFBF|0');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('apptstat','^'       ,'^ Pending'           ,70,0,'FEFDCF|0');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'warehouse','Warehouses',21,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('warehouse','onsite'   ,'On Site'   , 5,0);
