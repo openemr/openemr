@@ -725,7 +725,7 @@ if ($_POST['form_action'] == "save") {
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
                         " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
-                    $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                    $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
                     else { $oldRecurrspec['exdate'] .= $selected_date; }
 
@@ -737,12 +737,19 @@ if ($_POST['form_action'] == "save") {
             }
             else if ($_POST['recurr_affect'] == 'future') {
                 // update all existing event records to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
-                    // update the provider's original event
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_enddate = ? ".
-                        " WHERE ".$whereClause, array($selected_date) );
+                    // In case of a change in the middle of the event
+                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        // update the provider's original event
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            " pc_enddate = ? " .
+                            " WHERE " . $whereClause, array($selected_date));
+                    }
+                    // In case of a change in the event head
+                    else{
+                        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+                    }
                 }
             }
             else {
