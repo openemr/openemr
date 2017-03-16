@@ -60,7 +60,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
 <?php //ERROR REPORTING
 if ($err)
-	echo "<span class=bold>$err</span><br><br>\n";
+	echo "<span class=bold>" . text($err) . "</span><br><br>\n";
 ?>
 
 <?php //REGISTERED SECTION ?>
@@ -90,20 +90,20 @@ foreach($bigdata as $registry)
 ?>
   <tr>
     <td bgcolor="<?php echo $color; ?>" width="2%">
-      <span class='text'><?php echo $registry['id']; ?></span>
+      <span class='text'><?php echo text($registry['id']); ?></span>
     </td>
-    <td bgcolor="<?php echo $color; ?>" width="30%">
+    <td bgcolor="<?php echo attr($color); ?>" width="30%">
       <span class='bold'><?php echo xl_form_title($registry['name']); ?></span>
     </td>
     <?php
       if ($registry['sql_run'] == 0)
-        echo "<td bgcolor='$color' width='10%'><span class='text'>".xl('registered')."</span>";
+        echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
       elseif ($registry['state'] == "0")
-        echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=enable'>".xl('disabled')."</a>";
+        echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=enable'>" . xlt('disabled') . "</a>";
       else
-        echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=disable'>".xl('enabled')."</a>";
+        echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=disable'>" . xlt('enabled') . "</a>";
     ?></td>
-    <td bgcolor="<?php echo $color; ?>" width="10%">
+    <td bgcolor="<?php echo attr($color); ?>" width="10%">
       <span class='text'><?php
       if ($registry['unpackaged'])
         echo xlt('PHP extracted');
@@ -111,20 +111,20 @@ foreach($bigdata as $registry)
         echo xlt('PHP compressed');
       ?></span>
     </td>
-    <td bgcolor="<?php echo $color; ?>" width="10%">
+    <td bgcolor="<?php echo attr($color); ?>" width="10%">
       <?php
       if ($registry['sql_run'])
         echo "<span class='text'>" . xlt('DB installed') . "</span>";
       else
-        echo "<a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=install_db'>".xl('install DB')."</a>";
+        echo "<a class='link_submit' href='./forms_admin.php?id=" . attr($registry['id']) . "&method=install_db'>" . xlt('install DB') . "</a>";
       ?>
     </td>
     <?php
-      echo "<td><input type='text' size='4'  name='priority_" . $registry['id'] . "' value='" . $priority_category['priority'] . "'></td>";
-      echo "<td><input type='text' size='10' name='category_" . $registry['id'] . "' value='" . $priority_category['category'] . "'></td>";
-      echo "<td><input type='text' size='10' name='nickname_" . $registry['id'] . "' value='" . $priority_category['nickname'] . "'></td>";
+      echo "<td><input type='text' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
+      echo "<td><input type='text' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
+      echo "<td><input type='text' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
       echo "<td>";
-      echo "<select name='aco_spec_" . $registry['id'] . "'>";
+      echo "<select name='aco_spec_" . attr($registry['id']) . "'>";
       echo "<option value=''></option>";
       echo gen_aco_html_options($priority_category['aco_spec']);
       echo "</select>";
