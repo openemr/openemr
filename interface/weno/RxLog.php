@@ -38,12 +38,12 @@ $log = sqlStatement("SELECT * FROM prescription_rx_log ORDER BY id DESC");
 print "<table width='100%'>";
 print "<tr align='left'>
 
-<th>". xlt(Rx ID) ."</th>
-<th>". xlt(Date) ."</th>
-<th>". xlt(Time) ."</th>
-<th>". xlt(Code) ."</th>
-<th>". xlt(Status) ."</th>
-<th>". xlt(Message) ."</th>
+<th>". xlt("Rx ID") ."</th>
+<th>". xlt("Date") ."</th>
+<th>". xlt("Time") ."</th>
+<th>". xlt("Code") ."</th>
+<th>". xlt("Status") ."</th>
+<th>". xlt("Message") ."</th>
 </tr>";
 while($row = sqlFetchArray($log)){
 
