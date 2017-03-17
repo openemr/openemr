@@ -1110,7 +1110,9 @@ function generate_form_field($frow, $currvalue) {
         $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
       }
     }
-    echo "<div id='form_$field_id_esc'></div>";
+    $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
+    $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
+    echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
     // Hidden form field exists to send updated data to the server at submit time.
     echo "<input type='hidden' name='form_$field_id_esc' value='' />";
     // Hidden image exists to support initialization of the canvas.
@@ -3204,9 +3206,9 @@ function lbf_current_value($frow, $formid, $encounter) {
 
 // This returns stuff that needs to go into the <head> section of a caller using
 // the drawable image field type in a form.
-// A TRUE argument makes the widget 25% less tall.
+// A TRUE argument makes the widget controls smaller.
 //
-function lbf_canvas_head($small=FALSE) {
+function lbf_canvas_head($small=TRUE) {
   $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
 <script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
@@ -3219,7 +3221,7 @@ EOD;
  * This makes the widget 25% less tall and adjusts some other things accordingly.
  */
 .literally {
-  min-height:292px;min-width:300px;        /* Was 400, unspecified */
+  min-height:100%;min-width:300px;        /* Was 400, unspecified */
 }
 .literally .lc-picker .toolbar-button {
   width:20px;height:20px;line-height:20px; /* Was 26, 26, 26 */

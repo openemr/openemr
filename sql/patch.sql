@@ -47,3 +47,7 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotColumnType lbf_data field_value longtext
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext;
+#EndIf
