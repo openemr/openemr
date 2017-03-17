@@ -414,3 +414,7 @@ UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'fee_sh
 UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'misc_billing_options';
 UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'procedure_order';
 #EndIf
+
+#IfNotColumnType lbf_data field_value longtext
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
+#EndIf
