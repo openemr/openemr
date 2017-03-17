@@ -33,8 +33,5 @@
         "branch-alias": {
             "dev-master": "1.6.x-dev"
         }
-    },
-    "config": {
-        "COMPOSER_DISABLE_XDEBUG_WARN": true
     }
 }

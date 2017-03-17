@@ -37,7 +37,7 @@ $exist  = $tables->dataBaseTableExist();
 ?>
 <html>
 <head>
-     <title><?php print xlt(Weno Admin); ?></title>
+     <title><?php print xlt("Weno Admin"); ?></title>
     <?php html_header_show(); ?>
     <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
