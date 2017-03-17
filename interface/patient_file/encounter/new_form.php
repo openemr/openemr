@@ -143,7 +143,7 @@ include_once("$srcdir/registry.inc");
 function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
     global $attendant_type;
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date FROM registry WHERE ";
+    "unpackaged, date, aco_spec FROM registry WHERE ";
   // select different forms for groups
   if($attendant_type == 'pid' )
   {
@@ -196,8 +196,14 @@ if (!empty($reg)) {
       $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
     }
   }
-  if ( $encounterLocked === false ) {
+  if ($encounterLocked === false) {
       foreach ($reg as $entry) {
+        // Check permission to create forms of this type.
+        $tmp = explode('|', $entry['aco_spec']);
+        if (!empty($tmp[1])) {
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
         $new_category = trim($entry['category']);
         $new_nickname = trim($entry['nickname']);
         if ($new_category == '') {
@@ -221,22 +227,16 @@ if (!empty($reg)) {
   }
   $StringEcho.= '</table></div></li>';
 }
+
 if($StringEcho){
   $StringEcho2= '<div style="clear:both"></div>';
 }else{
   $StringEcho2="";
 }
-?>
-<!--<table   style="border:solid 1px black" cellspacing="0" cellpadding="0">
- <tr>
-    <td valign="top"><?php //echo $StringEcho; ?></td>
-  </tr>
-</table>-->
-<?php
-//$StringEcho='';
+
 // This shows Layout Based Form names just like the above.
 //
-if ( $encounterLocked === false ) {
+if ($encounterLocked === false) {
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
     if (sqlNumRows($lres)) {
@@ -252,7 +252,8 @@ if ( $encounterLocked === false ) {
         $jobj = json_decode($lrow['notes'], true);
         if (!empty($jobj['aco'])) {
           $tmp = explode('|', $jobj['aco']);
-          if (!acl_check($tmp[0], $tmp[1])) continue;
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
         }
         $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
           $rootdir . '/patient_file/encounter/load_form.php?formname=' .

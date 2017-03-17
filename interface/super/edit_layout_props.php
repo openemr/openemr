@@ -136,26 +136,7 @@ function submitProps() {
   <td>
    <select name='form_aco'>
     <option value=''></option>
-<?php
-  $gacl = new gacl_api();
-  // collect and sort all aco objects
-  $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
-  ksort($list_aco_objects);
-  foreach ($list_aco_objects as $seckey => $dummy) {
-    if (empty($dummy)) continue;
-    asort($list_aco_objects[$seckey]);
-    $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-    $aco_section_title = $aco_section_data[3];
-    echo " <optgroup label='" . xla($aco_section_title) . "'>\n";
-    foreach($list_aco_objects[$seckey] as $acokey) {
-      $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
-      $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-      $aco_title = $aco_data[0][3];
-      echo "  <option value='" . attr("$seckey|$acokey") . "'>" . xlt($aco_title) . "</option>\n";
-    }
-    echo " </optgroup>\n";
-  }
-?>
+    <?php echo gen_aco_html_options(); ?>
    </select>
   </td>
  </tr>
