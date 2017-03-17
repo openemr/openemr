@@ -96,6 +96,28 @@ class transmitData {
 		$res = sqlQuery($sql, 'CCS Medical');
 		return $res;
 	}
+
+	public function validateWeno(){
+
+         $wenoInfo = "SELECT gl_value FROM globals WHERE gl_name LIKE ? ";
+         $val = array('%weno%');
+
+         $wenores = sqlStatement($wenoInfo,$val);
+         $wenoArray = array();
+         while($row = sqlFetchArray($wenores)){
+             $wenoArray[] = $row;
+         }
+         
+         return $wenoArray;
+	}
+
+    public function validatePatient($pid){
+         $patientInfo = "SELECT DOB, street, postal_code, city, state, sex FROM patient_data WHERE pid = ?";
+         $val = array($pid);
+         $patientRes = sqlQuery($patientInfo,$val);
+         return $patientRes;    	
+    }
+
 }
 
 ?>
