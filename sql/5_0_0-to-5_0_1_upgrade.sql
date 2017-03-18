@@ -418,3 +418,11 @@ UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'proced
 #IfNotColumnType lbf_data field_value longtext
 ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
 #EndIf
+
+#IfMissingColumn issue_types aco_spec
+ALTER TABLE `issue_types` ADD `aco_spec` varchar(63) NOT NULL default 'patients|med';
+#EndIf
+
+#IfMissingColumn categories aco_spec
+ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|docs';
+#EndIf

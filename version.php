@@ -17,7 +17,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 215;
+$v_database = 217;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -36,7 +36,6 @@ $v_offsite_portal='1.47';
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
 $v_js_includes = 20;
-
 
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

@@ -46,24 +46,49 @@ class C_DocumentCategory extends Controller {
 	function add_node_action($parent_is) {
 		//echo $parent_is ."<br>";
 		//echo $this->tree->get_node_name($parent_is);
+    $info = $this->tree->get_node_info($parent_is);
 		$this->assign("parent_name",$this->tree->get_node_name($parent_is));
 		$this->assign("parent_is",$parent_is);
 		$this->assign("add_node",true);
+    $this->assign("edit_node", false);
+    $this->assign("VALUE", '');
+    // Access control defaults to that of the parent.
+    $this->assign("ACO_OPTIONS", "<option value=''></option>" . gen_aco_html_options($info['aco_spec']));
 		return $this->list_action();
 	}
 
 	function add_node_action_process() {
-		if ($_POST['process'] != "true")
-			return;
+    if ($_POST['process'] != "true") return;
 		$name = $_POST['name'];
 		$parent_is = $_POST['parent_is'];
 		$parent_name = $this->tree->get_node_name($parent_is);
-		$this->tree->add_node($parent_is,$name);
+		$this->tree->add_node($parent_is, $name, $_POST['value'], $_POST['aco_spec']);
 	        $trans_message = xl('Sub-category','','',' ') . "'" . xl_document_category($name) . "'" . xl('successfully added to category,','',' ',' ') . "'" . $parent_name . "'";
 		$this->assign("message",$trans_message);
 		$this->_state = false;
 		return $this->list_action();
 	}
+
+  function edit_node_action($parent_is) {
+    $info = $this->tree->get_node_info($parent_is);
+    $this->assign("parent_is",$parent_is);
+    $this->assign("NAME" , $this->tree->get_node_name($parent_is));
+    $this->assign("VALUE", $info['value']);
+    $this->assign("ACO_OPTIONS", "<option value=''></option>" . gen_aco_html_options($info['aco_spec']));
+    $this->assign("add_node",false);
+    $this->assign("edit_node",true);
+    return $this->list_action();
+  }
+
+  function edit_node_action_process() {
+    if ($_POST['process'] != "true") return;
+    $parent_is = $_POST['parent_is'];
+    $this->tree->edit_node($parent_is, $_POST['name'], $_POST['value'], $_POST['aco_spec']);
+    $trans_message = xl('Category changed.');
+    $this->assign("message", $trans_message);
+    $this->_state = false;
+    return $this->list_action();
+  }
 
 	function delete_node_action_process($id) {
 		if ($_POST['process'] != "true")
@@ -91,24 +116,6 @@ class C_DocumentCategory extends Controller {
 		$this->_state = false;
 
 		return $this->list_action();
-	}
-
-	function edit_action_process() {
-		if ($_POST['process'] != "true")
-			return;
-		//print_r($_POST);
-		if (is_numeric($_POST['id'])) {
-			$this->document_categories[0] = new Pharmacy($_POST['id']);
-		}
-		else {
-			$this->document_categories[0] = new Pharmacy();
-		}
-  		parent::populate_object($this->document_categories[0]);
-		//print_r($this->document_categories[0]);
-		//echo $this->document_categories[0]->toString(true);
-		$this->document_categories[0]->persist();
-		//echo "action processeed";
-		$_POST['process'] = "";
 	}
 
 	function &_array_recurse($array) {

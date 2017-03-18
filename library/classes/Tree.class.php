@@ -82,7 +82,8 @@ class Tree {
 
 	    // ADDED below by BM on 06-2009 to translate categories, if applicable
 	    if ($this->_table == "categories") {
-	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']), "parent" => $row['parent']);
+	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']),
+          "parent" => $row['parent'], "value" => $row['value'], "aco_spec" => $row['aco_spec']);
 	    }
 	    else {
 	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
@@ -193,9 +194,10 @@ class Tree {
 	*	@param int $parent id of the node you would like the new node to have as its parent
 	*	@param string $name the name of the new node, it will be used to reference its value in the tree array
 	*	@param string $value optional value this node is to contain
+	*	@param string $aco_spec optional ACO value in section|value format
 	*	@return int id of newly added node
 	*/
-	function add_node($parent_id,$name,$value="") {
+	function add_node($parent_id, $name, $value="", $aco_spec="patients|docs") {
 
    	  $sql = "SELECT * from " . $this->_table . " where parent = '" . $parent_id . "' and name='" . $name . "'";
 	  $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
@@ -219,11 +221,38 @@ class Tree {
 	  $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 
 	  $id = $this->_db->GenID($this->_table . "_seq");
-	  $sql = "INSERT INTO " . $this->_table . " SET name='" . $name . "', value='" . $value . "', lft='" . $next_right . "', rght='" . ($next_right + 1) . "', parent='" . $parent_id . "', id='" . $id . "'";
+	  $sql = "INSERT INTO " . $this->_table . " SET name='" . add_escape_custom($name) .
+      "', value='" . add_escape_custom($value) . "', aco_spec='" . add_escape_custom($aco_spec) .
+      "', lft='" . $next_right . "', rght='" . ($next_right + 1) .
+      "', parent='" . $parent_id . "', id='" . $id . "'";
 	  $this->_db->Execute($sql) or die("Error: $sql :: " . $this->_db->ErrorMsg());
 	  //$this->rebuild_tree(1,1);
 	  $this->load_tree();
 	  return $id;
+	}
+
+	/*
+	*	Call this to modify a node's attributes.
+	*	@param int $id id of the node to change
+	*	@param string $name the new name of the new node
+	*	@param string $value optional value this node is to contain
+	*	@param string $aco_spec optional ACO value in section|value format
+	*	@return int same as input id
+	*/
+	function edit_node($id, $name, $value="", $aco_spec="patients|docs") {
+    $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
+      "c1.id = $id AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = '" .
+      add_escape_custom($name) . "'";
+    $result = $this->_db->Execute($sql) or die(xlt('Error') . ": " . $this->_db->ErrorMsg());
+    if ($result && !$result->EOF) {
+      die(xlt('This name already exists under this parent.') . "<br>");
+    }
+    $sql = "UPDATE " . $this->_table . " SET name = '" . add_escape_custom($name) .
+      "', value = '" . add_escape_custom($value) .
+      "', aco_spec = '" . add_escape_custom($aco_spec) . "' WHERE id = $id";
+    $this->_db->Execute($sql) or die(xlt('Error') . ": " . $this->_db->ErrorMsg());
+    $this->load_tree();
+    return $id;
 	}
 
 	/*

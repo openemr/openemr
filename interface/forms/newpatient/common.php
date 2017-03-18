@@ -19,6 +19,9 @@
  */
 
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/lists.inc");
+
 if($GLOBALS['enable_group_therapy']){
     require_once("$srcdir/group.inc");
 }
@@ -356,6 +359,18 @@ if ($fres) {
 
 
   <td class='bold' width='33%' nowrap>
+
+<?php
+  // To see issues stuff user needs write access to all issue types.
+  $issuesauth = true;
+  foreach ($ISSUE_TYPES as $type => $dummy) {
+    if (!acl_check_issue($type, '', 'write')) {
+      $issuesauth = false;
+      break;
+    }
+  }
+  if ($issuesauth) {
+?>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
     </div>
@@ -365,6 +380,8 @@ if ($fres) {
         onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
       <?php } ?>
     </div>
+<?php } ?>
+
   </td>
  </tr>
 
@@ -374,6 +391,8 @@ if ($fres) {
     ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
   </td>
   <td class='text' valign='top'>
+
+<?php if ($issuesauth) { ?>
    <select multiple name='issues[]' size='8' style='width:100%'
     title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>'>
 <?php
@@ -396,10 +415,10 @@ while ($irow = sqlFetchArray($ires)) {
 }
 ?>
    </select>
-
    <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
    . 'desired issue above to highlight it and then click [Save]. '
    . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
+<?php } ?>
 
   </td>
  </tr>
@@ -471,7 +490,5 @@ if (!$viewmode) { ?>
   <?php } ?>
 <?php } ?>
 </script>
-
-
 
 </html>
