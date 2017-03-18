@@ -339,6 +339,7 @@ foreach ($ar as $key => $val) {
                     echo "<br>";
                 }
             }
+            echo "</div><br>";
         }
         elseif ($val == "demographics") {
 
@@ -402,7 +403,7 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class=text>";
-                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars( $b['code_text'] ) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
                         echo oeFormatMoney($b['fee']);
@@ -662,7 +663,7 @@ foreach ($ar as $key => $val) {
         }
 
         else if (strpos($key, "issue_") === 0) {
-            // display patient Issues
+                // display patient Issues
 
             if ($first_issue) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
@@ -774,7 +775,7 @@ foreach ($ar as $key => $val) {
                       array($pid, $form_encounter));
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<div class='bold' style='display: inline-block'>&nbsp;".xl('Procedure').": </div><div class='text' style='display: inline-block'>" .
-                            $brow['code'] . " " . $brow['code_text'] . "</div><br>\n";
+                            $brow['code'] . " " . htmlspecialchars($brow['code_text']) . "</div><br>\n";
                     }
                 }
 
