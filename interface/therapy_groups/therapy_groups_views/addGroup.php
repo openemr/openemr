@@ -51,7 +51,7 @@
                             <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>">
+                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>">
                         </div>
                     </div>
                 </div>
