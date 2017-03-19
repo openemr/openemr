@@ -242,9 +242,9 @@ class TherapyGroupsController extends BaseController{
         $data['therapyGroups'] = $this->prepareGroups($therapy_groups, $counselors);
 
         //Insert static arrays to send to view.
-        $data['statuses'] = SELF::prepareStatusesList();
-        $data['group_types'] = SELF::prepareGroupTypesList();
-        $data['group_participation'] = SELF::prepareGroupParticipationList();
+        $data['statuses'] = self::prepareStatusesList();
+        $data['group_types'] = self::prepareGroupTypesList();
+        $data['group_participation'] = self::prepareGroupParticipationList();
         $data['counselors'] = $this->prepareCounselorsList($counselors);
 
         //Send groups array to view.

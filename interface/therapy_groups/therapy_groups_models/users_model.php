@@ -70,7 +70,7 @@ class Users{
 
         $multiple = $this->checkIfMultiple($eid);
         if($multiple > 0){
-            $sql = "SELECT pc_aid From " . SELF::EVENTS_TABLE . " WHERE pc_multiple = ?";
+            $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_multiple = ?";
             $result = sqlStatement($sql, array($multiple));
             while($p = sqlFetchArray($result)){
                 $providers[] = $p['pc_aid'];
@@ -78,7 +78,7 @@ class Users{
             return $providers;
         }
         else{
-            $sql = "SELECT pc_aid From " . SELF::EVENTS_TABLE . " WHERE pc_eid = ?";
+            $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
             $result = sqlStatement($sql, array($eid));
             while($p = sqlFetchArray($result)){
                 $providers[] = $p['pc_aid'];
@@ -96,7 +96,7 @@ class Users{
      */
     private function checkIfMultiple($eid){
 
-        $sql = "SELECT pc_multiple FROM " . SELF::EVENTS_TABLE . " WHERE pc_eid = ?";
+        $sql = "SELECT pc_multiple FROM " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
         $result = sqlQuery($sql, array($eid));
         if($result['pc_multiple'] == 0){
             return false;

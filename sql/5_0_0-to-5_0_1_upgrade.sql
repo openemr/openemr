@@ -405,3 +405,16 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 #IfNotRow2D list_options list_id apptstat option_id ^
 INSERT INTO list_options ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `notes` ) VALUES ('apptstat','^','^ Pending',70,0,'FEFDCF|0');
 #EndIf
+
+#IfMissingColumn registry aco_spec
+ALTER TABLE `registry` ADD `aco_spec` varchar(63) NOT NULL default 'encounters|notes';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newpatient';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newGroupEncounter';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'fee_sheet';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'misc_billing_options';
+UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'procedure_order';
+#EndIf
+
+#IfNotColumnType lbf_data field_value longtext
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
+#EndIf

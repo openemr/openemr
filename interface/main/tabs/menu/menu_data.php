@@ -34,7 +34,7 @@ $menu_json='[
     {"label":"Summary","menu_id":"dem1","target":"pat","url":"/interface/patient_file/summary/demographics.php","children":[],"requirement":1,"acl_req":["patients","demo"]},
     {"label":"Visits","icon":"fa-caret-right","children":[
       {"label":"Calendar","menu_id":"cal0","target":"cal","url":"/interface/main/main_info.php","children":[],"requirement":0,"acl_req":["patients","appt"],"global_req_strict":["ippf_specific","!disable_calendar"]},
-      {"label":"Create Visit","menu_id":"nen1","target":"enc","url":"/interface/forms/newpatient/new.php?autoloaded=1&calenc=","children":[],"requirement":1,"acl_req":["patients","appt","write","addonly"]},
+      {"label":"Create Visit","menu_id":"nen1","target":"enc","url":"/interface/forms/newpatient/new.php?autoloaded=1&calenc=","children":[],"requirement":1},
       {"label":"Current","menu_id":"enc2","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":3,"acl_req":["patients","appt"]},
       {"label":"Visit History","menu_id":"ens1","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":1,"acl_req":["patients","appt"]}
       ],"requirement":0},

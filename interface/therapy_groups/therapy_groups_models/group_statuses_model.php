@@ -33,7 +33,7 @@ class Group_Statuses{
      * @return ADORecordSet_mysqli
      */
     public function getGroupStatuses(){
-        $sql = 'SELECT  option_id, title FROM ' . SELF::TABLE . ' WHERE list_id = ?;';
+        $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, array('groupstat'));
         $final_result =array();
         while($row = sqlFetchArray($result)){
@@ -47,7 +47,7 @@ class Group_Statuses{
      * @return ADORecordSet_mysqli
      */
     public function getGroupAttendanceStatuses(){
-        $sql = 'SELECT  option_id, title FROM ' . SELF::TABLE . ' WHERE list_id = ?;';
+        $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, array('attendstat'));
         $final_result =array();
         while($row = sqlFetchArray($result)){
