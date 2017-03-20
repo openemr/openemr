@@ -135,11 +135,11 @@ else{//new form
 
         /* Initialise Datatable */
         var table = $('#group_attendance_form_table').DataTable({
-            language: {
-            },
             initComplete: function () {
                 $('#group_attendance_form_table_filter').hide(); //hide searchbar
-            }
+            },
+            <?php // Bring in the translations ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* 'Add Participant' elements */

@@ -30,7 +30,7 @@ class Therapy_Groups{
 
     public function getAllGroups(){
 
-        $sql = 'SELECT * FROM ' . SELF::TABLE . ' ORDER BY ' . SELF::TABLE . '.group_start_date DESC;';
+        $sql = 'SELECT * FROM ' . self::TABLE . ' ORDER BY ' . self::TABLE . '.group_start_date DESC;';
 
         $therapy_groups = array();
         $result = sqlStatement($sql);
@@ -108,7 +108,7 @@ class Therapy_Groups{
     public function getGroupData($search_params, $result_columns, $column, $onlyActive = true){
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'
-        if($onlyActive) $sql .= ' AND group_status == 10 ';
+        if($onlyActive) $sql .= ' AND group_status = 10 ';
         $sql .='ORDER BY group_start_date DESC;';
         $search_params = '%' . $search_params . '%';
         $result = sqlStatement($sql, array($search_params));

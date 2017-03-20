@@ -174,25 +174,18 @@
 
         /* Initialise Datatable */
         var table = $('#therapy_groups_list').DataTable({
-            language: {
-                "lengthMenu": '<?php echo xlt("Display")  .' _MENU_  ' .xlt("records per page")?>',
-                "zeroRecords": '<?php echo xlt("Nothing found - sorry")?>',
-                "info": '<?php echo xlt("Showing page") .' _PAGE_ '. xlt("of") . ' _PAGES_'; ?>',
-                "infoEmpty": '<?php echo xlt("No records available") ?>',
-                "infoFiltered": '<?php echo "(" . xlt("filtered from") . ' _MAX_ '. xlt("total records") . ")"; ?>',
-                "infoPostFix":  "",
-                "search":       "<?php echo xlt('Search')?>",
-                "url":          "",
-                "oPaginate": {
-                    "sFirst":    "<?php echo xlt('First')?>",
-                    "sPrevious": "<?php echo xlt('Previous')?>",
-                    "sNext":     "<?php echo xlt('Next')?>",
-                    "sLast":     "<?php echo xlt('Last')?>"
-                }
-            },
             initComplete: function () {
                 $('#therapy_groups_list_filter').hide(); //hide searchbar
-            }
+            },
+            <?php // Bring in the translations ?>
+            <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
+                                                          'zeroRecords'=>(xla('Nothing found - sorry')),
+                                                          'info'=>(xla('Showing page') .' _PAGE_ '. xla('of') . ' _PAGES_'),
+                                                          'infoEmpty'=>(xla('No records available')),
+                                                          'infoFiltered'=>('('.xla('filtered from').' _MAX_ '.xla('total records').')'),
+                                                          'infoPostFix'=>(''),
+                                                          'url'=>('')); ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* Order by Start Date column (descending) */

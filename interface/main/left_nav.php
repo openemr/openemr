@@ -111,6 +111,7 @@ use ESign\Api;
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
   'pfb' => array(xl('Patient Flow Board')  , 0, '../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'),
   'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
+  'aop' => array(xl('Portal Dashboard')  , 0, '../portal/patient/provider'),
   'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
   'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
   'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
@@ -794,7 +795,9 @@ function clearactive() {
  //It is called when a new patient is create/selected from the search menu.
   var str = '<Select class="text" id="EncounterHistory" onchange="{top.restoreSession();toencounter(this.options[this.selectedIndex].value)}">';
   str+='<option value=""><?php echo htmlspecialchars( xl('Encounter History'), ENT_QUOTES) ?></option>';
+<?php if (acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
   str+='<option value="New Encounter"><?php echo htmlspecialchars( xl('New Encounter'), ENT_QUOTES) ?></option>';
+<?php } ?>
   str+='<option value="Past Encounter List"><?php echo htmlspecialchars( xl('Past Encounter List'), ENT_QUOTES) ?></option>';
   for(CountEncounter=0;CountEncounter<EncounterDateArray.length;CountEncounter++)
    {
@@ -1099,6 +1102,9 @@ if (acl_check('patients', 'notes')) {
 if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal')) {
   genTreeLink('RTop','app',xl('Portal Activity'));
 }
+if($GLOBALS['portal_onsite_two_enable'] && acl_check('patientportal','portal')) {
+  genTreeLink('RTop','aop',xl('Portal Dashboard'));
+}
 if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
   genPopLink(xl('CMS Portal'),'../cmsportal/list_requests.php','ppo0');
 }
@@ -1113,10 +1119,10 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
       <?php if (acl_check('patients','demo'))
         genTreeLink('RTop','dem',xl('Summary')); ?>
 
-      <?php if (acl_check('patients','appt')) { ?>
+      <?php if (acl_check('patients','appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
       <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
         <ul>
-          <?php if (acl_check('patients','appt', '', 'write') || acl_check('patients','appt', '', 'addonly'))
+          <?php if (acl_check_form('newpatient', '', array('write', 'addonly')))
             genTreeLink('RBot','nen',xl('Create Visit')); ?>
           <?php if (acl_check('patients','appt'))
             genTreeLink('RBot','enc',xl('Current')); ?>
@@ -1140,7 +1146,6 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
 <?php
 // Generate the items for visit forms, both traditional and LBF.
 //
-
 $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
@@ -1150,11 +1155,12 @@ while ($lrow = sqlFetchArray($lres)) {
   $jobj = json_decode($lrow['notes'], true);
   if (!empty($jobj['aco'])) {
     $tmp = explode('|', $jobj['aco']);
-    if (!acl_check($tmp[0], $tmp[1])) continue;
+    if (!acl_check($tmp[0], $tmp[1], '', 'write')) continue;
   }
   genMiscLink('RBot','cod','2',xl_form_title($title),
     "patient_file/encounter/load_form.php?formname=$option_id");
 }
+//
 include_once("$srcdir/registry.inc");
 $reg = getRegistered();
 if (!empty($reg)) {
@@ -1163,6 +1169,12 @@ if (!empty($reg)) {
 	  $title = trim($entry['nickname']);
     if ($option_id == 'fee_sheet' ) continue;
     if ($option_id == 'newpatient') continue;
+    // Check permission to create forms of this type.
+    $tmp = explode('|', $entry['aco_spec']);
+    if (!empty($tmp[1])) {
+      if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+        continue;
+    }
 	  if (empty($title)) $title = $entry['name'];
     genMiscLink('RBot','cod','2',xl_form_title($title),
       "patient_file/encounter/load_form.php?formname=" .

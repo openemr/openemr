@@ -1,0 +1,92 @@
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
+#openSignModal .modal-header {
+	padding: 2px;
+}
+
+#openSignModal .modal-header .input-group {
+	padding-top: 5px;
+	margin-left: 5%;
+}
+
+#openSignModal .modal-dialog {
+	min-width: 785px;
+	width: 800px;
+}
+
+#openSignModal .modal-body {
+	position: relative;
+	padding: 10px;
+	background: #f2f3ff;
+}
+
+#openSignModal .input-group .input-group-addon {
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+#openSignModal .input-group .form-control, .input-group-addon,
+	.input-group-btn {
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.signature {
+	width: auto !important;
+	height: 70px;
+	z-index: 5 !important;
+}
+
+.Signature img {
+	cursor: pointer;
+	color: red !important;
+	user-drag: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+
+#openSignModal .close {
+	background: #fff0f0 !important;
+	opacity: .8;
+	color: #000000;
+	line-height: 35px;
+	position: absolute;
+	left: -10px;
+	top: -15px;
+	width: 35px;
+	text-align: center;
+	text-decoration: none;
+	font-weight: bold;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	-moz-box-shadow: 1px 1px 3px #000;
+	-webkit-box-shadow: 1px 1px 3px #000;
+	box-shadow: 1px 1px 3px #000;
+}
+
+#openSignModal .close:hover {
+	background: #00d9ff;
+}

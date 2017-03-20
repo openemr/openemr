@@ -34,7 +34,7 @@ $menu_json='[
     {"label":"Summary","menu_id":"dem1","target":"pat","url":"/interface/patient_file/summary/demographics.php","children":[],"requirement":1,"acl_req":["patients","demo"]},
     {"label":"Visits","icon":"fa-caret-right","children":[
       {"label":"Calendar","menu_id":"cal0","target":"cal","url":"/interface/main/main_info.php","children":[],"requirement":0,"acl_req":["patients","appt"],"global_req_strict":["ippf_specific","!disable_calendar"]},
-      {"label":"Create Visit","menu_id":"nen1","target":"enc","url":"/interface/forms/newpatient/new.php?autoloaded=1&calenc=","children":[],"requirement":1,"acl_req":["patients","appt","write","addonly"]},
+      {"label":"Create Visit","menu_id":"nen1","target":"enc","url":"/interface/forms/newpatient/new.php?autoloaded=1&calenc=","children":[],"requirement":1},
       {"label":"Current","menu_id":"enc2","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":3,"acl_req":["patients","appt"]},
       {"label":"Visit History","menu_id":"ens1","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":1,"acl_req":["patients","appt"]}
       ],"requirement":0},
@@ -197,6 +197,7 @@ $menu_json='[
     ],"requirement":0},
   {"label":"Miscellaneous","menu_id":"misimg","children":[
     {"label":"Portal Activity","menu_id":"por0","target":"por","url":"/myportal/index.php","children":[],"requirement":0,"global_req_strict":["portal_offsite_enable","portal_offsite_address"],"acl_req":["patientportal","portal"]},
+	  {"label":"Portal Dashboard","menu_id":"por2","target":"por","url":"/portal/patient/provider","children":[],"requirement":0,"global_req_strict":"portal_onsite_two_enable","acl_req":["patientportal","portal"]},
     {"label":"CMS Portal","menu_id":"por1","target":"por","url":"/interface/cmsportal/list_requests.php","children":[],"requirement":0,"global_req":"gbl_portal_cms_enable","acl_req":["patientportal","portal"]},
     {"label":"Patient Education","menu_id":"ped0","target":"msc","url":"/interface/reports/patient_edu_web_lookup.php","children":[],"requirement":0},
     {"label":"Authorizations","menu_id":"aun0","target":"msc","url":"/interface/main/authorizations/authorizations.php","children":[],"requirement":0,"acl_req":[["encounters","auth"],["encounters","auth_a"]]},
