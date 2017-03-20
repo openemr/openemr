@@ -7,36 +7,25 @@ var bbm = require('blue-button-model');
 
 var whereami = __dirname;
 var server = net.createServer();
-function setUp(server) {
-	server.on('connection', processConnection);
-	server.listen(6661, 'localhost', function() {
-		//console.log('server listening to %j', server.address());
-	});
-}
 var conn = '';
-setUp(server);
+
 function fDate(str) {
 	/*
 	 * Format dates to js required yyyy-mm-dd + zero hundred hours Yes I freely
 	 * admit, I'm lazy!
 	 */
 	str = String(str); // at least ensure string so cast it...
-	if (Number(str) === 0)
-		return "0000-01-01T00:00:00.000Z";
-	if (str.length === 8
-			|| (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
+	if (Number(str) === 0){return "0000-01-01T00:00:00.000Z";}
+	if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
 		// case yyyymmdd or yyyymmdd000000 called effectivetime by ccm.
-		return [ str.slice(0, 4), str.slice(4, 6), str.slice(6, 8) ].join('-')
-				+ 'T00:00:00.000Z';
+		return [ str.slice(0, 4), str.slice(4, 6), str.slice(6, 8) ].join('-') + 'T00:00:00.000Z';
 	} else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
 		// case mm/dd/yyyy or mm-dd-yyyy
-		return [ str.slice(6, 10), str.slice(0, 2), str.slice(3, 5) ].join('-')
-				+ 'T00:00:00.000Z';
+		return [ str.slice(6, 10), str.slice(0, 2), str.slice(3, 5) ].join('-') + 'T00:00:00.000Z';
 	} else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
 		// maybe a real time so parse
 	}
-	return str + 'T00:00:00.000Z'; // lets hope only needs time-could test more
-									// but, I'm a busy man..
+	return str + 'T00:00:00.000Z';
 }
 function isOne(who) {
 	try{
@@ -47,250 +36,12 @@ function isOne(who) {
 	catch(e){ return false;}
 	return 0;
 }
-function genCcda(pd) {
-	var doc = {};
-	var data = {};
-	var count = 0;
-	var many = [];
-	var theone = {};
-	
-	// Header -  @todo pd may be too large- break down to subsections
-	var head = populateHeader(pd);
-	data.head = Object.assign(head);
-	// Demographics
-	var demographic = populateDemographic(pd.patient, pd.guardian);
-	data.demographics = Object.assign(demographic);
-	// vitals
-	many.vitals = [];
-	try{
-		count = isOne(pd.history_physical.vitals_list.vitals);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.history_physical.vitals_list.vitals) {
-			theone = populateVital(pd.history_physical.vitals_list.vitals[i]);
-			many.vitals.push.apply(many.vitals, theone);
-		}
-	} else if (count === 1) {
-		theone = populateVital(pd.history_physical.vitals_list.vitals);
-		many.vitals.push(theone);
-	}
-	data.vitals = Object.assign(many.vitals);
-	// Medications
-	var meds = [];
-	var m = {};
-	meds.medications = [];
-	try{
-		count = isOne(pd.medications.medication);
-	}catch(e){count = 0}	
-	if (count > 1) {
-		for ( var i in pd.medications.medication) {
-			m[i] = populateMedication(pd.medications.medication[i]);
-			meds.medications.push(m[i]);
-		}
-	} else if (count !== 0) {
-		m = populateMedication(pd.medications.medication);
-		meds.medications.push(m);
-	}
-	data.medications = Object.assign(meds.medications);
-	// Encounters
-	var encs = [];
-	var enc = {};
-	encs.encounters = [];
-	try{
-		count = isOne(pd.encounter_list.encounter);
-	}catch(e){count = 0}	
-	if (count > 1) {
-		for ( var i in pd.encounter_list.encounter) {
-			enc[i] = populateEncounter(pd.encounter_list.encounter[i]);
-			encs.encounters.push(enc[i]);
-		}
-	} else if (count !== 0) {
-		enc = populateEncounter(pd.encounter_list.encounter);
-		encs.encounters.push(enc);
-	}
-	data.encounters = Object.assign(encs.encounters);
-	// Allergies
-	var allergies = [];
-	var allergy = {};
-	allergies.allergies = [];
-	try{
-		count = isOne(pd.allergies.allergy);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.allergies.allergy) {
-			allergy[i] = populateAllergy(pd.allergies.allergy[i]);
-			allergies.allergies.push(allergy[i]);
-		}
-	} else if (count !== 0) {
-		allergy = populateAllergy(pd.allergies.allergy);
-		allergies.allergies.push(allergy);
-	}
-	data.allergies = Object.assign(allergies.allergies);
-	// Problems
-	var problems = [];
-	var problem = {};
-	problems.problems = [];
-	try{
-		count = isOne(pd.problem_lists.problem);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.problem_lists.problem) {
-			problem[i] = populateProblem(pd.problem_lists.problem[i]);
-			problems.problems.push(problem[i]);
-		}
-	} else if (count !== 0) {
-		problem = populateProblem(pd.problem_lists.problem);
-		problems.problems.push(problem);
-	}
-	data.problems = Object.assign(problems.problems);
-	// Procedures
-	many = [];
-	theone = {};
-	many.procedures = [];
-	try{
-		count = isOne(pd.procedures.procedure);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.procedures.procedure) {
-			theone[i] = populateProcedure(pd.procedures.procedure[i]);
-			many.procedures.push(theone[i]);
-		}
-	} else if (count !== 0) {
-		theone = populateProcedure(pd.procedures.procedure);
-		many.procedures.push(theone);
-	}
-	data.procedures = Object.assign(many.procedures);
-	// Results
-	data.results = Object.assign(getResultSet(pd.results)['results']);
-	// Immunizations
-	many = [];
-	theone = {};
-	many.immunizations = [];
-	try{
-		count = isOne(pd.immunizations.immunization);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.immunizations.immunization) {
-			theone[i] = populateImmunization(pd.immunizations.immunization[i]);
-			many.immunizations.push(theone[i]);
-		}
-	} else if (count !== 0) {
-		theone = populateImmunization(pd.immunizations.immunization);
-		many.immunizations.push(theone);
-	}
-	data.immunizations = Object.assign(many.immunizations);
-	// Plan of Care
-	many = [];
-	theone = {};
-	many.plan_of_care = [];
-	try{
-		count = isOne(pd.planofcare); // ccm doesn't send array of items
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.planofcare.item) {
-			theone[i] = getPlanOfCare(pd.planofcare.item[i]);
-			many.plan_of_care.push(theone[i]);
-		}
-	} else if (count !== 0) {
-		theone = getPlanOfCare(pd.planofcare.item);
-		many.plan_of_care.push(theone);
-	}
-	data.plan_of_care = Object.assign(many.plan_of_care);
-	// Social History
-	many = [];
-	theone = {};
-	many.social_history = [];
-	try{
-		count = isOne(pd.history_physical.social_history.history_element);
-	}catch(e){count = 0}
-	if (count > 1) {
-		for ( var i in pd.history_physical.social_history.history_element) {
-			theone[i] = populateSocialHistory(pd.history_physical.social_history.history_element[i]);
-			many.social_history.push(theone[i]);
-		}
-	} else if (count !== 0) {
-		theone = populateSocialHistory(pd.history_physical.social_history.history_element);
-		many.social_history.push(theone);
-	}
-	data.social_history = Object.assign(many.social_history);
-
-	// ------------------------------------------ End Sections -------------------------------------------------//
-
-	doc.data = Object.assign(data);
-	/*Below is almost never valid.. Here to help test validate for missing items*/
-/*	var valid = bbm.validator.validateDocumentModel(doc);
-	if (!valid) {
-		 var error = bbm.validator.getLastError();
-		 console.log(error);
-		 conn.write( String.fromCharCode(28) + "\r\r" + '' ); // release distant end
-		 conn.end();
-	}*/
-	var xml = bbg.generateCCD(doc);
-	//console.log(xml)
-	return xml;
-}
 function headReplace(content) {
-	var r = '<?xml version="1.0" encoding="UTF-8"?>\n'
-			+ '<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"'
-			+ ' xmlns="urn:hl7-org:v3" xmlns:mif="urn:hl7-org:v3/mif">\n';
+	var r = '<?xml version="1.0" encoding="UTF-8"?>\n' + 
+			'<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"' + 
+			' xmlns="urn:hl7-org:v3" xmlns:mif="urn:hl7-org:v3/mif">\n';
 	r += content.substr(194);
 	return r;
-}
-function processConnection( connection ) {
-	conn = connection; // make it global
-	var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
-	console.log(remoteAddress);
-	conn.setEncoding('utf8');
-	function eventData(xml) {
-		xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
-		// Sanity check from service manager
-		if (xml === 'status' || xml.length < 80) {
-			conn.write("statusok" + String.fromCharCode(28) + "\r\r");
-			conn.end('');
-			return;
-		}
-		var doc = "";
-		to_json(xml, function(error, data) {
-			// console.log(JSON.stringify(data, null, 4));
-			if (error) { // need try catch
-				console.log(error);
-				return;
-			}
-			doc = genCcda( data.CCDA );
-		});
-		doc = headReplace(doc);
-		doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
-		//console.log(doc)
-		// var justuwait = new Date(new Date().getTime() + 1 * 1000);
-		// while(justuwait > new Date()){}
-		// Document length is anywhere from 50k to 125K so lets not flood poor ole php's socket buffer
-		// not really throttled though...
-		var chunk = "";
-		var numChunks = Math.ceil(doc.length / 1024);
-		for (var i = 0, o = 0; i < numChunks; ++i, o += 1024) {
-			chunk = doc.substr(o, 1024);
-			conn.write(chunk);
-		}
-		// Php is sensitive to ending read stream and CCM chops last three bytes
-		// empty string ends read and char 28 is xfer end (php doesn't care but CCM used so, I will also).
-		conn.write(String.fromCharCode(28) + "\r\r" + '');
-		conn.end();
-		// By parsing doc just created we can see any nullFlavors or missing parts
-		//console.log("total=" + conn.bytesWritten);
-		// remove for production - test validation of doc just created
-		// var data = bb.parse(doc);
-		// console.log(JSON.stringify(data.errors, null, 4));
-	}
-	function eventCloseConn() {
-		//console.log('connection from %s closed', remoteAddress);
-	}
-	function eventErrorConn(err) {
-		//console.log('Connection %s error: %s', remoteAddress, err.message);
-	}
-	// Connection Events //
-	conn.on('data', eventData);
-	conn.once('close', eventCloseConn);
-	conn.on('error', eventErrorConn);
 }
 // Data model for Blue Button
 function populateDemographic(pd, g) {
@@ -523,8 +274,8 @@ function populateMedication(pd) {
 function populateEncounter(pd) {
 	return {
 		"encounter" : {
-			"name" : "Broke in linux",//pd.encounter_procedures.procedures.text,
-			"code" : "Broke in linux",//pd.encounter_procedures.procedures.code, // these are undefine in linux????
+			"name" : pd.encounter_procedures ? pd.encounter_procedures.procedures.text : 'NI',
+			"code" : pd.encounter_procedures ? pd.encounter_procedures.procedures.code : 'NI',
 			"code_system_name" : "CPT",
 			"translations" : [ {
 				"name" : "NI",
@@ -837,10 +588,11 @@ function getResultSet(results) {
 	var rs = [];
 	var many = [];
 	var theone = {};
+	var count = 0;
 	many.results = [];
 	try{
-		var count = isOne(results.result);
-	}catch(e){count = 0}	
+		count = isOne(results.result);
+	}catch(e){count = 0;}	
 	if (count > 1) {
 		for ( var i in results.result) {
 			theone[i] = populateResult(results.result[i]);
@@ -1133,8 +885,7 @@ function populateImmunization(pd) {
 			},
 			"free_text" : "Needs Attention for more data."
 		}
-	}
-
+	};
 }
 
 function populatePayer(pd) {
@@ -1280,7 +1031,7 @@ function populatePayer(pd) {
 				}
 			}
 		}
-	}
+	};
 }
 
 function populateHeader(pd){
@@ -1516,6 +1267,253 @@ function populateHeader(pd){
                     }
                 ]
             }
-        }
+        };
 	return head;
 }
+
+function genCcda(pd) {
+	var doc = {};
+	var data = {};
+	var count = 0;
+	var many = [];
+	var theone = {};
+	
+	// Header -  @todo pd may be too large- break down to subsections
+	var head = populateHeader(pd);
+	data.head = Object.assign(head);
+	// Demographics
+	var demographic = populateDemographic(pd.patient, pd.guardian);
+	data.demographics = Object.assign(demographic);
+	// vitals
+	many.vitals = [];
+	try{
+		count = isOne(pd.history_physical.vitals_list.vitals);
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.history_physical.vitals_list.vitals) {
+			theone = populateVital(pd.history_physical.vitals_list.vitals[i]);
+			many.vitals.push.apply(many.vitals, theone);
+		}
+	} else if (count === 1) {
+		theone = populateVital(pd.history_physical.vitals_list.vitals);
+		many.vitals.push(theone);
+	}
+	data.vitals = Object.assign(many.vitals);
+	// Medications
+	var meds = [];
+	var m = {};
+	meds.medications = [];
+	try{
+		count = isOne(pd.medications.medication);
+	}catch(e){count = 0}	
+	if (count > 1) {
+		for ( var i in pd.medications.medication) {
+			m[i] = populateMedication(pd.medications.medication[i]);
+			meds.medications.push(m[i]);
+		}
+	} else if (count !== 0) {
+		m = populateMedication(pd.medications.medication);
+		meds.medications.push(m);
+	}
+	data.medications = Object.assign(meds.medications);
+	// Encounters
+	var encs = [];
+	var enc = {};
+	encs.encounters = [];
+	try{
+		count = isOne(pd.encounter_list.encounter);
+	}catch(e){count = 0}	
+	if (count > 1) {
+		for ( var i in pd.encounter_list.encounter) {
+			enc[i] = populateEncounter(pd.encounter_list.encounter[i]);
+			encs.encounters.push(enc[i]);
+		}
+	} else if (count !== 0) {
+		enc = populateEncounter(pd.encounter_list.encounter);
+		encs.encounters.push(enc);
+	}
+	data.encounters = Object.assign(encs.encounters);
+	// Allergies
+	var allergies = [];
+	var allergy = {};
+	allergies.allergies = [];
+	try{
+		count = isOne(pd.allergies.allergy);
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.allergies.allergy) {
+			allergy[i] = populateAllergy(pd.allergies.allergy[i]);
+			allergies.allergies.push(allergy[i]);
+		}
+	} else if (count !== 0) {
+		allergy = populateAllergy(pd.allergies.allergy);
+		allergies.allergies.push(allergy);
+	}
+	data.allergies = Object.assign(allergies.allergies);
+	// Problems
+	var problems = [];
+	var problem = {};
+	problems.problems = [];
+	try{
+		count = isOne(pd.problem_lists.problem);
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.problem_lists.problem) {
+			problem[i] = populateProblem(pd.problem_lists.problem[i]);
+			problems.problems.push(problem[i]);
+		}
+	} else if (count !== 0) {
+		problem = populateProblem(pd.problem_lists.problem);
+		problems.problems.push(problem);
+	}
+	data.problems = Object.assign(problems.problems);
+	// Procedures
+	many = [];
+	theone = {};
+	many.procedures = [];
+	try{
+		count = isOne(pd.procedures.procedure);
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.procedures.procedure) {
+			theone[i] = populateProcedure(pd.procedures.procedure[i]);
+			many.procedures.push(theone[i]);
+		}
+	} else if (count !== 0) {
+		theone = populateProcedure(pd.procedures.procedure);
+		many.procedures.push(theone);
+	}
+	data.procedures = Object.assign(many.procedures);
+	// Results
+	data.results = Object.assign(getResultSet(pd.results)['results']);
+	// Immunizations
+	many = [];
+	theone = {};
+	many.immunizations = [];
+	try{
+		count = isOne(pd.immunizations.immunization);
+	}catch(e){count = 0;}
+	if (count > 1) {
+		for ( var i in pd.immunizations.immunization) {
+			theone[i] = populateImmunization(pd.immunizations.immunization[i]);
+			many.immunizations.push(theone[i]);
+		}
+	} else if (count !== 0) {
+		theone = populateImmunization(pd.immunizations.immunization);
+		many.immunizations.push(theone);
+	}
+	data.immunizations = Object.assign(many.immunizations);
+	// Plan of Care
+	many = [];
+	theone = {};
+	many.plan_of_care = [];
+	try{
+		count = isOne(pd.planofcare); // ccm doesn't send array of items
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.planofcare.item) {
+			theone[i] = getPlanOfCare(pd.planofcare.item[i]);
+			many.plan_of_care.push(theone[i]);
+		}
+	} else if (count !== 0) {
+		theone = getPlanOfCare(pd.planofcare.item);
+		many.plan_of_care.push(theone);
+	}
+	data.plan_of_care = Object.assign(many.plan_of_care);
+	// Social History
+	many = [];
+	theone = {};
+	many.social_history = [];
+	try{
+		count = isOne(pd.history_physical.social_history.history_element);
+	}catch(e){count = 0}
+	if (count > 1) {
+		for ( var i in pd.history_physical.social_history.history_element) {
+			theone[i] = populateSocialHistory(pd.history_physical.social_history.history_element[i]);
+			many.social_history.push(theone[i]);
+		}
+	} else if (count !== 0) {
+		theone = populateSocialHistory(pd.history_physical.social_history.history_element);
+		many.social_history.push(theone);
+	}
+	data.social_history = Object.assign(many.social_history);
+
+	// ------------------------------------------ End Sections -------------------------------------------------//
+
+	doc.data = Object.assign(data);
+	/*Below is almost never valid.. Here to help test validate for missing items*/
+/*	var valid = bbm.validator.validateDocumentModel(doc);
+	if (!valid) {
+		 var error = bbm.validator.getLastError();
+		 console.log(error);
+		 conn.write( String.fromCharCode(28) + "\r\r" + '' ); // release distant end
+		 conn.end();
+	}*/
+	var xml = bbg.generateCCD(doc);
+	//console.log(xml)
+	return xml;
+}
+
+function processConnection( connection ) {
+	conn = connection; // make it global
+	var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
+	console.log(remoteAddress);
+	conn.setEncoding('utf8');
+	function eventData(xml) {
+		xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
+		// Sanity check from service manager
+		if (xml === 'status' || xml.length < 80) {
+			conn.write("statusok" + String.fromCharCode(28) + "\r\r");
+			conn.end('');
+			return;
+		}
+		var doc = "";
+		to_json(xml, function(error, data) {
+			// console.log(JSON.stringify(data, null, 4));
+			if (error) { // need try catch
+				console.log(error);
+				return;
+			}
+			doc = genCcda( data.CCDA );
+		});
+		doc = headReplace(doc);
+		doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
+		//console.log(doc)
+		// var justuwait = new Date(new Date().getTime() + 1 * 1000);
+		// while(justuwait > new Date()){}
+		// Document length is anywhere from 50k to 125K so lets not flood poor ole php's socket buffer
+		// not really throttled though...
+		var chunk = "";
+		var numChunks = Math.ceil(doc.length / 1024);
+		for (var i = 0, o = 0; i < numChunks; ++i, o += 1024) {
+			chunk = doc.substr(o, 1024);
+			conn.write(chunk);
+		}
+		// Php is sensitive to ending read stream and CCM chops last three bytes
+		// empty string ends read and char 28 is xfer end (php doesn't care but CCM used so, I will also).
+		conn.write(String.fromCharCode(28) + "\r\r" + '');
+		conn.end();
+		// By parsing doc just created we can see any nullFlavors or missing parts
+		//console.log("total=" + conn.bytesWritten);
+		// remove for production - test validation of doc just created
+		// var data = bb.parse(doc);
+		// console.log(JSON.stringify(data.errors, null, 4));
+	}
+	function eventCloseConn() {
+		//console.log('connection from %s closed', remoteAddress);
+	}
+	function eventErrorConn(err) {
+		//console.log('Connection %s error: %s', remoteAddress, err.message);
+	}
+	// Connection Events //
+	conn.on('data', eventData);
+	conn.once('close', eventCloseConn);
+	conn.on('error', eventErrorConn);
+}
+function setUp(server) {
+	server.on('connection', processConnection);
+	server.listen(6661, 'localhost', function() {
+		//console.log('server listening to %j', server.address());
+	});
+}
+setUp(server);
