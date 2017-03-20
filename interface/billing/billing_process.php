@@ -45,6 +45,7 @@ $bat_recvid   = '';
 $bat_content  = '';
 $bat_gscount  = 0;
 $bat_stcount  = 0;
+$bat_segcount  = 0;
 $bat_time     = time();
 $bat_hhmm     = date('Hi' , $bat_time);
 $bat_yymmdd   = date('ymd', $bat_time);
@@ -61,7 +62,7 @@ if (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_hcfa_form']) ) 
 }
 
 function append_claim(&$segs) {
-  global $bat_content, $bat_sendid, $bat_recvid, $bat_sender, $bat_stcount;
+  global $bat_content, $bat_sendid, $bat_recvid, $bat_sender, $bat_stcount, $bat_segcount;
   global $bat_gscount, $bat_yymmdd, $bat_yyyymmdd, $bat_hhmm, $bat_icn;
 
   foreach ($segs as $seg) {
@@ -90,25 +91,34 @@ function append_claim(&$segs) {
       continue;
     }
     if ($elems[0] == 'ST') {
-      ++$bat_stcount;
-      $bat_content .= sprintf("ST*837*%04d", $bat_stcount);
-      if (!empty($elems[3])) $bat_content .= "*" . $elems[3];
+      if ($bat_stcount == 0) {
+      $bat_content .= sprintf("ST*837*%04d", 1);  // Keep first ST and ST02 to 0001
+      if (!empty($elems[3])) { 
+          $bat_content .= "*" . $elems[3];
+          }
       $bat_content .= "~";
-      continue;
+      }
+      ++$bat_stcount;
+      continue; // SKIP individual Claim ST
     }
     if ($elems[0] == 'SE') {
-      $bat_content .= sprintf("SE*%d*%04d~", $elems[1], $bat_stcount);
-      continue;
+      continue;  // SKIP individual Claim SE
     }
     if ($elems[0] == 'GE' || $elems[0] == 'IEA') continue;
+    
+    //Otherwise just capture the segment
     $bat_content .= $seg . '~';
+    ++$bat_segcount;    //Count the data segements (not the ISA/IEA/GS/GE/ST/SE)
   }
 }
 
 function append_claim_close() {
-  global $bat_content, $bat_stcount, $bat_gscount, $bat_icn;
-  if ($bat_gscount) $bat_content .= "GE*$bat_stcount*1~";
-  $bat_content .= "IEA*$bat_gscount*$bat_icn~";
+  global $bat_content, $bat_stcount, $bat_gscount, $bat_icn, $bat_segcount;
+  if ($bat_gscount) {
+    $bat_content .= sprintf("SE*%d*%04d~", $bat_segcount, 1); //SE02 segment count, not including ISA/IEA/GS/GE/ST/SE
+    $bat_content .= "GE*1*1~"; // Transaction count fixed at 1 since we are squashing out all extra ST/SE pair
+    $bat_content .= "IEA*$bat_gscount*$bat_icn~";
+  }
 }
 
 function send_batch() {
@@ -220,7 +230,6 @@ function process_form($ar) {
           if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
             $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
           }
-
         }
 
         else if (isset($ar['bn_process_hcfa'])) {
