@@ -1573,7 +1573,12 @@ $GLOBALS_METADATA = array(
   // Security Tab
   //
   'Security' => array(
-
+     'safe_mode' => array(
+          xl('Safe mode'),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Show to super user query and information of events')
+    ),
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
       'num',                            // data type
