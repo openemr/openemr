@@ -200,6 +200,7 @@ use ESign\Api;
 
  $disallowed['pre'] = !(acl_check('patients', 'med'));
  $disallowed['eob'] = !(acl_check('acct', 'eob'));
+ $disallowed['zhk'] = !(acl_check('menus', 'zfreport')) || $disallowed['adm'];
 
  // Helper functions for treeview generation.
  function genTreeLink($frame, $name, $title, $mono=false) {
@@ -1396,7 +1397,7 @@ if (!empty($reg)) {
 						}
 						$jid++;
 						$modid = $modulerow['mod_id'];
-						genMiscLink('RTop','adm','0',xlt($mod_nick_name),$relative_link);
+						genMiscLink('RTop','zhk','0',xlt($mod_nick_name),$relative_link);
 					}
         echo "</ul>";
       } ?>
