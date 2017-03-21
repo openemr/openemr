@@ -215,7 +215,6 @@ $GLOBALS["doctrine_connection_pooling"] = true;
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
-$GLOBALS['cene_specific'] = false;
 
 // Defaults for drugs and products.
 $GLOBALS['inhouse_pharmacy'] = false;

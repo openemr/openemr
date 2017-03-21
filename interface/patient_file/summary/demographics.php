@@ -1301,32 +1301,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       </div>
  <?php  }  // close advanced dir block
 
-	// This is a feature for a specific client.  -- Rod
-	if ($GLOBALS['cene_specific']) {
-	  echo "   <br />\n";
-
-          $imagedir  = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/demographics";
-          $imagepath = "$web_root/sites/" . $_SESSION['site_id'] . "/documents/$pid/demographics";
-
-	  echo "   <a href='' onclick=\"return sendimage($pid, 'photo');\" " .
-		"title='Click to attach patient image'>\n";
-	  if (is_file("$imagedir/photo.jpg")) {
-		echo "   <img src='$imagepath/photo.jpg' /></a>\n";
-	  } else {
-		echo "   Attach Patient Image</a><br />\n";
-	  }
-	  echo "   <br />&nbsp;<br />\n";
-
-	  echo "   <a href='' onclick=\"return sendimage($pid, 'fingerprint');\" " .
-		"title='Click to attach fingerprint'>\n";
-	  if (is_file("$imagedir/fingerprint.jpg")) {
-		echo "   <img src='$imagepath/fingerprint.jpg' /></a>\n";
-	  } else {
-		echo "   Attach Biometric Fingerprint</a><br />\n";
-	  }
-	  echo "   <br />&nbsp;<br />\n";
-	}
-
     // Show Clinical Reminders for any user that has rules that are permitted.
     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
