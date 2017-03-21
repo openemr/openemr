@@ -144,8 +144,6 @@
  //
  $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
      // xl('Modules')
- $gacl->add_object('menus', 'Custom Report (zend modules hooks)' , 'zfreport'  , 10, 0, 'ACO');
-   // xl('Custom Report (zend modules hooks)')
 
  // Create ACOs for patients.
  //
