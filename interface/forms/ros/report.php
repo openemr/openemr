@@ -19,6 +19,10 @@ function ros_report( $pid, $encounter, $cols, $id) {
 				"authorized" => '',
 				"date" => '',
 
+                // This maps a label to custom text. For example "glaucoma_history" should be
+                // displayed as "Glaucoma Family History". If this wasn't specified, the code
+                // will display it as "Glaucoma History" due to some clever string manipulation.
+                // Acronyms are handled in this map as well.
 				"glaucoma_history" => "Glaucoma Family History",
 				"irritation" => "Eye Irritation",
 				"redness" => "Eye Redness",
