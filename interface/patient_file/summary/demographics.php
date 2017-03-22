@@ -648,8 +648,8 @@ if ($GLOBALS['patient_id_category_name']) {
 				$added		= "index";
 				$modulePath 	= $GLOBALS['zendModDir'];
 			}
-			if(!zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
-        )
+			if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
+
 			$relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
 			$nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
 			$jid++;
