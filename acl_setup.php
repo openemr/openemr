@@ -143,7 +143,7 @@
  // Create ACOs for modules.
  //
  $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
-     // xl('Modules') 
+     // xl('Modules')
 
  // Create ACOs for patients.
  //
