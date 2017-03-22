@@ -91,7 +91,7 @@ if ($_POST['form_save']) {
     //
     if ($_POST['form_cb_copy_type'] == 1) {
       // Compute a target filename that does not yet exist.
-      $ffname = trim($_POST['form_filename']);
+      $ffname = check_file_dir_name(trim($_POST['form_filename']));
       $i = strrpos($ffname, '.');
       if ($i) $ffname = trim(substr($ffname, 0, $i));
       if (!$ffname) $ffname = $filebase;

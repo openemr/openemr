@@ -1580,7 +1580,12 @@ $GLOBALS_METADATA = array(
   // Security Tab
   //
   'Security' => array(
-
+     'sql_string_no_show_screen' => array(
+          xl('Mode - Do Not Show SQL Queries'),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Do not allow SQL queries to be outputted to screen.')
+    ),
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
       'num',                            // data type
@@ -2819,12 +2824,12 @@ $GLOBALS_METADATA = array(
             'ml' => xl('Malayalam'),
             'mt' => xl('Maltese'),
             'mi' => xl('Maori'),
-            'mr' => xl('Marathi (Marāṭhī)'),
+            'mr' => xl('Marathi (Marathi)'),
             'mh' => xl('Marshallese'),
             'mn' => xl('Mongolian'),
             'na' => xl('Nauru'),
             'nv' => xl('Navajo, Navaho'),
-            'nb' => xl('Norwegian Bokmål'),
+            'nb' => xl('Norwegian Bokmal'),
             'nd' => xl('North Ndebele'),
             'ne' => xl('Nepali'),
             'ng' => xl('Ndonga'),
@@ -2849,7 +2854,7 @@ $GLOBALS_METADATA = array(
             'rn' => xl('Kirundi'),
             'ro' => xl('Romanian'),
             'ru' => xl('Russian'),
-            'sa' => xl('Sanskrit (Saṁskṛta)'),
+            'sa' => xl('Sanskrit (Samskrta)'),
             'sc' => xl('Sardinian'),
             'sd' => xl('Sindhi'),
             'se' => xl('Northern Sami'),
@@ -2889,7 +2894,7 @@ $GLOBALS_METADATA = array(
             'uz' => xl('Uzbek'),
             've' => xl('Venda'),
             'vi' => xl('Vietnamese'),
-            'vo' => xl('Volapük'),
+            'vo' => xl('Volapuk'),
             'wa' => xl('Walloon'),
             'cy' => xl('Welsh'),
             'wo' => xl('Wolof'),

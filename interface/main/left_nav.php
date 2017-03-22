@@ -1365,7 +1365,7 @@ if (!empty($reg)) {
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
 				<?php 
-				$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
+				$module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
 				if (sqlNumRows($module_query)) {
@@ -1382,8 +1382,9 @@ if (!empty($reg)) {
 								$added		= "index";
 								$modulePath = $GLOBALS['zendModDir'];
 							}
-								
-						$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
+                    $disallowed[$modulerow['obj_name']] = $disallowed['adm'] || zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']) ?  "" : "1";
+
+                    $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
 						$mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
 						
 						if($jid==0 || ($modid!=$modulerow['mod_id'])){
@@ -1396,7 +1397,7 @@ if (!empty($reg)) {
 						}
 						$jid++;
 						$modid = $modulerow['mod_id'];
-						genMiscLink('RTop','adm','0',xlt($mod_nick_name),$relative_link);
+						genMiscLink('RTop',$modulerow['obj_name'],'0',xlt($mod_nick_name),$relative_link);
 					}
         echo "</ul>";
       } ?>
