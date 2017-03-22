@@ -61,7 +61,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
   }
   if ($count) {
    $query = "DELETE FROM $table WHERE $where";
-       if(!$GLOBALS['safe_mode']){
+       if(!$GLOBALS['sql_string_no_show_screen']){
            echo text($query) . "<br>\n";
        }
 
@@ -76,7 +76,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
   if (sqlQuery("SELECT * FROM $table WHERE $where")) {
    newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
    $query = "UPDATE $table SET $set WHERE $where";
-      if(!$GLOBALS['safe_mode']) {
+      if(!$GLOBALS['sql_string_no_show_screen']) {
           echo text($query) . "<br>\n";
       }
    sqlStatement($query);

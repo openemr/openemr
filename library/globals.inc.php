@@ -1573,11 +1573,11 @@ $GLOBALS_METADATA = array(
   // Security Tab
   //
   'Security' => array(
-     'safe_mode' => array(
-          xl('Safe mode'),
+     'sql_string_no_show_screen' => array(
+          xl('Mode - Do Not Show SQL Queries'),
           'bool',                           // data type
           '0',                              // default
-          xl('Show to super user query and information of events')
+          xl('Do not allow SQL queries to be outputted to screen.')
     ),
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
