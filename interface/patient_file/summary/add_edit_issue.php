@@ -60,8 +60,9 @@ $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
-if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not authorized!"));
-if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
+if ($thistype && !$issue && !acl_check_issue($thistype, '', array('write', 'addonly'))) {
+  die(xlt("Add is not authorized!"));
+}
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -71,7 +72,6 @@ function QuotedOrNull($fld) {
   if ($fld) return "'".add_escape_custom($fld)."'";
   return "NULL";
 }
-
 
 // Do not use this function since quotes are added in query escaping mechanism
 // Only keeping since used in the football injury code football_injury.inc.php that is included.
@@ -361,10 +361,15 @@ if ($_POST['form_save']) {
 }
 
 $irow = array();
-if ($issue)
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?",array($issue));
-else if ($thistype)
+if ($issue) {
+  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
+  if (!acl_check_issue($irow['type'], '', 'write')) {
+    die(xlt("Edit is not authorized!"));
+  }
+}
+else if ($thistype) {
   $irow['type'] = $thistype;
+}
 
 $type_index = 0;
 
@@ -648,7 +653,7 @@ $(document).ready(function() {
   <td>
 <?php
  $index = 0;
- foreach ($ISSUE_TYPES as $value) {
+ foreach ($ISSUE_TYPES as $key => $value) {
   if ($issue || $thistype) {
     if ($index == $type_index) {
       echo text($value[1]);
@@ -657,6 +662,7 @@ $(document).ready(function() {
   } else {
     echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
     if ($index == $type_index) echo " checked";
+    if (!acl_check_issue($key, '', array('write','addonly'))) echo " disabled";
     echo " />" . text($value[1]) . "&nbsp;\n";
   }
   ++$index;

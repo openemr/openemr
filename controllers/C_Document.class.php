@@ -1105,10 +1105,13 @@ class C_Document extends Controller {
 			$icon = "file3.png";
 			if (is_array($categories[$id])) {
 				foreach ($categories[$id] as $doc) {
+          $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
+          // If user has no access then there will be no link.
+          if (!acl_check_aco_spec($doc['aco_spec'])) $link = '';
           if($this->tree->get_node_name($id) == "CCR"){
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
               'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','CCR');")
@@ -1116,7 +1119,7 @@ class C_Document extends Controller {
           }elseif($this->tree->get_node_name($id) == "CCD"){
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
               'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','CCD');")
@@ -1124,7 +1127,7 @@ class C_Document extends Controller {
           }else{
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon
             )));

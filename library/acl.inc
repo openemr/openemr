@@ -23,6 +23,9 @@
  * @link    http://www.open-emr.org
  */
 
+require_once(dirname(__FILE__) . '/lists.inc');
+require_once(dirname(__FILE__) . '/registry.inc');
+
 // php-GACL access controls are included in OpenEMR. The below
 // function will automatically create the path where gacl.class.php
 // can be found. Note that this path can be manually set below
@@ -840,6 +843,8 @@
   // The caller inserts this between <select> and </select> tags.
   //
   function gen_aco_html_options($default='') {
+    global $phpgacl_location;
+    require_once("$phpgacl_location/gacl_api.class.php");
     $s = '';
     $gacl = new gacl_api();
     // collect and sort all aco objects
@@ -865,18 +870,43 @@
     return $s;
   }
 
-  // Permissions check for a specified encounter form type.
+  // Permissions check for an ACO in "section|aco" format.
   // Note $return_value may be an array of return values.
   //
-  function acl_check_form($formdir, $user='', $return_value='') {
-    require_once(dirname(__FILE__) . '/registry.inc');
-    $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
-    if (empty($tmp['aco_spec'])) return true;
-    $tmp = explode('|', $tmp['aco_spec']);
+  function acl_check_aco_spec($aco_spec, $user='', $return_value='') {
+    if (empty($aco_spec)) return true;
+    $tmp = explode('|', $aco_spec);
     if (!is_array($return_value)) $return_value = array($return_value);
     foreach ($return_value as $rv) {
       if (acl_check($tmp[0], $tmp[1], $user, $rv)) return true;
     }
     return false;
+  }
+
+  // Permissions check for a specified encounter form type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_form($formdir, $user='', $return_value='') {
+    $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+  }
+
+  // Permissions check for a specified issue type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_issue($type, $user='', $return_value='') {
+    global $ISSUE_TYPES;
+    if (empty($ISSUE_TYPES[$type][5])) return true;
+    return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
+  }
+
+  // Permissions check for a specified document category name.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_cat_name($catname, $user='', $return_value='') {
+    $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
+      array($catname));
+    if (empty($tmp['aco_spec'])) return true;
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
   }
 ?>

@@ -12,7 +12,7 @@
  *  2   - The abbreviated title (one letter abbreviation). 
  *  3   - Style ('0 - Normal; 1 - Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.; 2 - Football Injury; 3 and 4 are IPPF specific)
  *  4   - Force show this issue category in the patient summary screen even if empty (setting to 1 will force it to show and setting it to 0 will turn this off).
- *
+ *  5   - ACO for this type, for example "patients|med".
  *
  * Note there is a mechanism to show whether a category is explicitly set to
  * 'Nothing' via the getListTouch() and setListTouch() functions that store
@@ -73,9 +73,16 @@ function collect_issue_type_category() {
 }
 
 // Build the $ISSUE_TYPES array (see script header for description)
-$res = sqlStatement("SELECT * FROM `issue_types` WHERE active=1 AND `category`=? ORDER BY `ordering` ASC", array( collect_issue_type_category() ));
+$res = sqlStatement("SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
+  array(collect_issue_type_category()));
 while($row = sqlFetchArray($res)){
-  $ISSUE_TYPES[$row['type']] = array(xl($row['plural']),xl($row['singular']),xl($row['abbreviation']),$row['style'],$row['force_show']);
+  $ISSUE_TYPES[$row['type']] = array(
+    xl($row['plural']),
+    xl($row['singular']),
+    xl($row['abbreviation']),
+    $row['style'],
+    $row['force_show'],
+    $row['aco_spec']);
 }
 
 $ISSUE_CLASSIFICATIONS = array(
@@ -98,12 +105,10 @@ function getListByType ($pid, $type, $cols = "*", $active = "all", $limit = "all
 	if ($limit != "all")
 		$sql .= " limit $offset,$limit";
 	
-
 	$res = sqlStatement($sql);
 	for($iter =0;$row = sqlFetchArray($res);$iter++)
 		$all[$iter] = $row;
 	return $all;
-
 }
 
 function addList ($pid, $type, $title, $comments, $activity = "1")
