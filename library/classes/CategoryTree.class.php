@@ -39,10 +39,7 @@ class CategoryTree extends Tree {
 		$result = $this->_db->Execute($sql);
 
 	  while ($result && !$result->EOF) {
-      // Omit documents for which the user does not have category permission.
-      if (acl_check_aco_spec($result->fields['aco_spec'], $user)) {
-        $categories[$result->fields['id']][$result->fields['document_id']] = $result->fields;
-      }
+      $categories[$result->fields['id']][$result->fields['document_id']] = $result->fields;
 	  	$result->MoveNext();
 	  }
 

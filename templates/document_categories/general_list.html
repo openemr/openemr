@@ -17,7 +17,7 @@
 var deleteLabel="{xl t="Delete"}";
 var editLabel="{xl t="Edit"}";
 </script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/CategoryTreeMenu.js?v=3"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/js/CategoryTreeMenu.js?v={php}echo $GLOBALS['v_js_includes'];{/php}"></script>
 <table>
 	<tr>
 		<td height="20" valign="top">{xl t="Document Categories"}</td>
