@@ -213,4 +213,13 @@ class Version {
                "minor: '" . $this->getMinor() . "' " .
                "major: '" . $this->getMajor() . "'";
     }
+
+    /**
+     * ToSerializedObject of the entire object.
+     *
+     * @return object as serialized object.
+     */
+    public function toSerializedObject() {
+      return get_object_vars($this);
+    }
 }
