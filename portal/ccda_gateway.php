@@ -1,4 +1,25 @@
 <?php
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
 //authencate for portal or main- never know where it gets used
 session_start();
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
@@ -53,7 +74,7 @@ $parameterArray [0] [6] = $_SESSION ['portal_username']; // set to an onsite por
 
 if(!isset($_SESSION ['site_id'])) $_SESSION ['site_id'] = 'default'; // do believe globals does this but I go rogue at times.
 $server_url = 'http://localhost'. $GLOBALS['webroot'];  // I alias into openemr directory on my sights causing webroot to be empty.
-																							//I've have accually seen this return 'default' due to apache config'ed with localhost alias on more than one virtual host?? Watch
+																							//I've have actually seen this return 'default' due to apache config'ed with localhost alias on more than one virtual host?? Watch
 //global $server_url; // can't find where this is defined!
 // CCM returns entire cda with service doing templates
 $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray);
@@ -62,9 +83,9 @@ $h='';
 if (!$parameterArray ['view']){
 	header ( 'Content-Type: application/xml' );
 }
-else $h='<a href="./home.php" </a><button style="font-size:18px; color:red;" >Return Home</button><br>';
+else $h='<a href="./home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
 print_r ( $h.$ccdaxml.$h );
-
+service_shutdown(1);
 exit;
 
 function portalccdafetching($pid, $server_url, $parameterArray){
@@ -76,7 +97,7 @@ function portalccdafetching($pid, $server_url, $parameterArray){
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, 0); // set true for look see
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+			//curl_setopt($ch, CURLOPT_COOKIESESSION, true);
 			curl_setopt($ch, CURLOPT_COOKIEJAR, "cookie");
 			curl_setopt($ch, CURLOPT_COOKIEFILE, "cookie");
 			//curl_setopt ($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=1'); // break on first line in public/index.php - uncomment and start any xdebug session and fetch a ccda in app.
@@ -88,7 +109,7 @@ function portalccdafetching($pid, $server_url, $parameterArray){
 			curl_close($ch);
 		}
 		catch (Exception $e) {
-
+			return false;
 		}
 		return $result;
 }

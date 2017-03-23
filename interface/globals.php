@@ -14,6 +14,8 @@ if ($response !== true) {
 if (!isset($ignoreAuth)) $ignoreAuth = false;
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Same for onsite
+if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
 // Unless specified explicitly, do not reverse magic quotes
 if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
@@ -467,6 +469,9 @@ $GLOBALS['include_de_identification']=0;
 
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
+}
+elseif ( ($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1) ) {
+	$ignoreAuth = true;
 }
 if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");

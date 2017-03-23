@@ -43,8 +43,8 @@ $controllerName = isset($urlArray[$countUrlArray-2]) ? $urlArray[$countUrlArray-
 if(strtolower($controllerName) == 'soap' && strtolower($actionName) == 'index') {
     $ignoreAuth_offsite_portal = true;
 }
-if($_REQUEST['recipient'] === 'patient' && $_REQUEST['site']){
-	$ignoreAuth = true; //@todo figure this out - carry forward session maybe I don't trust globals
+elseif($_REQUEST['recipient'] === 'patient' && $_REQUEST['site'] && $controllerName){
+	$ignoreAuth_onsite_portal_two = true;
 }
 
 require_once(dirname(__FILE__)."/../../../globals.php");

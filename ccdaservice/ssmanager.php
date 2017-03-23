@@ -1,18 +1,34 @@
 <?php
-$ignoreAuth = true;
-// require_once(dirname(__file__) . './../interface/globals.php');
+/**
+ *
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as
+ *  published by the Free Software Foundation, either version 3 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package OpenEMR
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @link http://www.open-emr.org
+ */
 require_once ( dirname( __FILE__ ) . "/../library/log.inc" );
 require_once ( dirname( __FILE__ ) . "/../library/sql.inc" );
-set_time_limit( 0 );
-ob_implicit_flush();
-session_write_close(); // Release session lock to prevent freezing of other scripts
-ignore_user_abort( 1 );
 
+$isWin = substr( php_uname(), 0, 7 ) == "Windows" ? true : false;
 function runCheck(){
 	if( !socket_status( 'localhost', '6661', 'status' ) ){
-		server_logit( 1, "Execute C-CDA Service Start", 0, "Sanity Check" );
+		server_logit( 1, "Execute C-CDA Service Start", 0, "Task" );
 		execInBackground( '' );
-		sleep( 5 );
+		sleep( 2 );
 		if( socket_status( 'localhost', '6661', 'status' ) )
 			server_logit( 1, "Service Status : Started." );
 		else 
@@ -23,16 +39,49 @@ function runCheck(){
 		return true;
 	}
 }
+function service_shutdown($soft=1){
+	global $isWin;
+	if( socket_status( 'localhost', '6661', 'status' ) ){
+		server_logit( 1, "C-CDA Service shutdown request", 0, "Task" );
+		if(!$isWin){
+			chdir(dirname(__FILE__));
+			$cmd = 'pkill -f "nodejs serveccda.njs"';
+			exec( $cmd . " > /dev/null &" );
+		}
+		else{
+			chdir(dirname(__FILE__));
+			$cmd = 'node unservice';
+			pclose( popen( $cmd, "r" ) );
+		}
+		sleep( 2 );
+		if( !socket_status( 'localhost', '6661', 'status' ) ){
+			server_logit( 1, "Service Status : " . $soft ? "Process Terminated" : "Terminated and Disabled." );
+			if($soft > 1) return true; // Just terminate process/service and allow background to restart. Restart if you will.
+			$service_name = 'ccdaservice';
+			// with ccdaservice and background service and running = 1 bs will not attempt restart of service while still available/active.
+			// not sure if needed but here it is anyway. Otherwise, service is disabled.
+			$sql = 'UPDATE background_services SET running = ?, active = ? WHERE name = ?';
+			$res = sqlStatementNoLog($sql, array($soft, $soft, $service_name));
+			return true;
+		}
+		else{
+			server_logit( 1, "Service Status : Failed Shutdown." );
+			return false;
+		}
+	} else{
+		server_logit( 1, "Service Status : Not active.", 0, "Shutdown Request" );
+		return true;
+	}
+}
 function execInBackground( $cmd ){
-	if( substr( php_uname(), 0, 7 ) == "Windows" ){
+	global $isWin;
+	if( $isWin ){
 		chdir(dirname(__FILE__));
-		$cmd = 'node winservice.js';
+		$cmd = 'node winservice';
 		pclose( popen( $cmd, "r" ) ); 
 	} else{
 		chdir(dirname(__FILE__));
-        $cmd = 'node serveccda.njs';
-		//$cmd = 'node /var/www/openemr_demo/services/ccdaservice/serveccda.njs';
-		//$cmd = 'node winservice.js'; // linux service
+        $cmd = 'nodejs serveccda.njs';
 		exec( $cmd . " > /dev/null &" );
 	}
 }
@@ -40,17 +89,16 @@ function socket_status( $ip, $port, $data ){
 	$output = "";
 	$socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
 	if( $socket === false ){
-		server_logit( 1, "Creation Socket Failed. Start:Restart service" );
+		server_logit( 1, "Creation of Socket Failed. Start/Restart Service" );
 		return false;
 	}
 	$result = socket_connect( $socket, $ip, $port );
 	if( $result === false ){
 		socket_close( $socket );
-		server_logit( 1, "Service Not Running:Start/Restart Service" );
+		server_logit( 1, "Service Not Running" );
 		return false;
 	}
 	$data = $data  . "\r\n";
-	//server_logit( 1, 'Send for Service status.' );
 	$out = socket_write( $socket, $data, strlen( $data ) );
 	do{
 		$line = "";
@@ -61,6 +109,33 @@ function socket_status( $ip, $port, $data ){
 	socket_close( $socket );
 return true;
 }
-function server_logit( $success, $text, $pid = 0, $event = "ccda-service-manager" ){
-	newEvent( $event, "Service_Manager", "CCDA", $success, $text, $pid,'server','s2','s3' );
+function service_command( $ip, $port, $doaction ){
+	$output = "";
+	$socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
+	if( $socket === false ){
+		server_logit( 1, "Service not resident." );
+		return false;
+	}
+	$result = socket_connect( $socket, $ip, $port );
+	if( $result === false ){
+		socket_close( $socket );
+		server_logit( 1, "Service Not Running." );
+		return false;
+	}
+	$doaction = $doaction  . "\r\n";
+	$out = socket_write( $socket, $doaction, strlen( $doaction ) );
+	do{
+		$line = "";
+		$line = socket_read( $socket, 1024, PHP_NORMAL_READ );
+		$output .= $line;
+	} while( $line != "\r" );
+	$output = substr( trim( $output ), 0, strlen( $output ) - 3 );
+	socket_close( $socket );
+	return true;
+}
+function server_logit( $success, $text, $pid = 0, $event = "ccdaservice-manager" ){
+	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Main Access";
+	$where = isset($_SESSION['ptName']) ? "Portal Patient" : "Main";
+	
+	newEvent( $event, "Service_Manager", $where, $success, $text, $pid,'server','s2','s3' );
 }
