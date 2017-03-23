@@ -1382,7 +1382,7 @@ if (!empty($reg)) {
 								$added		= "index";
 								$modulePath = $GLOBALS['zendModDir'];
 							}
-                    $disallowed[$modulerow['obj_name']] = $disallowed['adm'] || zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']) ?  "" : "1";
+                    $disallowed[$modulerow['obj_name']] = !$disallowed['adm'] || zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']) ?  "" : "1";
 
                     $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
 						$mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
