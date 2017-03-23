@@ -23,9 +23,6 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . '/lists.inc');
-require_once(dirname(__FILE__) . '/registry.inc');
-
 // php-GACL access controls are included in OpenEMR. The below
 // function will automatically create the path where gacl.class.php
 // can be found. Note that this path can be manually set below
@@ -887,6 +884,7 @@ require_once(dirname(__FILE__) . '/registry.inc');
   // Note $return_value may be an array of return values.
   //
   function acl_check_form($formdir, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/registry.inc');
     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
   }
@@ -895,6 +893,7 @@ require_once(dirname(__FILE__) . '/registry.inc');
   // Note $return_value may be an array of return values.
   //
   function acl_check_issue($type, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/lists.inc');
     global $ISSUE_TYPES;
     if (empty($ISSUE_TYPES[$type][5])) return true;
     return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
