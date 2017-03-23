@@ -81,7 +81,7 @@ function ProductRegistrationController() {
     self.displayRegistrationInformationIfDivExists = function(data) {
         if (jQuery('.product-registration').size() > 0) {
             jQuery('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
-            jQuery('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registration_id);
+            jQuery('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registrationId);
         }
     };
 

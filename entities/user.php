@@ -838,4 +838,13 @@ class User {
                "cpoe: '" . $this->getCpoe() . "' " .
                "physicianType: '" . $this->getPhysicianType() . "' ";
    }
+
+    /**
+     * ToSerializedObject of the entire object.
+     *
+     * @return object as serialized object.
+     */
+    public function toSerializedObject() {
+      return get_object_vars($this);
+    }
 }

@@ -133,4 +133,13 @@ class ONote {
                "groupname: '" . $this->getGroupName() . "' " .
                "body: '" . $this->getBody() . "' ";
     }
+
+    /**
+     * ToSerializedObject of the entire object.
+     *
+     * @return object as serialized object.
+     */
+    public function toSerializedObject() {
+      return get_object_vars($this);
+    }
 }
