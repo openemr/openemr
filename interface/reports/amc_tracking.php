@@ -204,7 +204,7 @@ $provider  = trim($_POST['form_provider']);
 	<table class='text'>
 
                  <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
@@ -215,7 +215,7 @@ $provider  = trim($_POST['form_provider']);
                  </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
@@ -226,7 +226,7 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                             <?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
@@ -242,7 +242,7 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
 			<td>

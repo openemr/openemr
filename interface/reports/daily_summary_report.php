@@ -106,16 +106,16 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                             <div style='float: left'>
                                 <table class='text'>
                                     <tr>
-                                        <td class='label'><?php echo xlt('Facility'); ?>:</td>
+                                        <td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
                                         <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>
-                                        <td class='label'><?php echo xlt('From'); ?>:</td>
+                                        <td class='label_custom'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
                                                    class='datepicker'
                                                    size='10' value='<?php echo attr($from_date) ?>'
                                                    title='yyyy-mm-dd'>
                                         </td>
-                                        <td class='label'><?php echo xlt('To'); ?>:</td>
+                                        <td class='label_custom'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
                                                    class='datepicker'
@@ -125,7 +125,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                 </table>
                             </div>
                         </td>
-                        <td class='label'><?php echo xlt('Provider'); ?>:</td>
+                        <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
                         <td>
                             <?php
                             generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
