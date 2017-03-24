@@ -83,9 +83,9 @@ $h='';
 if (!$parameterArray ['view']){
 	header ( 'Content-Type: application/xml' );
 }
-else $h='<a href="./home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
+else $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
 print_r ( $h.$ccdaxml.$h );
-service_shutdown(1);
+//service_shutdown(1); //In ssmanager  0= terminate and disable 1 = soft=terminate but still active w/no restart, > 1 just restart based on B.S timer
 exit;
 
 function portalccdafetching($pid, $server_url, $parameterArray){

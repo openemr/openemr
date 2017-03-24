@@ -164,7 +164,7 @@
 					<li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" > <i
 							class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
 					</a></li>
-					<li><a id="callccda" href="./ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span>CCDA Testing</span></a></li>
+					<li><a id="callccda" href="./../ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span>CCDA Testing</span></a></li>
 					<li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>
 				</ul>
 			</section>
