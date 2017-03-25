@@ -40,7 +40,7 @@ function runCheck(){
 function service_shutdown($soft=1){
 	if( socket_status( 'localhost', '6661', 'status' ) ){
 		// shut down service- this can take a couple seconds on windows so throw up notice to user.
-		echo '<h3 style="position: absolute; top: 25%; left: 42%">Shutting Down Service ...</h3><img style="position: absolute; top: 40%; left: 45%; width: 100px; height: 100px"	src="../../portal/sign/assets/loading.gif" />';
+		echo '<h3 style="position: absolute; top: 25%; left: 42%">' . xlt("Shutting Down Service ...") . '</h3><img style="position: absolute; top: 40%; left: 45%; width: 100px; height: 100px"	src="../../portal/sign/assets/loading.gif" />';
 		echo str_pad('',4096);
 		ob_flush(); flush();
 		server_logit( 1, "C-CDA Service shutdown request", 0, "Task" );
