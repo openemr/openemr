@@ -2521,6 +2521,18 @@ $GLOBALS_METADATA = array(
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
+	'ccda_alt_service_enable' => array(
+			xl('Enable C-CDA Alternate Service'),
+			array(
+					0 => xl('Off'),
+					1 => xl('Care Coordination Only'),
+					2 => xl('Portal Only'),
+					3 => xl('Both'),
+			),
+			'0',
+			xl('Enable C-CDA Alternate Service')
+	),
+ 
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type

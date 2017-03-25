@@ -21,9 +21,7 @@
  * @link http://www.open-emr.org
  */
 require_once ( dirname( __FILE__ ) . "/../library/log.inc" );
-require_once ( dirname( __FILE__ ) . "/../library/sql.inc" );
 
-$isWin = substr( php_uname(), 0, 7 ) == "Windows" ? true : false;
 function runCheck(){
 	if( !socket_status( 'localhost', '6661', 'status' ) ){
 		server_logit( 1, "Execute C-CDA Service Start", 0, "Task" );
@@ -40,10 +38,13 @@ function runCheck(){
 	}
 }
 function service_shutdown($soft=1){
-	global $isWin;
 	if( socket_status( 'localhost', '6661', 'status' ) ){
+		// shut down service- this can take a couple seconds on windows so throw up notice to user.
+		echo '<h3 style="position: absolute; top: 25%; left: 42%">Shutting Down Service ...</h3><img style="position: absolute; top: 40%; left: 45%; width: 100px; height: 100px"	src="../../portal/sign/assets/loading.gif" />';
+		echo str_pad('',4096);
+		ob_flush(); flush();
 		server_logit( 1, "C-CDA Service shutdown request", 0, "Task" );
-		if(!$isWin){
+		if(!IS_WINDOWS){
 			chdir(dirname(__FILE__));
 			$cmd = 'pkill -f "nodejs serveccda.njs"';
 			exec( $cmd . " > /dev/null &" );
@@ -53,7 +54,7 @@ function service_shutdown($soft=1){
 			$cmd = 'node unservice';
 			pclose( popen( $cmd, "r" ) );
 		}
-		sleep( 2 );
+		sleep( 1 );
 		if( !socket_status( 'localhost', '6661', 'status' ) ){
 			server_logit( 1, "Service Status : " . $soft ? "Process Terminated" : "Terminated and Disabled." );
 			if($soft > 1) return true; // Just terminate process/service and allow background to restart. Restart if you will.
@@ -74,8 +75,7 @@ function service_shutdown($soft=1){
 	}
 }
 function execInBackground( $cmd ){
-	global $isWin;
-	if( $isWin ){
+	if( IS_WINDOWS ){
 		chdir(dirname(__FILE__));
 		$cmd = 'node winservice';
 		pclose( popen( $cmd, "r" ) ); 
@@ -134,8 +134,8 @@ function service_command( $ip, $port, $doaction ){
 	return true;
 }
 function server_logit( $success, $text, $pid = 0, $event = "ccdaservice-manager" ){
-	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Main Access";
-	$where = isset($_SESSION['ptName']) ? "Portal Patient" : "Main";
+	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Service Access";
+	$where = isset($_SESSION['ptName']) ? "Portal Patient" : $_SESSION['authUser'];
 	
 	newEvent( $event, "Service_Manager", $where, $success, $text, $pid,'server','s2','s3' );
 }

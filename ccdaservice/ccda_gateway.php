@@ -46,8 +46,8 @@ else {
 	define('IS_PORTAL', false);
 }
 // give me something to do.
-$dowhat = $_REQUEST['action'] ? $_REQUEST['action'] : '';
-if( $dowhat ){ // do I need this?
+$dowhat = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+if( $dowhat && $GLOBALS['ccda_alt_service_enable'] >= 1 ){ // do I need this?
 	require_once ("./../ccdaservice/ssmanager.php");
 	if(!runCheck()){ // woops, try again
 		if(!runCheck())
@@ -56,7 +56,7 @@ if( $dowhat ){ // do I need this?
 }
 else{
 	// maybe next time
-	die("Don't know what to do! Click back to return home."); // Die an honorable death!!
+	die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
 }
 
 //eventually below will qualify what document to fetch
