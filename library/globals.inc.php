@@ -1412,14 +1412,21 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
-    'number_of_group_appts_to_show' => array(
+      'number_of_group_appts_to_show' => array(
       xl('Appointments - Group Summary - Number to Display'),
       'num',
       '10',
       xl('Number of Appointments to display in the Group Summary')
     ),
+    'number_of_ex_appts_to_show' => array(
+          xl('Excluded Appointments - Tooltip - Number to Display'),
+          'num',
+          '15',
+          xl('Number of Excluded Appointments to display in the Tooltip')
+     ),
 
-    'patient_portal_appt_display_num' => array(
+
+      'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',
       '20',
@@ -2513,19 +2520,7 @@ $GLOBALS_METADATA = array(
         '0',
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
-  		
-  	'ccda_alt_service_enable' => array(
-		xl('Enable C-CDA Alternate Service'),
-  			array(
-  					0 => xl('Off'),
-  					1 => xl('Care Coordination Only'),
-  					2 => xl('Portal Only'),
-  					3 => xl('Both'),
-  			),
-  			'0',
-  		xl('Enable C-CDA Alternate Service')
-  	),
-  		
+
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
@@ -2773,7 +2768,7 @@ $GLOBALS_METADATA = array(
             'ka' => xl('Georgian'),
             'de' => xl('German'),
             'el' => xl('Greek, Modern'),
-            'gn' => xl('Guaraní'),
+            'gn' => xl('Guarani'),
             'gu' => xl('Gujarati'),
             'ht' => xl('Haitian- Haitian Creole'),
             'ha' => xl('Hausa'),
@@ -2823,7 +2818,7 @@ $GLOBALS_METADATA = array(
             'ms' => xl('Malay'),
             'ml' => xl('Malayalam'),
             'mt' => xl('Maltese'),
-            'mi' => xl('Māori'),
+            'mi' => xl('Maori'),
             'mr' => xl('Marathi (Marāṭhī)'),
             'mh' => xl('Marshallese'),
             'mn' => xl('Mongolian'),
@@ -2844,7 +2839,7 @@ $GLOBALS_METADATA = array(
             'or' => xl('Oriya'),
             'os' => xl('Ossetian, Ossetic'),
             'pa' => xl('Panjabi, Punjabi'),
-            'pi' => xl('Pāli'),
+            'pi' => xl('Pali'),
             'fa' => xl('Persian (Farsi)'),
             'pl' => xl('Polish'),
             'ps' => xl('Pashto, Pushto'),

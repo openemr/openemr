@@ -21,7 +21,9 @@
  * @link http://www.open-emr.org
  */
 require_once ( dirname( __FILE__ ) . "/../library/log.inc" );
+require_once ( dirname( __FILE__ ) . "/../library/sql.inc" );
 
+$isWin = substr( php_uname(), 0, 7 ) == "Windows" ? true : false;
 function runCheck(){
 	if( !socket_status( 'localhost', '6661', 'status' ) ){
 		server_logit( 1, "Execute C-CDA Service Start", 0, "Task" );
@@ -38,9 +40,10 @@ function runCheck(){
 	}
 }
 function service_shutdown($soft=1){
+	global $isWin;
 	if( socket_status( 'localhost', '6661', 'status' ) ){
 		server_logit( 1, "C-CDA Service shutdown request", 0, "Task" );
-		if(!IS_WINDOWS){
+		if(!$isWin){
 			chdir(dirname(__FILE__));
 			$cmd = 'pkill -f "nodejs serveccda.njs"';
 			exec( $cmd . " > /dev/null &" );
@@ -71,7 +74,8 @@ function service_shutdown($soft=1){
 	}
 }
 function execInBackground( $cmd ){
-	if( IS_WINDOWS ){
+	global $isWin;
+	if( $isWin ){
 		chdir(dirname(__FILE__));
 		$cmd = 'node winservice';
 		pclose( popen( $cmd, "r" ) ); 
@@ -130,8 +134,8 @@ function service_command( $ip, $port, $doaction ){
 	return true;
 }
 function server_logit( $success, $text, $pid = 0, $event = "ccdaservice-manager" ){
-	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Service Access";
-	$where = isset($_SESSION['ptName']) ? "Portal Patient" : $_SESSION['authUser'];
+	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Main Access";
+	$where = isset($_SESSION['ptName']) ? "Portal Patient" : "Main";
 	
 	newEvent( $event, "Service_Manager", $where, $success, $text, $pid,'server','s2','s3' );
 }
