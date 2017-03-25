@@ -31,6 +31,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
+require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -105,6 +106,19 @@ function checkBackgroundServices(){
   $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
   $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
   updateBackgroundService('phimail', $phimail_active, $phimail_interval);
+}
+function handleAltServices($this_serviceid, $gln = '', $sinterval = 1){
+	$bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = '$gln'");
+	while($globalsrow = sqlFetchArray($bgservices)){
+		$GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+	}
+	$bs_active = empty($GLOBALS[$gln]) ? '0' : '1';
+	$bs_interval = max(0, (int) $sinterval);
+	updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
+	if(!$bs_active && $this_serviceid == 'ccdaservice'){
+		// shut down service- this can take a couple seconds on windows so may throw up notice to user. Or find another way.
+		service_shutdown(0);
+	}
 }
 ?>
 
@@ -281,7 +295,8 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
   }
   checkCreateCDB();
   checkBackgroundServices();
-
+  handleAltServices('ccdaservice','ccda_alt_service_enable', 1);
+  
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.
   $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
