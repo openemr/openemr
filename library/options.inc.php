@@ -104,7 +104,10 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	if ($class) {
                 $class_esc = attr($class);
 		$s .= " class='$class_esc'";
-	}
+	} 
+  else {
+    $s .= " class='form-control'";
+  }
 	if ($onchange) {
 		$s .= " onchange='$onchange'";
 	}
