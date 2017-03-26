@@ -87,7 +87,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
             $tag_name_esc = $tag_name_esc . "[]";
         }
 
-  $s .= "<select class='form-control' name='$tag_name_esc'";
+  $s .= "<select name='$tag_name_esc'";
 
 	if ($multiple) {
 		$s .= " multiple='multiple'";
@@ -101,10 +101,14 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 
 	$s .= " id='$tag_id_esc'";
 
-	if ($class) {
-                $class_esc = attr($class);
-		$s .= " class='$class_esc'";
-	}
+  if (!empty($class)) {
+    $class_esc = attr($class);
+    $s .= " class='form-control $class_esc'";
+  }
+  else {
+    $s .= " class='form-control'";
+  }
+
 	if ($onchange) {
 		$s .= " onchange='$onchange'";
 	}
