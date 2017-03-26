@@ -52,8 +52,13 @@ class ProductRegistrationService {
 
         // Unboxing these here to avoid PHP 5.4 "Can't use method
         // return value in write context" error.
-        $id = $row->getRegistrationId();
-        $optOut = $row->getOptOut();
+        $id = '';
+        $optOut = '';
+
+        if ($row !== NULL) {
+            $id = $row->getRegistrationId();
+            $optOut = $row->getOptOut();
+        }
 
         if (empty($row)) {
             $row = new \entities\ProductRegistration();
