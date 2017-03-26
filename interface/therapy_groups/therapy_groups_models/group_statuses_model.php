@@ -51,6 +51,7 @@ class Group_Statuses{
         $result = sqlStatement($sql, array('attendstat'));
         $final_result =array();
         while($row = sqlFetchArray($result)){
+            $row['title']=xla(trim($row['title']));
             $final_result[] = $row;
         }
         return $final_result;
