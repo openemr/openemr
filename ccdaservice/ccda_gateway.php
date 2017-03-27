@@ -89,15 +89,16 @@ print_r ( $h.$ccdaxml.$h );
 exit;
 
 function portalccdafetching($pid, $server_url, $parameterArray){
+	session_write_close();
 	$site_id = $_SESSION ['site_id'];
 	$parameters = http_build_query($parameterArray); // future use
 		try {
 			$ch = curl_init();
-			$url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=$site_id&param=1&view=1&combination=$pid&recipient=patient";
+			$url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=$site_id&me=".session_id()."&param=1&view=1&combination=$pid&recipient=patient";
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, 0); // set true for look see
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			//curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+			curl_setopt($ch, CURLOPT_COOKIESESSION, true);
 			curl_setopt($ch, CURLOPT_COOKIEJAR, "cookie");
 			curl_setopt($ch, CURLOPT_COOKIEFILE, "cookie");
 			//curl_setopt ($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=1'); // break on first line in public/index.php - uncomment and start any xdebug session and fetch a ccda in app.
