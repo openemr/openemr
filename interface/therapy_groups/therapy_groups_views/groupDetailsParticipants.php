@@ -24,7 +24,11 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<?php $edit = acl_check("groups","gadd",false, 'write');?>
+<?php $view = acl_check("groups","gadd",false, 'view');?>
+
 <?php require 'header.php'; ?>
+<?php if($view || $edit) :?>
 <main id="group-details">
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupName);?></span>
@@ -38,12 +42,14 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
+                        <?php if($edit) :?>
                         <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                         <?php if($readonly == ''): ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
+                        <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -86,8 +92,10 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
+                                                <?php if($edit) :?>
                                                 <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
+                                                <?php endif;?>
                                             </div>
                                         </div>
                                         <?php if(isset($message)): ?>
@@ -109,7 +117,9 @@
                                 <div class="col-md-12">
                                     <form id="updateParticipants" method="post">
                                         <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>" />
+                                        <?php if($edit) :?>
                                         <button id="addParticipant"><?php echo xlt('Add'); ?></button>
+                                        <?php endif;?>
                                         <table  id="participants_table" class="dataTable display">
                                             <thead>
                                             <tr>
@@ -299,3 +309,15 @@
 <script src="<?php echo $GLOBALS['webroot']?>/library/dialog.js"></script>
 <?php require 'footer.php'; ?>
 
+<?php else :?>
+
+    <div class="container">
+
+        <div class="row alert alert-info">
+            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt(trim("access not allowed"));?></span></h1>
+        </div>
+    </div>
+
+
+
+<?php endif;?>

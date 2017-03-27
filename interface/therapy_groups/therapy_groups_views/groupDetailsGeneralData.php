@@ -24,8 +24,14 @@
  * @link    http://www.open-emr.org
  */
 ?>
+
+
 <?php $edit = acl_check("groups","gadd",false, 'write');?>
 <?php $view = acl_check("groups","gadd",false, 'view');?>
+
+
+<?php require 'header.php'; ?>
+<?php if($view || $edit) :?>
 
 
 <?php require 'header.php'; ?>
@@ -42,18 +48,16 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
+                        <?php if($edit):?>
                         <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
 
                         <?php if($readonly == ''): ?>
-                            <?php if($edit):?>
-                                <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
-                                <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
-                            <?php endif;?>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
-                            <?php if($edit):?>
-                                <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
-                            <?php endif;?>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
+                        <?php endif;?>
                     </div>
                 </div>
                 <div class="row">
@@ -95,19 +99,13 @@
                                     <div class="col-md-6">
                                         <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                                         <label class="radio-inline radio-pos">
-                                            <?php if($edit):?>
-                                                <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Closed'); ?>
-                                            <?php endif;?>
+                                            <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Closed'); ?>
                                         </label>
                                         <label class="radio-inline radio-pos">
-                                            <?php if($edit):?>
-                                                <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Open'); ?>
-                                            <?php endif;?>
+                                            <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Open'); ?>
                                         </label>
                                         <label class="radio-inline radio-pos">
-                                            <?php if($edit):?>
-                                                <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Train'); ?>
-                                            <?php endif;?>
+                                            <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Train'); ?>
                                         </label>
                                     </div>
                                     <div class="col-md-6">
@@ -183,7 +181,7 @@
                                 <div class="row group-row">
                                     <div class="col-md-9 col-sm 12">
                                         <?php if($savingStatus == 'exist'): ?>
-                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
+                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if($edit):?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php endif;?></div>
                                         <?php endif ?>
                                         <?php if($savingStatus == 'success'): ?>
                                             <h4 class="group-success-msg"><?php echo text($message) ?></h4>
@@ -272,3 +270,15 @@
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupDetails');?>
 <?php require 'footer.php'; ?>
 
+<?php else :?>
+
+    <div class="container">
+
+        <div class="row alert alert-info">
+            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt(trim("access not allowed"));?></span></h1>
+        </div>
+    </div>
+
+
+
+<?php endif;?>

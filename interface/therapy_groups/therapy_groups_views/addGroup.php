@@ -24,14 +24,21 @@
  * @link    http://www.open-emr.org
  */
 ?>
+
+<?php $edit = acl_check("groups","gadd",false, 'write');?>
+<?php $view = acl_check("groups","gadd",false, 'view');?>
+
 <?php require 'header.php'; ?>
+<?php if($view || $edit) :?>
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
             <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>">
             <div class="row group-row">
                 <div class="col-md-10">
+
                     <span class="title"><?php echo xlt('Add group') ?> </span>
+
                 </div>
             </div>
             <div class="row group-row">
@@ -131,12 +138,15 @@
                     </div>
                 </div>
             </div>
+            <?php if($edit):?>
             <div class="row group-row">
                 <div class="col-md-3">
+                    <?php if($edit):?>
                     <button type="submit" name="save" value="save" <?php echo $savingStatus == 'success' ? 'disabled' : '';?>><?php echo xlt('Add group');?></button>
+                    <?php endif;?>
                 </div>
                 <div class="col-md-9 col-sm 12">
-
+                    <?php if($edit):?>
                     <?php if($savingStatus == 'exist'): ?>
                         <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                     <?php endif ?>
@@ -146,8 +156,10 @@
                     <?php if($savingStatus == 'failed'): ?>
                         <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
+                    <?php endif;?>
                 </div>
             <div>
+                <?php endif;?>
         </form>
     </div>
 </main>
@@ -169,5 +181,18 @@
 </script>
 <?php    $use_validate_js = 1;?>
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=addGroup');?>
+<?php else :?>
+
+    <div class="container">
+
+    <div class="row alert alert-info">
+    <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt(trim("access not allowed"));?></span></h1>
+    </div>
+    </div>
+
+
+
+<?php endif;?>
+
 <?php require 'footer.php'; ?>
 

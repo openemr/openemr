@@ -89,6 +89,11 @@ require_once($GLOBALS['srcdir'].'/group.inc');
  $info_msg = "";
 
  ?>
+
+<?php $edit = acl_check("groups","gcalendar",false, 'write');?>
+<?php $view = acl_check("groups","gcalendar",false, 'view');?>
+
+
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 
@@ -99,6 +104,8 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
+
+if((!$edit && !$view) && $_GET['group'] )  $_GET['group']=false;
 if($_GET['group'] == true)
     //groups tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
