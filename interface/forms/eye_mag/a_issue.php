@@ -297,7 +297,7 @@ foreach (explode(',',$given) as $item) {
     function refreshIssue() {  parent.refresh_page(); }
     function submit_this_form() {
         var url = "../../forms/eye_mag/save.php?PMSFH_save=1&mode=update&form_save=1";
-        var formData = $("form#theform").serialize();
+        var formData = $("form#theform2").serialize();
         var f = document.forms[0];
         top.restoreSession();
         $.ajax({
@@ -598,7 +598,10 @@ foreach (explode(',',$given) as $item) {
          .navy {
           background-color: navy !important;
          }
-
+         form {
+          margin:7px auto;
+         }
+         
       </style>
 
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
@@ -611,7 +614,7 @@ foreach (explode(',',$given) as $item) {
   </head>
   <body>
     <div id="page" style="text-align: justify; text-justify: newspaper;">
-      <form method='POST' name='theform' id='theform'
+      <form method='POST' name='theform2' id='theform2'
       action='a_issue.php?pid=<?php echo attr($pid); ?>&encounter=<?php echo attr($encounter); ?>'
        onsubmit='return validate();'
        >
