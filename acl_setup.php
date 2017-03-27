@@ -67,8 +67,7 @@
      // xl('Menus')
  $gacl->add_object_section('Groups','groups'  , 10, 0, 'ACO');
      // xl('Menus')
- $gacl->add_object_section('Multipledb','multipledb'  , 10, 0, 'ACO');
-    // xl('Menus')
+
 
 
  // Create Accounting ACOs.
@@ -108,6 +107,8 @@
      // xl('Pharmacy Dispensary')
  $gacl->add_object('admin', 'ACL Administration'              , 'acl'      , 10, 0, 'ACO');
      // xl('ACL Administration')
+ $gacl->add_object('admin', 'Multipledb','multipledb', 10, 0, 'ACO');
+ // xl('Multipledb')
 
  // Create ACOs for encounters.
  //
@@ -198,10 +199,6 @@
 
 
 
- $gacl->add_object('multiupledatabase', 'Multipledb','multipledb', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
-
-
 
  // Create ACOs for sensitivities.
  //
@@ -265,14 +262,15 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'lists'=>array('default','state','country','language','ethrace'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high'),
    'nationnotes'=>array('nn_configure'),
    'patientportal'=>array('portal'),
-   'menus'=>array('modle')
+   'menus'=>array('modle'),
+   'multiupledatabase'=>ar
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'

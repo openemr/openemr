@@ -459,7 +459,11 @@ if ($acl_version < $upgrade_acl) {
   // Add 'Lab Results (write,addonly optional)' object (added in 5.0.1)
   addObjectAcl('patients', 'Patients', 'lab'       , 'Lab Results (write,addonly optional)');
 
-  //Update already existing Objects
+  // Add 'Multipledb' object (added in 5.0.1)
+  addObjectAcl('admin', 'Administration', 'Multipledb', 'multipledb');
+
+
+    //Update already existing Objects
   // echo "<BR/><B>Upgrading objects</B><BR/>";
 
   //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
@@ -480,6 +484,8 @@ if ($acl_version < $upgrade_acl) {
   updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'amendment', 'Amendments (write,addonly optional)', 'write');
   //Insert the 'lab' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
   updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'lab', 'Lab Results (write,addonly optional)', 'write');
+  //Insert the 'Multipledb' object from the 'admin' section into the Administrators group write ACL (added in 5.0.1)
+  updateAcl($admin_write, 'Administrators','admin', 'Administration', 'multipledb', 'Multipledb','write');
 
   //DONE with upgrading to this version
   $acl_version = $upgrade_acl;
