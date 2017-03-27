@@ -526,6 +526,7 @@ if ($_REQUEST['dispensed']) {
     <?php
     exit;
 }
+/*
     $filename = $pid."_".$encounter."_RX_".$REFTYPE.".pdf";
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
                          $GLOBALS['pdf_size'],
@@ -535,6 +536,7 @@ if ($_REQUEST['dispensed']) {
                          array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
                          $_SESSION['language_direction'] == 'rtl' ? true : false
                       );
+*/
     ob_start();
     ?>
     <html>
@@ -1164,45 +1166,7 @@ if ($_REQUEST['dispensed']) {
     </html>
 
     <?php
-
-    global $web_root, $webserver_root;
     $content = ob_get_clean();
     echo $content;
 exit;
-
-/* 
- *  This is to store a copy of the Rx as a PDF.  It is not working
- *  yet so leave please for future development.
-    //display Rx to user, now store it too...
-    // Fix a nasty html2pdf bug - it ignores document root!
-    $i = 0;
-    $wrlen = strlen($web_root);
-    $wsrlen = strlen($webserver_root);
-    while (true) {
-      $i = stripos($content, " src='/", $i + 1);
-      if ($i === false) break;
-      if (substr($content, $i+6, $wrlen) === $web_root &&
-          substr($content, $i+6, $wsrlen) !== $webserver_root)
-      {
-        $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-      }
-    }
-    $temp_filename = '/tmp/'.$filename;
-
-    $query = "select id from categories where name like 'Communication'";
-    $result = sqlStatement($query);
-    $ID = sqlFetchArray($result);
-    $category_id = $ID['id'];
-    $pdf->writeHTML($content, false);
-    $content_pdf = $pdf->Output($temp_filename, 'F');
-    $type = "application/pdf";
-
-    $size = filesize($temp_filename);
-
-    $return = addNewDocument($filename,$type,$temp_filename,0,$size,$_SESSION['authUserID'],$pid,$category_id);
-    $doc_id = $return['doc_id'];
-    $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql,array($encounter,$doc_id));
-exit;
-*/
 ?>
