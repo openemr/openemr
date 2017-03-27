@@ -198,7 +198,7 @@
 
 
 
- $gacl->add_object('multipledb', 'multipledb','multipledb', 10, 0, 'ACO');
+ $gacl->add_object('multiupledatabase', 'Multipledb','multipledb', 10, 0, 'ACO');
  // xl('Lab Results (write,addonly optional)')
 
 

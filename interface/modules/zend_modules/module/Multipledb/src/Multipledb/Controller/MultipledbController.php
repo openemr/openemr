@@ -161,7 +161,7 @@ class MultipledbController extends BaseController{
                  return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
             }
         }else{
-            if(!acl_check('multipledb', 'multipledb')){
+            if(!acl_check('multiupledatabase', 'Multipledb')){
                 return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
             }
         }
