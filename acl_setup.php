@@ -63,8 +63,14 @@
      // xl('Nation Notes')
  $gacl->add_object_section('Patient Portal','patientportal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
-  $gacl->add_object_section('Menus','menus'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Menus','menus'  , 10, 0, 'ACO');
      // xl('Menus')
+ $gacl->add_object_section('Groups','groups'  , 10, 0, 'ACO');
+     // xl('Menus')
+ $gacl->add_object_section('Multipledb','multipledb'  , 10, 0, 'ACO');
+    // xl('Menus')
+
+
  // Create Accounting ACOs.
  //
  $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
@@ -173,6 +179,33 @@
      // xl('Amendments (write,addonly optional)')
  $gacl->add_object('patients', 'Lab Results (write,addonly optional)','lab', 10, 0, 'ACO');
      // xl('Lab Results (write,addonly optional)')
+
+
+ $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+ $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+ $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+ $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+ $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+
+
+ $gacl->add_object('multipledb', 'view only','mdbview', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+ $gacl->add_object('multipledb', 'only write','mdbwrite', 10, 0, 'ACO');
+ // xl('Lab Results (write,addonly optional)')
+
+
+
 
  // Create ACOs for sensitivities.
  //

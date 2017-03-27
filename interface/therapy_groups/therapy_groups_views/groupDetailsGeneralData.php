@@ -24,6 +24,10 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<?php $edit = acl_check("groups","gadd",false, 'write');?>
+<?php $view = acl_check("groups","gadd",false, 'view');?>
+
+
 <?php require 'header.php'; ?>
 <main id="group-details">
     <div class="container-group">
@@ -41,10 +45,14 @@
                         <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
 
                         <?php if($readonly == ''): ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
-                            <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
+                            <?php if($edit):?>
+                                <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
+                                <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
+                            <?php endif;?>
                         <?php else: ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
+                            <?php if($edit):?>
+                                <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
+                            <?php endif;?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -87,13 +95,19 @@
                                     <div class="col-md-6">
                                         <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                                         <label class="radio-inline radio-pos">
-                                            <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Closed'); ?>
+                                            <?php if($edit):?>
+                                                <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Closed'); ?>
+                                            <?php endif;?>
                                         </label>
                                         <label class="radio-inline radio-pos">
-                                            <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Open'); ?>
+                                            <?php if($edit):?>
+                                                <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Open'); ?>
+                                            <?php endif;?>
                                         </label>
                                         <label class="radio-inline radio-pos">
-                                            <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Train'); ?>
+                                            <?php if($edit):?>
+                                                <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?> <?php echo $readonly; ?>><?php echo xlt('Train'); ?>
+                                            <?php endif;?>
                                         </label>
                                     </div>
                                     <div class="col-md-6">

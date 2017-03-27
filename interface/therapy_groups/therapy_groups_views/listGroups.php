@@ -24,6 +24,10 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<?php $edit = acl_check("groups","gadd",false, 'write');?>
+<?php $view = acl_check("groups","gadd",false, 'view');?>
+
+
 <?php require 'header.php'; ?>
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
@@ -45,8 +49,9 @@
     <div id="filters">
         <div class="row">
             <div class=" form-group col-md-2">
-                <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
-                <input type="text" class="form-control" id="group_name_filter" placeholder="" >
+
+                    <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
+                    <input type="text" class="form-control" id="group_name_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_id_filter"><?php echo xlt('Group Id');?>:</label>
