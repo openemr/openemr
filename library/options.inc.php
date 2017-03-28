@@ -2418,9 +2418,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
 	// Handle starting of a new label cell.
 	if ($titlecols > 0) {
 	  disp_end_cell();
-	  //echo "<td class='label' colspan='$titlecols' valign='top'";
+	  //echo "<td class='label_custom' colspan='$titlecols' valign='top'";
 	  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-	  echo "<td class='label' colspan='$titlecols_esc' ";
+	  echo "<td class='label_custom' colspan='$titlecols_esc' ";
 	  //if ($cell_count == 2) echo " style='padding-left:10pt'";
 	  echo ">";
 	  $cell_count += $titlecols;
@@ -2548,7 +2548,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2686,7 +2686,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
                       $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label' ";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='$field_id_label' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}

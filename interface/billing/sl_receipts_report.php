@@ -174,13 +174,13 @@ function sel_diagnosis() {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility($form_facility, 'form_facility'); ?>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('Provider'); ?>:
 			</td>
 			<td>
@@ -213,14 +213,14 @@ function sel_diagnosis() {
 			</td>
 		</tr>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
 				title='<?php echo xla('Date of appointments mm/dd/yyyy'); ?>' >
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>

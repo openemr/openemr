@@ -113,7 +113,7 @@ $(document).ready(function() {
 	<table class='text'>
 
                    <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                          <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -124,7 +124,7 @@ $(document).ready(function() {
                    </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                               <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
