@@ -63,9 +63,9 @@
      // xl('Nation Notes')
  $gacl->add_object_section('Patient Portal' , 'patientportal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
- $gacl->add_object_section('Menus','menus'  ,  ''              , 10, 0, 'ACO');
+ $gacl->add_object_section('Menus','menus'  ,  10, 0, 'ACO');
      // xl('Menus')
- $gacl->add_object_section('Groups','groups',  ''              , 10, 0, 'ACO');
+ $gacl->add_object_section('Groups','groups',  10, 0, 'ACO');
      // xl('Menus')
 
 
