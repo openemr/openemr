@@ -39,9 +39,9 @@ function runCheck(){
 }
 function service_shutdown($soft=1){
 	if( socket_status( 'localhost', '6661', 'status' ) ){
-		// shut down service- this can take a couple seconds on windows so throw up notice to user.
-		echo '<h3 style="position: absolute; top: 25%; left: 42%">' . xlt("Shutting Down Service ...") . '</h3><img style="position: absolute; top: 40%; left: 45%; width: 100px; height: 100px"	src="../../portal/sign/assets/loading.gif" />';
-		echo str_pad('',4096);
+		// shut down service- this can take a few seconds on windows so throw up notice to user.
+		flush();
+		echo '<h3 style="position: absolute; top: 25%; left: 42%">'. xlt("Shutting Down Service ...") . '</h3><img style="position: absolute; top: 40%; left: 45%; width: 125px; height: 125px" src="../../portal/sign/assets/loading.gif" />';
 		ob_flush(); flush();
 		server_logit( 1, "C-CDA Service shutdown request", 0, "Task" );
 		if(!IS_WINDOWS){
@@ -134,8 +134,9 @@ function service_command( $ip, $port, $doaction ){
 	return true;
 }
 function server_logit( $success, $text, $pid = 0, $event = "ccdaservice-manager" ){
-	$event = isset($_SESSION['ptName']) ? ($_SESSION['ptName'].' Accessed') : "Service Access";
-	$where = isset($_SESSION['ptName']) ? "Portal Patient" : $_SESSION['authUser'];
+	$pid = isset($_SESSION['pid'])?$_SESSION['pid']:$pid;
+	$event = isset($_SESSION['ptName']) ? ('Ccda Access: ' . $_SESSION['ptName']) : "Ccda Service Access";
+	$where = isset($_SESSION['ptName']) ? "Portal Patient" : 'OpenEMR:  ' . $_SESSION['authUser'];
 	
 	newEvent( $event, "Service_Manager", $where, $success, $text, $pid,'server','s2','s3' );
 }

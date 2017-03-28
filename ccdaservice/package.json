@@ -17,7 +17,6 @@
   "author": "sjpadgett@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "blue-button": "^1.10.0",
     "blue-button-generate": "^1.5.7",
     "net": "^1.0.2",
     "xmljson": "^0.2.0"

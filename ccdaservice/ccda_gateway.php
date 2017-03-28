@@ -89,6 +89,7 @@ print_r ( $h.$ccdaxml.$h );
 exit;
 
 function portalccdafetching($pid, $server_url, $parameterArray){
+	
 	session_write_close();
 	$site_id = $_SESSION ['site_id'];
 	$parameters = http_build_query($parameterArray); // future use
@@ -104,8 +105,9 @@ function portalccdafetching($pid, $server_url, $parameterArray){
 			//curl_setopt ($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=1'); // break on first line in public/index.php - uncomment and start any xdebug session and fetch a ccda in app.
 			curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			$result = curl_exec($ch) or die(curl_error($ch));
 			curl_close($ch);
 		}

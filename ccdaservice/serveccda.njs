@@ -23,13 +23,78 @@
 "use strict";
 var net = require('net');
 var to_json = require('xmljson').to_json;
-var bb = require('blue-button');
+//var bb = require('blue-button'); //for use set global-not needed here
 var bbg = require('blue-button-generate');
-var bbm = require('blue-button-model');
+//var bbm = require('blue-button-model'); //for use set global-not needed here
 
 var server = net.createServer();
 var conn = '';
 
+function validate(toValidate, ref, retObj) {
+	for (var p in ref) {
+		if (typeof ref[p].dataType === "undefined") {
+			retObj[p] = {};
+			if (!toValidate[p]) toValidate[p] = {};
+			validate(toValidate[p], ref[p], retObj[p]);
+		} else {
+			if (typeof toValidate === "undefined") toValidate = {};
+			var trimmed = trim(toValidate[p]);
+			retObj[p] = typeEnforcer(ref[p].dataType, trimmed);
+		}
+	}
+	return retObj;
+}
+function typeEnforcer(type, val){
+	var validVal;
+	switch (type) {
+	case "boolean":
+		if (typeof val === "string") {
+			validVal = val.toLowerCase() === "true";
+		} else {
+			validVal = !!val;
+		}
+		break;
+	case "string":
+		if ( (val === null) || (val === "undefined") || (typeof val === "undefined") ) {
+			validVal = '';
+		} else if (typeof val == "object") {
+			validVal = '';
+		} else {
+			validVal = trim(String(val));
+		}
+		break;
+	case "array":
+		if (typeof val === 'undefined' || val === null) {
+			validVal = [];
+		} else if (Array.isArray(val)) {
+			validVal = [];
+			val.forEach(function(v) {
+				validVal.push(trim(v));
+			});
+		} else {
+			validVal = [trim(val)];
+		}
+		break;
+	case "integer":
+		var asInt = parseInt(val, 10);
+		if (isNaN(asInt)) asInt = 0;
+		validVal = asInt;
+		break;
+	case "number":
+		var asNum = parseFloat(val);
+		if (isNaN(asNum)) asNum = 0;
+		validVal = asNum;
+		break;
+	}
+	return validVal;
+}
+function trim(s) {
+	if (typeof s === 'string') return s.trim();
+	return s;
+}
+function safeId(s) {
+	return trim(s).toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/\-+$/, '');
+}
 function fDate(str) {
 	/*
 	 * Format dates to js required yyyy-mm-dd + zero hundred hours Yes I freely
@@ -1462,14 +1527,7 @@ function genCcda(pd) {
 	// ------------------------------------------ End Sections -------------------------------------------------//
 
 	doc.data = Object.assign(data);
-	/*Below is almost never valid.. Here to help test validate for missing items*/
-/*	var valid = bbm.validator.validateDocumentModel(doc);
-	if (!valid) {
-		 var error = bbm.validator.getLastError();
-		 console.log(error);
-		 conn.write( String.fromCharCode(28) + "\r\r" + '' ); // release distant end
-		 conn.end();
-	}*/
+
 	var xml = bbg.generateCCD(doc);
 	//console.log(xml)
 	return xml;
@@ -1514,11 +1572,11 @@ function processConnection( connection ) {
 		// empty string ends read and char 28 is xfer end (php doesn't care but CCM used so, I will also).
 		conn.write(String.fromCharCode(28) + "\r\r" + '');
 		conn.end();
-		// By parsing doc just created we can see any nullFlavors or missing parts
-		//console.log("total=" + conn.bytesWritten);
-		// remove for production - test validation of doc just created
-		// var data = bb.parse(doc);
-		// console.log(JSON.stringify(data.errors, null, 4));
+		/*By parsing doc just created we can see any nullFlavors or missing parts
+		console.log("total=" + conn.bytesWritten);
+		remove for production - test validation of doc just created
+		var data = bb.parse(doc);
+		console.log(JSON.stringify(data.errors, null, 4));*/
 	}
 	function eventCloseConn() {
 		//console.log('connection from %s closed', remoteAddress);
