@@ -144,7 +144,7 @@ $(document).ready(function() {
 
 	<table class='text'>
 		<tr>
-      <td class='label_custom'>
+      <td class='control-label'>
         <?php xl('Provider','e'); ?>:
       </td>
       <td>
@@ -153,13 +153,13 @@ $(document).ready(function() {
            'empty_title' => '-- All --'), $_POST['form_provider']);
 	      ?>
       </td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
 			   <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
