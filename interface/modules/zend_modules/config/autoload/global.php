@@ -15,7 +15,9 @@
  */
 
 // If to use utf-8 or not in my sql query
-$utf8 =  ($GLOBALS['disable_utf8_flag']) ? array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = \'\'') : array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\', sql_mode = \'\'');
+$tmp = $GLOBALS['disable_utf8_flag'] ? "SET sql_mode = ''" : "SET NAMES 'UTF8', sql_mode = ''";
+$tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
+$utf8 = array(PDO::MYSQL_ATTR_INIT_COMMAND => $tmp);
 
 // Sets default factory using the default database
 $factories = array(
