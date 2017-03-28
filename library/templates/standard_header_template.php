@@ -34,6 +34,7 @@
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 <?php if (!empty($include_standard_style_js) && in_array("datetimepicker",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <?php } ?>
