@@ -160,23 +160,46 @@ use ESign\Api;
   'eob' => array(xl('Posting')   , 0, 'billing/sl_eob_search.php'),
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
+ $disallowed = array();
+
+
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
- if($GLOBALS['enable_group_therapy']){
+/* if($GLOBALS['enable_group_therapy']){
   $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
   $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
   $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
   $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
   $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
- }
+ }*/
+if($GLOBALS['enable_group_therapy']){
+    $GroupAcl['gadd'] = acl_check("groups","gadd",false, 'view') || acl_check("groups","gadd",false, 'write') ;
+    $GroupAcl['gcalendar'] = acl_check("groups","gcalendar",false, 'view') || acl_check("groups","gcalendar",false, 'write');
+    $GroupAcl['glog'] = acl_check("groups","glog",false, 'view') || acl_check("groups","glog",false, 'write') ;
+    $GroupAcl['gdlog'] = acl_check("groups","gdlog",false, 'view') || acl_check("groups","glog",false, 'write') ;
+    $GroupAcl['gm'] = acl_check("groups","gm",false, 'view') || acl_check("groups","gm",false, 'write') ;
+
+
+    $disallowed['gng'] = !$GroupAcl['gadd'];
+    $disallowed['gdg'] = !$GroupAcl['gadd'];
+    $disallowed['gcv'] = !$GroupAcl['gcalendar'];
+    $disallowed['gce'] = !$GroupAcl['glog'];
+    $disallowed['gvh'] = !$GroupAcl['glog'];
+    $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
+    $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
+    $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+    $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
+    $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
+}
+
 
  $esignApi = new Api();
  // This section decides which navigation items will not appear.
 
- $disallowed = array();
+
  $disallowed['edi'] = !($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob'));
  $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
   acl_check('admin', 'database') || acl_check('admin', 'forms') ||

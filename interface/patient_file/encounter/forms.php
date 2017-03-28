@@ -20,6 +20,10 @@ if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+if(!(acl_check("groups","glog",false, 'view') OR acl_check("groups","glog",false, 'write'))){
+    echo xlt(trim("access not allowed"));
+    exit();
+}
 
 ?>
 <html>
@@ -632,10 +636,10 @@ if ( $esign->isButtonViewable() ) {
         echo "<div class='form_header_controls'>";
 
         // If the form is locked, it is no longer editable
-        if ( $esign->isLocked() ) {
-            echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
+        if ( $esign->isLocked() OR acl_check("groups","glog",false, 'write')) {
+                 echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
         } else {
-          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
+          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND acl_check("groups","glog",false, 'write')) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -645,7 +649,7 @@ if ( $esign->isButtonViewable() ) {
           }
         }
 
-        if ( $esign->isButtonViewable() ) {
+        if ( $esign->isButtonViewable() AND acl_check("groups","glog",false, 'write')) {
           if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
           }
