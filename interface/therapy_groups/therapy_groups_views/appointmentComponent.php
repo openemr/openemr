@@ -26,8 +26,8 @@
 ?>
 
 
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups","gcalendar",false, 'write');?>
+<?php $view = acl_check("groups","gcalendar",false, 'view');?>
 
 
 <?php if($view || $edit) :?>
@@ -65,7 +65,9 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                 $date_for_url = attr(preg_replace("/-/", "", $event['pc_eventDate']));
                 ?>
                 <div class="event_details">
-                    <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
+                        <?php if ($edit):?>
+                            <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
+                        <?php endif;?>
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
                         </br>
                         <span>
