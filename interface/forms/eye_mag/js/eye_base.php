@@ -58,6 +58,8 @@ var Code_new_est;
 var config_byday;
 var $root = $('html, body');
 var scroll;
+var visit_modifier=[];
+var visit_justify=[];
 
 /*
  * Functions to add a quick pick selection to the correct fields on the form.
@@ -139,7 +141,7 @@ function submit_form(action) {
                    // ACTIVE chart.
                    // Coding engine returns any positive Clinical findings.
                    //List these findings in the IMP_PLAN Builder
-                   populate_form(result);
+                   if (action=='1') {}else{populate_form(result);}
                    }
                    });
 };
@@ -1280,57 +1282,60 @@ function build_IMPPLAN(items,nodisplay) {
         $('#IMPPLAN_zone').removeClass('nodisplay');
         count_dx=0;
         $.each(items, function( index, value ) {
-               if (!value.codetext) value.codetext="";
-               if (!value.code) value.code="";
-               if ((value.code==="") || (value.code.match(/Code/) || (value.code==null))) {
-               value.code="<i class='fa fa-search-plus'></i>&nbsp;Code";
-               } else {
-               count_dx++;
-               if (value.code.match(/\,/g)) {
-               // If there is a comma in there, there is more than one code present for this item. Split them out.
-               // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
-               // PMSFH_link is only present when the Builder was used to make the entry.
-               if ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) {
-               //The Title should have the description.
-               var CodeArr =  value.code.split(",");
-               var TitleArr = value.codedesc.split("\r");
-               for (i=0;i < CodeArr.length;i++) {
-               if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
-               $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
-               } else {
-               //just look it up via ajax or tell them to code it manually on the feesheet ;).
-               $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
-               }
-               }
-               } else  {
-               //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
-               if (value.PMSFH_link.match(/Clinical_(.*)/)) {
-               if (typeof obj.Clinical !== "undefined") {
-               var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
-               if (obj.Clinical[location]!=null ) {
-               for (i=0; i< obj.Clinical[location].length; i++) {
-               $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
-               }
-               } else {
-               //item has a PMSFH_link but it is not from a Clinical field
-               alert("Houston, we have a problem!");
-               }
-               }
-               }
-               }
-               } else { //all is good, one code only
-               $('#Coding_DX_Codes').append(count_dx +'. '+value.code+': '+value.codedesc+'<br />');
-               }
-               }
+            if (!value.codetext) value.codetext="";
+            if (!value.code) value.code="";
+            if ((value.code==="") || (value.code.match(/Code/) || (value.code==null))) {
+              value.code="<i class='fa fa-search-plus'></i>&nbsp;Code";
+            } else {
+              count_dx++;
+              if (value.code.match(/\,/g)) {
+                // If there is a comma in there, there is more than one code present for this item. Split them out.
+                // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
+                // PMSFH_link is only present when the Builder was used to make the entry.
+                if ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) {
+                   //The Title should have the description.
+                  var CodeArr =  value.code.split(",");
+                  var TitleArr = value.codedesc.split("\r");
+                    for (i=0;i < CodeArr.length;i++) {
+                      if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
+                        $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
+                      } else {
+                        //just look it up via ajax or tell them to code it manually on the feesheet ;).
+                        $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
+                      }
+                    }
+                } else  {
+                 //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
+                  if (value.PMSFH_link.match(/Clinical_(.*)/)) {
+                    if (typeof obj.Clinical !== "undefined") {
+                      var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
+                      if (obj.Clinical[location]!=null ) {
+                        for (i=0; i< obj.Clinical[location].length; i++) {
+                          $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
+                        }
+                      } else {
+                        //item has a PMSFH_link but it is not from a Clinical field
+                        alert("Houston, we have a problem!");
+                      }
+                    }
+                  }
+                }
+              } else { //all is good, one code only
+                $('#Coding_DX_Codes').append(count_dx +'. '+value.code+': '+value.codedesc+'<br />');
+              }
+            }
+
+            if (typeof nodisplay !== "undefined") {
+              return;
+            }
                var title2 = value.title.replace(/(\')/g, '');
-               contents_here = ( index + 1 ) +
-               ". <span contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
+               contents_here = "<span class='bold' contenteditable title='<?php echo xla('Click to edit'); ?>' id='IMPRESSION_"+index+"'>" +
                value.title +"</span>"+
                "<span contenteditable class='pull-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
                value.code + "</span>&nbsp;"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
-               value.plan +"</textarea><br />";
+               value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
                                          '<i class="pull-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
@@ -1341,8 +1346,7 @@ function build_IMPPLAN(items,nodisplay) {
                                                  store_IMPPLAN(obj.IMPPLAN_items,'1');
                                                  });
                $('#PLAN_'+index).css("background-color","#F0F8FF");
-
-               });
+          });
             //end each
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -1363,8 +1367,8 @@ function build_IMPPLAN(items,nodisplay) {
                               //obj.IMPPLAN_items[item].codetext = '';
                               //obj.IMPPLAN_items[item].codedesc = '';
                               $(this).css('background-color','#F0F8FF');
-                              store_IMPPLAN(obj.IMPPLAN_items,'1');
-                              });
+                              store_IMPPLAN(obj.IMPPLAN_items);
+                            });
 
         $('[id^=PLAN_]').change(function() {
                                 var item = this.id.match(/PLAN_(.*)/)[1];
@@ -1454,15 +1458,15 @@ function CODING_to_feesheet(CODING_items) {
         var formData =  JSON.stringify(CODING_items);
         top.restoreSession();
         $.ajax({
-               type         : 'POST',
-               url          :  url,
-               data     : {
-               parameter     : formData,
-               action        : 'code_visit',
-               pid           : $('#pid').val(),
-               form_id       : $('#form_id').val(),
-               encounter     : $('#encounter').val(),
-               uniqueID      : $('#uniqueID').val()
+               'type'         : 'POST',
+               'url'          :  url,
+               'data'         : {
+               'parameter'    : formData,
+               'action'       : 'code_visit',
+               'pid'          : $('#pid').val(),
+               'form_id'      : $('#form_id').val(),
+               'encounter'    : $('#encounter').val(),
+               'uniqueID'     : $('#uniqueID').val()
                }
                }).done(function(result) {
                        if (result == "Code 400") {
@@ -1566,13 +1570,46 @@ function build_CODING_list() {
      2. Tests performed
      3. Diagnostic codes
      */
-        //1.  Visit Codes.
+         //3. Diagnostic Codes
+    $.each(obj.IMPPLAN_items, function( index, value ) {
+      if (value['codetype']) {
+        if (value['code'].match(/\,/g)) {
+          // physical finding found in more than one location, more than one code...
+          // if there is a comma in there, there is more than one code present. Split them out.
+          // And all those in one group have the same link out (PMSFH_link) value
+          var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
+          for (i=0; i< obj.Clinical[location].length; i++) {
+            CODING_items.push({
+                             code:     obj.Clinical[location][i]['code'],
+                             codedesc: obj.Clinical[location][i]['codedesc'],
+                             codetext: obj.Clinical[location][i]['codetext'],
+                             codetype: obj.Clinical[location][i]['codetype'],
+                             title:    obj.Clinical[location][i]['title']
+                             });
+          }
+        } else if (value['code'].match(/Code/)){
+          //ignore
+        } else {
+          CODING_items.push({
+                             code:     value['code'],
+                             codedesc: value['codedesc'],
+                             codetext: value['codetext'],
+                             codetype: value['codetype'],
+                             title:    value['title']
+                             });
+        
+        }
+      }
+    });
+        //1.  Visit Codes.  These can have a modifier (22,25,57 hard coded so far)
     CODING_items.push({
                       code:     visit_code,
                       codedesc: visit_desc,
                       codetext: '',
                       codetype: 'CPT4',
-                      title:    'Visit Code'
+                      title:    'Visit Code',
+                      modifier: visit_modifier,
+                      justify:  visit_justify
                       });
         //neurosensory
     if (CPT_92060 == 'here') {
@@ -1603,34 +1640,7 @@ function build_CODING_list() {
                                        });
                      }
                      });
-        //3. Diagnostic Codes
-    $.each(obj.IMPPLAN_items, function( index, value ) {
-           if (value['codetype']) {
-           if (value['code'].match(/\,/g)) {
-           //physical finding found in more than one location, more than one code...
-           //if there is a comma in there, there is more than one code present. Split them out.
-           // And all those in one group have the same link out (PMSFH_link) value
-           var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
-           for (i=0; i< obj.Clinical[location].length; i++) {
-           CODING_items.push({
-                             code:     obj.Clinical[location][i]['code'],
-                             codedesc: obj.Clinical[location][i]['codedesc'],
-                             codetext: obj.Clinical[location][i]['codetext'],
-                             codetype: obj.Clinical[location][i]['codetype'],
-                             title:    obj.Clinical[location][i]['title']
-                             });
-           }
-           } else {
-           CODING_items.push({
-                             code:     value['code'],
-                             codedesc: value['codedesc'],
-                             codetext: value['codetext'],
-                             codetype: value['codetype'],
-                             title:    value['title']
-                             });
-           }
-           }
-           });
+    
     CODING_to_feesheet(CODING_items);
 }
 
@@ -1750,7 +1760,9 @@ function dopopup(url) {
     window.open(url, 'clinical', 'width=fullscreen,height=fullscreen,resizable=1,scrollbars=1,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
 }
 function goto_url(url) {
-    window.open(url);
+    R =  url;
+    top.restoreSession();
+    location.href = R;
 }
 function openImage() {
     dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
@@ -3558,7 +3570,7 @@ $(document).ready(function() {
                                                   $('#IMP_start_acc').slideDown();
                                                   zone='IMPPLAN';
                                                 }
-                                                if ($("#PREFS_"+zone+"_RIGHT").val() =='QP') {
+                                                if (($("#PREFS_"+zone+"_RIGHT").val() =='QP')&&(zone !='IMPPLAN')) {
                                                   $('#BUTTON_TEXTD_'+zone).trigger("click");
                                                   return;
                                                 }
@@ -3727,12 +3739,19 @@ $(document).ready(function() {
 
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
-                                                           submit_form($(this));
-                                                           });
+                                                           if ($(this).id != 'IMP') {
+                                                              //alert('form is '+$(this).id);
+                                                              submit_form();
+                                                            } else {
+                                                             // alert('Form was IMP');
+                                                           }
+                                                         });
+                                                         
                   $('#IMP').blur(function() {
                                  //add this DX to the obj.IMPPLAN_items array
                                  //take the first line as the impression and the rest as the plan
                                  var total_imp = $('#IMP').val();
+                                 $('#IMP').val('');//clear the box
                                  var local_plan = '';
                                  var local_code= '';
                                  if (total_imp.length < '2') return; //reject text under two letters?
@@ -3770,10 +3789,10 @@ $(document).ready(function() {
                                                         codedesc:'',
                                                         PMSFH_link: ''
                                                         });
-                                 build_IMPPLAN(obj.IMPPLAN_items);
-                                 store_IMPPLAN(obj.IMPPLAN_items,'1');
-                                 $('#IMP').val('');//clear the box
-                                 submit_form('1');//tell the server where we stand
+                                 build_IMPPLAN(obj.IMPPLAN_items,'1');
+                                 store_IMPPLAN(obj.IMPPLAN_items);
+                                 
+                                 //submit_form('1');//tell the server where we stand
                                  });
                   $('#Add_Glasses').click(function() {
                                           for (i=2; i <6; i++) { //come on, 5 current rx glasses should be enough...
