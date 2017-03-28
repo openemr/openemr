@@ -48,6 +48,8 @@ class MultipledbController extends BaseController{
     public function indexAction()
     {
 
+        $this->checkAcl();
+
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
@@ -65,7 +67,7 @@ class MultipledbController extends BaseController{
 
     public function editAction()
     {
-
+        $this->checkAcl('write');
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $_SESSION['multiple_edit_id'] = $id;
         $this->getJsFiles();
@@ -83,6 +85,7 @@ class MultipledbController extends BaseController{
     }
 
     public function removeAction(){
+        $this->checkAcl('write');
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $this->getMultipledbTable()->deleteMultidbById($id);
         return $this->redirect()->toRoute('multipledb', array(
@@ -91,7 +94,7 @@ class MultipledbController extends BaseController{
     }
 
     public function saveAction(){
-
+        $this->checkAcl('write');
         $id = substr((int)$_SESSION['multiple_edit_id'], 0, 11);
         $db = array();
         if($_REQUEST['db']){
@@ -113,12 +116,14 @@ class MultipledbController extends BaseController{
     }
 
     public function checknamespacejsonAction(){
+        $this->checkAcl('write');
         $namespace = $_REQUEST['namespace'];
         echo $this->getMultipledbTable()->checknamespace($namespace);
         exit();
     }
 
     public function generatesafekeyAction(){
+        $this->checkAcl('write');
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $this->getJsFiles();
         $this->getCssFiles();
@@ -148,6 +153,18 @@ class MultipledbController extends BaseController{
             $this->MultipledbTable = $sm->get('Multipledb\Model\MultipledbTable');
         }
         return $this->MultipledbTable;
+    }
+
+    public function checkAcl($mode = null){
+        if($mode == 'view' OR $mode == 'write'){
+            if(!acl_check('multipledb', 'multipledb',false,$mode)){
+                 return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
+            }
+        }else{
+            if(!acl_check('multiupledatabase', 'Multipledb')){
+                return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
+            }
+        }
     }
 
 
