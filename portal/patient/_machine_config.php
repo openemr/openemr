@@ -54,7 +54,8 @@ if (!$disable_utf8_flag) {
 }
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
 // Turn off STRICT SQL
-GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = ''";
+GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone = '" .
+  (new DateTime())->format("P") . "'";
 
 /**
  * the root url of the application with trailing slash, for example http://localhost/patient/
