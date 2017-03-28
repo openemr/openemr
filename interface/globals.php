@@ -288,6 +288,9 @@ if (!empty($glrow)) {
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
     else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
       if ($gl_value) {
         date_default_timezone_set($gl_value);
       }
