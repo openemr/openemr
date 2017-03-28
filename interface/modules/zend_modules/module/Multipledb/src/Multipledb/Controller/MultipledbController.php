@@ -47,15 +47,12 @@ class MultipledbController extends BaseController{
 
     public function indexAction()
     {
-
-        $this->checkAcl();
-
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
         $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
-
+        $this->checkAcl();
 
         return new ViewModel(array(
             'translate' => $this->translate,
@@ -67,7 +64,6 @@ class MultipledbController extends BaseController{
 
     public function editAction()
     {
-        $this->checkAcl('write');
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $_SESSION['multiple_edit_id'] = $id;
         $this->getJsFiles();
@@ -75,7 +71,7 @@ class MultipledbController extends BaseController{
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
         $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
-
+        $this->checkAcl('write');
 
         return new ViewModel(array(
             'translate' => $this->translate,
@@ -123,14 +119,14 @@ class MultipledbController extends BaseController{
     }
 
     public function generatesafekeyAction(){
-        $this->checkAcl('write');
+
         $id = substr((int)$_REQUEST['id'], 0, 11);
         $this->getJsFiles();
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
         $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
-
+        $this->checkAcl('write');
 
         return new ViewModel(array(
             'translate' => $this->translate,
@@ -155,17 +151,28 @@ class MultipledbController extends BaseController{
         return $this->MultipledbTable;
     }
 
+    public function errorAction(){
+
+
+        $this->getJsFiles();
+        $this->getCssFiles();
+        $this->layout()->setVariable('jsFiles', $this->jsFiles);
+        $this->layout()->setVariable('cssFiles', $this->cssFiles);
+
+    }
+
     public function checkAcl($mode = null){
         if($mode == 'view' OR $mode == 'write'){
-            if(!acl_check('multipledb', 'multipledb',false,$mode)){
-                 return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
+            if(!acl_check('admin', 'Multipledb',false,$mode)){
+                $this->redirect()->toRoute("multipledb",array("action"=>"error"));
             }
         }else{
-            if(!acl_check('multiupledatabase', 'Multipledb')){
-                return $this->redirect()->toRoute('errors', array('action' => 'access-denied'));
+            if(!acl_check('admin', 'Multipledb')){
+                $this->redirect()->toRoute("multipledb",array("action"=>"error"));
             }
         }
     }
+
 
 
 

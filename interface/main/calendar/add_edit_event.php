@@ -105,7 +105,10 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 
-if((!$edit && !$view) && $_GET['group'] )  $_GET['group']=false;
+if((!$edit && !$view) ) {
+    $_GET['group'] = false;
+    $GLOBALS['enable_group_therapy']=false;
+}
 if($_GET['group'] == true)
     //groups tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
@@ -1355,7 +1358,7 @@ $classpati='';
 		 <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Provider');?></a>
 		 </li>
-         <?php if($GLOBALS['enable_group_therapy']) :?>
+         <?php if($GLOBALS['enable_group_therapy'] ) :?>
          <li <?php echo $group_class ;?>>
             <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
             <?php echo xlt('Group');?></a>
@@ -1512,7 +1515,7 @@ $classpati='';
  }
  ?>
 <?php
- if($_GET['group']==true){
+ if($_GET['group']==true &&  $GLOBALS['enable_group_therapy']){
  ?>
  <tr id="group_details">
   <td nowrap>
@@ -1844,21 +1847,22 @@ if ($repeatexdate != "") {
  </tr>
 
 </table></td></tr>
+    <?php if ($edit):?>
 <tr class='text'><td colspan='10' class="buttonbar">
 <p>
 <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save');?>' />
 &nbsp;
 
 <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-  <input type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
+  <input <?php echo $edit?'disabled=disbaled':'';?> type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
 <?php } ?>
 
 &nbsp;
-<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
+<input <?php echo $edit?'disabled=disbaled':'';?> type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
 &nbsp;
-<input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
+<input <?php echo $edit?'disabled=disbaled':'';?> type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
 &nbsp;
-<input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
+<input <?php echo $edit?'disabled=disbaled':'';?> type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
 </p></td></tr></table>
 <?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
   text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
@@ -1869,13 +1873,13 @@ if ($repeatexdate != "") {
 <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
 <br>
 <?php if($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
-    <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+    <input <?php echo $edit?'disabled=disbaled':'';?> type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
 <?php } ?>
-<input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
-<input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
-<input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
+<input <?php echo $edit?'disabled=disbaled':'';?> type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
+<input <?php echo $edit?'disabled=disbaled':'';?> type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
+<input <?php echo $edit?'disabled=disbaled':'';?> type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
 </div>
-
+<?php endif;?>
 </body>
 
 <script language='JavaScript'>

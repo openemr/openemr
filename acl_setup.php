@@ -47,25 +47,25 @@
      // xl('Accounting')
  $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
      // xl('Administration')
- $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
+ $gacl->add_object_section('Encounters'    , 'encounters'    , 10, 0, 'ACO');
      // xl('Encounters')
- $gacl->add_object_section('Lists'         , 'lists'        , 10, 0, 'ACO');
+ $gacl->add_object_section('Lists'         , 'lists'         , 10, 0, 'ACO');
      // xl('Lists')
- $gacl->add_object_section('Patients'      , 'patients'     , 10, 0, 'ACO');
+ $gacl->add_object_section('Patients'      , 'patients'      , 10, 0, 'ACO');
      // xl('Patients')
- $gacl->add_object_section('Squads'        , 'squads'       , 10, 0, 'ACO');
+ $gacl->add_object_section('Squads'         , 'squads'         , 10, 0, 'ACO');
      // xl('Squads')
- $gacl->add_object_section('Sensitivities' , 'sensitivities', 10, 0, 'ACO');
+ $gacl->add_object_section('Sensitivities'  , 'sensitivities'  , 10, 0, 'ACO');
      // xl('Sensitivities')
- $gacl->add_object_section('Placeholder'   , 'placeholder'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Placeholder'    , 'placeholder'    , 10, 0, 'ACO');
      // xl('Placeholder')
- $gacl->add_object_section('Nation Notes'   , 'nationnotes'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Nation Notes'   , 'nationnotes'    , 10, 0, 'ACO');
      // xl('Nation Notes')
- $gacl->add_object_section('Patient Portal','patientportal'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Patient Portal' , 'patientportal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
- $gacl->add_object_section('Menus','menus'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Menus','menus'  ,  ''              , 10, 0, 'ACO');
      // xl('Menus')
- $gacl->add_object_section('Groups','groups'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Groups','groups',  ''              , 10, 0, 'ACO');
      // xl('Menus')
 
 
@@ -107,7 +107,7 @@
      // xl('Pharmacy Dispensary')
  $gacl->add_object('admin', 'ACL Administration'              , 'acl'      , 10, 0, 'ACO');
      // xl('ACL Administration')
- $gacl->add_object('admin', 'Multipledb','multipledb', 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Multipledb'                      ,'multipledb', 10, 0, 'ACO');
  // xl('Multipledb')
 
  // Create ACOs for encounters.
