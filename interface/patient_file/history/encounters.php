@@ -21,6 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
+
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 //
@@ -40,6 +41,13 @@ require_once("../../../custom/code_types.inc.php");
 if($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
+
+
+if(!(acl_check("groups","glog",false, 'view') OR acl_check("groups","glog",false, 'write'))){
+    echo xlt(trim("access not allowed"));
+    exit();
+}
+
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
