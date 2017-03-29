@@ -275,7 +275,7 @@
     <div class="container">
 
         <div class="row alert alert-info">
-            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt(trim("access not allowed"));?></span></h1>
+            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
         </div>
     </div>
 

@@ -51,6 +51,6 @@ $viewmode = false;
 if(acl_check("groups","glog",false, 'write')){
     require_once("common.php");
 }else{
-    echo xlt(trim("access not allowed"));
+    echo xlt("access not allowed");
 }
 ?>

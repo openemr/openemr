@@ -44,7 +44,7 @@ if($GLOBALS['enable_group_therapy']) {
 
 
 if(!(acl_check("groups","glog",false, 'view') OR acl_check("groups","glog",false, 'write'))){
-    echo xlt(trim("access not allowed"));
+    echo xlt("access not allowed");
     exit();
 }
 

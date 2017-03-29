@@ -168,19 +168,12 @@ use ESign\Api;
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
-/* if($GLOBALS['enable_group_therapy']){
-  $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
-  $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
-  $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
-  $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
-  $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
- }*/
 if($GLOBALS['enable_group_therapy']){
-    $GroupAcl['gadd'] = acl_check("groups","gadd",false, 'view') || acl_check("groups","gadd",false, 'write') ;
-    $GroupAcl['gcalendar'] = acl_check("groups","gcalendar",false, 'view') || acl_check("groups","gcalendar",false, 'write');
-    $GroupAcl['glog'] = acl_check("groups","glog",false, 'view') || acl_check("groups","glog",false, 'write') ;
-    $GroupAcl['gdlog'] = acl_check("groups","gdlog",false, 'view') || acl_check("groups","glog",false, 'write') ;
-    $GroupAcl['gm'] = acl_check("groups","gm",false, 'view') || acl_check("groups","gm",false, 'write') ;
+    $GroupAcl['gadd'] = acl_check("groups","gadd",false, '');
+    $GroupAcl['gcalendar'] = acl_check("groups","gcalendar",false, '');
+    $GroupAcl['glog'] = acl_check("groups","glog",false, '');
+    $GroupAcl['gdlog'] = acl_check("groups","gdlog",false, '');
+    $GroupAcl['gm'] = acl_check("groups","gm",false, '');
 
 
     $disallowed['gng'] = !$GroupAcl['gadd'];
