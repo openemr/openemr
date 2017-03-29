@@ -461,6 +461,10 @@ if ($acl_version < $upgrade_acl) {
   // Add 'Multipledb' object (added in 5.0.1)
   addObjectAcl('admin', 'Administration', 'Multipledb', 'multipledb');
 
+  addObjectAcl('admin', 'Administration', 'Groups', 'groups');
+
+
+
 
     //Update already existing Objects
   // echo "<BR/><B>Upgrading objects</B><BR/>";

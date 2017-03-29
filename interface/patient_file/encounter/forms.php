@@ -20,7 +20,7 @@ if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if(!(acl_check("groups","glog",false, 'view') OR acl_check("groups","glog",false, 'write'))){
+if(!acl_check("groups","glog",false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
