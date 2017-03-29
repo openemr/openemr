@@ -45,7 +45,7 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 /* Load dependencies only if we need them */
-if( ( !empty($GLOBALS['portal_onsite_two_enable']))){
+if ( !empty($GLOBALS['portal_onsite_two_enable'])){
 	/*  Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
 	require_once("../../patients/lib/portal_mail.inc");
 	require_once("../../patients/lib/appsql.class.php");
