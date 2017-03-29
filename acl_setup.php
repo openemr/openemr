@@ -270,7 +270,6 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'nationnotes'=>array('nn_configure'),
    'patientportal'=>array('portal'),
    'menus'=>array('modle'),
-   'multiupledatabase'=>ar
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'
