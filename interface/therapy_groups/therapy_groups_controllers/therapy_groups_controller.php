@@ -87,6 +87,7 @@ class TherapyGroupsController extends BaseController{
      */
     public function index($groupId = null){
 
+
         $data = array();
         if($groupId) self::setSession($groupId);
         //Load models
@@ -105,7 +106,6 @@ class TherapyGroupsController extends BaseController{
 
         //Get statuses
         $data['statuses'] = self::prepareStatusesList();
-
         $_POST['group_start_date'] = DateToYYYYMMDD($_POST['group_start_date']);
 
         //print_r($_POST);die;
