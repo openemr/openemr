@@ -28,8 +28,8 @@ var bbg = require('blue-button-generate');
 //var bbm = require('blue-button-model'); //for use set global-not needed here
 
 var server = net.createServer();
-var conn = '';
-
+var conn = ''; // make our connection scope global to script
+// some useful routines for populating template sections
 function validate(toValidate, ref, retObj) {
 	for (var p in ref) {
 		if (typeof ref[p].dataType === "undefined") {

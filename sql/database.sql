@@ -135,7 +135,7 @@ CREATE TABLE `background_services` (
   `name` varchar(31) NOT NULL,
   `title` varchar(127) NOT NULL COMMENT 'name for reports',
   `active` tinyint(1) NOT NULL default '0',
-  `running` tinyint(1) NOT NULL default '-1',
+  `running` tinyint(1) NOT NULL default '-1' COMMENT 'True indicates managed service is busy. Skip this interval',
   `next_run` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `execute_interval` int(11) NOT NULL default '0' COMMENT 'minimum number of minutes between function calls,0=manual mode',
   `function` varchar(127) NOT NULL COMMENT 'name of background service function',
@@ -151,7 +151,6 @@ CREATE TABLE `background_services` (
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95),
 ('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
-ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';
 -- --------------------------------------------------------
 
 --
