@@ -183,19 +183,19 @@
 
 
  $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('Add update groups (read ,write)')
+ // xl('Add update groups (view ,write)')
 
  $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
-// xl('Using calendar add edit event with groups (read ,write)')
+// xl('Using calendar add edit event with groups (view ,write)')
 
  $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
-// xl('groups encounter log (read ,write)')
+// xl('groups encounter log (view ,write)')
 
  $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
-// xl('groups encounter log (read ,write)')
+// xl('groups encounter log (view ,write)')
 
  $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
- // xl('Messages between therapists (read ,write)')
+ // xl('Messages between therapists (view ,write)')
 
 
 
@@ -269,7 +269,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'sensitivities'=>array('normal', 'high'),
    'nationnotes'=>array('nn_configure'),
    'patientportal'=>array('portal'),
-   'menus'=>array('modle'),
+   'menus'=>array('modle')
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'
