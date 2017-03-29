@@ -66,7 +66,7 @@
  $gacl->add_object_section('Menus','menus'  ,  10, 0, 'ACO');
      // xl('Menus')
  $gacl->add_object_section('Groups','groups',  10, 0, 'ACO');
-     // xl('Menus')
+     // xl('Groups')
 
 
 
@@ -183,19 +183,19 @@
 
 
  $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
+ // xl('Add update groups (read ,write)')
 
  $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
+// xl('Using calendar add edit event with groups (read ,write)')
 
  $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
+// xl('groups encounter log (read ,write)')
 
  $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
+// xl('groups encounter log (read ,write)')
 
  $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
- // xl('Lab Results (write,addonly optional)')
+ // xl('Messages between therapists (read ,write)')
 
 
 
