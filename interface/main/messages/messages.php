@@ -275,7 +275,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
   echo "</option>\n";
  }
- if($GLOBALS['enable_patient_messaging']){
+ if($GLOBALS['enable_offsite_patient_messaging']){
       echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
       echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
       echo "</option>\n";
