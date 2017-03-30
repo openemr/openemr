@@ -21,7 +21,6 @@
 
 # Quick one-liner:
 # cd contrib/util/docker; docker build . -t openemr; cd ../../..; docker run -it -p 8000:80 -p 3306:3306 -v `pwd`:/var/www/html/ openemr
-# For debugging things: docker run -it -p 8000:80 -p 3306:3306 openemr bash
 
 # NB: The current directory now matters much more when building the container. Move to the contrib/util/docker container to build
 #     so you aren't sending ~500mb to the docker server, then move to the root of the git repo (or hardcode the absolute path)
