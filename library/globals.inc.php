@@ -2337,6 +2337,12 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Enable Offsite Patient Portal.')
     ),
+    'enable_patient_messaging' => array(
+          xl('Enable Patient Messaging'),
+          'bool',                           // data type
+          '1',
+          xl('Enable Patient Messaging.')
+     ),
 
     'portal_offsite_providerid' => array(
       xl('Offsite Patient Portal Provider ID'),
