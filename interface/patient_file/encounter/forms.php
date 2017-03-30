@@ -20,7 +20,7 @@ if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if(!(acl_check("groups","glog",false, 'view') OR acl_check("groups","glog",false, 'write'))){
+if(!acl_check("groups","glog",false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
@@ -624,6 +624,8 @@ if ( $esign->isButtonViewable() ) {
             echo '<tr title="' . xl('Edit form') . '" '.
                   'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
         }
+
+        $acl_groups = acl_check("groups","glog",false, 'write') ? true : false;
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
@@ -636,10 +638,22 @@ if ( $esign->isButtonViewable() ) {
         echo "<div class='form_header_controls'>";
 
         // If the form is locked, it is no longer editable
-        if ( $esign->isLocked() OR acl_check("groups","glog",false, 'write')) {
+        if ($esign->isLocked()) {
+             $flag = false;
+             if($GLOBALS['enable_group_therapy']){
+                 if($acl_groups) $flag = true;
+             }
+             else{
+                 $flag = true;
+             }
+
+             if($flag){
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
+             }
+
         } else {
-          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND acl_check("groups","glog",false, 'write')) {
+          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $GLOBALS['enable_group_therapy'] == 0)
+              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $GLOBALS['enable_group_therapy'] AND acl_check("groups","glog",false, 'write')))) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -649,7 +663,7 @@ if ( $esign->isButtonViewable() ) {
           }
         }
 
-        if ( $esign->isButtonViewable() AND acl_check("groups","glog",false, 'write')) {
+        if ( ($esign->isButtonViewable() AND $GLOBALS['enable_group_therapy'] == 0) OR ($esign->isButtonViewable() AND  $GLOBALS['enable_group_therapy'] AND acl_check("groups","glog",false, 'write'))) {
           if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
           }

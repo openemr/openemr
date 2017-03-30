@@ -181,6 +181,8 @@ if($GLOBALS['enable_group_therapy']){
     $disallowed['gcv'] = !$GroupAcl['gcalendar'];
     $disallowed['gce'] = !$GroupAcl['glog'];
     $disallowed['gvh'] = !$GroupAcl['glog'];
+
+
     $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
     $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
     $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
