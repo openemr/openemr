@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
  
@@ -92,7 +92,7 @@ while($list = sqlFetchArray($send)){
 }
 ?>
 <div id="fields">
-<h3>Select Pharmacy</h3>
+<h3><?php echo xlt(Select Pharmacy); ?></h3>
 	    Patient Default <br>
 	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
 	    <?php if(!$patientPharmacy['name']){
@@ -140,7 +140,6 @@ $(function() {
  
     });
 });
-<! ---- keep for now ---->
 
 $(document).ready(function(){
 
@@ -191,7 +190,7 @@ $(document).ready(function(){
 		//this is to create the json script to be transmitted
         $.ajax({
                    //feeds the json generator
-			url: 'jsonScript.php?getJson='+pharm_Id+','+value, 
+			url: 'jsonscript.php?getJson='+pharm_Id+','+value, 
             
             success: function(response){
             	console.log(response);

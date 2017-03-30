@@ -33,7 +33,7 @@ require_once("../globals.php");
 <body class="body_top">
 <?php
 
-$log = sqlStatement("SELECT * FROM prescription_rx_log ORDER BY id DESC");
+$log = sqlStatement("SELECT * FROM erx_rx_log ORDER BY id DESC");
 
 print "<table width='100%'>";
 print "<tr align='left'>

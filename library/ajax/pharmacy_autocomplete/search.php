@@ -29,7 +29,7 @@ if (isset($_GET['term'])){
   $address = filter_input(INPUT_GET, "address");
 
 	try {
-		$sql = "SELECT id, Store_name, address_line_1, city, state FROM pharmacies_weno WHERE Store_name LIKE ? AND city LIKE ? ";
+		$sql = "SELECT id, Store_name, address_line_1, city, state FROM erx_pharmacies WHERE Store_name LIKE ? AND city LIKE ? ";
 		$sql .= " AND address_line_1 LIKE ? ";
 		$stm = array('%'.$term.'%','%'.$city.'%','%'.$address.'%');
 		$res = sqlstatement($sql,$stm);

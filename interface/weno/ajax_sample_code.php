@@ -17,11 +17,17 @@
  * @link    http://www.open-emr.org
  */
 
+$sanitize_all_escapes = true;		// SANITIZE ALL ESCAPES
+
+$fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
+
+require_once('../globals.php');
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php xlt("Weno Sample Code") ?></title>
+<title><?php print xlt("Weno Sample Code") ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" type="text/css" />
 
@@ -62,7 +68,7 @@ $(document).ready(function(){
    
 $(document).ready(function(){
 	$('#order').click(function(){
-		
+		$('#success').html("<img src='img/progress.gif'>");
 		var patient = { "patient": {
 					 "lname" : "Ike",
 					 "fname" : "Turner",

@@ -33,7 +33,7 @@ class transmitData {
 	public function checkList($send){
 		$list = sqlFetchArray($send);
 		if(empty($list['id'])){
-			return "No Rx Selected ";
+			return xl("No Rx Selected ");
 		}
 		
 	}
@@ -58,7 +58,7 @@ class transmitData {
 
 	public function findPharmacy($id){
 		
-		//$sql = "SELECT store_name, NCPDP, NPI, Pharmacy_Phone, Pharmacy_Fax FROM pharmacies_weno WHERE id = ?";
+		//$sql = "SELECT store_name, NCPDP, NPI, Pharmacy_Phone, Pharmacy_Fax FROM erx_pharmacies WHERE id = ?";
 		$sql = "SELECT name, ncpdp, npi FROM pharmacies WHERE id = ? ";
 		$find = sqlQuery($sql, array($id));
 		

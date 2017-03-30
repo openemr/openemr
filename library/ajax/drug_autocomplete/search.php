@@ -30,7 +30,7 @@ if (isset($_GET['term'])){
     $term    = filter_input(INPUT_GET, "term");
     
 	try {
-		$sql = "SELECT drug_label_name, price_per_unit FROM drug_paid WHERE drug_label_name LIKE ? ";
+		$sql = "SELECT drug_label_name, price_per_unit FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
 		$val = array('%'.$term.'%');
 		$res = sqlstatement($sql, $val);
 		while($row = sqlFetchArray($res)){

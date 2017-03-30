@@ -14,13 +14,14 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
  */
-
+$fake_register_globals=false;
+$sanitize_all_escapes=true;	
  require_once("../globals.php");
  
- echo "trying<BR>";
+ echo xlt("trying")."<BR>";
 /* 
 $username = $GLOBALS['weno_account_id'];
 $partner_password = $GLOBALS['weno_account_pass'];
@@ -82,16 +83,16 @@ $zip->close();
  $price = $in[5];
  $drugName = $in[8];
  
- $find = sqlQuery("SELECT ndc FROM drug_paid WHERE ndc = ?", array($ndc));
+ $find = sqlQuery("SELECT ndc FROM erx_drug_paid WHERE ndc = ?", array($ndc));
  
  if(!empty($find['ndc'])){
-	 sqlStatement("INSERT INTO `drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
-	 echo "Inserted<br> "; 	
-	 //sqlStatement("UPDATE drug_paid SET price_per_unit = ? WHERE ndc = ?", array($price, $ndc));
+	 sqlStatement("INSERT INTO `erx_drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
+	 echo xlt("Inserted")."<br> "; 	
+	 //sqlStatement("UPDATE erx_drug_paid SET price_per_unit = ? WHERE ndc = ?", array($price, $ndc));
 	 //echo "Updated!<br>";
  }else{
-	 sqlStatement("INSERT INTO `drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
-	 echo "Inserted<br> ";
+	 sqlStatement("INSERT INTO `erx_drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
+	 echo xlt("Inserted")."<br> ";
 
  }
  $i++;

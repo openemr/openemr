@@ -31,7 +31,7 @@ class adminProperties {
         
         $dbase = $GLOBALS['dbase'];  //incase there are multiple installs on the same server
 
-        $tables = array("pharmacies_weno","drug_paid","prescription_rx_log","narcotics");
+        $tables = array("erx_pharmacies","erx_drug_paid","erx_rx_log","erx_narcotics");
 
 		$sql = "SELECT table_name FROM information_schema.tables WHERE table_name = ? AND table_schema = ? ";
         
@@ -50,7 +50,7 @@ class adminProperties {
 
 
     	sqlStatement(
-              "CREATE TABLE IF NOT EXISTS `drug_paid` (
+              "CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
                             `drugid` int(11) NOT NULL AUTO_INCREMENT,
                             `drug_label_name` varchar(45) NOT NULL,
                             `ahfs_descr` varchar(45) NOT NULL,
@@ -67,7 +67,7 @@ class adminProperties {
 
 
     	sqlStatement(
-           "CREATE TABLE IF NOT EXISTS `pharmacies_weno` (
+           "CREATE TABLE IF NOT EXISTS `erx_pharmacies` (
                         `id` int(5) NOT NULL AUTO_INCREMENT,
                         `last_updated` varchar(21) DEFAULT NULL,
                         `store_name` varchar(35) DEFAULT NULL,
@@ -108,7 +108,7 @@ class adminProperties {
     		);
 
           sqlStatement(
-            "CREATE TABLE IF NOT EXISTS `prescription_rx_log` (
+            "CREATE TABLE IF NOT EXISTS `erx_rx_log` (
                          `id` int(20) NOT NULL AUTO_INCREMENT,
                          `prescription_id` int(6) NOT NULL,
                          `date` varchar(25) NOT NULL,
@@ -122,7 +122,7 @@ class adminProperties {
           	);
 
           sqlStatement(
-              "CREATE TABLE IF NOT EXISTS `narcotics` (
+              "CREATE TABLE IF NOT EXISTS `erx_erx_narcotics` (
                             `id` int(11) NOT NULL AUTO_INCREMENT,
                             `drug` varchar(255) NOT NULL,
                             `dea_number` varchar(5) NOT NULL,
@@ -148,7 +148,7 @@ class adminProperties {
 */
 
           $sqlNarc =
-"INSERT INTO `narcotics` (`id`, `drug`, `dea_number`, `csa_sch`, `narc`, `other_names`) VALUES
+"INSERT INTO `erx_narcotics` (`id`, `drug`, `dea_number`, `csa_sch`, `narc`, `other_names`) VALUES
 (1, 'Codeine ', '9050', 'II', 'Y ', 'Morphine methyl ester, methyl morphine '),
 (2, 'Codeine & isoquinoline alkaloid 90 mg/du ', '9803', 'II', 'Y ', 'Codeine with papaverine or noscapine '),
 (3, 'Codeine combination product 90 mg/du ', '9804', 'II', 'Y ', 'Empirin,Fiorinal,Tylenolw/codeine,ASA or APAP w/codeine '),
@@ -726,14 +726,14 @@ sqlInsert($sqlNarc);
         }//end of create tables
 
 public function drugTableInfo(){
-     $sql = "SELECT ndc FROM drug_paid ORDER BY drugid LIMIT 1";
+     $sql = "SELECT ndc FROM erx_drug_paid ORDER BY drugid LIMIT 1";
      
      return sqlQuery($sql);
 
 }
 
 public function pharmacies(){
-  $sql = "SELECT Store_Name FROM pharmacies_weno ORDER BY id LIMIT 1";
+  $sql = "SELECT Store_Name FROM erx_pharmacies ORDER BY id LIMIT 1";
   return sqlQuery($sql);
 }
 

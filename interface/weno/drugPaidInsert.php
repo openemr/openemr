@@ -7,7 +7,7 @@ $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 require_once('../globals.php');
 
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (1, 'PHENTERMINE  TAB 37.5MG       ', 'AMPHETAMINE DERIVATIVES  ', 2147483647, '0.56', '37.22', 18, '19.00', '51.03'),
 (2, 'HYDROCO/APAP TAB 10-325MG     ', 'OPIATE AGONISTS          ', 406012501, '0.25', '73.54', 26, '47.67', '64.81'),
 (3, 'HYDROCO/APAP TAB 5-325MG      ', 'OPIATE AGONISTS          ', 406012301, '0.30', '37.02', 13, '24.05', '64.95'),
@@ -433,7 +433,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (424, 'HYDROCOD/HOM SYP 5-1.5/5      ', 'ANTITUSSIVES             ', 2147483647, '0.14', '42.37', 24, '18.80', '44.37'),
 (425, 'PENICILLN VK TAB 500MG        ', 'NATURAL PENICILLINS      ', 2147483647, '0.35', '20.41', 11, '8.99', '44.06')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (426, 'LEVOTHYROXIN TAB 100MCG       ', 'THYROID AGENTS           ', 378180901, '0.52', '25.33', 20, '5.77', '22.76'),
 (427, 'TAMSULOSIN   CAP 0.4MG        ', 'SELECTIVE ALPHA-1-ADRENER', 2147483647, '1.15', '136.99', 55, '82.25', '60.04'),
 (428, 'DOXYCYC MONO CAP 100MG        ', 'TETRACYCLINES            ', 2147483647, '1.04', '72.57', 36, '36.69', '50.56'),
@@ -856,7 +856,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (845, 'LEVEMIR      INJ FLEXTOUC     ', 'INSULINS                 ', 169643810, '29.25', '599.61', 543, '56.84', '9.48'),
 (846, 'WARFARIN     TAB 5MG          ', 'COUMARIN DERIVATIVES     ', 93172101, '0.44', '28.22', 21, '7.52', '26.64')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (847, 'METHYLPHENID TAB 20MG         ', 'RESPIRATORY AND CNS STIMU', 406114601, '0.82', '100.24', 71, '29.46', '29.39'),
 (848, 'VYVANSE      CAP 40MG         ', 'AMPHETAMINES             ', 2147483647, '9.12', '302.89', 273, '30.39', '10.03'),
 (849, 'METHIMAZOLE  TAB 10MG         ', 'ANTITHYROID AGENTS       ', 2147483647, '0.38', '54.09', 30, '24.52', '45.34'),
@@ -1276,7 +1276,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (1263, 'ZOLPIDEM ER  TAB 12.5MG       ', 'ANXIOLYTICS, SEDATIVES & ', 955170310, '3.50', '181.52', 116, '65.13', '35.88'),
 (1264, 'HYDROC/HOMAT TAB 5-1.5MG      ', 'ANTITUSSIVES             ', 2147483647, '0.56', '57.44', 30, '27.44', '47.76')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (1265, 'POT CHLORIDE TAB 10MEQ ER     ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.42', '32.74', 25, '7.64', '23.34'),
 (1266, 'LEVOTHYROXIN TAB 137MCG       ', 'THYROID AGENTS           ', 378182301, '0.49', '33.62', 21, '12.58', '37.41'),
 (1267, 'GLIPIZIDE ER TAB 5MG          ', 'SULFONYLUREAS            ', 591084410, '0.29', '29.72', 17, '13.11', '44.12'),
@@ -1695,7 +1695,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (1680, 'NORTRIPTYLIN CAP 50MG         ', 'TRYCYCLICS & OTHER NOREPI', 93081201, '0.37', '40.52', 21, '19.49', '48.09'),
 (1681, 'ALBUTEROL    NEB 0.083       ', 'SELECTIVE BETA-2-ADRENERG', 487950160, '0.07', '40.87', 21, '19.64', '48.06')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (1682, 'LOSARTAN/HCT TAB 100-25       ', 'ANGIOTENSIN II RECEPTOR A', 2147483647, '0.54', '129.95', 24, '106.15', '81.69'),
 (1683, 'GLYB/METFORM TAB 5-500MG      ', 'SULFONYLUREAS            ', 2147483647, '0.18', '53.70', 22, '31.28', '58.25'),
 (1684, 'APAP/CODEINE TAB 300-30MG     ', 'OPIATE AGONISTS          ', 603233832, '0.25', '28.13', 11, '17.54', '62.36'),
@@ -2114,7 +2114,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (2097, 'CELECOXIB    CAP 200MG        ', 'CYCLOOXYGENASE-2 (COX-2) ', 93716601, '6.80', '264.42', 246, '18.38', '6.95'),
 (2098, 'VITAMIN B-1  TAB 100MG        ', 'VITAMIN B COMPLEX        ', 536468001, '0.09', '5.50', 4, '1.73', '31.45')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (2099, 'MIRTAZAPINE  TAB 7.5MG        ', 'ANTIDEPRESSANTS, MISCELLA', 2147483647, '0.79', '85.06', 23, '62.36', '73.31'),
 (2100, 'MELOXICAM    TAB 7.5MG        ', 'OTHER NONSTEROIDAL ANTI-I', 2147483647, '0.12', '8.36', 6, '2.42', '28.94'),
 (2101, 'DOXYCYCL HYC CAP 50MG         ', 'TETRACYCLINES            ', 591553550, '0.98', '99.85', 52, '48.27', '48.34'),
@@ -2533,7 +2533,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (2514, 'PRAVASTATIN  TAB 10MG         ', 'HMG-COA REDUCTASE INHIBIT', 2147483647, '0.48', '20.39', 20, '0.00', '0.00'),
 (2515, 'ATORVASTATIN TAB 20MG         ', 'HMG-COA REDUCTASE INHIBIT', 2147483647, '2.12', '154.26', 100, '54.08', '35.06')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (2516, 'STAXYN       TAB 10MG         ', 'PHOSPHODIESTERASE TYPE 5 ', 173082204, '31.16', '238.93', 204, '34.59', '14.47'),
 (2517, 'METHADONE    TAB 5MG          ', 'OPIATE AGONISTS          ', 406575501, '0.23', '33.57', 15, '19.02', '56.64'),
 (2518, 'ALLEGRA-D    TAB 12 HOUR      ', 'SECOND GENERATION ANTIHIS', 2147483647, '0.88', '49.03', 41, '7.55', '15.40'),
@@ -2951,7 +2951,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (2930, 'BUTORPHANOL  SOL 10MG/ML      ', 'OPIATE PARTIAL AGONISTS  ', 2147483647, '16.67', '150.27', 71, '79.08', '52.63'),
 (2931, 'SF           GEL 1.1         ', 'CARIOSTATIC AGENTS       ', 2147483647, '0.18', '18.18', 11, '6.95', '38.20')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (2932, 'MAG-G        TAB 500MG        ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.14', '14.52', 10, '4.30', '29.58'),
 (2933, 'PIOGLITAZONE TAB 30MG         ', 'THIAZOLIDINEDIONES       ', 378022893, '3.74', '325.60', 166, '159.64', '49.03'),
 (2934, 'MECLIZINE    TAB 12.5MG       ', 'ANTIHISTAMINES (GI DRUGS)', 2147483647, '0.28', '22.58', 14, '8.72', '38.63'),
@@ -3369,7 +3369,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (3346, 'D 1000       CAP 1000UNIT     ', 'VITAMIN D                ', 2147483647, '0.11', '5.57', 5, '0.17', '3.07'),
 (3347, 'BACTROBAN    OIN NASAL 2     ', 'ANTIBACTERIALS (SKIN & MU', 29152611, '19.01', '204.19', 182, '22.53', '11.03')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (3348, 'ESTAZOLAM    TAB 2MG          ', 'BENZODIAZEPINES (ANXIOLYT', 93013001, '0.76', '40.76', 28, '12.90', '31.64'),
 (3349, 'NORETHIN ACE TAB 5MG          ', 'PROGESTINS               ', 2147483647, '1.71', '102.01', 71, '31.04', '30.43'),
 (3350, 'UREA         CRE 20          ', 'KERATOLYTIC AGENTS       ', 2147483647, '0.16', '18.33', 14, '3.91', '21.33'),
@@ -3787,7 +3787,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (3762, 'DOK          CAP 100MG        ', 'CATHARTICS AND LAXATIVES ', 904645780, '0.10', '5.64', 4, '1.93', '34.31'),
 (3763, 'NYSTATIN     SUS 100000       ', 'POLYENES                 ', 2147483647, '0.17', '65.85', 37, '29.09', '44.18')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (3764, 'AMPICILLIN   CAP 500MG        ', 'AMINOPENICILLINS         ', 781214501, '0.27', '18.61', 11, '7.16', '38.45'),
 (3765, 'TRUETRACK    TES              ', 'DIABETES MELLITUS        ', 2147483647, '0.53', '53.40', 45, '7.96', '14.91'),
 (3766, 'ACETAZOLAMID CAP 500MG ER     ', 'CARBONIC ANHYDRASE INHIBI', 2147483647, '2.52', '186.24', 125, '61.54', '33.04'),
@@ -4205,7 +4205,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (4178, 'AUG BETAMET  CRE 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 2147483647, '0.50', '72.94', 18, '54.77', '75.09'),
 (4179, 'TERAZOSIN    CAP 5MG          ', 'ALPHA-ADRENERGIC BLOCKING', 378226801, '0.52', '27.61', 27, '0.94', '3.39')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (4180, 'PREMARIN     TAB 0.45MG       ', 'ESTROGENS                ', 46110181, '5.28', '171.33', 149, '21.99', '12.84'),
 (4181, 'XALATAN      SOL 0.005       ', 'PROSTAGLANDIN ANALOGS    ', 13830304, '68.84', '227.71', 199, '28.76', '12.63'),
 (4182, 'BRIMONIDINE  SOL 0.2 OP      ', 'ALPHA-ADRENERGIC AGONISTS', 2147483647, '2.57', '76.52', 32, '44.70', '58.42'),
@@ -4623,7 +4623,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (4594, 'VALSARTAN    TAB 40MG         ', 'ANGIOTENSIN II RECEPTOR A', 2147483647, '2.95', '191.85', 188, '3.77', '1.97'),
 (4595, 'NIACIN       TAB 500MG        ', 'VITAMIN B COMPLEX        ', 536407810, '0.04', '2.69', 3, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (4596, 'ALPRAZOLAM   TAB 0.5MG XR     ', 'BENZODIAZEPINES (ANXIOLYT', 2147483647, '0.78', '77.16', 36, '40.76', '52.82'),
 (4597, 'TRAMADOL HCL TAB 300MG ER     ', 'OPIATE AGONISTS          ', 2147483647, '7.28', '183.15', 150, '33.46', '18.27'),
 (4598, 'FLORANEX     TAB              ', 'ANTIDIARRHEA AGENTS      ', 2147483647, '0.30', '24.11', 19, '5.32', '22.07'),
@@ -5042,7 +5042,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (5011, 'CITRIC ACID/ SOL SOD CITR     ', 'ALKALINIZING AGENTS      ', 121059516, '0.02', '57.76', 26, '32.22', '55.79'),
 (5012, 'ZAFIRLUKAST  TAB 20MG         ', 'LEUKOTRIENE MODIFIERS    ', 2147483647, '1.23', '127.52', 85, '42.55', '33.37')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (5013, 'PNV PRENATAL TAB PLUS         ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.39', '22.62', 21, '1.89', '8.36'),
 (5014, 'FOLGARD RX   TAB              ', 'VITAMIN B COMPLEX        ', 245019111, '0.65', '40.42', 35, '5.23', '12.94'),
 (5015, 'PYRIDOXINE   TAB 50MG         ', 'VITAMIN B COMPLEX        ', 2147483647, '0.13', '8.04', 7, '1.37', '17.10'),
@@ -5461,7 +5461,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (5428, 'AMANTADINE   TAB 100MG        ', 'ADAMANTANES (CNS)        ', 832011150, '1.59', '117.19', 73, '44.23', '37.74'),
 (5429, 'CLOBETASOL   SHA 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 472040394, '2.41', '351.20', 282, '69.48', '19.78')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (5430, 'NASACORT ALR SPR 55MCG/AC     ', 'CORTICOSTEROIDS (EENT)   ', 2147483647, '1.45', '16.66', 17, '0.10', '0.62'),
 (5431, 'CONCERTA     TAB 18MG         ', 'RESPIRATORY AND CNS STIMU', 2147483647, '10.13', '358.30', 321, '36.98', '10.32'),
 (5432, 'CLONAZEPAM   TAB 1MG          ', 'BENZODIAZEPINES (ANTICONV', 185006410, '0.19', '43.96', 12, '31.96', '72.69'),
@@ -5880,7 +5880,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (5845, 'MOEXIPRIL    TAB 15MG         ', 'ANGIOTENSIN-CONVERTING EN', 2147483647, '0.81', '77.15', 45, '32.26', '41.81'),
 (5846, 'SKIN CLEANSR SOL 4           ', 'LOCAL ANTI-INFECTIVES, MI', 2147483647, '0.04', '13.18', 12, '0.73', '5.56')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (5847, 'RELPAX       TAB 20MG         ', 'SELECTIVE SEROTONIN AGONI', 49233045, '52.17', '663.49', 578, '85.14', '12.83'),
 (5848, 'BISACODYL    TAB 5MG EC       ', 'CATHARTICS AND LAXATIVES ', 904640761, '0.08', '1.95', 1, '0.50', '25.44'),
 (5849, 'RECTIV       OIN 0.4         ', 'SKIN AND MUCOUS MEMBRANE ', 2147483647, '17.18', '620.42', 551, '69.53', '11.21'),
@@ -6299,7 +6299,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (6262, 'CARBINOXAMIN TAB 4MG          ', 'ETHANOLAMINE DERIVATIVES ', 2147483647, '0.61', '44.66', 34, '10.27', '22.99'),
 (6263, 'GLIMEPIRIDE  TAB 4MG          ', 'SULFONYLUREAS            ', 603374621, '0.15', '19.92', 13, '6.47', '32.51')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (6264, 'CONEX        TAB 2-60MG       ', 'PROPYLAMINE DERIVATIVES  ', 2147483647, '0.54', '28.21', 16, '11.75', '41.64'),
 (6265, 'POT CL MICRO TAB 20MEQ ER     ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.46', '36.64', 28, '8.41', '22.95'),
 (6266, 'NYSTOP       POW 100000       ', 'POLYENES (SKIN & MUCOUS M', 574200830, '1.47', '68.08', 46, '22.32', '32.78'),
@@ -6718,7 +6718,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (6679, 'CIMETIDINE   TAB 300MG        ', 'HISTAMINE H2-ANTAGONISTS ', 93819201, '0.33', '68.28', 20, '47.99', '70.28'),
 (6680, 'ZENPEP       CAP 5000UNIT     ', 'DIGESTANTS               ', 2147483647, '1.46', '246.86', 229, '18.04', '7.31')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (6681, 'DULOXETINE   CAP 60MG         ', 'SEL. SEROTONIN & NOREPI R', 2147483647, '5.14', '273.34', 246, '27.80', '10.17'),
 (6682, 'ORTHO MICRON TAB 0.35MG       ', 'CONTRACEPTIVES           ', 2147483647, '1.96', '90.46', 65, '25.52', '28.21'),
 (6683, 'FENOFIBRATE  CAP 67MG         ', 'FIBRIC ACID DERIVATIVES  ', 378862877, '0.70', '50.66', 46, '4.38', '8.64'),
@@ -7137,7 +7137,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (7096, 'AMLODIPINE   TAB 5MG          ', 'DIHYDROPYRIDINES         ', 603210934, '0.14', '59.08', 11, '48.53', '82.14'),
 (7097, 'FERROUS SULF TAB 325MG        ', 'IRON PREPARATIONS        ', 536589001, '0.06', '4.59', 4, '0.73', '15.94')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (7098, 'CORT INTENSE CRE HEAL 1      ', 'ANTI-INFLAMMATORY AGENTS ', 2147483647, '0.18', '5.79', 6, '0.00', '0.00'),
 (7099, 'ACCU-CHEK    KIT COMPACT      ', 'DEVICES                  ', 2147483647, '70.72', '74.74', 71, '4.02', '5.38'),
 (7100, 'VALSARTAN    TAB 320MG        ', 'ANGIOTENSIN II RECEPTOR A', 2147483647, '5.58', '190.29', 187, '3.55', '1.87'),
@@ -7556,7 +7556,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (7513, 'BUPRENORPHIN SUB 8MG          ', 'OPIATE PARTIAL AGONISTS  ', 93537956, '3.77', '146.22', 60, '86.41', '59.10'),
 (7514, 'VITAMIN B-12 TAB 2000MCG      ', 'VITAMIN B COMPLEX        ', 2147483647, '0.15', '7.11', 7, '0.17', '2.40')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (7515, 'AMLOD/VALSAR TAB 5-160MG      ', 'DIHYDROPYRIDINES         ', 93769056, '3.91', '219.70', 195, '24.49', '11.15'),
 (7516, 'GLIP/METFORM TAB 2.5-500M     ', 'SULFONYLUREAS            ', 378313201, '0.73', '76.86', 57, '20.18', '26.26'),
 (7517, 'AMLOD/BENAZP CAP 10-20MG      ', 'DIHYDROPYRIDINES         ', 378689801, '2.50', '119.07', 101, '17.73', '14.89'),
@@ -7975,7 +7975,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (7930, 'CARISOPRODOL TAB 350MG        ', 'CENTRALLY ACTING SKELETAL', 2147483647, '0.20', '42.93', 14, '28.84', '67.18'),
 (7931, 'HALOPER DEC  INJ 50MG/ML      ', 'BUTYROPHENONES           ', 2147483647, '29.49', '48.14', 45, '2.93', '6.08')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (7932, 'CAVERJECT    INJ 40MCG        ', 'VASODILATING AGENTS, MISC', 9768604, '100.74', '284.62', 235, '49.56', '17.41'),
 (7933, 'ISOSORB MONO TAB 30MG ER      ', 'NITRATES AND NITRITES    ', 2147483647, '0.37', '17.34', 14, '3.29', '18.97'),
 (7934, 'TEMAZEPAM    CAP 30MG         ', 'BENZODIAZEPINES (ANXIOLYT', 378505005, '0.33', '31.12', 12, '18.75', '60.24'),
@@ -8394,7 +8394,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (8347, 'AMLOD/VALSAR TAB 10-160MG     ', 'DIHYDROPYRIDINES         ', 2147483647, '5.66', '106.06', 106, '0.49', '0.46'),
 (8348, 'RIVASTIGMINE CAP 1.5MG        ', 'PARASYMPATHOMIMETIC (CHOL', 2147483647, '2.98', '251.45', 173, '78.79', '31.34')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (8349, 'CLINPRO 5000 PST 1.1         ', 'CARIOSTATIC AGENTS       ', 2147483647, '0.12', '15.25', 14, '1.74', '11.43'),
 (8350, 'TRIMETHOBENZ CAP 300MG        ', 'ANTIHISTAMINES (GI DRUGS)', 2147483647, '1.62', '93.36', 77, '16.13', '17.28'),
 (8351, 'TELMISA/HCTZ TAB 80-12.5      ', 'ANGIOTENSIN II RECEPTOR A', 603592716, '4.49', '249.53', 221, '28.06', '11.24'),
@@ -8813,7 +8813,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (8764, 'LAMOTRIGINE  TAB 200MG        ', 'ANTICONVULSANTS, MISCELLA', 2147483647, '0.38', '372.69', 26, '347.12', '93.14'),
 (8765, 'HALOBETASOL  OIN 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 713063915, '2.83', '134.50', 57, '77.92', '57.93')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (8766, 'CIPROFLOXACN SUS 250MG/5      ', 'QUINOLONES               ', 2147483647, '1.07', '127.63', 120, '7.94', '6.22'),
 (8767, 'CROMOLYN SOD SOL 4 OP        ', 'ANTIALLERGIC AGENTS      ', 2147483647, '2.60', '41.40', 26, '15.43', '37.27'),
 (8768, 'DIAZEPAM     TAB 2MG          ', 'BENZODIAZEPINES (ANXIOLYT', 603321321, '0.21', '13.66', 7, '6.27', '45.92'),
@@ -9231,7 +9231,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (9180, 'B-12         SUB 5000MCG      ', 'VITAMIN B COMPLEX        ', 2147483647, '0.24', '9.19', 7, '1.96', '21.31'),
 (9181, 'SUDOGEST     TAB 30MG         ', 'ALPHA- AND BETA-ADRENERGI', 904505324, '0.13', '11.65', 6, '5.54', '47.60')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (9182, 'CHLORPROMAZ  TAB 200MG        ', 'PHENOTHIAZINES           ', 832030400, '2.56', '352.17', 92, '260.54', '73.98'),
 (9183, 'HALOPERIDOL  TAB 5MG          ', 'BUTYROPHENONES           ', 2147483647, '0.35', '28.83', 12, '16.49', '57.20'),
 (9184, 'BUDESONIDE   SUS 1MG/2ML      ', 'ADRENALS                 ', 93681773, '9.48', '833.41', 776, '57.63', '6.91'),
@@ -9650,7 +9650,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (9597, 'LEVSIN/SL    SUB 0.125MG      ', 'ANTIMUSCARINICS/ANTISPASM', 2147483647, '2.55', '104.75', 94, '10.52', '10.05'),
 (9598, 'DICLOFENAC   TAB 50MG DR      ', 'OTHER NONSTEROIDAL ANTI-I', 2147483647, '0.44', '43.90', 28, '15.94', '36.30')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (9599, 'METHYLPRED   TAB 32MG         ', 'ADRENALS                 ', 2147483647, '3.23', '43.16', 26, '16.97', '39.31'),
 (9600, 'BP GEL       GEL 10          ', 'LOCAL ANTI-INFECTIVES, MI', 2147483647, '0.34', '29.70', 21, '8.57', '28.85'),
 (9601, 'METOPROLOL   TAB 50MG ER      ', 'BETA-ADRENERGIC BLOCKING ', 2147483647, '0.53', '40.32', 36, '4.07', '10.09'),
@@ -10069,7 +10069,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (10014, 'VITAMIN B-6  TAB 50MG         ', 'VITAMIN B COMPLEX        ', 2147483647, '0.02', '0.92', 1, '0.00', '0.00'),
 (10015, 'CARVEDILOL   TAB 25MG         ', 'BETA-ADRENERGIC BLOCKING ', 2147483647, '0.22', '27.39', 16, '11.75', '42.89')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (10016, 'ASPIRIN      TAB 81MG EC      ', 'SALICYLATES              ', 363041407, '0.06', '3.67', 4, '0.00', '0.00'),
 (10017, 'BUSPIRONE    TAB 30MG         ', 'ANXIOLYTICS, SEDATIVES & ', 2147483647, '1.42', '204.60', 92, '112.29', '54.88'),
 (10018, 'FLUTICASONE  OIN 0.005       ', 'ANTI-INFLAMMATORY AGENTS ', 713063260, '0.82', '49.17', 49, '0.00', '0.00'),
@@ -10485,7 +10485,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (10428, 'ADAPALENE    LOT 0.1         ', 'SKIN AND MUCOUS MEMBRANE ', 2147483647, '6.17', '363.99', 364, '0.00', '0.00'),
 (10429, 'HYDROCHLOROT CAP 12.5MG       ', 'THIAZIDE DIURETICS       ', 2147483647, '0.24', '24.18', 10, '14.08', '58.22')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (10430, 'NIZATIDINE   CAP 150MG        ', 'HISTAMINE H2-ANTAGONISTS ', 378515091, '1.04', '103.49', 82, '21.49', '20.77'),
 (10431, 'TIZANIDINE   TAB 4MG          ', 'CENTRALLY ACTING SKELETAL', 2147483647, '0.42', '55.30', 15, '39.97', '72.29'),
 (10432, 'INSULIN SYRG MIS 0.5/30G      ', 'DEVICES                  ', 2147483647, '0.13', '22.38', 22, '0.00', '0.00'),
@@ -10901,7 +10901,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (10842, 'BACITRACIN   OIN 500/GM       ', 'ANTIBACTERIALS (SKIN & MU', 2147483647, '0.17', '6.89', 6, '0.77', '11.24'),
 (10843, 'INVEGA SUST  INJ 234/1.5      ', 'ATYPICAL ANTIPSYCHOTICS  ', 2147483647, '1.00', '2.00', 2, '245.90', '9.72')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (10844, 'OYSCO D      TAB 250-125      ', 'REPLACEMENT PREPARATIONS ', 536410301, '0.07', '8.21', 5, '2.85', '34.77'),
 (10845, 'ZALEPLON     CAP 10MG         ', 'ANXIOLYTICS, SEDATIVES & ', 2147483647, '0.82', '73.27', 30, '43.32', '59.12'),
 (10846, 'UTA          CAP 120MG        ', 'URINARY ANTI-INFECTIVES  ', 2147483647, '1.17', '256.68', 91, '165.38', '64.43'),
@@ -11317,7 +11317,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (11256, 'PAIN & FEVER SUS 160/5ML      ', 'ANALGESICS AND ANTIPYRETI', 2147483647, '0.04', '11.26', 11, '0.49', '4.35'),
 (11257, 'ALLERGY RELF TAB 180MG        ', 'SECOND GENERATION ANTIHIS', 2147483647, '0.40', '15.92', 16, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (11258, 'SOD CHLORIDE NEB 0.9         ', 'MUCOLYTIC AGENTS         ', 487930133, '0.07', '27.41', 13, '14.04', '51.23'),
 (11259, 'DILTIAZEM    TAB 30MG         ', 'CALCIUM-CHANNEL BLOCKING ', 378002305, '0.12', '54.26', 12, '42.43', '78.19'),
 (11260, 'CVS ANTACID  SUS MAX ST       ', 'ANTACIDS AND ADSORBENTS  ', 2147483647, '0.02', '7.85', 8, '0.18', '2.27'),
@@ -11733,7 +11733,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (11670, 'FLUVOXAMINE  TAB 50MG         ', 'SELECTIVE-SEROTONIN REUPT', 2147483647, '0.56', '41.14', 20, '21.47', '52.20'),
 (11671, 'QUETIAPINE   TAB 25MG         ', 'ATYPICAL ANTIPSYCHOTICS  ', 2147483647, '1.81', '144.28', 99, '44.89', '31.11')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (11672, 'CEDAX        CAP 400MG        ', 'THIRD GENERATION CEPHALOS', 2147483647, '35.70', '231.37', 214, '17.15', '7.41'),
 (11673, 'METFORMIN    TAB 1000MG       ', 'BIGUANIDES               ', 93721410, '0.24', '99.68', 17, '82.79', '83.05'),
 (11674, 'CLONAZEP ODT TAB 2MG          ', 'BENZODIAZEPINES (ANTICONV', 555009896, '1.68', '64.96', 50, '14.56', '22.41'),
@@ -12148,7 +12148,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (12083, 'JANUMET      TAB 50-1000      ', 'DIPEPTIDYL PEPTIDASE-4(DP', 6057782, '6.68', '353.09', 321, '32.31', '9.15'),
 (12084, 'SUCRALFATE   SUS 1GM/10ML     ', 'PROTECTANTS              ', 2147483647, '0.60', '57.59', 58, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (12085, 'GENTLE LAXAT TAB 5MG EC       ', 'CATHARTICS AND LAXATIVES ', 363032706, '0.27', '3.27', 3, '0.01', '0.31'),
 (12086, 'FOCALIN XR   CAP 40MG         ', 'RESPIRATORY AND CNS STIMU', 78043405, '12.06', '471.75', 398, '73.70', '15.62'),
 (12087, 'SERTRALINE   TAB 50MG         ', 'SELECTIVE-SEROTONIN REUPT', 2147483647, '0.30', '38.84', 9, '29.77', '76.66'),
@@ -12564,7 +12564,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (12497, 'TACROLIMUS   OIN 0.03        ', 'SKIN AND MUCOUS MEMBRANE ', 168041799, '7.45', '640.39', 640, '0.00', '0.00'),
 (12498, 'LODRANE D    CAP 4-60MG       ', 'PROPYLAMINE DERIVATIVES  ', 95086006, '0.65', '38.21', 31, '6.83', '17.88')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (12499, 'MIDAZOLAM    INJ 10MG/2ML     ', 'BENZODIAZEPINES (ANXIOLYT', 641606325, '1.81', '7.63', 4, '3.29', '43.17'),
 (12500, 'NAPROXEN     TAB 250MG        ', 'OTHER NONSTEROIDAL ANTI-I', 93014701, '0.41', '14.31', 12, '1.87', '13.07'),
 (12501, 'BENZEFOAM    AER 9.8         ', 'LOCAL ANTI-INFECTIVES, MI', 2147483647, '2.93', '328.59', 293, '35.82', '10.90'),
@@ -12981,7 +12981,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (12912, 'SILVER SULFA CRE 1           ', 'LOCAL ANTI-INFECTIVES, MI', 2147483647, '0.26', '20.61', 13, '7.37', '35.74'),
 (12913, 'VITAMIN D    DRO 400UNIT      ', 'VITAMIN D                ', 2147483647, '0.15', '22.04', 10, '12.36', '56.07')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (12914, 'DIVALPROEX   TAB 500MG ER     ', 'ANTICONVULSANTS, MISCELLA', 2147483647, '2.53', '199.52', 134, '65.29', '32.72'),
 (12915, 'DEXMETHYLPH  TAB 10MG         ', 'RESPIRATORY AND CNS STIMU', 2147483647, '1.03', '208.40', 162, '46.67', '22.39'),
 (12916, 'IRBESARTAN   TAB 150MG        ', 'ANGIOTENSIN II RECEPTOR A', 2147483647, '2.29', '115.56', 103, '12.29', '10.64'),
@@ -13398,7 +13398,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (13327, 'OXYCOD/APAP  TAB 10-325MG     ', 'OPIATE AGONISTS          ', 603498228, '1.00', '305.14', 95, '210.21', '68.89'),
 (13328, 'MUCUS RELIEF TAB PE           ', 'EXPECTORANTS             ', 363054201, '0.38', '9.49', 9, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (13329, 'DESLORATADIN TAB 5MG          ', 'SECOND GENERATION ANTIHIS', 2147483647, '1.47', '201.70', 66, '135.59', '67.22'),
 (13330, 'MEDROXYPR AC TAB 2.5MG        ', 'PROGESTINS               ', 2147483647, '0.21', '30.99', 15, '16.24', '52.42'),
 (13331, 'BIONECT      CRE 0.2         ', 'SKIN AND MUCOUS MEMBRANE ', 2147483647, '7.65', '902.97', 765, '137.97', '15.28'),
@@ -13815,7 +13815,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (13742, 'PRO-STAT     LIQ              ', 'CALORIC AGENTS           ', 2147483647, '0.04', '67.65', 54, '13.25', '19.58'),
 (13743, 'THEO-24      CAP 300MG CR     ', 'RESPIRATORY SMOOTH MUSCLE', 2147483647, '3.07', '99.91', 92, '7.86', '7.87')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (13744, 'BACTRIM DS   TAB 800-160      ', 'SULFONAMIDES (SYSTEMIC)  ', 2147483647, '3.10', '65.97', 56, '10.14', '15.37'),
 (13745, 'OXYMORPHONE  TAB 30MG ER      ', 'OPIATE AGONISTS          ', 115131713, '9.24', '501.10', 383, '117.64', '23.48'),
 (13746, 'PRED FORTE   SUS 1 OP        ', 'CORTICOSTEROIDS (EENT)   ', 2147483647, '27.36', '60.79', 55, '6.07', '9.99'),
@@ -14232,7 +14232,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (14157, 'CARDIZEM LA  TAB 120MG        ', 'CALCIUM-CHANNEL BLOCKING ', 74304530, '4.18', '132.27', 126, '6.74', '5.10'),
 (14158, 'SPIRIVA      SPR RESPIMAT     ', 'ANTIMUSCARINICS/ANTISPASM', 597010031, '39.22', '375.99', 157, '219.10', '58.27')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (14159, 'DEPO-PROVERA INJ 400/ML       ', 'PROGESTINS               ', 9062601, '163.80', '1.00', 846, '156.64', '15.62'),
 (14160, 'CLOMIPRAMINE CAP 75MG         ', 'TRYCYCLICS & OTHER NOREPI', 406880801, '6.01', '413.30', 401, '12.71', '3.08'),
 (14161, 'RA CETIRIZIN TAB 10MG         ', 'SECOND GENERATION ANTIHIS', 2147483647, '0.37', '15.32', 15, '0.62', '4.02'),
@@ -14649,7 +14649,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (14572, 'TH CALCIUM/D CHW 600-400      ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.21', '14.10', 13, '1.47', '10.43'),
 (14573, 'RISPERDAL    TAB 1MG          ', 'ATYPICAL ANTIPSYCHOTICS  ', 2147483647, '9.89', '956.11', 791, '164.65', '17.22')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (14574, 'NICOTINE     DIS 14MG/24H     ', 'AUTONOMIC DRUGS, MISCELLA', 67512507, '2.55', '53.92', 42, '12.33', '22.86'),
 (14575, 'PRILOSEC     CAP 20MG         ', 'PROTON-PUMP INHIBITORS   ', 186074231, '8.10', '303.32', 281, '22.69', '7.48'),
 (14576, 'DALLERGY     DRO 1-2.5MG      ', 'PROPYLAMINE DERIVATIVES  ', 2147483647, '0.80', '23.99', 24, '0.00', '0.00'),
@@ -15066,7 +15066,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (14987, 'JANTOVEN     TAB 7.5MG        ', 'COUMARIN DERIVATIVES     ', 832121800, '0.26', '40.48', 18, '22.60', '55.83'),
 (14988, 'NATROBA      SUS 0.9         ', 'SCABICIDES AND PEDICULICI', 2147483647, '2.13', '276.12', 256, '20.59', '7.46')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (14989, 'STAVUDINE    CAP 40MG         ', 'HIV NUCLEOSIDE & NUCLEOTI', 378504391, '0.98', '506.66', 78, '428.60', '84.59'),
 (14990, 'DAILY MULTI  TAB WOMN 50+     ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.12', '6.06', 6, '0.00', '0.00'),
 (14991, 'GENTLE LAXAT TAB 5MG EC       ', 'CATHARTICS AND LAXATIVES ', 2147483647, '0.26', '0.86', 1, '0.00', '0.00'),
@@ -15483,7 +15483,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (15402, 'B-12         TAB 2000MCG      ', 'VITAMIN B COMPLEX        ', 2147483647, '0.14', '4.24', 4, '0.00', '0.00'),
 (15403, 'DESITIN      OIN              ', 'EMOLLIENTS, DEMULCENTS, A', 2147483647, '0.10', '4.79', 5, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (15404, 'GENTIAN VIOL SOL 2           ', 'ANTIFULGALS(SKIN & MUCOUS', 2147483647, '0.15', '42.17', 18, '24.26', '57.53'),
 (15405, 'DESOXIMETAS  GEL 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 2147483647, '2.59', '287.79', 155, '132.41', '46.01'),
 (15406, 'REQUIP       TAB 5MG          ', 'NONERGOT-DERIV.DOPAMINE R', 7489420, '6.00', '1.00', 1, '0.00', '0.00'),
@@ -15901,7 +15901,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (15818, 'APTENSIO XR  CAP 40MG         ', 'RESPIRATORY AND CNS STIMU', 2147483647, '7.23', '270.99', 253, '17.83', '6.58'),
 (15819, 'DEXAMETH PHO INJ 4MG/ML       ', 'ADRENALS                 ', 2147483647, '0.65', '43.44', 18, '25.92', '59.67')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (15820, 'DELSYM       SUS 30MG/5ML     ', 'ANTITUSSIVES             ', 2147483647, '0.11', '9.88', 10, '0.00', '0.00'),
 (15821, 'TEGRETOL     SUS 100/5ML      ', 'ANTICONVULSANTS, MISCELLA', 78050883, '0.31', '204.99', 183, '21.75', '10.61'),
 (15822, 'LOVASTATIN   TAB 10MG         ', 'HMG-COA REDUCTASE INHIBIT', 185007010, '0.35', '44.21', 21, '23.02', '52.08'),
@@ -16318,7 +16318,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (16233, 'RED YEAST    CAP RICE         ', 'OTHER MISCELLANEOUS THERA', 2147483647, '0.14', '15.37', 13, '2.42', '15.72'),
 (16234, 'ACARBOSE     TAB 25MG         ', 'ALPHA-GLUCOSIDASE INHIBIT', 2147483647, '0.78', '52.04', 47, '5.26', '10.10')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (16235, 'PRAMIPEXOLE  TAB 0.25MG       ', 'NONERGOT-DERIV.DOPAMINE R', 2147483647, '0.76', '462.93', 102, '360.60', '77.90'),
 (16236, 'CLONAZEPAM   TAB 2MG          ', 'BENZODIAZEPINES (ANTICONV', 603295028, '0.24', '56.84', 11, '46.07', '81.05'),
 (16237, 'ACETYLCYST   SOL 10          ', 'ANTIDOTES                ', 2147483647, '0.53', '74.09', 56, '18.59', '25.08'),
@@ -16735,7 +16735,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (16648, 'CVS TRIPLE   OIN ANTIBIOT     ', 'ANTIBACTERIALS (SKIN & MU', 2147483647, '0.20', '11.59', 11, '0.19', '1.60'),
 (16649, 'BUSPIRONE    TAB 10MG         ', 'ANXIOLYTICS, SEDATIVES & ', 591065810, '0.19', '58.58', 12, '46.98', '80.20')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (16650, 'ESTRADIOL    DIS 0.025MG      ', 'ESTROGENS                ', 781712983, '11.54', '98.59', 99, '0.00', '0.00'),
 (16651, 'QNAPRIL/HCTZ TAB 20-25MG      ', 'ANGIOTENSIN-CONVERTING EN', 378054477, '0.93', '27.29', 21, '6.30', '23.07'),
 (16652, 'ZONISAMIDE   CAP 100MG        ', 'ANTICONVULSANTS, MISCELLA', 2147483647, '0.31', '93.74', 25, '69.16', '73.78'),
@@ -17152,7 +17152,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (17063, 'OXYCODONE    TAB 15MG         ', 'OPIATE AGONISTS          ', 2147483647, '0.27', '27.99', 7, '21.12', '75.47'),
 (17064, 'FLUOCINONIDE CRE 0.1         ', 'ANTI-INFLAMMATORY AGENTS ', 168045760, '8.21', '693.65', 493, '200.97', '28.97')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (17065, 'CIPROFLOXACN TAB 500MG        ', 'QUINOLONES               ', 2147483647, '0.66', '74.34', 11, '63.05', '84.82'),
 (17066, 'ONE-DAILY    TAB MULT VIT     ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.02', '0.48', 0, '0.00', '0.00'),
 (17067, 'CALC ACETATE CAP 667MG        ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.66', '468.86', 297, '172.29', '36.75'),
@@ -17569,7 +17569,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (17478, 'MEDIPLAST    PAD 40          ', 'KERATOLYTIC AGENTS       ', 2147483647, '1.00', '8.27', 8, '0.76', '9.13'),
 (17479, 'HYDRO/CHLOR/ LIQ 5-4-60MG     ', 'ANTITUSSIVES             ', 2147483647, '0.91', '235.34', 199, '35.90', '15.25')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (17480, 'FISH OIL     CAP 1000MG       ', 'OTHER MISCELLANEOUS THERA', 2147483647, '0.10', '7.00', 6, '0.99', '14.14'),
 (17481, 'LISINOPRIL   TAB 40MG         ', 'ANGIOTENSIN-CONVERTING EN', 2147483647, '0.27', '33.99', 19, '15.49', '45.57'),
 (17482, 'ROBAFEN DM   SYP 100-10/5     ', 'ANTITUSSIVES             ', 904005300, '0.04', '7.27', 7, '0.00', '0.00'),
@@ -17986,7 +17986,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (17893, 'ENFAMIL ENFA POW LIPIL        ', 'CALORIC AGENTS           ', 87001944, '0.05', '71.96', 72, '0.00', '0.00'),
 (17894, 'CELECOXIB    CAP 50MG         ', 'CYCLOOXYGENASE-2 (COX-2) ', 378406591, '1.24', '37.05', 37, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (17895, 'SIMETHICONE  CHW 125MG        ', 'ANTIFLATULENTS           ', 2147483647, '0.08', '2.29', 2, '0.00', '0.00'),
 (17896, 'MUCINEX DM   LIQ 20-400       ', 'ANTITUSSIVES             ', 2147483647, '0.08', '22.43', 14, '8.42', '37.54'),
 (17897, 'RITALIN LA   CAP 40MG         ', 'RESPIRATORY AND CNS STIMU', 78037205, '9.20', '590.99', 552, '39.01', '6.60'),
@@ -18405,7 +18405,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (18310, 'CARTEOLOL    SOL 1 OP        ', 'BETA-ADRENERGIC BLOCKING ', 2147483647, '3.60', '53.99', 54, '0.00', '0.00'),
 (18311, 'ACIDOPHILUS  TAB PROBIOTC     ', 'ANTIDIARRHEA AGENTS      ', 2147483647, '0.16', '9.76', 10, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (18312, 'ALDACTAZIDE  TAB 50/50        ', 'MINERALOCORTICOID (ALDOST', 25102131, '3.81', '146.09', 114, '31.73', '21.72'),
 (18313, 'ACID REDUCER CHW COMPLETE     ', 'HISTAMINE H2-ANTAGONISTS ', 2147483647, '0.20', '9.98', 10, '0.00', '0.00'),
 (18314, 'VITAMIN B-1  TAB 100MG        ', 'VITAMIN B COMPLEX        ', 761055520, '0.05', '1.48', 1, '0.00', '0.00'),
@@ -18823,7 +18823,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (18726, 'CARAFATE     TAB 1GM          ', 'PROTECTANTS              ', 2147483647, '3.12', '111.99', 94, '18.39', '16.42'),
 (18727, 'STUDIO 35    CRE MOIST        ', 'BASIC OINTMENTS AND PROTE', 2147483647, '0.02', '10.99', 11, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (18728, 'NEOCATE JR   POW PREBIOTC     ', 'CALORIC AGENTS           ', 2147483647, '0.10', '221.70', 155, '67.13', '30.28'),
 (18729, 'MULTI 50+    CAP FOR HER      ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.17', '11.99', 10, '1.68', '14.01'),
 (18730, 'SALINE NASAL GEL              ', 'EENT DRUGS, MISCELLANEOUS', 2147483647, '0.38', '5.29', 5, '0.00', '0.00'),
@@ -19241,7 +19241,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (19142, 'MEKINIST     TAB 2MG          ', 'ANTINEOPLASTIC AGENTS    ', 78066815, '372.61', '18.00', 11, '7.00', '39.55'),
 (19143, 'ENTECAVIR    TAB 0.5MG        ', 'NUCLEOSIDES AND NUCLEOTID', 2147483647, '38.13', '1.00', 1, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (19144, 'SUDAFED PE   TAB COLD         ', 'ANTITUSSIVES             ', 2147483647, '0.34', '8.21', 8, '0.00', '0.00'),
 (19145, 'CLOBETASOL   LOT 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 2147483647, '4.79', '564.99', 565, '0.00', '0.00'),
 (19146, 'FOSINOP/HCTZ TAB 20/12.5      ', 'ANGIOTENSIN-CONVERTING EN', 2147483647, '1.15', '100.84', 35, '66.29', '65.74'),
@@ -19659,7 +19659,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (19558, 'RA MELATONIN SUB 1MG          ', 'OTHER MISCELLANEOUS THERA', 2147483647, '0.05', '1.49', 1, '0.00', '0.00'),
 (19559, 'IRON         TAB 325MG        ', 'IRON PREPARATIONS        ', 2147483647, '0.20', '5.99', 6, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (19560, 'ALLERGY RELF CHW 10MG         ', 'SECOND GENERATION ANTIHIS', 2147483647, '0.77', '28.99', 23, '5.93', '20.46'),
 (19561, 'ROBITUSSIN   LIQ CGH/CONG     ', 'ANTITUSSIVES             ', 31873818, '0.03', '13.59', 14, '0.00', '0.00'),
 (19562, 'FRAGMIN      INJ 15000UNT     ', 'HEPARINS                 ', 69022302, '211.33', '3.00', 3, '0.00', '0.00'),
@@ -20077,7 +20077,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (19974, 'ALLERGY RELF TAB 10MG         ', 'SECOND GENERATION ANTIHIS', 2147483647, '0.27', '22.50', 8, '14.50', '64.44'),
 (19975, 'QUFLORA PED  CHW 0.5MG        ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.32', '201.99', 10, '192.25', '95.18')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (19976, 'LOSARTAN/HCT TAB 100-12.5     ', 'ANGIOTENSIN II RECEPTOR A', 781520410, '0.49', '68.23', 15, '53.52', '78.44'),
 (19977, 'NICOTINE TD  DIS 21MG/24H     ', 'AUTONOMIC DRUGS, MISCELLA', 363089653, '3.09', '24.99', 22, '3.38', '13.53'),
 (19978, 'ALLERGY RELF TAB 10MG         ', 'SECOND GENERATION ANTIHIS', 113061265, '0.17', '5.00', 5, '0.00', '0.00'),
@@ -20495,7 +20495,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (20390, 'RIAX         AER 9.5         ', 'LOCAL ANTI-INFECTIVES, MI', 2147483647, '4.01', '588.47', 401, '187.69', '31.89'),
 (20391, 'G-ZYNCOF     SYP 20-400/5     ', 'ANTITUSSIVES             ', 2147483647, '0.03', '7.53', 8, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (20392, 'QUTENZA      KIT 8 1-PCH     ', 'SKIN AND MUCOUS MEMBRANE ', 2147483647, '793.80', '3.00', 3, '238.30', '6.98'),
 (20393, 'KERALYT      GEL 6           ', 'KERATOLYTIC AGENTS       ', 2147483647, '0.56', '67.96', 56, '11.95', '17.58'),
 (20394, 'KLOR-CON SPR CAP 10MEQ        ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.70', '64.31', 42, '22.03', '34.26'),
@@ -20914,7 +20914,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (20807, 'NIVATOPIC    CRE PLUS         ', 'SKIN AND MUCOUS MEMBRANE ', 2147483647, '0.89', '132.99', 89, '43.80', '32.93'),
 (20808, 'SKELAXIN     TAB 800MG        ', 'CENTRALLY ACTING SKELETAL', 2147483647, '7.81', '607.99', 468, '139.55', '22.95')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (20809, 'HEAR AID BAT MIS SIZE 312     ', 'DEVICES                  ', 2147483647, '1.49', '13.49', 12, '1.60', '11.86'),
 (20810, 'TRIANEX      OIN 0.05        ', 'ANTI-INFLAMMATORY AGENTS ', 245013685, '2.72', '257.69', 231, '26.26', '10.19'),
 (20811, 'MONTELUKAST  TAB 10MG         ', 'LEUKOTRIENE MODIFIERS    ', 2147483647, '3.14', '136.99', 94, '42.73', '31.19'),
@@ -21332,7 +21332,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (21223, 'KLOR-CON M20 TAB 20MEQ ER     ', 'REPLACEMENT PREPARATIONS ', 2147483647, '0.58', '42.09', 35, '7.59', '18.03'),
 (21224, 'OLANZAPINE   TAB 20MG         ', 'ATYPICAL ANTIPSYCHOTICS  ', 2147483647, '20.98', '204.99', 147, '58.12', '28.35')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (21225, 'CITALOPRAM   TAB 40MG         ', 'SELECTIVE-SEROTONIN REUPT', 93474201, '0.37', '12.40', 6, '6.78', '54.68'),
 (21226, 'QUAZEPAM     TAB 15MG         ', 'BENZODIAZEPINES (ANXIOLYT', 2147483647, '8.20', '245.99', 246, '0.00', '0.00'),
 (21227, 'TRISPEC PSE  LIQ              ', 'ANTITUSSIVES             ', 2147483647, '0.14', '24.27', 17, '7.68', '31.64'),
@@ -21750,7 +21750,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (21639, 'TOPROL XL    TAB 25MG         ', 'BETA-ADRENERGIC BLOCKING ', 186108839, '1.57', '51.99', 47, '4.83', '9.29'),
 (21640, 'SM PRENATAL  TAB VITAMINS     ', 'MULTIVITAMIN PREPARATIONS', 2147483647, '0.12', '3.69', 4, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (21641, 'ONDANSETRON  TAB 8MG ODT      ', '5-HT3 RECEPTOR ANTAGONIST', 2147483647, '1.37', '22.36', 21, '1.79', '8.01'),
 (21642, 'VALSARTAN    TAB 160MG        ', 'ANGIOTENSIN II RECEPTOR A', 2147483647, '3.95', '156.95', 118, '38.49', '24.52'),
 (21643, 'FERROUS GLUC TAB 324MG        ', 'IRON PREPARATIONS        ', 179841701, '0.07', '4.06', 4, '0.06', '1.48'),
@@ -22243,7 +22243,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (22135, 'ZOLPIDEM     TAB 5MG\r\n', '', 13668000701, '0.40', '0.00', 0, '0.00', '0.00'),
 (22136, 'BROM/PSE/DM  SYP\r\n', '', 60432027516, '0.18', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (22137, 'ATORVASTATIN TAB 80MG\r\n', '', 68645046154, '1.00', '0.00', 0, '0.00', '0.00'),
 (22138, 'MAGNESIUM-OX TAB 400MG\r\n', '', 68585000612, '0.09', '0.00', 0, '0.00', '0.00'),
 (22139, 'NEO/POLY/HC  SOL 1% OTIC\r\n', '', 61314064610, '4.07', '0.00', 0, '0.00', '0.00'),
@@ -22806,7 +22806,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (22696, 'WARFARIN     TAB 5MG\r\n', '', 51672403203, '0.30', '0.00', 0, '0.00', '0.00'),
 (22697, 'TRIAMCINOLON OIN 0.1%\r\n', '', 45802005505, '0.08', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (22698, 'TOPIRAMATE   TAB 200MG\r\n', '', 68382014114, '0.51', '0.00', 0, '0.00', '0.00'),
 (22699, 'DOXAZOSIN    TAB 4MG\r\n', '', 68645046470, '0.40', '0.00', 0, '0.00', '0.00'),
 (22700, 'TRIAMCINOLON CRE 0.1%\r\n', '', 67877025130, '0.23', '0.00', 0, '0.00', '0.00'),
@@ -23367,7 +23367,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (23255, 'MONTELUKAST  TAB 10MG\r\n', '', 31722072690, '1.20', '0.00', 0, '0.00', '0.00'),
 (23256, 'NYSTATIN     POW 100000\r\n', '', 43386053001, '1.33', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (23257, 'BROM/PSE/DM  SYP\r\n', '', 60432027504, '0.23', '0.00', 0, '0.00', '0.00'),
 (23258, 'FLUOCIN ACET OIL SCALP\r\n', '', 65162070386, '0.44', '0.00', 0, '0.00', '0.00'),
 (23259, 'BUNAVAIL     MIS 4.2-0.7\r\n', '', 59385001430, '8.29', '0.00', 0, '0.00', '0.00'),
@@ -23927,7 +23927,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (23813, 'YAZ          TAB 3-0.02MG\r\n', '', 50419040503, '4.31', '0.00', 0, '0.00', '0.00'),
 (23814, 'PRED FORTE   SUS 1% OP\r\n', '', 11980018005, '1.01', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (23815, 'VITAMIN D3   TAB 50000UNT\r\n', '', 10542010008, '0.56', '0.00', 0, '0.00', '0.00'),
 (23816, 'ALPRAZOLAM   TAB 0.5MG\r\n', '', 67253090110, '0.12', '0.00', 0, '0.00', '0.00'),
 (23817, 'AZELASTINE   SPR 0.15%\r\n', '', 45802002683, '4.01', '0.00', 0, '0.00', '0.00'),
@@ -24489,7 +24489,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (24373, 'AZITHROMYCIN SUS 200/5ML\r\n', '', 59762313001, '0.83', '0.00', 0, '0.00', '0.00'),
 (24374, 'VALSARTAN    TAB 320MG\r\n', '', 31722074890, '4.71', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (24375, 'ZOLMITRIPTAN TAB 5MG\r\n', '', 68462049833, '42.76', '0.00', 0, '0.00', '0.00'),
 (24376, 'SSD          CRE 1%\r\n', '', 43598021085, '0.16', '0.00', 0, '0.00', '0.00'),
 (24377, 'CVS NICOTINE DIS 14MG/24H\r\n', '', 50428173013, '1.43', '0.00', 0, '0.00', '0.00'),
@@ -25050,7 +25050,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (24932, 'CEPHALEXIN   CAP 250MG\r\n', '', 68180012102, '0.23', '0.00', 0, '0.00', '0.00'),
 (24933, 'ALPRAZOLAM   TAB 1MG\r\n', '', 59762372103, '0.13', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (24934, 'AMOXICILLIN  CAP 250MG\r\n', '', 65862001605, '0.38', '0.00', 0, '0.00', '0.00'),
 (24935, 'MULTIVIT/FL  CHW 0.25MG\r\n', '', 59088010759, '0.23', '0.00', 0, '0.00', '0.00'),
 (24936, 'ACCU-CHEK    TES AVIVA\r\n', '', 65702010610, '1.23', '0.00', 0, '0.00', '0.00'),
@@ -25612,7 +25612,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (25492, 'ADDERALL XR  CAP 25MG\r\n', '', 54092038901, '7.93', '0.00', 0, '0.00', '0.00'),
 (25493, 'NASAL DECONG TAB 30MG\r\n', '', 50428477074, '0.22', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (25494, 'HYDROCO/APAP TAB 7.5-325\r\n', '', 57664017088, '0.42', '0.00', 0, '0.00', '0.00'),
 (25495, 'DILTIAZEM    CAP 180MG/24\r\n', '', 68682036890, '0.71', '0.00', 0, '0.00', '0.00'),
 (25496, 'RESTORA RX   CAP 60-1.25\r\n', '', 52747020730, '1.59', '0.00', 0, '0.00', '0.00'),
@@ -26173,7 +26173,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (26051, 'ANTI-FUNGAL  POW 2%\r\n', '', 50428859684, '0.12', '0.00', 0, '0.00', '0.00'),
 (26052, 'DICLO/MISOPR TAB 50-0.2MG\r\n', '', 59762002801, '2.68', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (26053, 'HYFIBER WITH LIQ FOS\r\n', '', 94688018485, '0.02', '0.00', 0, '0.00', '0.00'),
 (26054, 'PAXIL CR     TAB 25MG\r\n', '', 60505366903, '6.35', '0.00', 0, '0.00', '0.00'),
 (26055, 'CVS IRON     TAB 27MG\r\n', '', 50428277283, '0.08', '0.00', 0, '0.00', '0.00'),
@@ -26758,7 +26758,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (26634, 'TOPIRAMATE   TAB 100MG', '', 68382014014, '0.31', '0.00', 0, '0.00', '0.00'),
 (26635, 'FUROSEMIDE   TAB 40MG', '', 54429931, '0.18', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (26636, 'METHADONE    TAB 10MG', '', 54457125, '0.16', '0.00', 0, '0.00', '0.00'),
 (26637, 'METHADONE    TAB 10MG', '', 406577101, '0.18', '0.00', 0, '0.00', '0.00'),
 (26638, 'LEVOTHYROXIN TAB 75MCG', '', 527134310, '0.39', '0.00', 0, '0.00', '0.00'),
@@ -27354,7 +27354,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (27228, 'LAMOTRIGINE  TAB 25MG', '', 68382000601, '0.65', '0.00', 0, '0.00', '0.00'),
 (27229, 'QUETIAPINE   TAB 25MG', '', 16729014501, '1.68', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (27230, 'CLONAZEPAM   TAB 1MG', '', 16729013700, '0.23', '0.00', 0, '0.00', '0.00'),
 (27231, 'PREMARIN VAG CRE 0.625MG', '', 46087221, '11.49', '0.00', 0, '0.00', '0.00'),
 (27232, 'TRI-LUMA     CRE', '', 299595030, '3.98', '0.00', 0, '0.00', '0.00'),
@@ -27948,7 +27948,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (27820, 'TRETINOIN    CRE 0.1%', '', 66530025520, '2.80', '0.00', 0, '0.00', '0.00'),
 (27821, 'XARELTO      TAB 15MG', '', 50458057830, '13.00', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (27822, 'MELOXICAM    TAB 7.5MG', '', 68180050103, '0.91', '0.00', 0, '0.00', '0.00'),
 (27823, 'DIPHENHYDRAM CAP 50MG', '', 603334021, '0.14', '0.00', 0, '0.00', '0.00'),
 (27824, 'ENALAPRIL    TAB 10MG', '', 64679092502, '0.25', '0.00', 0, '0.00', '0.00'),
@@ -28542,7 +28542,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (28412, 'METOPROLOL   TAB 25MG ER', '', 68645047754, '0.75', '0.00', 0, '0.00', '0.00'),
 (28413, 'DULOXETINE   CAP 60MG', '', 68180029603, '5.19', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (28414, 'CARVEDILOL   TAB 25MG', '', 93729605, '0.36', '0.00', 0, '0.00', '0.00'),
 (28415, 'PODIAPN      CAP', '', 53731000206, '0.59', '0.00', 0, '0.00', '0.00'),
 (28416, 'SOTALOL HCL  TAB 80MG', '', 60505008000, '0.24', '0.00', 0, '0.00', '0.00'),
@@ -29136,7 +29136,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (29004, 'IRBESARTAN   TAB 300MG', '', 43547027909, '1.64', '0.00', 0, '0.00', '0.00'),
 (29005, 'ARIPIPRAZOLE TAB 5MG', '', 13668021730, '21.74', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (29006, 'IBUPROFEN    TAB 400MG', '', 68645052990, '0.08', '0.00', 0, '0.00', '0.00'),
 (29007, 'PAROXETINE   TAB 10MG', '', 378700193, '0.84', '0.00', 0, '0.00', '0.00'),
 (29008, 'BUT/APAP/CAF TAB', '', 603254428, '0.52', '0.00', 0, '0.00', '0.00'),
@@ -29730,7 +29730,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (29596, 'PRAMIPEXOLE  TAB 0.25MG', '', 68462033190, '1.41', '0.00', 0, '0.00', '0.00'),
 (29597, 'RANITIDINE   TAB 300MG', '', 68462024901, '0.80', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (29598, 'MINIVELLE    DIS 0.05MG', '', 68968665008, '19.08', '0.00', 0, '0.00', '0.00'),
 (29599, 'ERY/BENZOYL  GEL 5-3%', '', 781705449, '1.95', '0.00', 0, '0.00', '0.00'),
 (29600, 'Q-PAP        LIQ 160/5ML', '', 603083958, '0.03', '0.00', 0, '0.00', '0.00'),
@@ -30323,7 +30323,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (30187, 'JANUVIA      TAB 100MG', '', 6027754, '13.05', '0.00', 0, '0.00', '0.00'),
 (30188, 'BUTRANS      DIS 5MCG/HR', '', 59011075004, '61.46', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (30189, 'CDP/AMITRIP  TAB 10-25MG', '', 378027701, '1.15', '0.00', 0, '0.00', '0.00'),
 (30190, 'MECLIZINE    TAB 12.5MG', '', 42806001201, '0.28', '0.00', 0, '0.00', '0.00'),
 (30191, 'CLONAZEPAM   TAB 1MG', '', 16714047002, '0.18', '0.00', 0, '0.00', '0.00'),
@@ -30915,7 +30915,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (30777, 'ARIPIPRAZOLE TAB 2MG', '', 93761356, '28.20', '0.00', 0, '0.00', '0.00'),
 (30778, 'CYCLOSPORINE CAP 100MG MD', '', 591222315, '2.96', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (30779, 'VERAPAMIL    TAB 240MG ER', '', 93304501, '0.65', '0.00', 0, '0.00', '0.00'),
 (30780, 'DAPSONE      TAB 100MG', '', 47781033431, '1.01', '0.00', 0, '0.00', '0.00'),
 (30781, 'SODIUM BICAR TAB 650MG', '', 536104710, '0.04', '0.00', 0, '0.00', '0.00'),
@@ -31508,7 +31508,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (31368, 'VITAMIN D3   CAP 5000UNIT', '', 31604002621, '0.13', '0.00', 0, '0.00', '0.00'),
 (31369, 'OLANZAPINE   TAB 15MG', '', 55111016730, '0.71', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (31370, 'B-2          TAB 100MG', '', 11845007141, '0.08', '0.00', 0, '0.00', '0.00'),
 (31371, 'SIMVASTATIN  TAB 40MG', '', 68382006805, '0.24', '0.00', 0, '0.00', '0.00'),
 (31372, 'VITAMIN D    CAP 1000UNIT', '', 30768015605, '0.06', '0.00', 0, '0.00', '0.00'),
@@ -32100,7 +32100,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (31958, 'FENOFIBRIC   CAP 135MG DR', '', 68180012909, '3.89', '0.00', 0, '0.00', '0.00'),
 (31959, 'IRON         TAB 325MG', '', 81131031251, '0.03', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (31960, 'CLARAVIS     CAP 20MG', '', 555105586, '7.75', '0.00', 0, '0.00', '0.00'),
 (31961, 'ROPINIROLE   TAB 2MG', '', 62332003331, '0.61', '0.00', 0, '0.00', '0.00'),
 (31962, 'METFORMIN    TAB 500MG ER', '', 591271960, '4.00', '0.00', 0, '0.00', '0.00'),
@@ -32693,7 +32693,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (32549, 'GLYCOPYRROL  TAB 2MG', '', 69315014001, '0.88', '0.00', 0, '0.00', '0.00'),
 (32550, 'CLOPIDOGREL  TAB 75MG', '', 16729021816, '2.43', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (32551, 'ASMANEX HFA  AER 100 MCG', '', 85433301, '15.20', '0.00', 0, '0.00', '0.00'),
 (32552, 'VALSARTAN    TAB 40MG', '', 31722074530, '2.81', '0.00', 0, '0.00', '0.00'),
 (32553, 'CVS NASAL    SPR 0.05%', '', 50428125507, '0.25', '0.00', 0, '0.00', '0.00'),
@@ -33287,7 +33287,7 @@ INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `pric
 (33141, 'PRENATAL     TAB PLUS', '', 65162066850, '0.35', '0.00', 0, '0.00', '0.00'),
 (33142, 'VITAMIN D3   CAP 5000UNIT', '', 81131031271, '0.04', '0.00', 0, '0.00', '0.00')");
 sqlInsert("
-INSERT INTO `drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
+INSERT INTO `erx_drug_paid` (`drugid`, `drug_label_name`, `AHFS_descr`, `NDC`, `price_per_unit`, `avg_price`, `avg_price_paid`, `avg_savings`, `avg_percent`) VALUES
 (33143, 'GLIP/METFORM TAB 5-500MG', '', 378313301, '0.82', '0.00', 0, '0.00', '0.00'),
 (33144, 'METFORMIN    TAB 1000MG', '', 68382003010, '0.43', '0.00', 0, '0.00', '0.00'),
 (33145, 'URSODIOL     TAB 500MG', '', 591300501, '3.28', '0.00', 0, '0.00', '0.00'),
