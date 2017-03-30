@@ -92,7 +92,7 @@ while($list = sqlFetchArray($send)){
 }
 ?>
 <div id="fields">
-<h3><?php echo xlt(Select Pharmacy); ?></h3>
+<h3><?php echo xlt("Select Pharmacy"); ?></h3>
 	    Patient Default <br>
 	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
 	    <?php if(!$patientPharmacy['name']){
