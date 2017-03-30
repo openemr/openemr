@@ -26,7 +26,7 @@ if ! hash curl >/dev/null 2>&1; then
 	exit 1
 fi
 
-# Password used for sql & openemr accounts created during setup
+# Password used for openemr accounts created during setup (sql root pass is empty)
 PASS=openemr
 IUFNAME=John
 IUNAME=Smith
