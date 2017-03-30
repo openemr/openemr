@@ -802,7 +802,6 @@
                       WHERE
                         group_settings.group_id IN (".$groupPlacemakers.") AND acl_sections.`section_identifier` = ? ";
 
-    $sql_group_acl_denied  = $sql_group_acl_base . " AND group_settings.allowed = '0'";
     $sql_group_acl_allowed = $sql_group_acl_base . " AND group_settings.allowed = '1'";
 
     // Complete the group queries sql binding array
