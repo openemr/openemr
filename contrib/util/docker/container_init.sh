@@ -44,9 +44,8 @@ service apache2 start
 sleep 2 # politeness
 
 # Run auto-setup things
-if grep -q '$config = 0;' /var/www/html/sites/default/sqlconf.php; then
-	/var/www/html/contrib/util/docker/setup_automation.sh http://localhost
-fi
+sed -i 's/$config = 1;/$config = 0;/g' /var/www/html/sites/default/sqlconf.php
+/var/www/html/contrib/util/docker/setup_automation.sh http://localhost
 
 #sleep infinity
 bash
