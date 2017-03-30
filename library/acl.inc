@@ -807,9 +807,6 @@
     // Complete the group queries sql binding array
     array_push($groups_sql_param, $section_identifier);
 
-        $count_group_denied     = 0;
-        $count_group_allowed    = 0;
-
         $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
         $count_user_allowed     = $res_user_allowed['count'];
 
