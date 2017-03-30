@@ -828,7 +828,7 @@
             return false;
         elseif($count_user_allowed > 0)
             return true;
-        elseif($count_group_denied > 0)
+        elseif($count_group_denied > 0 && $count_group_allowed < 1)
             return false;
         elseif($count_group_allowed > 0)
             return true;
