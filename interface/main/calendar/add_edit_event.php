@@ -106,7 +106,7 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 
 if((!$edit && !$view) ) {
-    $_GET['group'] = false;
+    $_GET['group'] = 'false';
     $GLOBALS['enable_group_therapy']=false;
 }
 if($_GET['group'] == true)
@@ -126,8 +126,8 @@ else {
     $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
-<?php $disabled = (!$edit && ($_GET['group']==="true" || $_GET['group']==true ))?' disabled=true; ':'';?>
-<?php if(!$edit && ($_GET['group']==="true" || $_GET['group']==true )) echo '<script>$( document ).ready(function(){
+<?php $disabled = (!$edit && $GLOBALS['enable_group_therapy'] )?' disabled=true; ':'';?>
+<?php if($disabled) echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true); 
     $("select").prop("disabled", true); 
 }) </script>';?>

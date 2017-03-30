@@ -493,9 +493,49 @@ if ($acl_version < $upgrade_acl) {
   $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
+ This is a template for a new revision, when needed
 // Upgrade for acl_version 5
 $upgrade_acl = 5;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+//Get Accountant ACL ID number
+    $back_write = getAclIdNumber('Groups', 'write');
+    $back_write = getAclIdNumber('Groups', 'view');
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+    // Add 'Patient Reminders (write,addonly optional)' object (added in 5.0.1)
+    addObjectSectionAcl('Groups', 'groups');
+
+
+ //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+    addObjectAcl('Groups', 'groups', 'gadd'  , 'Add/Update groups');
+    addObjectAcl('Groups', 'groups', 'gcalendar'  , 'Create/Update groups appointment in calender');
+    addObjectAcl('Groups', 'groups', 'glog'  , 'Group log');
+    addObjectAcl('Groups', 'groups', 'gdlog'  , 'Group detailed log of appointment in patient record');
+    addObjectAcl('Groups', 'groups', 'gm'  , 'Send message from the permanent group therapist to the personal therapist');
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 6
+$upgrade_acl = 6;
 if ($acl_version < $upgrade_acl) {
   echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
 
@@ -522,6 +562,7 @@ if ($acl_version < $upgrade_acl) {
   $acl_version = $upgrade_acl;
 }
 */
+
 
 //All done
 $response = set_acl_version($acl_version);
