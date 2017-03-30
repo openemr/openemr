@@ -142,6 +142,7 @@ class Prescription extends ORDataObject {
 
     var $drug_id;
     var $active;
+	var $ntx;
 
     /**
     * Constructor sets all Prescription attributes to their default value
@@ -186,7 +187,8 @@ class Prescription extends ORDataObject {
 
         $this->drug_id = 0;
         $this->active = 1;
-
+		$this->ntx = 0;
+        
         for($i=0;$i<21;$i++) {
             $this->refills_array[$i] = sprintf("%02d",$i);
         }
@@ -233,7 +235,8 @@ class Prescription extends ORDataObject {
         	."Refills: " . $this->refills. "\n"
         	."Per Refill: " . $this->per_refill . "\n"
         	."Drug ID: " . $this->drug_id . "\n"
-        	."Active: " . $this->active;
+        	."Active: " . $this->active . "\n"
+			."Transmitted: " . $this->ntx;
 
         if ($html) { return nl2br($string); }
         else { return $string; }
@@ -254,7 +257,10 @@ class Prescription extends ORDataObject {
     }
 
     function set_id($id) {
-        if (!empty($id) && is_numeric($id)) { $this->id = $id; }
+        //if (!empty($id) && is_numeric($id)) { $this->id = $id; }
+		$phid = explode("-", $id);
+		$id = $phid[0];
+        $this->id = $id;		
     }
     function get_id() {
         return $this->id;
@@ -317,7 +323,6 @@ class Prescription extends ORDataObject {
     function get_interval() {
         return $this->interval;
     }
-
     function set_substitute($sub) {
         if (is_numeric($sub)) { $this->substitute = $sub; }
     }
@@ -456,6 +461,12 @@ class Prescription extends ORDataObject {
     function set_date_added($date) {
         return $this->date_added = $date;
     }
+    function set_txDate($txdate){
+        return $this->txDate = $txdate;
+    }
+    function get_txDate(){
+        return $this->txDate;
+    }
 
     function get_date_modified() {
         return $this->date_modified;
@@ -479,11 +490,31 @@ class Prescription extends ORDataObject {
     }
 
     function set_drug($drug) {
+		if($GLOBALS['weno_rx_enable']){
+				$drug = explode("-", $drug); //striping the price from the drug name. 
+		        $drug = $drug[0];
+		}
         $this->drug = $drug;
+		
+       if($GLOBALS['weno_rx_enable']){
+		$sql = "SELECT NDC FROM drug_paid WHERE drug_label_name LIKE ? ";
+        $rxNormNum = array('%'.$drug.'%');
+		$getNDC = sqlStatement($sql,$rxNormNum);
+		$ndc = sqlFetchArray($getNDC);
+		$drug_id = $ndc['NDC'];
+		    //Save this drug id
+		$this->drug_id = $drug_id;
+	   }
     }
     function get_drug() {
         return $this->drug;
     }
+	function set_ntx($ntx){
+		$this->ntx = $ntx;
+	}
+	function get_ntx() {
+		return $this->ntx;
+	}
 
     function set_rxnorm_drugcode($rxnorm_drugcode) {
         $this->rxnorm_drugcode = $rxnorm_drugcode;

@@ -2544,6 +2544,90 @@ $GLOBALS_METADATA = array(
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
+    'weno_rx_enable' => array(
+      xl('Enable Weno eRx Service'),
+      'bool',
+      '0',
+      xl('Enable Weno eRx Service.') + ' ' +
+      xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.') 
+    ),
+	
+    'weno_account_id' => array(
+      xl('Weno eRx Account Id'),
+      'text',
+      '',
+      xl('Account Id issued for Weno eRx service.')
+    ),	
+    'weno_account_pass' => array(
+      xl('Weno eRx Account Pass'),
+      'text',
+      '',
+      xl('Account password issued for Weno eRx service.')
+    ),
+
+    'weno_provider_id' => array(
+      xl('Weno eRx Clinic ID'),
+      'text',
+      '',
+      xl('Provider ID issued for Your provider access to eRx services.')
+    ),	
+	'weno_state_code' => array(
+	  xl('Select State'),
+      array(
+             'AK' => xl('AK'),
+             'AL' => xl('AL'),
+             'AZ' => xl('AZ'),
+             'AR' => xl('AR'),
+             'CA' => xl('CA'),
+             'CO' => xl('CO'),
+             'CT' => xl('CT'),
+             'DE' => xl('DE'),
+             'FL' => xl('FL'),
+             'GA' => xl('GA'),
+             'HI' => xl('HI'),
+             'ID' => xl('ID'),
+             'IL' => xl('IL'),
+             'IN' => xl('IN'),
+             'IA' => xl('IA'),
+             'KS' => xl('KS'),
+             'KY' => xl('KY'),
+             'LA' => xl('LA'),
+             'ME' => xl('ME'),
+             'MD' => xl('MD'),
+             'MA' => xl('MA'),
+             'MI' => xl('MI'),
+             'MN' => xl('MN'),
+             'MS' => xl('MS'),
+             'MO' => xl('MO'),
+             'MT' => xl('MT'),
+             'NE' => xl('NE'),
+             'NV' => xl('NV'),
+             'NH' => xl('NH'),
+             'NJ' => xl('NJ'),
+             'NM' => xl('NM'),
+             'NY' => xl('NY'),
+             'NC' => xl('NC'),
+             'ND' => xl('ND'),
+             'OH' => xl('OH'),
+             'OK' => xl('OK'),
+             'OR' => xl('OR'),
+             'PA' => xl('PA'),
+             'RI' => xl('RI'),
+             'SC' => xl('SC'),
+             'SD' => xl('SD'),
+             'TN' => xl('TN'),
+             'TX' => xl('TX'),
+             'UT' => xl('UT'),
+             'VT' => xl('VT'),
+             'VA' => xl('VA'),
+             'WA' => xl('WA'),
+             'WV' => xl('WV'),
+             'WI' => xl('WI'),
+             'WY' => xl('WY'),
+      ),
+      'text',                              // default = tree menu
+      xl('Choose your State')
+    ),	  
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type

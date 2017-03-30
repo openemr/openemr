@@ -117,6 +117,7 @@ $menu_json='[
       {"label":"Database","menu_id":"dba0","target":"dba","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
       {"label":"Certificates","menu_id":"adm0","target":"adm","url":"/interface/usergroup/ssl_certificates_admin.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"Native Data Loads","menu_id":"adm0","target":"adm","url":"/interface/super/load_codes.php","children":[],"requirement":0,"acl_req":["admin","super"]},
+      {"label":"Weno Management","menu_id":"adm0","target":"adm","url":"/interface/weno/admin.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"External Data Loads","menu_id":"adm0","target":"adm","url":"/interface/code_systems/dataloads_ajax.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"Merge Patients","menu_id":"adm0","target":"adm","url":"/interface/patient_file/merge_patients.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"Import Holidays","menu_id":"adm0","target":"adm","url":"/interface/main/holidays/import_holidays.php","children":[],"requirement":0,"acl_req":["admin","super"]},
