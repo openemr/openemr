@@ -2340,7 +2340,7 @@ $GLOBALS_METADATA = array(
     'enable_offsite_patient_messaging' => array(
           xl('Enable Patient Messaging'),
           'bool',                           // data type
-          '1',
+          '0',
           xl('Enable Patient Messaging.')
      ),
 
