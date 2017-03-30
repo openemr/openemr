@@ -828,9 +828,7 @@
             return false;
         elseif($count_user_allowed > 0)
             return true;
-        // We do not exclude user that belongs to group A and B
-        // In case of A group have permissions and B group does not have permissions
-        elseif($count_group_denied > 0 && $count_group_allowed < 1)
+        elseif($count_group_denied > 0 )
             return false;
         elseif($count_group_allowed > 0)
             return true;
