@@ -148,11 +148,11 @@
 							class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span>
 					</a>
 						<ul class="dropdown-menu">
+							<li><a id="callccda" href="./../ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
 							<li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
 								data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
 							<li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"
-								data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Documents'); ?></span>
-							</a></li>
+								data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Documents'); ?></span></a></li>
 						</ul></li>
 
 					<li><a href="./messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
@@ -164,7 +164,6 @@
 					<li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" > <i
 							class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
 					</a></li>
-
 					<li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>
 				</ul>
 			</section>
