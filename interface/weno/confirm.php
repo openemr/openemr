@@ -49,7 +49,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 function validate(){
 	var pharmacy = document.getElementById('pharm');
 	if(text.value.length == 0){
-		alert('<?php print xlt("Must select a pharmacy first"); ?>');
+		alert('<?php print xls("Must select a pharmacy first"); ?>');
 		return false;
 	}
 }
@@ -93,7 +93,7 @@ while($list = sqlFetchArray($send)){
 ?>
 <div id="fields">
 <h3><?php echo xlt("Select Pharmacy"); ?></h3>
-	    Patient Default <br>
+	    <?php echo xlt("Patient Default"); ?> <br>
 	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
 	    <?php if(!$patientPharmacy['name']){
                    print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br> <br>";

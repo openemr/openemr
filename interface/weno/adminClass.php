@@ -133,11 +133,7 @@ class adminProperties {
                            ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=570"
           	);
 
-          sqlStatement("ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) NULL AFTER `newcrop_user_role`");
-          
-          sqlStatement("ALTER TABLE `prescriptions` ADD `ntx` INT(2) NULL DEFAULT NULL AFTER `prn`, ADD `rtx` INT(2) NULL DEFAULT NULL AFTER `ntx`, ADD `txDate` DATE NOT NULL AFTER `rtx`");
-        
-          sqlStatement("ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL AFTER `email`, ADD `npi` INT(12) NULL AFTER `ncpdp`");
+
 /*          
           $lastPharmacy = sqlQuery("SELECT id FROM `pharmacies` ORDER BY id DESC LIMIT 1 ");
            $sqlPharmacy = "INSERT INTO `pharmacies` (`id`, `name`, `transmit_method`, `email`, `ncpdp`, `npi`) VALUES

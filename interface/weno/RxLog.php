@@ -24,7 +24,7 @@ $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 require_once("../globals.php");
 
 ?>
-<h1>Rx Log</h1>
+<h1><?php print xlt("Rx Log"); ?></h1>
 <html>
 <head>
 <?php html_header_show();?>
@@ -47,7 +47,7 @@ print "<tr align='left'>
 </tr>";
 while($row = sqlFetchArray($log)){
 
-	print "<tr><td>" .text($row['prescription_id'])."</td><td>".text($row['date']).
+	print "<tr><td>" .text($row['prescription_id'])."</td><td>".oeFormatShortDate(text($row['date'])).
           "</td><td>".text($row['time'])."</td><td>".text($row['code'])."</td><td>".text($row['status']).
           "</td><td>".text($row['message_id'])."</td></tr>";		  
 	

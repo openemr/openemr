@@ -39,10 +39,10 @@ require_once('../globals.php');
 
   <div id="confirm">
   <br><br>
-      <input type='submit' id='confirm_btn' value='<?php print xlt("Confirm") ?>' >
+      <input type='submit' id='confirm_btn' value='<?php print xla("Confirm") ?>' >
   </div>
    <div id="transmit">
-      <input type='submit' id='order' value='<?php print xlt("Transmit Order") ?>' >
+      <input type='submit' id='order' value='<?php print xla("Transmit Order") ?>' >
   </div>
     <div id="success"></div>
 	
