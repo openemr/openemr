@@ -20,8 +20,11 @@
 # @link    http://www.open-emr.org
 
 # Quick one-liner:
-# docker build -f contrib/util/docker/Dockerfile . -t openemr && docker run -it -p 9000:80 openemr
-# For debugging things: docker run -it -p 9000:80 openemr bash
+# cd contrib/util/docker; docker build . -t openemr; cd ../../..; docker run -it -p 8000:80 -p 3306:3306 -v `pwd`:/var/www/html/ openemr
+
+# NB: The current directory now matters much more when building the container. Move to the contrib/util/docker container to build
+#     so you aren't sending ~500mb to the docker server, then move to the root of the git repo (or hardcode the absolute path)
+#     so the -v flag lines up (the absolute path of the git repo must be on the left, path to mount inside container on right)
 
 # NB: 'localhost' does not resolve to this container - use 127.0.0.1 instead for things like sql server
 
@@ -35,19 +38,10 @@ RUN yes | apt-get update && \
     yes | apt-get install mysql-server libcurl4-gnutls-dev && \
     docker-php-ext-install mysqli curl pdo_mysql
 
-COPY . /var/www/html/
-WORKDIR /var/www/html
-RUN chmod a+w \
-        sites/default/sqlconf.php \
-        interface/modules/zend_modules/config/application.config.php \
-        gacl/admin/templates_c  \
-        sites/default/edi       \
-        sites/default/era       \
-        sites/default/documents \
-        custom/letter_templates \
-        interface/main/calendar/modules/PostCalendar/pntemplates/compiled \
-        interface/main/calendar/modules/PostCalendar/pntemplates/cache;   \
-    find . -exec chown -R www-data:www-data {} \;
+# Configure SQL
+RUN sed -i 's/bind-address.*127.0.0.1/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf
+RUN /etc/init.d/mysql start; sleep 3; \
+    mysql -u root --password='' -e 'GRANT ALL PRIVILEGES ON *.* TO "root"@"%" IDENTIFIED BY "" WITH GRANT OPTION; FLUSH PRIVILEGES;'
 
 # Setup config per. req
 ENV INI /usr/local/etc/php/conf.d/fixes.ini
@@ -83,4 +77,4 @@ RUN echo '<Directory "/var/www/html">'                      >> $CONF; \
     echo '  </Directory>'                                   >> $CONF; \
     echo 'LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so' >> $CONF
 
-CMD ["sh", "-c", "/etc/init.d/mysql start; apache2-foreground"]
+CMD ["sh", "-c", "[ -e /var/www/html/contrib/util/docker/container_init.sh ] && /var/www/html/contrib/util/docker/container_init.sh || echo 'You have not mounted the openemr directory inside the container.'"]

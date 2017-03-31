@@ -108,7 +108,7 @@ if (!empty($ptrow)) {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('Patient ID'); ?>:
 			</td>
 			<td>

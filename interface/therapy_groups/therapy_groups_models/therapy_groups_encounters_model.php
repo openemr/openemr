@@ -34,7 +34,7 @@
       * @return ADORecordSet_mysqli
       */
      public function getGroupEncounters($gid){
-         $sql = "SELECT * FROM " . SELF::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
+         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
          $result = sqlStatement($sql, array($gid));
          while($row = sqlFetchArray($result)){
              $encounters[] = $row;

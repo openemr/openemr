@@ -406,6 +406,27 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 INSERT INTO list_options ( `list_id`, `option_id`, `title`, `seq`, `is_default`, `notes` ) VALUES ('apptstat','^','^ Pending',70,0,'FEFDCF|0');
 #EndIf
 
+#IfMissingColumn registry aco_spec
+ALTER TABLE `registry` ADD `aco_spec` varchar(63) NOT NULL default 'encounters|notes';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newpatient';
+UPDATE `registry` SET `aco_spec` = 'patients|appt'     WHERE directory = 'newGroupEncounter';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'fee_sheet';
+UPDATE `registry` SET `aco_spec` = 'encounters|coding' WHERE directory = 'misc_billing_options';
+UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'procedure_order';
+#EndIf
+
+#IfNotColumnType lbf_data field_value longtext
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
+#EndIf
+
+#IfMissingColumn issue_types aco_spec
+ALTER TABLE `issue_types` ADD `aco_spec` varchar(63) NOT NULL default 'patients|med';
+#EndIf
+
+#IfMissingColumn categories aco_spec
+ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|docs';
+#EndIf
+
 #IfNotRow background_services name ccdaservice
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95);
 ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';

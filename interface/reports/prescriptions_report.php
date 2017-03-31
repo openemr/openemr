@@ -130,20 +130,20 @@
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
 				 title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
@@ -152,21 +152,21 @@
 			</td>
 		</tr>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('Patient ID','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
 				title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('Drug','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
 				title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('Lot','e'); ?>:
 			</td>
 			<td>

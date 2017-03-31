@@ -101,9 +101,9 @@ else {
 setencounter($encounter);
 
 // Update the list of issues associated with this encounter.
-sqlStatement("DELETE FROM issue_encounter WHERE " .
-  "pid = ? AND encounter = ?", array($pid,$encounter) );
 if (is_array($_POST['issues'])) {
+  sqlStatement("DELETE FROM issue_encounter WHERE " .
+    "pid = ? AND encounter = ?", array($pid, $encounter));
   foreach ($_POST['issues'] as $issue) {
     $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
     sqlStatement($query, array($pid,$issue,$encounter));

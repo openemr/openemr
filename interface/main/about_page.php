@@ -103,9 +103,9 @@ require_once("../globals.php");
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }
 
-                if (data.status === 'UNREGISTERED') {
+                if (data.statusAsString === 'UNREGISTERED') {
                     productRegistrationController.showProductRegistrationModal();
-                } else if (data.status === 'REGISTERED') {
+                } else if (data.statusAsString === 'REGISTERED') {
                     productRegistrationController.displayRegistrationInformationIfDivExists(data);
                 }
             });

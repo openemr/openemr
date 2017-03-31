@@ -87,7 +87,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
             $tag_name_esc = $tag_name_esc . "[]";
         }
 
-	$s .= "<select name='$tag_name_esc'";
+  $s .= "<select name='$tag_name_esc'";
 
 	if ($multiple) {
 		$s .= " multiple='multiple'";
@@ -101,10 +101,14 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 
 	$s .= " id='$tag_id_esc'";
 
-	if ($class) {
-                $class_esc = attr($class);
-		$s .= " class='$class_esc'";
-	}
+  if (!empty($class)) {
+    $class_esc = attr($class);
+    $s .= " class='form-control $class_esc'";
+  }
+  else {
+    $s .= " class='form-control'";
+  }
+
 	if ($onchange) {
 		$s .= " onchange='$onchange'";
 	}
@@ -391,7 +395,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled>";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control'>";
     echo "<option value=''>" . xlt($empty_title) . "</option>";
     $got_selected = false;
     while ($urow = sqlFetchArray($ures)) {
@@ -1095,7 +1099,9 @@ function generate_form_field($frow, $currvalue) {
         $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
       }
     }
-    echo "<div id='form_$field_id_esc'></div>";
+    $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
+    $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
+    echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
     // Hidden form field exists to send updated data to the server at submit time.
     echo "<input type='hidden' name='form_$field_id_esc' value='' />";
     // Hidden image exists to support initialization of the canvas.
@@ -2412,9 +2418,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
 	// Handle starting of a new label cell.
 	if ($titlecols > 0) {
 	  disp_end_cell();
-	  //echo "<td class='label' colspan='$titlecols' valign='top'";
+	  //echo "<td class='label_custom' colspan='$titlecols' valign='top'";
 	  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-	  echo "<td class='label' colspan='$titlecols_esc' ";
+	  echo "<td class='label_custom' colspan='$titlecols_esc' ";
 	  //if ($cell_count == 2) echo " style='padding-left:10pt'";
 	  echo ">";
 	  $cell_count += $titlecols;
@@ -2542,7 +2548,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2680,7 +2686,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
                       $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label' ";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='$field_id_label' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -3189,9 +3195,9 @@ function lbf_current_value($frow, $formid, $encounter) {
 
 // This returns stuff that needs to go into the <head> section of a caller using
 // the drawable image field type in a form.
-// A TRUE argument makes the widget 25% less tall.
+// A TRUE argument makes the widget controls smaller.
 //
-function lbf_canvas_head($small=FALSE) {
+function lbf_canvas_head($small=TRUE) {
   $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
 <script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
@@ -3204,7 +3210,7 @@ EOD;
  * This makes the widget 25% less tall and adjusts some other things accordingly.
  */
 .literally {
-  min-height:292px;min-width:300px;        /* Was 400, unspecified */
+  min-height:100%;min-width:300px;        /* Was 400, unspecified */
 }
 .literally .lc-picker .toolbar-button {
   width:20px;height:20px;line-height:20px; /* Was 26, 26, 26 */

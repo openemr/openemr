@@ -500,13 +500,13 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 					<div id="external_output" style="text-align:left;margin:0;padding:20;">
 						<blockquote class="style2">
 							Input:<br /><br />
-							<b>D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells/b><br />
+							<b>D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</b><br />
 							<br />
 							Output:
 							<br /><br />
-							<div class="output_EMR">
+							<div class="output_EMR well-sm">
 								<h4>Eye Exam</h4>
-								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" width="95%" alt="Shorthand Example: openEMR">
+								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" width="90%" alt="Shorthand Example: openEMR">
 							</div>
 							<div class="output_reports">
 								<h4>Reports</h4>

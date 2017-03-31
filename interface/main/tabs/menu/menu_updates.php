@@ -27,6 +27,7 @@ include_once("$srcdir/registry.inc");
 $menu_update_map=array();
 $menu_update_map["Visit Forms"]="update_visit_forms";
 $menu_update_map["Modules"]="update_modules_menu";
+$menu_update_map["Create Visit"] = "update_create_visit";
 
 function update_modules_menu(&$menu_list)
 {
@@ -78,7 +79,10 @@ function update_visit_forms(&$menu_list) {
     // Plug in ACO attribute, if any, of this LBF.
     $jobj = json_decode($lrow['notes'], true);
     if (!empty($jobj['aco'])) {
-      $formEntry->acl_req = explode('|', $jobj['aco']);
+      $tmp = explode('|', $jobj['aco']);
+      if (!empty($tmp[1])) {
+        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+      }
     }
     array_push($menu_list->children, $formEntry);
   }
@@ -97,8 +101,21 @@ function update_visit_forms(&$menu_list) {
       $formEntry->url = $formURL;
       $formEntry->requirement = 2;
       $formEntry->target = 'enc';
+      // Plug in ACO attribute, if any, of this form.
+      $tmp = explode('|', $entry['aco_spec']);
+      if (!empty($tmp[1])) {
+        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+      }
       array_push($menu_list->children, $formEntry);
     }
+  }
+}
+
+function update_create_visit(&$menu_list) {
+  $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
+  if (!empty($tmp['aco_spec'])) {
+    $tmp = explode('|', $tmp['aco_spec']);
+    $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
   }
 }
 

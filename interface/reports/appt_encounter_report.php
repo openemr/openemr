@@ -234,7 +234,7 @@ $(document).ready(function() {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
@@ -257,14 +257,14 @@ $(document).ready(function() {
 				 echo "   </select>\n";
 				?>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('DOS','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
 				title='Date of appointments mm/dd/yyyy' >
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>

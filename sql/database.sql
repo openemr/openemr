@@ -223,6 +223,7 @@ CREATE TABLE `categories` (
   `parent` int(11) NOT NULL default '0',
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
+  `aco_spec` varchar(63) NOT NULL DEFAULT 'patients|docs',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
@@ -231,35 +232,35 @@ CREATE TABLE `categories` (
 --
 -- Dumping data for table `categories`
 --
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57);
-INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
-INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
-INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10);
-INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7);
-INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18);
-INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13);
-INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15);
-INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17);
-INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9);
-INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20);
-INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22);
-INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24);
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50);
-INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27);
-INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29);
-INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49);
-INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32);
-INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34);
-INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36);
-INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38);
-INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40);
-INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42);
-INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44);
-INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46);
-INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48);
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56);
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53);
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55);
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 57, 'patients|docs');
+INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
+INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
+INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
+INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|docs');
+INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs');
+INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs');
+INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs');
+INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs');
+INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|docs');
+INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs');
+INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs');
+INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs');
+INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs');
+INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs');
+INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs');
+INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs');
+INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs');
+INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs');
+INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs');
+INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs');
+INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs');
+INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs');
+INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs');
+INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs');
+INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs');
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
 -- --------------------------------------------------------
 
 --
@@ -2607,6 +2608,7 @@ CREATE TABLE `issue_types` (
     `style` smallint(6) NOT NULL DEFAULT '0',
     `force_show` smallint(6) NOT NULL DEFAULT '0',
     `ordering` int(11) NOT NULL DEFAULT '0',
+    `aco_spec` varchar(63) NOT NULL default 'patients|med',
     PRIMARY KEY (`category`,`type`)
 ) ENGINE=InnoDB;
 
@@ -5801,6 +5803,7 @@ CREATE TABLE `registry` (
   `nickname` varchar(255) default NULL,
   `patient_encounter` TINYINT NOT NULL DEFAULT '1',
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
+  `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 ;
 
@@ -5808,22 +5811,22 @@ CREATE TABLE `registry` (
 -- Dumping data for table `registry`
 --
 
-INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0);
-INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0);
-INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0);
-INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0);
-INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0);
-INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
-INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1);
+INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt');
+INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0,'patients|lab');
+INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
+INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
+INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
 
 -- --------------------------------------------------------
 
@@ -6956,7 +6959,7 @@ CREATE TABLE `users_facility` (
 CREATE TABLE `lbf_data` (
   `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` TEXT,
+  `field_value` LONGTEXT,
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=InnoDB COMMENT='contains all data from layout-based forms';
 

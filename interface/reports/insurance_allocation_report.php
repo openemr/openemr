@@ -133,14 +133,14 @@ else {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>

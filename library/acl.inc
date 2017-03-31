@@ -835,4 +835,77 @@
         else
             return false;
     }
+
+  // This generates an HTML options list for all ACOs.
+  // The caller inserts this between <select> and </select> tags.
+  //
+  function gen_aco_html_options($default='') {
+    global $phpgacl_location;
+    require_once("$phpgacl_location/gacl_api.class.php");
+    $s = '';
+    $gacl = new gacl_api();
+    // collect and sort all aco objects
+    $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
+    ksort($list_aco_objects);
+    foreach ($list_aco_objects as $seckey => $dummy) {
+      if (empty($dummy)) continue;
+      asort($list_aco_objects[$seckey]);
+      $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
+      $aco_section_title = $aco_section_data[3];
+      $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
+      foreach($list_aco_objects[$seckey] as $acokey) {
+        $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
+        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
+        $aco_title = $aco_data[0][3];
+        $optkey = "$seckey|$acokey";
+        $s .= "<option value='" . attr($optkey) . "'";
+        if ($optkey == $default) $s .= ' selected';
+        $s .= ">" . xlt($aco_title) . "</option>";
+      }
+      $s .= "</optgroup>";
+    }
+    return $s;
+  }
+
+  // Permissions check for an ACO in "section|aco" format.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_aco_spec($aco_spec, $user='', $return_value='') {
+    if (empty($aco_spec)) return true;
+    $tmp = explode('|', $aco_spec);
+    if (!is_array($return_value)) $return_value = array($return_value);
+    foreach ($return_value as $rv) {
+      if (acl_check($tmp[0], $tmp[1], $user, $rv)) return true;
+    }
+    return false;
+  }
+
+  // Permissions check for a specified encounter form type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_form($formdir, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/registry.inc');
+    $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+  }
+
+  // Permissions check for a specified issue type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_issue($type, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/lists.inc');
+    global $ISSUE_TYPES;
+    if (empty($ISSUE_TYPES[$type][5])) return true;
+    return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
+  }
+
+  // Permissions check for a specified document category name.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_cat_name($catname, $user='', $return_value='') {
+    $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
+      array($catname));
+    if (empty($tmp['aco_spec'])) return true;
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+  }
 ?>

@@ -51,7 +51,7 @@
                             <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                         </div>
                         <div class="col-md-6 col-sm-6">
-                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>">
+                            <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>">
                         </div>
                     </div>
                 </div>
@@ -157,7 +157,7 @@
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });

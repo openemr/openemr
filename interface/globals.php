@@ -217,7 +217,6 @@ $GLOBALS["doctrine_connection_pooling"] = true;
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
-$GLOBALS['cene_specific'] = false;
 
 // Defaults for drugs and products.
 $GLOBALS['inhouse_pharmacy'] = false;
@@ -289,6 +288,16 @@ if (!empty($glrow)) {
       if ($gl_value) $GLOBALS['inhouse_pharmacy'] = true;
       if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
+    }
+    else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
+      if ($gl_value) {
+        date_default_timezone_set($gl_value);
+      }
+      // Synchronize MySQL time zone with PHP time zone.
+      sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
     }
     else {
       $GLOBALS[$gl_name] = $gl_value;

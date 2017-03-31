@@ -627,7 +627,7 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
-	$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
+	$module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
 					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
 					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
 					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
@@ -648,6 +648,8 @@ if ($GLOBALS['patient_id_category_name']) {
 				$added		= "index";
 				$modulePath 	= $GLOBALS['zendModDir'];
 			}
+			if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
+
 			$relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
 			$nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
 			$jid++;
@@ -1300,32 +1302,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
           } ?>
       </div>
  <?php  }  // close advanced dir block
-
-	// This is a feature for a specific client.  -- Rod
-	if ($GLOBALS['cene_specific']) {
-	  echo "   <br />\n";
-
-          $imagedir  = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/demographics";
-          $imagepath = "$web_root/sites/" . $_SESSION['site_id'] . "/documents/$pid/demographics";
-
-	  echo "   <a href='' onclick=\"return sendimage($pid, 'photo');\" " .
-		"title='Click to attach patient image'>\n";
-	  if (is_file("$imagedir/photo.jpg")) {
-		echo "   <img src='$imagepath/photo.jpg' /></a>\n";
-	  } else {
-		echo "   Attach Patient Image</a><br />\n";
-	  }
-	  echo "   <br />&nbsp;<br />\n";
-
-	  echo "   <a href='' onclick=\"return sendimage($pid, 'fingerprint');\" " .
-		"title='Click to attach fingerprint'>\n";
-	  if (is_file("$imagedir/fingerprint.jpg")) {
-		echo "   <img src='$imagepath/fingerprint.jpg' /></a>\n";
-	  } else {
-		echo "   Attach Biometric Fingerprint</a><br />\n";
-	  }
-	  echo "   <br />&nbsp;<br />\n";
-	}
 
     // Show Clinical Reminders for any user that has rules that are permitted.
     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);

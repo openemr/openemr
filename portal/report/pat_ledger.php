@@ -387,7 +387,7 @@ function sel_patient() {
 	<table class='text'>
 		<tr>
         <?php if($type_form == '0') { ?>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
@@ -414,14 +414,14 @@ function sel_patient() {
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
         <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
-      <td class='label'>
+      <td class='label_custom'>
         <?php echo xlt('To'); ?>:
       </td>
       <td>
         <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>
       </td>
       <?php if($type_form == '0') { ?>
-      <td><span class='label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
+      <td><span class='label_custom'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
       <td>
         <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
         <?php }else{ ?>

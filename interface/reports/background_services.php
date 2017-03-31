@@ -121,7 +121,7 @@ require_once("../globals.php");
   </th>
 
   <th align='center'>
-   <?php echo xlt('Currently Running'); ?>
+   <?php echo xlt('Currently Busy'); ?>
   </th>
 
   <th align='center'>
