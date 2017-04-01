@@ -226,7 +226,7 @@ while ($frow = sqlFetchArray($fres)) {
   if ($titlecols > 0) {
     end_cell();
     echo "<td colspan='$titlecols' valign='top'";
-    echo ($frow['uor'] == 2) ? " class='required'" : " class='label'";
+    echo ($frow['uor'] == 2) ? " class='required'" : " class='label_custom'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo '>';
     $cell_count += $titlecols;

@@ -5,7 +5,7 @@
     "support": {
         "website": "http://www.open-emr.org/",
         "issues": "https://github.com/openemr/openemr/issues",
-        "forum": "https://sourceforge.net/p/openemr/discussion/",
+        "forum": "https://community.open-emr.org/",
         "wiki": "http://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
         "source": "http://github.com/openemr/openemr"
     },
@@ -51,6 +51,7 @@
             "common\\": "common",
             "common\\database\\": "common/database",
             "common\\logging\\": "common/logging",
+            "common\\http\\": "common/http",
             "entities\\": "entities",
             "services\\": "services",
             "repositories\\": "repositories"

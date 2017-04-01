@@ -23,8 +23,6 @@ $sanitize_all_escapes=true;
 $ignoreAuth=true;
 require_once("../globals.php");
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
-require_once($GLOBALS['fileroot'] . "/interface/main/utils/http_response_helper.php");
-require_once($GLOBALS['fileroot'] . "/interface/product_registration/product_registration_service.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
@@ -32,7 +30,7 @@ class ProductRegistrationController {
     private $productRegistrationService;
 
     public function __construct() {
-        $this->productRegistrationService = new ProductRegistrationService();
+        $this->productRegistrationService = new \services\ProductRegistrationService();
 
         // (note this is here until we use Zend Framework)
         switch ($_SERVER['REQUEST_METHOD']) {
@@ -48,27 +46,28 @@ class ProductRegistrationController {
     public function get() {
         $statusPayload = $this->productRegistrationService->getProductStatus();
 
-        HttpResponseHelper::send(200, $statusPayload, 'JSON');
+        \common\http\HttpResponseHelper::send(200, $statusPayload, 'JSON');
     }
 
     public function post() {
-        $registrationPayload = new stdClass();
+        $response = null;
         $status = 500;
 
         try {
+            $response = new \entities\ProductRegistration();
             $registrationId = $this->productRegistrationService->registerProduct($_POST['email']);
-            $registrationPayload->registration_id = $registrationId;
-            $registrationPayload->email = $_POST['email'];
+            $response->setRegistrationId($registrationId);
+            $response->setEmail($_POST['email']);
             $status = 201;
         } catch (InvalidEmailException $emailException) {
-            $registrationPayload->error = $emailException->errorMessage();
+            $response = $emailException->errorMessage();
         } catch (DuplicateRegistrationException $duplicateRegistrationException) {
-            $registrationPayload->error = $duplicateRegistrationException->errorMessage();
+            $response = $duplicateRegistrationException->errorMessage();
         } catch (GenericProductRegistrationException $genericProductRegistrationException) {
-            $registrationPayload->error = $genericProductRegistrationException->errorMessage();
+            $response = $genericProductRegistrationException->errorMessage();
         }
 
-        HttpResponseHelper::send($status, $registrationPayload, 'JSON');
+        \common\http\HttpResponseHelper::send($status, $response, 'JSON');
     }
 }
 

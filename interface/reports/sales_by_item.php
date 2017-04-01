@@ -350,20 +350,20 @@ $(document).ready(function() {
     <div style='float:left'>
     <table class='text'>
         <tr>
-            <td class='label'>
+            <td class='label_custom'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility', true); ?>
             </td>
-            <td class='label'>
+            <td class='label_custom'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                 <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
                 title='yyyy-mm-dd'>
             </td>
-            <td class='label'>
+            <td class='label_custom'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
@@ -374,7 +374,7 @@ $(document).ready(function() {
     </table>
     <table class='text'>
         <tr>
-          <td class='label'>
+          <td class='label_custom'>
             <?php echo xlt('Provider'); ?>:
           </td>
           <td>

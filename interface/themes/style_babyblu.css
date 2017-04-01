@@ -1,7 +1,7 @@
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: sans-serif; 
+    font-family: sans-serif;
     font-size: 1em;  /* set the base font size for all DOM children */
 }
 
@@ -173,7 +173,7 @@ a:hover {
 }
 
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS classes 
+ * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 .body_top { background-color: #eae6ff; margin: 8px }    /* $top_bg_line */
@@ -258,7 +258,7 @@ font-weight: bold;
 #documents_list {
     width: 29%;
     height: 95%;
-    overflow: auto; 
+    overflow: auto;
     float: left;
     border-right: dashed 1px;
 }
@@ -271,8 +271,8 @@ font-weight: bold;
 }
 #documents_actions iframe {
     display: inline;
-    border:none; 
-    width:100%; 
+    border:none;
+    width:100%;
     height:600px;
     overflow: auto;
 }
@@ -296,7 +296,7 @@ font-weight: bold;
     padding-right: 5px;
     vertical-align: top;
 }
-#DEM .label {
+#DEM .label_custom {
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: top;
@@ -319,7 +319,7 @@ font-weight: bold;
     vertical-align: top;
     height: 2em;
 }
-#HIS .label {
+#HIS .label_custom {
     font-weight: bold;
     font-size: 9pt;
     vertical-align: top;
@@ -337,7 +337,7 @@ font-weight: bold;
  * seen in the patient summary and notes screens
  *============================================================*/
 #pnotes .billing {
-    background-color: #dfd;  
+    background-color: #dfd;
 }
 
 #pnotes .highlight {
@@ -349,7 +349,7 @@ font-weight: bold;
 }
 
 #pnotes .noterow {
-    cursor: pointer; 
+    cursor: pointer;
 }
 
 #pnotes .noterow td {
@@ -445,7 +445,7 @@ font-weight: bold;
 #patient_pastenc {
     width:100%;
 }
-    
+
 #patient_pastenc .billing_note {
     width: 25%;
 }
@@ -522,7 +522,7 @@ font-weight: bold;
 #patient_reports ul {
     list-style: none;
 }
-    
+
 
 /*=============================================================
  * Report - Custom
@@ -638,6 +638,7 @@ font-weight: bold;
 .css_button_small:hover {
     background: #1050b6;
     box-shadow: 0px 1px 3px #DDD;
+    text-decoration: none;
 }
 
 .css_button, input[type="button"], input[type="submit"], button{
@@ -667,6 +668,7 @@ font-weight: bold;
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
     background: #1050b6;
     box-shadow: 3px 4px 6px #DDD ;
+    text-decoration: none;
 }
 
 input[type="button"][style="background-color:#ffff55"] {
@@ -724,7 +726,7 @@ div.tab table td {
 	padding-right: 1px; padding-bottom: 0px
 }
 
-div.tab table td.label {
+div.tab table td.label_custom {
 	min-width:80px;
 }
 
@@ -776,7 +778,7 @@ div.notab-right {
 	font-size: 0.8em;
 }
 
-#report_parameters table table td.label {
+#report_parameters table table td.label_custom {
 	text-align: right;
 }
 
@@ -861,15 +863,15 @@ font-size:9pt;
     padding: 10px 10px 10px 15px;
     color: black;
   }
-.alertmsg1 { 
+.alertmsg1 {
     border: 3px solid #fe7b7a;
     background-color: #ffd6d6 ;
   }
-.alertmsg2 { 
+.alertmsg2 {
     border: 3px solid #f56fff;
     background-color: #fabfff;
   }
-.alertmsg3 { 
+.alertmsg3 {
     border: 3px solid #9acc2e;
     background-color: #eef7dd;
   }

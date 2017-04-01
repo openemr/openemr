@@ -52,12 +52,12 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
             $value = "See Growth-Chart";
           }
         }
-        $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . xl($value) . "</span></td>";
+        $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . xl($value) . "</div></td>";
       }
       elseif ($key == "Bps") {
         $bps = $value;
         if ($bpd) {
-          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</div></td>";
         }
         else {
           continue;
@@ -66,7 +66,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       elseif ($key == "Bpd") {
         $bpd = $value;
         if ($bps) {
-          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</span></td>";
+          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</div></td>";
         }
         else {
           continue;
@@ -74,7 +74,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       }
       elseif ($key == "Weight") {
         $convValue = number_format($value*0.45359237,2);
-        $vitals.="<td><span class=bold>" . xl($key) . ": </span><span class=text>";
+        $vitals.="<td><span class='bold'>" . xl($key) . ": </span><span class='text'>";
         // show appropriate units
         $mode=$GLOBALS['us_weight_format'];
         if ($GLOBALS['units_of_measurement'] == 2) {

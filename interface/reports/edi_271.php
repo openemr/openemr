@@ -263,7 +263,7 @@
 				<div style='float:left'>
 					<table class='text'>
 						<tr>
-							<td style='width:125px;' class='label'> <?php echo htmlspecialchars( xl('Select EDI-271 file'), ENT_NOQUOTES); ?>:	</td>
+							<td style='width:125px;' class='label_custom'> <?php echo htmlspecialchars( xl('Select EDI-271 file'), ENT_NOQUOTES); ?>:	</td>
 							<td> <input name="uploaded" id="uploaded" type="file" size=37 /></td>
 						</tr>
 					</table>

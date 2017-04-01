@@ -43,6 +43,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'c' => 
         array (
             'common\\logging\\' => 15,
+            'common\\http\\' => 12,
             'common\\database\\' => 16,
             'common\\' => 7,
         ),
@@ -98,6 +99,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'common\\logging\\' => 
         array (
             0 => __DIR__ . '/../..' . '/common/logging',
+        ),
+        'common\\http\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common/http',
         ),
         'common\\database\\' => 
         array (
@@ -3606,9 +3611,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Zend\\XmlRpc\\Value\\Text' => __DIR__ . '/..' . '/zendframework/zendframework/library/Zend/XmlRpc/Value/Text.php',
         'common\\database\\Auditor' => __DIR__ . '/../..' . '/common/database/auditor.php',
         'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/connector.php',
+        'common\\http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/http_response_helper.php',
         'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/logger.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'entities\\ONote' => __DIR__ . '/../..' . '/entities/onote.php',
+        'entities\\ProductRegistration' => __DIR__ . '/../..' . '/entities/product_registration.php',
         'entities\\User' => __DIR__ . '/../..' . '/entities/user.php',
         'entities\\Version' => __DIR__ . '/../..' . '/entities/version.php',
         'html2text' => __DIR__ . '/../..' . '/library/classes/html2text.class.php',
@@ -3639,9 +3646,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
         'repositories\\ONoteRepository' => __DIR__ . '/../..' . '/repositories/onote_repository.php',
+        'repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/product_registration_repository.php',
         'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/user_repository.php',
         'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/version_repository.php',
         'services\\ONoteService' => __DIR__ . '/../..' . '/services/onote_service.php',
+        'services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/product_registration_service.php',
         'services\\UserService' => __DIR__ . '/../..' . '/services/user_service.php',
         'services\\VersionService' => __DIR__ . '/../..' . '/services/version_service.php',
     );

@@ -56,12 +56,14 @@ else {
 <head>
 <?php html_header_show();?>
 <title><?php xl('Patient List','e'); ?></title>
+
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -81,9 +83,6 @@ $(document).ready(function() {
 });
 
 </script>
-
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
 
@@ -131,7 +130,7 @@ $(document).ready(function() {
 <?php } ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='patient_list.php'>
+<form name='theform' id='theform' method='post' action='patient_list.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -145,7 +144,7 @@ $(document).ready(function() {
 
 	<table class='text'>
 		<tr>
-      <td class='label'>
+      <td class='control-label'>
         <?php xl('Provider','e'); ?>:
       </td>
       <td>
@@ -154,17 +153,17 @@ $(document).ready(function() {
            'empty_title' => '-- All --'), $_POST['form_provider']);
 	      ?>
       </td>
-			<td class='label'>
+			<td class='control-label'>
 			   <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
-			   <input class='datepicker' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
+			   <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
 			</td>
-			<td class='label'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input class='datepicker' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
+			   <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
 			</td>
 		</tr>
 	</table>

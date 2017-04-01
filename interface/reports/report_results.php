@@ -115,7 +115,7 @@ require_once "$srcdir/report_database.inc";
 	<table class='text'>
 
                    <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                          <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
@@ -126,7 +126,7 @@ require_once "$srcdir/report_database.inc";
                    </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                               <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>

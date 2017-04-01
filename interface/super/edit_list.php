@@ -2,7 +2,7 @@
 /**
  * Administration Lists Module.
  *
- * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2017 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017      Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -120,30 +121,23 @@ if ($_POST['formaction']=='save' && $list_id) {
       sqlStatement("DELETE FROM issue_types");
       for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
         $iter        = $opt["$lino"];
-        $it_active   = formTrim($iter['active']);
         $it_category = formTrim($iter['category']);
-        $it_ordering = formTrim($iter['ordering']);
         $it_type     = formTrim($iter['type']);
-        $it_plural   = formTrim($iter['plural']);
-        $it_singular = formTrim($iter['singular']);
-        $it_abbr     = formTrim($iter['abbreviation']);
-        $it_style    = formTrim($iter['style']);
-        $it_fshow    = formTrim($iter['force_show']);
-
-        if ( (strlen($it_category) > 0) && (strlen($it_type) > 0) ) {
-          sqlInsert("INSERT INTO issue_types ( " .
-            "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show` " .
-            ") VALUES ( "   .
-            "'$it_active' , " .
-            "'$it_category' , " .
-            "'$it_ordering' , " .
-            "'$it_type' , " .
-            "'$it_plural'  , " .
-            "'$it_singular' , " .
-            "'$it_abbr' , " .
-            "'$it_style', " .
-            "'$it_fshow' " .
-            ")");
+        if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
+          sqlInsert("INSERT INTO issue_types (" .
+            "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
+            "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
+              formTrim($iter['active']),
+              $it_category,
+              formTrim($iter['ordering']),
+              $it_type,
+              formTrim($iter['plural']),
+              formTrim($iter['singular']),
+              formTrim($iter['abbreviation']),
+              formTrim($iter['style']),
+              formTrim($iter['force_show']),
+              formTrim($iter['aco_spec']),
+            ));
         }
       }
     }
@@ -586,25 +580,33 @@ function writeITLine($it_array) {
   echo " <tr bgcolor='$bgcolor'>\n";
   echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
   echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
-  echo ctGenCell($opt_line_no, $it_array, 'ordering' , 10, 10, xl('Order'));
-  echo ctGenCell($opt_line_no, $it_array, 'type' , 20, 75, xl('Issue Type'));
-  echo ctGenCell($opt_line_no, $it_array, 'plural' , 20, 75, xl('Plural'));
+  echo ctGenCell($opt_line_no, $it_array, 'ordering' , 4, 10, xl('Order'));
+  echo ctGenCell($opt_line_no, $it_array, 'type' , 15, 75, xl('Issue Type'));
+  echo ctGenCell($opt_line_no, $it_array, 'plural' , 15, 75, xl('Plural'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
   }
-  echo ctGenCell($opt_line_no, $it_array, 'singular' , 20,  75, xl('Singular'));
+  echo ctGenCell($opt_line_no, $it_array, 'singular' , 15,  75, xl('Singular'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
   }
-  echo ctGenCell($opt_line_no, $it_array, 'abbreviation' , 10,  10, xl('Abbreviation'));
+  echo ctGenCell($opt_line_no, $it_array, 'abbreviation' , 5,  10, xl('Abbreviation'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
   }
   echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
   echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
+
+  echo "<td align='center' class='optcell'>";
+  echo "<select name='opt[$opt_line_no][aco_spec]' class='optin'>";
+  echo "<option value=''></option>";
+  echo gen_aco_html_options($it_array['aco_spec']);
+  echo "</select>";
+  echo "</td>";
+
   echo " </tr>\n";
 }
 
@@ -923,13 +925,14 @@ while ($row = sqlFetchArray($res)) {
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
   } ?>
-  <td><b><?php echo xlt('Abbreviation'); ?></b></td>
+  <td><b><?php echo xlt('Mini'); ?></b></td>
   <?php //show translation column if not english and the translation lists flag is set
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
   } ?>
   <td><b><?php echo xlt('Style'); ?></b></td>
   <td><b><?php echo xlt('Force Show'); ?></b></td>
+  <td><b><?php echo xlt('Access Control'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>
   <td><b><?php xl('Title'  ,'e'); ?></b></td>

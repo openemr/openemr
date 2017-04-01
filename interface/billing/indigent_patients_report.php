@@ -111,14 +111,14 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>

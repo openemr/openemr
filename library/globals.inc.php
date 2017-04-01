@@ -118,6 +118,17 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'checkout_roll_off',
                                'erx_import_status_message');
 
+// Gets array of time zones supported by PHP.
+//
+function gblTimeZones() {
+  $zones = timezone_identifiers_list();
+  $arr = array('' => xl('Unassigned'));
+  foreach ($zones as $zone) {
+    $arr[$zone] = str_replace('_', ' ', $zone);
+  }
+  return $arr;
+}
+
 $GLOBALS_METADATA = array(
 
   // Appearance Tab
@@ -553,6 +564,13 @@ $GLOBALS_METADATA = array(
       ),
       '0',
       xl('Format used to display most times.')
+    ),
+
+    'gbl_time_zone' => array(
+      xl('Time Zone'),
+      gblTimeZones(),
+      '',
+      xl('If unassigned will default to php.ini setting for date.timezone.')
     ),
 
     'currency_decimals' => array(
@@ -1580,7 +1598,12 @@ $GLOBALS_METADATA = array(
   // Security Tab
   //
   'Security' => array(
-
+     'sql_string_no_show_screen' => array(
+          xl('Mode - Do Not Show SQL Queries'),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Do not allow SQL queries to be outputted to screen.')
+    ),
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
       'num',                            // data type
@@ -2521,6 +2544,18 @@ $GLOBALS_METADATA = array(
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
+	'ccda_alt_service_enable' => array(
+			xl('Enable C-CDA Alternate Service'),
+			array(
+					0 => xl('Off'),
+					1 => xl('Care Coordination Only'),
+					2 => xl('Portal Only'),
+					3 => xl('Both'),
+			),
+			'0',
+			xl('Enable C-CDA Alternate Service')
+	),
+ 
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
@@ -2819,12 +2854,12 @@ $GLOBALS_METADATA = array(
             'ml' => xl('Malayalam'),
             'mt' => xl('Maltese'),
             'mi' => xl('Maori'),
-            'mr' => xl('Marathi (Marāṭhī)'),
+            'mr' => xl('Marathi (Marathi)'),
             'mh' => xl('Marshallese'),
             'mn' => xl('Mongolian'),
             'na' => xl('Nauru'),
             'nv' => xl('Navajo, Navaho'),
-            'nb' => xl('Norwegian Bokmål'),
+            'nb' => xl('Norwegian Bokmal'),
             'nd' => xl('North Ndebele'),
             'ne' => xl('Nepali'),
             'ng' => xl('Ndonga'),
@@ -2849,7 +2884,7 @@ $GLOBALS_METADATA = array(
             'rn' => xl('Kirundi'),
             'ro' => xl('Romanian'),
             'ru' => xl('Russian'),
-            'sa' => xl('Sanskrit (Saṁskṛta)'),
+            'sa' => xl('Sanskrit (Samskrta)'),
             'sc' => xl('Sardinian'),
             'sd' => xl('Sindhi'),
             'se' => xl('Northern Sami'),
@@ -2889,7 +2924,7 @@ $GLOBALS_METADATA = array(
             'uz' => xl('Uzbek'),
             've' => xl('Venda'),
             'vi' => xl('Vietnamese'),
-            'vo' => xl('Volapük'),
+            'vo' => xl('Volapuk'),
             'wa' => xl('Walloon'),
             'cy' => xl('Welsh'),
             'wo' => xl('Wolof'),

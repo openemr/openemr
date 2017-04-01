@@ -131,13 +131,13 @@
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
@@ -145,7 +145,7 @@
          class='datepicker'
 				 title='<?php echo xla('yyyy-mm-dd') ?>'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>

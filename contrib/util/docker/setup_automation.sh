@@ -26,12 +26,15 @@ if ! hash curl >/dev/null 2>&1; then
 	exit 1
 fi
 
-# Password used for sql & openemr accounts created during setup
-PASS='Passw0rd'
+# Password used for openemr accounts created during setup (sql root pass is empty)
+PASS=openemr
 IUFNAME=John
 IUNAME=Smith
 
-BASE_URL=http://localhost:9000
+BASE_URL=$1
+if [[ "$BASE_URL" == "" ]]; then
+	BASE_URL=http://localhost:8000
+fi
 COOKIE_FILE=/tmp/curl_cookies
 # Change this to /dev/stdout debug the script
 CURL_REDIR=/dev/null

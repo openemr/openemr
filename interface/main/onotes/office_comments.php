@@ -29,14 +29,8 @@ $oNoteService = new \services\ONoteService();
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
-<?php } ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
-<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-11-1/index.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 </head>
 <body class="body_top">
 
@@ -84,7 +78,7 @@ foreach ($notes as $note) {
     $card .= '        <h3 class="panel-title">'.text($date_string).' <strong>('.text($note->getUser()->getUsername()).')</strong></h3>';
     $card .= '    </div>';
     $card .= '    <div class="panel-body">';
-    $card .=          text($note->getBody());
+    $card .=          nl2br(text($note->getBody()));
     $card .= '    </div>';
     $card .= '</div>';
 

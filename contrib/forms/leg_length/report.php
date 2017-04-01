@@ -25,16 +25,16 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 
 			</td>
 			<td>
-				<p<b>RIGHT</b></p>
+				<p><b>RIGHT</b></p>
 			</td>
 			<td>
-				<p<b>LEFT</b></p>
+				<p><b>LEFT</b></p>
 			</td>
 		</tr>
 
 		<tr valign="top">
 			<td>
-				<p<b>AE</b></p>
+				<p><b>AE</b></p>
 			</td>
 			<td>
 				<p><?php echo $data["AE_left"]?>&nbsp;</p>
@@ -45,7 +45,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 		</tr>
 		<tr valign="top">
 			<td>
-				<p<b>BE</b></p>
+				<p><b>BE</b></p>
 			</td>
 			<td>
 
@@ -58,7 +58,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 		<tr valign="top">
 			<td width="40" height="3">
 
-				<p<b>AK</b></p>
+				<p><b>AK</b></p>
 			</td>
 			<td>
 				<p><?php echo $data["AK_left"]?>&nbsp;</p>
@@ -70,7 +70,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 		</tr>
 		<tr valign="top">
 			<td>
-				<p<b>K</b></p>
+				<p><b>K</b></p>
 			</td>
 			<td>
 				<p><?php echo $data["K_left"]?>&nbsp;</p>
@@ -82,7 +82,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 		</tr>
 		<tr valign="top">
 			<td>
-				<p<b>BK</b></p>
+				<p><b>BK</b></p>
 
 			</td>
 			<td>
@@ -95,7 +95,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 
 		<tr valign="top">
 			<td>
-				<p<b>ASIS</b></p>
+				<p><b>ASIS</b></p>
 			</td>
 			<td>
 				<p><?php echo $data["ASIS_left"]?>&nbsp;</p>
@@ -107,7 +107,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 		</tr>
 		<tr valign="top">
 			<td width="40">
-				<p<b>UMB</b></p>
+				<p><b>UMB</b></p>
 			</td>
 			<td>
 

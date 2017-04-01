@@ -329,7 +329,7 @@ onsubmit='return top.restoreSession()'>
     <div style='float:left'>
       <table class='text'>
         <tr>
-          <td class='label'>
+          <td class='label_custom'>
             <?php xl('Diagnosis','e'); ?>:
           </td>
           <td>
@@ -355,7 +355,7 @@ onsubmit='return top.restoreSession()'>
  echo "   </select>\n";
 ?>
           </td>
-          <td class='label'>
+          <td class='label_custom'>
             <?php xl('From','e'); ?>:
           </td>
           <td>
@@ -364,7 +364,7 @@ onsubmit='return top.restoreSession()'>
             size='10' value='<?php echo $form_from_date ?>'
             title='yyyy-mm-dd'>
           </td>
-          <td class='label'>
+          <td class='label_custom'>
             <?php xl('To','e'); ?>:
           </td>
           <td>
