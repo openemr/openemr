@@ -32,7 +32,6 @@ $sanitize_all_escapes=true;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 require_once("$srcdir/user.inc");
@@ -202,7 +201,7 @@ function openNewTopWindow(newpid,newencounterid) {
     <div id="flow_board_parameters">
         <table>
             <tr class="text">
-                <td class='label'><?php echo xlt('Provider'); ?>:</td>
+                <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
 
                     # Build a drop-down list of providers.
@@ -230,7 +229,7 @@ function openNewTopWindow(newpid,newencounterid) {
 
                     ?>
                 </td>
-                <td class='label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+                <td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
                 <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>

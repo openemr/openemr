@@ -6,6 +6,7 @@
  *
  * Copyright (C) 2007 Bo Huynh
  * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -76,15 +77,13 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 <html>
 <head>
 <?php html_header_show(); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 </head>
 <body class="body_top">
@@ -106,29 +105,23 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
  <tr>
   <td><span class=text><?php echo xlt('BOX 16. Date unable to work from');?>:</span></td>
   <td><?php $off_work_from = $obj{"off_work_from"}; ?>
-    <input type=text style="width: 70px;" size=10 name='off_work_from' id='off_work_from'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_from' id='off_work_from'
     value='<?php echo attr($off_work_from); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_off_work_from' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+  </td>
  </tr>
  &nbsp;&nbsp;
 <tr>
  <td><span class=text><?php echo xlt('BOX 16. Date unable to work to');?>:</span></td>
   <td><?php $off_work_to = $obj{"off_work_to"}; ?>
-    <input type=text style="width: 70px;" size=10 name='off_work_to' id='off_work_to'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_to' id='off_work_to'
     value='<?php echo attr($off_work_to); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_off_work_to' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+  </td>
  </tr>
     <br><br>
 
-    <td class='label'><?php echo xlt('BOX 17. Provider') ?>:</td>
+    <td class='label_custom'><?php echo xlt('BOX 17. Provider') ?>:</td>
     <td><?php  # Build a drop-down list of providers. # Added (TLH)
                genProviderSelect('provider_id', '-- '.xl("Please Select").' --',$obj{"provider_id"});
 		?></td>&nbsp;&nbsp;
@@ -141,25 +134,19 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 <tr>
  <td><span class=text><?php echo xlt('BOX 18. Hospitalization date from');?>:</span></td>
  <td><?php $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?>
-    <input type=text style="width: 70px;" size=10 name='hospitalization_date_from' id='hospitalization_date_from'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_from' id='hospitalization_date_from'
     value='<?php echo attr($hospitalization_date_from); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_hospitalization_date_from' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+  </td>
  </tr>
  &nbsp;&nbsp;
  <tr>
   <td><span class=text><?php echo xlt('BOX 18. Hospitalization date to');?>:</span></td>
   <td><?php $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?>
-    <input type=text style="width: 70px;" size=10 name='hospitalization_date_to' id='hospitalization_date_to'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to'
     value='<?php echo attr($hospitalization_date_to); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_hospitalization_date_to' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+  </td>
  </tr>
     <br><br>
 <span class=text><?php echo xlt('BOX 20. Is Outside Lab used?'); ?>: </span><input type=checkbox name="outside_lab" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?>>
@@ -186,17 +173,20 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 </div>
 </form>
 <script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"hospitalization_date_from", ifFormat:"%Y-%m-%d", button:"img_hospitalization_date_from"});
-Calendar.setup({inputField:"hospitalization_date_to", ifFormat:"%Y-%m-%d", button:"img_hospitalization_date_to"});
-Calendar.setup({inputField:"off_work_from", ifFormat:"%Y-%m-%d", button:"img_off_work_from"});
-Calendar.setup({inputField:"off_work_to", ifFormat:"%Y-%m-%d", button:"img_off_work_to"});
 
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
     $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>'; });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 </script>
 </body>

@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  ViCarePlus <visolve_emr@visolve.com>
  * @author  cfapress
@@ -120,6 +120,18 @@ if (!isset($_SESSION["last_update"])) {
 function authCheckSession ()
 {
     if (isset($_SESSION['authId'])) {
+         // If active directory was used, check a different session variable (as there is no password in database).
+        if($GLOBALS['use_active_directory'])
+        {
+            if($_SESSION['active_directory_auth'])
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         $authDB = privQuery("select ".implode(",",array(TBL_USERS.".".COL_ID,
                                                         TBL_USERS.".".COL_UNM,
                                                         TBL_USERS_SECURE.".".COL_PWD,

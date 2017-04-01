@@ -1,36 +1,46 @@
 <?php
-
-/**
+/*
  * Add or edit an event in the calendar.
  *
  * Can be displayed as a popup window, or as an iframe via
  * fancybox.
  *
- * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  *
- * This program is free software; you can redistribute it and/or
+ * The event editor looks something like this:
+ *
+ * //------------------------------------------------------------//
+ * // Category __________________V   O All day event             //
+ * // Date     _____________ [?]     O Time     ___:___ __V      //
+ * // Title    ___________________     duration ____ minutes     //
+ * // Patient  _(Click_to_select)_                               //
+ * // Provider __________________V   X Repeats  ______V ______V  //
+ * // Status   __________________V     until    __________ [?]   //
+ * // Comments ________________________________________________  //
+ * //                                                            //
+ * //       [Save]  [Find Available]  [Delete]  [Cancel]         //
+ * //------------------------------------------------------------//
+ *
+ *
+ * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @link http://www.open-emr.org
  */
 
- // The event editor looks something like this:
-
- //------------------------------------------------------------//
- // Category __________________V   O All day event             //
- // Date     _____________ [?]     O Time     ___:___ __V      //
- // Title    ___________________     duration ____ minutes     //
- // Patient  _(Click_to_select)_                               //
- // Provider __________________V   X Repeats  ______V ______V  //
- // Status   __________________V     until    __________ [?]   //
- // Comments ________________________________________________  //
- //                                                            //
- //       [Save]  [Find Available]  [Delete]  [Cancel]         //
- //------------------------------------------------------------//
 
  $fake_register_globals=false;
  $sanitize_all_escapes=true;
@@ -44,6 +54,7 @@ require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
@@ -78,8 +89,8 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
  $info_msg = "";
 
  ?>
- <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
- <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
+ <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
+ <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -88,12 +99,21 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
-$collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+if($_GET['group'] == true)
+    //groups tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
+elseif($_GET['prov'])
+    //providers tab
+    $collectthis = '';
+else
+    //patient tab
+    $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+
 if (empty($collectthis)) {
     $collectthis = "undefined";
 }
 else {
-    $collectthis = $collectthis["theform"]["rules"];
+    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
 
@@ -112,6 +132,7 @@ function InsertEventFull()
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
+            $pc_eid = null;
             foreach ($_POST['form_provider'] as $provider) {
                 $args = $_POST;
                 // specify some special variables needed for the INSERT
@@ -123,10 +144,13 @@ function InsertEventFull()
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
-                InsertEvent($args);
+                $pc_eid_temp = InsertEvent($args);
+                if($pc_eid == null) $pc_eid = $pc_eid_temp;
             }
+            return $pc_eid;
 
-        // ====================================
+
+            // ====================================
         // single provider
         // ====================================
         } else {
@@ -139,10 +163,11 @@ function InsertEventFull()
             $args['starttime'] = $starttime;
             $args['endtime'] = $endtime;
             $args['locationspec'] = $locationspec;
-            InsertEvent($args);
+            $pc_eid = InsertEvent($args);
+            return $pc_eid;
         }
  }
-function DOBandEncounter()
+function DOBandEncounter($pc_eid)
  {
    global $event_date,$info_msg;
 	 // Save new DOB if it's there.
@@ -184,6 +209,17 @@ function DOBandEncounter()
                 manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
              }
      }
+    }
+    // auto create encounter for therapy group
+    if(!empty($_POST['form_gid'])){
+                                                                                // status Took Place is the check in of therapy group
+        if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
+            $encounter = todaysTherapyGroupEncounterCheck($_POST['form_gid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false, $pc_eid);
+            if ($encounter) {
+                $info_msg .= xl("New group encounter created with id");
+                $info_msg .= " $encounter";
+            }
+        }
     }
 
  }
@@ -359,8 +395,8 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
 //=============================================================================================================================
 if ($_POST['form_action'] == "duplicate") {
 
-	InsertEventFull();
-	DOBandEncounter();
+	$eid = InsertEventFull();
+	DOBandEncounter($eid);
 
  }
 
@@ -437,12 +473,21 @@ if ($_POST['form_action'] == "save") {
             else if ($_POST['recurr_affect'] == 'future') {
                 // update all existing event records to
                 // stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
-                    // mod original event recur specs to end on this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_enddate = ? ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date,$provider,$row['pc_multiple']) );
+                    // In case of a change in the middle of the event
+                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        // mod original event recur specs to end on this date
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            " pc_enddate = ? " .
+                            " WHERE pc_aid = ? AND pc_multiple=?", array($selected_date, $provider, $row['pc_multiple']));
+                    }
+                    // In case of a change in the event head
+                    else {
+                        sqlStatement("DELETE FROM openemr_postcalendar_events " .
+                            " WHERE pc_aid = ? AND pc_multiple=?" , array($provider, $row['pc_multiple']));
+                    }
+
                 }
 
                 // obtain the next available unique key to group multiple providers around some event
@@ -641,13 +686,13 @@ if ($_POST['form_action'] == "save") {
          *                    INSERT NEW EVENT(S)
          * ======================================================*/
 
-		InsertEventFull();
+        $eid = InsertEventFull();
 
     }
 
     // done with EVENT insert/update statements
 
-		DOBandEncounter();
+		DOBandEncounter(isset($eid) ? $eid : null);
 
  }
 
@@ -680,7 +725,7 @@ if ($_POST['form_action'] == "save") {
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
                         " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
-                    $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                    $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
                     else { $oldRecurrspec['exdate'] .= $selected_date; }
 
@@ -692,12 +737,19 @@ if ($_POST['form_action'] == "save") {
             }
             else if ($_POST['recurr_affect'] == 'future') {
                 // update all existing event records to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
-                    // update the provider's original event
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_enddate = ? ".
-                        " WHERE ".$whereClause, array($selected_date) );
+                    // In case of a change in the middle of the event
+                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        // update the provider's original event
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            " pc_enddate = ? " .
+                            " WHERE " . $whereClause, array($selected_date));
+                    }
+                    // In case of a change in the event head
+                    else{
+                        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+                    }
                 }
             }
             else {
@@ -747,8 +799,9 @@ if ($_POST['form_action'] == "save") {
   echo " if (opener && !opener.closed && opener.refreshme) {\n " .
        "  opener.refreshme();\n " . // This is for standard calendar page refresh
        " } else {\n " .
-       "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh
-       " };\n";
+       " if(window.opener.pattrk){" .
+      "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh}
+       " }};\n";
   echo " window.close();\n";
   echo "</script>\n</body>\n</html>\n";
   exit();
@@ -783,11 +836,16 @@ if ($_POST['form_action'] == "save") {
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
  $patientname = null;
- $patienttitle = "";
+ $patienttitle = Array();
  $pcroom = "";
  $hometext = "";
  $row = array();
  $informant = "";
+ $groupid = '';
+ if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
+ $groupname = null;
+ $group_statuses = getGroupStatuses();
+
 
  // If we are editing an existing event, then get its data.
  if ($eid) {
@@ -805,6 +863,7 @@ if ($_POST['form_action'] == "save") {
   $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
   $userid = $row['pc_aid'];
   $patientid = $row['pc_pid'];
+  $groupid = $row['pc_gid'];
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
   $starttimem = substr($row['pc_startTime'], 3, 2);
   $repeats = $row['pc_recurrtype'];
@@ -826,6 +885,7 @@ if ($_POST['form_action'] == "save") {
       $repeattype = 6;
     }
   }
+  $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : NULL;
   $pcroom = $row['pc_room'];
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
@@ -871,8 +931,18 @@ if ($_POST['form_action'] == "save") {
   $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
    "FROM patient_data WHERE pid = ?", array($patientid) );
   $patientname = $prow['lname'] . ", " . $prow['fname'];
-  if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
-  if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
+  if ($prow['phone_home']) $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
+  if ($prow['phone_biz']) $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+ }
+
+ // If we have a group id, get group data
+ if ($groupid){
+  $group_data = getGroup($groupid);
+  $groupname = $group_data['group_name'];
+  $group_end_date = $group_data['group_end_date'];
+  if(!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00'){
+      $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
+  }
  }
 
  // Get the providers list.
@@ -896,18 +966,16 @@ if ($_POST['form_action'] == "save") {
 <?php html_header_show(); ?>
 <title><?php echo $eid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Event');?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 td { font-size:0.8em; }
 </style>
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -921,6 +989,9 @@ td { font-size:0.8em; }
  $cattype=0;
  if($_GET['prov']==true){
   $cattype=1;
+ }
+ if($_GET['group'] == true){
+  $cattype=3;
  }
  $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
   "pc_recurrtype, pc_duration, pc_end_all_day " .
@@ -975,6 +1046,23 @@ td { font-size:0.8em; }
  // This invokes the find-patient popup.
  function sel_patient() {
   dlgopen('find_patient_popup.php', '_blank', 500, 400);
+ }
+
+ // This is for callback by the find-group popup.
+ function setgroup(gid, name, end_date) {
+     var f = document.forms[0];
+     f.form_group.value = name;
+     f.form_gid.value = gid;
+     if(f.form_enddate.value == ""){
+        f.form_enddate.value = end_date;
+     }
+
+ }
+
+ // This invokes the find-group popup.
+ function sel_group() {
+     top.restoreSession();
+     dlgopen('find_group_popup.php', '_blank', 500, 400);
  }
 
  // Do whatever is needed when a new event category is selected.
@@ -1062,7 +1150,6 @@ td { font-size:0.8em; }
   f.form_enddate.disabled = isdisabled;
   document.getElementById('tdrepeat1').style.color = mycolor;
   document.getElementById('tdrepeat2').style.color = mycolor;
-  document.getElementById('img_enddate').style.visibility = myvisibility;
  }
 
  // Event when days_every_week is checked.
@@ -1078,7 +1165,6 @@ td { font-size:0.8em; }
          //enable end_date setting
          document.getElementById('tdrepeat2').style.color = '#000000';
          f.form_enddate.disabled = false;
-         document.getElementById('img_enddate').style.visibility = 'visible';
 
          var isdisabled = false;
          var mycolor = '#000000';
@@ -1102,7 +1188,6 @@ td { font-size:0.8em; }
          //disable end_date setting
          document.getElementById('tdrepeat2').style.color = mycolor;
          f.form_enddate.disabled = isdisabled;
-         document.getElementById('img_enddate').style.visibility = myvisibility;
      }
 
 
@@ -1116,12 +1201,22 @@ td { font-size:0.8em; }
   '<?php echo xls("4th"); ?>'
  );
 
+var weekDays = new Array(
+  '<?php echo xls("Sunday"); ?>',
+  '<?php echo xls("Monday"); ?>',
+  '<?php echo xls("Tuesday"); ?>',
+  '<?php echo xls("Wednesday"); ?>',
+  '<?php echo xls("Thursday"); ?>',
+  '<?php echo xls("Friday"); ?>',
+  '<?php echo xls("Saturday"); ?>'
+ );
+
  // Monitor start date changes to adjust repeat type options.
  function dateChanged() {
   var f = document.forms[0];
   if (!f.form_date.value) return;
   var d = new Date(f.form_date.value);
-  var downame = Calendar._DN[d.getUTCDay()];
+  var downame = weekDays[d.getUTCDay()];
   var nthtext = '';
   var occur = Math.floor((d.getUTCDate() - 1) / 7);
   if (occur < 4) { // 5th is not allowed
@@ -1223,10 +1318,14 @@ $classpati='';
 <table border='0' >
 <?php
 	$provider_class='';
+    $group_class='';
 	$normal='';
 	if($_GET['prov']==true){
 	$provider_class="class='current'";
 	}
+	elseif($_GET['group']==true){
+    $group_class="class='current'";
+    }
 	else{
 	$normal="class='current'";
 	}
@@ -1242,13 +1341,19 @@ $classpati='';
 	$cid=$_REQUEST["catid"];
 ?>
 		 <li <?php echo $normal;?>>
-		 <a href='add_edit_event.php?eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+		 <a href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Patient');?></a>
 		 </li>
 		 <li <?php echo $provider_class;?>>
-		 <a href='add_edit_event.php?prov=true&eid=<?php echo attr($eid);?>&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+		 <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Provider');?></a>
 		 </li>
+         <?php if($GLOBALS['enable_group_therapy']) :?>
+         <li <?php echo $group_class ;?>>
+            <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
+            <?php echo xlt('Group');?></a>
+         </li>
+         <?php endif ?>
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
@@ -1276,13 +1381,10 @@ $classpati='';
             <b><?php echo xlt('Date'); ?>:</b>
         </td>
         <td nowrap>
-            <input type='text' size='10' name='form_date' id='form_date'
+            <input type='text' size='10' class='datepicker' name='form_date' id='form_date'
                     value='<?php echo attr($date) ?>'
                     title='<?php echo xla('yyyy-mm-dd event date or starting date'); ?>'
-                    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' onchange='dateChanged()' />
-            <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                    id='img_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-                    title='<?php echo xla('Click here to choose a date'); ?>'>
+                    onchange='dateChanged()' />
         </td>
         <td nowrap>
             &nbsp;&nbsp;
@@ -1374,7 +1476,7 @@ $classpati='';
 		</td>
 	</tr>
  <?php
- if($_GET['prov']!=true){
+ if($_GET['prov']!=true && $_GET['group']!=true){
  ?>
  <tr id="patient_details">
   <td nowrap>
@@ -1385,9 +1487,46 @@ $classpati='';
    <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;
    <span class="infobox">
-   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+      <?php foreach($patienttitle as $value){
+          if ($value != "") {
+              echo text(trim($value));
+          }
+
+          if(count($patienttitle) > 1){
+              echo "<br />";
+          }
+      }
+      ?>
+   </span>
+  </td>
+ </tr>
+ <?php
+ }
+ ?>
+<?php
+ if($_GET['group']==true){
+ ?>
+ <tr id="group_details">
+  <td nowrap>
+   <b><?php echo xlt('Group'); ?>:</b>
+  </td>
+  <td nowrap>
+   <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo is_null($groupname) ? '' : attr($groupname); ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+   <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
+  </td>
+  <td colspan='3' nowrap style='font-size:8pt'>
+   <span class="infobox">
+      <?php foreach($patienttitle as $value){
+          if ($value != "") {
+              echo trim($value);
+          }
+
+          if(count($patienttitle) > 1){
+              echo "<br />";
+          }
+      }
+      ?>
    </span>
   </td>
  </tr>
@@ -1396,7 +1535,7 @@ $classpati='';
  ?>
  <tr>
   <td nowrap>
-   <b><?php echo xlt('Provider'); ?>:</b>
+   <b><?php if($_GET['group']==true) echo xlt('Coordinating Counselors'); else echo xlt('Provider'); ?>:</b>
   </td>
   <td nowrap>
 
@@ -1612,8 +1751,14 @@ if  ($GLOBALS['select_multi_providers']) {
   <td nowrap>
 
 <?php
-generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'SKIP'), $row['pc_apptstatus']);
+if($_GET['group']!=true) {
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
+else{
+    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+}
 ?>
+
    <!--
     The following list will be invisible unless this is an In Office
     event, in which case form_apptstatus (above) is to be invisible.
@@ -1629,16 +1774,18 @@ generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'ap
   <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr($row['pc_endDate']) ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php echo xla('Click here to choose a date');?>'>
+   <input type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
 <?php
 if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
     if ($multiple_value) { $tmptitle .= " for one or more providers:\n"; }
     else { $tmptitle .= "\n"; }
+    $max = $GLOBALS['number_of_ex_appts_to_show'];
+
     $exdates = explode(",", $repeatexdate);
+    if(!empty($exdates)){
+        $exdates=array_slice($exdates,0,$max,true);
+    }
     foreach ($exdates as $exdate) {
         $tmptitle .= date("d M Y", strtotime($exdate))."\n";
     }
@@ -1676,7 +1823,8 @@ if ($repeatexdate != "") {
  // to enter it right here.  We must display or hide this row dynamically
  // in case the patient-select popup is used.
  $patient_dob = trim($prow['DOB']);
- $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
+ $is_group = $groupname;
+ $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
   '' : 'none';
 ?>
  <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
@@ -1684,10 +1832,7 @@ if ($repeatexdate != "") {
    <b><font color='red'><?php echo xlt('DOB is missing, please enter if possible'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php echo xla('Click here to choose a date');?>'>
+   <input type='text' size='10' class='datepicker' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth');?>' />
   </td>
  </tr>
 
@@ -1716,7 +1861,9 @@ if ($repeatexdate != "") {
 <div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
 <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
 <br>
-<input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+<?php if($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+    <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+<?php } ?>
 <input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
 <input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
 <input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
@@ -1734,9 +1881,6 @@ if ($repeatexdate != "") {
  set_repeat();
  set_days_every_week();
 
- Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
- Calendar.setup({inputField:"form_enddate", ifFormat:"%Y-%m-%d", button:"img_enddate"});
- Calendar.setup({inputField:"form_dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
 </script>
 
 <script language="javascript">
@@ -1757,6 +1901,15 @@ $(document).ready(function(){
 
     // Initialize repeat options.
     dateChanged();
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
 });
 
 function are_days_checked(){
@@ -1777,9 +1930,12 @@ function are_days_checked(){
 var collectvalidation = <?php echo($collectthis); ?>;
 function validateform(event,valu){
 
+    $('#form_save').attr('disabled', true);
+
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
         alert('<?php echo xls("Must choose at least one day!"); ?>');
+        $('#form_save').attr('disabled', false);
         return false;
     }
 
@@ -1799,16 +1955,6 @@ function validateform(event,valu){
         }
     }
 
-    <?php
-    if($_GET['prov']==true){
-    ?>
-    //remove rule if it's provider event
-    if(collectvalidation.form_patient != undefined){
-        delete collectvalidation.form_patient;
-    }
-    <?php
-    }
-    ?>
 
     <?php
     if($GLOBALS['select_multi_providers']){
@@ -1821,7 +1967,7 @@ function validateform(event,valu){
 
 
     var submit = submitme(1, event, 'theform', collectvalidation);
-    if(!submit)return;
+    if(!submit)return $('#form_save').attr('disabled', false);
 
     $('#form_action').val(valu);
 
@@ -1831,6 +1977,7 @@ function validateform(event,valu){
         DisableForm();
         // show the current/future/all DIV for the user to choose one
         $("#recurr_popup").css("visibility", "visible");
+        $('#form_save').attr('disabled', false);
         return false;
     }
     <?php endif; ?>

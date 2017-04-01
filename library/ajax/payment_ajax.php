@@ -28,7 +28,6 @@
 //This section handles ajax for insurance,patient and for encounters.
 //===============================================================================
 require_once("../../interface/globals.php");
-require_once("$srcdir/formatting.inc.php");
 //=================================
 if (isset($_REQUEST["ajax_mode"]))
  {

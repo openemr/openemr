@@ -6,7 +6,7 @@
  * session variables, because the session_write_close() function
  * is typically called before utilizing these functions.
  *
- * Copyright (C) 2010-2012 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2010-2012 Brady Miller <brady.g.miller@gmail.com>
  * Copyright (C) 2011      Medical Information Integration, LLC
  * Copyright (C) 2011      Ensofttek, LLC
  *
@@ -22,7 +22,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Medical Information Integration, LLC
  * @author  Ensofttek, LLC
  * @link    http://www.open-emr.org

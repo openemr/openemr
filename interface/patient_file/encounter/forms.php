@@ -7,14 +7,20 @@ use ESign\Api;
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
+require_once("$srcdir/group.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("forms_review_header.php");
+
+if($attendant_type == 'gid'){
+    $groupId = $therapy_group;
+}
+$attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+
 ?>
 <html>
 
@@ -36,7 +42,7 @@ require_once("forms_review_header.php");
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
 
-<?php 
+<?php
 $esignApi = new Api();
 ?>
 
@@ -74,29 +80,29 @@ if (!empty($_GET['attachid'])) {
 $.noConflict();
 jQuery(document).ready( function($) {
 	var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
-    $(".esign-button-form").esign( 
+    $(".esign-button-form").esign(
     	formConfig,
-        { 	    
+        {
             afterFormSuccess : function( response ) {
                 if ( response.locked ) {
                 	var editButtonId = "form-edit-button-"+response.formDir+"-"+response.formId;
                     $("#"+editButtonId).replaceWith( response.editButtonHtml );
                 }
-                
+
                 var logId = "esign-signature-log-"+response.formDir+"-"+response.formId;
                 $.post( formConfig.logViewAction, response, function( html ) {
-                    $("#"+logId).replaceWith( html );  
+                    $("#"+logId).replaceWith( html );
                 });
             }
 		}
     );
 
     var encounterConfig = <?php echo $esignApi->encounterConfigToJson(); ?>;
-    $(".esign-button-encounter").esign( 
+    $(".esign-button-encounter").esign(
     	encounterConfig,
-        { 	    
+        {
             afterFormSuccess : function( response ) {
-                // If the response indicates a locked encounter, replace all 
+                // If the response indicates a locked encounter, replace all
                 // form edit buttons with a "disabled" button, and "disable" left
                 // nav visit form links
                 if ( response.locked ) {
@@ -107,7 +113,7 @@ jQuery(document).ready( function($) {
                     // Disable the new-form capabilities in top nav of the encounter
                 	$(".encounter-form-category-li").remove();
                 }
-                
+
                 var logId = "esign-signature-log-encounter-"+response.encounterId;
                 $.post( encounterConfig.logViewAction, response, function( html ) {
                     $("#"+logId).replaceWith( html );
@@ -222,7 +228,7 @@ jQuery(document).ready( function($) {
         );
     });
 
-    // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
+     $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");
@@ -285,7 +291,7 @@ function expandcollapse(atr){
 			var mydivid="divid_"+i;var myspanid="spanid_"+i;
 				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
 				if (typeof(ele) != 'undefined' && ele != null)
-					ele.style.display = "none";	
+					ele.style.display = "none";
 				if (typeof(text) != 'undefined' && text != null)
 					text.innerHTML = "<?php xl('Expand','e'); ?>";
 		}
@@ -321,15 +327,15 @@ function divtoggle(spanid, divid) {
         float:left;
         margin-left:6px;
     }
-    
+
     .encounter-summary-container {
-        float:left; 
+        float:left;
         width:100%;
     }
-    
+
     .encounter-summary-column {
-        width: 33.3%; 
-        float:left; 
+        width: 33.3%;
+        float:left;
         display:inline;
         margin-top:10px;
     }
@@ -352,13 +358,15 @@ $providerNameRes = getProviderName($providerIDres);
 <div class='encounter-summary-container'>
 <div class='encounter-summary-column'>
 <div>
-<span class="title"><?php echo oeFormatShortDate($encounter_date) . " " . xl("Encounter"); ?> </span>
 <?php
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 
-if (is_numeric($pid)) {
+if ($attendant_type == 'pid' && is_numeric($pid)) {
+
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Encounter") . '</span>';
+
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
@@ -371,11 +379,27 @@ if (is_numeric($pid)) {
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
+    // for therapy group
+} else {
+
+    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
+    // Check for no access to the patient's squad.
+    $result = getGroup($groupId);
+    echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
+    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+    }
+    // Check for no access to the encounter's sensitivity level.
+    $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
+        "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
+    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+    }
 }
 ?>
 </div>
 <div style='margin-top:8px;'>
-<?php 
+<?php
 // ESign for entire encounter
 $esign = $esignApi->createEncounterESign( $encounter );
 if ( $esign->isButtonViewable() ) {
@@ -507,8 +531,13 @@ if ( $esign->isButtonViewable() ) {
 </div>
 
 <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
-<?php 
-	$docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+<?php
+    if($attendant_type == 'pid'){
+        $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+    } else {
+        // already doesn't exist document for therapy groups
+        $docs_list = array();
+    }
 	if(count($docs_list) > 0 ) {
 ?>
 <div class='enc_docs'>
@@ -532,7 +561,7 @@ if ( $esign->isButtonViewable() ) {
 ?>
 	<br>
 	<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
-	<?php if($note != '') {?> 
+	<?php if($note != '') {?>
 			<a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
 	<?php }?>
 <?php } ?>
@@ -541,7 +570,8 @@ if ( $esign->isButtonViewable() ) {
 <br/>
 
 <?php
-  if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+
+  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
@@ -550,11 +580,29 @@ if ( $esign->isButtonViewable() ) {
         // skip forms whose 'deleted' flag is set to 1
         if ($iter['deleted'] == 1) continue;
 
-        // Skip forms that we are not authorized to see.
-        if (($auth_notes_a) ||
-            ($auth_notes && $iter['user'] == $_SESSION['authUser']) ||
-            ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
-        else continue;
+        $aco_spec = false;
+
+        if (substr($formdir,0,3) == 'LBF') {
+          // Skip LBF forms that we are not authorized to see.
+          $lrow = sqlQuery("SELECT * FROM list_options WHERE " .
+            "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
+            array($formdir));
+          if (!empty($lrow)) {
+            $jobj = json_decode($lrow['notes'], true);
+            if (!empty($jobj['aco'])) {
+              $aco_spec = explode('|', $jobj['aco']);
+              if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
+            }
+          }
+        }
+        else {
+          // Skip non-LBF forms that we are not authorized to see.
+          $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+          if (!empty($tmp['aco_spec'])) {
+            $aco_spec = explode('|', $tmp['aco_spec']);
+            if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
+          }
+        }
 
         // $form_info = getFormInfoById($iter['id']);
         if (strtolower(substr($iter['form_name'],0,5)) == 'camos') {
@@ -582,25 +630,29 @@ if ( $esign->isButtonViewable() ) {
         echo "<td style='border-bottom:1px solid'>";
         // a link to edit the form
         echo "<div class='form_header_controls'>";
-        
+
         // If the form is locked, it is no longer editable
         if ( $esign->isLocked() ) {
             echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
         } else {
+          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
                     "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) .
                     "' onclick='top.restoreSession()'>";
             echo "<span>" . xlt('Edit') . "</span></a>";
+          }
         }
-        
+
         if ( $esign->isButtonViewable() ) {
+          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
+          }
         }
 
         if (acl_check('admin', 'super') ) {
-            if ( $formdir != 'newpatient') {
+            if ( $formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
                 echo "<a target='_parent'" .
                     " href='$rootdir/patient_file/encounter/delete_form.php?" .
@@ -624,7 +676,7 @@ if ( $esign->isButtonViewable() ) {
         else {
           $form_author = $user['fname'] . "  " . $user['lname'];
         }
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . htmlspecialchars( $form_author ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>". xl('by')." ". htmlspecialchars( $form_author ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
 
         echo "</td>\n";
         echo "</tr>";
@@ -636,13 +688,14 @@ if ( $esign->isButtonViewable() ) {
         //
         if (substr($formdir,0,3) == 'LBF') {
           include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-          call_user_func("lbf_report", $pid, $encounter, 2, $iter['form_id'], $formdir, true);
+
+          call_user_func("lbf_report", $attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
         }
         else  {
           include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-          call_user_func($formdir . "_report", $pid, $encounter, 2, $iter['form_id']);
+          call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
         }
-        
+
         if ( $esign->isLogViewable() ) {
             $esign->renderLog();
         }

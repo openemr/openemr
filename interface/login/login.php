@@ -15,7 +15,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Scott Wakefield <scott.wakefield@gmail.com>
  * @author  ViCarePlus <visolve_emr@visolve.com>
@@ -80,7 +80,7 @@ require_once("../globals.php");
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }
 
-                if (data.status === 'UNREGISTERED') {
+                if (data.statusAsString === 'UNREGISTERED') {
                     productRegistrationController.showProductRegistrationModal();
                 }
             });
@@ -116,7 +116,7 @@ require_once("../globals.php");
                 <div class="col-sm-12">
                     <div>
                         <div class="center-block" style="max-width:400px">
-                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['webroot']?>/public/images/login-logo.png" />
+                            <img class="img-responsive center-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
                         </div>
 
                         <input type='hidden' name='new_login_session_management' value='1' />

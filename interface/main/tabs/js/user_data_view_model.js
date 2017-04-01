@@ -37,6 +37,12 @@ function viewPtFinder()
     activateTabByName("fin",true);
 }
 
+function viewTgFinder() {
+
+    navigateTab(webroot_url+"/interface/therapy_groups/index.php?method=listGroups","gfn");
+    activateTabByName("gfn",true);
+}
+
 function viewMessages()
 {
     navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg");

@@ -1,6 +1,7 @@
 <?php
 /**
- * Copyright (C) 2009-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2009-2017 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +16,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -29,7 +31,6 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once("$include_root/cmsportal/portal.inc.php");
 }
@@ -101,6 +102,21 @@ $tmp = sqlQuery("SELECT title, option_value, notes FROM list_options WHERE " .
   "list_id = 'lbfnames' AND option_id = ? AND activity = 1", array($formname));
 $formtitle = $tmp['title'];
 $formhistory = 0 + $tmp['option_value'];
+
+// Extract parameters from this form's list item entry.
+$jobj = json_decode($tmp['notes'], true);
+if (!empty($jobj['columns'])) $CPR = intval($jobj['columns']);
+if (!empty($jobj['issue'  ])) $LBF_ISSUE_TYPE = $jobj['issue'];
+if (!empty($jobj['aco'    ])) $LBF_ACO = explode('|', $jobj['aco']);
+
+// Check access control.
+if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
+  $auth_aco_write   = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write'  );
+  $auth_aco_addonly = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
+  if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
+    die(xlt('Access denied'));
+  }
+}
 
 if (empty($is_lbf)) {
   $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
@@ -222,6 +238,9 @@ if ($_POST['bn_save']) {
 <head>
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 
 td, input, select, textarea {
@@ -239,19 +258,15 @@ div.section {
 
 </style>
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <!-- LiterallyCanvas support -->
@@ -298,6 +313,20 @@ $(document).ready(function() {
     }
   });
 
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 });
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -332,11 +361,6 @@ function set_related(codetype, code, selector, codedesc) {
  var s = frc.value;
  var sd = frcd ? frcd.value : s;
  if (code) {
-  if (codetype != 'PROD') {
-   if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
-    return '<?php echo xl('A code of this type is already selected. Erase the field first if you need to replace it.') ?>';
-   }
-  }     
   if (s.length > 0) {
    s  += ';';
    sd += ';';
@@ -579,7 +603,7 @@ function validate(f) {
 
     // First item is on the "left-border"
     $leftborder = true;
-    
+
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       end_cell();

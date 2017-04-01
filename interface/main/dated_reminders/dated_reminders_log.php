@@ -3,6 +3,7 @@
  * Used for displaying log of dated reminders.
  *
  * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -88,10 +90,11 @@
 <html>
   <head>
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-calendar.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.grouprows.js"></script>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/grouprows.js"></script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
     <script language="JavaScript">
       $(document).ready(function (){
         $("#submitForm").click(function(){
@@ -109,6 +112,14 @@
              )
           return false;
         })
+
+        $('.datepicker').datetimepicker({
+          <?php $datetimepicker_timepicker = false; ?>
+          <?php $datetimepicker_showseconds = false; ?>
+          <?php $datetimepicker_formatInput = false; ?>
+          <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
       })
     </script>
   </head>
@@ -127,9 +138,9 @@
       <h2><?php echo xlt('filters') ?> :</h2>
       <blockquote><?php echo xlt('Date The Message Was Sent') ?><br />
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <?php echo xlt('Start Date') ?> : <input id="sd" type="text" name="sd" value="" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd'); ?>' />   &nbsp;&nbsp;&nbsp;
+      <?php echo xlt('Start Date') ?> : <input id="sd" type="text" class='datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   &nbsp;&nbsp;&nbsp;
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <?php echo xlt('End Date') ?> : <input id="ed" type="text" name="ed" value="" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd'); ?>' />   <br /><br />
+      <?php echo xlt('End Date') ?> : <input id="ed" type="text" class='datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   <br /><br />
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
       </blockquote>
       <table style="width:100%">
@@ -170,13 +181,4 @@
     <div id="resultsDiv"></div>
 
   </body>
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
-  Calendar.setup({inputField:"sd", ifFormat:"%Y-%m-%d", button:"img_begin_date", showsTime:'false'});
-  Calendar.setup({inputField:"ed", ifFormat:"%Y-%m-%d", button:"img_begin_date", showsTime:'false'});
-</script>
 </html>

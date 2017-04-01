@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -28,14 +28,10 @@ include_once("$srcdir/lists.inc");
 // Check permission to create encounters.
 $tmp = getPatientData($pid, "squad");
 if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
-     ! (acl_check('encounters', 'notes_a' ) ||
-        acl_check('encounters', 'notes'   ) ||
-        acl_check('encounters', 'coding_a') ||
-        acl_check('encounters', 'coding'  ) ||
-        acl_check('encounters', 'relaxed' )))
+  !acl_check_form('newpatient', '', array('write', 'addonly')))
 {
   echo "<body>\n<html>\n";
-  echo "<p>(" . xlt('New encounters not authorized'). ")</p>\n";
+  echo "<p>(" . xlt('New encounters not authorized') . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
 }

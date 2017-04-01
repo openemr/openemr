@@ -9,6 +9,7 @@
  * 'Service Reporting'.
  *
  * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +24,7 @@
  *
  * @package OpenEMR
  * @author  Visolve
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -32,7 +34,6 @@ $fake_register_globals=false;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
@@ -64,6 +65,8 @@ $grand_total_amt_balance  = 0;
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <?php html_header_show();?>
 
 <style type="text/css">
@@ -92,10 +95,10 @@ $grand_total_amt_balance  = 0;
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/jquery-ui.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <title><?php echo xlt('Financial Summary by Service Code') ?></title>
 
@@ -105,6 +108,14 @@ $grand_total_amt_balance  = 0;
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
 </script>
@@ -123,7 +134,7 @@ $grand_total_amt_balance  = 0;
 	<div style='float:left'>
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
@@ -150,21 +161,15 @@ $grand_total_amt_balance  = 0;
 		</tr><tr>
                  <td colspan="2">
                           <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
-                           <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-                                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                                id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-                                title='<?php echo xla("Click here to choose a date"); ?>'>
+                           <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+                                title='yyyy-mm-dd'>
                         </td>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo xlt('To'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-                                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                                id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-                                title='<?php echo xla("Click here to choose a date"); ?>'>
+                           <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+                                title='yyyy-mm-dd'>
                         </td>
                         <td>
                            <input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) echo ' checked'; ?>>
@@ -250,7 +255,7 @@ $grand_total_amt_balance  = 0;
       $grand_total_amt_paid  = 0;
       $grand_total_amt_adjustment  = 0;
       $grand_total_amt_balance  = 0;
- 
+
       while ($erow = sqlFetchArray($res)) {
 	  $row = array();
       $row['pid'] = $erow['pid'];
@@ -349,7 +354,7 @@ $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 		echo '<script>document.getElementById("report_results").style.display="none";</script>';
 		echo '<script>document.getElementById("controls").style.display="none";</script>';
 		}
-		
+
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
 <div class='text'>
  	<?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
@@ -358,18 +363,6 @@ if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
 </form>
 </body>
 
-<!-- stuff for the popup calendar -->
-
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
- top.restoreSession();
-</script>
 </html>
 <?php
   } // End not csv export

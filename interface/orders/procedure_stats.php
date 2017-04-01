@@ -5,6 +5,7 @@
  *
  *  Copyright (C) 2010-2016 Rod Roark <rod@sunsetsystems.com>
  *  Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
+ *  Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +20,8 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -252,20 +254,32 @@ function process_result_code($row) {
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $report_title; ?></title>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+ $(document).ready(function() {
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = false; ?>
+   <?php $datetimepicker_showseconds = false; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+ });
 </script>
+
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -326,17 +340,11 @@ function process_result_code($row) {
     <tr>
      <td colspan='2' class='detail' nowrap>
       <?php xl('From','e'); ?>
-      <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
-      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-       id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php xl('Click here to choose a date','e'); ?>'>
+      <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
+       title='Start date yyyy-mm-dd'>
       <?php xl('To','e'); ?>
-      <input type='text' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd'>
-      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-       id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php xl('Click here to choose a date','e'); ?>'>
+      <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
+       title='End date yyyy-mm-dd'>
      </td>
     </tr>
    </table>
@@ -430,7 +438,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       "AND po.date_ordered <= ? ";
 
     array_push($sqlBindArray, $from_date, $to_date);
-  
+
     if ($form_facility) {
       $query .= "AND fe.facility_id = ? ";
       array_push($sqlBindArray, $form_facility);
@@ -583,8 +591,6 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 </center>
 
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

@@ -57,33 +57,23 @@ $(document).ready(function() {
  // Initializing the DataTable.
  //
  var oTable = $('#pt_table').dataTable( {
-  "bProcessing": true,
+  "processing": true,
   // next 2 lines invoke server side processing
-  "bServerSide": true,
+  "serverSide": true,
+  // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
+  // the new 'ajax' command to work.
   "sAjaxSource": "dynamic_finder_ajax.php",
-  // sDom invokes ColReorderWithResize and allows inclusion of a custom div
-  "sDom"       : 'Rlfrt<"mytopdiv">ip',
+  // dom invokes ColReorderWithResize and allows inclusion of a custom div
+  "dom"       : 'Rlfrt<"mytopdiv">ip',
   // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
   // See: http://datatables.net/usage/columns and
   // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
-  "aoColumns": [ <?php echo $coljson; ?> ],
-  "aLengthMenu": [ 10, 25, 50, 100 ],
-  "iDisplayLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
-  // language strings are included so we can translate them
-  "oLanguage": {
-   "sSearch"      : "<?php echo xla('Search all columns'); ?>:",
-   "sLengthMenu"  : "<?php echo xla('Show') . ' _MENU_ ' . xla('entries'); ?>",
-   "sZeroRecords" : "<?php echo xla('No matching records found'); ?>",
-   "sInfo"        : "<?php echo xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
-   "sInfoEmpty"   : "<?php echo xla('Nothing to show'); ?>",
-   "sInfoFiltered": "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
-   "oPaginate": {
-    "sFirst"   : "<?php echo xla('First'); ?>",
-    "sPrevious": "<?php echo xla('Previous'); ?>",
-    "sNext"    : "<?php echo xla('Next'); ?>",
-    "sLast"    : "<?php echo xla('Last'); ?>"
-   }
-  }
+  "columns": [ <?php echo $coljson; ?> ],
+  "lengthMenu": [ 10, 25, 50, 100 ],
+  "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
+  <?php // Bring in the translations ?>
+  <?php $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) ; ?>
+  <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
  } );
 
  // This puts our custom HTML into the table header.

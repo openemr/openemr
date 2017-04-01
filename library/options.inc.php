@@ -36,7 +36,6 @@
 // 1 = Write Once (not editable when not empty) (text fields)
 // 2 = Show descriptions instead of codes for billing code input
 
-require_once("formatting.inc.php");
 require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
@@ -88,7 +87,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
             $tag_name_esc = $tag_name_esc . "[]";
         }
 
-	$s .= "<select name='$tag_name_esc'";
+  $s .= "<select name='$tag_name_esc'";
 
 	if ($multiple) {
 		$s .= " multiple='multiple'";
@@ -102,10 +101,14 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 
 	$s .= " id='$tag_id_esc'";
 
-	if ($class) {
-                $class_esc = attr($class);
-		$s .= " class='$class_esc'";
-	}
+  if (!empty($class)) {
+    $class_esc = attr($class);
+    $s .= " class='form-control $class_esc'";
+  }
+  else {
+    $s .= " class='form-control'";
+  }
+
 	if ($onchange) {
 		$s .= " onchange='$onchange'";
 	}
@@ -369,24 +372,17 @@ function generate_form_field($frow, $currvalue) {
     if ($agestr) {
       echo "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
     }
-    echo "<input type='text' size='10' name='form_$field_id_esc' id='form_$field_id_esc'" .
+
+    $onchange_string = '';
+    if (!$disabled && $agestr) {
+      $onchange_string = "onchange=\"if (typeof(updateAgeString) == 'function') updateAgeString('$field_id','$age_asof_date', $age_format)\"";
+    }
+
+    echo "<input type='text' size='10' class='datepicker' name='form_$field_id_esc' id='form_$field_id_esc'" .
       " value='" . substr($currescaped, 0, 10) . "'";
     if (!$agestr) echo " title='$description'";
-    echo " $lbfonchange onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' $disabled />";
-    if (!$disabled) {
-      echo "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_$field_id_esc' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />";
-      $date_init .= " Calendar.setup({" .
-        "inputField:'form_$field_id', " .
-        "ifFormat:'%Y-%m-%d', ";
-      if ($agestr) {
-        $date_init .= "onUpdate: function() {" .
-          "if (typeof(updateAgeString) == 'function') updateAgeString('$field_id','$age_asof_date', $age_format);" .
-        "}, ";
-      }
-      $date_init .= "button:'img_$field_id'})\n";
-    }
+    echo " $onchange_string $lbfonchange $disabled />";
+
     // Optional display of age or gestational age.
     if ($agestr) {
       echo "</td></tr><tr><td id='span_$field_id' class='text'>" . text($agestr) . "</td></tr></table>";
@@ -399,7 +395,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled>";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control'>";
     echo "<option value=''>" . xlt($empty_title) . "</option>";
     $got_selected = false;
     while ($urow = sqlFetchArray($ures)) {
@@ -1029,16 +1025,10 @@ function generate_form_field($frow, $currvalue) {
     if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
     echo " $disabled />" . xlt('Quit') . "&nbsp;</td>";
     // quit date
-    echo "<td class='text'><input type='text' size='6' name='date_$field_id_esc' id='date_$field_id_esc'" .
+    echo "<td class='text'><input type='text' size='6' class='datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
       " value='$resdate'" .
       " title='$description'" .
-      " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' $disabled />";
-    if (!$disabled) {
-      echo "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      " id='img_$field_id_esc' border='0' alt='[?]' style='cursor:pointer'" .
-      " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />";
-      $date_init .= " Calendar.setup({inputField:'date_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
-    }
+      " $disabled />";
     echo "&nbsp;</td>";
     // never
     echo "<td class='text'><input type='radio'" .
@@ -1109,7 +1099,9 @@ function generate_form_field($frow, $currvalue) {
         $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
       }
     }
-    echo "<div id='form_$field_id_esc'></div>";
+    $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
+    $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
+    echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
     // Hidden form field exists to send updated data to the server at submit time.
     echo "<input type='hidden' name='form_$field_id_esc' value='' />";
     // Hidden image exists to support initialization of the canvas.
@@ -2426,9 +2418,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
 	// Handle starting of a new label cell.
 	if ($titlecols > 0) {
 	  disp_end_cell();
-	  //echo "<td class='label' colspan='$titlecols' valign='top'";
+	  //echo "<td class='label_custom' colspan='$titlecols' valign='top'";
 	  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-	  echo "<td class='label' colspan='$titlecols_esc' ";
+	  echo "<td class='label_custom' colspan='$titlecols_esc' ";
 	  //if ($cell_count == 2) echo " style='padding-left:10pt'";
 	  echo ">";
 	  $cell_count += $titlecols;
@@ -2556,7 +2548,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2694,7 +2686,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
                       $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label' ";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='$field_id_label' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -3025,7 +3017,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     }
     else {
       echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
-      if (!isset($_SESSION['patient_portal_onsite'])) {
+      if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two']) ) {
         // prevent an error from occuring when calling the function from the patient portal
         echo " onclick='top.restoreSession()'";
       }
@@ -3043,7 +3035,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
 
-  if (isset($_SESSION['patient_portal_onsite'])) {
+  if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
     // collapse all entries in the patient portal
     $text = xl('expand');
   }
@@ -3061,7 +3053,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     // Special case to force the widget to always be expanded
     $styling = "";
   }
-  else if (isset($_SESSION['patient_portal_onsite'])) {
+  else if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
     // collapse all entries in the patient portal
     $styling = "style='display:none'";
   }
@@ -3203,9 +3195,9 @@ function lbf_current_value($frow, $formid, $encounter) {
 
 // This returns stuff that needs to go into the <head> section of a caller using
 // the drawable image field type in a form.
-// A TRUE argument makes the widget 25% less tall.
+// A TRUE argument makes the widget controls smaller.
 //
-function lbf_canvas_head($small=FALSE) {
+function lbf_canvas_head($small=TRUE) {
   $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
 <script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
@@ -3218,7 +3210,7 @@ EOD;
  * This makes the widget 25% less tall and adjusts some other things accordingly.
  */
 .literally {
-  min-height:292px;min-width:300px;        /* Was 400, unspecified */
+  min-height:100%;min-width:300px;        /* Was 400, unspecified */
 }
 .literally .lc-picker .toolbar-button {
   width:20px;height:20px;line-height:20px; /* Was 26, 26, 26 */

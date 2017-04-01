@@ -10,6 +10,14 @@
 // Its purpose is to upgrade the MySQL OpenEMR database as needed
 // for the new release.
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 // Disable PHP timeout.  This will not work in safe mode.
 ini_set('max_execution_time', '0');
 
@@ -46,6 +54,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 </head>
 <body style="color:green;">
+
 <div style="box-shadow: 3px 3px 5px 6px #ccc; border-radius: 20px; padding: 10px 40px;background-color:#EFEFEF; width:500px; margin:40px auto">
 
   <p style="font-weight:bold; font-size:1.8em; text-align:center">OpenEMR <?php echo text($EMRversion),' ',xlt('Database Patch'),' ',text($desiredVersion->getRealPatch()) ?></p>

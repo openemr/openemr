@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Tony McCormick <tony@mi-squared.com>
  * @link    http://www.open-emr.org

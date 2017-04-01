@@ -189,4 +189,5 @@ define('_PC_ADMIN_EVENTS_DELETED', xl ('Your event has been deleted.') );
 define('_PC_CAT_PATIENT', xl ('Patient') );
 define('_PC_CAT_PROVIDER', xl ('Provider') );
 define('_PC_CAT_CLINIC', xl ('Clinic') );
+define('_PC_CAT_THERAPY_GROUP', xl ('Therapy group') );
 ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * library/FeeSheet.class.php
- * 
+ *
  * Base class for implementations of the Fee Sheet.
  * This should not include UI but may be extended by a class that does.
  *
@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://www.gnu.org/licenses/licenses.html#GPL .
  *
  * @package OpenEMR
@@ -31,7 +31,6 @@ require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/acl.inc");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
-require_once(dirname(__FILE__) . "/formatting.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
 require_once(dirname(__FILE__) . "/classes/Prescription.class.php");

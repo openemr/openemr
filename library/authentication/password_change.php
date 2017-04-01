@@ -97,16 +97,28 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
     }
     else {
         // If this is an administrator changing someone else's password, then check that they have the password right
+        if($GLOBALS['use_active_directory']) {
+            $valid = active_directory_validation($_SESSION['authUser'], $currentPwd);
+            if(!$valid)
+            {
+                $errMsg=xl("Incorrect password!");
+                return false;
+            }else{
+                $newPwd = md5(uniqid());
+            }
+        }else {
 
-        $adminSQL=" SELECT ".implode(",",array(COL_PWD,COL_SALT))
-                  ." FROM ".TBL_USERS_SECURE
-                  ." WHERE ".COL_ID."=?";
-        $adminInfo=privQuery($adminSQL,array($activeUser));
-        $hash_admin = oemr_password_hash($currentPwd,$adminInfo[COL_SALT]);
-        if($hash_admin!=$adminInfo[COL_PWD])
-        {
-            $errMsg=xl("Incorrect password!");
-            return false;
+            $adminSQL=" SELECT ".implode(",",array(COL_PWD,COL_SALT))
+                      ." FROM ".TBL_USERS_SECURE
+                      ." WHERE ".COL_ID."=?";
+            $adminInfo=privQuery($adminSQL,array($activeUser));
+            $hash_admin = oemr_password_hash($currentPwd,$adminInfo[COL_SALT]);
+            if($hash_admin!=$adminInfo[COL_PWD])
+            {
+                $errMsg=xl("Incorrect password!");
+                return false;
+            }
+
         }
         if(!acl_check('admin', 'users'))
         {

@@ -23,7 +23,7 @@
  * @author OpenEMR Support LLC
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
- * @author Brady Miller <brady@sparmy.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
  * @link http://www.open-emr.org
  */
 
@@ -40,7 +40,6 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
-require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 <head>
@@ -105,7 +104,7 @@ else {
 }
 ?>
 <br>
-<table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
+<table><tr><td><span class="title"> <?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href= "<?php echo $lnkvar; ?>" > </a></td></tr></table>
 <?php
 //show the activity links
 if (empty($task) || $task=="add" || $task=="delete") { ?>
@@ -573,18 +572,18 @@ else {
             echo "
             <tr id=\"row$count\" style=\"background:white\" height=\"24\">
                 <td align=\"center\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"check$count\" name=\"delete_id[]\" value=\"" .
-	          htmlspecialchars( $myrow['id'], ENT_QUOTES) . "\" onclick=\"if(this.checked==true){ selectRow('row$count'); }else{ deselectRow('row$count'); }\"></td>
+	          attr( $myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row$count'); }else{ deselectRow('row$count'); }\"></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-	          htmlspecialchars( $name, ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
+	          text( $name) . "</td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=".attr($showall)."&sortby=".attr($sortby)."&sortorder=".attr($sortorder)."&begin=".attr($begin)."&task=edit&noteid=" .
-	          htmlspecialchars( $myrow['id'], ENT_QUOTES) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
-		  htmlspecialchars( $patient, ENT_NOQUOTES) . "</a></td><td width=5></td></tr></table></td>
+	          attr( $myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
+                text( $patient) . "</a></td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-	          htmlspecialchars( $myrow['title'], ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
+	          xlt( $myrow['title']) . "</td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-	          htmlspecialchars( oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " "))), ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
+	          text( oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-	          htmlspecialchars( $myrow['message_status'], ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
+	          xlt( $myrow['message_status']) . "</td><td width=5></td></tr></table></td>
             </tr>";
         }
     // Display the Messages table footer.

@@ -5,7 +5,6 @@
 // of the License, or (at your option) any later version.
 
 require_once("{$GLOBALS['srcdir']}/acl.inc");
-require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 $patient_data_array = array(
@@ -269,7 +268,7 @@ function printPatientBilling($pid) {
     echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
     echo "<span class=text>(".$result{"code_type"}.") ";
     echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
-    echo " - ". wordwrap($result['code_text'], 70, "\n", true)."</span>";
+    echo " - ". wordwrap(htmlspecialchars($result['code_text']), 70, "\n", true)."</span>";
     echo "<br>\n";
 	}
 }

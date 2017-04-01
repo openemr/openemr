@@ -91,6 +91,7 @@ body
 {
     flex: 1 0 auto;
     border: 0px solid black;
+    width: 100%
 }
 
 .tabControls
@@ -209,7 +210,7 @@ div.closeDlgIframe:before {
     height:100%;
     width:100%;
 }
-#patientData
+#attendantData
 {
     background-color: #f4f4f4;
 }

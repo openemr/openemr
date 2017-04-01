@@ -118,6 +118,9 @@ final class Connector {
             $driverOptionsString = 'SET sql_mode = \'\'';
         }
 
+        $this->logger->trace("Setting time zone");
+        $driverOptionsString .= ", time_zone = '" . (new \DateTime())->format("P") . "'";
+
         // 1002 is the integer value of PDO::MYSQL_ATTR_INIT_COMMAND, which is
         // executed when connecting to the MySQL server. Note if utf8 or sql
         // mode commands fail, the connection will not be made.
@@ -127,6 +130,7 @@ final class Connector {
 
         $this->logger->trace("Wiring up Doctrine entities");
         $configuration = Setup::createAnnotationMetadataConfiguration($entityPath, false, null, null, false);
+        $configuration->setAutoGenerateProxyClasses(true);
 
         $this->logger->trace("Creating connection");
         $this->entityManager = EntityManager::create($connection, $configuration);

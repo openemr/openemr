@@ -1,17 +1,29 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This module shows relative insurance usage by unique patients
+ * that are seen within a given time period.  Each patient that had
+ * a visit is counted only once, regardless of how many visits.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
- // This module shows relative insurance usage by unique patients
- // that are seen within a given time period.  Each patient that had
- // a visit is counted only once, regardless of how many visits.
 
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../library/acl.inc");
- require_once("../../library/formatting.inc.php");
 
  // Might want something different here.
  //
@@ -42,21 +54,33 @@ else {
 <head>
 <?php html_header_show();?>
 <title><?php xl('Patient Insurance Distribution','e'); ?></title>
+
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
 </script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -109,25 +133,19 @@ else {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
+			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
+			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				title='yyyy-mm-dd'>
 			</td>
 		</tr>
 	</table>
@@ -263,15 +281,6 @@ if (! $_POST['form_csvexport']) {
 
 </body>
 
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 </html>
 <?php
 } // end not export

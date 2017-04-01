@@ -2,6 +2,8 @@
 /**
  *
  * Copyright (C) 2012-2013 Naina Mohamed <naina@capminds.com> CapMinds Technologies
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Naina Mohamed <naina@capminds.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -24,7 +27,7 @@
 
  //STOP FAKE REGISTER GLOBALS
  $fake_register_globals=false;
- 
+
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
@@ -38,21 +41,27 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language="JavaScript">
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = false; ?>
+   <?php $datetimepicker_showseconds = false; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 </script>
 
@@ -70,7 +79,7 @@ echo "<form method='post' name='my_form' " .
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name' ); ?>:</td>
 		<td class="forms">
 			<label class="forms-data"> <?php if (is_numeric($pid)) {
-    
+
     $result = getPatientData($pid, "fname,lname,squad");
    echo text($result['fname'])." ".text($result['lname']);}
    $patient_name=($result['fname'])." ".($result['lname']);
@@ -81,7 +90,7 @@ echo "<form method='post' name='my_form' " .
 		<td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
 		<td class="forms">
 		<label class="forms-data"> <?php if (is_numeric($pid)) {
-    
+
     $result = getPatientData($pid, "*");
    echo text($result['DOB']);}
    $dob=($result['DOB']);
@@ -91,30 +100,26 @@ echo "<form method='post' name='my_form' " .
 		</td>
 		</tr>
 	<tr>
-	
+
 	<td align="left" class="forms"><?php echo xlt('Transfer to'); ?>:</td>
-	
+
 	 <td class="forms">
-		 <input type="text" name="transfer_to" id="transfer_to" 
+		 <input type="text" name="transfer_to" id="transfer_to"
 		value="<?php echo text($obj{"transfer_to"});?>"></td>
-		 
+
 		<td align="left" class="forms"><?php echo xlt('Transfer date'); ?>:</td>
 	   	<td class="forms">
-			   <input type='text' size='10' name='transfer_date' id='transfer_date' <?php echo attr ($disabled)?>;
-       value='<?php echo attr($obj{"transfer_date"}); ?>' 
-       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_transfer_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+			   <input type='text' size='10' class='datepicker' name='transfer_date' id='transfer_date' <?php echo attr ($disabled)?>;
+       value='<?php echo attr($obj{"transfer_date"}); ?>'
+       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
 		</td>
 
 	</tr>
-		
+
 	<tr>
 		<td align="left colspan="3" style="padding-bottom:7px;"></td>
 	</tr>
-	
+
 	<tr>
 		<td align="left" class="forms"><b><?php echo xlt('Status Of Admission'); ?>:</b></td>
 		<td colspan="3"><textarea name="status_of_admission" rows="3" cols="60" wrap="virtual name"><?php echo text($obj{"status_of_admission"});?></textarea></td>
@@ -140,11 +145,11 @@ echo "<form method='post' name='my_form' " .
 		<td align="left" class="forms"><b><?php echo xlt('Overall Status Of Discharge'); ?>:</b></td>
 		<td colspan="3"><textarea name="overall_status_of_discharge" rows="3" cols="60" wrap="virtual name"><?php echo text($obj{"overall_status_of_discharge"});?></textarea></td>
 	</tr>
-	
+
 <tr>
 		<td align="left colspan="3" style="padding-bottom:7px;"></td>
 	</tr>
-	
+
 	<tr>
 		<td align="left colspan="3" style="padding-bottom:7px;"></td>
 	</tr>
@@ -160,11 +165,6 @@ echo "<form method='post' name='my_form' " .
 </table>
 </form>
 
-<script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"transfer_date", ifFormat:"%Y-%m-%d", button:"img_transfer_date"});
-
-</script>
 <?php
 formFooter();
 ?>

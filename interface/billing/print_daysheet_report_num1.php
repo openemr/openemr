@@ -1,26 +1,26 @@
 <?php
-/** 
-* interface/billing/print_daysheet_report.php Genetating an end of day report. 
-* 
+/**
+* interface/billing/print_daysheet_report.php Genetating an end of day report.
+*
 * Program for Generating an End of Day report
-* 
-* 
-* Copyright (C) 2014 Terry Hill <terry@lillysystems.com> 
-* 
-* LICENSE: This program is free software; you can redistribute it and/or 
-* modify it under the terms of the GNU General Public License 
-* as published by the Free Software Foundation; either version 3 
-* of the License, or (at your option) any later version. 
-* This program is distributed in the hope that it will be useful, 
-* but WITHOUT ANY WARRANTY; without even the implied warranty of 
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-* GNU General Public License for more details. 
-* You should have received a copy of the GNU General Public License 
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
-* 
-* @package OpenEMR 
+*
+*
+* Copyright (C) 2014 Terry Hill <terry@lillysystems.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
 * @author Terry Hill <terry@lillysystems.com>
-* @link http://www.open-emr.org 
+* @link http://www.open-emr.org
 */
 
 $fake_register_globals=false;
@@ -29,7 +29,6 @@ $sanitize_all_escapes=true;
 include_once("../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/../interface/reports/report.inc.php");
-require_once("$srcdir/formatting.inc.php");
 include_once("$srcdir/daysheet.inc.php");
 
 //global variables:
@@ -81,7 +80,7 @@ if (!isset($_GET["mode"])) {
 <a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Day Sheet Report')?></font></a>
 <br>
 
-<?php 
+<?php
 if ($my_authorized === 'on' ) {
     $my_authorized = true;
 } else {
@@ -147,7 +146,7 @@ if ($code_type === 'all') {
 if (isset($_GET["mode"]) && $_GET["mode"] === 'bill') {
     billCodesList($list);
 }
-		
+
 $res_count = 0;
 $N = 1;
 $k = 1;
@@ -574,7 +573,7 @@ foreach ($all4 as $iter) {
         }
        	if (($iter{'pat_code'}) < 0 AND ($iter{'code_type'}) === 'Patient Payment' AND $iter{'paytype'} != 'PCP' ){
           $pro0_patref = $pro0_patref + $iter{'pat_code'};
-		  
+
         }
         break;
     case $iter{'provider_id'} = $provider_final_list[1]:
@@ -934,7 +933,7 @@ if ($totals_only != 1) {
 	    $line_total = 0;
 	    $line_total_pay = 0;
 	   }
-	   
+
 	  if ($first_time) {
        print "<table border=0><tr>\n";     // small table
        $first_time=0;
@@ -951,7 +950,7 @@ if ($totals_only != 1) {
       //Next patient
 	  $old_pid = $iter{'pid'};
     }
-    
+
 	// get dollar amounts to appear on pat,ins payments and copays
 
 	if ($iter{'code_type'} != 'payment_info') {
@@ -1030,11 +1029,11 @@ if ($totals_only != 1) {
       print "</span></td>\n";
 	  }
 	}
-	
+
 	if ($iter{'code_type'} === 'COPAY' || $iter{'code_type'} === 'Patient Payment' || $iter{'code_type'} === 'Insurance Payment' || $iter{'fee'} != 0) {
      $res_count++;
     }
-	
+
     if ($res_count === $N) {
      print "</tr><tr>\n";
      $res_count = 0;
@@ -1283,7 +1282,7 @@ if ($run_provider != 1) {
  }
 }
 if ($run_provider === 1) {
- 
+
  if ($pro0_fee != 0 || $pro0_inspay != 0 || $pro0_insadj != 0 || $pro0_patadj != 0 || $pro0_patpay != 0 || $pro0_insref != 0 || $pro0_patref != 0) {
   $provider_info['user'][$k] = $pro0_user;
   $provider_info['fee'][$k]  = $pro0_fee;

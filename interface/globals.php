@@ -1,11 +1,21 @@
 <?php
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/../common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 // Default values for optional variables that are allowed to be set by callers.
 
 // Unless specified explicitly, apply Auth functions
 if (!isset($ignoreAuth)) $ignoreAuth = false;
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Same for onsite
+if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
 // Unless specified explicitly, do not reverse magic quotes
 if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
@@ -207,7 +217,6 @@ $GLOBALS["doctrine_connection_pooling"] = true;
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
-$GLOBALS['cene_specific'] = false;
 
 // Defaults for drugs and products.
 $GLOBALS['inhouse_pharmacy'] = false;
@@ -280,6 +289,16 @@ if (!empty($glrow)) {
       if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
+    else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
+      if ($gl_value) {
+        date_default_timezone_set($gl_value);
+      }
+      // Synchronize MySQL time zone with PHP time zone.
+      sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
+    }
     else {
       $GLOBALS[$gl_name] = $gl_value;
     }
@@ -305,7 +324,15 @@ if (!empty($glrow)) {
             $rtl_override = true;
         }
     }
-
+    else if (isset( $_SESSION['language_choice'] )) {
+        //this will support the onsite patient portal which will have a language choice but not yet a set language direction
+        $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
+        if ( $_SESSION['language_direction'] == 'rtl' &&
+        !strpos($GLOBALS['css_header'], 'rtl')) {
+            // the $css_header_value is set above
+            $rtl_override = true;
+        }
+    }
     else {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
@@ -452,6 +479,9 @@ $GLOBALS['include_de_identification']=0;
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
 }
+elseif ( ($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1) ) {
+	$ignoreAuth = true;
+}
 if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
@@ -483,6 +513,10 @@ elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
 $userauthorized = empty($_SESSION['userauthorized']) ? 0 : $_SESSION['userauthorized'];
 $groupname = empty($_SESSION['authProvider']) ? 0 : $_SESSION['authProvider'];
+
+//This is crucial for therapy groups and patients mechanisms to work together properly
+$attendant_type = (empty($pid) && isset($_SESSION['therapy_group'])) ? 'gid' : 'pid';
+$therapy_group = (empty($pid) && isset($_SESSION['therapy_group'])) ? $_SESSION['therapy_group'] : 0;
 
 // global interface function to format text length using ellipses
 function strterm($string,$length) {

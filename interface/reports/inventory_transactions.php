@@ -19,7 +19,6 @@ $fake_register_globals=false;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 
 function bucks($amount) {
   if ($amount != 0) return oeFormatMoney($amount);
@@ -237,7 +236,7 @@ else {
   <td width='50%'>
    <table class='text'>
     <tr>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('Type'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
@@ -259,7 +258,7 @@ foreach (array(
 ?>
       </select>
      </td>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('From'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
@@ -271,7 +270,7 @@ foreach (array(
        id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
        title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
-     <td class='label'>
+     <td class='label_custom'>
       <?php xl('To','e'); ?>:
      </td>
      <td nowrap>

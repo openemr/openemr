@@ -35,7 +35,6 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/payment.inc.php");
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -215,30 +214,23 @@ if (isset($_POST["mode"]))
    }
  }
 //===============================================================================
-$DateFormat=DateFormatRead();
 ?>
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type='text/javascript'>
 //For different browsers there was disparity in width.So this code is used to adjust the width.
@@ -287,6 +279,17 @@ else
 	});
 });
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 <script language='JavaScript'>
  var mypcc = '1';
@@ -433,22 +436,12 @@ document.onclick=HideTheAjaxDivs;
 				<table  border="0" cellspacing="0" cellpadding="0">
 				  <tr>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:90px;" name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
-					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-						id='img_FromDate' border='0' alt='[?]' style='cursor:pointer'
-						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-					   <script>
-						Calendar.setup({inputField:"FromDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_FromDate"});
-					   </script></td>
+					<td><input type='text'  style="width:90px;" class='datepicker' name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
+					</td>
 					<td width="53">&nbsp;</td>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:103px;"  name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
-					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-						id='img_ToDate' border='0' alt='[?]' style='cursor:pointer'
-						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-					   <script>
-						Calendar.setup({inputField:"ToDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_ToDate"});
-					   </script></td>
+					<td><input type='text'  style="width:103px;"  class='datepicker' name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
+					</td>
 				  </tr>
 				</table>
 	    </td>

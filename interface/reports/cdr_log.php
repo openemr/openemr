@@ -2,7 +2,7 @@
 /**
  * CDR trigger log report.
  *
- * Copyright (C) 2015 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2015-2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -30,7 +30,6 @@ $fake_register_globals=false;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 ?>
@@ -41,17 +40,29 @@ require_once "$srcdir/clinical_rules.php";
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Alerts Log'); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script LANGUAGE="JavaScript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+$(document).ready(function() {
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = true; ?>
+   <?php $datetimepicker_showseconds = true; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+ });
 
 </script>
 
@@ -102,28 +113,24 @@ require_once "$srcdir/clinical_rules.php";
 	<table class='text'>
 
                    <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                          <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
-                            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                            id='img_begin_date' border='0' alt='[?]' style='cursor:pointer'
-                            title='<?php echo xla('Click here to choose a date'); ?>'>
+                            class='datepicker'
+                            title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                       </td>
                    </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                               <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
-                                onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
-                             <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-                                id='img_end_date' border='0' alt='[?]' style='cursor:pointer'
-                                title='<?php echo xla('Click here to choose a date'); ?>'>
+                                class='datepicker'
+                                title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
 	</table>
@@ -273,16 +280,6 @@ require_once "$srcdir/clinical_rules.php";
 </form>
 
 </body>
-
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"form_begin_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:'true'});
- Calendar.setup({inputField:"form_end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:'true'});
-</script>
 
 </html>
 

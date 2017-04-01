@@ -5,7 +5,6 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
-require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
 
 class C_Document extends Controller {
 
@@ -114,6 +113,7 @@ class C_Document extends Controller {
         $sentUploadStatus = array();
         if( count($_FILES['file']['name']) > 0){
             $upl_inc = 0;
+
             foreach($_FILES['file']['name'] as $key => $value){
                 $fname = $value;
                 $err = "";
@@ -122,10 +122,12 @@ class C_Document extends Controller {
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = "Error number: " . $_FILES['file']['error'][$key] . " occured while uploading file named: " . $fname . "\n";
+                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
-                        $error .= "The system does not permit uploading files of with size 0.\n";
+                        $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
+                }elseif($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])){
+                       $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 }else{
                     $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
@@ -321,7 +323,7 @@ class C_Document extends Controller {
 		if ( sqlNumRows($result_docs) > 0)
 		while($row_result_docs = sqlFetchArray($result_docs)) {
 		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
-			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text($row_result_docs['pc_catname'])."</option>";
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
 		}
 		$this->assign("ENC_LIST", $encOptions);
 
@@ -934,16 +936,14 @@ class C_Document extends Controller {
 		    $file_name = $d->get_url_file();
 		    if ( $docname != '' &&
 		         $docname != $file_name ) {
-		        $path = $d->get_url_filepath();
-		        $path = str_replace( $file_name, "", $path );
-		        $new_url = $this->_rename_file( $path.$docname );
-     		    if ( rename( $d->get_url(), $new_url ) ) {
+		        // Ready to rename - check for relocation
+		        $old_url = $this->_check_relocation($d->get_url());
+		        $new_url = $this->_check_relocation($d->get_url(), null, $docname);
+		        $messages .= sprintf("%s -> %s<br>", $old_url, $new_url);
+     		    if ( rename( $old_url, $new_url ) ) {
      		        // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
-     		        $url = preg_replace("|^(.*)://|","",$d->get_url());
-     		        $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
-                    $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $patient_id . '/' . $convertedFile;
-     				if ( file_exists( $url ) ) {
-     				    unlink( $url );
+     		        if ( file_exists( $old_url ) ) {
+     				    unlink( $old_url );
      				}
      				$d->url = $new_url;
      	            $d->persist();
@@ -1010,35 +1010,49 @@ class C_Document extends Controller {
      *      Modified to only deal with base file name when renaming, to avoid issues with directory
      *      names with dots.
      */
-    function _rename_file($fname) {
+    function _rename_file($fname, $self=FALSE) {
+    	// Allow same routine for new file name check
+    	if (!file_exists($fname)) return($fname);
+
         $path = dirname($fname);
         $file = basename_international($fname);
 
-        $fparts = explode("\.",$file);
-
-        if (count($fparts) > 1) {
-            if (is_numeric($fparts[count($fparts) -2]) && (count($fparts) > 2)) {
-                //increment the counter in filename
-                $fparts[count($fparts) -2] = $fparts[count($fparts) -2] + 1;
-            } elseif (is_numeric($fparts[count($fparts) -1]) && $fparts[count($fparts) -1] < 1000) {
-                //increment counter at end of filename (so compatible with previous openemr version files
-                $fparts[count($fparts) -1] = $fparts[count($fparts) -1] + 1;
-            } elseif (is_numeric($fparts[count($fparts) -1])) {
-                //leave date at end and place counter in filename
-                array_splice($fparts, -1, 0, "1");
-            } else {
-                //add the counter to filename
-                array_splice($fparts, -1, 0, "1");
-            }
-        } else { // (count($fparts) == 1)
-            //place counter at end of filename
-            array_push($fparts, "1");
+        $fparts = explode(".",$file);
+        switch (count($fparts)) {
+        	case 1:
+        		// Has a single node (base file name).  Create counter node with value 0
+        		$fparts[1] = '1';
+        		break;
+        	case 2:
+        		// If 2nd node is numeric, assume it is counter and add 1 else insert counter
+        		if (is_numeric($fparts[1])) {
+        			$fparts[1] += 1;
+        		} else {
+        			array_push($fparts, $fparts[1]);
+        			$fparts[1] = '1';
+        		}
+        		break;
+        	default:
+        		// Multiple nodes
+        		$ix_end = count($fparts) - 1;
+        		if (is_numeric($fparts[$ix_end]) && !is_numeric($fparts[$ix_end - 1])) {
+        			// Switch old style to new and check again
+        			$wrk = $fparts[$ix_end - 1];
+        			$fparts[$ix_end - 1] = $fparts[$ix_end];
+        			$fparts[$ix_end] = $wrk;
+        		} else if (is_numeric($fparts[$ix_end - 1])) {
+        			$fparts[$ix_end - 1] += 1;
+        		} else {
+        			array_push($fparts, $fparts[$ix_end]);
+        			$fparts[$ix_end] = '1';
+        		}
+        		break;
         }
 
         $fname = $path.DIRECTORY_SEPARATOR.join(".", $fparts);
 
         if (file_exists($fname)) {
-            return $this->_rename_file($fname);
+            return $this->_rename_file($fname, TRUE);
         } else {
             return($fname);
         }
@@ -1091,10 +1105,13 @@ class C_Document extends Controller {
 			$icon = "file3.png";
 			if (is_array($categories[$id])) {
 				foreach ($categories[$id] as $doc) {
+          $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
+          // If user has no access then there will be no link.
+          if (!acl_check_aco_spec($doc['aco_spec'])) $link = '';
           if($this->tree->get_node_name($id) == "CCR"){
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
               'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','CCR');")
@@ -1102,7 +1119,7 @@ class C_Document extends Controller {
           }elseif($this->tree->get_node_name($id) == "CCD"){
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon,
               'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','CCD');")
@@ -1110,7 +1127,7 @@ class C_Document extends Controller {
           }else{
             $current_node->addItem(new HTML_TreeNode(array(
               'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
-              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'link' => $link,
               'icon' => $icon,
               'expandedIcon' => $expandedIcon
             )));
@@ -1298,6 +1315,39 @@ function image_result_indication($doc_id,$encounter,$image_procedure_id = 0){
 	$noteid = addPnote($_SESSION['pid'],'New Image Report received '.$narration,0,1,'Image Results',$encounter_provider,'','New','');
 	setGpRelation(1, $doc_id, 6, $noteid);
 }
+
+/**  Function to accomodate the relocation of entire "documents" folder to another host or filesystem  **
+ * Also usable for documents that may of been moved to different patients.
+ *
+ * @param string $url - Current url string from database.
+ * @param string $new_pid - Include pid corrections to receive corrected url during move operation.
+ * @param string $new_name - Include name corrections to receive corrected url during rename operation.
+ *
+ * @return string
+ */
+function _check_relocation($url, $new_pid = null, $new_name = null) {
+	//strip url of protocol handler
+	$url = preg_replace("|^(.*)://|","",$url);
+	$fsnodes = explode(DIRECTORY_SEPARATOR, $url);
+	while (current($fsnodes) != "documents") {
+		array_shift($fsnodes);
+	}
+	if ($new_pid) {
+		$fsnodes[1] = $new_pid;
+	}
+	if ($new_name) {
+		$fsnodes[count($fsnodes)-1] = $new_name;
+	}
+	$url = $GLOBALS['OE_SITE_DIR'].DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $fsnodes);
+	// Make sure the url is available after corrections
+	if ($new_pid || $new_name) {
+		$url = $this->_rename_file($url);
+	}
+	//Add full path and remaining nodes
+	return $url;
+}
+
+
 
 }
 ?>

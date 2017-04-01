@@ -21,7 +21,7 @@ $esignApi = new Esign\Api();
 function openNewForm(sel) {
   top.restoreSession();
   FormNameValueArray = sel.split('formname=');
-  if(FormNameValueArray[1] == 'newpatient')
+  if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
   {
     parent.location.href = sel;
   }
@@ -141,9 +141,19 @@ function findPosX(id)
 include_once("$srcdir/registry.inc");
 
 function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
+    global $attendant_type;
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date FROM registry WHERE " .
-    "state LIKE \"$state\" ORDER BY category, priority, name";
+    "unpackaged, date, aco_spec FROM registry WHERE ";
+  // select different forms for groups
+  if($attendant_type == 'pid' )
+  {
+    $sql .= "patient_encounter = 1 AND ";
+  }
+  else
+  {
+    $sql .= "therapy_group_encounter = 1 AND ";
+  }
+  $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
   if ($limit != "unlimited") $sql .= " limit $limit, $offset";
   $res = sqlStatement($sql);
   if ($res) {
@@ -186,8 +196,14 @@ if (!empty($reg)) {
       $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
     }
   }
-  if ( $encounterLocked === false ) {
+  if ($encounterLocked === false) {
       foreach ($reg as $entry) {
+        // Check permission to create forms of this type.
+        $tmp = explode('|', $entry['aco_spec']);
+        if (!empty($tmp[1])) {
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
         $new_category = trim($entry['category']);
         $new_nickname = trim($entry['nickname']);
         if ($new_category == '') {
@@ -211,34 +227,37 @@ if (!empty($reg)) {
   }
   $StringEcho.= '</table></div></li>';
 }
+
 if($StringEcho){
   $StringEcho2= '<div style="clear:both"></div>';
 }else{
   $StringEcho2="";
 }
-?>
-<!--<table   style="border:solid 1px black" cellspacing="0" cellpadding="0">
- <tr>
-    <td valign="top"><?php //echo $StringEcho; ?></td>
-  </tr>
-</table>-->
-<?php
-//$StringEcho='';
+
 // This shows Layout Based Form names just like the above.
 //
-if ( $encounterLocked === false ) {
+if ($encounterLocked === false) {
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
     if (sqlNumRows($lres)) {
       if(!$StringEcho){
         $StringEcho= '<ul id="sddm">';
       }
-      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >".xl('Layout Based') ."</a><div id='lbf' ><table border='0'  cellspacing='0' cellpadding='0'>";
+      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
+        xl('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
       while ($lrow = sqlFetchArray($lres)) {
-      $option_id = $lrow['option_id']; // should start with LBF
-      $title = $lrow['title'];
-      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname='
-    				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        // Check ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+          $tmp = explode('|', $jobj['aco']);
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
+        $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
+          $rootdir . '/patient_file/encounter/load_form.php?formname=' .
+          urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
       }
     }
 }

@@ -27,7 +27,6 @@ $sanitize_all_escapes=true;
 
 require_once("../interface/globals.php");
 require_once "$srcdir/report_database.inc";
-require_once("$srcdir/formatting.inc.php");
 require_once ("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 

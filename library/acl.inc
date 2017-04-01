@@ -1,7 +1,7 @@
 <?php
 /**
- * library/acl.inc 
- * 
+ * library/acl.inc
+ *
  * Functions wrapping php-GACL's functionality, to create a generic OpenEMR access control system.
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -13,12 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://www.gnu.org/licenses/licenses.html#GPL .
  *
  * @package OpenEMR
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  */
@@ -77,6 +77,12 @@
   //   docs        Documents (write,addonly optional)
   //   notes       Patient Notes (write,addonly optional)
   //   sign        Sign Lab Results (write,addonly optional)
+  //   reminder    Patient Reminders (write,addonly optional)
+  //   alert       Clinical Reminders/Alerts (write,addonly optional)
+  //   disclosure  Disclosures (write,addonly optional)
+  //   rx          Prescriptions (write,addonly optional)
+  //   amendment   Amendments (write,addonly optional)
+  //   lab         Lab Results (write,addonly optional)
   //
   // Section "encounters" (Encounter Information):
   //   auth        Authorize - my encounters
@@ -113,7 +119,7 @@
   //   portal     Patient Portal
   // Section "menus" (Menus):
   //   modle      Module
-  
+
   if (isset ($phpgacl_location)) {
     $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
     require_once("$phpgacl_location/gacl.class.php");
@@ -129,7 +135,7 @@
  * Globals that can use are:
  *  $GLOBALS['phpgacl_location_global']
  *  $GLOBALS['section_aro_value_global']
- * 
+ *
  * This function will check for access to the given ACO.
  * view    - The user may view but not add or modify entries
  * write   - The user may add or modify the ACO
@@ -147,6 +153,11 @@
  */
   function acl_check($section, $value, $user = '', $return_value = '') {
     if (! $user) $user = $_SESSION['authUser'];
+
+    // Superuser always gets access to everything.
+    if (($section != 'admin' || $value != 'super') && acl_check('admin', 'super', $user)) {
+      return TRUE;
+    }
 
     if ($GLOBALS['phpgacl_location_global']) {
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
@@ -210,11 +221,9 @@
 
       // Now decide whether user has access
       // (Note a denial takes precedence)
-      if ($deny) return FALSE;
-      if ($access) return TRUE;
+      if (!$deny && $access) return TRUE;
       return FALSE;
     }
-
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
     // users (providers) can do anything, and other users can do most things.
@@ -376,7 +385,7 @@
    }
    if (is_array($group)){
     foreach ($group as $value) {
-       if (!in_array($value, $current_user_groups)) { 
+       if (!in_array($value, $current_user_groups)) {
         array_push($current_user_groups, $value);
        }
     }
@@ -650,10 +659,10 @@
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
     $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
-    foreach ($aco_id as $value) { 
+    foreach ($aco_id as $value) {
      $aco_data = $gacl->get_object_data($value, 'ACO');
      $aco_section = $aco_data[0][0];
-     $aco_name = $aco_data[0][1];   
+     $aco_name = $aco_data[0][1];
      $gacl->append_acl($acl_id[0], NULL, NULL, NULL, NULL, array($aco_section=>array($aco_name)));
     }
     return;
@@ -681,7 +690,7 @@
     //  removal of the acl.
     if (count($aco_id) == acl_count_acos($acl_title, $return_value)) {
      //1-get the filler-placeholder aco id
-     $filler_aco_id = $gacl->get_object_id('placeholder','filler','ACO');     
+     $filler_aco_id = $gacl->get_object_id('placeholder','filler','ACO');
      //2-add filler-placeholder aco
      acl_add_acos($acl_title, $return_value, array($filler_aco_id));
      //3-ensure filler-placeholder aco is not to be deleted
@@ -737,37 +746,37 @@
   }
   /**
   * Checks ACL
-  * 
+  *
   * Same Functionality in the Zend Module
   * for ACL Check in Zend
   * Path openemr/interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable
   * Function Name zAclCheck
-  * 
+  *
   * @param String $user_id Auth user Id
   * $param String $section_identifier ACL Section id
   * @return boolean
   */
   function zh_acl_check($user_id,$section_identifier){
-    $sql_user_acl = " SELECT 
-                        COUNT(allowed) AS count 
+    $sql_user_acl = " SELECT
+                        COUNT(allowed) AS count
                       FROM
-                        module_acl_user_settings AS usr_settings 
-                        LEFT JOIN module_acl_sections AS acl_sections 
-                            ON usr_settings.section_id = acl_sections.`section_id` 
-                      WHERE 
+                        module_acl_user_settings AS usr_settings
+                        LEFT JOIN module_acl_sections AS acl_sections
+                            ON usr_settings.section_id = acl_sections.`section_id`
+                      WHERE
                           acl_sections.section_identifier = ? AND usr_settings.user_id = ? AND usr_settings.allowed = ?";
-    $sql_user_group = " SELECT 
+    $sql_user_group = " SELECT
                           gagp.id AS group_id
                         FROM
-                          gacl_aro AS garo 
-                          LEFT JOIN `gacl_groups_aro_map` AS gamp 
-                            ON garo.id = gamp.aro_id 
+                          gacl_aro AS garo
+                          LEFT JOIN `gacl_groups_aro_map` AS gamp
+                            ON garo.id = gamp.aro_id
                           LEFT JOIN `gacl_aro_groups` AS gagp
                             ON gagp.id = gamp.group_id
-                          RIGHT JOIN `users_secure` usr 
+                          RIGHT JOIN `users_secure` usr
                             ON usr. username =  garo.value
                         WHERE
-                          garo.section_value = ? AND usr. id = ?";    
+                          garo.section_value = ? AND usr. id = ?";
     $res_groups     = sqlStatement($sql_user_group,array('users',$user_id));
 
     // Prepare the group queries with the placemakers and binding array for the IN part
@@ -784,10 +793,10 @@
         $groupPlacemakers .= ",?";
       }
     }
-    $sql_group_acl_base  = " SELECT 
-                        COUNT(allowed) AS count 
+    $sql_group_acl_base  = " SELECT
+                        COUNT(allowed) AS count
                       FROM
-                        module_acl_group_settings AS group_settings 
+                        module_acl_group_settings AS group_settings
                         LEFT JOIN module_acl_sections AS  acl_sections
                           ON group_settings.section_id = acl_sections.section_id
                       WHERE
@@ -797,7 +806,7 @@
 
     // Complete the group queries sql binding array
     array_push($groups_sql_param, $section_identifier);
-                                
+
         $count_user_denied      = 0;
         $count_user_allowed     = 0;
         $count_group_denied     = 0;
@@ -805,7 +814,7 @@
 
         $res_user_denied        = sqlQuery($sql_user_acl,array($section_identifier,$user_id,0));
         $count_user_denied      = $res_user_denied['count'];
-        
+
         $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
         $count_user_allowed     = $res_user_allowed['count'];
 
@@ -826,4 +835,77 @@
         else
             return false;
     }
+
+  // This generates an HTML options list for all ACOs.
+  // The caller inserts this between <select> and </select> tags.
+  //
+  function gen_aco_html_options($default='') {
+    global $phpgacl_location;
+    require_once("$phpgacl_location/gacl_api.class.php");
+    $s = '';
+    $gacl = new gacl_api();
+    // collect and sort all aco objects
+    $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
+    ksort($list_aco_objects);
+    foreach ($list_aco_objects as $seckey => $dummy) {
+      if (empty($dummy)) continue;
+      asort($list_aco_objects[$seckey]);
+      $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
+      $aco_section_title = $aco_section_data[3];
+      $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
+      foreach($list_aco_objects[$seckey] as $acokey) {
+        $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
+        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
+        $aco_title = $aco_data[0][3];
+        $optkey = "$seckey|$acokey";
+        $s .= "<option value='" . attr($optkey) . "'";
+        if ($optkey == $default) $s .= ' selected';
+        $s .= ">" . xlt($aco_title) . "</option>";
+      }
+      $s .= "</optgroup>";
+    }
+    return $s;
+  }
+
+  // Permissions check for an ACO in "section|aco" format.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_aco_spec($aco_spec, $user='', $return_value='') {
+    if (empty($aco_spec)) return true;
+    $tmp = explode('|', $aco_spec);
+    if (!is_array($return_value)) $return_value = array($return_value);
+    foreach ($return_value as $rv) {
+      if (acl_check($tmp[0], $tmp[1], $user, $rv)) return true;
+    }
+    return false;
+  }
+
+  // Permissions check for a specified encounter form type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_form($formdir, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/registry.inc');
+    $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+  }
+
+  // Permissions check for a specified issue type.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_issue($type, $user='', $return_value='') {
+    require_once(dirname(__FILE__) . '/lists.inc');
+    global $ISSUE_TYPES;
+    if (empty($ISSUE_TYPES[$type][5])) return true;
+    return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
+  }
+
+  // Permissions check for a specified document category name.
+  // Note $return_value may be an array of return values.
+  //
+  function acl_check_cat_name($catname, $user='', $return_value='') {
+    $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
+      array($catname));
+    if (empty($tmp['aco_spec'])) return true;
+    return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+  }
 ?>

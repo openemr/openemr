@@ -3,41 +3,43 @@
  * Download documents from OpenEMR to the patient portal in a zip file(get_patient_documents.php)
  *
  * This program is used to download patient documents in a zip file in the Patient Portal.
- * The original author did not pursue this but I thought it would be a good addition to 
- * the patient portal 
- * 
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com> 
+ * The original author did not pursue this but I thought it would be a good addition to
+ * the patient portal
+ *
+ * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
  * Copyright (C) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
  *
- * LICENSE: This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 3 
- * of the License, or (at your option) any later version. 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU General Public License for more details. 
- * You should have received a copy of the GNU General Public License 
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
- * 
- * @package OpenEMR 
- * @author Terry Hill <terry@lilysystems.com> 
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Terry Hill <terry@lilysystems.com>
  * @author Giorgos Vasilakos <giorg.vasilakos@gmail.com>
- * @link http://www.open-emr.org 
- * 
+ * @link http://www.open-emr.org
+ *
  */
-    
+
     require_once("verify_session.php");
     include_once("$srcdir/documents.php");
     require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+
+    // TODO: see if this can be removed (test in PHP 5 and 7)... throwing a warning
     use C_Document;
-	
+
 	// get the temporary folder
 	$tmp = $GLOBALS['temporary_files_dir'];
 	// get all the documents of the patient
 	$sql = "SELECT url, id, mimetype FROM `documents` WHERE `foreign_id` = ?";
 	$fres = sqlStatement($sql, array($pid));
-	
+
 	// for every document
 	while ($file = sqlFetchArray($fres)) {
 		// find the document category
@@ -46,7 +48,7 @@
 				AND `categories_to_documents`.`document_id` = ?";
 		$catres = sqlStatement($sql, array($file['id']));
 		$cat = sqlFetchArray($catres);
-		
+
 		// find the tree of the documents category
 		$sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
 		$pathres = sqlStatement($sql, array($cat['lft'], $cat['rght']));
@@ -88,19 +90,19 @@
 			echo xlt("Can't find file!")."<br />";
 		}
 	}
-	
+
 	// zip the folder
 	Zip($tmp."/".$pid."/", $tmp."/".$pid.'.zip');
-	
+
 	// serve it to the patient
 	header('Content-type: application/zip');
 	header('Content-Disposition: attachment; filename="patient_documents.zip"');
 	readfile($tmp."/".$pid.'.zip');
-	
+
 	// remove the temporary folders and files
 	recursive_remove_directory($tmp."/".$pid);
 	unlink($tmp."/".$pid.'.zip');
-   
+
 	function recursive_remove_directory($directory, $empty=FALSE) {
 		if(substr($directory,-1) == '/') {
 			$directory = substr($directory,0,-1);
@@ -128,8 +130,8 @@
 		}
 		return TRUE;
 	}
-	
-	
+
+
 	function Zip($source, $destination) {
 		if (!extension_loaded('zip') || !file_exists($source)) {
 			return false;

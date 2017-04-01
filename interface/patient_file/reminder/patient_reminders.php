@@ -1,6 +1,6 @@
 <?php
 // Copyright (C) 2011 by following authors:
-//   -Brady Miller <brady@sparmy.com>
+//   -Brady Miller <brady.g.miller@gmail.com>
 //   -Ensofttek, LLC
 //
 // This program is free software; you can redistribute it and/or
@@ -189,7 +189,7 @@ else {
         <div style='float:left'>
           <table class='text'>
             <tr>
-              <td class='label'>
+              <td class='label_custom'>
                 <?php echo " "; ?>
               </td>
             </tr>

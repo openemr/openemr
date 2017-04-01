@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -27,7 +27,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/formatting.inc.php");
 
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {
@@ -52,6 +51,8 @@ if ($form_patient == '' ) $form_pid = '';
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 
 @media print {
@@ -150,12 +151,21 @@ if ($form_patient == '' ) $form_pid = '';
 }
 </style>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="Javascript">
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = false; ?>
+   <?php $datetimepicker_showseconds = false; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
  });
 
 // CapMinds :: invokes  find-patient popup.
@@ -192,25 +202,19 @@ if ($form_patient == '' ) $form_pid = '';
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('Start Date'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
-				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php echo xla('Click here to choose a date'); ?>'>
+			   <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
+				title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('End Date'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
-				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php echo xla('Click here to choose a date'); ?>'>
+			   <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
+				title='yyyy-mm-dd'>
 			</td>
 
 			<td>
@@ -388,15 +392,4 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
     </body>
 
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-
-<script language="Javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-
-</script>
 </html>

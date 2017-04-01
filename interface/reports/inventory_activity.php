@@ -27,7 +27,6 @@ $fake_register_globals=false;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 
 // Specify if product or warehouse is the first column.
 $product_first = (!empty($_POST['form_by']) && $_POST['form_by'] == 'w') ? 0 : 1;
@@ -431,7 +430,7 @@ table.mymaintable td, table.mymaintable th {
   <td width='50%'>
    <table class='text'>
     <tr>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('By')); ?>:
      </td>
      <td nowrap>
@@ -440,7 +439,7 @@ table.mymaintable td, table.mymaintable th {
        <option value='w'<?php if (!$product_first) echo ' selected'; ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
       </select>
      </td>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('From')); ?>:
      </td>
      <td nowrap>
@@ -452,7 +451,7 @@ table.mymaintable td, table.mymaintable th {
        id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
        title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('To')); ?>:
      </td>
      <td nowrap>
@@ -466,7 +465,7 @@ table.mymaintable td, table.mymaintable th {
      </td>
     </tr>
     <tr>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('For'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
@@ -486,7 +485,7 @@ while ($prow = sqlFetchArray($pres)) {
 echo "      </select>\n";
 ?>
      </td>
-     <td class='label'>
+     <td class='label_custom'>
       <?php echo htmlspecialchars(xl('Details')); ?>:
      </td>
      <td colspan='3' nowrap>

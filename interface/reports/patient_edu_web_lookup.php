@@ -3,7 +3,7 @@
  * Open websearch for patient education materials
  *
  * Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
- * Copyright (C) 2011 Brady Miller   <brady@sparmy.com>
+ * Copyright (C) 2011 Brady Miller   <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Tony McCormick <tony@mi-squared.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 

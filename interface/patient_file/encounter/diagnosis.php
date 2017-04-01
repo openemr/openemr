@@ -7,7 +7,6 @@
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];

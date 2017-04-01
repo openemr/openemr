@@ -33,6 +33,7 @@
  * </pre>
  *
  * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +48,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -59,7 +60,6 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 $currdecimals = $GLOBALS['currency_decimals'];
@@ -131,7 +131,7 @@ function generate_receipt($patient_id, $encounter=0) {
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
     $svcdate = substr($ferow['date'], 0, 10);
-    
+
     if ($GLOBALS['receipts_by_provider']){
       if (isset($ferow['provider_id']) ) {
         $encprovider = $ferow['provider_id'];
@@ -139,7 +139,7 @@ function generate_receipt($patient_id, $encounter=0) {
         $encprovider = $patdata['providerID'];
       } else { $encprovider = -1; }
     }
-    
+
     if ($encprovider){
       $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
         "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider) );
@@ -154,9 +154,12 @@ function generate_receipt($patient_id, $encounter=0) {
 <head>
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+
 <title><?php echo xlt('Receipt for Payment'); ?></title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -187,7 +190,7 @@ function generate_receipt($patient_id, $encounter=0) {
 </head>
 <body class="body_top">
 <center>
-<?php 
+<?php
   if ( $GLOBALS['receipts_by_provider'] && !empty($providerrow) ) { printProviderHeader($providerrow); }
   else { printFacilityHeader($frow); }
 ?>
@@ -621,16 +624,17 @@ while ($urow = sqlFetchArray($ures)) {
 <html>
 <head>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <title><?php echo xlt('Patient Checkout'); ?></title>
 <style>
 </style>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -715,6 +719,16 @@ while ($urow = sqlFetchArray($ures)) {
   f.form_amount.value = total.toFixed(<?php echo $currdecimals ?>);
   return true;
  }
+
+ $(document).ready(function() {
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+ });
 
 </script>
 </head>
@@ -909,13 +923,9 @@ if ($inv_encounter) {
    <?php echo xlt('Posting Date'); ?>:
   </td>
   <td>
-   <input type='text' size='10' name='form_date' id='form_date'
+   <input type='text' size='10' class='datepicker' name='form_date' id='form_date'
     value='<?php echo attr($inv_date) ?>'
-    title='yyyy-mm-dd date of service'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'>
+    title='yyyy-mm-dd date of service' />
   </td>
  </tr>
 
@@ -972,9 +982,8 @@ else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
 </form>
 
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
  computeTotals();
- 
+
 <?php
 if ($gcac_related_visit && !$gcac_service_provided) {
   // Skip this warning if the GCAC visit form is not allowed.

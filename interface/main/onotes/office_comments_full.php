@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -22,14 +22,14 @@ $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 include_once("../../globals.php");
-include_once("$srcdir/onotes.inc");
-include_once("$srcdir/formatting.inc.php");
+
+$oNoteService = new \services\ONoteService();
 
 //the number of records to display per screen
 $N = 10;
 
 $offset = (isset($_REQUEST['offset'])) ? $_REQUEST['offset'] : 0;
-$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : "all";
+$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : -1;
 
 //this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($_POST['mode'])) {
@@ -37,18 +37,22 @@ if (isset($_POST['mode'])) {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
                 $id = str_replace("act","",$var);
-                if ($val == "true") {reappearOnote($id);}elseif($val=="false"){disappearOnote($id);};
+                if ($val == "true") {
+                    $result = $oNoteService->enableNoteById($id);
+                } elseif($val=="false") {
+                    $oNoteService->disableNoteById($id);
+                }
             }
         }
     } elseif ($_POST['mode'] == "new") {
-        addOnote($_POST["note"]);
+        $oNoteService->add($_POST["note"]);
     }
 }
 ?>
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 </head>
 <body class="body_top">
@@ -73,63 +77,62 @@ else { $backurl="../main_info.php"; }
 <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
 <input type="hidden" name="active" value="<?php echo attr($active); ?>">
 
-<textarea name="note" rows="6" cols="40" wrap="virtual"></textarea>
-<br>
-<a href="javascript:top.restoreSession();document.new_note.submit();" class="link_submit">[<?php echo xlt('Add New Note'); ?>]</a>
+<textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" ></textarea>
+<input type="submit" value="<?php echo xla('Add New Note'); ?>" />
 </form>
 
 <br/>
+<hr>
 
 <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
 
 <?php //change the view on the current mode, whether all, active, or inactive
-$all_class="link"; $active_class="link"; $inactive_class="link";
-if ($active=="all") { $all_class="link_selected"; }
-elseif ($active==1) { $active_class="link_selected"; }
-elseif ($active==0) { $inactive_class="link_selected"; }
+if ($active==="1") { $inactive_class="_small"; $all_class="_small"; }
+elseif ($active==="0") { $active_class="_small"; $all_class="_small";}
+else { $active_class="_small"; $inactive_class="_small";}
 ?>
 
-<span class="text"><?php echo xlt('View:'); ?> </span>
-<a href="office_comments_full.php?offset=0&active=all" class="<?php echo attr($all_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('All'); ?>]</a>
-<a href="office_comments_full.php?offset=0&active=1" class="<?php echo attr($active_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Active'); ?>]</a>
-<a href="office_comments_full.php?offset=0&active=0" class="<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'>[<?php echo xlt('Only Inactive'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
+<a href="office_comments_full.php?offset=0&active=1" class="css_button<?php echo attr($active_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Active'); ?></a>
+<a href="office_comments_full.php?offset=0&active=0" class="css_button<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Inactive'); ?></a>
 
 <input type="hidden" name="mode" value="update">
 <input type="hidden" name="offset" value="<?php echo attr($offset);?>">
 <input type="hidden" name="active" value="<?php echo attr($active);?>">
 <br/>
-<a href="javascript:top.restoreSession();document.update_activity.submit();" class="link_submit">[<?php echo xlt('Change Activity'); ?>]</a>
 
-<table border="0" class="existingnotes">
+<table border="0" class="existingnotes table table-striped">
 <?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 
-//retrieve all notes
-if ($result = getOnoteByDate("", $active, "id,date,body,user,activity",$N,$offset)) {
+$notes = $oNoteService->getNotes($active, $offset, $N);
+
 $result_count = 0;
-foreach ($result as $iter) {
+//retrieve all notes
+if ($notes) {
+    print "<thead><tr><th>" . xlt("Active") . "</th><th>" . xlt("Date") . " (" . xlt("Sender") . ")</th><th>" . xlt("Office Note") . "</th></tr></thead><tbody>";
+foreach ($notes as $note) {
     $result_count++;
 
-    $date=date( "Y-m-d" ,strtotime($iter{"date"}));
-    $date=oeFormatShortDate($date);
+    $date = $note->getDate()->format('Y-m-d');
+    $date = oeFormatShortDate($date);
 
-    if (getdate() == strtotime($iter{"date"})) {
+    $todaysDate = new DateTime();
+    if ($todaysDate->format('Y-m-d') == $date) {
         $date_string = xl("Today") . ", " . $date;
     } else {
         $date_string = $date;
     }
 
-    if ($iter{"activity"}) { $checked = "checked"; }
+    if ($note->getActivity()) { $checked = "checked"; }
     else { $checked = ""; }
 
-    print "<tr><td><input type=hidden value='' name='act".attr($iter{"id"})."' id='act".attr($iter{"id"})."'>";
-    print "<input name='box".attr($iter{"id"})."' id='box".attr($iter{"id"})."' onClick='javascript:document.update_activity.act".attr($iter{"id"}).".value=this.checked' type=checkbox $checked></td>";
-    print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
-    print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
-    print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
+    print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
+    print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
+    print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
+    print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
+    print "<td><label for='box".attr($note->getId())."' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr></tbody>\n";
 
-
-    $notes_count++;
 }
 }else{
 //no results
@@ -139,26 +142,24 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 ?>
 </table>
 
-<a href="javascript:top.restoreSession();document.update_activity.submit();" class="link_submit">[<?php echo xlt('Change Activity'); ?>]</a>
+<input type="submit" value="<?php echo xla('Save Activity'); ?>" />
 </form>
-
 <hr>
-<table width="400" border="0" cellpadding="0" cellspacing="0">
+<table width="400" border="0" cellpadding="0" cellspacing="0" class="table">
 <tr><td>
 <?php
 if ($offset>($N-1)) {
-echo "<a class='link' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N)." onclick='top.restoreSession()'>[".xlt('Previous')."]</a>";
+echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
 }
 ?>
 </td><td align=right>
 <?php
 if ($result_count == $N) {
-echo "<a class='link' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N)." onclick='top.restoreSession()'>[".xlt('Next')."]</a>";
+echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
 }
 ?>
 </td></tr>
 </table>
 </div>
-
 </body>
 </html>

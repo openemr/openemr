@@ -110,18 +110,19 @@ var webroot_url="<?php echo $web_root; ?>";
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
 // Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
 var xl_strings_tabs_view_model = <?php echo json_encode( array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
-    'must_select_patient'  => xla('You must first select or add a patient.'),
+    'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
     'must_select_encounter'    => xla('You must first select or create an encounter.')
 ));
 ?>;
@@ -154,6 +155,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php require_once("templates/tabs_template.php"); ?>
 <?php require_once("templates/menu_template.php"); ?>
 <?php require_once("templates/patient_data_template.php"); ?>
+<?php require_once("templates/therapy_group_template.php"); ?>
 <?php require_once("templates/user_data_template.php"); ?>
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
@@ -184,7 +186,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>
-    <div id="patientData" class="body_title acck" data-bind="template: {name: 'patient-data-template', data: application_data} ">
+    <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
     </div>
     <div class="body_title" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
 
@@ -199,7 +201,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
     $(document).ready(function() {
         goRepeaterServices();
         $('#patient_caret').click(function() {
-           $('#patientData').slideToggle();
+           $('#attendantData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
         });
     });

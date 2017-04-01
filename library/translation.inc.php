@@ -5,7 +5,12 @@
 //  Note that it is recommended to no longer use the mode, prepend, or append
 //  parameters, since this is not compatible with the htmlspecialchars() php
 //  function.
-function xl($constant,$mode='r',$prepend='',$append='') {
+//
+//  Note there are cases in installation where this function has already been
+//   declared, so check to ensure has not been declared yet.
+//
+if (!(function_exists('xl'))) {
+ function xl($constant,$mode='r',$prepend='',$append='') {
   // set language id
   if (!empty($_SESSION['language_choice'])) {
     $lang_id = $_SESSION['language_choice'];
@@ -37,9 +42,17 @@ function xl($constant,$mode='r',$prepend='',$append='') {
     if ($string == '') { $string = "$constant"; }
 
     // remove dangerous characters and remove comments
-    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-    $replace = array (' ','','`','`','');
-    $string = preg_replace($patterns, $replace, $string);
+    if ($GLOBALS['translate_no_safe_apostrophe']) {
+      $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
+      $replace = array (' ','','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
+    else {
+      // convert apostrophes and quotes to safe apostrophe
+      $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+      $replace = array (' ','','`','`','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
   }
 
   $string = "$prepend" . "$string" . "$append";
@@ -48,6 +61,7 @@ function xl($constant,$mode='r',$prepend='',$append='') {
   } else {
     return $string;
   }
+ }
 }
 
 // ----------- xl() function wrappers ------------------------------

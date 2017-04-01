@@ -17,15 +17,34 @@ function oeFormatMoney($amount, $symbol=false) {
   return $s;
 }
 
-function oeFormatShortDate($date='today') {
+function oeFormatShortDate($date='today', $showYear = true) {
   if ($date === 'today') $date = date('Y-m-d');
   if (strlen($date) == 10) {
     // assume input is yyyy-mm-dd
-    if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy
-      $date = substr($date, 5, 2) . '/' . substr($date, 8, 2) . '/' . substr($date, 0, 4);
-    else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy
-      $date = substr($date, 8, 2) . '/' . substr($date, 5, 2) . '/' . substr($date, 0, 4);
+    if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy, note year is added below
+      $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+    else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy, note year is added below
+      $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+
+    // process the year (add for formats 1 and 2; remove for format 0)
+    if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
+        if ($showYear) {
+            $newDate .= '/' . substr($date, 0, 4);
+        }
+    }
+    else if (!$showYear) { // $GLOBALS['date_display_format'] == 0
+      // need to remove the year
+      $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
+    }
+    else { // $GLOBALS['date_display_format'] == 0
+      // keep the year (so will simply be the original $date)
+      $newDate = $date;
+    }
+
+    return $newDate;
   }
+
+  // this is case if the $date does not have 10 characters
   return $date;
 }
 
@@ -37,13 +56,13 @@ function oeFormatTime( $time, $format = "" )
 	if ( $format == "" ) {
 		$format = $GLOBALS['time_display_format'];
 	}
-	
+
 	if ( $format == 0 ) {
 		$formatted = date( "H:i", strtotime( $time ) );
 	} else if ( $format == 1 ) {
 		$formatted = date( "g:i a", strtotime( $time ) );
 	}
-	
+
 	return $formatted;
 }
 
@@ -72,23 +91,36 @@ function oeFormatClientID($id) {
   return $id;
 }
 //----------------------------------------------------
-function DateFormatRead()
- {//For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
-  //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
-  //This will show the date as per the global settings.
-	if($GLOBALS['date_display_format']==0)
-	 {
-	  return "%Y-%m-%d";
-	 }
-	else if($GLOBALS['date_display_format']==1)
-	 {
-	  return "%m/%d/%Y";
-	 }
-	else if($GLOBALS['date_display_format']==2)
-	 {
-	  return "%d/%m/%Y";
-	 }
- }
+function DateFormatRead($mode='legacy') {
+    //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
+    //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
+    //This will show the date as per the global settings.
+    if($GLOBALS['date_display_format']==0) {
+        if ($mode == 'legacy') {
+            return "%Y-%m-%d";
+        }
+        else { //$mode=='jquery-datetimepicker'
+            return "Y-m-d";
+        }
+    }
+    else if($GLOBALS['date_display_format']==1) {
+        if ($mode == 'legacy') {
+            return "%m/%d/%Y";
+        }
+        else { //$mode=='jquery-datetimepicker'
+            return "m/d/Y";
+        }
+    }
+    else if($GLOBALS['date_display_format']==2) {
+        if ($mode == 'legacy') {
+            return "%d/%m/%Y";
+        }
+        else { //$mode=='jquery-datetimepicker'
+            return "d/m/Y";
+        }
+    }
+}
+
 function DateToYYYYMMDD($DateValue)
  {//With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
  //But in database the date can be stored only in the yyyy-mm-dd format.
@@ -97,7 +129,7 @@ function DateToYYYYMMDD($DateValue)
 	 {
 	  return '';
 	 }
-	 
+
 	if($GLOBALS['date_display_format']==0)
 	 {
 	  return $DateValue;

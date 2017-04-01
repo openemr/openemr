@@ -10,7 +10,15 @@
 // Its purpose is to upgrade the MySQL OpenEMR database as needed
 // for the new release.
 
-// Disable PHP timeout. This will not work in safe mode.
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
+// Disable PHP timeout.  This will not work in safe mode.
 ini_set('max_execution_time', '0');
 
 $ignoreAuth = true; // no login required

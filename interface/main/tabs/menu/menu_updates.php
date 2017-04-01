@@ -2,6 +2,7 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2017 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  */
 
@@ -25,6 +27,7 @@ include_once("$srcdir/registry.inc");
 $menu_update_map=array();
 $menu_update_map["Visit Forms"]="update_visit_forms";
 $menu_update_map["Modules"]="update_modules_menu";
+$menu_update_map["Create Visit"] = "update_create_visit";
 
 function update_modules_menu(&$menu_list)
 {
@@ -55,45 +58,67 @@ function update_modules_menu(&$menu_list)
        }
     }
 }
-function update_visit_forms(&$menu_list)
-{
-    $baseURL="/interface/patient_file/encounter/load_form.php?formname=";
-    $menu_list->children=array();
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-if (sqlNumRows($lres)) {
+
+// This creates menu entries for all encounter forms.
+//
+function update_visit_forms(&$menu_list) {
+  $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
+  $menu_list->children = array();
+  // LBF Visit forms
+  $lres = sqlStatement("SELECT * FROM list_options " .
+    "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
-    $formURL=$baseURL . urlencode($option_id);
-    $formEntry=new stdClass();
-    $formEntry->label=xl_form_title($title);
-    $formEntry->url=$formURL;
-    $formEntry->requirement=2;
-    $formEntry->target='enc';
-    array_push($menu_list->children,$formEntry);
+    $formURL = $baseURL . urlencode($option_id);
+    $formEntry = new stdClass();
+    $formEntry->label = xl_form_title($title);
+    $formEntry->url = $formURL;
+    $formEntry->requirement = 2;
+    $formEntry->target = 'enc';
+    // Plug in ACO attribute, if any, of this LBF.
+    $jobj = json_decode($lrow['notes'], true);
+    if (!empty($jobj['aco'])) {
+      $tmp = explode('|', $jobj['aco']);
+      if (!empty($tmp[1])) {
+        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+      }
+    }
+    array_push($menu_list->children, $formEntry);
+  }
+  // Traditional forms
+  $reg = getRegistered();
+  if (!empty($reg)) {
+    foreach ($reg as $entry) {
+      $option_id = $entry['directory'];
+      $title = trim($entry['nickname']);
+      if ($option_id == 'fee_sheet' ) continue;
+      if ($option_id == 'newpatient') continue;
+      if (empty($title)) $title = $entry['name'];
+      $formURL = $baseURL . urlencode($option_id);
+      $formEntry = new stdClass();
+      $formEntry->label = xl_form_title($title);
+      $formEntry->url = $formURL;
+      $formEntry->requirement = 2;
+      $formEntry->target = 'enc';
+      // Plug in ACO attribute, if any, of this form.
+      $tmp = explode('|', $entry['aco_spec']);
+      if (!empty($tmp[1])) {
+        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+      }
+      array_push($menu_list->children, $formEntry);
+    }
   }
 }
 
-    $reg = getRegistered();
-    if (!empty($reg)) {
-      foreach ($reg as $entry) {
-        $option_id = $entry['directory'];
-              $title = trim($entry['nickname']);
-        if ($option_id == 'fee_sheet' ) continue;
-        if ($option_id == 'newpatient') continue;
-        if (empty($title)) $title = $entry['name'];
-
-        $formURL=$baseURL . urlencode($option_id);
-        $formEntry=new stdClass();
-        $formEntry->label=xl_form_title($title);
-        $formEntry->url=$formURL;
-        $formEntry->requirement=2;
-        $formEntry->target='enc';
-        array_push($menu_list->children,$formEntry);
-      }
-    }
+function update_create_visit(&$menu_list) {
+  $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
+  if (!empty($tmp['aco_spec'])) {
+    $tmp = explode('|', $tmp['aco_spec']);
+    $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+  }
 }
+
 function menu_update_entries(&$menu_list)
 {
     global $menu_update_map;
@@ -118,6 +143,31 @@ function menu_update_entries(&$menu_list)
     }
 }
 
+// Permissions check for a particular acl_req array item.
+// Elements beyond the 2nd are ACL return values, one of which should be permitted.
+//
+function menu_acl_check($arr) {
+  if (isset($arr[2])) {
+    for ($i = 2; isset($arr[$i]); ++$i) {
+      if (substr($arr[0], 0, 1) == '!') {
+        if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return TRUE;
+      }
+      else {
+        if (acl_check($arr[0], $arr[1], '', $arr[$i])) return TRUE;
+      }
+    }
+  }
+  else {
+    if (substr($arr[0], 0, 1) == '!') {
+      if (!acl_check(substr($arr[0], 1), $arr[1])) return TRUE;
+    }
+    else {
+      if (acl_check($arr[0], $arr[1])) return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
 {
     for ($idx=0; $idx<count($menu_list_src); $idx++)
@@ -128,34 +178,14 @@ function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
         // If the entry has an ACL Requirements(currently only support loose), then test
         if (isset($srcEntry->acl_req))
         {
-
             if (is_array($srcEntry->acl_req[0]))
             {
                 $noneSet = true;
-
                 for ($aclIdx=0; $aclIdx<count($srcEntry->acl_req); $aclIdx++)
                 {
-                    $curSettingOne = $srcEntry->acl_req[$aclIdx][0];
-                    $curSettingTwo = $srcEntry->acl_req[$aclIdx][1];
-                    // ! at the start of the $curSettingOne means test the negation
-                    if (substr($curSettingOne,0,1) === '!')
-                    {
-                        $curSettingOne = substr($curSettingOne,1);
-                        // If the acl_check fails, then show it
-                        if (!acl_check($curSettingOne,$curSettingTwo))
-                        {
-                            $noneSet = false;
-                        }
+                    if (menu_acl_check($srcEntry->acl_req[$aclIdx])) {
+                        $noneSet = false;
                     }
-                    else
-                    {
-                        // If the acl_check passes, then show it
-                        if (acl_check($curSettingOne,$curSettingTwo))
-                        {
-                            $noneSet = false;
-                        }
-                    }
-
                 }
                 if ($noneSet)
                 {
@@ -164,7 +194,7 @@ function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
             }
             else
             {
-                if (!acl_check($srcEntry->acl_req[0],$srcEntry->acl_req[1]))
+                if (!menu_acl_check($srcEntry->acl_req))
                 {
                     $includeEntry = false;
                 }
