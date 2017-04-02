@@ -183,19 +183,19 @@
 
 
  $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('Add update groups (view ,write)')
+ // xl('Add/Update groups (view ,write)')
 
  $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
-// xl('Using calendar add edit event with groups (view ,write)')
+// xl('Create/Update groups appointment in calender (view ,write)')
 
  $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
-// xl('groups encounter log (view ,write)')
+// xl('Group log (view ,write)')
 
  $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
-// xl('groups encounter log (view ,write)')
+// xl('Group detailed log of appointment in patient record (view ,write)')
 
  $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
- // xl('Messages between therapists (view ,write)')
+ // xl('Send message from the permanent group therapist to the personal therapist (view ,write)')
 
 
 
