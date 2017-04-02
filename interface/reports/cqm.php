@@ -372,7 +372,7 @@ else {
 
 		<?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                    <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                          <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
@@ -386,7 +386,7 @@ else {
 		<?php } ?>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                               <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                            <?php } else { ?>
@@ -404,7 +404,7 @@ else {
 
                 <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
                     <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -422,7 +422,7 @@ else {
 
                 <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                     <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -446,7 +446,7 @@ else {
 
                 <?php if ($type_report == "standard") { ?>
                     <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -466,7 +466,7 @@ else {
                     <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
                 <?php } else { ?>
                     <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo htmlspecialchars( xl('Plan Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
@@ -489,7 +489,7 @@ else {
                 <?php } ?>
 
                 <tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
 			<td>
@@ -528,7 +528,7 @@ else {
 		</tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo htmlspecialchars( xl('Provider Relationship'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>

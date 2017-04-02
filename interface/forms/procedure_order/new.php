@@ -19,6 +19,7 @@
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Sherwin Gaddis <sherwingaddis@gmail.com>
 */
 
 require_once("../../globals.php");
@@ -212,8 +213,12 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <style>
 
@@ -226,12 +231,17 @@ td {
  padding-right:2px;
 }
 
-</style>
+.form-inline
+{
+  width: 60%;
+  margin: 0 auto;
+}
+.table
+{
+  border: #ddd solid 1px ;
+}
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+</style>
 
 <script language='JavaScript'>
 
@@ -392,8 +402,9 @@ $(document).ready(function() {
 
 <body class="body_top">
 
+<div class="span9 centered">
 <form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>"
- onsubmit="return validate(this)">
+ onsubmit="return validate(this)" class="form-inline">
 
 <p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
 <?php
@@ -403,13 +414,13 @@ $(document).ready(function() {
 ?>
 </p>
 
-<center>
+
 
 <p>
-<table border='1' width='95%' id='proctable'>
+<table  width='100%' id='proctable' class="table">
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Ordering Provider','e'); ?>:</b></td>
+  <td valign='top' align='right' nowrap><b><?php xl('Ordering Provider','e'); ?>:</b></td>
   <td valign='top'>
 <?php
 generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
@@ -419,9 +430,9 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Sending To','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Sending To','e'); ?>:</b></td>
   <td valign='top'>
-   <select name='form_lab_id' onchange='lab_id_changed()'>
+   <select name='form_lab_id' onchange='lab_id_changed()' class='form-control'>
  <?php
   $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " .
     "ORDER BY name, ppid");
@@ -436,10 +447,10 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Order Date','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Order Date','e'); ?>:</b></td>
   <td valign='top'>
 <?php
-    echo "<input type='text' size='10' class='datepicker' name='form_date_ordered' id='form_date_ordered'" .
+    echo "<input type='text' size='10' class='datepicker form-control' name='form_date_ordered' id='form_date_ordered'" .
       " value='" . $row['date_ordered'] . "'" .
       " title='" . xl('Date of this order') . "'" .
       " />";
@@ -448,10 +459,10 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Internal Time Collected','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Internal Time Collected','e'); ?>:</b></td>
   <td valign='top'>
 <?php
-    echo "<input type='text' size='16' class='datetimepicker' name='form_date_collected' id='form_date_collected'" .
+    echo "<input class='datetimepicker form-control' type='text' size='16' name='form_date_collected' id='form_date_collected'" .
       " value='" . substr($row['date_collected'], 0, 16) . "'" .
       " title='" . xl('Date and time that the sample was collected') . "'" .
       " />";
@@ -460,7 +471,7 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Priority','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Priority','e'); ?>:</b></td>
   <td valign='top'>
 <?php
 generate_form_field(array('data_type'=>1,'field_id'=>'order_priority',
@@ -470,7 +481,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_priority',
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Status','e'); ?>:</b></td>
+  <td width='1%' valign='top'  align='right' nowrap><b><?php xl('Status','e'); ?>:</b></td>
   <td valign='top'>
 <?php
 generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
@@ -479,25 +490,25 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   </td>
  </tr>
  <tr>
- <td width='1%' valign='top' nowrap><b><?php xl('History order','e'); ?>:</b>
+ <td width='1%' valign='top' align='right' nowrap><b><?php xl('History order','e'); ?>:</b>
  <td valign='top'>
  <?php generate_form_field(array('data_type'=>1,'field_id'=>'history_order','list_id'=>'boolean'),$row['history_order']); ?>
  </td>
  </tr>
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Clinical History','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Clinical History','e'); ?>:</b></td>
   <td valign='top'>
    <input type='text' maxlength='255' name='form_clinical_hx' style='width:100%'
-    class='inputtext' value='<?php echo attr($row['clinical_hx']); ?>' />
+    class='form-control inputtext' value='<?php echo attr($row['clinical_hx']); ?>' />
   </td>
  </tr>
 
  <!-- Will enable this later, nothing uses it yet. -->
  <tr style='display:none'>
-  <td width='1%' valign='top' nowrap><b><?php xl('Patient Instructions','e'); ?>:</b></td>
+  <td width='1%' valign='top' align='right' nowrap><b><?php xl('Patient Instructions','e'); ?>:</b></td>
   <td valign='top'>
    <textarea rows='3' cols='40' name='form_patient_instructions' style='width:100%'
-    wrap='virtual' class='inputtext' /><?php echo $row['patient_instructions'] ?></textarea>
+    wrap='virtual' class='form-control inputtext' /><?php echo $row['patient_instructions'] ?></textarea>
   </td>
  </tr>
 
@@ -550,7 +561,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
  <tr>
  <!--<td width='1%' valign='top'><b><?php echo xl('Procedure') . ' ' . ($i + 1); ?>:</b></td>-->
  <?php if(empty($formid) || empty($oprow['procedure_order_title'])) {?>
-        <td width='1%' valign='top'><input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='Procedure'><b><?php echo xlt('Procedure');?></b></td>
+        <td width='1%' valign='top' align="right"><input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='Procedure'><b><?php echo xlt('Procedure:');?></b></td>
     <?php } else {?>
      <td width='1%' valign='top'>
         <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_order_title']) ?>'><b><?php echo text($oprow['procedure_order_title']) ?></b>
@@ -562,10 +573,10 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
     onclick="sel_proc_type(<?php echo $i; ?>)"
     onfocus='this.blur()'
     title='<?php xla('Click to select the desired procedure','e'); ?>'
-    style='width:100%;cursor:pointer;cursor:hand' readonly />
+    style='width:100%;cursor:pointer;cursor:hand' class='form-control' readonly />
    <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
    <br /><?php echo xlt('Diagnosis Codes'); ?>:
-   <input type='text' size='50' name='form_proc_type_diag[<?php echo $i; ?>]'
+   <input class='form-control' type='text' size='50' name='form_proc_type_diag[<?php echo $i; ?>]'
     value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
     title='<?php echo xla('Click to add a diagnosis'); ?>'
     onfocus='this.blur()'
@@ -587,14 +598,16 @@ if ($qoe_init_javascript)
 ?>
 
 </table>
-
-<p>
+<div style="text-align: left">
+<div style="display:inline-block">
 <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
-<select name="procedure_type_names" id="procedure_type_names">
+<select name="procedure_type_names" id="procedure_type_names" class='form-control'>
 	<?php foreach($procedure_order_type as $ordered_types){?>
 	<option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
 	<?php } ?>
 </select>
+</div>
+<div style="display:inline-block">
 <input type='button' value='<?php echo xla('Add Procedure'); ?>' onclick="addProcLine()" />
 &nbsp;
 <input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' onclick='transmitting = false;' />
@@ -602,10 +615,14 @@ if ($qoe_init_javascript)
 <input type='submit' name='bn_xmit' value='<?php echo xla('Save and Transmit'); ?>' onclick='transmitting = true;' />
 &nbsp;
 <input type='button' value='<?php echo xla('Cancel'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+</div>
+</div>
 </p>
 
-</center>
+
+
 
 </form>
+</div><!--end of div wrapper -->
 </body>
 </html>

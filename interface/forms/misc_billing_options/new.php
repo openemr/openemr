@@ -121,7 +121,7 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
  </tr>
     <br><br>
 
-    <td class='label'><?php echo xlt('BOX 17. Provider') ?>:</td>
+    <td class='label_custom'><?php echo xlt('BOX 17. Provider') ?>:</td>
     <td><?php  # Build a drop-down list of providers. # Added (TLH)
                genProviderSelect('provider_id', '-- '.xl("Please Select").' --',$obj{"provider_id"});
 		?></td>&nbsp;&nbsp;

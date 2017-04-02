@@ -286,13 +286,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 			<fname>".htmlspecialchars($result[''],ENT_QUOTES)."</fname>
 			<lname>".htmlspecialchars($result[''],ENT_QUOTES)."</lname>
 			<code>".htmlspecialchars($result[''],ENT_QUOTES)."</code>
-			<display_name>".htmlspecialchars($result[''],ENT_QUOTES)."</display_name>
-			<street>".htmlspecialchars($result[''],ENT_QUOTES)."</street>
-			<city>".htmlspecialchars($result[''],ENT_QUOTES)."</city>
-			<state>".htmlspecialchars($result[''],ENT_QUOTES)."</state>
-			<postalCode>".htmlspecialchars($result[''],ENT_QUOTES)."</postalCode>
-			<country>".htmlspecialchars($result[''],ENT_QUOTES)."</country>
-			<telecom>".htmlspecialchars($result[''],ENT_QUOTES)."</telecom>
+			<relation>".htmlspecialchars($result['guardianrelationship'],ENT_QUOTES)."</relation>
+			<display_name>".htmlspecialchars($result['guardiansname'],ENT_QUOTES)."</display_name>
+			<street>".htmlspecialchars($result['guardianaddress'],ENT_QUOTES)."</street>
+			<city>".htmlspecialchars($result['guardiancity'],ENT_QUOTES)."</city>
+			<state>".htmlspecialchars($result['guardianstate'],ENT_QUOTES)."</state>
+			<postalCode>".htmlspecialchars($result['guardianpostalcode'],ENT_QUOTES)."</postalCode>
+			<country>".htmlspecialchars($result['guardiancountry'],ENT_QUOTES)."</country>
+			<telecom>".htmlspecialchars($result['guardianphone'],ENT_QUOTES)."</telecom>
 		</guardian>";
         }
         return $patient_data;

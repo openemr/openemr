@@ -6,7 +6,7 @@
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: 'FontAwesome' !important; 
+    font-family: 'FontAwesome' !important;
     content: "\f0c4";
     font-size: 1em;  /* set the base font size for all DOM children */
 }
@@ -141,7 +141,7 @@ a:hover {
 }
 
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS classes 
+ * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 .body_top { background-color: #fffbeb; margin: 8px }    /* $top_bg_line */
@@ -240,8 +240,8 @@ font-weight: bold;
 }
 #documents_actions iframe {
     display: inline;
-    border:none; 
-    width:100%; 
+    border:none;
+    width:100%;
     height:600px;
     overflow: auto;
 }
@@ -267,7 +267,7 @@ font-weight: bold;
     padding-right: 5px;
     vertical-align: top;
 }
-#DEM .label {
+#DEM .label_custom {
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: top;
@@ -290,7 +290,7 @@ font-weight: bold;
     vertical-align: top;
     height: 2em;
 }
-#HIS .label {
+#HIS .label_custom {
     font-weight: bold;
     font-size: 9pt;
     vertical-align: top;
@@ -308,7 +308,7 @@ font-weight: bold;
  * seen in the patient summary and notes screens
  *============================================================*/
 #pnotes .billing {
-    background-color: #dfd;  
+    background-color: #dfd;
 }
 #pnotes .highlight {
     background-color: #fff;
@@ -317,7 +317,7 @@ font-weight: bold;
     border-collapse:collapse;
 }
 #pnotes .noterow {
-    cursor: pointer; 
+    cursor: pointer;
 }
 #pnotes .noterow td {
     border-bottom:1px dashed black;
@@ -405,7 +405,7 @@ font-weight: bold;
 #patient_pastenc {
     width:100%;
 }
-    
+
 #patient_pastenc .billing_note {
     width: 25%;
 }
@@ -482,7 +482,7 @@ font-weight: bold;
 #patient_reports ul {
     list-style: none;
 }
-    
+
 
 /*=============================================================
  * Report - Custom
@@ -596,6 +596,7 @@ tr.odd {
 .css_button_small:hover {
   background: #1050b6;
   box-shadow: 0px 1px 3px #DDD;
+  text-decoration: none;
 }
 #dateNAV {
     font-size:1.1em !important;
@@ -624,6 +625,7 @@ tr.odd {
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
   background: #1050b6;
     box-shadow: 3px 4px 6px #DDD ;
+  text-decoration: none;
 }
 
 input[type="button"][style="background-color:#ffff55"] {
@@ -673,7 +675,7 @@ border-left: 1pt solid black;
 border-top: 1pt solid black;
 border-right: 1pt solid black;
 }
-ul.tabNav li.current { 
+ul.tabNav li.current {
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: bottom;
@@ -683,7 +685,7 @@ z-index: 3;
 top: 0.0875em;
 border-left:1pt solid black;
 }
-ul.tabNav a { 
+ul.tabNav a {
     background: #F8E6CBE6;
 color: #333;
 display: block;
@@ -698,7 +700,7 @@ box-shadow: 2px -1px 1px #c0c0c0;
  }
 ul.tabNav li.current a { background:#FFFFFF; }
 
-div.tabContainer { 
+div.tabContainer {
     clear: both;
 float: left;
 width: 100%;
@@ -714,8 +716,8 @@ padding: 10px;
 }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; box-shadow:0pt;}
-div.tab {   min-height: 180px; 
-    background: #ffffff none repeat scroll 0 0; 
+div.tab {   min-height: 180px;
+    background: #ffffff none repeat scroll 0 0;
     margin-bottom: 10px;
     width:800px;
 border: 1pt solid black;
@@ -730,7 +732,7 @@ table {
 div.tab table td {
     padding-right: 1px; padding-bottom: 0px;
 }
-div.tab table td.label {
+div.tab table td.label_custom {
     min-width:80px;
 }
 
@@ -815,7 +817,7 @@ div.summary_item div {
     font-size: 0.8em;
 }
 
-#report_parameters table table td.label {
+#report_parameters table table td.label_custom {
     text-align: right;
 }
 
@@ -900,15 +902,15 @@ font-size:9pt;
     padding: 10px 10px 10px 15px;
     color: black;
   }
-.alertmsg1 { 
+.alertmsg1 {
     border: 3px solid #fe7b7a;
     background-color: #ffd6d6 ;
   }
-.alertmsg2 { 
+.alertmsg2 {
     border: 3px solid #f56fff;
     background-color: #fabfff;
   }
-.alertmsg3 { 
+.alertmsg3 {
     border: 3px solid #9acc2e;
     background-color: #eef7dd;
   }
@@ -960,7 +962,7 @@ font-size:9pt;
 }
 
 #navigation-slide li a.collapsed{
-    
+
     color: #fff;
      background: none repeat scroll 0% 0% #16558C;
 }
@@ -995,7 +997,7 @@ body dl {
     list-style: none;
         float:left;
         background: #C9DBF2; /* for non-css3 browsers */
-        color:#000;    
+        color:#000;
 }
 
 #sddm li a

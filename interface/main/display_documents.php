@@ -165,11 +165,11 @@ $display_collapse_msg = "display:inline;";
     <div id='docfilterdiv'<?php echo $display_div; ?>>
 	<table style="margin-left:10px; " width='40%'>
 		<tr>
-			<td scope="row" class='label'><?php echo xlt('From'); ?>:</td>
+			<td scope="row" class='label_custom'><?php echo xlt('From'); ?>:</td>
 			<td><input type='text' class='datepicker' name='form_from_doc_date' id="form_from_doc_date"
 				size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
 			</td>
-			<td class='label'><?php echo xlt('To'); ?>:</td>
+			<td class='label_custom'><?php echo xlt('To'); ?>:</td>
 			<td><input type='text' class='datepicker' name='form_to_doc_date' id="form_to_doc_date"
 				size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
 			</td>

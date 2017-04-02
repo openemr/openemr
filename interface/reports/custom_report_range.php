@@ -202,14 +202,14 @@ if ($form_patient == '' ) $form_pid = '';
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('Start Date'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo xlt('End Date'); ?>:
 			</td>
 			<td>

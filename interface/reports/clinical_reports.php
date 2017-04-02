@@ -261,47 +261,47 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 			<td width='740px'><div style='float:left'>
 		 		<table class='text'>
 					<tr>
-						<td class='label' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
+						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
 						<td width="250"> <?php dropdown_facility($facility,'facility',false); ?> </td>
-						<td class='label' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
+						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
 						<td><input type='text' class='datetimepicker' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
 					</tr>
 					<tr>
-						<td class='label'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
 						<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
-						<td class='label'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
 						<td><input type='text' class='datetimepicker' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
 					</tr>
 					<tr>
-						<td class='label'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
 						<td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>
 							<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' /> <?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>
 							<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
-						<td class='label'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
 						<td><input type='text' name='form_diagnosis' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES); ?>' onclick='sel_diagnosis(this)' title='<?php echo htmlspecialchars(xl('Click to select or change diagnoses'),ENT_QUOTES); ?>' readonly /></td>
                                                	<td>&nbsp;</td>
 <!-- Visolve -->
 					</tr>
 					<tr>
-						<td class='label'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
 						<td><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
-						<td class='label'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
 						<td><input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_drug_name,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional drug name, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
 					</tr>
 					<tr>
-						<td class='label'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
 						<td><?php echo generate_select_list('race', 'race', $sql_race, 'Select Race', 'Unassigned', '', ''); ?></td>
-             			<td class='label'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
+             			<td class='label_custom'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
                         <td><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
-						<td class='label'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
 						<td><input type='text' name='form_immunization' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_immunization,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional immunization name or code, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 					</tr>
 					<tr>
-						<td class='label' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
 						<td width='100'><input type='text' name='form_lab_results' size='13' maxlength='250' value='<?php echo htmlspecialchars($form_lab_results,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Result, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
-						<td class='label' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
 						<td><select name="type" id="type" onChange="checkType();">
 							<option> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
 							<option value="Procedure" <?php if($type == 'Procedure') { echo "selected"; } ?>><?php echo htmlspecialchars(xl('Procedure'),ENT_NOQUOTES); ?></option>
@@ -309,7 +309,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 							<option value="Service Codes" <?php if($type == 'Service Codes') { echo "selected"; } ?>><?php echo htmlspecialchars(xl('Service Codes'),ENT_NOQUOTES); ?></option>
 						   </select>
 						</td>
-						<td class='label'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
+						<td class='label_custom'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
                         <td>
 							<select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
 								<option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
@@ -325,14 +325,14 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 					<td width='100'>&nbsp;</td>
 					<td width='100'>&nbsp;</td>
 					<td width='195'>&nbsp;</td>
-					<td class='label' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
+					<td class='label_custom' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
                                         <td> <input type='text' name='form_service_codes' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_service_codes,ENT_QUOTES); ?>' onclick='sel_procedure(this)' title='<?php echo htmlspecialchars(xl('Click to select or change service codes'),ENT_QUOTES); ?>' readonly />&nbsp;</td>
                                         </tr>
 				</table>
 				<table class='text'>
 					<tr>
 						<!-- Sort by Start -->
-                                                 <td class='label' width='63'><?php echo htmlspecialchars(xl('Sort By'),ENT_NOQUOTES); ?>:</td>
+                                                 <td class='label_custom' width='63'><?php echo htmlspecialchars(xl('Sort By'),ENT_NOQUOTES); ?>:</td>
                                                  <td>
                                                    <input type='checkbox' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) echo ' checked'; ?>>
                                                    <?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?>&nbsp;

@@ -14,6 +14,8 @@ if ($response !== true) {
 if (!isset($ignoreAuth)) $ignoreAuth = false;
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Same for onsite
+if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
 // Unless specified explicitly, do not reverse magic quotes
 if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
@@ -287,6 +289,16 @@ if (!empty($glrow)) {
       if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
+    else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
+      if ($gl_value) {
+        date_default_timezone_set($gl_value);
+      }
+      // Synchronize MySQL time zone with PHP time zone.
+      sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
+    }
     else {
       $GLOBALS[$gl_name] = $gl_value;
     }
@@ -466,6 +478,9 @@ $GLOBALS['include_de_identification']=0;
 
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
+}
+elseif ( ($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1) ) {
+	$ignoreAuth = true;
 }
 if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");

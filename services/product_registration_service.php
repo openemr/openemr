@@ -15,6 +15,7 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author  Victor Kofia <victor.kofia@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -52,15 +53,20 @@ class ProductRegistrationService {
 
         // Unboxing these here to avoid PHP 5.4 "Can't use method
         // return value in write context" error.
-        $id = $row->getRegistrationId();
-        $optOut = $row->getOptOut();
+        $id = '';
+        $optOut = '';
+
+        if ($row !== null) {
+            $id = $row->getRegistrationId();
+            $optOut = $row->getOptOut();
+        }
 
         if (empty($row)) {
             $row = new \entities\ProductRegistration();
             $row->setStatusAsString('UNREGISTERED');
-        } else if (!(empty($id))) {
+        } else if ($id !== 'null') {
             $row->setStatusAsString('REGISTERED');
-        } else if (!(empty($optOut)) && $optOut == true) {
+        } else if (!empty($optOut) && $optOut == true) {
             $row->setStatusAsString('OPT_OUT');
         }
 

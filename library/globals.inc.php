@@ -118,6 +118,17 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'checkout_roll_off',
                                'erx_import_status_message');
 
+// Gets array of time zones supported by PHP.
+//
+function gblTimeZones() {
+  $zones = timezone_identifiers_list();
+  $arr = array('' => xl('Unassigned'));
+  foreach ($zones as $zone) {
+    $arr[$zone] = str_replace('_', ' ', $zone);
+  }
+  return $arr;
+}
+
 $GLOBALS_METADATA = array(
 
   // Appearance Tab
@@ -371,9 +382,10 @@ $GLOBALS_METADATA = array(
         '2' => xl('Address and Postal Code'),
         '3' => xl('Address and State'),
         '4' => xl('Address, State and Postal Code'),
-        '5' => xl('Postal Code and Box Number'),
+        '5' => xl('Address, City, State and Postal Code'),
+        '6' => xl('Postal Code and Box Number')
       ),
-      '4',                              // default
+      '5',                              // default
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
     ),
 
@@ -553,6 +565,13 @@ $GLOBALS_METADATA = array(
       ),
       '0',
       xl('Format used to display most times.')
+    ),
+
+    'gbl_time_zone' => array(
+      xl('Time Zone'),
+      gblTimeZones(),
+      '',
+      xl('If unassigned will default to php.ini setting for date.timezone.')
     ),
 
     'currency_decimals' => array(
@@ -2526,6 +2545,18 @@ $GLOBALS_METADATA = array(
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
+	'ccda_alt_service_enable' => array(
+			xl('Enable C-CDA Alternate Service'),
+			array(
+					0 => xl('Off'),
+					1 => xl('Care Coordination Only'),
+					2 => xl('Portal Only'),
+					3 => xl('Both'),
+			),
+			'0',
+			xl('Enable C-CDA Alternate Service')
+	),
+ 
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
