@@ -156,11 +156,14 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 <head>
 <?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-sidebar/dist/css/sidebar.css" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-sidebar/dist/js/sidebar.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
@@ -461,119 +464,203 @@ $(window).load(function() {
 
 <body class="body_top patient-demographics">
 
-<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
-<?php
-$thisauth = acl_check('patients', 'demo');
-if ($thisauth) {
-    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
-        $thisauth = 0;
-    }
-}
-if (!$thisauth) {
-    echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
-}
-if ($thisauth): ?>
-
-<table class="table_header">
-    <tr>
-        <td>
-            <span class='title'>
-                <?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?>
-            </span>
-        </td>
-        <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
-        <td style='padding-left:1em;' class="delete">
-            <a class='css_button iframe'
-               href='../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
-               onclick='top.restoreSession()'>
-                <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
+</div><!-- /.navbar-collapse -->
+</div>
+</nav>
+    <div class="container-fluid" style="margin-top: 0">
+    <div class="row">
+    <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-leftsidebar-md-show">
+            <ul class="nav navbar-stacked">
+               <?php
+        if($GLOBALS['erx_enable']): ?>
+        <li class="erx">
+            <a  href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                <?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?>
             </a>
-        </td>
-        <?php endif; // Allow PT delete
-if($GLOBALS['erx_enable']): ?>
-        <td style="padding-left:1em;" class="erx">
-            <a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?></span>
-            </a>
-        </td>
-        <td style="padding-left:1em;">
-            <a class="css_button iframe1"
+        </li>
+        <li>
+            <a class=" iframe1"
                href="../../soap_functions/soap_accountStatusDetails.php"
                onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?></span>
+                <?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?>
             </a>
-        </td>
-        <td id='accountstatus'></td>
+        </li>
+        <li id='accountstatus'></li>
         <?php endif; // eRX Enabled
         //Patient Portal
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
-if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
+        if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
             ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
-        $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-        if ($portalStatus['allow_patient_portal']=='YES'):
-            $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
-                <td style='padding-left:1em;'>
-                    <a class='css_button iframe small_modal'
-                           href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+            if ($portalStatus['allow_patient_portal']=='YES'):
+                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
+                <li>
+                    <a class=' iframe small_modal'
+                       href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                        onclick='top.restoreSession()'>
-                            <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
-                            <span><?php echo $display; ?></span>
+                        <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
+                        <span><?php echo $display; ?></span>
                     </a>
-                </td>
-                <?php
+                </li>
+            <?php
             else:
                 $portalUserSetting = false;
             endif; // allow patient portal
         endif; // Onsite Patient Portal
-if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-    if ($portalStatus['allow_patient_portal']=='YES'):
-        $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
-        ?>
-        <td style='padding-left:1em;'>
-            <a class='css_button iframe small_modal'
-               href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
-               onclick='top.restoreSession()'>
-                <span>
-                    <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
-                    <?php echo $text; ?>
-                </span>
-            </a>
-                </td>
+        if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
+            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+            if ($portalStatus['allow_patient_portal']=='YES'):
+                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
+                ?>
+                <li>
+                    <a class=' iframe small_modal'
+                       href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+                       onclick='top.restoreSession()'>
+                        <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
+                            <?php echo $text; ?>
+                        </a>
+                </li>
             <?php
             else:
                 $portalUserSetting = false;
             endif; // allow_patient_portal
         endif; // portal_offsite_enable
-if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
-            <td style='padding-left:1em;'>
+        if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
+            <li>
                 <?php echo htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
-            </td>
+            </li>
         <?php endif;
         //Patient Portal
+?>
+        <li>
+          <a href="../history/history.php" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
+          </li>
+            <li>
+          <?php //note that we have temporarily removed report screen from the modal view ?>
+          <a href="../report/patient_report.php" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
+          </li>
+            <li>
+          <?php //note that we have temporarily removed document screen from the modal view ?>
+          <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
+          </li>
+            <li>
+          <a href="../transaction/transactions.php"  onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
+          </li>
+            <li>
+          <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
+          <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
+          </li>
+            <li>
+          <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
+          <?php echo xlt('Ledger'); ?></a>
+          </li>
+            <li>
+          <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
+          <?php echo xlt('External Data'); ?></a>
+</li>
+<!-- DISPLAYING HOOKS STARTS HERE -->
+<?php
+	$module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
+					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
+	$DivId = 'mod_installer';
+	if (sqlNumRows($module_query)) {
+		$jid 	= 0;
+		$modid 	= '';
+		while ($modulerow = sqlFetchArray($module_query)) {
+			$DivId 		= 'mod_'.$modulerow['mod_id'];
+			$new_category 	= $modulerow['mod_ui_name'];
+			$modulePath 	= "";
+			$added      	= "";
+			if($modulerow['type'] == 0) {
+				$modulePath 	= $GLOBALS['customModDir'];
+				$added		= "";
+			}
+			else{
+				$added		= "index";
+				$modulePath 	= $GLOBALS['zendModDir'];
+			}
+			if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
 
-        // If patient is deceased, then show this (along with the number of days patient has been deceased for)
-        $days_deceased = is_patient_deceased($pid);
-if ($days_deceased != null): ?>
-            <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
-                <?php
-                if ($days_deceased == 0) {
-                    echo xlt("DECEASED (Today)");
-                }
-                else if ($days_deceased == 1) {
-                    echo xlt("DECEASED (1 day ago)");
-                }
-                else {
-                    echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
-                } ?>
-            </td>
-        <?php endif; ?>
-    </tr>
-</table>
+			$relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
+			$nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+			$jid++;
+			$modid = $modulerow['mod_id'];
+			?>
+			<li>
+			<a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
+			<?php echo xlt($nickname); ?></a>
+		</li>
+                    <?php
+		}
+	}
+	?>
+<!-- DISPLAYING HOOKS ENDS HERE --><?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
+            <li><a href='../deleter.php?patient="<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+                   onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?>
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+    <div class="col-md-9 col-md-offset-2">
+        <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
+        <?php
+        $thisauth = acl_check('patients', 'demo');
+        if ($thisauth) {
+            if ($result['squad'] && !acl_check('squads', $result['squad'])) {
+                $thisauth = 0;
+            }
+        }
+        if (!$thisauth) {
+            echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'), ENT_NOQUOTES) . ")</p>\n";
+            echo "</body>\n</html>\n";
+            exit();
+        }
+        // @todo Why do we need this extra if statement? Logically, the if statement on 494 should take care of this. RD 2017-04-02
+        if ($thisauth): ?>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h1 class="title lead"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></h1>
+                    <?php
+                    // If patient is deceased, then show this (along with the number of days patient has been deceased for)
+                    $days_deceased = is_patient_deceased($pid);
+                    if ($days_deceased != null): ?>
+                        <?php
+                        if ($days_deceased == 0) {
+                            echo xlt("DECEASED (Today)");
+                        }
+                        else if ($days_deceased == 1) {
+                            echo xlt("DECEASED (1 day ago)");
+                        }
+                        else {
+                            echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
+                        } ?>
+                    <?php endif; ?>
+                </div>
+                <div class="col-md-6">&nbsp;</div>
+            </div>
 <?php
 endif; // $thisauth
 ?>
@@ -582,78 +669,10 @@ endif; // $thisauth
 // Get the document ID of the patient ID card if access to it is wanted here.
 $idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
-    $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
+  $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
 
 ?>
-<table cellspacing='0' cellpadding='0' border='0' class="subnav">
-  <tr>
-      <td class="small" colspan='4'>
-          <a href="../history/history.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-          |
-            <?php //note that we have temporarily removed report screen from the modal view ?>
-          <a href="../report/patient_report.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
-          |
-            <?php //note that we have temporarily removed document screen from the modal view ?>
-          <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
-          |
-          <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
-          |
-          <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
-          |
-          <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
-            <?php echo xlt('Ledger'); ?></a>
-          |
-          <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
-            <?php echo xlt('External Data'); ?></a>
-
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-    $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
-					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
-					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
-    $DivId = 'mod_installer';
-    if (sqlNumRows($module_query)) {
-        $jid    = 0;
-        $modid  = '';
-        while ($modulerow = sqlFetchArray($module_query)) {
-            $DivId      = 'mod_'.$modulerow['mod_id'];
-            $new_category   = $modulerow['mod_ui_name'];
-            $modulePath     = "";
-            $added          = "";
-            if($modulerow['type'] == 0) {
-                $modulePath     = $GLOBALS['customModDir'];
-                $added      = "";
-            }
-            else{
-                $added      = "index";
-                $modulePath     = $GLOBALS['zendModDir'];
-            }
-            if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
-
-            $relative_link  = "../../modules/".$modulePath."/".$modulerow['path'];
-            $nickname   = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
-            $jid++;
-            $modid = $modulerow['mod_id'];
-            ?>
-            |
-            <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
-            <?php echo xlt($nickname); ?></a>
-        <?php
-        }
-    }
-    ?>
-<!-- DISPLAYING HOOKS ENDS HERE -->
-
-        </td>
-    </tr>
-</table> <!-- end header -->
 
 <div style='margin-top:10px' class="main"> <!-- start main content div -->
     <table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -1644,6 +1663,7 @@ foreach ($photos as $photo_doc_id) {
 </table>
 
 </div> <!-- end main content div -->
+</div>
 
 <script language='JavaScript'>
 // Array of skip conditions for the checkSkipConditions() function.
