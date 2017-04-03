@@ -2356,7 +2356,6 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Enable Offsite Patient Portal.')
     ),
-
     'portal_offsite_providerid' => array(
       xl('Offsite Patient Portal Provider ID'),
       'text',                           // data type
