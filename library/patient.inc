@@ -105,42 +105,47 @@ function getInsuranceProviders() {
     return $returnval;
 }
 
-function getInsuranceProvidersExtra() {
+function getInsuranceProvidersExtra()
+{
     $returnval = array();
-// add a global and if for where to allow inactive inscompanies
+    // add a global and if for where to allow inactive inscompanies
 
-        $sql = "select insurance_companies.name, insurance_companies.id, " .
-          "addresses.zip, addresses.line1, addresses.state " .
-          "from insurance_companies, addresses " .
-          "where addresses.foreign_id = insurance_companies.id " .
-		  "and insurance_companies.inactive != 1 "  .
-          "order by insurance_companies.name, addresses.zip";
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, addresses.line1, addresses.line2, addresses.city,
+            addresses.state, addresses.zip
+            FROM insurance_companies, addresses
+            WHERE addresses.foreign_id = insurance_companies.id
+            AND insurance_companies.inactive != 1
+            ORDER BY insurance_companies.name, addresses.zip";
 
-        $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql);
 
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-    switch ($GLOBALS['insurance_information']) {
-        case $GLOBALS['insurance_information'] = '0':
-            $returnval[$row['id']] = $row['name'];
-        break;
-        case $GLOBALS['insurance_information'] = '1':
-            $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '2':
-           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['zip'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '3':
-           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '4':
-	       $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] .
-           "," . $row['zip'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '5':
-            preg_match("/\d+/", $row['line1'], $matches);
-            $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
-              "," . $matches[0] . ")";
-        break;
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        switch ($GLOBALS['insurance_information']) {
+            case $GLOBALS['insurance_information'] = '0':
+                $returnval[$row['id']] = $row['name'];
+                break;
+            case $GLOBALS['insurance_information'] = '1':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '2':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '3':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '4':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] .
+                    ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '5':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
+                    ", " . $row['state'] . ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '6':
+                preg_match("/\d+/", $row['line1'], $matches);
+                $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
+                    "," . $matches[0] . ")";
+                break;
         }
     }
 
