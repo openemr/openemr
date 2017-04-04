@@ -118,7 +118,7 @@ class FeeSheet {
       "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($this->pid, $this->encounter) );
     $this->visit_date    = substr($visit_row['date'], 0, 10);
     $this->provider_id   = $visit_row['provider_id'];
-    if (empty($this->provider_id)) $this->provider_id = findProvider();
+    if (empty($this->provider_id)) $this->provider_id = $this->findProvider();
     $this->supervisor_id = $visit_row['supervisor_id'];
     // This flag is specific to IPPF validation at form submit time.  It indicates
     // that most contraceptive services and products should match up on the fee sheet.
