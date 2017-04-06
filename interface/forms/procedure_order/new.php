@@ -499,7 +499,7 @@ $(document).ready(function() {
                     </textarea>
                 </div>
             </div>
-
+            <div class="procedure-order-container">
             <?php
 
             // This section merits some explanation. :)
@@ -595,11 +595,11 @@ $(document).ready(function() {
                     </select>
                 </div>
             </div>
-
+            </div>
             <div class="btn-group pull-right" role="group">
                 <button type="button" class="btn" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
-                <button type="submit" class="btn btn-success" name='bn_save' onclick='transmitting = false;'><i class="fa fa-check"></i>&nbsp;<?php echo xla('Save'); ?></button>
-                <button type="submit" class="btn btn-success" name='bn_xmit' onclick='transmitting = true;' ><i class="fa fa-arrow-right"></i>&nbsp;<?php echo xla('Save and Transmit'); ?></button>
+                <button type="submit" class="btn btn-success" name='bn_save' value="save" onclick='transmitting = false;'><i class="fa fa-check"></i>&nbsp;<?php echo xla('Save'); ?></button>
+                <button type="submit" class="btn btn-success" name='bn_xmit' value="transmit" onclick='transmitting = true;' ><i class="fa fa-arrow-right"></i>&nbsp;<?php echo xla('Save and Transmit'); ?></button>
                 <button type="button" class="btn btn-danger" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><i class="fa fa-times"></i>&nbsp;<?php echo xla('Cancel'); ?></button>
             </div>
             <div class="clearfix"></div>
