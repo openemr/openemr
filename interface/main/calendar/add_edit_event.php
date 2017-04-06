@@ -104,10 +104,11 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
-
+$have_group_global_enabled = true;
 if((!$edit && !$view) ) {
     $_GET['group'] = 'false';
-    $GLOBALS['enable_group_therapy']=false;
+    $have_group_global_enabled = false;
+
 }
 if($_GET['group'] == true)
     //groups tab
@@ -126,7 +127,7 @@ else {
     $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
-<?php $disabled = (!$edit && $GLOBALS['enable_group_therapy'] )?' disabled=true; ':'';?>
+<?php $disabled = (!$edit && $have_group_global_enabled )?' disabled=true; ':'';?>
 <?php if($disabled) echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true); 
     $("select").prop("disabled", true); 
@@ -1365,7 +1366,7 @@ $classpati='';
 		 <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
 		 <?php echo xlt('Provider');?></a>
 		 </li>
-         <?php if($GLOBALS['enable_group_therapy'] ) :?>
+         <?php if($have_group_global_enabled ) :?>
          <li <?php echo $group_class ;?>>
             <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
             <?php echo xlt('Group');?></a>
@@ -1522,7 +1523,7 @@ $classpati='';
  }
  ?>
 <?php
- if($_GET['group']==true &&  $GLOBALS['enable_group_therapy']){
+ if($_GET['group']==true &&  $have_group_global_enabled){
  ?>
  <tr id="group_details">
   <td nowrap>
