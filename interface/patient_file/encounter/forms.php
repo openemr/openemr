@@ -16,11 +16,12 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("forms_review_header.php");
 
+$is_group = ($attendant_type == 'gid') ? true : false;
 if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if($attendant_type=="gid" && $GLOBALS['enable_group_therapy'] && !acl_check("groups","glog",false, array('view','write'))){
+if($is_group && !acl_check("groups","glog",false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
@@ -641,8 +642,8 @@ if ( $esign->isButtonViewable() ) {
         if ($esign->isLocked()) {
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
           } else {
-          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $GLOBALS['enable_group_therapy'] == 0)
-              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $GLOBALS['enable_group_therapy'] AND acl_check("groups","glog",false, 'write')))) {
+          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $is_group == 0)
+              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $is_group AND acl_check("groups","glog",false, 'write')))) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -652,7 +653,7 @@ if ( $esign->isButtonViewable() ) {
           }
         }
 
-        if ( ($esign->isButtonViewable() AND $GLOBALS['enable_group_therapy'] == 0) OR ($esign->isButtonViewable() AND  $GLOBALS['enable_group_therapy'] AND acl_check("groups","glog",false, 'write'))) {
+        if ( ($esign->isButtonViewable() AND $is_group == 0) OR ($esign->isButtonViewable() AND $is_group AND acl_check("groups","glog",false, 'write'))) {
           if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
           }

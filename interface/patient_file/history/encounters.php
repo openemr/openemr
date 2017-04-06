@@ -42,8 +42,9 @@ if($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
+$is_group = ($attendant_type == 'gid') ? true : false;
 
-if($GLOBALS['enable_group_therapy'] && !acl_check("groups","glog",false, array('view','write'))){
+if($is_group && !acl_check("groups","glog",false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
