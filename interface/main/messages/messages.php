@@ -275,9 +275,11 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
   echo "</option>\n";
  }
-  echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
-  echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
-  echo "</option>\n";
+ if($GLOBALS['portal_offsite_enable']){
+      echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
+      echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
+      echo "</option>\n";
+ }
 ?>
    </select>
   </td>

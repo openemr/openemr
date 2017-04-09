@@ -47,8 +47,8 @@ $eracount = 0;
 /* Load dependencies only if we need them */
 if ( !empty($GLOBALS['portal_onsite_two_enable'])){
 	/*  Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-	require_once("../../patients/lib/portal_mail.inc");
-	require_once("../../patients/lib/appsql.class.php");
+	require_once("../../portal/lib/portal_mail.inc");
+	require_once("../../portal/lib/appsql.class.php");
 	
 	function is_auth_portal( $pid = 0){
 		if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid) )) {
@@ -59,14 +59,16 @@ if ( !empty($GLOBALS['portal_onsite_two_enable'])){
 		else return false;
 	}
 	function notify_portal($thispid, array $invoices, $template, $invid){
-		$builddir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $thispid;
+		$builddir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $thispid;
 		if( ! is_dir($builddir) )
 			mkdir($builddir, 0755, true);
 		if( fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl') != true ) return false; 
 		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
 		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
-		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) != 1)
-			return false;;
+		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) == 1){//remind admin this was sent
+			sendMail( $thispid, $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ); // notify patient
+		}
+		else return false;
 		//addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
 		return true;
 	}
@@ -237,8 +239,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
   }
   $where = substr($where, 4);
   // need to only use summary invoice for multi visits
+  $inv_pid = array();
+  $inv_count = -1;
   foreach ($_POST['form_invpids'] as $key => $v) {
-  	$inv_pid[$key] = key($v);
+  	if($_POST['form_cb'][$key]){
+  		array_push($inv_pid,key($v));
+  	}
   }
   $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
