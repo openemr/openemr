@@ -183,19 +183,15 @@
 
 
  $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('Add/Update groups (view ,write)')
-
+ // xl('Add/Update groups')
  $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
-// xl('Create/Update groups appointment in calender (view ,write)')
-
+// xl('Create/Update groups appointment in calender')
  $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
-// xl('Group log (view ,write)')
-
+// xl('Group log')
  $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
-// xl('Group detailed log of appointment in patient record (view ,write)')
-
+// xl('Group detailed log of appointment in patient record')
  $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
- // xl('Send message from the permanent group therapist to the personal therapist (view ,write)')
+ // xl('Send message from the permanent group therapist to the personal therapist')
 
 
 
@@ -262,7 +258,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','gadd','gcalendar','glog'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'lists'=>array('default','state','country','language','ethrace'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),

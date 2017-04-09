@@ -169,19 +169,11 @@ use ESign\Api;
  }
 
 if($GLOBALS['enable_group_therapy']){
-    $GroupAcl['gadd'] = acl_check("groups","gadd",false, '');
-    $GroupAcl['gcalendar'] = acl_check("groups","gcalendar",false, '');
-    $GroupAcl['glog'] = acl_check("groups","glog",false, '');
-    $GroupAcl['gdlog'] = acl_check("groups","gdlog",false, '');
-    $GroupAcl['gm'] = acl_check("groups","gm",false, '');
-
-
-    $disallowed['gng'] = !$GroupAcl['gadd'];
-    $disallowed['gdg'] = !$GroupAcl['gadd'];
-    $disallowed['gcv'] = !$GroupAcl['gcalendar'];
-    $disallowed['gce'] = !$GroupAcl['glog'];
-    $disallowed['gvh'] = !$GroupAcl['glog'];
-
+    $disallowed['gng'] = !acl_check("groups","gadd",false, '');
+    $disallowed['gdg'] = !acl_check("groups","gadd",false, '');
+    $disallowed['gcv'] = !acl_check("groups","gcalendar",false, '');
+    $disallowed['gce'] = !acl_check("groups","glog",false, '');
+    $disallowed['gvh'] = !acl_check("groups","glog",false, '');
 
     $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
     $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
