@@ -75,6 +75,13 @@ if (stristr(PHP_OS, 'WIN')) {
   $temporary_files_dir = 'C:/windows/temp';
   $backup_log_dir      = 'C:/windows/temp';
 }
+else if (stristr(PHP_OS, 'Darwin')) {
+  // Mac OS X XAMPP installation for @sourdoughpablo
+  $mysql_bin_dir       = '/Applications/XAMPP/bin';
+  $perl_bin_dir        = '/usr/bin';
+  $temporary_files_dir = '/var/folders';
+  $backup_log_dir      = '/var/folders';
+}
 else {
   // Everything else
   $mysql_bin_dir       = '/usr/bin';
