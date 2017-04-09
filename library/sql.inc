@@ -152,7 +152,7 @@ if (!$GLOBALS['dbh']) {
   if ($host == "localhost") {
     echo "Check that mysqld is running.<p>";
   } else {
-    echo "Check that you can ping the server '".text($host)."'.<p>";
+    echo "Check that you can ping the server " . text($host) . ".<p>";
   }//if local
   HelpfulDie("Could not connect to server!", getSqlLastError());
   exit;
