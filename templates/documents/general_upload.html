@@ -40,7 +40,7 @@ $category = filter_input(INPUT_GET, 'parent_id');
 <!-- Drag and drop uploader -->
 
 {php} if ($GLOBALS['document_drag_drop']) { {/php}
-<form method="post" enctype="multipart/form-data" action="/dev/public/assets/drag-n-drop/upload.php?patient_id={php}echo $pid{/php}&parent_id={php}echo $category{/php}" class="dropzone">
+<form method="post" enctype="multipart/form-data" action="{$WEBROOT}/interface/documents/upload.php?patient_id={php}echo $pid{/php}&parent_id={php}echo $category{/php}" class="dropzone">
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" >
         
 </form>

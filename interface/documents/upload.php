@@ -26,8 +26,8 @@ $category_id = filter_input(INPUT_GET, 'parent_id');
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
-require_once("../../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../../../library/documents.php");
+require_once("../globals.php");
+require_once(dirname(__FILE__) . "/../../library/documents.php");
  
 if (!empty($_FILES)) {
 
@@ -40,5 +40,7 @@ if (!empty($_FILES)) {
 
 addNewDocument($name,$type,$tmp_name,$error,$size,$owner,$patient_id_or_simple_directory=$patient_id,$category_id,
 	                      $higher_level_path='',$path_depth='1');
-	
+
 }
+
+?>
