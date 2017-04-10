@@ -1258,6 +1258,12 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Option to save method of document storage.')
         ),
+        'document_drag_drop' => array(
+            xl('Drag n Drop Document Uploading'),
+            'bool',
+            '0',
+            xl('Enable Drag-n-Drop file upload feature'),
+    ),                
         'couchdb_host' => array(
             xl('CouchDB HostName'),
             'text',
