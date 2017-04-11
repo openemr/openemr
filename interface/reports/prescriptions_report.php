@@ -31,8 +31,8 @@
  require_once("$srcdir/options.inc.php");
  require_once("../drugs/drugs.inc.php");
 
- $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+ $form_from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
  $form_patient_id = trim($_POST['form_patient_id']);
  $form_drug_name  = trim($_POST['form_drug_name']);
  $form_lot_number = trim($_POST['form_lot_number']);
@@ -61,7 +61,7 @@
   $('.datepicker').datetimepicker({
    <?php $datetimepicker_timepicker = false; ?>
    <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
+   <?php $datetimepicker_formatInput = true; ?>
    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -140,15 +140,13 @@
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
 			</td>
 			<td class='label_custom'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
 			</td>
 		</tr>
 		<tr>
