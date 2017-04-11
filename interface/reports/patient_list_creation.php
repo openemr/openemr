@@ -74,7 +74,6 @@
 		<title>
 			<?php echo xlt('Patient List Creation'); ?>
 		</title>
-		<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>

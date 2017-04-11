@@ -20,8 +20,6 @@ require_once("language.inc.php");
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 </head>
 
 <body class="body_top">
