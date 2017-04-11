@@ -60,7 +60,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
 /**
  * the root url of the application with trailing slash, for example http://localhost/patient/
  */
-GlobalConfig::$ROOT_URL = RequestUtil::GetServerRootUrl() . $GLOBALS['web_root'] . '/portal/patient/';
+  GlobalConfig::$ROOT_URL = RequestUtil::GetServerRootUrl() . preg_replace('/^\//', '', $GLOBALS['web_root']) . '/portal/patient/';
 
 /**
  * timezone

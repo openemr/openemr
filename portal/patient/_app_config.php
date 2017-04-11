@@ -49,7 +49,7 @@ set_include_path ( GlobalConfig::$APP_ROOT . '/libs/' . PATH_SEPARATOR . GlobalC
  * Any classes that will be stored in the session can be added here
  * and will be pre-loaded on every page
  */
-require_once "App/SecureApp.php";
+//require_once "App/SecureApp.php";
 
 /**
  * RENDER ENGINE

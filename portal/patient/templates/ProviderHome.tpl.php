@@ -71,25 +71,25 @@ $(document).ready(function(){
 			<h4>
 				<i class="icon-cogs"></i><?php echo xlt('Patient Document Templates') ?>
 			</h4>
-			<a class="btn btn-success btn-sm" href="./../import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
+			<a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
 		</div>
 		<div class="col-sm-3 col-md-3">
 			<h4>
 				<i class="icon-th"></i><?php echo xlt('Audit Changes') ?>
 			</h4>
-			<a class="btn btn-success btn-sm" href="./onsiteactivityviews"><?php echo xlt('Review Audits') ?> »</a>
+			<a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/patient/onsiteactivityviews"><?php echo xlt('Review Audits') ?> »</a>
 		</div>
 		<div class="col-sm-3 col-md-3">
 			<h4>
 				<i class="icon-cogs"></i><?php echo xlt('Patient Mail') ?>
 			</h4>
-			<a class="btn btn-success btn-sm" href="./../messaging/messages.php"><?php echo xlt('Mail') ?> »</a>
+			<a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/messages.php"><?php echo xlt('Mail') ?> »</a>
 		</div>
 		<div class="col-sm-3 col-md-3">
 			<h4>
 				<i class="icon-cogs"></i><?php echo xlt('Patient Chat') ?>
 			</h4>
-			<a class="btn btn-success btn-sm" href="./../messaging/secure_chat.php"><?php echo xlt('Messaging') ?> »</a>
+			<a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/secure_chat.php"><?php echo xlt('Messaging') ?> »</a>
 		</div>
 		<div class="col-sm-3 col-md-3">
 			<h4>
@@ -131,7 +131,7 @@ $(document).ready(function(){
 							style="border: 1px solid #000000; left: 0px;"></canvas>
 						<img id="loading"
 							style="display: none; position: absolute; TOP: 150px; LEFT: 315px; WIDTH: 100px; HEIGHT: 100px"
-							src="sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
+							src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
 					</div>
 					<input type="hidden" name="type" id="type" value="patient-signature">
 					<button type="button" onclick="signDoc(this)"><?php echo xlt('Authorize as my Electronic Signature.') ?></button>
@@ -146,7 +146,7 @@ $(document).ready(function(){
 <!-- Modal -->
 <img id="waitend"
 	style="display: none; position: absolute; top: 100px; left: 250px; width: 100px; height: 100px"
-	src="sign/assets/loading.gif" />
+	src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" />
 </div>
 <!-- /container -->
 
