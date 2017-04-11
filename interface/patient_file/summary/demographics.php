@@ -1527,8 +1527,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                  }
                  echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                  echo "</div>";
-                 echo "<br>";
              }
+             echo "</div>";
          }
      }
      /* End of recurrence widget */
