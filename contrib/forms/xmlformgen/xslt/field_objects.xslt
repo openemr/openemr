@@ -174,7 +174,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[: </span>
 </td><td>
-   <input type='text' size='10' name=']]></xsl:text>
+   <input type='text' size='10' class='datepicker' name=']]></xsl:text>
 <xsl:value-of select="@name" />
 <xsl:text disable-output-escaping="yes"><![CDATA[' id=']]></xsl:text>
 <xsl:value-of select="@name" />
@@ -194,30 +194,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 </xsl:if>
 <xsl:if test="$page='new'">
  <xsl:text disable-output-escaping="yes"><![CDATA[    value="<?php echo date('Y-m-d', time()); ?>"
-    title="<?php xl('yyyy-mm-dd','e'); ?>"
-]]></xsl:text>
-</xsl:if>
-<xsl:if test="$page!='print' and @name!='effective_date'">
- <xsl:text disable-output-escaping="yes"><![CDATA[    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-]]></xsl:text>
-</xsl:if>
-<xsl:if test="$page='print' or @name='effective_date'">
- <xsl:text disable-output-escaping="yes"><![CDATA[    />
-]]></xsl:text>
-</xsl:if>
-<xsl:if test="$page!='print' and @name!='effective_date'">
- <xsl:text disable-output-escaping="yes"><![CDATA[   <img src='../../pic/show_calendar.gif' width='24' height='22'
-    id='img_]]></xsl:text>
- <xsl:value-of select="@name" />
- <xsl:text disable-output-escaping="yes"><![CDATA[' alt='[?]' style='cursor:pointer'
-    title="<?php xl('Click here to choose a date','e'); ?>" />
-<script type="text/javascript">
-Calendar.setup({inputField:']]></xsl:text>
- <xsl:value-of select="@name" />
- <xsl:text disable-output-escaping="yes"><![CDATA[', ifFormat:'%Y-%m-%d', button:'img_]]></xsl:text>
- <xsl:value-of select="@name" />
- <xsl:text disable-output-escaping="yes"><![CDATA['});
-</script>
+    title="<?php xl('yyyy-mm-dd','e'); ?> />"
 ]]></xsl:text>
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[</td>
