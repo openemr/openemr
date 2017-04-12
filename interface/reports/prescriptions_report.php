@@ -42,11 +42,9 @@
 <head>
 <?php html_header_show();?>
 <title><?php xl('Prescriptions and Dispensations','e'); ?></title>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <script language="JavaScript">
 
@@ -74,9 +72,6 @@
  }
 
 </script>
-
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
 
@@ -117,7 +112,7 @@
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='prescriptions_report.php'>
+<form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -129,45 +124,45 @@
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
 			</td>
 		</tr>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Patient ID','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
+			   <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
 				title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Drug','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
+			   <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
 				title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Lot','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
+			   <input type='text' class='form-control' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
 				title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
 			</td>
 		</tr>

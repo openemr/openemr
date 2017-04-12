@@ -217,9 +217,6 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
 <?php $include_standard_style_js = array("datetimepicker"); ?>
 <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <style>
 
 td {
