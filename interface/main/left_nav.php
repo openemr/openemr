@@ -169,11 +169,11 @@ use ESign\Api;
  }
 
 if($GLOBALS['enable_group_therapy']){
-    $disallowed['gng'] = !acl_check("groups","gadd",false, '');
-    $disallowed['gdg'] = !acl_check("groups","gadd",false, '');
-    $disallowed['gcv'] = !acl_check("groups","gcalendar",false, '');
-    $disallowed['gce'] = !acl_check("groups","glog",false, '');
-    $disallowed['gvh'] = !acl_check("groups","glog",false, '');
+    $disallowed['gng'] = !acl_check("groups","gadd");
+    $disallowed['gdg'] = !acl_check("groups","gadd");
+    $disallowed['gcv'] = !acl_check("groups","gcalendar");
+    $disallowed['gce'] = !acl_check("groups","glog");
+    $disallowed['gvh'] = !acl_check("groups","glog");
 
     $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
     $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');

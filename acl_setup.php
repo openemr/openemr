@@ -182,12 +182,12 @@
      // xl('Lab Results (write,addonly optional)')
 
 
- $gacl->add_object('groups', 'Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('Add/Update groups')
- $gacl->add_object('groups', 'Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
-// xl('Create/Update groups appointment in calender')
- $gacl->add_object('groups', 'Group log','glog', 10, 0, 'ACO');
-// xl('Group log')
+ $gacl->add_object('groups', 'View/Add/Update groups','gadd', 10, 0, 'ACO');
+ // xl('View/Add/Update groups')
+ $gacl->add_object('groups', 'View/Create/Update groups appointment in calender','gcalendar', 10, 0, 'ACO');
+// xl('View/Create/Update groups appointment in calender')
+ $gacl->add_object('groups', 'Group encounter log','glog', 10, 0, 'ACO');
+// xl('Group encounter log')
  $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
 // xl('Group detailed log of appointment in patient record')
  $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');

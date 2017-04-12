@@ -498,7 +498,7 @@ if ($acl_version < $upgrade_acl) {
 
   //Add new object Sections
   echo "<BR/><B>Adding new object sections</B><BR/>";
-    // Add 'Groups (write,view)' object (added in 5.0.1)
+    // Add 'Groups' object (added in 5.0.1)
     addObjectSectionAcl('Groups', 'groups');
 
 
@@ -506,11 +506,11 @@ if ($acl_version < $upgrade_acl) {
   echo "<BR/><B>Adding new objects</B><BR/>";
     // Add 'Multipledb' object (added in 5.0.1)
     addObjectAcl('admin', 'Administration', 'Multipledb', 'multipledb');
-    addObjectAcl('admin', 'Administration', 'gadd'  , 'Add/Update groups');
-    addObjectAcl('admin', 'Administration', 'gcalendar'  , 'Create/Update groups appointment in calender');
-    addObjectAcl('admin', 'Administration', 'glog'  , 'Group log');
-    addObjectAcl('admin', 'Administration', 'gdlog'  , 'Group detailed log of appointment in patient record');
-    addObjectAcl('admin', 'Administration', 'gm'  , 'Send message from the permanent group therapist to the personal therapist');
+    addObjectAcl('groups', 'Groups', 'gadd'  , 'Add/Update groups');
+    addObjectAcl('groups', 'Groups', 'gcalendar'  , 'Create/Update groups appointment in calender');
+    addObjectAcl('groups', 'Groups', 'glog'  , 'Group log');
+    addObjectAcl('groups', 'Groups', 'gdlog'  , 'Group detailed log of appointment in patient record');
+    addObjectAcl('groups', 'Groups', 'gm'  , 'Send message from the permanent group therapist to the personal therapist');
   //Update already existing Objects
   echo "<BR/><B>Upgrading objects</B><BR/>";
 
