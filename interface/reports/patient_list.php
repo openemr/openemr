@@ -60,7 +60,6 @@ else {
 <?php $include_standard_style_js = array("datetimepicker"); ?>
 <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
