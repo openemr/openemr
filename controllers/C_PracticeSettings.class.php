@@ -16,13 +16,11 @@ class C_PracticeSettings extends Controller {
 		$this->assign("STYLE", $GLOBALS['style']);
 	    $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
 		$this->direction = ($GLOBALS['language_direction'] == 'rtl') ? 'right' : 'left';
-		$this->mainColClass = ($this->direction == 'right') ? '' : 'col-md-offset-2';
 	}
 
 	function default_action($display = "") {
 		$this->assign("display",$display);
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->display($GLOBALS['template_dir'] . "practice_settings/" . $this->template_mod . "_list.html");
 	}
 
@@ -37,8 +35,7 @@ class C_PracticeSettings extends Controller {
 
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("pharmacy" => "",$arg => ""),$fga);
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$display =  $c->act($args);
 		$this->assign("ACTION_NAME", xl("Pharmacies") );
 		$this->default_action($display);
@@ -57,8 +54,7 @@ class C_PracticeSettings extends Controller {
 		$args = array_merge(array("insurance_company" => "",$arg => ""),$fga);
 
 		$display =  $c->act($args);
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->assign("ACTION_NAME", xl("Insurance Companies") );
 		$this->default_action($display);
 	}
@@ -78,8 +74,7 @@ class C_PracticeSettings extends Controller {
 		$display =  $c->act($args);
 
 		$this->assign("ACTION_NAME", xl("Insurance Numbers") );
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->default_action($display);
 	}
 
@@ -98,8 +93,7 @@ class C_PracticeSettings extends Controller {
 		$display =  $c->act($args);
 
 		$this->assign("ACTION_NAME", xl("Documents") );
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->default_action($display);
 	}
 
@@ -118,8 +112,7 @@ class C_PracticeSettings extends Controller {
 		$display =  $c->act($args);
 
 		$this->assign("ACTION_NAME", xl("Documents") );
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->default_action($display);
 	}
 
@@ -138,8 +131,7 @@ class C_PracticeSettings extends Controller {
 		$display =  $c->act($args);
 
 		$this->assign("ACTION_NAME", xl("X12 Partners") );
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->default_action($display);
 	}
 
@@ -156,8 +148,7 @@ class C_PracticeSettings extends Controller {
 		$args = array_merge(array("hl7" => "",$arg => ""),$fga);
 		$display =  $c->act($args);
 		$this->assign("ACTION_NAME", xl("HL7 Viewer") );
-		$this->assign("sidebar_direction", $this->direction);
-		$this->assign("mainColClass", $this->mainColClass);
+		$this->assign("direction", $this->direction);
 		$this->default_action($display);
 	}
 
