@@ -10,6 +10,7 @@
 <script type="text/javascript" src="{php}echo $GLOBALS['assets_static_relative']{/php}/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
 <script type="text/javascript" src="{php}echo $GLOBALS['assets_static_relative']{/php}/bootstrap-sidebar-0-2-2/dist/js/sidebar.js"></script>
 <script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/common.js';{/php}"></script>
+    <title>{php}echo xlt('Practice Settings'){/php}</title>
 </head>
 <body class="body_top" style="padding-top: 35px;">
 
@@ -18,7 +19,7 @@
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
+                <span class="sr-only">{php} echo xlt('Toggle navigation'){/php}</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -38,7 +39,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-8 col-sm-2 col-md-2 sidebar sidebar-left sidebar-md-show">
+        <div class="col-xs-8 col-sm-2 col-md-2 sidebar sidebar-{$sidebar_direction} sidebar-md-show">
             <ul class="nav navbar-stacked">
                 <li><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a></li>
                 <li><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a></li>
@@ -48,7 +49,7 @@
                 <li><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a></li>
             </ul>
         </div>
-        <div class="col-md-10 col-md-offset-2">
+        <div class="col-md-10 {$mainColClass}">
             <div class="page-header section-header">
                 <h1>{$ACTION_NAME}</h1>
             </div>
