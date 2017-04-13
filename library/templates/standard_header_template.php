@@ -9,6 +9,7 @@
  *
  * The $include_standard_style_js supports:
  *                                         datetimepicker
+ *                                         report_helper.js
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
@@ -44,4 +45,10 @@
 <?php if (!empty($include_standard_style_js) && in_array("datetimepicker",$include_standard_style_js)) { ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("report_helper.js",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php } ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <?php $include_standard_style_js = array(); //clear this to prevent issues if this is called again in an embedded script ?>

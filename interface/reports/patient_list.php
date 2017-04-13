@@ -26,7 +26,7 @@
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
-  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/options.inc.php");
 
 // Prepare a string for CSV export.
 function qescape($str) {
@@ -57,12 +57,8 @@ else {
 <?php html_header_show();?>
 <title><?php xl('Patient List','e'); ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
 <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
-
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
