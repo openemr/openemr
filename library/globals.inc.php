@@ -1261,7 +1261,7 @@ $GLOBALS_METADATA = array(
         'document_drag_drop' => array(
             xl('Drag n Drop Document Uploading'),
             'bool',
-            '0',
+            '1',
             xl('Enable Drag-n-Drop file upload feature'),
     ),                
         'couchdb_host' => array(
