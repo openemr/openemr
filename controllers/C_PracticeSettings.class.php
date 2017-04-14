@@ -16,7 +16,7 @@ class C_PracticeSettings extends Controller
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("CSS_HEADER", $GLOBALS['css_header']);
-        $this->direction = ($GLOBALS['language_direction'] == 'rtl') ? 'right' : 'left';
+        $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
     }
 
     function default_action($display = "")
