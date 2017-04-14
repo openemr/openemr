@@ -416,7 +416,7 @@ UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'proced
 #EndIf
 
 #IfNotColumnType lbf_data field_value longtext
-ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext;
 #EndIf
 
 #IfMissingColumn issue_types aco_spec

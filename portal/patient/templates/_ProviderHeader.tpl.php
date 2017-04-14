@@ -38,31 +38,31 @@
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
 
-		<link href="styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
-		<link href="../sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
-		<link href="../sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
 		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
 				//.script("../sign/assets/signpad.js")
-				.script("../sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
-				.script("scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-				.script("scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-				.script("scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 		</script>
 	</head>
 
 	<body>
 		<div class="navbar navbar-default navbar-fixed-top">
 			<div class="container">
-					<div class="navbar-header"><a class="navbar-brand" href="./provider"><?php echo xlt('Home'); ?></a>
+					<div class="navbar-header"><a class="navbar-brand" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php echo xlt('Home'); ?></a>
 						<a class="navbar-toggle btn-default" data-toggle="collapse" data-target=".navbar-collapse">
 							<span class="glyphicon glyphicon-bar"></span>
         					<span class="glyphicon glyphicon-bar"></span>
@@ -72,20 +72,8 @@
 						<div class="container">
 						<div class="navbar-collapse">
 							<ul class="nav navbar-nav">
-								<!-- <li <?php //if ($this->nav=='patientdata') { echo 'class="active"'; } ?>><a href="./patientdata?pid=30">Patient Demo's</a></li>
-								<li <?php //if ($this->nav=='onsiteactivityviews') { echo 'class="active"'; } ?>><a href="./onsiteactivityviews">Patient's Activities</a></li> -->
+								<!-- Reserved -->
 								</ul>
-							<!-- <ul class="nav pull-right navbar-nav">
-								<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-lock"></i> Login <i class="caret"></i></a>
-								<ul class="dropdown-menu">
-									<li><a href="./loginform">Login</a></li>
-									<li class="divider"></li>
-									<li><a href="./secureuser">Patient Dashboard<i class="icon-lock"></i></a></li>
-									<li><a href="./secureadmin">Provider Dashboard<i class="icon-lock"></i></a></li>
-								</ul>
-								</li>
-							</ul> -->
 						</div><!--/.nav-collapse -->
 					</div>
 				</div>

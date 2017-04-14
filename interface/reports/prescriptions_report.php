@@ -31,8 +31,8 @@
  require_once("$srcdir/options.inc.php");
  require_once("../drugs/drugs.inc.php");
 
- $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+ $form_from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
+ $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
  $form_patient_id = trim($_POST['form_patient_id']);
  $form_drug_name  = trim($_POST['form_drug_name']);
  $form_lot_number = trim($_POST['form_lot_number']);
@@ -42,12 +42,9 @@
 <head>
 <?php html_header_show();?>
 <title><?php xl('Prescriptions and Dispensations','e'); ?></title>
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <script language="JavaScript">
 
@@ -61,7 +58,7 @@
   $('.datepicker').datetimepicker({
    <?php $datetimepicker_timepicker = false; ?>
    <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
+   <?php $datetimepicker_formatInput = true; ?>
    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
@@ -75,9 +72,6 @@
  }
 
 </script>
-
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
 
@@ -118,7 +112,7 @@
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='prescriptions_report.php'>
+<form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -130,47 +124,45 @@
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-				 title='yyyy-mm-dd'>
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
 			</td>
 		</tr>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Patient ID','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
+			   <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
 				title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Drug','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
+			   <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
 				title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Lot','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
+			   <input type='text' class='form-control' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
 				title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
 			</td>
 		</tr>

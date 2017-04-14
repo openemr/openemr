@@ -1508,9 +1508,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          $recurrences = fetchRecurrences($pid);
          if($recurrences[0] == false){ //if there are no recurrent appointments:
              echo "<div>";
-             echo "<span>" . xlt('None') . "</span>";
-             echo "</div>";
-             echo "<br>";
+             echo "<span>" . "&nbsp;&nbsp;" . xlt('None') . "</span>";
+             echo "</div></div>";
          }
          else {
              foreach ($recurrences as $row) {
@@ -1528,8 +1527,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                  }
                  echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                  echo "</div>";
-                 echo "<br>";
              }
+             echo "</div>";
          }
      }
      /* End of recurrence widget */
