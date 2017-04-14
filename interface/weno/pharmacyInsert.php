@@ -42,7 +42,7 @@ switch($state){
 	       $file = "./pharmacyList3.csv";
 	       break;
 
-	   defalut:
+	   default:
 	       echo "Something went wrong!";      
 } 
 

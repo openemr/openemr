@@ -79,7 +79,7 @@ footer {
 
   $drug = array(); //list of records that need to updated with pharmacy information
 while($list = sqlFetchArray($send)){
-	print "<tr align='center'><td>". xlt(text($list['drug'])) . " </td><td> " . xlt(text($list['quantity'])) . "</td></tr>";
+	print "<tr align='center'><td>". text($list['drug']) . " </td><td> " . text($list['quantity']) . "</td></tr>";
 	$drug[] = $list['id'];
 }
 
@@ -94,16 +94,16 @@ while($list = sqlFetchArray($send)){
 <div id="fields">
 <h3><?php echo xlt("Select Pharmacy"); ?></h3>
 	    <?php echo xlt("Patient Default"); ?> <br>
-	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
+	    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print $patientPharmacy['pharmacy_id'] ?>" checked="checked">
 	    <?php if(!$patientPharmacy['name']){
                    print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br> <br>";
                }else{
-	    	      print xlt(text($patientPharmacy['name'])); 
+	    	      print text($patientPharmacy['name']); 
                } 
 	    	      ?><br> <br>
 	    	      
         <?php print xlt("Mail Order") ?> <br>
-        <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print xlt("CCS Medical 	14255 49th Street, North, Clearwater, FL 33762")."<br>" ?> 
+        <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br>" ?> 
 	    <!-- removed from site but has future plans. 
 		<input type='text' size='10' name='city' id="city" value='' placeholder='Enter City First' title="type all or three letters of a city name">
 		<input type='text' size='30' name='address' id='address' value='' placeholder='Enter 3 #s or Letters of the Address' title="when searching by street name only put in the first three letters of the name"><br>
