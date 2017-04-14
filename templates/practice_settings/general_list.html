@@ -28,12 +28,9 @@
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#practice-setting-nav" aria-expanded="false">
+            <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar">
                 <span class="sr-only">{php} echo xlt('Toggle navigation'){/php}</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+                <i class="fa fa-bars fa-inverted"></i>
             </button>
             <a class="navbar-brand" href="#">{php}echo xlt('Practice Settings'){/php}</a>
         </div>
@@ -49,7 +46,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-8 col-sm-2 col-md-2 sidebar sidebar-{$direction} sidebar-md-show">
+        <div class="col-xs-12 col-sm-2 sidebar sidebar-{$direction} sidebar-sm-show">
             <ul class="nav navbar-stacked">
                 <li><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a></li>
                 <li><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a></li>
@@ -59,7 +56,7 @@
                 <li><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a></li>
             </ul>
         </div>
-        <div class="col-md-10 col-md-offset-2">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-2">
             <div class="page-header section-header">
                 <h1>{$ACTION_NAME}</h1>
             </div>
