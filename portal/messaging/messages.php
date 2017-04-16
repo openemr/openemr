@@ -20,29 +20,29 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-session_start ();
-if (isset ( $_SESSION ['pid'] ) && isset ( $_SESSION ['patient_portal_onsite_two'] )) {
-	$_SESSION ['whereto'] = 'profilepanel';
-	$pid = $_SESSION ['pid'];
-	$ignoreAuth = true;
-	$sanitize_all_escapes = true;
-	$fake_register_globals = false;
-	require_once (dirname ( __FILE__ ) . "/../../interface/globals.php");
-	define ( 'IS_DASHBOARD', false );
-	define ( 'IS_PORTAL', $_SESSION ['portal_username'] );
+session_start();
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    $_SESSION['whereto'] = 'profilepanel';
+    $pid = $_SESSION['pid'];
+    $ignoreAuth = true;
+    $sanitize_all_escapes = true;
+    $fake_register_globals = false;
+    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    define('IS_DASHBOARD', false);
+    define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
-	session_destroy ();
-	$ignoreAuth = false;
-	$sanitize_all_escapes = true;
-	$fake_register_globals = false;
-	require_once (dirname ( __FILE__ ) . "/../../interface/globals.php");
-	if (! isset ( $_SESSION ['authUserID'] )) {
-		$landingpage = "index.php";
-		header ( 'Location: ' . $landingpage );
-		exit ();
-	}
-	define ( 'IS_DASHBOARD', $_SESSION ['authUser'] );
-	define ( 'IS_PORTAL', false );
+    session_destroy();
+    $ignoreAuth = false;
+    $sanitize_all_escapes = true;
+    $fake_register_globals = false;
+    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    if (! isset($_SESSION['authUserID'])) {
+        $landingpage = "index.php";
+        header('Location: ' . $landingpage);
+        exit();
+    }
+    define('IS_DASHBOARD', $_SESSION['authUser']);
+    define('IS_PORTAL', false);
 }
 require_once ("$srcdir/acl.inc");
 require_once ("$srcdir/patient.inc");
@@ -50,43 +50,43 @@ require_once ("$srcdir/options.inc.php");
 require_once ("$srcdir/classes/Document.class.php");
 require_once ("./../lib/portal_mail.inc");
 
-$docid = empty ( $_REQUEST ['docid'] ) ? 0 : intval ( $_REQUEST ['docid'] );
-$orderid = empty ( $_REQUEST ['orderid'] ) ? 0 : intval ( $_REQUEST ['orderid'] );
+$docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
+$orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
-$result = getMails ( IS_DASHBOARD ? IS_DASHBOARD : IS_PORTAL, 'inbox', '', '' );
-$theresult = array ();
-foreach ( $result as $iter ) {
-	$theresult [] = $iter;
+$result = getMails(IS_DASHBOARD ? IS_DASHBOARD : IS_PORTAL, 'inbox', '', '');
+$theresult = array();
+foreach ($result as $iter) {
+    $theresult[] = $iter;
 }
-$dashuser = Array ();
+$dashuser = Array();
 if (IS_DASHBOARD) {
-	$dashuser = getUserIDInfo ( $_SESSION ['authUserID'] );
+    $dashuser = getUserIDInfo($_SESSION['authUserID']);
 }
-function getAuthPortalUsers() {
-	$resultpd = $resultusers = $resultpatients = array ();
-	if (IS_DASHBOARD) { // admin can mail anyone
-	                    // $resultusers[] = ['userid'=>'user','username'=>'-- Auth Users --'];
-		$authusers = sqlStatement ( "SELECT users.username as userid,
- CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE authorized = 1" );
-		while ( $row = sqlFetchArray ( $authusers ) ) {
-			$resultusers [] = $row;
-		}
-		// $resultpatients[] = ['userid'=>'portal','username'=>'-- Portal Patients --'];
-		$authpatients = sqlStatement ( "SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid,
- CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'" );
-		while ( $row = sqlFetchArray ( $authpatients ) ) {
-			$resultpatients [] = $row;
-		}
-		$resultpd [] = array_merge ( $resultusers, $resultpatients );
-		return $resultpd [0];
-	} else {
-		$resultpd = array ();
-		$authusers = sqlStatement ( "SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
-		while ( $row = sqlFetchArray ( $authusers ) ) {
-			$resultpd [] = $row;
-		}
-	}
-	return $resultpd;
+
+function getAuthPortalUsers()
+{
+    $resultpd = $resultusers = $resultpatients = array();
+    if (IS_DASHBOARD) { // admin can mail anyone
+        $authusers = sqlStatement("SELECT users.username as userid,
+ CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE authorized = 1");
+        while ($row = sqlFetchArray($authusers)) {
+            $resultusers[] = $row;
+        }
+        $authpatients = sqlStatement("SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid,
+ CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
+        while ($row = sqlFetchArray($authpatients)) {
+            $resultpatients[] = $row;
+        }
+        $resultpd[] = array_merge($resultusers, $resultpatients);
+        return $resultpd[0];
+    } else {
+        $resultpd = array();
+        $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1");
+        while ($row = sqlFetchArray($authusers)) {
+            $resultpd[] = $row;
+        }
+    }
+    return $resultpd;
 }
 ?>
 <!DOCTYPE html>
@@ -152,9 +152,7 @@ function getAuthPortalUsers() {
     $scope.userproper = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>";
     $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
     $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0;?>" ;
-    //$scope.cMode = "$scope.isPortal ? 'portal' : 'dashboard'";
     $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
-    //$scope.username = "<?php echo $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];?>";
     $scope.authrecips = <?php echo json_encode(getAuthPortalUsers());?>;
     $scope.compose.task = 'add';
     $scope.xLate = [];
@@ -256,8 +254,6 @@ function getAuthPortalUsers() {
 	    	angular.forEach(i, function(o, key) {
 		    	if(o.hasOwnProperty('deleted')){
 	       	 		itemToDelete.push($scope.items[i.indexOf(o)].id);
-	       	 		//var idxInItems = $scope.items.indexOf(itemToDelete);
-	        		//$scope.items.splice(idxInItems,1);
 		    	}
 	    	})
 	    	$http.post('handle_note.php', $.param({'task':'massdelete','notejson':JSON.stringify(itemToDelete)}))
@@ -266,7 +262,6 @@ function getAuthPortalUsers() {
         	}).error(function(data, status, headers, config) {
         		alert(data);
         	});
-	        //$scope.init()
 	        return false;
 	    };
 	    
@@ -383,7 +378,6 @@ function getAuthPortalUsers() {
 	        	if(data){
 	        	  $scope.deletedItems = [];
 	        	  $scope.deletedItems = angular.copy(data);
-	        	  //$scope.search();
 	        	}
 	        	else alert(data);
 	        }).error(function(data, status, headers, config) {
@@ -396,7 +390,6 @@ function getAuthPortalUsers() {
 	        .success(function(data, status, headers, config) {
 	        	$scope.sentItems = [];
 	            $scope.sentItems = angular.copy(data);
-	            //$scope.search();
 	        }).error(function(data, status, headers, config) {
 	        	alert(data);
 	        });
@@ -700,8 +693,7 @@ function getAuthPortalUsers() {
 										<tr class="animate-repeat"
 											ng-repeat="item in allItems | Chained:selected.mail_chain">
 											<td>
-												<!-- Please do not remove comment items - future use -->
-												<!-- <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span> -->
+												<!-- Please do not remove comment items - future use --> <!-- <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span> -->
 												<span class="col-sm-1" style="max-width: 8px;"><span
 													ng-class="{strong: !item.read}">{{item.id}}</span></span> <span
 												class="col-sm-2" ng-click="readMessage($index)"><span>{{item.date

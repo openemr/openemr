@@ -301,7 +301,7 @@ CREATE TABLE `onsite_documents` (
 CREATE TABLE `onsite_mail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT NULL,
-  `owner` varchar(128) DEFAULT NULL,
+  `owner` bigint(20) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `activity` tinyint(4) DEFAULT NULL,
@@ -431,3 +431,7 @@ ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|d
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95);
 ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';
 #EndIf
+
+#IfNotColumnType onsite_mail owner varchar(128)
+ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128);
+#Endif
