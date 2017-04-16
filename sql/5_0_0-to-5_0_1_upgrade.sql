@@ -433,5 +433,5 @@ ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL
 #EndIf
 
 #IfNotColumnType onsite_mail owner varchar(128)
-ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128);
+ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #Endif
