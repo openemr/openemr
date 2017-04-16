@@ -23,7 +23,7 @@
 
 session_start();
 if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite_two'] ) ){
-	$owner = $_SESSION['pid'];
+	//$owner = $_SESSION['pid'];
 	$ignoreAuth = true;
 	$fake_register_globals=false;
 	$sanitize_all_escapes=true;
@@ -49,21 +49,23 @@ if (! $task)
 	return 'no task';
 
 $noteid = $_POST ['noteid'] ? $_POST ['noteid'] : 0;
+$notejson = $_POST ['notejson'] ? json_decode($_POST ['notejson'],true) : 0;
 $reply_noteid = $_POST ['replyid'] ? $_POST ['replyid'] : 0;
 $owner = isset($_POST ['owner']) ? $_POST ['owner'] : $_SESSION ['pid'];
 $note = $_POST ['inputBody'];
 $title = $_POST ['title'];
-$sid=(int)$_POST ['sender_id'];
+$sid=$_POST ['sender_id'];
 $sn=$_POST ['sender_name'];
-$rid=(int)$_POST ['recipient_id'];
+$rid=$_POST ['recipient_id'];
 $rn=$_POST ['recipient_name'];
 $header = '';
 
 switch ($task) {
 	case "forward" :
 		{
-			addPnote($rid, $note,1,1,$title ,$sn,'','New');
-			updatePortalMailMessageStatus ( $noteid, 'Forwarded' );
+			$pid = isset($_POST ['pid']) ? $_POST ['pid'] : 0;
+			addPnote($pid, $note,1,1,$title ,$sid,'','New');
+			updatePortalMailMessageStatus ( $noteid, 'Sent' );
 			echo 'ok';
 		}
 		break;
@@ -85,6 +87,14 @@ switch ($task) {
 	case "delete" :
 		{
 			updatePortalMailMessageStatus ( $noteid, 'Delete' );
+			echo 'ok';
+		}
+		break;
+	case "massdelete" :
+		{
+			foreach ($notejson as $deleteid){
+				updatePortalMailMessageStatus ( $deleteid, 'Delete' );
+			}
 			echo 'ok';
 		}
 		break;

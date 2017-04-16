@@ -4918,7 +4918,7 @@ DROP TABLE IF EXISTS `onsite_mail`;
 CREATE TABLE `onsite_mail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT NULL,
-  `owner` bigint(20) DEFAULT NULL,
+  `owner` varchar(128) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `activity` tinyint(4) DEFAULT NULL,

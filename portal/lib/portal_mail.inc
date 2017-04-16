@@ -50,8 +50,6 @@ function addPortalMailboxMail($owner, $newtext, $authorized = '0', $activity = '
 		$replyid = $master_note;
 	}
 
-	//$_REQUEST ['replyid'] = $replyid;
-	
 	return sqlInsert("INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
 			"authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
 			array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid) );
