@@ -52,9 +52,11 @@ if ( !empty($GLOBALS['portal_onsite_two_enable'])){
 	
 	function is_auth_portal( $pid = 0){
 		if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid) )) {
-			if($pData['allow_patient_portal'] != "YES")
-				return false;
-				else return true;
+			if($pData['allow_patient_portal'] != "YES") return false;
+			else{
+				$_SESSION['portalUser'] = strtolower($pData['fname']) . $pData['id'];
+				return true;
+			}
 		}
 		else return false;
 	}
@@ -63,10 +65,10 @@ if ( !empty($GLOBALS['portal_onsite_two_enable'])){
 		if( ! is_dir($builddir) )
 			mkdir($builddir, 0755, true);
 		if( fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl') != true ) return false; 
-		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
-		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
-		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) == 1){//remind admin this was sent
-			sendMail( $thispid, $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ); // notify patient
+		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for portal auditing
+		$note =  xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
+		if(sendMail( $_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'] ) == 1){//remind admin this was sent
+			sendMail( $_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'] ); // notify patient
 		}
 		else return false;
 		//addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
