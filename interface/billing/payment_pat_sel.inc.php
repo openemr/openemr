@@ -45,7 +45,7 @@ if (isset($_POST["mode"]))
 	 {
 	  $StringForQuery=" and last_level_closed >= 1 ";
 	 }
-	$ResultSearchNew = sqlStatement("SELECT b.id,last_level_closed,b.encounter,fe.date,b.code_type,b.code,b.modifier,fee
+	$ResultSearchNew = sqlStatement("SELECT b.id,last_level_closed,b.encounter,fe.`date`,b.code_type,b.code,b.modifier,fee
 	                                 FROM billing AS b,form_encounter AS fe, code_types AS ct
 			                         WHERE b.encounter=fe.encounter AND b.code_type=ct.ct_key AND ct.ct_diag=0 
 			                         AND b.activity!=0 AND fe.pid ='$hidden_patient_code' AND b.pid ='$hidden_patient_code' 
