@@ -37,7 +37,6 @@ function tabs_view_model()
     this.tabsList=ko.observableArray();
     this.tabsList.push(new tabStatus("One",webroot_url+"/interface/main/main_info.php","cal",true,true,false));
     this.tabsList.push(new tabStatus("Two",webroot_url+"/interface/main/messages/messages.php?form_active=1","msg",true,false,false));
-//    this.tabsList.push(new tabStatus("Three"));
     this.text=ko.observable("Test");
     return this;
 }
@@ -91,10 +90,30 @@ function tabRefresh(data,evt)
     data.window.location=data.window.location;
     activateTab(data);
 }
-
+function makeTabsSortable(){
+	//Javascript for the tab drag and drop
+	$('.sorting').sortable({
+	items: '.sortable',
+	stop: function( event, ui ) {
+		var tempTabList = ko.observableArray();
+		var sortableLength = $('.sorting > .sortable').length;
+		for(var i=0;i<sortableLength;i++){
+			var title = $($('.sorting > .sortable')[i]).find('span.tabTitle').text();
+			for(var j=0; j < app_view_model.application_data.tabs.tabsList().length; j++){
+				var tabTitle = app_view_model.application_data.tabs.tabsList()[j].title();
+				if(title == tabTitle){
+					tempTabList.push(app_view_model.application_data.tabs.tabsList()[j]);
+					break;
+				}
+			}
+		}
+		app_view_model.application_data.tabs.tabsList = tempTabList;
+		}
+	})
+}
 function tabClose(data,evt)
-{
-    
+{      
+    var len_data = app_view_model.application_data.tabs.tabsList().length;
         $(function() {
         $("#dialog-confirm").dialog({
                 resizable: false,
@@ -105,15 +124,50 @@ function tabClose(data,evt)
                 modal: true,
                 create: function () {
                 var me = $(this)
-                        me.dialog("widget").find('.ui-dialog-titlebar-close').remove()
-                        
+                        me.dialog("widget").find('.ui-dialog-titlebar-close').remove()                        
                 },
                 buttons: {
 
                 "Close This tab": function() {
-                        app_view_model.application_data.tabs.tabsList.remove(data);
-                        activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length - 1]);
-                        $(this).dialog("close");
+                        
+						var removedTabIndex = -1;
+						for(var i =0; i< len_data; i++){
+							if(app_view_model.application_data.tabs.tabsList()[i].name() == data.name()){
+								removedTabIndex = i;
+								break;
+							}
+						}
+						app_view_model.application_data.tabs.tabsList.remove(data);
+						
+						$(this).dialog("close");
+						setTimeout(function(){
+							if(data.visible()) {
+								data.visible(false);
+								if(removedTabIndex < app_view_model.application_data.tabs.tabsList().length){
+									activateTab(app_view_model.application_data.tabs.tabsList()[removedTabIndex]);
+								}
+								else{
+									activateTab(app_view_model.application_data.tabs.tabsList()[len_data - 1]);
+								}
+							}		
+							//to update tab container						
+							var tabControlElement = $('#tabsContainer')[0];
+							var temp = document.getElementById('tabs-controls').innerHTML;			
+							tabControlElement.innerHTML = temp;
+							ko.cleanNode(tabControlElement);
+							ko.applyBindings(app_view_model, tabControlElement);	
+							
+							//to update frame container
+							var framesContainElement = $('#framesDisplay')[0];
+							var tempFrame = document.getElementById('tabs-frames').innerHTML;			
+							framesContainElement.innerHTML = tempFrame;
+							ko.cleanNode(framesContainElement);
+							ko.applyBindings(app_view_model, framesContainElement);								
+							
+							setTimeout(function(){
+								makeTabsSortable();
+							},100)
+						},100)
                 },
                  Cancel: function() {
                         $(this).dialog("close");
@@ -121,18 +175,8 @@ function tabClose(data,evt)
                 }
                 
         });
-        }); 
-//        $('#btnCancel').addClass('cancelButton');  
-   //Confirm message on Closing the Tab
-//    var r = confirm("Are you sure you want to close this tab?");
-//    if (r) {
-//         app_view_model.application_data.tabs.tabsList.remove(data);
-//        if(data.visible()) {
-//             activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
-//        }
-//    } else {
-//        return false;
-//    }
+        });
+
 }
 
 function tabCloseByName(name)
@@ -160,6 +204,7 @@ function navigateTab(url,name)
         curTab=new tabStatus("New",url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
     }
+     //console.log(app_view_model.application_data.tabs.tabsList());
 }
 
 function tabLockToggle(data,evt)

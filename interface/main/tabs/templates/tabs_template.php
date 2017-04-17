@@ -21,7 +21,7 @@
 <div id="dialog-confirm" title="Close this tab?" style="display: none">
     <p>
         <span class="ui-icon ui-icon-alert" style="float:left;"></span>
-        Are You Really want to close thos Tab?
+        Are You Really Want To Close This Tab?
     </p>
 </div>
 
@@ -44,7 +44,6 @@
 
                 <!-- ko if:closable-->
                     <span class="fa fa-fw fa-times" data-bind="click: tabClose"></span>
-                    
                 <!-- /ko -->
             </div>
        
