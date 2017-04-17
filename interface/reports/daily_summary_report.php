@@ -181,7 +181,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         }
 
         // define provider and facility as null
-        $providerID = $facilityID = NULL;
+        $providerID = $facilityID = null;
         // define all the bindarray variables as initial blank array
         $sqlBindArrayAppointment = $sqlBindArrayTotalVisit = $sqlBindArrayTotalPayment = $sqlBindArrayPaid = $sqlBindArrayNewPatient = array();
 

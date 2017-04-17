@@ -42,7 +42,8 @@ $returnurl = 'encounter_top.php';
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder;
+?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script language="JavaScript">
@@ -56,7 +57,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 <?php echo date("F d, Y", time()); ?>
 
-<form method=post action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
+<form method=post action="<?php echo $rootdir;
+?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
 <span class="title"><?php xl($form_name, 'e'); ?></span><br>
 
 <!-- Save/Cancel buttons -->

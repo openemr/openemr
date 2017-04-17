@@ -34,7 +34,7 @@ $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim($_GET['provider_id']) : "";
 
 $report_view = collectReportDatabase($report_id);
-$dataSheet = json_decode($report_view['data'],TRUE);
+$dataSheet = json_decode($report_view['data'],true);
 $type_report = $report_view['type'];
 $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014") ||
                   ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) ? $type_report : "standard";
@@ -171,65 +171,65 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 			</div>
 		</th>
 		<th scope="col">
-		 <?php echo xlt('Title'); ?>
+            <?php echo xlt('Title'); ?>
 		</th>
 
 		<th scope="col">
-		 <?php echo xlt('Download'); ?>
+            <?php echo xlt('Download'); ?>
 		</th>
 		<th scope="col">&nbsp;&nbsp;&nbsp;</th>
 	</thead>
 	<tbody>
 		<?php
-			$counter = 0;
-			foreach ($dataSheet as $row) {
-			if (isset($row['is_main']) || isset($row['is_sub'])) {
-				if ( count($cqmCodes) && in_array($row['cqm_nqf_code'],$cqmCodes) ) {
-					continue;
-				}
-				echo "<tr>";
-				$cqmCodes[] = $row['cqm_nqf_code'];
-				echo "<td class=multiDownload>";
-				echo "<input id=check" . attr($counter) . " type=checkbox />";
-				echo "</td>";
-				echo "<td class='detail'>";
-				if (isset($row['is_main'])) {
-					echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id'])."</b>";
-					$tempCqmAmcString = "";
-					if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
-					  if (!empty($row['cqm_pqri_code'])) {
-						$tempCqmAmcString .= " " .  xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
-					  }
-					  if (!empty($row['cqm_nqf_code'])) {
-						$tempCqmAmcString .= " " .  xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
-					  }
-					}
-					if (!empty($tempCqmAmcString)) {
-						echo "(".text($tempCqmAmcString).")";
-					}
-				} else {
-					echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
-					echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
-				}
-				echo "<input type=hidden id=text" . attr($counter) . " name=text" . attr($counter) . " value='" . attr($row['cqm_nqf_code']) . "'/>";
-				echo "</td>";
-				echo "<td align=center>";
-				echo "<div id=download" . attr($counter) . ">";
-				echo "<img class='downloadIcon' src='" . $GLOBALS['webroot'] . "/images/downbtn.gif' onclick=downloadXML(" . attr($counter) . ",1); />";
-				echo "</div>";
-				echo "<div style='display:none' id=spin" . attr($counter) . ">";
-				echo "<img src='" . $GLOBALS['webroot'] . "/interface/pic/ajax-loader.gif'/>";
-				echo "</div>";
-				echo "</td>";
-				echo "<td>";
-				echo "<div style='display:none' id=checkmark" . attr($counter) . ">";
-				echo "<img src='" . $GLOBALS['webroot'] . "/images/checkmark.png' />";
-				echo "</div>";
-				echo "</td>";
-				echo "</tr>";
-				$counter++;
-			}
-		} ?>
+            $counter = 0;
+        foreach ($dataSheet as $row) {
+            if (isset($row['is_main']) || isset($row['is_sub'])) {
+                if ( count($cqmCodes) && in_array($row['cqm_nqf_code'],$cqmCodes) ) {
+                    continue;
+                }
+                echo "<tr>";
+                $cqmCodes[] = $row['cqm_nqf_code'];
+                echo "<td class=multiDownload>";
+                echo "<input id=check" . attr($counter) . " type=checkbox />";
+                echo "</td>";
+                echo "<td class='detail'>";
+                if (isset($row['is_main'])) {
+                    echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id'])."</b>";
+                    $tempCqmAmcString = "";
+                    if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+                        if (!empty($row['cqm_pqri_code'])) {
+                            $tempCqmAmcString .= " " .  xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
+                        }
+                        if (!empty($row['cqm_nqf_code'])) {
+                            $tempCqmAmcString .= " " .  xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
+                        }
+                    }
+                    if (!empty($tempCqmAmcString)) {
+                        echo "(".text($tempCqmAmcString).")";
+                    }
+                } else {
+                    echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
+                    echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
+                }
+                echo "<input type=hidden id=text" . attr($counter) . " name=text" . attr($counter) . " value='" . attr($row['cqm_nqf_code']) . "'/>";
+                echo "</td>";
+                echo "<td align=center>";
+                echo "<div id=download" . attr($counter) . ">";
+                echo "<img class='downloadIcon' src='" . $GLOBALS['webroot'] . "/images/downbtn.gif' onclick=downloadXML(" . attr($counter) . ",1); />";
+                echo "</div>";
+                echo "<div style='display:none' id=spin" . attr($counter) . ">";
+                echo "<img src='" . $GLOBALS['webroot'] . "/interface/pic/ajax-loader.gif'/>";
+                echo "</div>";
+                echo "</td>";
+                echo "<td>";
+                echo "<div style='display:none' id=checkmark" . attr($counter) . ">";
+                echo "<img src='" . $GLOBALS['webroot'] . "/images/checkmark.png' />";
+                echo "</div>";
+                echo "</td>";
+                echo "</tr>";
+                $counter++;
+            }
+        } ?>
 	</tbody>
 </table>
 </div>

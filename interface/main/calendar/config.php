@@ -16,10 +16,10 @@ include_once("../../../library/sqlconf.php");
 // Modified 5/2009 by BM for UTF-8 project 
 global $host,$port,$login,$pass,$dbase,$disable_utf8_flag;
 if (!$disable_utf8_flag) {
- $pnconfig['utf8Flag'] = true;
+    $pnconfig['utf8Flag'] = true;
 }
 else {
- $pnconfig['utf8Flag'] = false;
+    $pnconfig['utf8Flag'] = false;
 }
 // ---------------------------------------
 
@@ -42,13 +42,13 @@ $pntable = array();
 $session_info = $prefix . '_session_info';
 $pntable['session_info'] = $session_info;
 $pntable['session_info_column'] = array (
-		'sessid'    => $session_info .
-		'.pn_sessid', 'ipaddr'    => $session_info .
-		'.pn_ipaddr','firstused' => $session_info .
-		'.pn_firstused','lastused'  => $session_info .
-		'.pn_lastused','uid'       => $session_info .
-		'.pn_uid','vars'      => $session_info .
-		'.pn_vars');
+        'sessid'    => $session_info .
+        '.pn_sessid', 'ipaddr'    => $session_info .
+        '.pn_ipaddr','firstused' => $session_info .
+        '.pn_firstused','lastused'  => $session_info .
+        '.pn_lastused','uid'       => $session_info .
+        '.pn_uid','vars'      => $session_info .
+        '.pn_vars');
 // ----------------------------------------------------------------------
 // For debugging (Pablo Roca)
 //
@@ -60,7 +60,7 @@ $pntable['session_info_column'] = array (
 //          0 = No
 //          1 = Yes
 // ----------------------------------------------------------------------
-GLOBAL $pndebug;
+global $pndebug;
 $pndebug['debug']          = 0;
 $pndebug['debug_sql']      = 0;
 

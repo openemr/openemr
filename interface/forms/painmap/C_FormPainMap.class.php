@@ -37,8 +37,9 @@ class C_FormPainMap extends C_AbstractClickmap {
     static $FORM_CODE = "painmap";
 
     /* initializer, just calls parent's initializer. */
-    public function __construct() {
-    	parent::__construct();
+    public function __construct()
+    {
+        parent::__construct();
     }
 
     /**
@@ -47,7 +48,8 @@ class C_FormPainMap extends C_AbstractClickmap {
      * @param form_id
      *  optional id of a form in the EMR, to populate data from.
      */
-    public function createModel($form_id = "") {
+    public function createModel($form_id = "")
+    {
         if ( $form_id != "" ) {
             return new FormPainMap($form_id);
         } else {
@@ -58,14 +60,16 @@ class C_FormPainMap extends C_AbstractClickmap {
     /**
      * @brief return the path to the backing image relative to the webroot.
      */
-    function getImage() {
+    function getImage()
+    {
         return $GLOBALS['webroot'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE ."/templates/painmap.png";
     }
 
     /**
      * @brief return a n arra containing the options for the dropdown box.
      */
-    function getOptionList() {
+    function getOptionList()
+    {
         return array(  "0" => "None",
                        "1" => "Level 1",
                        "2" => "Level 2",
@@ -82,7 +86,8 @@ class C_FormPainMap extends C_AbstractClickmap {
     /**
      * @brief return a label for the dropdown boxes on the form, as a string.
      */
-    function getOptionsLabel() {
+    function getOptionsLabel()
+    {
         return "Pain Scale";
     }
 }

@@ -33,7 +33,8 @@ class Holidays_Storage{
      * This function selects ALL the holidays from the table calendar_external and returns an array
      * @return array
      */
-    public function get_holidays(){
+    public function get_holidays()
+    {
         $holidays= array();
         $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
         $res=sqlStatement($sql);
@@ -49,7 +50,8 @@ class Holidays_Storage{
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
-    public static function get_holidays_by_dates($start_date,$end_date){
+    public static function get_holidays_by_dates($start_date,$end_date)
+    {
         $holidays= array();
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
         $res=sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date) );
@@ -65,7 +67,8 @@ class Holidays_Storage{
      * The holidays array must contai the date=>DD/MM/YYY, description=>"string"
      * @param array $holidays
      */
-    public function create_events(array $holidays){
+    public function create_events(array $holidays)
+    {
         $deleted = false;
         foreach ($holidays as $holiday){
             if(!$deleted){
@@ -104,7 +107,8 @@ class Holidays_Storage{
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file){
+    public function import_holidays($file)
+    {
         $data = array();
         $handle = fopen($file,"r");
         $deleted = false;
@@ -123,12 +127,14 @@ class Holidays_Storage{
         return true;
     }
 
-    private function delete_calendar_external(){
+    private function delete_calendar_external()
+    {
         $sql = "TRUNCATE TABLE ".escape_table_name(self::TABLE_NAME);
         $res=sqlStatement($sql);
     }
 
-    private function delete_holiday_events(){
+    private function delete_holiday_events()
+    {
         $sql="DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
         sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
 

@@ -69,9 +69,9 @@ tr.selected {
 
 <span class="title"><?php echo xlt('List'); ?></span>&nbsp;
 <?php
-	$query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
-	$resultSet = sqlStatement($query,array($pid));
-	if ( sqlNumRows($resultSet)) { ?>
+    $query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
+    $resultSet = sqlStatement($query,array($pid));
+if ( sqlNumRows($resultSet)) { ?>
 			<table cellspacing="0" cellpadding="0" style="width:100%">
 				<tr>
 					<td><a href="javascript:checkForAmendments();" class="css_button"><span><?php echo xlt("Print Amendments"); ?></span></a></td>
@@ -94,8 +94,8 @@ tr.selected {
 		</tr>
 
 		<?php while($row = sqlFetchArray($resultSet)) {
-			$amendmentLink = "<a href=add_edit_amendments.php?id=" . attr($row['amendment_id']) . ">" . oeFormatShortDate($row['amendment_date']) . "</a>";
-		?>
+            $amendmentLink = "<a href=add_edit_amendments.php?id=" . attr($row['amendment_id']) . ">" . oeFormatShortDate($row['amendment_date']) . "</a>";
+        ?>
 			<tr class="amendmentrow" id="<?php echo attr($row['amendment_id']); ?>">
 				<td><input id="check_list[]" name="check_list[]" type="checkbox" value="<?php echo attr($row['amendment_id']); ?>"></td>
 				<td class=text><?php echo $amendmentLink; ?> </td>

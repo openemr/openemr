@@ -8,7 +8,8 @@
 //
 class NFQ_0038_Denominator implements CqmFilterIF
 {
-    public function getTitle() {
+    public function getTitle()
+    {
         return "Denominator";
     }
     

@@ -72,16 +72,16 @@ $CKEditor->replace("textarea_id");
 		</p>
 	</div>
 	<?php
-	// Include the CKEditor class.
-	include_once "../../ckeditor.php";
-	// Create a class instance.
-	$CKEditor = new CKEditor();
-	// Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
-	//   $CKEditor->basePath = '/ckeditor/'
-	// If not set, CKEditor will try to detect the correct path.
-	$CKEditor->basePath = '../../';
-	// Replace a textarea element with an id (or name) of "editor1".
-	$CKEditor->replace("editor1");
-	?>
+    // Include the CKEditor class.
+    include_once "../../ckeditor.php";
+    // Create a class instance.
+    $CKEditor = new CKEditor();
+    // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
+    //   $CKEditor->basePath = '/ckeditor/'
+    // If not set, CKEditor will try to detect the correct path.
+    $CKEditor->basePath = '../../';
+    // Replace a textarea element with an id (or name) of "editor1".
+    $CKEditor->replace("editor1");
+    ?>
 </body>
 </html>

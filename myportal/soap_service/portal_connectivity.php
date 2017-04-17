@@ -21,7 +21,8 @@
  * @link    http://www.open-emr.org
  */
 
-function portal_connection(){
+function portal_connection()
+{
     global $credentials;
     $password 	= $GLOBALS['portal_offsite_password'];
     $randkey	= '';
@@ -38,7 +39,7 @@ function portal_connection(){
     $grpID 	= sqlInsert("INSERT INTO audit_master SET type=5");
     sqlStatement("INSERT INTO audit_details SET field_value=? , audit_master_id=?",array($randkey,$grpID));
     $credentials 	= array($GLOBALS['portal_offsite_username'],$password,$randkey);
-    //CALLING WEBSERVICE ON THE PATIENT-PORTAL 
+    //CALLING WEBSERVICE ON THE PATIENT-PORTAL
     $client 	= new SoapClient(null, array(
             'location' => $GLOBALS['portal_offsite_address_patient_link']."/webservice/webserver.php",
             'uri'      => "urn://portal/req"

@@ -10,7 +10,7 @@ use Zend\View\Helper\Openemr\Menu;
 
 class Module
 {
-	public function getAutoloaderConfig()
+    public function getAutoloaderConfig()
     {
         return array(
             'Zend\Loader\ClassMapAutoloader' => array(
@@ -19,7 +19,7 @@ class Module
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                	
+                    
                 ),
             ),
         );
@@ -29,7 +29,7 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-	
+    
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();

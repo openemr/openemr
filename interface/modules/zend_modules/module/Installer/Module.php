@@ -75,11 +75,11 @@ class Module
     
     public function onBootstrap(\Zend\EventManager\EventInterface $e)
     {
-    	$config = $e->getApplication()->getServiceManager()->get('Configuration');
-    	$sessionConfig = new SessionConfig();
-    	$sessionConfig->setOptions($config['session']);
-    	$sessionManager = new SessionManager($sessionConfig, null, null);
-    	Container::setDefaultManager($sessionManager);
-    	$sessionManager->start();
+        $config = $e->getApplication()->getServiceManager()->get('Configuration');
+        $sessionConfig = new SessionConfig();
+        $sessionConfig->setOptions($config['session']);
+        $sessionManager = new SessionManager($sessionConfig, null, null);
+        Container::setDefaultManager($sessionManager);
+        $sessionManager->start();
     }
 }?>

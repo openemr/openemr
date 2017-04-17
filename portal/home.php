@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *
@@ -26,18 +26,18 @@
 
  if(!isset($_SESSION['portal_init'])) $_SESSION['portal_init'] = true;
  $whereto = 'profilepanel';
- if( isset($_SESSION['whereto'])){
- 	$whereto = $_SESSION['whereto'];
- }
+if( isset($_SESSION['whereto'])){
+    $whereto = $_SESSION['whereto'];
+}
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
 
  $msgs = getPortalPatientNotes($_SESSION['portal_username']);
  $msgcnt = count($msgs);
  $newcnt = 0;
- foreach ( $msgs as $i ) {
- 	if($i['message_status']=='New') $newcnt += 1;
- }
+foreach ( $msgs as $i ) {
+    if($i['message_status']=='New') $newcnt += 1;
+}
 require_once '_header.php';
  echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
 ?>
@@ -131,7 +131,8 @@ $(document).ready(function(){
 	<aside class="right-side">
 		<!-- Main content -->
 		<section class="container-fluid content panel-group" id="panelgroup">
-		<div id="popwait" class="alert alert-warning" style="font-size:18px"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
+		<div id="popwait" class="alert alert-warning" style="font-size:18px"><strong><?php echo xlt('Working!');
+?></strong> <?php echo xlt('Please wait...'); ?></div>
 			<div class="row collapse" id="lists">
 				<div class="col-sm-6">
 					<div class="panel panel-primary">

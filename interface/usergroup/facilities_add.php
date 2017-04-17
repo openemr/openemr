@@ -4,8 +4,6 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
-$facilityService = new \services\FacilityService();
-
 $alertmsg = '';
 ?>
 <html>
@@ -39,14 +37,14 @@ else {
 // Old Browser comp trigger on js
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
-  	echo '
+    echo '
 <script type="text/javascript">
 <!--
 parent.$.fn.fancybox.close();
 //-->
 </script>
 
-	';
+    ';
 }
 ?>
 <script type="text/javascript">
@@ -212,7 +210,9 @@ function displayAlert()
         <tr>
         <td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Tax ID','e'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN','e'); ?></option><option value="SY"><?php xl('SSN','e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
+        <td><span class="text"><?php xl('Tax ID','e');
+?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN','e');
+?></option><option value="SY"><?php xl('SSN','e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
         </tr>
         <tr>
         <td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
@@ -229,22 +229,25 @@ function displayAlert()
         <tr>
           <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php xl('Accepts Assignment','e'); ?><br>(<?php xl('only if billing location','e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
+          <td><span class='text'><?php xl('Accepts Assignment','e');
+?><br>(<?php xl('only if billing location','e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
         </tr>
         <tr>
           <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES);
+?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
-   <?php
-   $disabled='';
-   $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-   if(sizeof($resPBE)>0)
-   $disabled='disabled';
-   ?>
+	<?php
+     $disabled='';
+     $resPBE=sqlStatement("select * from facility where primary_business_entity='1' and id!='".$my_fid."'");
+     if(sqlNumRows($resPBE)>0)
+     $disabled='disabled';
+        ?>
 	 <tr>
           <td><span class='text'><?php xl('Primary Business Entity','e'); ?>: </span></td>
-          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked';
+?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
          </tr>
         <tr>
@@ -285,9 +288,9 @@ function displayAlert()
 
 <script language="JavaScript">
 <?php
-  if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
-  }
+}
 ?>
 </script>
 

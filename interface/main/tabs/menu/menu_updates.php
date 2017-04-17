@@ -31,128 +31,94 @@ $menu_update_map["Create Visit"] = "update_create_visit";
 
 function update_modules_menu(&$menu_list)
 {
-    $module_query = sqlStatement("select mod_id,mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
+    $module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
     if (sqlNumRows($module_query)) {
         while ($modulerow = sqlFetchArray($module_query)) {
-
-            $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id",array($modulerow['mod_id']));
-
-            $modulePath = "";
-            $added 		= "";
+                    $acl_section = strtolower($modulerow['mod_directory']);
+                    if (!zh_acl_check($_SESSION['authUserID'],$acl_section)) continue;
+                    $modulePath = "";
+                    $added 		= "";
             if($modulerow['type'] == 0) {
-                $modulePath = $GLOBALS['customModDir'];
-                $added		= "";
+                    $modulePath = $GLOBALS['customModDir'];
+                    $added		= "";
             }
             else{
-                $added		= "index";
-                $modulePath = $GLOBALS['zendModDir'];
+                    $added		= "index";
+                    $modulePath = $GLOBALS['zendModDir'];
             }
-            $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
-            $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
 
-            if (sqlNumRows($module_hooks) == 0) {
-                // module without hooks in module section
-                $acl_section = strtolower($modulerow['mod_directory']);
-                if (zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1")continue;
-                $newEntry=new stdClass();
-                $newEntry->label=xlt($mod_nick_name);
-                $newEntry->url=$relative_link;
-                $newEntry->requirement=0;
-                $newEntry->target='mod';
-                array_push($menu_list->children,$newEntry);
-            } else {
-                // module with hooks in module section
-                $newEntry=new stdClass();
-                $newEntry->requirement=0;
-                $newEntry->icon="fa-caret-right";
-                $newEntry->label=xlt($mod_nick_name);
-                $newEntry->children=array();
-                $jid = 0;
-                $modid = '';
-                while ($hookrow = sqlFetchArray($module_hooks)) {
-                    if (zh_acl_check($_SESSION['authUserID'],$hookrow['obj_name']) ?  "" : "1")continue;
-
-                    $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
-                    $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
-
-                    if($jid==0 || ($modid!=$hookrow['mod_id'])){
-
-                        $subEntry=new stdClass();
-                        $subEntry->requirement=0;
-                        $subEntry->target='mod';
-                        $subEntry->menu_id='mod0';
-                        $subEntry->label=xlt($mod_nick_name);
-                        $subEntry->url=$relative_link;
-                        $newEntry->children[] = $subEntry;
-                    }
-                    $jid++;
-                }
-                array_push($menu_list->children,$newEntry);
-            }
-       }
+                    $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                    $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
+            $newEntry=new stdClass();
+            $newEntry->label=xlt($mod_nick_name);
+            $newEntry->url=$relative_link;
+            $newEntry->requirement=0;
+            $newEntry->target='mod';
+            array_push($menu_list->children,$newEntry);
+        }
     }
 }
 
 // This creates menu entries for all encounter forms.
 //
-function update_visit_forms(&$menu_list) {
-  $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
-  $menu_list->children = array();
+function update_visit_forms(&$menu_list)
+{
+    $baseURL = "/interface/patient_file/encounter/load_form.php?formname=";
+    $menu_list->children = array();
   // LBF Visit forms
-  $lres = sqlStatement("SELECT * FROM list_options " .
+    $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-  while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
-    $formURL = $baseURL . urlencode($option_id);
-    $formEntry = new stdClass();
-    $formEntry->label = xl_form_title($title);
-    $formEntry->url = $formURL;
-    $formEntry->requirement = 2;
-    $formEntry->target = 'enc';
-    // Plug in ACO attribute, if any, of this LBF.
-    $jobj = json_decode($lrow['notes'], true);
-    if (!empty($jobj['aco'])) {
-      $tmp = explode('|', $jobj['aco']);
-      if (!empty($tmp[1])) {
-        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-      }
+    while ($lrow = sqlFetchArray($lres)) {
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        $formURL = $baseURL . urlencode($option_id);
+        $formEntry = new stdClass();
+        $formEntry->label = xl_form_title($title);
+        $formEntry->url = $formURL;
+        $formEntry->requirement = 2;
+        $formEntry->target = 'enc';
+      // Plug in ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+            $tmp = explode('|', $jobj['aco']);
+            if (!empty($tmp[1])) {
+                $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+            }
+        }
+        array_push($menu_list->children, $formEntry);
     }
-    array_push($menu_list->children, $formEntry);
-  }
   // Traditional forms
-  $reg = getRegistered();
-  if (!empty($reg)) {
-    foreach ($reg as $entry) {
-      $option_id = $entry['directory'];
-      $title = trim($entry['nickname']);
-      if ($option_id == 'fee_sheet' ) continue;
-      if ($option_id == 'newpatient') continue;
-      if (empty($title)) $title = $entry['name'];
-      $formURL = $baseURL . urlencode($option_id);
-      $formEntry = new stdClass();
-      $formEntry->label = xl_form_title($title);
-      $formEntry->url = $formURL;
-      $formEntry->requirement = 2;
-      $formEntry->target = 'enc';
-      // Plug in ACO attribute, if any, of this form.
-      $tmp = explode('|', $entry['aco_spec']);
-      if (!empty($tmp[1])) {
-        $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-      }
-      array_push($menu_list->children, $formEntry);
+    $reg = getRegistered();
+    if (!empty($reg)) {
+        foreach ($reg as $entry) {
+            $option_id = $entry['directory'];
+            $title = trim($entry['nickname']);
+            if ($option_id == 'fee_sheet' ) continue;
+            if ($option_id == 'newpatient') continue;
+            if (empty($title)) $title = $entry['name'];
+            $formURL = $baseURL . urlencode($option_id);
+            $formEntry = new stdClass();
+            $formEntry->label = xl_form_title($title);
+            $formEntry->url = $formURL;
+            $formEntry->requirement = 2;
+            $formEntry->target = 'enc';
+          // Plug in ACO attribute, if any, of this form.
+            $tmp = explode('|', $entry['aco_spec']);
+            if (!empty($tmp[1])) {
+                $formEntry->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+            }
+            array_push($menu_list->children, $formEntry);
+        }
     }
-  }
 }
 
-function update_create_visit(&$menu_list) {
-  $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
-  if (!empty($tmp['aco_spec'])) {
-    $tmp = explode('|', $tmp['aco_spec']);
-    $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
-  }
+function update_create_visit(&$menu_list)
+{
+    $tmp = getRegistryEntryByDirectory('newpatient', 'aco_spec');
+    if (!empty($tmp['aco_spec'])) {
+        $tmp = explode('|', $tmp['aco_spec']);
+        $menu_list->acl_req = array($tmp[0], $tmp[1], 'write', 'addonly');
+    }
 }
 
 function menu_update_entries(&$menu_list)
@@ -182,26 +148,27 @@ function menu_update_entries(&$menu_list)
 // Permissions check for a particular acl_req array item.
 // Elements beyond the 2nd are ACL return values, one of which should be permitted.
 //
-function menu_acl_check($arr) {
-  if (isset($arr[2])) {
-    for ($i = 2; isset($arr[$i]); ++$i) {
-      if (substr($arr[0], 0, 1) == '!') {
-        if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return TRUE;
-      }
-      else {
-        if (acl_check($arr[0], $arr[1], '', $arr[$i])) return TRUE;
-      }
-    }
-  }
-  else {
-    if (substr($arr[0], 0, 1) == '!') {
-      if (!acl_check(substr($arr[0], 1), $arr[1])) return TRUE;
+function menu_acl_check($arr)
+{
+    if (isset($arr[2])) {
+        for ($i = 2; isset($arr[$i]); ++$i) {
+            if (substr($arr[0], 0, 1) == '!') {
+                if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return true;
+            }
+            else {
+                if (acl_check($arr[0], $arr[1], '', $arr[$i])) return true;
+            }
+        }
     }
     else {
-      if (acl_check($arr[0], $arr[1])) return TRUE;
+        if (substr($arr[0], 0, 1) == '!') {
+            if (!acl_check(substr($arr[0], 1), $arr[1])) return true;
+        }
+        else {
+            if (acl_check($arr[0], $arr[1])) return true;
+        }
     }
-  }
-  return FALSE;
+    return false;
 }
 
 function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)

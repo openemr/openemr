@@ -1,32 +1,32 @@
 <?php
 
 if ($_POST['add']){
-	//validate	
-	$pat="^[a-z]{2}\$";
-	if (!check_pattern ($_POST['lang_code'],$pat)) {
-		echo htmlspecialchars(xl("Code must be two letter lowercase"),ENT_NOQUOTES).'<br>';
-		$err='y';
-	}
+    //validate
+    $pat="^[a-z]{2}\$";
+    if (!check_pattern ($_POST['lang_code'],$pat)) {
+        echo htmlspecialchars(xl("Code must be two letter lowercase"),ENT_NOQUOTES).'<br>';
+        $err='y';
+    }
 
-	$sql="SELECT * FROM lang_languages WHERE lang_code LIKE ? or lang_description LIKE ? limit 1" ;
-	$res=SqlQuery($sql, array("%".$_POST['lang_code']."%","%".$_POST['lang_name']) );
-	if ( $res ) {
-		echo htmlspecialchars(xl("Data Alike is already in database, please change code and/or description"),ENT_NOQUOTES).'<br>';
-		$err='y';
-	}
-	if ($err=='y'){
-		$val_lang_code=$_POST['lang_code'];
-		$val_lang_name=$_POST['lang_name'];
-	} else {
-	        //insert into the main table
-		$sql="INSERT INTO lang_languages SET lang_code=?, lang_description=?";
-		SqlStatement($sql, array($_POST['lang_code'],$_POST['lang_name']) );
-	        
-		//insert into the log table - to allow persistant customizations
-		insert_language_log($_POST['lang_name'],$_POST['lang_code'],'','');
-	    
-	        echo htmlspecialchars(xl('Language definition added'),ENT_NOQUOTES).'<br>';
-	}
+    $sql="SELECT * FROM lang_languages WHERE lang_code LIKE ? or lang_description LIKE ? limit 1" ;
+    $res=SqlQuery($sql, array("%".$_POST['lang_code']."%","%".$_POST['lang_name']) );
+    if ( $res ) {
+        echo htmlspecialchars(xl("Data Alike is already in database, please change code and/or description"),ENT_NOQUOTES).'<br>';
+        $err='y';
+    }
+    if ($err=='y'){
+        $val_lang_code=$_POST['lang_code'];
+        $val_lang_name=$_POST['lang_name'];
+    } else {
+            //insert into the main table
+        $sql="INSERT INTO lang_languages SET lang_code=?, lang_description=?";
+        SqlStatement($sql, array($_POST['lang_code'],$_POST['lang_name']) );
+            
+        //insert into the log table - to allow persistant customizations
+        insert_language_log($_POST['lang_name'],$_POST['lang_code'],'','');
+        
+            echo htmlspecialchars(xl('Language definition added'),ENT_NOQUOTES).'<br>';
+    }
 }
 
 ?>

@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Interface for a method of verification on a signable object
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

@@ -52,11 +52,11 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 </script>
@@ -75,10 +75,10 @@ echo "<form method='post' name='my_form' " .
 		<td class="forms">
 			<label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "fname,lname,squad");
-   echo htmlspecialchars(text($result['fname'])." ".text($result['lname']));}
+                $result = getPatientData($pid, "fname,lname,squad");
+                echo htmlspecialchars(text($result['fname'])." ".text($result['lname']));}
    $patient_name=($result['fname'])." ".($result['lname']);
-   ?>
+    ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
 		</td>
@@ -86,10 +86,10 @@ echo "<form method='post' name='my_form' " .
 		<td class="forms">
 		<label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "*");
-   echo htmlspecialchars($result['DOB']);}
+            $result = getPatientData($pid, "*");
+            echo htmlspecialchars($result['DOB']);}
    $dob=($result['DOB']);
-   ?>
+    ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
 		</td>
@@ -123,7 +123,8 @@ echo "<form method='post' name='my_form' " .
 	</tr>
 	<tr>
 
-		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal A');?>:</B>&nbsp;<?php echo xlt('Acute Intoxication/Withdrawal'); ?></td>
+		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal A');
+?>:</B>&nbsp;<?php echo xlt('Acute Intoxication/Withdrawal'); ?></td>
 
 	</tr>
 	<tr>
@@ -143,7 +144,8 @@ echo "<form method='post' name='my_form' " .
 
 	<tr>
 
-		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal B');?>:</B>&nbsp;<?php  echo xlt('Emotional / Behavioral Conditions & Complications'); ?></td>
+		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal B');
+?>:</B>&nbsp;<?php  echo xlt('Emotional / Behavioral Conditions & Complications'); ?></td>
 
 	</tr>
 	<tr>
@@ -158,7 +160,8 @@ echo "<form method='post' name='my_form' " .
 	</tr>
 
 
-		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal C');?>:</B>&nbsp;<?php  echo xlt('Relapse Potential'); ?></td>
+		<td class="forms-subtitle" colspan="4"><B><?php echo xlt('Goal C');
+?>:</B>&nbsp;<?php  echo xlt('Relapse Potential'); ?></td>
 
 	</tr>
 	<tr>

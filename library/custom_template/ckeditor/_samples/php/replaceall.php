@@ -73,16 +73,16 @@ $CKEditor->replaceAll();
 		</p>
 	</div>
 	<?php
-	// Include the CKEditor class.
-	include("../../ckeditor.php");
-	// Create a class instance.
-	$CKEditor = new CKEditor();
-	// Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
-	//   $CKEditor->basePath = '/ckeditor/'
-	// If not set, CKEditor will try to detect the correct path.
-	$CKEditor->basePath = '../../';
-	// Replace all textarea elements with CKEditor.
-	$CKEditor->replaceAll();
-	?>
+    // Include the CKEditor class.
+    include("../../ckeditor.php");
+    // Create a class instance.
+    $CKEditor = new CKEditor();
+    // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
+    //   $CKEditor->basePath = '/ckeditor/'
+    // If not set, CKEditor will try to detect the correct path.
+    $CKEditor->basePath = '../../';
+    // Replace all textarea elements with CKEditor.
+    $CKEditor->replaceAll();
+    ?>
 </body>
 </html>

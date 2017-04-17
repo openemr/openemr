@@ -32,13 +32,13 @@ class MyMailer extends PHPMailer
         switch($GLOBALS['EMAIL_METHOD'])
         {
             case "PHPMAIL" :
-            {
+                {
                 $this->Mailer = "mail";
             }
             break;
             case "SMTP" :
-            {
-		global $SMTP_Auth;
+                {
+                global $SMTP_Auth;
                 $this->Mailer = "smtp";
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
@@ -49,7 +49,7 @@ class MyMailer extends PHPMailer
             }
             break;
             case "SENDMAIL" :
-            {
+                {
                 $this->Mailer = "sendmail";
             }
             break;

@@ -21,10 +21,10 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title', xlt("Patient Portal Secure"));
-	$this->assign('nav','secureapp');
+    $this->assign('title', xlt("Patient Portal Secure"));
+    $this->assign('nav','secureapp');
 
-	$this->display('_Header.tpl.php');
+    $this->display('_Header.tpl.php');
 ?>
 
 <div class="container">
@@ -42,7 +42,8 @@
 
 		<div class="hero-unit">
 			<h1><?php echo xlt('Login'); ?></h1>
-			<p><?php echo xlt('This portals authentication.'); ?> <strong><?php echo xlt('Your credentials are provided by your provider'); ?></strong>.</p>
+			<p><?php echo xlt('This portals authentication.');
+?> <strong><?php echo xlt('Your credentials are provided by your provider'); ?></strong>.</p>
 			<p>
 				<a href="secureuser" class="btn btn-primary btn-large"><?php echo xlt('Patient Access'); ?></a>
 				<a href="secureadmin" class="btn btn-primary btn-large"><?php echo xlt('Provider Access'); ?></a>
@@ -72,7 +73,8 @@
 		<div class="hero-unit">
 			<h1>Secure <?php $this->eprint($this->page == 'userpage' ? 'Patient' : 'Provider'); ?> Page</h1>
 			<p>This page is accessible only to <?php $this->eprint($this->page == 'userpage' ? 'authenticated patients' : 'administrators'); ?>.
-			<?php echo xlt('You are currently logged in as'); ?> '<strong><?php $this->eprint($this->currentUser->Username); ?></strong>'</p>
+			<?php echo xlt('You are currently logged in as');
+?> '<strong><?php $this->eprint($this->currentUser->Username); ?></strong>'</p>
 			<p>
 				<a href="secureuser" class="btn btn-primary btn-large"><?php echo xlt('Visit Patient Home Page'); ?></a>
 				<a href="secureadmin" class="btn btn-primary btn-large"><?php echo xlt('Visit Provider Home Page'); ?></a>
@@ -84,5 +86,5 @@
 </div> <!-- /container -->
 
 <?php
-	$this->display('_Footer.tpl.php');
+    $this->display('_Footer.tpl.php');
 ?>

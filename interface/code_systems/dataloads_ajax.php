@@ -282,7 +282,8 @@ foreach ($db_list as $db) {
         </div>
         <div class="wrpr">
 	    <div class="stg_dets">
-	        <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
+	        <div class="stg_hdr" id="<?php echo attr($db);
+?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
 	        <hr>
 		<div id="<?php echo attr($db); ?>_stage_details"></div>
 		<div id='<?php echo attr($db); ?>_stg_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>

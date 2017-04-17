@@ -20,23 +20,31 @@
  * @link    http://www.open-emr.org
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
-use OpenEMR\Core\Header;
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../globals.php");
 ?>
 
 <html>
 
 <head>
-<?php
+<?php html_header_show();
 $logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
 if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST['lognext'];
 else $logtop = 0;
 ?>
 
-<?php Header::setupHeader(); ?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 
 <style type="text/css">
 
@@ -74,23 +82,33 @@ else $logtop = 0;
 <input type='hidden' name='lognext' id='lognext' value=''>
 
 <div id="report_parameters">
-    <table>
-        <tr>
-            <td width='470px'>
-                <div class="btn-group pull-left" role="group">
-                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
-                        <?php echo xlt('Refresh'); ?>
-                    </a>
-                    <a id='prev_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
-                        <?php echo xlt('Older'); ?>
-                    </a>
-                    <a id='next_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
-                        <?php echo xlt('Newer'); ?>
-                    </a>
-                </div>
-            </td>
-        </tr>
-    </table>
+<table>
+ <tr>
+  <td width='470px'>
+	<div style='float:left'>
+
+	<table class='text'>
+             <div style='margin-left:15px'>
+               <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
+               <span>
+                <?php echo xlt('Refresh'); ?>
+               </span>
+               </a>
+               <a id='prev_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+               <span>
+                <?php echo xlt('Older'); ?>
+               </span>
+               </a>
+               <a id='next_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+               <span>
+                <?php echo xlt('Newer'); ?>
+               </span>
+               </a>
+             </div>
+        </table>
+  </td>
+ </tr>
+</table>
 </div>  <!-- end of search parameters -->
 
 <br>
@@ -103,31 +121,31 @@ else $logtop = 0;
  <thead>
 
   <th align='center'>
-   <?php echo xlt('ID'); ?>
+    <?php echo xlt('ID'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Type'); ?>
+    <?php echo xlt('Type'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Date Created'); ?>
+    <?php echo xlt('Date Created'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Sender'); ?>
+    <?php echo xlt('Sender'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Recipient'); ?>
+    <?php echo xlt('Recipient'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Status'); ?>
+    <?php echo xlt('Status'); ?>
   </th>
 
   <th align='center'>
-   <?php echo xlt('Date of Status Change'); ?>
+    <?php echo xlt('Date of Status Change'); ?>
   </th>
 
  </thead>
@@ -141,43 +159,43 @@ else
     array($logtop-99,$logtop));
 
  $logstart = 0;
- while ($row = sqlFetchArray($res)) {
-   if (!$logstart) $logstart = $row['id'];
+while ($row = sqlFetchArray($res)) {
+    if (!$logstart) $logstart = $row['id'];
 ?>
- <tr>
-      <td align='center'><?php echo text($row['id']); ?></td>
+<tr>
+     <td align='center'><?php echo text($row['id']); ?></td>
 
-      <?php if ($row['msg_type'] == "R") { ?>
+        <?php if ($row['msg_type'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-      <?php } else if ($row['msg_type'] == "S") { ?>
+        <?php } else if ($row['msg_type'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
-      <?php } else {?>
+        <?php } else {?>
           <td align='center'>&nbsp;</td>
-      <?php } ?>
+        <?php } ?>
 
-      <td align='center'><?php echo text($row['create_ts']); ?></td>
-      <td align='center'><?php echo text($row['sender']); ?></td>
-      <td align='center'><?php echo text($row['recipient']); ?></td>
+     <td align='center'><?php echo text($row['create_ts']); ?></td>
+     <td align='center'><?php echo text($row['sender']); ?></td>
+     <td align='center'><?php echo text($row['recipient']); ?></td>
 
-      <?php if ($row['status'] == "Q") { ?>
+        <?php if ($row['status'] == "Q") { ?>
           <td align='center'><?php echo xlt("Queued") ?></td>
-      <?php } else if ($row['status'] == "S") { ?>
+        <?php } else if ($row['status'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
-      <?php } else if ($row['status'] == "D") { ?>
+        <?php } else if ($row['status'] == "D") { ?>
           <td align='center'><?php echo xlt("Sent - Confirmed") ?></td>
-      <?php } else if ($row['status'] == "R") { ?>
+        <?php } else if ($row['status'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-      <?php } else if ($row['status'] == "F") { ?>
+        <?php } else if ($row['status'] == "F") { ?>
           <td align='center'><?php echo xlt("Failed") ?></td>
-      <?php } else {?>
+        <?php } else {?>
           <td align='center'>&nbsp;</td>
-      <?php } ?>
+        <?php } ?>
 
-      <td align='center'><?php echo text($row['status_ts']); ?></td>
+     <td align='center'><?php echo text($row['status_ts']); ?></td>
 
- </tr>
+</tr>
 <?php
- } // $row = sqlFetchArray($res) while
+} // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>

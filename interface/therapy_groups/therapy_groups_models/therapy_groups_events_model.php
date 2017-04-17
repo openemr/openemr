@@ -34,7 +34,8 @@ class Therapy_Groups_Events{
      * @param $gid
      * @return ADORecordSet_mysqli
      */
-    public function getGroupEvents($gid){
+    public function getGroupEvents($gid)
+    {
 
         $appts_to_show = $GLOBALS['number_of_group_appts_to_show'];
         $current_date = date('Y-m-d');

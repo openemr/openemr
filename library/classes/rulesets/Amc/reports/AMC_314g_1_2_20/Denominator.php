@@ -37,6 +37,6 @@ class AMC_314g_1_2_20_Denominator implements AmcFilterIF
     
     public function test( AmcPatient $patient, $beginDate, $endDate )
     {
-		return true;
+        return true;
     }
 }

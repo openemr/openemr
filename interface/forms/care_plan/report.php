@@ -28,7 +28,8 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
-function care_plan_report($pid, $encounter, $cols, $id) {
+function care_plan_report($pid, $encounter, $cols, $id)
+{
     $count = 0;
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($id,$_SESSION["pid"], $_SESSION["encounter"]));

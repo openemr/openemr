@@ -7,15 +7,16 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function leg_length_report( $pid, $encounter, $cols, $id) {
-  $count = 0;
-  $data = formFetch("form_leg_length", $id);
-  $width = 100/$cols;
-  if ($data) {
-  ?>
+function leg_length_report( $pid, $encounter, $cols, $id)
+{
+    $count = 0;
+    $data = formFetch("form_leg_length", $id);
+    $width = 100/$cols;
+    if ($data) {
+    ?>
 
 
-<table border="1" bordercolor="#000000" cellpadding="7" cellspacing="0" class="text">
+  <table border="1" bordercolor="#000000" cellpadding="7" cellspacing="0" class="text">
 		<col>
 		<col>
 		<col>
@@ -118,7 +119,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 			</td>
 		</tr>
 	</tbody>
-</table>
+  </table>
 
 	<?php if ($data['notes'] != '') {?>
 	</p>
@@ -132,7 +133,7 @@ function leg_length_report( $pid, $encounter, $cols, $id) {
 	</table>
 	<?php } ?>
 
-  <?php
-  }
+    <?php
+    }
 }
 ?>

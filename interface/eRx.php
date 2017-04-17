@@ -31,28 +31,29 @@ require_once($GLOBALS['fileroot'].'/interface/eRxPage.php');
 
 set_time_limit(0);
 
-function array_key_exists_default($key, $search, $default = null) {
-	if(array_key_exists($key, $search)) {
-		$value = $search[$key];
-	} else {
-		$value = $default;
-	}
+function array_key_exists_default($key, $search, $default = null)
+{
+    if(array_key_exists($key, $search)) {
+        $value = $search[$key];
+    } else {
+        $value = $default;
+    }
 
-	return $value;
+    return $value;
 }
 
 $eRxPage = new eRxPage(
-	new eRxXMLBuilder(
-		new eRxGlobals($GLOBALS),
-		new eRxStore
-	)
+    new eRxXMLBuilder(
+        new eRxGlobals($GLOBALS),
+        new eRxStore
+    )
 );
 
 $eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
-	->setDestination(array_key_exists_default('page', $_REQUEST))
-	->setPatientId(array_key_exists_default('pid', $GLOBALS))
-	->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))
-	->setPrescriptionCount(60);
+    ->setDestination(array_key_exists_default('page', $_REQUEST))
+    ->setPatientId(array_key_exists_default('pid', $GLOBALS))
+    ->setPrescriptionIds(array_key_exists_default('id', $_REQUEST))
+    ->setPrescriptionCount(60);
 
 ?>
 <html>
@@ -73,9 +74,9 @@ if(count($missingExtensions) > 0) {
 
 } else {
 
-	$messages = $eRxPage->buildXML();
+    $messages = $eRxPage->buildXML();
 
-	if(count($messages['demographics']) > 0) {
+    if(count($messages['demographics']) > 0) {
 
 ?>
 		<strong><?php echo xlt('Warning'); ?>:</strong>
@@ -86,7 +87,7 @@ if(count($missingExtensions) > 0) {
 		<p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.'); ?></p>
 <?php
 
-		ob_end_flush();
+        ob_end_flush();
 
 ?>
 		<script type="text/javascript">
@@ -96,7 +97,7 @@ if(count($missingExtensions) > 0) {
 		</script>
 <?php
 
-	} elseif(count($messages['empty']) > 0) {
+    } elseif(count($messages['empty']) > 0) {
 
 ?>
 		<p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
@@ -105,9 +106,9 @@ if(count($missingExtensions) > 0) {
 		<ul>
 <?php
 
-	} else {
+    } else {
 
-		if(count($messages['warning']) > 0) {
+        if(count($messages['warning']) > 0) {
 
 ?>
 		<strong><?php echo xlt('Warning'); ?></strong>
@@ -118,17 +119,17 @@ if(count($missingExtensions) > 0) {
 		<p><strong><?php echo xlt('This will not prevent you from going to the e-Prescriptions site.'); ?></strong></p>
 <?php
 
-			ob_end_flush();
-			$delay = (count($messages) * 2000) + 3000;
-		} else {
-			$delay = 1;
-		}
+            ob_end_flush();
+            $delay = (count($messages) * 2000) + 3000;
+        } else {
+            $delay = 1;
+        }
 
-		$xml = $eRxPage->getXML();
+        $xml = $eRxPage->getXML();
 
-		$errors = $eRxPage->checkError($xml);
+        $errors = $eRxPage->checkError($xml);
 
-		if(count($errors) > 0) {
+        if(count($errors) > 0) {
 
 ?>
 		<strong><?php echo xlt('NewCrop call failed'); ?></strong>
@@ -137,9 +138,9 @@ if(count($missingExtensions) > 0) {
 		<ul>
 <?php
 
-		} else {
+        } else {
 
-			$eRxPage->updatePatientData();
+            $eRxPage->updatePatientData();
 
 ?>
 		<script type="text/javascript">
@@ -157,8 +158,8 @@ if(count($missingExtensions) > 0) {
 		</script>
 <?php
 
-		}
-	}
+        }
+    }
 }
 
 ?>

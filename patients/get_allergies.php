@@ -12,17 +12,17 @@
 
         $res = sqlStatement($sql, array($pid) );
 
-        if(sqlNumRows($res)>0)
+if(sqlNumRows($res)>0)
         {
-            ?>
-            <table class="class1">
-                <tr class="header">
-                    <th><?php echo htmlspecialchars( xl('Title'),ENT_NOQUOTES); ?></th>
-                    <th><?php echo htmlspecialchars( xl('Reported Date'),ENT_NOQUOTES); ?></th>
-                    <th><?php echo htmlspecialchars( xl('Start Date'),ENT_NOQUOTES); ?></th>
-                    <th><?php echo htmlspecialchars( xl('End Date'),ENT_NOQUOTES); ?></th>
-                    <th><?php echo htmlspecialchars( xl('Referrer'),ENT_NOQUOTES); ?></th>
-                </tr>
+    ?>
+    <table class="class1">
+        <tr class="header">
+            <th><?php echo htmlspecialchars( xl('Title'),ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Reported Date'),ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Start Date'),ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('End Date'),ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Referrer'),ENT_NOQUOTES); ?></th>
+        </tr>
             <?php
             $even=false;
             while ($row = sqlFetchArray($res)) {
@@ -42,9 +42,9 @@
                 echo "</tr>";
             }
             echo "</table>";
-        }
-        else
+}
+else
         {
-            echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
-        }
+    echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
+}
 ?>

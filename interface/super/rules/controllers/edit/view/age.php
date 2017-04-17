@@ -8,7 +8,8 @@
 ?>
 <!-- age -->
 <p class="row">
-    <span class="left_col colhead req" data-fld="fld_value"><?php echo out( xl( 'Age' ) );?> <?php echo out( xl( $criteria->getType() ) ); ?></span>
+    <span class="left_col colhead req" data-fld="fld_value"><?php echo out( xl( 'Age' ) );
+?> <?php echo out( xl( $criteria->getType() ) ); ?></span>
     <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field short" value="<?php echo out( $criteria->getRequirements() ); ?>"></span>
 </p>
 

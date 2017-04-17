@@ -32,11 +32,14 @@ if ($obj['date_of_signature'] != "") {
 
 <form method=post action="">
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
-<?php echo xlt('Printed'); ?> <?php echo dateformat(); ?>
+<?php echo xlt('Printed');
+?> <?php echo dateformat(); ?>
 <br><br>
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") echo " SELECTED"; ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") echo " SELECTED"; ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
+<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") echo " SELECTED";
+?>><?php echo xlt('WORK NOTE'); ?></option>
+<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") echo " SELECTED";
+?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
 <b><?php echo xlt('MESSAGE:'); ?></b>
@@ -46,7 +49,8 @@ if ($obj['date_of_signature'] != "") {
 
 <table>
 <tr><td>
-<span class=text><?php echo xlt('Doctor:'); ?> </span><input type=text name="doctor" value="<?php echo attr($obj["doctor"]);?>">
+<span class=text><?php echo xlt('Doctor:');
+?> </span><input type=text name="doctor" value="<?php echo attr($obj["doctor"]);?>">
 </td><td>
 <span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' name='date_of_signature' id='date_of_signature'

@@ -307,20 +307,20 @@ function ScreenAdjustment(PassedObject,CountIndex)
 function FillAmount()
  {//Called when there is change in the amount by typing.
  //Readjusts the various values.
-  <?php 
-  if($screen=='new_payment')
-   {
-  ?>
+    <?php
+    if($screen=='new_payment')
+    {
+    ?>
   	UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
-  <?php 
-   }
-  else
-   {
-  ?>
+    <?php
+    }
+    else
+    {
+    ?>
   	UnpostedAmt=document.getElementById('payment_amount').value*1;
-  <?php 
-   }
-  ?>
+    <?php
+    }
+    ?>
   
   TempTotal=0;
   for(RowCount=1;;RowCount++)
@@ -427,10 +427,10 @@ function FormValidations()
 	document.getElementById('check_number').focus();
 	return false;
    }
-  <?php 
-  if($screen=='edit_payment')
-   {
-  ?>
+    <?php
+    if($screen=='edit_payment')
+    {
+    ?>
 	   if(document.getElementById('check_number').value!='' &&
 	   document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
 		{
@@ -438,9 +438,9 @@ function FormValidations()
 		document.getElementById('payment_method').focus();
 		return false;
 		}
-  <?php 
-   }
-  ?>
+    <?php
+    }
+    ?>
    if(document.getElementById('payment_amount').value=='')
    {
     alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Amount'), ENT_QUOTES) ?>");
@@ -453,19 +453,19 @@ function FormValidations()
 	document.getElementById('payment_amount').focus();
 	return false;
    }
-  <?php 
-  if($screen=='edit_payment')
-   {
-  ?>
+    <?php
+    if($screen=='edit_payment')
+    {
+    ?>
 	  if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
 	   {
 		alert("<?php echo htmlspecialchars( xl('Please Fill the Payment Category'), ENT_QUOTES) ?>");
 		document.getElementById('adjustment_code').focus();
 		return false;
 	   }
-  <?php 
-   }
-  ?>
+    <?php
+    }
+    ?>
   if(document.getElementById('type_code').value=='')
    {
     alert("<?php echo htmlspecialchars( xl('Please Fill the Payment From'), ENT_QUOTES) ?>");

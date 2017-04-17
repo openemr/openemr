@@ -67,17 +67,20 @@
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($group_types as $type):?>
-                        <option value="<?php echo attr($type);?>"><?php echo text($type) ;?></option>
+                        <option value="<?php echo attr($type);
+?>"><?php echo text($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_status_filter"><?php echo xlt('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
-                    <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
+                    <option value="<?php echo attr($statuses[10]);
+?>"><?php echo xlt($statuses[10]);?></option>
                     <?php foreach ($statuses as $status):?>
                         <?php if($status != $statuses[10]): ?>
-                            <option value="<?php echo attr($status);?>"><?php echo xlt($status) ;?></option>
+                            <option value="<?php echo attr($status);
+?>"><?php echo xlt($status) ;?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <option value="all"><?php echo xlt("all");?></option>
@@ -88,7 +91,8 @@
                 <select type="text" class="form-control" id="counselors_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($counselors as $counselor):?>
-                        <option value="<?php echo attr($counselor);?>"><?php echo text($counselor) ;?></option>
+                        <option value="<?php echo attr($counselor);
+?>"><?php echo text($counselor) ;?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -136,16 +140,17 @@
             <tbody>
             <?php foreach ($therapyGroups as $group) : ?>
                 <tr>
-                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($group['group_id']);
+?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
                     <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
-                    <td><?php echo ($group['group_end_date'] == '0000-00-00' OR $group['group_end_date'] == '00-00-0000' OR empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
+                    <td><?php echo ($group['group_end_date'] == '0000-00-00' or $group['group_end_date'] == '00-00-0000' or empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor){
                             echo text($counselor) . " </br> ";
-                        } ;?>
+} ;?>
                     </td>
                     <td><?php echo text($group['group_notes']);?></td>
                     <td class="delete_btn">

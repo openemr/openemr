@@ -38,12 +38,12 @@ require_once("$srcdir/acl.inc");
 
 // Ensure authorized
 if (!acl_check('admin', 'users')) {
-  die(xlt("Unauthorized"));
+    die(xlt("Unauthorized"));
 }
 
 // Ensure variables exist
 if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
-  die(xlt("Error"));
+    die(xlt("Error"));
 }
 
 ?>
@@ -129,7 +129,7 @@ $l_res = sqlStatement("SELECT * FROM layout_options " .
                       "ORDER BY group_name, seq");
 $l_arr = array();
 for($i=0; $row=sqlFetchArray($l_res); $i++) {
-  $l_arr[$i]=$row;
+    $l_arr[$i]=$row;
 }
 ?>
 

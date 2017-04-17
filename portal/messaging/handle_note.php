@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *

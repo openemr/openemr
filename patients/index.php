@@ -20,10 +20,10 @@
 
     ini_set("error_log",E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
-    if ( !(isset($GLOBALS['portal_onsite_enable'])) || !($GLOBALS['portal_onsite_enable']) ) {
-      echo htmlspecialchars( xl('Patient Portal is turned off'), ENT_NOQUOTES);
-      exit;
-    }
+if ( !(isset($GLOBALS['portal_onsite_enable'])) || !($GLOBALS['portal_onsite_enable']) ) {
+    echo htmlspecialchars( xl('Patient Portal is turned off'), ENT_NOQUOTES);
+    exit;
+}
 
     // security measure -- will check on next page.
     $_SESSION['itsme'] = 1;
@@ -33,33 +33,33 @@
     // Deal with language selection
     //
     // collect default language id (skip this if this is a password update)
-    if (!(isset($_SESSION['password_update']))) {
-      $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']) );
-      for ($iter = 0;$row = sqlFetchArray($res2);$iter++) {
+if (!(isset($_SESSION['password_update']))) {
+    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']) );
+    for ($iter = 0;$row = sqlFetchArray($res2);$iter++) {
         $result2[$iter] = $row;
-      }
-      if (count($result2) == 1) {
+    }
+    if (count($result2) == 1) {
         $defaultLangID = $result2[0]{"lang_id"};
         $defaultLangName = $result2[0]{"lang_description"};
-      }
-      else {
+    }
+    else {
         //default to english if any problems
         $defaultLangID = 1;
         $defaultLangName = "English";
-      }
-      // set session variable to default so login information appears in default language
-      $_SESSION['language_choice'] = $defaultLangID;
-      // collect languages if showing language menu
-      if ($GLOBALS['language_menu_login']) {
+    }
+  // set session variable to default so login information appears in default language
+    $_SESSION['language_choice'] = $defaultLangID;
+  // collect languages if showing language menu
+    if ($GLOBALS['language_menu_login']) {
         // sorting order of language titles depends on language translation options.
         $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
         if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-          $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-          $res3=SqlStatement($sql);
-        }
+            $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
+            $res3=SqlStatement($sql);
+          }
         else {
           // Use and sort by the translated language name.
-          $sql = "SELECT ll.lang_id, " .
+            $sql = "SELECT ll.lang_id, " .
                  "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
                  "ll.lang_description " .
                  "FROM lang_languages AS ll " .
@@ -67,20 +67,20 @@
                  "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                  "ld.lang_id = ? " .
                  "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-          $res3=SqlStatement($sql, array($mainLangID) );
-        }
+            $res3=SqlStatement($sql, array($mainLangID) );
+          }
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++) {
-          $result3[$iter] = $row;
-        }
+            $result3[$iter] = $row;
+          }
         if (count($result3) == 1) {
           //default to english if only return one language
-          $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
-        }
-      }
-      else {
-        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
-      }
+            $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
+          }
     }
+    else {
+        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
+    }
+}
     
 ?>
 
@@ -222,7 +222,7 @@
 		</tr>
 
                 <?php if ($GLOBALS['language_menu_login']) { ?>
-                 <?php if (count($result3) != 1) { ?>
+                    <?php if (count($result3) != 1) { ?>
                   <tr>
                     <td><span class="text"><?php echo htmlspecialchars( xl('Language'), ENT_NOQUOTES); ?></span></td>
                     <td>
@@ -264,7 +264,7 @@
       $(document).ready(function() {
 
 <?php // if something went wrong
-     if (isset($_GET['w'])) { ?>    
+if (isset($_GET['w'])) { ?>    
 	var unique_id = $.gritter.add({
 	    title: '<span class="red"><?php echo htmlspecialchars( xl('Oops!'), ENT_QUOTES);?></span>',
 	    text: '<?php echo htmlspecialchars( xl('Something went wrong. Please try again.', ENT_QUOTES)); ?>',
@@ -275,7 +275,7 @@
 <?php } ?>
 
 <?php // if successfully logged out
-     if (isset($_GET['logout'])) { ?>    
+if (isset($_GET['logout'])) { ?>    
 	var unique_id = $.gritter.add({
 	    title: '<span class="green"><?php echo htmlspecialchars( xl('Success'), ENT_QUOTES);?></span>',
 	    text: '<?php echo htmlspecialchars( xl('You have been successfully logged out.'), ENT_QUOTES);?>',

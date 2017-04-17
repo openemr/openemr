@@ -29,25 +29,25 @@
     include_once("$srcdir/acl.inc");
     include_once("$srcdir/lists.inc");
     include_once("$srcdir/api.inc");
-  	require_once("$srcdir/forms.inc");
+    require_once("$srcdir/forms.inc");
 
     $form_name = "Eye Form";
     $form_folder = "eye_mag";
     include_once($GLOBALS['webserver_root']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
 
-	$pid = $_SESSION['pid'];
-	$display = $_REQUEST['display'];
-	$category_id = $_REQUEST['category_id'];
-	$encounter = $_REQUEST['encounter'];
-	$category_name = $_REQUEST['category_name'];
+    $pid = $_SESSION['pid'];
+    $display = $_REQUEST['display'];
+    $category_id = $_REQUEST['category_id'];
+    $encounter = $_REQUEST['encounter'];
+    $category_name = $_REQUEST['category_name'];
 
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
 
     $providerID  =  getProviderIdOfEncounter($encounter);
-	$providerNAME = getProviderName($providerID);
-	$query = "SELECT * FROM users where id = ?";
-	$prov_data =  sqlQuery($query,array($providerID));
+    $providerNAME = getProviderName($providerID);
+    $query = "SELECT * FROM users where id = ?";
+    $prov_data =  sqlQuery($query,array($providerID));
 
     $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter
     where
@@ -59,9 +59,9 @@
     $encounter_data =sqlQuery($query,array($encounter,$pid));
     $dated = new DateTime($encounter_data['encounter_date']);
     $dated = $dated->format('Y-m-d');
-	$visit_date = oeFormatShortDate($dated);
+    $visit_date = oeFormatShortDate($dated);
 
- 	list($documents) = document_engine($pid);
+    list($documents) = document_engine($pid);
 
 ?><!DOCTYPE html>
 <html>
@@ -235,7 +235,8 @@
 	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
 	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 	    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'];
+?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -316,55 +317,57 @@
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true"><?php echo xlt('Images'); ?></a>
                         <ul class="dropdown-menu" role="menu">
                             <?php
-			 				$i='0';
-					      	foreach ($documents['zones'] as $zone) {
-					      		if ($zone[0]['value'] == "DRAW") continue; //for now DRAW is under OTHER...
-						      	//menu friendly names:
-						      	if ($zone[0]['value'] == "EXT") $name = xl("External");
-						      	if ($zone[0]['value'] == "ANTSEG") $name = xl("Anterior Segment");
-						      	if ($zone[0]['value'] == "POSTSEG") $name = xl("Posterior Segment");
-						      	if ($zone[0]['value'] == "NEURO") $name = xl("Neuro-physiology");
+                            $i='0';
+                            foreach ($documents['zones'] as $zone) {
+                                if ($zone[0]['value'] == "DRAW") continue; //for now DRAW is under OTHER...
+                                //menu friendly names:
+                                if ($zone[0]['value'] == "EXT") $name = xl("External");
+                                if ($zone[0]['value'] == "ANTSEG") $name = xl("Anterior Segment");
+                                if ($zone[0]['value'] == "POSTSEG") $name = xl("Posterior Segment");
+                                if ($zone[0]['value'] == "NEURO") $name = xl("Neuro-physiology");
 
-						      	$class = "git";
-						      	if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
-						      	if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
-					    	  		if ($zone[0][value] == $category_name) {
-					      				$class='play';
-					      			} else {
-					      				$class = "git";
-					      			}
-					      			$count = count($documents['docs_in_zone'][$zone[0][value]]);
-					      				if ($count!=1) {$s =xla('s{{suffix to make Document plural, ie. Documents}}');} else {$s='';}
-					      			$response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'"
-										class="'.$class.' "
-										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
-										text($name).'</a>
-										'.$append;
-										$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
-										class="'.$class.' "
-										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
-										text($name).' <span class="menu_icon">+'.$count.'</span></a></li>';
-					    	  	} else {
-					      			$class="current";
-					      			$response[$zone[0][value]] =  '<a title="'.xla('No Documents').'"
-							  				class="'.$class.' borderShadow"
-											disabled >'.text($name).'</a>
-										';
-									$menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
-										class="'.$class.'"
-										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
-										text($name).'</a></li>';
-					      		}
-							}
-							echo $menu['EXT'].$menu['ANTSEG'].$menu['POSTSEG'].$menu['NEURO'];
+                                $class = "git";
+                                if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
+                                if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
+                                    if ($zone[0][value] == $category_name) {
+                                        $class='play';
+                                    } else {
+                                        $class = "git";
+                                    }
+                                    $count = count($documents['docs_in_zone'][$zone[0][value]]);
+                                    if ($count!=1) {$s =xla('s{{suffix to make Document plural, ie. Documents}}');
+                                    } else {$s='';}
+                                    $response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'"
+                                        class="'.$class.' "
+                                        href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
+                                        text($name).'</a>
+                                        '.$append;
+                                        $menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
+                                        class="'.$class.' "
+                                        href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
+                                        text($name).' <span class="menu_icon">+'.$count.'</span></a></li>';
+                                } else {
+                                    $class="current";
+                                    $response[$zone[0][value]] =  '<a title="'.xla('No Documents').'"
+                                            class="'.$class.' borderShadow"
+                                            disabled >'.text($name).'</a>
+                                        ';
+                                    $menu[$zone[0][value]] = '<li><a title="'.$count.' '.xla('Document'). $s.'"
+                                        class="'.$class.'"
+                                        href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name='.attr($zone[0][value]).'">'.
+                                        text($name).'</a></li>';
+                                }
+                            }
+                            echo $menu['EXT'].$menu['ANTSEG'].$menu['POSTSEG'].$menu['NEURO'];
 
-							if ($category_name == "OTHER") {$class='play'; } else { $class = "git"; }
-					    	echo '<li><a title="'.xla('Other Documents').'"
-										class="'.$class.'"  style="'.$style.'"
-										href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name=OTHER">
-										'.xlt('OTHER').'<span class="menu_icon">+</span></a></li>
-										';
-							?>
+                            if ($category_name == "OTHER") {$class='play';
+                            } else { $class = "git"; }
+                            echo '<li><a title="'.xla('Other Documents').'"
+                                        class="'.$class.'"  style="'.$style.'"
+                                        href="Anything_simple.php?display=i&encounter='.attr($encounter).'&category_name=OTHER">
+                                        '.xlt('OTHER').'<span class="menu_icon">+</span></a></li>
+                                        ';
+                            ?>
 						</ul>
 					</li>
 
@@ -396,44 +399,44 @@
                    	<!-- let's import the original openEMR menu_bar here.  Needs to add restoreSession stuff? -->
                     <?php
                         $reg = Menu_myGetRegistered();
-                        if (!empty($reg)) {
-                            $StringEcho= '<li class="dropdown">';
-                            if ( $encounterLocked === false || !(isset($encounterLocked))) {
-                                foreach ($reg as $entry) {
-                                    $new_category = trim($entry['category']);
-                                    $new_nickname = trim($entry['nickname']);
-                                    if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
-                                    if ($new_nickname != '') {$nickname = $new_nickname;}
-                                    else {$nickname = $entry['name'];}
-                                    if ($old_category != $new_category) { //new category, new menu section
-                                        $new_category_ = $new_category;
-                                        $new_category_ = str_replace(' ','_',$new_category_);
-                                        if ($old_category != '') {
-                                            $StringEcho.= "
+                    if (!empty($reg)) {
+                        $StringEcho= '<li class="dropdown">';
+                        if ( $encounterLocked === false || !(isset($encounterLocked))) {
+                            foreach ($reg as $entry) {
+                                $new_category = trim($entry['category']);
+                                $new_nickname = trim($entry['nickname']);
+                                if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+                                if ($new_nickname != '') {$nickname = $new_nickname;}
+                                else {$nickname = $entry['name'];}
+                                if ($old_category != $new_category) { //new category, new menu section
+                                    $new_category_ = $new_category;
+                                    $new_category_ = str_replace(' ','_',$new_category_);
+                                    if ($old_category != '') {
+                                        $StringEcho.= "
                                                 </ul>
                                             </li>
                                             <li class='dropdown'>
                                             ";
-                                        }
-                                      $StringEcho.= '
+                                    }
+                                    $StringEcho.= '
                                       <a class="dropdown-toggle" data-toggle="dropdown"
                                         id="menu_dropdown_'.attr($new_category_).'" role="button"
                                         aria-expanded="false">'.text($new_category).' </a>
                                         <ul class="dropdown-menu" role="menu">
                                         ';
-                                      $old_category = $new_category;
-                                    }
-                                    $StringEcho.= "<li>
+                                    $old_category = $new_category;
+                                }
+                                $StringEcho.= "<li>
                                     <a target='RBot' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
                                     <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
-                                    xl_form_title($nickname) . "</a></li>";
-                              }
-                          }
-                          $StringEcho.= '
+                                xl_form_title($nickname) . "</a></li>";
+                            }
+                        }
+                        $StringEcho.= '
                             </ul>
                           </li>
                           ';
-                        }
+                    }
                         echo $StringEcho;
                     ?>
                     <li class="dropdown">
@@ -443,10 +446,12 @@
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop"
                             href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view&framewidth=1020">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>&nbsp;<?php echo xlt("Calendar"); ?><span class="menu_icon"><i class="fa fa-calendar"></i>  </span></a></li>
+                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame');
+?>"></i>&nbsp;<?php echo xlt("Calendar"); ?><span class="menu_icon"><i class="fa fa-calendar"></i>  </span></a></li>
                             <li role="presentation" class="divider"></li>
                             <li role="presentation"><a target="RTop" role="menuitem" tabindex="-1"
-                                href="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&list&patient_id=<?php echo attr($pid); ?>">
+                                href="<?php echo $GLOBALS['webroot'];
+?>/controller.php?document&list&patient_id=<?php echo attr($pid); ?>">
                                 <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
                                 <?php echo xlt("Documents"); ?></a></li>
                         </ul>
@@ -457,7 +462,8 @@
                            aria-expanded="true"><?php echo xlt("Help"); ?> </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                             <li role="presentation"><a role="menuitem" tabindex="-1" target="_blank" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
-                                <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help"); ?><span class="menu_icon"><i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
+                                <i class="fa fa-help"></i>  <?php echo xlt("Shorthand Help");
+?><span class="menu_icon"><i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                         </ul>
                     </li>
@@ -472,38 +478,39 @@
 			<!-- Links to other demo pages & docs -->
 			<div id="nav" style="position:absolute;top:0.0in;text-align:center;">
 				<?php
-				foreach ($documents['zones'][$category_name] as $zone) {
-					$class = "git";
-		    		$append ='';
-		    		if ($category_id == $zone['id']) {
-		    			$class="play";
-		    			$append = "<i class='fa fa-arrow-down'></i>"; }
+                foreach ($documents['zones'][$category_name] as $zone) {
+                    $class = "git";
+                    $append ='';
+                    if ($category_id == $zone['id']) {
+                        $class="play";
+                        $append = "<i class='fa fa-arrow-down'></i>"; }
 
-					if ($zone['name'] == xl('Advance Directives') ||
-						$zone['name'] == xl('Durable Power of Attorney') ||
-						$zone['name'] == xl('Patient Information') ||
-						$zone['name'] == xl('Living Will') ||
-						$zone['name'] == xl('Imaging')) {
-					} else {
-						$count = count($documents['docs_in_name'][$zone['name']]);
-		      				if ($count!=1) {$s ="s";} else {$s='';}
-		      			$disabled='';
-						if ($count =='0') {
-							$class = 'current';
-							$disabled = "disabled='disabled'";
-							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="" >
-								<span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a>
-							'.$append;
-						} else {
+                    if ($zone['name'] == xl('Advance Directives') ||
+                        $zone['name'] == xl('Durable Power of Attorney') ||
+                        $zone['name'] == xl('Patient Information') ||
+                        $zone['name'] == xl('Living Will') ||
+                        $zone['name'] == xl('Imaging')) {
+                    } else {
+                        $count = count($documents['docs_in_name'][$zone['name']]);
+                        if ($count!=1) {$s ="s";
+                        } else {$s='';}
+                        $disabled='';
+                        if ($count =='0') {
+                            $class = 'current';
+                            $disabled = "disabled='disabled'";
+                            echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="" >
+                                <span class="borderShadow '.$class.'">'.text($zone['name']).'</span></a>
+                            '.$append;
+                        } else {
 
-							echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'"
-								href="Anything_simple.php?display=i&category_id='.$zone['id'].'&encounter='.$encounter.'&category_name='.$category_name.'">
-								<span  class="borderShadow">'.text($zone['name']).'</span></a>
-								'.$append;
-						}
-					}
-				}
-				?>
+                            echo ' <a '.$disabled.' title="'.$count.' '.xla('Document').$s.'" class="'.$class.'"
+                                href="Anything_simple.php?display=i&category_id='.$zone['id'].'&encounter='.$encounter.'&category_name='.$category_name.'">
+                                <span  class="borderShadow">'.text($zone['name']).'</span></a>
+                                '.$append;
+                        }
+                    }
+                }
+                ?>
 			</div>
 		</div>
 		<!-- End Links -->
@@ -512,41 +519,41 @@
 	<!-- Simple AnythingSlider -->
 	<ul id="slider">
 		<?php
-		$i='0';
-		if ($category_id) {
-			$counter = count($documents['docs_in_cat_id'][$category_id]) -10;
-			if ($counter <0) $counter ='0';
-			for ($i=$counter;$i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
-				echo '
-				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_cat_id'][$category_id][$i][id]).'&amp;as_file=false" frameborder="0"
-				 type="'.attr($documents['docs_in_cat_id'][$category_id][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
-				 ';
-			}
-		} else {
-			$counter = count($documents['docs_in_zone'][$category_id]) -10;
-			if ($counter <0) $counter ='0';
-			for ($i=$counter;$i < count($documents['docs_in_zone'][$category_name]); $i++) {
-				echo '
-				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_zone'][$category_name][$i][id]).'&amp;as_file=false" frameborder="0"
-				 type="'.attr($documents['docs_in_zone'][$category_name][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
-				 ';
-			}
-		}
-		?>
+        $i='0';
+        if ($category_id) {
+            $counter = count($documents['docs_in_cat_id'][$category_id]) -10;
+            if ($counter <0) $counter ='0';
+            for ($i=$counter;$i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
+                echo '
+                <object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_cat_id'][$category_id][$i][id]).'&amp;as_file=false" frameborder="0"
+                 type="'.attr($documents['docs_in_cat_id'][$category_id][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
+                 ';
+            }
+        } else {
+            $counter = count($documents['docs_in_zone'][$category_id]) -10;
+            if ($counter <0) $counter ='0';
+            for ($i=$counter;$i < count($documents['docs_in_zone'][$category_name]); $i++) {
+                echo '
+                <object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_zone'][$category_name][$i][id]).'&amp;as_file=false" frameborder="0"
+                 type="'.attr($documents['docs_in_zone'][$category_name][$i]['mimetype']).'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
+                 ';
+            }
+        }
+        ?>
 	</ul>
 
 	<!-- END AnythingSlider -->
 	<center>
 		<?php
-  		$output = menu_overhaul_left($pid,$encounter);
-    	echo $output;
-		?>
+        $output = menu_overhaul_left($pid,$encounter);
+        echo $output;
+        ?>
 	</center>
 	<?php
     if ($display=="fullscreen") {
        // this function is in php/".$form_name."_functions.php
-      $output = menu_overhaul_bottom($pid,$encounter);
-      echo $output;
+        $output = menu_overhaul_bottom($pid,$encounter);
+        echo $output;
     }
     ?>
 	</body>

@@ -33,6 +33,6 @@ $result = cms_portal_call(array(
 ));
 
 if ($result['errmsg']) {
- echo xl('Failed to add patient to portal') . ": " . $result['errmsg'];
+    echo xl('Failed to add patient to portal') . ": " . $result['errmsg'];
 }
 ?>

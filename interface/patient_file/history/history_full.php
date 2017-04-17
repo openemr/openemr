@@ -19,8 +19,14 @@
  * @link    http://www.open-emr.org
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
-use OpenEMR\Core\Header;
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
@@ -33,30 +39,44 @@ $CPR = 4; // cells per row
 
 // Check authorization.
 if (acl_check('patients','med')) {
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die(htmlspecialchars(xl("Not authorized for this squad."),ENT_NOQUOTES));
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+    die(htmlspecialchars(xl("Not authorized for this squad."),ENT_NOQUOTES));
 }
 if ( !acl_check('patients','med','',array('write','addonly') ))
   die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
-<title><?php xl("History & Lifestyle", 'e');?></title>
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<style>
+.control_label {
+ font-family: Arial, Helvetica, sans-serif;
+ font-size: 10pt;
+}
+</style>
+
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
  var code_options_js = Array();
 
- <?php
- $smoke_codes = getSmokeCodes();
+    <?php
+    $smoke_codes = getSmokeCodes();
 
- foreach ($smoke_codes as $val => $code) {
+    foreach ($smoke_codes as $val => $code) {
             echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
-      }
- ?>
+    }
+    ?>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -204,11 +224,6 @@ $(document).ready(function(){
 </script>
 
 <style type="text/css">
-.form-control {
-    width: auto;
-    display: inline;
-    height: auto;
-}
 div.tab {
 	height: auto;
 	width: auto;
@@ -218,59 +233,59 @@ div.tab {
 </head>
 <body class="body_top">
 
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <?php
-            $result = getHistoryData($pid);
-            if (!is_array($result)) {
-              newHistoryData($pid);
-              $result = getHistoryData($pid);
-            }
+<?php
+$result = getHistoryData($pid);
+if (!is_array($result)) {
+    newHistoryData($pid);
+    $result = getHistoryData($pid);
+}
 
-            $fres = sqlStatement("SELECT * FROM layout_options " .
-              "WHERE form_id = 'HIS' AND uor > 0 " .
-              "ORDER BY group_name, seq");
-            ?>
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'HIS' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+?>
 
-            <?php
-            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
-            $constraints = LBF_Validation::generate_validate_constraints("HIS");
-            ?>
-            <script> var constraints = <?php echo $constraints;?>; </script>
+<?php
+/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+$constraints = LBF_Validation::generate_validate_constraints("HIS");
+?>
+<script> var constraints = <?php echo $constraints;?>; </script>
 
-            <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
-                <input type='hidden' name='mode' value='save'>
+<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
+    <input type='hidden' name='mode' value='save'>
 
-                <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
-                </div>
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
-                    <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
-                        <?php echo xlt('Cancel'); ?>
-                    </a>
-                </div>
+    <div>
+        <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
+    </div>
+    <div id='namecontainer_fhistory' class='namecontainer_fhistory' style='float:left;margin-right:10px'>
+    <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);
+?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
+    </div>
+    <div>
+        <input class="css_btn"  type="submit" value="<?php xl('Save','e'); ?>">
 
-                <br/>
+        <a href="history.php" class="css_button" onclick="top.restoreSession()">
+            <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
+        </a>
+    </div>
 
-                <!-- history tabs -->
-                <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
-                    <ul class="tabNav" >
-                       <?php display_layout_tabs('HIS', $result, $result2); ?>
-                    </ul>
+    <br/>
 
-                    <div class="tabContainer">
-                        <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
-                    </div>
-                </div>
-            </form>
+    <!-- history tabs -->
+    <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
+        <ul class="tabNav" >
+            <?php display_layout_tabs('HIS', $result, $result2); ?>
+        </ul>
 
-            <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+        <div class="tabContainer">
+            <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
         </div>
     </div>
-</div>
+</form>
+
+<!-- include support for the list-add selectbox feature -->
+<?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+
 </body>
 
 <script language="JavaScript">

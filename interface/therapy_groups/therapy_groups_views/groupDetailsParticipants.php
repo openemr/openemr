@@ -24,12 +24,7 @@
  * @link    http://www.open-emr.org
  */
 ?>
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $edit_encounter = acl_check("groups","glog",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
-
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
 <main id="group-details">
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupName);?></span>
@@ -38,21 +33,21 @@
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupId); ?>"><?php echo xlt('General data');?></a></li>
-                            <li class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupId);
+?>"><?php echo xlt('General data');?></a></li>
+                            <li class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId);
+?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <?php if($edit) :?>
-                            <?php if($edit_encounter):?>
-                                <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
-                            <?php endif;?>
+                        <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                         <?php if($readonly == ''): ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId);
+?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
                         <?php else: ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
-                        <?php endif; ?>
+                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId);
+?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -80,7 +75,7 @@
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])): oeFormatShortDate(date('Y-m-d'));?>">
+                                                        <input type="text" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_start']): date('Y-m-d');?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -90,15 +85,13 @@
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
-                                                <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
+                                                <input type="text" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
-                                                <?php if($edit) :?>
                                                 <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
-                                                <?php endif;?>
                                             </div>
                                         </div>
                                         <?php if(isset($message)): ?>
@@ -120,9 +113,7 @@
                                 <div class="col-md-12">
                                     <form id="updateParticipants" method="post">
                                         <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>" />
-                                        <?php if($edit) :?>
                                         <button id="addParticipant"><?php echo xlt('Add'); ?></button>
-                                        <?php endif;?>
                                         <table  id="participants_table" class="dataTable display">
                                             <thead>
                                             <tr>
@@ -148,13 +139,18 @@
                                                     <td>
                                                         <select name="group_patient_status[]" <?php echo $readonly; ?>>
                                                             <?php foreach ($statuses as $key => $status): ?>
-                                                                <option value="<?php echo attr($key);?>" <?php if($key == $participant['group_patient_status']) echo 'selected'; ?> > <?php echo text($status); ?> </option>
+                                                                <option value="<?php echo attr($key);
+?>" <?php if($key == $participant['group_patient_status']) echo 'selected';
+?> > <?php echo text($status); ?> </option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_comment[]" class="full-width"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
+                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr($participant['group_patient_start']);
+?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr($participant['group_patient_end']) ;
+?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo attr($participant['group_patient_comment']);
+?>" <?php echo $readonly; ?> /></td>
                                                     <?php if($readonly == ''): ?>
                                                         <td class="delete_btn">
                                                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) .'&deleteParticipant=1&pid=' . attr($participant['pid']); ?>"><span>X</span></a>
@@ -182,7 +178,7 @@
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -192,13 +188,11 @@
                 { "width": "35%", "targets": 5 }
             ],
             "pageLength":6,
-            //order by status doesn't work with js therefore sorting done by php.
-            "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
                                                           'zeroRecords'=>(xla('Nothing found - sorry')),
-                                                          'info'=>(xla('Showing') .' _START_ '. xla('to') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('participants')),
+                                                          'info'=>(xla('Showing page') .' _PAGE_ '. xla('of') . ' _PAGES_'),
                                                           'infoEmpty'=>(xla('No records available')),
                                                           'infoFiltered'=>('('.xla('filtered from').' _MAX_ '.xla('total records').')'),
                                                           'infoPostFix'=>(''),
@@ -253,9 +247,6 @@
         $('#cancelAddParticipant').on('click', function(e){
             e.preventDefault();
             $('#add-participant-form').removeClass('showAddForm');
-            $('#participant_name').val('');
-            $('#group_patient_comment').val('');
-            $('#group_patient_start').val('<?php echo date('Y-m-d');?>');
         });
 
         $('#participant_name').on('click', function(){
@@ -317,15 +308,3 @@
 <script src="<?php echo $GLOBALS['webroot']?>/library/dialog.js"></script>
 <?php require 'footer.php'; ?>
 
-<?php else :?>
-
-    <div class="container">
-
-        <div class="row alert alert-info">
-            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
-        </div>
-    </div>
-
-
-
-<?php endif;?>

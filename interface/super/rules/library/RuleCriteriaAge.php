@@ -20,17 +20,20 @@ class RuleCriteriaAge extends RuleCriteria {
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct( $type, $value = null, $timeUnit = null) {
+    function __construct( $type, $value = null, $timeUnit = null)
+    {
         $this->type = $type;
         $this->value = $value;
         $this->timeUnit = $timeUnit;
     }
 
-    function getRequirements() {
+    function getRequirements()
+    {
         return $this->value;
     }
 
-    function getTitle() {
+    function getTitle()
+    {
         $title = xl( "Age" );
         if ( $this->type == "min" ) {
             $title .= " " . xl( "Min" );
@@ -42,7 +45,8 @@ class RuleCriteriaAge extends RuleCriteria {
         return $title;
     }
 
-    function getType() {
+    function getType()
+    {
         if ( $this->type == "min" ) {
             return xl( "Min" );
         } else {
@@ -50,11 +54,13 @@ class RuleCriteriaAge extends RuleCriteria {
         }
     }
 
-    function getView() {
+    function getView()
+    {
         return "age.php";
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "age_" . $this->type;
@@ -63,7 +69,8 @@ class RuleCriteriaAge extends RuleCriteria {
         return $dbView;
     }
 
-    function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
         $age = _post("fld_value");
         $timeUnit = TimeUnit::from( _post("fld_timeunit") );

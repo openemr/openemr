@@ -31,7 +31,8 @@ function checkLength(eleName,eleVal,len)
     eleName=eleName.replace('form_','');
     var m='';
     if(eleVal.length>len)
-        m += '<?php echo xl("Invalid length for")." "; ?>'+eleName.toUpperCase()+'.<?php echo " ".xl("The length should not exceed the following number of characters")." : "; ?>'+len+"\n";
+        m += '<?php echo xl("Invalid length for")." ";
+?>'+eleName.toUpperCase()+'.<?php echo " ".xl("The length should not exceed the following number of characters")." : "; ?>'+len+"\n";
     return m;
 }
 

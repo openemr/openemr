@@ -21,10 +21,10 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title', xlt("Patient Portal") . " | " . xlt("File Not Found"));
-	$this->assign('nav','home');
+    $this->assign('title', xlt("Patient Portal") . " | " . xlt("File Not Found"));
+    $this->assign('nav','home');
 
-	$this->display('_Header.tpl.php');
+    $this->display('_Header.tpl.php');
 ?>
 
 <div class="container">
@@ -39,5 +39,5 @@
 </div> <!-- /container -->
 
 <?php
-	$this->display('_Footer.tpl.php');
+    $this->display('_Footer.tpl.php');
 ?>

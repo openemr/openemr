@@ -172,7 +172,8 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
                             <tr class="text <?php echo $class;?>">
                                 <td class="right bottom left"><?php echo htmlspecialchars($i,ENT_QUOTES);?></td>
                                 <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES);?></td>
-                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'],ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES);?>")'><img src='../../images/b_edit.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'],ENT_QUOTES);
+?>","<?php echo htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES);?>")'><img src='../../images/b_edit.png' border=0></a></td>
                                 <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'],ENT_QUOTES);?>)"><img src='../../images/deleteBtn.png' border=0></a></td>
                             </tr>
                         <?php
@@ -183,11 +184,13 @@ elseif($_POST['action']=='update' && $_POST['item']!=''){
             </tr>
             <tr id="contextadd">
                 <td colspan="3"><input type="text" name="contextname" id="contextname"></td>
-                <td colspan="1"><a href="#" onclick="checkSubmit()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);?><a href="#" id="cancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkSubmit()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);
+?><a href="#" id="cancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
             </tr>
             <tr id="contextupdate">
                 <td colspan="3"><input type="text" name="updatecontextname" id="updatecontextname"></td>
-                <td colspan="1"><a href="#" onclick="checkUpdate()" class="css_button"><span><?php echo htmlspecialchars(xl('Update'),ENT_QUOTES);?><a href="#" id="ucancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkUpdate()" class="css_button"><span><?php echo htmlspecialchars(xl('Update'),ENT_QUOTES);
+?><a href="#" id="ucancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></td>
             </tr>
             <input type="hidden" name="action" id="action">
             <input type="hidden" name="item" id="item">

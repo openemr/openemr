@@ -11,7 +11,7 @@ require_once ("EmailMessage");
  * This extends EmailMessage due to
  * namespace collision issues using the classname Message.
  * @depreated please use EmailMessage instead
- * 
+ *
  * @package verysimple::Email
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.

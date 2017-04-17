@@ -1,7 +1,7 @@
 <?php
 /**
  * Utility functions for retrieving fee sheet options.
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ class fee_sheet_option
 }
 /**
  * get a list of fee sheet options
- * 
+ *
  * @param string $pricelevel which pricing level to retrieve
  * @return an array containing the options
  */

@@ -7,14 +7,15 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function rom_report( $pid, $encounter, $cols, $id) {
-  $count = 0;
-  $data = formFetch("form_rom", $id);
-  if ($data) {
+function rom_report( $pid, $encounter, $cols, $id)
+{
+    $count = 0;
+    $data = formFetch("form_rom", $id);
+    if ($data) {
 
-?>
+    ?>
 
-<table border='1' bordercolor='#000000' cellpadding='7' cellspacing='0'  class='text'>
+  <table border='1' bordercolor='#000000' cellpadding='7' cellspacing='0'  class='text'>
 		<col>
 		<col>
 		<col>
@@ -1123,6 +1124,6 @@ function rom_report( $pid, $encounter, $cols, $id) {
 	<?php } ?>
 
 <?php
-  }
+    }
 }
 ?>

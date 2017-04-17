@@ -34,28 +34,28 @@ require_once("$srcdir/acl.inc");
 
 // Ensure authorized
 if (!acl_check('admin', 'users')) {
-  die(xlt("Unauthorized"));
+    die(xlt("Unauthorized"));
 }
 
 $alertmsg = '';
 
 if ( isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POST["user_id"]) && isset($_POST["fac_id"]) ) {
   // Inserting/Updating new facility specific user information
-  $fres = sqlStatement("SELECT * FROM `layout_options` " .
+    $fres = sqlStatement("SELECT * FROM `layout_options` " .
                        "WHERE `form_id` = 'FACUSR' AND `uor` > 0 AND `field_id` != '' " .
                        "ORDER BY `group_name`, `seq`");
-  while ($frow = sqlFetchArray($fres)) {
-    $value = get_layout_form_value($frow);
-    $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id']) );
-    if (empty($entry_id)) {
-      // Insert new entry
-      sqlInsert("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id'], $value) );
+    while ($frow = sqlFetchArray($fres)) {
+        $value = get_layout_form_value($frow);
+        $entry_id = sqlQuery("SELECT `id` FROM `facility_user_ids` WHERE `uid` = ? AND `facility_id` = ? AND `field_id` =?", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id']) );
+        if (empty($entry_id)) {
+          // Insert new entry
+            sqlInsert("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id'], $value) );
+        }
+        else {
+          // Update existing entry
+            sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value,$entry_id['id']) );
+        }
     }
-    else {
-      // Update existing entry
-      sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value,$entry_id['id']) );
-    }
-  }
 }
 
 ?>
@@ -104,7 +104,7 @@ $u_res = sqlStatement("select * from `users` WHERE `username` != '' AND `active`
 $f_res = sqlStatement("select * from `facility` order by `name`");
 $f_arr = array();
 for($i=0; $row=sqlFetchArray($f_res); $i++) {
-  $f_arr[$i]=$row;
+    $f_arr[$i]=$row;
 }
 
 // Collect layout information and store them in an array
@@ -113,7 +113,7 @@ $l_res = sqlStatement("SELECT * FROM layout_options " .
                       "ORDER BY group_name, seq");
 $l_arr = array();
 for($i=0; $row=sqlFetchArray($l_res); $i++) {
-  $l_arr[$i]=$row;
+    $l_arr[$i]=$row;
 }
 
 ?>
@@ -139,29 +139,31 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 					<th width="190px"><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
                                         <?php
                                         foreach ($l_arr as $layout_entry) {
-                                          echo "<th width='100px'><b><span class='bold'>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</span></b></th>";
+                                            echo "<th width='100px'><b><span class='bold'>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</span></b></th>";
                                         }
                                         ?>
 				</tr>
 					<?php
-					while ($user = sqlFetchArray($u_res)) {
-						foreach ($f_arr as $facility) {
-					?>
+                    while ($user = sqlFetchArray($u_res)) {
+                        foreach ($f_arr as $facility) {
+                    ?>
 				<tr height="20"  class="text" style="border-bottom: 1px dashed;">
-				   <td class="text"><b><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);?>&fac_id=<?php echo attr($facility['id']);?>" class="iframe_small" onclick="top.restoreSession()"><span><?php echo text($user['username']);?></span></a></b>&nbsp;</td>
+				   <td class="text"><b><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);
+?>&fac_id=<?php echo attr($facility['id']);
+?>" class="iframe_small" onclick="top.restoreSession()"><span><?php echo text($user['username']);?></span></a></b>&nbsp;</td>
 				   <td><span class="text"><?php echo text($user['fname'] . " " . $user['lname']);?></span>&nbsp;</td>
 				   <td><span class="text"><?php echo text($facility['name']);?>&nbsp;</td>
-                                   <?php
-                                   foreach ($l_arr as $layout_entry) {
-                                     $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
+                                    <?php
+                                    foreach ($l_arr as $layout_entry) {
+                                        $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                                             "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']) );
-                                     echo "<td><span class='text'>" . generate_display_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
-                                   }
-                                   ?>
+                                        echo "<td><span class='text'>" . generate_display_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
+                                    }
+                                    ?>
 				</tr>
 				<?php
-				}}
-				?>
+                        }}
+                ?>
 				</tbody>
 			</table>
 		</div>

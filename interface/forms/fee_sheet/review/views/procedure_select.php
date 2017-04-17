@@ -2,7 +2,7 @@
 /**
  * knockoutjs template for rendering the procedure selector when reviewing
  * old fee sheets
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

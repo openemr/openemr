@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc");
 require_once("../../../library/log.inc");
@@ -13,13 +13,16 @@ $oemrdb = $GLOBALS['dbh'];
 
 <?php
 // check for required data
-if (! isset($parameters['masterid'])) { echo "Missing a Master Merge ID"; exit; }
-if (! isset($parameters['otherid'])) { echo "Missing a Other matching IDs"; exit; }
+if (! isset($parameters['masterid'])) { echo "Missing a Master Merge ID";
+    exit; }
+if (! isset($parameters['otherid'])) { echo "Missing a Other matching IDs";
+    exit; }
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id='".$parameters['masterid']."'";
 $qResults = sqlStatement($sqlstmt);
-if (! $qResults) { echo "Error fetching master PID."; exit; }
+if (! $qResults) { echo "Error fetching master PID.";
+    exit; }
 $row = sqlFetchArray($qResults);
 $masterPID = $row['pid'];
 
@@ -32,7 +35,8 @@ foreach ($parameters['otherid'] as $otherID) {
     // get info about the "otherID"
     $sqlstmt = "select lname, pid from patient_data where id='".$otherID."'";
     $qResults = sqlStatement($sqlstmt);
-    if (! $qResults) { echo "Error fetching master PID."; exit; }
+    if (! $qResults) { echo "Error fetching master PID.";
+        exit; }
     $orow = sqlFetchArray($qResults);
     $otherPID = $orow['pid'];
     
@@ -93,7 +97,8 @@ foreach ($parameters['otherid'] as $otherID) {
     echo "<br><br>";
 } // end of otherID loop
 
-function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue) {
+function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
+{
     global $commitchanges, $oemrdb;
 
     $sqlstmt = "select count(*) as numrows from ".$tablename." where ".$pid_col."='".$oldvalue."'";

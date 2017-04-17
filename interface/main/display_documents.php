@@ -38,11 +38,11 @@ $form_from_doc_date = ( $_GET['form_from_doc_date'] ) ? $_GET['form_from_doc_dat
 $form_to_doc_date = ( $_GET['form_to_doc_date'] ) ? $_GET['form_to_doc_date'] : oeFormatShortDate(date("Y-m-d"));
 
 if($GLOBALS['date_display_format'] == 1) {
-   $title_tooltip = "MM/DD/YYYY";
+    $title_tooltip = "MM/DD/YYYY";
 } elseif($GLOBALS['date_display_format'] == 2) {
-   $title_tooltip = "DD/MM/YYYY";
+    $title_tooltip = "DD/MM/YYYY";
 } else {
-   $title_tooltip = "YYYY-MM-DD";
+    $title_tooltip = "YYYY-MM-DD";
 }
 
 $display_div = "style='display:block;'";
@@ -182,33 +182,33 @@ $display_collapse_msg = "display:inline;";
 
 <div id='docdiv' <?php echo $display_div; ?>>
 	<?php
-	$current_user = $_SESSION["authId"];
-	$date_filter = '';
+    $current_user = $_SESSION["authId"];
+    $date_filter = '';
         $query_array = array();
-	if ($form_from_doc_date) {
-		$form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
-		$date_filter = " DATE(d.date) >= ? ";
+    if ($form_from_doc_date) {
+        $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
+        $date_filter = " DATE(d.date) >= ? ";
                 array_push($query_array,$form_from_doc_date);
-	}
-	if ($form_to_doc_date) {
-		$form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
-		$date_filter .= " AND DATE(d.date) <= ? ";
+    }
+    if ($form_to_doc_date) {
+        $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
+        $date_filter .= " AND DATE(d.date) <= ? ";
                 array_push($query_array,$form_to_doc_date);
-	}
-	// Get the category ID for lab reports.
-	$query = "SELECT rght FROM categories WHERE name = ?";
-	$catIDRs = sqlQuery($query,array($GLOBALS['lab_results_category_name']));
-	$catID = $catIDRs['rght'];
+    }
+    // Get the category ID for lab reports.
+    $query = "SELECT rght FROM categories WHERE name = ?";
+    $catIDRs = sqlQuery($query,array($GLOBALS['lab_results_category_name']));
+    $catID = $catIDRs['rght'];
 
-	$query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
-		GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
-		INNER JOIN patient_data pd ON d.foreign_id = pd.pid
-		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
-		LEFT JOIN notes n ON d.id = n.foreign_id
-		WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
+    $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
+        GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d
+        INNER JOIN patient_data pd ON d.foreign_id = pd.pid
+        INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
+        LEFT JOIN notes n ON d.id = n.foreign_id
+        WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
         array_unshift($query_array,$catID);
-	$resultSet = sqlStatement($query,$query_array);
-	?>
+    $resultSet = sqlStatement($query,$query_array);
+    ?>
 
 	<table border="1" cellpadding=3 cellspacing=0>
 	<tr class='text bold'>
@@ -219,23 +219,25 @@ $display_collapse_msg = "display:inline;";
 		<th width="10%"><?php echo xlt('Encounter ID'); ?></th>
 	</tr>
 	<?php
-	if (sqlNumRows($resultSet)) {
-		while ( $row = sqlFetchArray($resultSet) ) {
-			$url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
-			// Get the notes for this document.
-			$notes = array();
-			$note = '';
-			if ( $row['docNotes'] ) {
-				$notes = explode("|",$row['docNotes']);
-				$dates = explode("|", $row['docDates']);
-			}
-			for ( $i = 0 ; $i < count($notes) ; $i++ )
-				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . text($notes[$i]) . "<br />";
-			?>
+    if (sqlNumRows($resultSet)) {
+        while ( $row = sqlFetchArray($resultSet) ) {
+            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
+            // Get the notes for this document.
+            $notes = array();
+            $note = '';
+            if ( $row['docNotes'] ) {
+                $notes = explode("|",$row['docNotes']);
+                $dates = explode("|", $row['docDates']);
+            }
+            for ( $i = 0 ; $i < count($notes) ; $i++ )
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . text($notes[$i]) . "<br />";
+            ?>
 			<tr class="text">
 				<td><?php echo oeFormatShortDate(date('Y-m-d', strtotime($row['date']))); ?> </td>
 				<td class="linkcell">
-					<a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
+					<a id="<?php echo attr($row['id']);
+?>" title='<?php echo $url;
+?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
 				</td>
 				<td><?php echo text($row['pname']); ?> </td>
 				<td><?php echo $note; ?> &nbsp;</td>

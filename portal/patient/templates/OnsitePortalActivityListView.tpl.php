@@ -23,10 +23,10 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-	$this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
-	$this->assign('nav','onsiteportalactivities');
+    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
+    $this->assign('nav','onsiteportalactivities');
 
-	$this->display('_Header.tpl.php');
+    $this->display('_Header.tpl.php');
 ?>
 
 <script type="text/javascript">
@@ -276,5 +276,5 @@
 </div> <!-- /container -->
 
 <?php
-	$this->display('_Footer.tpl.php');
+    $this->display('_Footer.tpl.php');
 ?>

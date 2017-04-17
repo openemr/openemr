@@ -21,55 +21,63 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
-	require_once("../globals.php");
-	require_once("$srcdir/patient.inc");
-	require_once("$srcdir/options.inc.php");
-	require_once("../drugs/drugs.inc.php");
-	require_once("$srcdir/payment_jav.inc.php");
+    //SANITIZE ALL ESCAPES
+    $sanitize_all_escapes=true;
+    //
 
-	$search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
-	$comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
-	$_POST['form_details'] = true;
-	function add_date($givendate,$day=0,$mth=0,$yr=0) {
-		$cd = strtotime($givendate);
-		$newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
-		date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
-		date('d',$cd)+$day, date('Y',$cd)+$yr));
-		return $newdate;
-        }
-	if($_POST['date_from'] != "")
-		$sql_date_from = $_POST['date_from'];
-	else
-		$sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+    //STOP FAKE REGISTER GLOBALS
+    $fake_register_globals=false;
 
-	if($_POST['date_to'] != "")
-		$sql_date_to = $_POST['date_to'];
-	else
-		$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
+    require_once("../globals.php");
+    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/options.inc.php");
+    require_once("../drugs/drugs.inc.php");
+    require_once("$srcdir/payment_jav.inc.php");
 
-	//echo "<pre>";print_r($_POST);
-	$patient_id = trim($_POST["patient_id"]);
-	$age_from = $_POST["age_from"];
-	$age_to = $_POST["age_to"];
-	$sql_gender = $_POST["gender"];
-	$sql_ethnicity = $_POST["cpms_ethnicity"];
-	$sql_race=$_POST["race"];
-	$form_drug_name = trim($_POST["form_drug_name"]);
-	$form_diagnosis = trim($_POST["form_diagnosis"]);
-	$form_lab_results = trim($_POST["form_lab_results"]);
-	$form_service_codes = trim($_POST["form_service_codes"]);
-	$form_immunization = trim($_POST["form_immunization"]);
-	$communication = trim($_POST["communication"]);
+    $search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
+    $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
+    $_POST['form_details'] = true;
+function add_date($givendate,$day=0,$mth=0,$yr=0)
+{
+    $cd = strtotime($givendate);
+    $newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
+    date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
+    date('d',$cd)+$day, date('Y',$cd)+$yr));
+    return $newdate;
+}
+    if($_POST['date_from'] != "")
+        $sql_date_from = $_POST['date_from'];
+    else
+        $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+
+    if($_POST['date_to'] != "")
+        $sql_date_to = $_POST['date_to'];
+    else
+        $sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
+
+    //echo "<pre>";print_r($_POST);
+    $patient_id = trim($_POST["patient_id"]);
+    $age_from = $_POST["age_from"];
+    $age_to = $_POST["age_to"];
+    $sql_gender = $_POST["gender"];
+    $sql_ethnicity = $_POST["cpms_ethnicity"];
+    $sql_race=$_POST["race"];
+    $form_drug_name = trim($_POST["form_drug_name"]);
+    $form_diagnosis = trim($_POST["form_diagnosis"]);
+    $form_lab_results = trim($_POST["form_lab_results"]);
+    $form_service_codes = trim($_POST["form_service_codes"]);
+    $form_immunization = trim($_POST["form_immunization"]);
+    $communication = trim($_POST["communication"]);
 ?>
 <html>
 	<head>
-
+		<?php html_header_show();?>
 		<title>
 			<?php echo xlt('Patient List Creation'); ?>
 		</title>
 
-        <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
+        <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+        <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 		<script language="JavaScript">
 		var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -206,14 +214,15 @@ use OpenEMR\Core\Header;
 		<div id="report_parameters_daterange">
 			<p>
 			<?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(date($sql_date_from, strtotime($sql_date_from))) .
-			  " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
-			<span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
-			if($_POST['srch_option'] == "Communication" && $_POST['communication'] != ""){
-				if(isset($comarr[$_POST['communication']]))
-				echo "(".text($comarr[$_POST['communication']]).")";
-				else
-				echo "(".xlt('All').")";
-			}  ?></span>
+              " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
+			<span style="margin-left:5px; " ><b><?php echo xlt('Option');
+?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
+if($_POST['srch_option'] == "Communication" && $_POST['communication'] != ""){
+    if(isset($comarr[$_POST['communication']]))
+    echo "(".text($comarr[$_POST['communication']]).")";
+    else
+    echo "(".xlt('All').")";
+}  ?></span>
 			</p>
 		</div>
 		<form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
@@ -221,7 +230,7 @@ use OpenEMR\Core\Header;
 				<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 				<table>
 					  <tr>
-					<td width='640px'>
+					<td width='900px'>
                                             <div class="cancel-float" style='float:left'>
 						<table class='text'>
 							<tr>
@@ -235,7 +244,9 @@ use OpenEMR\Core\Header;
 								<td class='control-label'>
 									<select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
 										<?php foreach($search_options as $skey => $svalue){ ?>
-										<option <?php if($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+										<option <?php if($_POST['srch_option'] == $skey) echo 'selected';
+?> value="<?php echo attr($skey);
+?>"><?php echo text($svalue); ?></option>
 										<?php } ?>
 									</select>
 									<?php ?>
@@ -245,10 +256,14 @@ use OpenEMR\Core\Header;
 									<span id="com_pref" style="display:none">
 									<select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
 										<option> <?php echo xlt('All'); ?></option>
-										<option value="allow_sms" <?php if($communication == "allow_sms"){ echo "selected";}?>><?php echo xlt('Allow SMS'); ?></option>
-										<option value="allow_voice" <?php if($communication == "allow_voice"){ echo "selected";}?>><?php echo xlt('Allow Voice Message'); ?></option>
-										<option value="allow_mail" <?php if($communication == "allow_mail"){ echo "selected";}?>><?php echo xlt('Allow Mail Message'); ?></option>
-										<option value="allow_email" <?php if($communication == "allow_email"){ echo "selected";}?>><?php echo xlt('Allow Email'); ?></option>
+										<option value="allow_sms" <?php if($communication == "allow_sms"){ echo "selected";
+}?>><?php echo xlt('Allow SMS'); ?></option>
+										<option value="allow_voice" <?php if($communication == "allow_voice"){ echo "selected";
+}?>><?php echo xlt('Allow Voice Message'); ?></option>
+										<option value="allow_mail" <?php if($communication == "allow_mail"){ echo "selected";
+}?>><?php echo xlt('Allow Mail Message'); ?></option>
+										<option value="allow_email" <?php if($communication == "allow_email"){ echo "selected";
+}?>><?php echo xlt('Allow Email'); ?></option>
 									</select>
 									</span>
 								</td>
@@ -256,7 +271,8 @@ use OpenEMR\Core\Header;
 							</tr>
 							<tr>
 								<td class='control-label'><?php echo xlt('Patient ID'); ?>:</td>
-								<td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
+								<td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID');
+?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
 								<td class='control-label'><?php echo xlt('Age Range'); ?>:</td>
 
 								<td>
@@ -287,20 +303,18 @@ use OpenEMR\Core\Header;
 						</div></td>
 						<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
 							<tr>
-								<td>
-									<div class="text-center">
-										<div class="btn-group" role="group">
-											<a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
-												<?php echo xlt('Submit'); ?>
-											</a>
-											<?php if(isset($_POST['form_refresh'])){?>
-												<a href='#' class='btn btn-default btn-print' onclick="printForm()">
-													<?php echo xlt('Print'); ?>
-												</a>
-											<?php }?>
-										</div>
+								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
+											<?php echo xlt('Submit'); ?>
+											</span> </a>
 									</div>
 								</td>
+								<?php if(isset($_POST['form_refresh'])){?>
+								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick="printForm()"> <span>
+											<?php echo xlt('Print'); ?>
+											</span> </a>
+									</div>
+								</td>
+								<?php }?>
 								<td>
 									<div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div>
 								</td>
@@ -313,246 +327,248 @@ use OpenEMR\Core\Header;
 		<!-- end of parameters -->
 		<?php
 
-		// SQL scripts for the various searches
-		$sqlBindArray = array();
-		if ($_POST['form_refresh']){
+        // SQL scripts for the various searches
+        $sqlBindArray = array();
+        if ($_POST['form_refresh']){
 
-			$sqlstmt = "select
-						pd.date as patient_date,
-						concat(pd.lname, ', ', pd.fname) AS patient_name,
-						pd.pid AS patient_id,
-						DATE_FORMAT(FROM_DAYS(DATEDIFF('".date('Y-m-d H:i:s')."',pd.dob)), '%Y')+0 AS patient_age,
-						pd.sex AS patient_sex,
-						pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
-						concat(u.lname, ', ', u.fname)  AS users_provider";
+            $sqlstmt = "select
+                        pd.date as patient_date,
+                        concat(pd.lname, ', ', pd.fname) AS patient_name,
+                        pd.pid AS patient_id,
+                        DATE_FORMAT(FROM_DAYS(DATEDIFF('".date('Y-m-d H:i:s')."',pd.dob)), '%Y')+0 AS patient_age,
+                        pd.sex AS patient_sex,
+                        pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
+                        concat(u.lname, ', ', u.fname)  AS users_provider";
 
-			$srch_option = $_POST['srch_option'];
-			switch ($srch_option) {
-				case "Medications":
-				case "Allergies":
-				case "Problems":
-					$sqlstmt=$sqlstmt.",li.date AS lists_date,
-						   li.diagnosis AS lists_diagnosis,
-								li.title AS lists_title";
-					break;
-				case "Lab results":
-					$sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
-							pr.facility AS procedure_result_facility,
-							pr.units AS procedure_result_units,
-							pr.result AS procedure_result_result,
-							pr.range AS procedure_result_range,
-							pr.abnormal AS procedure_result_abnormal,
-							pr.comments AS procedure_result_comments,
-							pr.document_id AS procedure_result_document_id";
-					break;
-				case "Communication":
-					$sqlstmt = $sqlstmt.",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-					break;
-			}
+            $srch_option = $_POST['srch_option'];
+            switch ($srch_option) {
+                case "Medications":
+                case "Allergies":
+                case "Problems":
+                    $sqlstmt=$sqlstmt.",li.date AS lists_date,
+                           li.diagnosis AS lists_diagnosis,
+                                li.title AS lists_title";
+                    break;
+                case "Lab results":
+                    $sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
+                            pr.facility AS procedure_result_facility,
+                            pr.units AS procedure_result_units,
+                            pr.result AS procedure_result_result,
+                            pr.range AS procedure_result_range,
+                            pr.abnormal AS procedure_result_abnormal,
+                            pr.comments AS procedure_result_comments,
+                            pr.document_id AS procedure_result_document_id";
+                    break;
+                case "Communication":
+                    $sqlstmt = $sqlstmt.",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
+                    break;
+            }
 
-			//from
-			$sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid";
-			//JOINS
-			switch ($srch_option) {
-				case "Problems":
-					$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
-					break;
-				case "Medications":
-					$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
-					break;
-				case "Allergies":
-					$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
-					break;
-				case "Lab results":
+            //from
+            $sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid";
+            //JOINS
+            switch ($srch_option) {
+                case "Problems":
+                    $sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
+                    break;
+                case "Medications":
+                    $sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
+                    break;
+                case "Allergies":
+                    $sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
+                    break;
+                case "Lab results":
 
-					$sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
-							left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
-							left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-							left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
-							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
-					break;
-			}
+                    $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
+                            left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
+                            left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
+                            left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
+                            left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
+                    break;
+            }
 
-			//WHERE Conditions started
-			$whr_stmt="where 1=1";
-			switch ($srch_option) {
-				case "Medications":
-				case "Allergies":
-					$whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
-					array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-					break;
-				case "Problems":
-					$whr_stmt = $whr_stmt." AND li.title != '' ";
-					$whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
-					array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-					break;
-				case "Lab results":
-					$whr_stmt=$whr_stmt." AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
-					$whr_stmt= $whr_stmt." AND (pr.result != '') ";
-					array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-					break;
-				case "Communication":
-					$whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
-					break;
-			}
+            //WHERE Conditions started
+            $whr_stmt="where 1=1";
+            switch ($srch_option) {
+                case "Medications":
+                case "Allergies":
+                    $whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
+                case "Problems":
+                    $whr_stmt = $whr_stmt." AND li.title != '' ";
+                    $whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
+                case "Lab results":
+                    $whr_stmt=$whr_stmt." AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
+                    $whr_stmt= $whr_stmt." AND (pr.result != '') ";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
+                case "Communication":
+                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
+                    break;
+            }
 
-			if(strlen($patient_id) != 0) {
-				$whr_stmt = $whr_stmt."   and pd.pid = ?";
-				array_push($sqlBindArray, $patient_id);
-			}
+            if(strlen($patient_id) != 0) {
+                $whr_stmt = $whr_stmt."   and pd.pid = ?";
+                array_push($sqlBindArray, $patient_id);
+            }
 
-			if(strlen($age_from) != 0) {
-				$whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
-				array_push($sqlBindArray, $age_from);
-			}
+            if(strlen($age_from) != 0) {
+                $whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
+                array_push($sqlBindArray, $age_from);
+            }
 
-			if(strlen($age_to) != 0) {
-				$whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
-				array_push($sqlBindArray, $age_to);
-			}
+            if(strlen($age_to) != 0) {
+                $whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
+                array_push($sqlBindArray, $age_to);
+            }
 
-			if(strlen($sql_gender) != 0) {
-				$whr_stmt = $whr_stmt."   and pd.sex = ?";
-				array_push($sqlBindArray, $sql_gender);
-			}
+            if(strlen($sql_gender) != 0) {
+                $whr_stmt = $whr_stmt."   and pd.sex = ?";
+                array_push($sqlBindArray, $sql_gender);
+            }
 
-			if($srch_option == "Communication" && strlen($communication) > 0){
-				if($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
-				else if($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
-				else if($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
-				else if($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
-			}
+            if($srch_option == "Communication" && strlen($communication) > 0){
+                if($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
+                else if($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
+                else if($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
+                else if($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+            }
 
-			//Sorting By filter fields
-			$sortby = $_REQUEST['sortby'];
-			 $sortorder = $_REQUEST['sortorder'];
+            //Sorting By filter fields
+            $sortby = $_REQUEST['sortby'];
+             $sortorder = $_REQUEST['sortorder'];
 
-			 // This is for sorting the records.
-			 switch ($srch_option) {
-				case "Medications":
-				case "Allergies":
-				case "Problems":
-					$sort = array("lists_date","lists_diagnosis","lists_title");
-					if($sortby == "")$sortby = $sort[1];
-					break;
-				case "Lab results":
-					$sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
-					//$odrstmt = " procedure_result_result";
-					break;
-				case "Communication":
-					//$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-					$sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
-					if($sortby == "")$sortby = $sort[6];
-					//$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-					break;
-				case "Demographics":
-					$sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
-					break;
-			}
-				if($sortby == "") {
-					$sortby = $sort[0];
-				}
-				if($sortorder == "") {
-					$sortorder = "asc";
-				}
-				for($i = 0; $i < count($sort); $i++) {
-					  $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sort[$i]','asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
-				}
-				for($i = 0; $i < count($sort); $i++) {
-					if($sortby == $sort[$i]) {
-						switch($sortorder) {
-							case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
-							case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>"; break;
-						} break;
-					}
-				}
+             // This is for sorting the records.
+            switch ($srch_option) {
+                case "Medications":
+                case "Allergies":
+                case "Problems":
+                    $sort = array("lists_date","lists_diagnosis","lists_title");
+                    if($sortby == "")$sortby = $sort[1];
+                    break;
+                case "Lab results":
+                    $sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
+                    //$odrstmt = " procedure_result_result";
+                    break;
+                case "Communication":
+                    //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
+                    if($sortby == "")$sortby = $sort[6];
+                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;
+                case "Demographics":
+                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
+                    break;
+            }
+            if($sortby == "") {
+                $sortby = $sort[0];
+            }
+            if($sortorder == "") {
+                $sortorder = "asc";
+            }
+            for($i = 0; $i < count($sort); $i++) {
+                  $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sort[$i]','asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
+            }
+            for($i = 0; $i < count($sort); $i++) {
+                if($sortby == $sort[$i]) {
+                    switch($sortorder) {
+                        case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
+break;
+                        case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
+break;
+                    } break;
+                }
+            }
 
-			switch ($srch_option) {
-				case "Medications":
-				case "Allergies":
-				case "Problems":
-					$odrstmt = " ORDER BY lists_date asc";
-					break;
-				case "Lab results":
-					$odrstmt = " ORDER BY procedure_result_date asc";
-					break;
-				case "Communication":
-					$odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
-					break;
-				case "Demographics":
-					$odrstmt = " ORDER BY patient_date asc";
-					//$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-					break;
-			}
-			if(!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])){
-				if($_REQUEST['sortby'] =="communications"){
-					$odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_REQUEST['sortorder']).", communications ".escape_sort_order($_REQUEST['sortorder']);
-				}else{
-					$odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'],$sort,TRUE)." ".escape_sort_order($_REQUEST['sortorder']);
-				}
-			}
+            switch ($srch_option) {
+                case "Medications":
+                case "Allergies":
+                case "Problems":
+                    $odrstmt = " ORDER BY lists_date asc";
+                    break;
+                case "Lab results":
+                    $odrstmt = " ORDER BY procedure_result_date asc";
+                    break;
+                case "Communication":
+                    $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
+                    break;
+                case "Demographics":
+                    $odrstmt = " ORDER BY patient_date asc";
+                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;
+            }
+            if(!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])){
+                if($_REQUEST['sortby'] =="communications"){
+                    $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_REQUEST['sortorder']).", communications ".escape_sort_order($_REQUEST['sortorder']);
+                }else{
+                    $odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'],$sort,true)." ".escape_sort_order($_REQUEST['sortorder']);
+                }
+            }
 
-			$sqlstmt=$sqlstmt." ".$whr_stmt." ".$odrstmt;
-			//echo $sqlstmt."<hr>";
-			$result = sqlStatement($sqlstmt,$sqlBindArray);
-			//print_r($result);
-			$row_id = 1.1;//given to each row to identify and toggle
-			$img_id = 1.2;
-			$k=1.3;
+            $sqlstmt=$sqlstmt." ".$whr_stmt." ".$odrstmt;
+            //echo $sqlstmt."<hr>";
+            $result = sqlStatement($sqlstmt,$sqlBindArray);
+            //print_r($result);
+            $row_id = 1.1;//given to each row to identify and toggle
+            $img_id = 1.2;
+            $k=1.3;
 
-			if(sqlNumRows($result) > 0){
-				$patArr = array();
+            if(sqlNumRows($result) > 0){
+                $patArr = array();
 
-				$patDataArr = array();
-				$smoke_codes_arr = getSmokeCodes();
-				while ($row = sqlFetchArray($result)) {
+                $patDataArr = array();
+                $smoke_codes_arr = getSmokeCodes();
+                while ($row = sqlFetchArray($result)) {
 
-						$patArr[] = $row['patient_id'];
-						$patInfoArr = array();
-						$patInfoArr['patient_id'] = $row['patient_id'];
-						//Diagnosis Check
-						if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){
-							$patInfoArr['lists_date'] = $row['lists_date'];
-							$patInfoArr['lists_diagnosis'] = $row['lists_diagnosis'];
-							$patInfoArr['lists_title'] = $row['lists_title'];
-							$patInfoArr['patient_name'] = $row['patient_name'];
-							$patInfoArr['patient_age'] = $row['patient_age'];
-							$patInfoArr['patient_sex'] = $row['patient_sex'];
-							$patInfoArr['patient_race'] = $row['patient_race'];
-							$patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
-							$patInfoArr['users_provider'] = $row['users_provider'];
-						}elseif($srch_option == "Lab results"){
-							$patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
-							$patInfoArr['procedure_result_facility'] = $row['procedure_result_facility'];
-							$patInfoArr['procedure_result_units'] = $row['procedure_result_units'];
-							$patInfoArr['procedure_result_result'] = $row['procedure_result_result'];
-							$patInfoArr['procedure_result_range'] = $row['procedure_result_range'];
-							$patInfoArr['procedure_result_abnormal'] = $row['procedure_result_abnormal'];
-							$patInfoArr['procedure_result_comments'] = $row['procedure_result_comments'];
-							$patInfoArr['procedure_result_document_id'] = $row['procedure_result_document_id'];
-						}elseif($srch_option == "Communication"){
-							$patInfoArr['patient_date'] = $row['patient_date'];
-							$patInfoArr['patient_name'] = $row['patient_name'];
-							$patInfoArr['patient_age'] = $row['patient_age'];
-							$patInfoArr['patient_sex'] = $row['patient_sex'];
-							$patInfoArr['users_provider'] = $row['users_provider'];
-							$patInfoArr['communications'] = $row['communications'];
-						}elseif($srch_option == "Demographics"){
-							$patInfoArr['patient_date'] = $row['patient_date'];
-							$patInfoArr['patient_name'] = $row['patient_name'];
-							$patInfoArr['patient_age'] = $row['patient_age'];
-							$patInfoArr['patient_sex'] = $row['patient_sex'];
-							$patInfoArr['patient_race'] = $row['patient_race'];
-							$patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
-							$patInfoArr['users_provider'] = $row['users_provider'];
-						}
+                        $patArr[] = $row['patient_id'];
+                        $patInfoArr = array();
+                        $patInfoArr['patient_id'] = $row['patient_id'];
+                        //Diagnosis Check
+                    if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){
+                        $patInfoArr['lists_date'] = $row['lists_date'];
+                        $patInfoArr['lists_diagnosis'] = $row['lists_diagnosis'];
+                        $patInfoArr['lists_title'] = $row['lists_title'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_race'] = $row['patient_race'];
+                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                    }elseif($srch_option == "Lab results"){
+                        $patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
+                        $patInfoArr['procedure_result_facility'] = $row['procedure_result_facility'];
+                        $patInfoArr['procedure_result_units'] = $row['procedure_result_units'];
+                        $patInfoArr['procedure_result_result'] = $row['procedure_result_result'];
+                        $patInfoArr['procedure_result_range'] = $row['procedure_result_range'];
+                        $patInfoArr['procedure_result_abnormal'] = $row['procedure_result_abnormal'];
+                        $patInfoArr['procedure_result_comments'] = $row['procedure_result_comments'];
+                        $patInfoArr['procedure_result_document_id'] = $row['procedure_result_document_id'];
+                    }elseif($srch_option == "Communication"){
+                        $patInfoArr['patient_date'] = $row['patient_date'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                        $patInfoArr['communications'] = $row['communications'];
+                    }elseif($srch_option == "Demographics"){
+                        $patInfoArr['patient_date'] = $row['patient_date'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_race'] = $row['patient_race'];
+                        $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                    }
 
-							$patFinalDataArr[] = $patInfoArr;
+                            $patFinalDataArr[] = $patInfoArr;
 
-				}
+                }
 
 
-			?>
+            ?>
 
 				<br>
 
@@ -569,9 +585,12 @@ use OpenEMR\Core\Header;
 
 					<?php if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){ ?>
 						<tr style="font-size:15px;">
-							<td width="15%"><b><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></b></td>
-							<td width="15%"><b><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></b></td>
-							<td width="15%"><b><?php echo xlt('Diagnosis Name');?><?php echo $sortlink[2]; ?></b></td>
+							<td width="15%"><b><?php echo xlt('Diagnosis Date');
+?><?php echo $sortlink[0]; ?></b></td>
+							<td width="15%"><b><?php echo xlt('Diagnosis');
+?><?php echo $sortlink[1]; ?></b></td>
+							<td width="15%"><b><?php echo xlt('Diagnosis Name');
+?><?php echo $sortlink[2]; ?></b></td>
 							<td width="15%"><b><?php echo xlt('Patient Name'); ?></b></td>
 							<td width="5%"><b><?php echo xlt('PID');?></b></td>
 							<td width="5%"><b><?php echo xlt('Age');?></b></td>
@@ -590,46 +609,61 @@ use OpenEMR\Core\Header;
 									<td colspan=4><?php echo text($patDetailVal['users_provider']);?></td>
 								</tr>
 					<?php	}
-					}elseif($srch_option == "Lab results"){ ?>
+}elseif($srch_option == "Lab results"){ ?>
 						<tr bgcolor="#C3FDB8" align= "left" >
-							<td width="15%"><b><?php echo xlt('Date'); ?><?php echo $sortlink[0]; ?></b></td>
-							<td width="15%"><b><?php echo xlt('Facility');?><?php echo $sortlink[1]; ?></b></td>
-							<td width="10%"><b><?php echo xlt('Unit');?></b><?php echo $sortlink[2]; ?></td>
-							<td width="10%"><b><?php echo xlt('Result');?></b><?php echo $sortlink[3]; ?></td>
-							<td width="10%"><b><?php echo xlt('Range');?></b><?php echo $sortlink[4]; ?></td>
-							<td width="10%"><b><?php echo xlt('Abnormal');?><?php echo $sortlink[5]; ?></b></td>
+							<td width="15%"><b><?php echo xlt('Date');
+?><?php echo $sortlink[0]; ?></b></td>
+							<td width="15%"><b><?php echo xlt('Facility');
+?><?php echo $sortlink[1]; ?></b></td>
+							<td width="10%"><b><?php echo xlt('Unit');
+?></b><?php echo $sortlink[2]; ?></td>
+							<td width="10%"><b><?php echo xlt('Result');
+?></b><?php echo $sortlink[3]; ?></td>
+							<td width="10%"><b><?php echo xlt('Range');
+?></b><?php echo $sortlink[4]; ?></td>
+							<td width="10%"><b><?php echo xlt('Abnormal');
+?><?php echo $sortlink[5]; ?></b></td>
 							<td><b><?php echo xlt('Comments');?></b></td>
 							<td width="5%"><b><?php echo xlt('Document ID');?></b></td>
 							<td width="5%"><b><?php echo xlt('PID');?></b></td>
 						</tr>
 						<?php
-							foreach($patFinalDataArr as $patKey => $labResInsideArr){?>
-								<tr bgcolor = "#CCCCCC" >
-									<td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_facility'],ENT_NOQUOTES); ?>&nbsp;</td>
-									<td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_result']); ?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_range']); ?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_abnormal']); ?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_comments']); ?>&nbsp;</td>
-									<td> <?php echo text($labResInsideArr['procedure_result_document_id']); ?>&nbsp;</td>
-									<td colspan="3"> <?php echo text($labResInsideArr['patient_id']); ?>&nbsp;</td>
-							   </tr>
-						<?php
-							}
-					}elseif($srch_option == "Communication"){ ?>
+                        foreach($patFinalDataArr as $patKey => $labResInsideArr){?>
+                                                <tr bgcolor = "#CCCCCC" >
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_facility'],ENT_NOQUOTES); ?>&nbsp;</td>
+                                                    <td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_result']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_range']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_abnormal']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_comments']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_document_id']); ?>&nbsp;</td>
+                                                    <td colspan="3"> <?php echo text($labResInsideArr['patient_id']); ?>&nbsp;</td>
+                                               </tr>
+                                        <?php
+                        }
+}elseif($srch_option == "Communication"){ ?>
 						<tr style="font-size:15px;">
-							<td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
-							<td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
-							<td width="5%"><b><?php echo xlt('PID');?></b><?php echo $sortlink[2]; ?></td>
-							<td width="5%"><b><?php echo xlt('Age');?></b><?php echo $sortlink[3]; ?></td>
-							<td width="10%"><b><?php echo xlt('Gender');?></b><?php echo $sortlink[4]; ?></td>
-							<td width="15%"><b><?php echo xlt('Provider');?></b><?php echo $sortlink[5]; ?></td>
-							<td ><b><?php echo xlt('Communication');?></b><?php echo $sortlink[6]; ?></td>
+							<td width="15%"><b><?php echo xlt('Date');
+?></b><?php echo $sortlink[0]; ?></td>
+							<td width="20%"><b><?php echo xlt('Patient Name');
+?></b><?php echo $sortlink[1]; ?></td>
+							<td width="5%"><b><?php echo xlt('PID');
+?></b><?php echo $sortlink[2]; ?></td>
+							<td width="5%"><b><?php echo xlt('Age');
+?></b><?php echo $sortlink[3]; ?></td>
+							<td width="10%"><b><?php echo xlt('Gender');
+?></b><?php echo $sortlink[4]; ?></td>
+							<td width="15%"><b><?php echo xlt('Provider');
+?></b><?php echo $sortlink[5]; ?></td>
+							<td ><b><?php echo xlt('Communication');
+?></b><?php echo $sortlink[6]; ?></td>
 						</tr>
 					<?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
 								<tr bgcolor = "#CCCCCC" >
-									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);  }else{ echo ""; }; ?></td>
+									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);
+}else{ echo "";
+}; ?></td>
 									<td ><?php echo text($patDetailVal['patient_name']); ?></td>
 									<td ><?php echo text($patDetailVal['patient_id']); ?></td>
 									<td ><?php echo text($patDetailVal['patient_age']);?></td>
@@ -638,20 +672,29 @@ use OpenEMR\Core\Header;
 									<td ><?php echo text($patDetailVal['communications']);?></td>
 							   </tr>
 						<?php
-							}
-					}elseif($srch_option == "Demographics"){ ?>
+}
+}elseif($srch_option == "Demographics"){ ?>
 						<tr style="font-size:15px;">
-							<td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
-							<td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
-							<td width="15%"><b><?php echo xlt('PID');?></b><?php echo $sortlink[2]; ?></td>
-							<td width="5%"><b><?php echo xlt('Age');?></b><?php echo $sortlink[3]; ?></td>
-							<td width="10%"><b><?php echo xlt('Gender'); ?></b><?php echo $sortlink[4]; ?></td>
-							<td width="20%"><b><?php echo xlt('Race');?></b><?php echo $sortlink[5]; ?></td>
-							<td colspan=5><b><?php echo xlt('Provider');?></b><?php echo $sortlink[7]; ?></td>
+							<td width="15%"><b><?php echo xlt('Date');
+?></b><?php echo $sortlink[0]; ?></td>
+							<td width="20%"><b><?php echo xlt('Patient Name');
+?></b><?php echo $sortlink[1]; ?></td>
+							<td width="15%"><b><?php echo xlt('PID');
+?></b><?php echo $sortlink[2]; ?></td>
+							<td width="5%"><b><?php echo xlt('Age');
+?></b><?php echo $sortlink[3]; ?></td>
+							<td width="10%"><b><?php echo xlt('Gender');
+?></b><?php echo $sortlink[4]; ?></td>
+							<td width="20%"><b><?php echo xlt('Race');
+?></b><?php echo $sortlink[5]; ?></td>
+							<td colspan=5><b><?php echo xlt('Provider');
+?></b><?php echo $sortlink[7]; ?></td>
 						</tr>
 							<?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
 								<tr bgcolor = "#CCCCCC" style="font-size:15px;">
-									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);  }else{ echo ""; };?></td>
+									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);
+}else{ echo "";
+};?></td>
 									<td ><?php echo text($patDetailVal['patient_name']); ?></td>
 									<td ><?php echo text($patDetailVal['patient_id']); ?></td>
 									<td ><?php echo text($patDetailVal['patient_age']);?></td>
@@ -660,27 +703,27 @@ use OpenEMR\Core\Header;
 									<td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
 								</tr>
 						<?php	}
-					} ?>
+} ?>
 
 					</table>
 					 <!-- Main table ends -->
 				<?php
-				}else{//End if $result?>
+            }else{//End if $result?>
 					<table>
 						<tr>
 							<td class="text">&nbsp;&nbsp;<?php echo xlt('No records found.')?></td>
 						</tr>
 					</table>
 				<?php
-				}
-				?>
+            }
+                ?>
 				</div>
 
 			<?php
-			}else{//End if form_refresh
-				?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
-			}
-			?>
+        }else{//End if form_refresh
+            ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
+        }
+            ?>
 		</form>
 
 	</body>

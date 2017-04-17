@@ -38,7 +38,7 @@ function SQLQuote ($strValue)
         /* It's a string */
 
         if (strlen($strValue) == 0) { return "NULL"; }
-        if ($strValue == NULL) { return "NULL"; }
+        if ($strValue == null) { return "NULL"; }
         /* remove any '\' values */
         $strValue = preg_replace("/\\\/", '', $strValue);
         return "'". preg_replace("/\'/", "''", $strValue) ."'";

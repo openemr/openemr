@@ -29,8 +29,10 @@ formHeader("Form: ankleinjury");
 <br><br>
 
 <span class="text"><?php xl('Foot:','e');?> </span>  
-   <td><?php xl('Left','e');?><input type="radio" name='ankle_foot' value="<?php xl('Left','e');?>"></input></td>
-   <td><?php xl('Right','e');?><input type="radio" name='ankle_foot' value="<?php xl('Right','e');?>"></input></td>
+   <td><?php xl('Left','e');
+?><input type="radio" name='ankle_foot' value="<?php xl('Left','e');?>"></input></td>
+   <td><?php xl('Right','e');
+?><input type="radio" name='ankle_foot' value="<?php xl('Right','e');?>"></input></td>
 <br><br>
    
 <span class="text"><?php xl('Severity of Pain','e');?>:   </span>  
@@ -45,8 +47,10 @@ formHeader("Form: ankleinjury");
 <br><br>
 
 <span class="text"><?php xl('Onset of Swelling:','e');?>   </span>  
-   <td><?php xl('within minutes','e');?><input type="radio" name='ankle_onset_of_swelling' value="<?php xl('within minutes','e');?>"></input></td>
-   <td><?php xl('within hours','e');?><input type="radio" name='ankle_onset_of_swelling' value="<?php xl('within hours','e');?>"></input></td>
+   <td><?php xl('within minutes','e');
+?><input type="radio" name='ankle_onset_of_swelling' value="<?php xl('within minutes','e');?>"></input></td>
+   <td><?php xl('within hours','e');
+?><input type="radio" name='ankle_onset_of_swelling' value="<?php xl('within hours','e');?>"></input></td>
    <br><br>
 
 <span class="text" ><?php xl('How did Injury Occur?','e');?>:</span><br>
@@ -64,12 +68,15 @@ formHeader("Form: ankleinjury");
 <br>
 
 <span class="text"><?php xl('Able to Bear Weight four (4) steps:','e'); ?></span>  
-  <td><?php xl('Yes','e'); ?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php xl('Yes','e'); ?>"></input></td>
-  <td><?php xl('No','e'); ?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php xl('No','e'); ?>"></input></td>
+  <td><?php xl('Yes','e');
+?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php xl('Yes','e'); ?>"></input></td>
+  <td><?php xl('No','e');
+?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php xl('No','e'); ?>"></input></td>
 <br>
 
 <table>
-<tr><th><?php xl('X-RAY Interpretation:','e'); ?></th> <th><?php xl('Additional X-RAY Notes:','e'); ?></th></tr>
+<tr><th><?php xl('X-RAY Interpretation:','e');
+?></th> <th><?php xl('Additional X-RAY Notes:','e'); ?></th></tr>
 <tr>
   <td>
    <select name="ankle_x_ray_interpretation" >
@@ -109,7 +116,8 @@ formHeader("Form: ankleinjury");
  </script>
 <table>
 <tr>
-<th><?php xl('Diagnosis:','e');?></th><th><?php xl('Additional Diagnosis:','e');?></th>
+<th><?php xl('Diagnosis:','e');
+?></th><th><?php xl('Additional Diagnosis:','e');?></th>
 </tr>
 <tr>
 <td valign="top"><select name="ankle_diagnosis1" onChange="doCPT(this);">

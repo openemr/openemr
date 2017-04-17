@@ -20,7 +20,7 @@ $is_lbf = substr($formname, 0, 3) === 'LBF';
 if ($is_lbf) {
   // Determine the default field ID and its title for graphing.
   // This is from the last graphable field in the form.
-  $default = sqlQuery("SELECT field_id, title FROM layout_options WHERE " .
+    $default = sqlQuery("SELECT field_id, title FROM layout_options WHERE " .
     "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
     "ORDER BY group_name DESC, seq DESC, title DESC LIMIT 1",
     array($formname));
@@ -124,7 +124,9 @@ $(document).ready(function(){
 
   // show blood pressure graph by default
 <?php if ($is_lbf) { ?>
-  show_graph('<?php echo $formname; ?>','<?php echo $default['field_id']; ?>','<?php echo $default['title']; ?>');
+  show_graph('<?php echo $formname;
+?>','<?php echo $default['field_id'];
+?>','<?php echo $default['title']; ?>');
 <?php } else { ?>
   show_graph('form_vitals','bps','');
 <?php } ?>
@@ -134,13 +136,13 @@ $(document).ready(function(){
 <?php
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-  include_once("$incdir/forms/LBF/new.php");
+    include_once("$incdir/forms/LBF/new.php");
 }
 else {
 
   // ensure the path variable has no illegal characters
-  check_file_dir_name($formname);
+    check_file_dir_name($formname);
 
-  include_once("$incdir/forms/$formname/new.php");
+    include_once("$incdir/forms/$formname/new.php");
 }
 ?>

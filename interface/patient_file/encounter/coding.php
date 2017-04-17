@@ -66,7 +66,8 @@ $pres = "prescription";
 <?php foreach ($code_types as $key => $value) { ?>
 <dd><a class="text" href="search_code.php?type=<?php echo $key ?>"
  target="Codes" onclick="top.restoreSession()">
-<?php echo $key; ?> <?php xl('Search','e'); ?></a></dd>
+<?php echo $key;
+?> <?php xl('Search','e'); ?></a></dd>
 <?php } ?>
 
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay','e'); ?></a></dd>

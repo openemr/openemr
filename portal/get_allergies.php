@@ -26,17 +26,17 @@
 
         $res = sqlStatement($sql, array($pid) );
 
-        if(sqlNumRows($res)>0)
+if(sqlNumRows($res)>0)
         {
-            ?>
-            <table class="table table-striped">
-                <tr class="header">
-                    <th><?php echo xlt('Title'); ?></th>
-                    <th><?php echo xlt('Reported Date'); ?></th>
-                    <th><?php echo xlt('Start Date'); ?></th>
-                    <th><?php echo xlt('End Date'); ?></th>
-                    <th><?php echo xlt('Referrer'); ?></th>
-                </tr>
+    ?>
+    <table class="table table-striped">
+        <tr class="header">
+            <th><?php echo xlt('Title'); ?></th>
+            <th><?php echo xlt('Reported Date'); ?></th>
+            <th><?php echo xlt('Start Date'); ?></th>
+            <th><?php echo xlt('End Date'); ?></th>
+            <th><?php echo xlt('Referrer'); ?></th>
+        </tr>
             <?php
             $even=false;
             while ($row = sqlFetchArray($res)) {
@@ -50,9 +50,9 @@
                 echo "</tr>";
             }
             echo "</table>";
-        }
-        else
+}
+else
         {
-            echo xlt("No Results");
-        }
+    echo xlt("No Results");
+}
 ?>

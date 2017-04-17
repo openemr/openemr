@@ -33,7 +33,8 @@ class Users{
      * Get all users' ids and full names from users table.
      * @return array
      */
-    public function getAllUsers(){
+    public function getAllUsers()
+    {
 
         $sql = 'SELECT id, fname, lname FROM ' . self::TABLE . ' WHERE active = 1';
 
@@ -51,7 +52,8 @@ class Users{
      * @param $uid
      * @return string
      */
-    public function getUserNameById($uid){
+    public function getUserNameById($uid)
+    {
         $sql = 'SELECT fname, lname FROM ' . self::TABLE . ' WHERE id = ?';
 
         $user_name = sqlQuery($sql, array($uid));
@@ -66,7 +68,8 @@ class Users{
      * @param $eid
      * @return array
      */
-    public function getProvidersOfEvent($eid){
+    public function getProvidersOfEvent($eid)
+    {
 
         $multiple = $this->checkIfMultiple($eid);
         if($multiple > 0){
@@ -94,7 +97,8 @@ class Users{
      * @param $eid
      * @return bool|ADORecordSet_mysqli
      */
-    private function checkIfMultiple($eid){
+    private function checkIfMultiple($eid)
+    {
 
         $sql = "SELECT pc_multiple FROM " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
         $result = sqlQuery($sql, array($eid));

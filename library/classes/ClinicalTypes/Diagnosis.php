@@ -41,15 +41,18 @@ class Diagnosis extends ClinicalType
     const ACUTE_TONSILLITIS = 'diag_acute_tonsillitis';
     const LIMITED_LIFE = 'diag_limited_life_expectancy';
     
-    public function getListType() {
+    public function getListType()
+    {
         return 'medical_problem';
     }
     
-    public function getListColumn() {
+    public function getListColumn()
+    {
         return 'diagnosis';
     }
     
-    public function getListId() {
+    public function getListId()
+    {
         return 'Clinical_Rules_Diagnosis_Types';
     }
     
@@ -62,7 +65,8 @@ class Diagnosis extends ClinicalType
      * 
      * @return true if patient meets criteria, false ow
      */
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) {
+    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    {
         $data = Codes::lookup( $this->getOptionId() );
         $type = $this->getListType();
         foreach( $data as $codeType => $codes ) {

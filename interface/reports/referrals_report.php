@@ -24,24 +24,30 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
+ $fake_register_globals=false;
+ $sanitize_all_escapes=true;
+
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once "$srcdir/options.inc.php";
 
  $from_date = (isset($_POST['form_from_date']))  ? fixDate($_POST['form_from_date'], date('Y-m-d')) : '';
  $form_from_date = $from_date;
- $to_date   = (isset($_POST['form_to_date']))    ? fixDate($_POST['form_to_date'], date('Y-m-d')) : '';;
+ $to_date   = (isset($_POST['form_to_date']))    ? fixDate($_POST['form_to_date'], date('Y-m-d')) : '';
+;
  $form_to_date = $to_date;
  $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 ?>
 <html>
 <head>
-
+<?php html_header_show();?>
 <title><?php echo xlt('Referrals'); ?></title>
 
-<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
-
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -54,11 +60,11 @@ use OpenEMR\Core\Header;
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 
@@ -72,6 +78,8 @@ use OpenEMR\Core\Header;
 
 </script>
 
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -107,13 +115,14 @@ use OpenEMR\Core\Header;
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
+<span class='title'><?php echo xlt('Report');
+?> - <?php echo xlt('Referrals'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo text(date("d F Y", strtotime($form_from_date))) ." &nbsp; to &nbsp; ". text(date("d F Y", strtotime($form_to_date))); ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
+<form name='theform' id='theform' method='post' action='referrals_report.php'>
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -124,26 +133,26 @@ use OpenEMR\Core\Header;
 
 	<table class='text'>
 		<tr>
-			<td class='control-label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='control-label'>
-			   <?php echo xlt('From'); ?>:
+			<td class='label_custom'>
+                <?php echo xlt('From'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-         class='datepicker form-control'
+         class='datepicker'
 				 title='<?php echo xla('yyyy-mm-dd') ?>'>
 			</td>
-			<td class='control-label'>
-			   <?php echo xlt('To'); ?>:
+			<td class='label_custom'>
+                <?php echo xlt('To'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-         class='datepicker form-control'
+         class='datepicker'
 				 title='<?php echo xla('yyyy-mm-dd') ?>'>
 			</td>
 		</tr>
@@ -156,17 +165,20 @@ use OpenEMR\Core\Header;
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div class="text-center">
-          <div class="btn-group" role="group">
-					 <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
 						<?php echo xlt('Submit'); ?>
-					 </a>
-					 <?php if ($_POST['form_refresh']) { ?>
-					   <a href='#' class='btn btn-default btn-print' id='printbutton'>
-					     <?php echo xlt('Print'); ?>
-					   </a>
-					 <?php } ?>
-          </div>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' id='printbutton'>
+						<span>
+							<?php echo xlt('Print'); ?>
+						</span>
+					</a>
+					<?php } ?>
 				</div>
 			</td>
 		</tr>
@@ -177,22 +189,22 @@ use OpenEMR\Core\Header;
 </div> <!-- end of parameters -->
 
 <?php
- if ($_POST['form_refresh']) {
+if ($_POST['form_refresh']) {
 ?>
 <div id="report_results">
 <table width='98%' id='mymaintable'>
- <thead>
-  <th> <?php echo xlt('Refer To'); ?> </th>
-  <th> <?php echo xlt('Refer Date'); ?> </th>
-  <th> <?php echo xlt('Reply Date'); ?> </th>
-  <th> <?php echo xlt('Patient'); ?> </th>
-  <th> <?php echo xlt('ID'); ?> </th>
-  <th> <?php echo xlt('Reason'); ?> </th>
- </thead>
- <tbody>
+<thead>
+ <th> <?php echo xlt('Refer To'); ?> </th>
+ <th> <?php echo xlt('Refer Date'); ?> </th>
+ <th> <?php echo xlt('Reply Date'); ?> </th>
+ <th> <?php echo xlt('Patient'); ?> </th>
+ <th> <?php echo xlt('ID'); ?> </th>
+ <th> <?php echo xlt('Reason'); ?> </th>
+</thead>
+<tbody>
 <?php
- if ($_POST['form_refresh']) {
-  $query = "SELECT t.id, t.pid, " .
+if ($_POST['form_refresh']) {
+    $query = "SELECT t.id, t.pid, " .
     "d1.field_value AS refer_date, " .
     "d3.field_value AS reply_date, " .
     "d4.field_value AS body, " .
@@ -212,52 +224,52 @@ use OpenEMR\Core\Header;
     "WHERE t.title = 'LBTref' AND " .
     "d1.field_value >= ? AND d1.field_value <= ? " .
     "ORDER BY ut.organization, d1.field_value, t.id";
-  $res = sqlStatement($query, array($from_date, $to_date));
+    $res = sqlStatement($query, array($from_date, $to_date));
 
-  while ($row = sqlFetchArray($res)) {
-    // If a facility is specified, ignore rows that do not match.
-    if ($form_facility !== '') {
-      if ($form_facility) {
-        if ($row['facility_id'] != $form_facility) continue;
-      }
-      else {
-        if (!empty($row['facility_id'])) continue;
-      }
+    while ($row = sqlFetchArray($res)) {
+      // If a facility is specified, ignore rows that do not match.
+        if ($form_facility !== '') {
+            if ($form_facility) {
+                if ($row['facility_id'] != $form_facility) continue;
+            }
+            else {
+                if (!empty($row['facility_id'])) continue;
+            }
+        }
+
+    ?>
+   <tr>
+    <td>
+        <?php if($row['organization']!=null || $row['organization']!='') {
+            echo text($row['organization']);
+}
+else {
+        echo text($row['referer_to']);
+}
+
+    ?>
+    </td>
+    <td>
+     <a href='#' onclick="return show_referral(<?php echo attr($row['id']); ?>)">
+        <?php echo text(oeFormatShortDate($row['refer_date'])); ?>&nbsp;
+     </a>
+    </td>
+    <td>
+        <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
+    </td>
+    <td>
+        <?php echo text($row['patient_name']) ?>
+    </td>
+    <td>
+        <?php echo text($row['pubpid']) ?>
+    </td>
+    <td>
+        <?php echo text($row['body']) ?>
+    </td>
+   </tr>
+    <?php
     }
-
-?>
- <tr>
-  <td>
-   <?php if($row['organization']!=NULL || $row['organization']!='') {
-   			echo text($row['organization']);
-   		}
-   		else {
-   				echo text($row['referer_to']);
-   		}
-
-   	?>
-  </td>
-  <td>
-   <a href='#' onclick="return show_referral(<?php echo attr($row['id']); ?>)">
-   <?php echo text(oeFormatShortDate($row['refer_date'])); ?>&nbsp;
-   </a>
-  </td>
-  <td>
-   <?php echo text(oeFormatShortDate($row['reply_date'])) ?>
-  </td>
-  <td>
-   <?php echo text($row['patient_name']) ?>
-  </td>
-  <td>
-   <?php echo text($row['pubpid']) ?>
-  </td>
-  <td>
-   <?php echo text($row['body']) ?>
-  </td>
- </tr>
-<?php
-  }
- }
+}
 ?>
 </tbody>
 </table>

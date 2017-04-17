@@ -165,10 +165,10 @@ if (count($emr_app)) {
                         // collect groups
                         $res = sqlStatement("select distinct name from groups");
                         for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-	                          $result[$iter] = $row;
+                              $result[$iter] = $row;
                         if (count($result) == 1) {
-	                          $resvalue = $result[0]{"name"};
-	                          echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+                              $resvalue = $result[0]{"name"};
+                              echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
                         }
                         // collect default language id
                         $res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
@@ -193,25 +193,25 @@ if (count($emr_app)) {
                             if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
                             {
                                 $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-	                              $res3=SqlStatement($sql);
+                                  $res3=SqlStatement($sql);
                             }
                             else {
                                 // Use and sort by the translated language name.
                                 $sql = "SELECT ll.lang_id, " .
                                     "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-	                                  "ll.lang_description " .
+                                      "ll.lang_description " .
                                     "FROM lang_languages AS ll " .
                                     "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
                                     "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                                     "ld.lang_id = ? " .
                                     "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
                                 $res3=SqlStatement($sql, array($mainLangID));
-	                          }
+                            }
 
                             for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
                                 $result3[$iter] = $row;
                             if (count($result3) == 1) {
-	                              //default to english if only return one language
+                                  //default to english if only return one language
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
                             }
                         }

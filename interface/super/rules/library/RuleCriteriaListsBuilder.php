@@ -16,7 +16,8 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
     /**
      * @return RuleCriteriaType
      */
-    function resolveRuleCriteriaType( $method, $methodDetail, $value ) {
+    function resolveRuleCriteriaType( $method, $methodDetail, $value )
+    {
         if (strpos($method, "lists") ) {
             if ( $methodDetail == 'medical_problem' ) {
                 $exploded = explode("::", $value);
@@ -47,7 +48,8 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    function build( $ruleCriteriaType, $value, $methodDetail ) {
+    function build( $ruleCriteriaType, $value, $methodDetail )
+    {
         $exploded = explode("::", $value);
 
         if ( $ruleCriteriaType->code == 'issue' ) {
@@ -78,7 +80,8 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
      *
      * @param RuleCriteriaType $criteriaType
      */
-    function newInstance( $ruleCriteriaType ) {
+    function newInstance( $ruleCriteriaType )
+    {
         if ( $ruleCriteriaType->code == 'issue' ) {
             return new RuleCriteriaMedicalIssue( xl( "Medical Issue" ) );
         }

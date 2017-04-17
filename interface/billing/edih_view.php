@@ -114,7 +114,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 					<tr>
 						<td align='center'><?php echo xlt("Choose CSV table"); ?>:</td>
 						<td align='center'><?php echo xlt("From Period"); ?></td>
-						<td align='center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp <?php echo xlt("End Date"); ?>:</td>
+						<td align='center'><?php echo xlt("Start Date");
+?>: &nbsp;&nbsp <?php echo xlt("End Date"); ?>:</td>
 						<td align='center'><?php echo xlt("Submit"); ?></td>
 					</tr>
 					<tr height='1.5em'>
@@ -527,11 +528,13 @@ jQuery-UI dialog
 		var str = "<p><em><?php echo xla('Selected Files'); ?>:</em></p>";
 		str = str + "<ul id='uplsel' class='fupl'>";
 		for(var i = 0; i < fct; i++) {
-			if (i == fmaxupl) str = str + '</ul><p><?php echo xla('max file count reached'); ?><br> - <?php echo xla('reload names below'); ?> </p><ul class=fupl>';
+			if (i == fmaxupl) str = str + '</ul><p><?php echo xla('max file count reached');
+?><br> - <?php echo xla('reload names below'); ?> </p><ul class=fupl>';
 			str = str + "<li>" + uplfiles[i].name + "</li>";  //' ' +
 			fsize += uplfiles[i].size;
 		};
-		str = str + '</ul><p><?php echo xla('Total size'); ?>: ' + bytesToSize(fsize) + ' (<?php echo xla('max'); ?> ' + pmaxsize + ')</p>';
+		str = str + '</ul><p><?php echo xla('Total size');
+?>: ' + bytesToSize(fsize) + ' (<?php echo xla('max'); ?> ' + pmaxsize + ')</p>';
 		jQuery('#uplsubmit').prop('disabled', false);
 		if (upld_ct === 0 ) {
 			jQuery('#processupl').prop('disabled', true);

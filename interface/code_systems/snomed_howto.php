@@ -38,6 +38,8 @@ require_once("../../interface/globals.php");
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the Biannual International Snomed Releases and the US Snomed Releases are currently supported"); ?></h5>
-<h5 class="error_msg"><?php echo xlt("The following International Snomed Release languages are supported"); ?>: <?php echo xlt("English"); ?>, <?php echo xlt("Spanish"); ?></h5>
+<h5 class="error_msg"><?php echo xlt("The following International Snomed Release languages are supported");
+?>: <?php echo xlt("English");
+?>, <?php echo xlt("Spanish"); ?></h5>
 </p>
 </div>

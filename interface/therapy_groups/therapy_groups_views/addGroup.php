@@ -24,21 +24,14 @@
  * @link    http://www.open-emr.org
  */
 ?>
-
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
-
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
 <main id="add-group">
     <div class="container container-group">
         <form method="post" name="addGroup">
             <input type="hidden" name="group_id" value="<?php echo isset($groupData['group_id']) ? attr($groupData['group_id']) : '';?>">
             <div class="row group-row">
                 <div class="col-md-10">
-
                     <span class="title"><?php echo xlt('Add group') ?> </span>
-
                 </div>
             </div>
             <div class="row group-row">
@@ -67,22 +60,27 @@
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Type of group'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';?>><?php echo xlt('Closed'); ?>
+                        <input type="radio" value="1" name="group_type" <?php echo is_null($groupData['group_type']) || $groupData['group_type'] == '1' ? 'checked' : '';
+?>><?php echo xlt('Closed'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';?>><?php echo xlt('Open'); ?>
+                        <input type="radio" value="2" name="group_type"  <?php echo $groupData['group_type'] == '2' ? 'checked' : '';
+?>><?php echo xlt('Open'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';?>><?php echo xlt('Train'); ?>
+                        <input type="radio" value="3" name="group_type"  <?php echo  $groupData['group_type'] == '3' ? 'checked' : '';
+?>><?php echo xlt('Train'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
                     <span class="bold"><?php echo xlt('Obligatory participation'); ?>:</span>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="1" name="group_participation" <?php echo is_null($groupData['group_participation']) || $groupData['group_participation'] == '1' ? 'checked' : '';?>><?php echo xlt('Mandatory'); ?>
+                        <input type="radio" value="1" name="group_participation" <?php echo is_null($groupData['group_participation']) || $groupData['group_participation'] == '1' ? 'checked' : '';
+?>><?php echo xlt('Mandatory'); ?>
                     </label>
                     <label class="radio-inline radio-pos">
-                        <input type="radio" value="2" name="group_participation" <?php echo $groupData['group_participation'] == '2' ? 'checked' : '';?>><?php echo xlt('Optional'); ?>
+                        <input type="radio" value="2" name="group_participation" <?php echo $groupData['group_participation'] == '2' ? 'checked' : '';
+?>><?php echo xlt('Optional'); ?>
                     </label>
                 </div>
                 <div class="col-md-4">
@@ -93,7 +91,9 @@
                         <div class="col-md-6 col-sm-6">
                             <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>">
                                 <?php foreach($statuses as $key => $status): ?>
-                                    <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
+                                    <option value="<?php echo attr($key);
+?>" <?php echo $key == $groupData['group_status'] ? 'selected' : '';
+?>><?php echo xlt($status); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -109,7 +109,9 @@
                         <div class="col-md-8 col-sm-7">
                             <select name="counselors[]" multiple class="full-width">
                                 <?php foreach($users as $user): ?>
-                                    <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
+                                    <option value="<?php echo attr($user['id']);
+?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';
+?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -138,15 +140,13 @@
                     </div>
                 </div>
             </div>
-            <?php if($edit):?>
             <div class="row group-row">
                 <div class="col-md-3">
-                    <?php if($edit):?>
-                    <button type="submit" name="save" value="save" <?php echo $savingStatus == 'success' ? 'disabled' : '';?>><?php echo xlt('Add group');?></button>
-                    <?php endif;?>
+                    <button type="submit" name="save" value="save" <?php echo $savingStatus == 'success' ? 'disabled' : '';
+?>><?php echo xlt('Add group');?></button>
                 </div>
                 <div class="col-md-9 col-sm 12">
-                    <?php if($edit):?>
+
                     <?php if($savingStatus == 'exist'): ?>
                         <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                     <?php endif ?>
@@ -156,10 +156,8 @@
                     <?php if($savingStatus == 'failed'): ?>
                         <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
-                    <?php endif;?>
                 </div>
             <div>
-                <?php endif;?>
         </form>
     </div>
 </main>
@@ -181,18 +179,5 @@
 </script>
 <?php    $use_validate_js = 1;?>
 <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=addGroup');?>
-<?php else :?>
-
-    <div class="container">
-
-    <div class="row alert alert-info">
-    <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
-    </div>
-    </div>
-
-
-
-<?php endif;?>
-
 <?php require 'footer.php'; ?>
 

@@ -24,15 +24,16 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
 $alertmsg = '';
 
-function bucks($amount) {
-  if ($amount) return oeFormatMoney($amount);
-  return "";
+function bucks($amount)
+{
+    if ($amount) return oeFormatMoney($amount);
+    return "";
 }
 
 $form_start_date = fixDate($_POST['form_start_date'], date("Y-01-01"));
@@ -41,7 +42,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 ?>
 <html>
 <head>
-
+<?php html_header_show(); ?>
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -67,11 +68,13 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
     }
 }
 
-</style>
-
-<?php Header::setupHeader('datetime-picker'); ?>
+</style><link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php xl('Indigent Patients Report','e')?></title>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -94,7 +97,8 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Indigent Patients','e'); ?></span>
+<span class='title'><?php xl('Report','e');
+?> - <?php xl('Indigent Patients','e'); ?></span>
 
 <form method='post' action='indigent_patients_report.php' id='theform'>
 
@@ -109,18 +113,18 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 	<table class='text'>
 		<tr>
-			<td class='control-label'>
-			   <?php xl('Visits From','e'); ?>:
+			<td class='label_custom'>
+                <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
+			   <input type='text' class='datepicker' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='control-label'>
-			   <?php xl('To','e'); ?>:
+			<td class='label_custom'>
+                <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker form-control' name='form_end_date' id="form_end_date" size='10' value='<?php echo $form_end_date ?>'
+			   <input type='text' class='datepicker' name='form_end_date' id="form_end_date" size='10' value='<?php echo $form_end_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
 		</tr>
@@ -133,17 +137,20 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div class="text-center">
-          <div class="btn-group" role="group">
-					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-						  <?php echo xlt('Submit'); ?>
-					  </a>
-					  <?php if ($_POST['form_refresh']) { ?>
-					    <a href='#' class='btn btn-default btn-print' id='printbutton'>
-							  <?php echo xlt('Print'); ?>
-					    </a>
-					  <?php } ?>
-          </div>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' id='printbutton'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
 				</div>
 			</td>
 		</tr>
@@ -173,43 +180,43 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
    &nbsp;<?php xl('Due Date','e')?>
   </th>
   <th align="right">
-   <?php xl('Amount','e')?>&nbsp;
+    <?php xl('Amount','e')?>&nbsp;
   </th>
   <th align="right">
-   <?php xl('Paid','e')?>&nbsp;
+    <?php xl('Paid','e')?>&nbsp;
   </th>
   <th align="right">
-   <?php xl('Balance','e')?>&nbsp;
+    <?php xl('Balance','e')?>&nbsp;
   </th>
  </thead>
 
 <?php
-  if ($_POST['form_refresh']) {
+if ($_POST['form_refresh']) {
 
     $where = "";
 
     if ($form_start_date) {
-      $where .= " AND e.date >= '$form_start_date'";
+        $where .= " AND e.date >= '$form_start_date'";
     }
     if ($form_end_date) {
-      $where .= " AND e.date <= '$form_end_date'";
+        $where .= " AND e.date <= '$form_end_date'";
     }
 
     $rez = sqlStatement("SELECT " .
-      "e.date, e.encounter, p.pid, p.lname, p.fname, p.mname, p.ss " .
-      "FROM form_encounter AS e, patient_data AS p, insurance_data AS i " .
-      "WHERE p.pid = e.pid AND i.pid = e.pid AND i.type = 'primary' " .
-      "AND i.provider = ''$where " .
-      "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date"
+    "e.date, e.encounter, p.pid, p.lname, p.fname, p.mname, p.ss " .
+    "FROM form_encounter AS e, patient_data AS p, insurance_data AS i " .
+    "WHERE p.pid = e.pid AND i.pid = e.pid AND i.type = 'primary' " .
+    "AND i.provider = ''$where " .
+    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date"
     );
 
     $total_amount = 0;
     $total_paid   = 0;
 
     for ($irow = 0; $row = sqlFetchArray($rez); ++$irow) {
-      $patient_id = $row['pid'];
-      $encounter_id = $row['encounter'];
-      $invnumber = $row['pid'] . "." . $row['encounter'];
+        $patient_id = $row['pid'];
+        $encounter_id = $row['encounter'];
+        $invnumber = $row['pid'] . "." . $row['encounter'];
         $inv_duedate = '';
         $arow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
           "pid = '$patient_id' AND encounter = '$encounter_id'");
@@ -227,10 +234,10 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
           "pid = '$patient_id' AND encounter = '$encounter_id'");
         $inv_paid   += $arow['pay'];
         $inv_amount -= $arow['adj'];
-      $total_amount += bucks($inv_amount);
-      $total_paid   += bucks($inv_paid);
+        $total_amount += bucks($inv_amount);
+        $total_paid   += bucks($inv_paid);
 
-      $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
+        $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
 ?>
  <tr bgcolor='<?php  echo $bgcolor ?>'>
   <td class="detail">
@@ -249,46 +256,46 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
    &nbsp;<?php  echo oeFormatShortDate($inv_duedate) ?>
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($inv_amount) ?>&nbsp;
+    <?php  echo bucks($inv_amount) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($inv_paid) ?>&nbsp;
+    <?php  echo bucks($inv_paid) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($inv_amount - $inv_paid) ?>&nbsp;
+    <?php  echo bucks($inv_amount - $inv_paid) ?>&nbsp;
   </td>
  </tr>
 <?php
     }
 ?>
- <tr bgcolor='#dddddd'>
-  <td class="detail">
-   &nbsp;<?php xl('Totals','e'); ?>
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
-  <td class="detail">
-   &nbsp;
-  </td>
-  <td class="detail" align="right">
-   <?php  echo bucks($total_amount) ?>&nbsp;
-  </td>
-  <td class="detail" align="right">
-   <?php  echo bucks($total_paid) ?>&nbsp;
-  </td>
-  <td class="detail" align="right">
-   <?php  echo bucks($total_amount - $total_paid) ?>&nbsp;
-  </td>
- </tr>
+<tr bgcolor='#dddddd'>
+<td class="detail">
+ &nbsp;<?php xl('Totals','e'); ?>
+</td>
+<td class="detail">
+ &nbsp;
+</td>
+<td class="detail">
+ &nbsp;
+</td>
+<td class="detail">
+ &nbsp;
+</td>
+<td class="detail">
+ &nbsp;
+</td>
+<td class="detail" align="right">
+    <?php  echo bucks($total_amount) ?>&nbsp;
+</td>
+<td class="detail" align="right">
+    <?php  echo bucks($total_paid) ?>&nbsp;
+</td>
+<td class="detail" align="right">
+    <?php  echo bucks($total_amount - $total_paid) ?>&nbsp;
+</td>
+</tr>
 <?php
-  }
+}
 ?>
 
 </table>
@@ -297,9 +304,9 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 </form>
 <script>
 <?php
-	if ($alertmsg) {
-		echo "alert('$alertmsg');\n";
-	}
+if ($alertmsg) {
+    echo "alert('$alertmsg');\n";
+}
 ?>
 </script>
 </body>

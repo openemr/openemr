@@ -25,8 +25,8 @@ $query = "SELECT status FROM re_identification_status";
 $res = sqlStatement($query);
 if ($row = sqlFetchArray($res))
 {
-	$status = addslashes($row['status']);
-	/* $Status:
+    $status = addslashes($row['status']);
+    /* $Status:
 	*  0 - There is no Re Identification in progress. (start new Re Identification process)
 	*  1 - A Re Identification process is currently in progress.
 	*  2 - The Re Identification process completed and xls file is ready to download
@@ -94,9 +94,9 @@ system ($sh_cmd);
 		<td>&nbsp;</td>
 		<td rowspan="3"><br>
 		<?php echo xl('Re Identification Process is ongoing');
-		echo "</br></br>";
-		echo xl('Please visit Re Identification screen after some time');
-		echo "</br>";	?> </br>
+        echo "</br></br>";
+        echo xl('Please visit Re Identification screen after some time');
+        echo "</br>";	?> </br>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
@@ -121,18 +121,18 @@ system ($sh_cmd);
 else if($status == 2)
 {
  //2 - The Re Identification process completed and xls file is ready to download
-	$query = "update re_identification_status set status = 0";
-	$res = sqlStatement($query);
-	$query = "SELECT count(*) as count FROM re_identified_data";
-	$res = sqlStatement($query);
+    $query = "update re_identification_status set status = 0";
+    $res = sqlStatement($query);
+    $query = "SELECT count(*) as count FROM re_identified_data";
+    $res = sqlStatement($query);
 
-	if ($row = sqlFetchArray($res))
-	{
-	 $no_of_items = addslashes($row['count']);
-	}
-	if($no_of_items <= 1)
-	{
-		?>
+    if ($row = sqlFetchArray($res))
+    {
+        $no_of_items = addslashes($row['count']);
+    }
+    if($no_of_items <= 1)
+    {
+        ?>
 	<table>
 	<tr>
 		<td>&nbsp;</td>
@@ -148,9 +148,9 @@ else if($status == 2)
 		<td>&nbsp;</td>
 		<td rowspan="3"><br>
 		<?php echo xl('No match Patient record found for the given Re Idenitification code');
-		echo "</br></br>";
-		echo xl('Please enter correct Re Identification code');
-		echo "</br>";	?> </br>
+        echo "</br></br>";
+        echo xl('Please enter correct Re Identification code');
+        echo "</br>";	?> </br>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
@@ -170,42 +170,42 @@ else if($status == 2)
 	</tr>
 	</table>
 		<?php
-	}
-	else
-	{
-		//delete old re_identified_data.xls file
-		$timestamp=0;
-		$query = "select now() as timestamp";
-		$res = sqlStatement($query);
-		if ($row = sqlFetchArray($res))
-		{
-			$timestamp = addslashes($row['timestamp']);
-		}
-		$timestamp = str_replace(" ","_",$timestamp);
-		$filename = $GLOBALS['temporary_files_dir']."/re_identified_data".$timestamp.".xls";
-		$query = "select * from re_identified_data into outfile '$filename' ";
-		$res = sqlStatement($query);
-		ob_end_clean();
-		//download Re Identification .xls file
-		if (file_exists($filename)) {
-			header('Content-Description: File Transfer');
-			header('Content-Type: application/octet-stream');
-			header('Content-Disposition: attachment; filename='.basename($filename));
-			header('Content-Transfer-Encoding: none');
-			header('Content-Type: application/vnd.ms-excel;');                 // This should work for IE & Opera
-			header("Content-type: application/x-msexcel");                    // This should work for the rest
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-			header('Pragma: public');
-			header('Content-Length: ' . filesize($filename));
-			ob_clean();
-			flush();
-			readfile($filename);
+    }
+    else
+    {
+        //delete old re_identified_data.xls file
+        $timestamp=0;
+        $query = "select now() as timestamp";
+        $res = sqlStatement($query);
+        if ($row = sqlFetchArray($res))
+        {
+            $timestamp = addslashes($row['timestamp']);
+        }
+        $timestamp = str_replace(" ","_",$timestamp);
+        $filename = $GLOBALS['temporary_files_dir']."/re_identified_data".$timestamp.".xls";
+        $query = "select * from re_identified_data into outfile '$filename' ";
+        $res = sqlStatement($query);
+        ob_end_clean();
+        //download Re Identification .xls file
+        if (file_exists($filename)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename='.basename($filename));
+            header('Content-Transfer-Encoding: none');
+            header('Content-Type: application/vnd.ms-excel;');                 // This should work for IE & Opera
+            header("Content-type: application/x-msexcel");                    // This should work for the rest
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($filename));
+            ob_clean();
+            flush();
+            readfile($filename);
 
-			//xls file downloaded complete
-		}
+            //xls file downloaded complete
+        }
 
-	}
+    }
 }
 ?></form>
 </body>

@@ -110,15 +110,15 @@ $res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on
         $context=sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?",array($row['cl_list_id']));
         $i++;
         $class = ($class=='reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
-     echo "<tr class='text ".htmlspecialchars($class,ENT_QUOTES)."'>";
-     echo "<td>".$i."</td>";
-     echo "<td>".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</td>";
-     echo "<td>".htmlspecialchars($context['cl_list_item_long'],ENT_QUOTES)."</td>";
-     echo "<td>".htmlspecialchars($row['fname']." ".$row['mname']." ".$row['lname'],ENT_QUOTES)."</td>";
-     echo "<td><a href=#>";
-     echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('".htmlspecialchars($row['cl_list_slno'],ENT_QUOTES)."')>";
-     echo "</a></td>";
-     echo "</tr>";
+        echo "<tr class='text ".htmlspecialchars($class,ENT_QUOTES)."'>";
+        echo "<td>".$i."</td>";
+        echo "<td>".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</td>";
+        echo "<td>".htmlspecialchars($context['cl_list_item_long'],ENT_QUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['fname']." ".$row['mname']." ".$row['lname'],ENT_QUOTES)."</td>";
+        echo "<td><a href=#>";
+        echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('".htmlspecialchars($row['cl_list_slno'],ENT_QUOTES)."')>";
+        echo "</a></td>";
+        echo "</tr>";
     }
     echo "</table>";
     ?>

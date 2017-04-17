@@ -16,14 +16,17 @@ require_once ("ICache.php");
  * @version 2.0
  */
 class CacheNoCache implements ICache {
-	private $ram = array ();
-	public function Get($key, $flags = null) {
-		return null;
-	}
-	public function Set($key, $val, $flags = null, $timeout = 0) {
-	}
-	public function Delete($key) {
-	}
+    private $ram = array ();
+    public function Get($key, $flags = null)
+    {
+        return null;
+    }
+    public function Set($key, $val, $flags = null, $timeout = 0)
+    {
+    }
+    public function Delete($key)
+    {
+    }
 }
 
 ?>

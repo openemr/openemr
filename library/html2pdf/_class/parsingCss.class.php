@@ -477,8 +477,10 @@ class HTML2PDF_parsingCss
     {
         // prepare
         $tagName = strtolower($tagName);
-        $id   = isset($param['id'])   ? strtolower(trim($param['id']))   : null; if (!$id)   $id   = null;
-        $name = isset($param['name']) ? strtolower(trim($param['name'])) : null; if (!$name) $name = null;
+        $id   = isset($param['id'])   ? strtolower(trim($param['id']))   : null;
+        if (!$id)   $id   = null;
+        $name = isset($param['name']) ? strtolower(trim($param['name'])) : null;
+        if (!$name) $name = null;
 
         // read the class attribute
         $class = array();
@@ -545,8 +547,10 @@ class HTML2PDF_parsingCss
     {
         // prepare the informations
         $tagName = strtolower($tagName);
-        $id   = isset($param['id'])   ? strtolower(trim($param['id']))    : null; if (!$id)   $id   = null;
-        $name = isset($param['name']) ? strtolower(trim($param['name']))  : null; if (!$name) $name = null;
+        $id   = isset($param['id'])   ? strtolower(trim($param['id']))    : null;
+        if (!$id)   $id   = null;
+        $name = isset($param['name']) ? strtolower(trim($param['name']))  : null;
+        if (!$name) $name = null;
 
         // get the class names to use
         $class = array();
@@ -813,9 +817,9 @@ class HTML2PDF_parsingCss
                     $val = explode(' ', $val);
                     foreach ($val as $valK => $valV) {
                             $val[$valK] = $this->convertToColor($valV, $res);
-                            if (!$res) {
-                                $val[$valK] = null;
-                            }
+                        if (!$res) {
+                            $val[$valK] = null;
+                        }
                     }
                     $this->_duplicateBorder($val);
                     if (is_array($val[0])) $this->value['border']['t']['color'] = $val[0];
@@ -1690,7 +1694,9 @@ class HTML2PDF_parsingCss
             foreach ($styles as $style) {
                 $tmp = explode(':', $style);
                 if (count($tmp)>1) {
-                    $cod = $tmp[0]; unset($tmp[0]); $tmp = implode(':', $tmp);
+                    $cod = $tmp[0];
+                    unset($tmp[0]);
+                    $tmp = implode(':', $tmp);
                     $css[trim(strtolower($cod))] = trim($tmp);
                 }
             }
@@ -1778,7 +1784,9 @@ class HTML2PDF_parsingCss
                     $urlMain = 'http://'.$url[0].'/';
 
                     // get the absolute url of the path
-                    $urlSelf = $url; unset($urlSelf[count($urlSelf)-1]); $urlSelf = 'http://'.implode('/', $urlSelf).'/';
+                    $urlSelf = $url;
+                    unset($urlSelf[count($urlSelf)-1]);
+                    $urlSelf = 'http://'.implode('/', $urlSelf).'/';
 
                     // adapt the url in the css content
                     $content = preg_replace('/url\(([^\\\\][^)]*)\)/isU', 'url('.$urlSelf.'$1)', $content);

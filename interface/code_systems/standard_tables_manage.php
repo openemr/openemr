@@ -71,26 +71,26 @@ if ($db == 'RXNORM') {
     }
 } else if ( $db == 'SNOMED') {
     if ($version == "US Extension") {
-        if (!snomed_import(TRUE)) {
+        if (!snomed_import(true)) {
             echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
-         }
+        }
     }
     else { //$version is not "US Extension"
-        if (!snomed_import(FALSE)) {
+        if (!snomed_import(false)) {
             echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
-         }
+        }
     }
 }
 else if($db == 'CQM_VALUESET'){
-	if(!valueset_import($db)){
-		echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
-		temp_dir_cleanup($db);
-		exit;
-	}
+    if(!valueset_import($db)){
+        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+        temp_dir_cleanup($db);
+        exit;
+    }
 }
 else { //$db == 'ICD'
     if (!icd_import($db)) {

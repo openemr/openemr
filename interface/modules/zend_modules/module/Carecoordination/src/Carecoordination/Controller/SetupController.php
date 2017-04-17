@@ -28,7 +28,7 @@ use Application\Listener\Listener;
 class SetupController extends AbstractActionController
 {
     protected $setupTable;
-	protected $listenerObject;
+    protected $listenerObject;
     
     public function __construct()
     {
@@ -45,7 +45,7 @@ class SetupController extends AbstractActionController
         $lbfforms   = $this->getSetupTable()->getLbfList();
         $table_list = $this->getSetupTable()->getTableList();
         $folders    = $this->getSetupTable()->getDocuments();
-	$ccda_saved = $this->getSetupTable()->getMappedFields(1);
+        $ccda_saved = $this->getSetupTable()->getMappedFields(1);
         
         $index      = new ViewModel(array(
             'menu'                      => array('system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'),
@@ -53,11 +53,11 @@ class SetupController extends AbstractActionController
             'system_based_forms'        => $forms,
             'layout_based_forms'        => $lbfforms,
             'database_tables'           => $table_list,
-	    'saved'			=> $ccda_saved,
+        'saved'			=> $ccda_saved,
             'folders'                   => $folders,
-			'listenerObject'          => $this->listenerObject,
-	));
-	return $index;
+            'listenerObject'          => $this->listenerObject,
+        ));
+        return $index;
     }
     
     public function savedataAction()
@@ -129,7 +129,7 @@ class SetupController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getSetupTable()
@@ -140,17 +140,17 @@ class SetupController extends AbstractActionController
         }
         return $this->setupTable;
     }
-	
-	/**
-	* Funtion getTitle
-	* Setup Title settings at Configuration View
-	* 
-	* @return string
-	*/
-	public function getTitle()
-	{
-		$title = "Mapper";
-		return $title;
-	}
+    
+    /**
+    * Funtion getTitle
+    * Setup Title settings at Configuration View
+    *
+    * @return string
+    */
+    public function getTitle()
+    {
+        $title = "Mapper";
+        return $title;
+    }
 }
 ?>

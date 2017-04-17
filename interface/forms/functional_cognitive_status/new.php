@@ -167,22 +167,30 @@ $check_res = $formid ? $check_res : array();
                     <tr class="tb_row" id="tb_row_<?php echo $key + 1; ?>">
                         <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                         <td class="forms">
-                            <input type="text" id="code_<?php echo $key + 1; ?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
-                            <span id="displaytext_<?php echo $key + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
-                            <input type="hidden" id="codetext_<?php echo $key + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
+                            <input type="text" id="code_<?php echo $key + 1;
+?>" style="width:210px" name="code[]" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
+                            <span id="displaytext_<?php echo $key + 1;
+?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"codetext"}); ?></span>
+                            <input type="hidden" id="codetext_<?php echo $key + 1;
+?>" name="codetext[]" class="codetext" value="<?php echo text($obj{"codetext"}); ?>">
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Description'); ?>:</td>
                         <td class="forms">
-                            <textarea rows="4" id="description_<?php echo $key + 1; ?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
+                            <textarea rows="4" id="description_<?php echo $key + 1;
+?>" cols="30" name="description[]" class="description"><?php echo text($obj{"description"}); ?></textarea>
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                         <td class="forms">
-                            <input type='text' id="code_date_<?php echo $key + 1; ?>" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                            <input type='text' id="code_date_<?php echo $key + 1;
+?>" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"});
+?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Active'); ?>:</td>
                         <td>
-                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" <?php if ($obj{"activity"} == 1) echo "checked='checked'" ?> class="activity">
-                            <input type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo text($obj{"activity"}); ?>" class="activity1">
+                            <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1;
+?>" value="<?php echo text($obj{"activity"}); ?>" <?php if ($obj{"activity"} == 1) echo "checked='checked'" ?> class="activity">
+                            <input type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1;
+?>" value="<?php echo text($obj{"activity"}); ?>" class="activity1">
                         </td>
                         <td>
                             <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
@@ -190,10 +198,10 @@ $check_res = $formid ? $check_res : array();
                         </td>
                 </tr>
                 <?php
-            }
-        } else {
-            ?>
-            <tr class="tb_row" id="tb_row_1">
+                }
+            } else {
+                ?>
+                <tr class="tb_row" id="tb_row_1">
                 <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                 <td class="forms">
                     <input type="text" id="code_1" name="code[]" class="code" style="width:210px" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
@@ -206,7 +214,8 @@ $check_res = $formid ? $check_res : array();
                 </td>
                 <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                 <td class="forms">
-                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"});
+?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                 </td>
                 <td align="left" class="forms"><?php echo xlt('Active'); ?>:</td>
                 <td>
@@ -217,8 +226,8 @@ $check_res = $formid ? $check_res : array();
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                 </td>
-        </tr>
-    <?php }
+            </tr>
+        <?php }
     ?>
 
     <tr>

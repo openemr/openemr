@@ -12,13 +12,13 @@
  * @version 2.0
  */
 class PaymentResponse {
-	var $OrderNumber = "";
-	var $IsSuccess = false;
-	var $TransactionId = "";
-	var $ResponseCode = "";
-	var $ResponseMessage = "";
-	var $RawResponse = "";
-	var $ParsedResponse = array ();
+    var $OrderNumber = "";
+    var $IsSuccess = false;
+    var $TransactionId = "";
+    var $ResponseCode = "";
+    var $ResponseMessage = "";
+    var $RawResponse = "";
+    var $ParsedResponse = array ();
 }
 
 ?>

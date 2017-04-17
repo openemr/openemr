@@ -85,7 +85,8 @@ class TherapyGroupsController extends BaseController{
      * making validation and saving in the match tables.
      * @param null $groupId - must pass when edit group
      */
-    public function index($groupId = null){
+    public function index($groupId = null)
+    {
 
         $data = array();
         if($groupId) self::setSession($groupId);
@@ -204,7 +205,8 @@ class TherapyGroupsController extends BaseController{
      * @param $isEdit type of testing
      * @return bool
      */
-    private function alreadyExist($groupData, $isEdit = false){
+    private function alreadyExist($groupData, $isEdit = false)
+    {
 
         if($isEdit){
             //return false if not touched on name and date
@@ -222,7 +224,8 @@ class TherapyGroupsController extends BaseController{
     /**
      * Controller for loading the therapy groups to be listed in 'listGroups' view.
      */
-    public function listGroups(){
+    public function listGroups()
+    {
 
         //If deleting a group
         if($_GET['deleteGroup'] == 1){
@@ -259,7 +262,8 @@ class TherapyGroupsController extends BaseController{
      * @param $counselors
      * @return array
      */
-    private function prepareGroups($therapy_groups, $counselors){
+    private function prepareGroups($therapy_groups, $counselors)
+    {
 
         $new_array = array();
         $users_model = $this->loadModel('Users');
@@ -286,7 +290,8 @@ class TherapyGroupsController extends BaseController{
 
     }
 
-    private function shortenNotes($notes){
+    private function shortenNotes($notes)
+    {
 
         $length = strlen($notes);
         if($length > $this->notes_preview_proper_length){
@@ -300,7 +305,8 @@ class TherapyGroupsController extends BaseController{
      * @param $counselors
      * @return array
      */
-    private function prepareCounselorsList($counselors){
+    private function prepareCounselorsList($counselors)
+    {
 
         $new_array = array();
         $users_model = $this->loadModel('Users');
@@ -319,7 +325,8 @@ class TherapyGroupsController extends BaseController{
      * @param $group_id
      * @return array
      */
-    private function deleteGroup($group_id){
+    private function deleteGroup($group_id)
+    {
 
         $response = array();
 
@@ -344,7 +351,8 @@ class TherapyGroupsController extends BaseController{
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id){
+    private function checkIfHasApptOrEncounter($group_id)
+    {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
         $events = $therapy_groups_events_model->getGroupEvents($group_id);
@@ -363,7 +371,8 @@ class TherapyGroupsController extends BaseController{
      * @param $groupData
      * @return int $groupId
      */
-    private function saveNewGroup($groupData){
+    private function saveNewGroup($groupData)
+    {
 
         $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
         unset($groupData['groupId'], $groupData['save'], $groupData['counselors']);
@@ -382,7 +391,8 @@ class TherapyGroupsController extends BaseController{
      * @param $groupData
      * @return int $groupId
      */
-    private function updateGroup($groupData){
+    private function updateGroup($groupData)
+    {
 
         $counselors = !empty($groupData['counselors']) ? $groupData['counselors'] : array();
         unset($groupData['save'], $groupData['counselors']);
@@ -395,7 +405,8 @@ class TherapyGroupsController extends BaseController{
         }
     }
 
-    static function setSession($groupId){
+    static function setSession($groupId)
+    {
 
         setpid(0);
         if($_SESSION['therapy_group'] != $groupId){

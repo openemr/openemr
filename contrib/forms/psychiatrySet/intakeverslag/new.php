@@ -35,7 +35,7 @@ $age = getPatientAge($result["DOB_YMD"]);
 // Function:	getPatientDateOfLastEncounter
 function getPatientDateOfLastEncounter( $nPid )
 {
-  $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
+    $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
                   FROM openemr_postcalendar_events
                   WHERE pc_pid = $nPid
                   AND pc_apptstatus = '@'
@@ -43,9 +43,9 @@ function getPatientDateOfLastEncounter( $nPid )
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-  if( $strEventDate['max'] != "" )
+    if( $strEventDate['max'] != "" )
     return( $strEventDate['max'] );
-  else
+    else
     return( "00-00-0000" );
 }
 
@@ -106,7 +106,7 @@ $(document).ready(function(){
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
                         });
 
@@ -195,7 +195,8 @@ function autosave( )
 </script>
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-<form method=post action="<?php echo $rootdir;?>/forms/intakeverslag/save.php?mode=new&saveid=<?php echo $intakeverslag_id; ?>" name="my_form">
+<form method=post action="<?php echo $rootdir;
+?>/forms/intakeverslag/save.php?mode=new&saveid=<?php echo $intakeverslag_id; ?>" name="my_form">
 <span class="title"><?php xl('Psychiatric Intake','e'); ?></span><br><br>
 
 <table>
@@ -267,7 +268,8 @@ function autosave( )
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";
+?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

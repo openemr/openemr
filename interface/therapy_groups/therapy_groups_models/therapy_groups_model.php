@@ -28,7 +28,8 @@ class Therapy_Groups{
 
     const TABLE = 'therapy_groups';
 
-    public function getAllGroups(){
+    public function getAllGroups()
+    {
 
         $sql = 'SELECT * FROM ' . self::TABLE . ' ORDER BY ' . self::TABLE . '.group_start_date DESC;';
 
@@ -40,7 +41,8 @@ class Therapy_Groups{
         return $therapy_groups;
     }
 
-    public function getGroup($groupId){
+    public function getGroup($groupId)
+    {
 
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ?";
 
@@ -49,7 +51,8 @@ class Therapy_Groups{
         return $group;
     }
 
-    public function saveNewGroup(array $groupData){
+    public function saveNewGroup(array $groupData)
+    {
 
         $sql = "INSERT INTO " . self::TABLE . " (group_name, group_start_date,group_type,group_participation,group_status,group_notes,group_guest_counselors) VALUES(?,?,?,?,?,?,?)";
         $groupId = sqlInsert($sql, $groupData);
@@ -57,7 +60,8 @@ class Therapy_Groups{
         return $groupId;
     }
 
-    public function updateGroup(array $groupData){
+    public function updateGroup(array $groupData)
+    {
 
         $sql = "UPDATE " . self::TABLE . " SET ";
         foreach($groupData as $key => $value){
@@ -70,7 +74,8 @@ class Therapy_Groups{
         return !$result ? false :true;
     }
 
-    public function existGroup($name, $startDate, $groupId = null){
+    public function existGroup($name, $startDate, $groupId = null)
+    {
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE group_name = ? AND group_start_date = ?";
         $conditions = array($name, $startDate);
@@ -91,7 +96,8 @@ class Therapy_Groups{
      * @param $group_id
      * @param $status
      */
-    public function changeGroupStatus($group_id, $status){
+    public function changeGroupStatus($group_id, $status)
+    {
 
         $sql = "UPDATE " . self::TABLE . " SET `group_status` = ? WHERE group_id = ?";
 
@@ -105,7 +111,8 @@ class Therapy_Groups{
      * @param $column
      * @return array
      */
-    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true){
+    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true)
+    {
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'
         if($onlyActive) $sql .= ' AND group_status = 10 ';

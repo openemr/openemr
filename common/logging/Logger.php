@@ -54,7 +54,8 @@ class Logger {
      *
      * @param $classContext - provided when a class uses the logger.
      */
-    public function __construct($classContext="UnknownClassContext") {
+    public function __construct($classContext="UnknownClassContext")
+    {
         if (isset($GLOBALS["log_level"]) && $GLOBALS["log_level"] !== "OFF") {
             $this->classContext = $classContext;
             $this->determineLogFilePath();
@@ -68,7 +69,8 @@ class Logger {
      * On *nix, the file will be stored in /home/current_user/openemr/ (if writable). On Windows, it will
      * be stored in C:\Users\current_user\openemr\ (if writable).
      */
-    private function determineLogFilePath() {
+    private function determineLogFilePath()
+    {
         $fileName = date("Y_m_d") . "_application.log";
 
         global $webserver_root;
@@ -102,7 +104,8 @@ class Logger {
      * @param $level the incoming log level
      * @return boolean that represents if log entry should be made
      */
-    private function isLogLevelInDesiredHierarchy($level) {
+    private function isLogLevelInDesiredHierarchy($level)
+    {
         if (empty($GLOBALS["log_level"]) || $GLOBALS["log_level"] === "OFF") {
             return false;
         }
@@ -127,7 +130,8 @@ class Logger {
      *
      * @param $message - the log message
      */
-    public function info($message) {
+    public function info($message)
+    {
         $this->log($message, "INFO");
     }
 
@@ -137,7 +141,8 @@ class Logger {
      *
      * @param $message - the log message
      */
-    public function debug($message) {
+    public function debug($message)
+    {
         $this->log($message, "DEBUG");
     }
 
@@ -147,7 +152,8 @@ class Logger {
      *
      * @param $message - the log message
      */
-    public function trace($message) {
+    public function trace($message)
+    {
         $this->log($message, "TRACE");
     }
 
@@ -156,7 +162,8 @@ class Logger {
      *
      * @param $message - the log message
      */
-    public function warn($message) {
+    public function warn($message)
+    {
         $this->log($message, "WARN");
     }
 
@@ -165,7 +172,8 @@ class Logger {
      *
      * @param $message - the log message
      */
-    public function error($message) {
+    public function error($message)
+    {
         $this->log($message, "ERROR");
     }
 
@@ -176,7 +184,8 @@ class Logger {
      * @param $message - the log message
      * @param $type - the log type
      */
-    private function log($message, $type) {
+    private function log($message, $type)
+    {
         if ($this->isLogLevelInDesiredHierarchy($type) && !empty($this->logFile)) {
             $logEntry = date("Y-m-d H:i:s") . " [" . $type . "] " . $this->classContext . " - " . $message;
 

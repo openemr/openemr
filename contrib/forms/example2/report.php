@@ -4,7 +4,8 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 
 /** CHANGE THIS, the name of the function is significant and  **
  **              must be changed to match the folder name     **/
-function example_report( $pid, $encounter, $cols, $id) {
+function example_report( $pid, $encounter, $cols, $id)
+{
     
     /** CHANGE THIS - name of the database table associated with this form **/
     $table_name = "form_example";
@@ -24,7 +25,7 @@ function example_report( $pid, $encounter, $cols, $id) {
                 $value == "n")
             {
                 // skip certain fields and blank data
-	        continue;
+                continue;
             }
 
             $key=ucwords(str_replace("_"," ",$key));

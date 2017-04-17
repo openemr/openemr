@@ -40,9 +40,12 @@
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root'];
+?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root'];
+?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root'];
+?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">

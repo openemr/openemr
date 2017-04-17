@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *
@@ -54,7 +54,7 @@ $theresult = array();
 foreach ($result as $iter) {
     $theresult[] = $iter;
 }
-$dashuser = Array();
+$dashuser = array();
 if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
 }
@@ -529,7 +529,8 @@ function getAuthPortalUsers()
 		<div class='header logo'>
 			<h2>
 				<img style='width: 25%; height: auto;' class='logo'
-					src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />  <?php echo xlt('Patient Messaging'); ?></h2>
+					src='<?php echo $GLOBALS['images_static_relative'];
+?>/logo-full-con.png' />  <?php echo xlt('Patient Messaging'); ?></h2>
 		</div>
 		<div class="row" ng-controller="inboxCtrl">
 			<aside class="col-md-1"
@@ -642,7 +643,8 @@ function getAuthPortalUsers()
 									<a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation'); ?></a>
 									<span><?php //echo xlt('Seleted Message id'); ?>
 										<!-- :{{selected.id}} --> <?php echo xlt('from'); ?> </span> <strong>{{selected.sender_name}}</strong>
-								<?php echo xlt('regarding'); ?> {{selected.title}} <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
+								<?php echo xlt('regarding');
+?> {{selected.title}} <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
 							</blockquote>
 							</div>
 							<div class="col-md-3">

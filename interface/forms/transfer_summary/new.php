@@ -51,11 +51,11 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 </script>
@@ -75,10 +75,10 @@ echo "<form method='post' name='my_form' " .
 		<td class="forms">
 			<label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "fname,lname,squad");
-   echo text($result['fname'])." ".text($result['lname']);}
+                $result = getPatientData($pid, "fname,lname,squad");
+                echo text($result['fname'])." ".text($result['lname']);}
    $patient_name=($result['fname'])." ".($result['lname']);
-   ?>
+    ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
 		</td>
@@ -86,10 +86,10 @@ echo "<form method='post' name='my_form' " .
 		<td class="forms">
 		<label class="forms-data"> <?php if (is_numeric($pid)) {
 
-    $result = getPatientData($pid, "*");
-   echo text($result['DOB']);}
+            $result = getPatientData($pid, "*");
+            echo text($result['DOB']);}
    $dob=($result['DOB']);
-   ?>
+    ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
 		</td>

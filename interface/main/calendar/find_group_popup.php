@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- 
+
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
@@ -174,11 +174,11 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     if (isset($_GET["res"])) {
         echo '
 <script language="Javascript">
-			// Pass the variable to parent hidden type and submit
-			opener.document.theform.resname.value = "noresult";
-			opener.document.theform.submit();
-			// Close the window
-			window.self.close();
+            // Pass the variable to parent hidden type and submit
+            opener.document.theform.resname.value = "noresult";
+            opener.document.theform.submit();
+            // Close the window
+            window.self.close();
 </script>';
     }
     ?>
@@ -231,7 +231,8 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 <?php elseif (count($result) >= 100): ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result) < 100): ?>
-<div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
+<div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES);
+?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
 <?php if (isset($result)): ?>

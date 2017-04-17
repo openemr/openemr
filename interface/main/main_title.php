@@ -86,7 +86,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
     $width_column = "100px";
     if (!$GLOBALS['tiny_logo_1'] || !$GLOBALS['tiny_logo_2']) $width_column = "50px"; ?>
     <td align="left" style="width:<?php echo attr($width_column) ?>">
-        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
+        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;
+} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
     </td>
 <?php } ?>
 
@@ -116,7 +117,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
-            <span class='text'><?php xl('Patient','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None','e'); ?></b></span>
+            <span class='text'><?php xl('Patient','e');
+?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None','e'); ?></b></span>
         </div>
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;" align="left">
@@ -126,7 +128,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		</div></td></tr>
 	<tr><td valign="baseline" align="center">
         <div style='display:none' class='text' id="current_encounter_block" >
-            <span class='text'><?php xl('Selected Encounter','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
+            <span class='text'><?php xl('Selected Encounter','e');
+?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
         </div></td></tr></table>
 </td>
 
@@ -139,7 +142,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
 		<td colspan='2' valign="baseline" align='right'><B>
-			<span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"},ENT_NOQUOTES); ?></span></span></td>
+			<span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES);
+?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"},ENT_NOQUOTES); ?></span></span></td>
     	</tr></table>
 </td>
 </tr>

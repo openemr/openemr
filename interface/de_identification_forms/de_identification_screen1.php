@@ -229,14 +229,18 @@ function form_validate()
   alert("<?php echo xl('Select Immunizations for De Identification request');?>");
   return false;
  }
- alert("<?php echo xl('De Identification process is started and running in background'); echo '\n'; echo xl('Please visit the screen after some time');?>");
+ alert("<?php echo xl('De Identification process is started and running in background');
+    echo '\n';
+    echo xl('Please visit the screen after some time');?>");
  top.restoreSession();
  return true;
 }
 
 function download_file()
 {
- alert("<?php echo xl('De-identification files will be saved in'); echo ' `'.$GLOBALS['temporary_files_dir'].'` '; echo xl('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use');?>");
+ alert("<?php echo xl('De-identification files will be saved in');
+    echo ' `'.$GLOBALS['temporary_files_dir'].'` ';
+    echo xl('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use');?>");
  document.de_identification.submit();
 }
 
@@ -247,21 +251,21 @@ function download_file()
 <strong><?php xl('De Identification','e'); ?></strong>
 <?php
  $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
- if (empty($row))
+if (empty($row))
  {
-   ?>
+    ?>
    <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+         <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
  </table>
  <table class="de_identification_status_message" align="center" >
 	<tr valign="top">
-		<td>&nbsp;</td>
-		<td rowspan="3">
-		<br>
+       <td>&nbsp;</td>
+       <td rowspan="3">
+       <br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
 	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
 	<?php echo xl('to run');
-    	echo " de_identification_upgrade.php</br>";?><br>
+       echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
 	</tr>
@@ -274,173 +278,175 @@ function download_file()
 		<td>&nbsp;</td>
 	</tr>
 	</table>
-  <?php
-  }
- else {
- $query = "select status from de_identification_status";
- $res = sqlStatement($query);
- if ($row = sqlFetchArray($res))
- {
-   $deIdentificationStatus = addslashes($row['status']);
- /* $deIdentificationStatus:
- *  0 - There is no De Identification in progress. (start new De Identification process)
- *  1 - A De Identification process is currently in progress.
- *  2 - The De Identification process completed and xls file is ready to download
- *  3 - The De Identification process completed with error
- */
- }
- if($deIdentificationStatus == 1)
- {
-  //1 - A De Identification process is currently in progress.
- ?>
- <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
+    <?php
+}
+else {
+    $query = "select status from de_identification_status";
+    $res = sqlStatement($query);
+    if ($row = sqlFetchArray($res))
+    {
+        $deIdentificationStatus = addslashes($row['status']);
+    /* $deIdentificationStatus:
+    *  0 - There is no De Identification in progress. (start new De Identification process)
+    *  1 - A De Identification process is currently in progress.
+    *  2 - The De Identification process completed and xls file is ready to download
+    *  3 - The De Identification process completed with error
+    */
+    }
+    if($deIdentificationStatus == 1)
+    {
+     //1 - A De Identification process is currently in progress.
+    ?>
+    <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
- </table>
- <table class="de_identification_status_message" align="center" >
+    </table>
+    <table class="de_identification_status_message" align="center" >
 	<tr valign="top">
 		<td>&nbsp;</td>
 		<td rowspan="3">
 		<br>
         <?php echo xl('De Identification Process is ongoing');
-	echo "</br></br>";
-	echo xl('Please visit De Identification screen after some time');
-    	echo "</br>";	?>      <br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
- <?php
- }
- else if($deIdentificationStatus == 2)
- {
-  //2 - The De Identification process completed and xls file is ready to download
-  $query = "SELECT count(*) as count FROM de_identified_data ";
-     $res = sqlStatement($query);
-     if ($row = sqlFetchArray($res))
-     {
-      $no_of_items = addslashes($row['count']);
-	  }
-      if($no_of_items <= 1)
-      {
-	 //start new search - no patient record fount
-	 $query = "update de_identification_status set status = 0";
- $res = sqlStatement($query);
-	 ?>
-	 <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
- </table>
- <table class="de_identification_status_message" align="center" >
+        echo "</br></br>";
+        echo xl('Please visit De Identification screen after some time');
+        echo "</br>";	?>      <br>
+           </td>
+           <td>&nbsp;</td>
+       </tr>
+       <tr>
+           <td>&nbsp;</td>
+           <td>&nbsp;</td>
+       </tr>
+       <tr>
+           <td>&nbsp;</td>
+           <td>&nbsp;</td>
+       </tr>
+       </table>
+    <?php
+    }
+    else if($deIdentificationStatus == 2)
+    {
+     //2 - The De Identification process completed and xls file is ready to download
+        $query = "SELECT count(*) as count FROM de_identified_data ";
+        $res = sqlStatement($query);
+        if ($row = sqlFetchArray($res))
+        {
+            $no_of_items = addslashes($row['count']);
+        }
+        if($no_of_items <= 1)
+         {
+        //start new search - no patient record fount
+            $query = "update de_identification_status set status = 0";
+            $res = sqlStatement($query);
+        ?>
+        <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+         <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+    </table>
+    <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
 
 		<td>&nbsp;</td>
 		<td rowspan="3">
 		<br>
-       <?php echo xl('No Patient record found for given Selection criteria');
-	echo "</br></br>";
-	echo xl('Please start new De Identification process');
-    echo "</br>";	?> </br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+            <?php echo xl('No Patient record found for given Selection criteria');
+            echo "</br></br>";
+            echo xl('Please start new De Identification process');
+            echo "</br>";	?> </br>
+           </td>
+           <td>&nbsp;</td>
+       </tr>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	</table>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       </table>
 
-	<table align="center">
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-      </table>
-	 <?php
-      }
-     else {
- ?>
- <table>  <tr> 	<td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       <table align="center">
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+         </table>
+        <?php
+        }
+        else {
+    ?>
+    <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
- </table>
- <table class="de_identification_status_message" align="center" >
+    </table>
+    <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
 		<td>&nbsp;</td>
 		<td rowspan="3">
 		<br>
         <?php echo xl('De Identification Process is completed');
-	echo "</br></br>";
-	echo xl('Please Click download button to download the De Identified data');
-    echo "</br>";	?>      <br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	</table>
-	<table align="center">
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-   <tr>
-   <td colspan="2" class="style1">
-		<input type="button" name="Download" value=<?php echo xl("Download");?> onclick="download_file()" ></td>
-   </tr>
-   </table>
- <?php
- 	}
- }
- else if($deIdentificationStatus == 3)
- {
-  //3 - The De Identification process completed with error
-  ?>
-   <table>  <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+        echo "</br></br>";
+        echo xl('Please Click download button to download the De Identified data');
+        echo "</br>";	?>      <br>
+           </td>
+           <td>&nbsp;</td>
+       </tr>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       </table>
+       <table align="center">
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+      <tr>
+      <td colspan="2" class="style1">
+           <input type="button" name="Download" value=<?php echo xl("Download");?> onclick="download_file()" ></td>
+      </tr>
+      </table>
+    <?php
+        }
+    }
+    else if($deIdentificationStatus == 3)
+    {
+     //3 - The De Identification process completed with error
+        ?>
+      <table>  <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
 	        <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-   </table>
- <table class="de_identification_status_message" align="center" >
+      </table>
+    <table class="de_identification_status_message" align="center" >
 	    <tr valign="top">
 		<td>&nbsp;</td>
 		<td rowspan="3">
 		<br>
         <?php echo xl('Some error has occured during De Identification Process');
-	echo "</br></br>";
-	echo xl('De Identified data may not be complete');
-    echo "</br></br>";
-   ?><span class="text"><?php echo xl('Please view De Identification error log table for more details');
+        echo "</br></br>";
+        echo xl('De Identified data may not be complete');
+        echo "</br></br>";
+        ?><span class="text"><?php echo xl('Please view De Identification error log table for more details');
     echo "</br>";	?></span> 	<br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	</table>
-	<table align="center">
-	<tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-   <tr>
-   <td colspan="2" class="style1">
-		<input type="button" name="Download" value=<?php echo xl("Download Anyway");?>  onclick="download_file()"></td>
-   </tr>
-   </table>
- </tr>
- </table>
+           </td>
+           <td>&nbsp;</td>
+       </tr>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+       </table>
+       <table align="center">
+       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+      <tr>
+      <td colspan="2" class="style1">
+           <input type="button" name="Download" value=<?php echo xl("Download Anyway");?>  onclick="download_file()"></td>
+      </tr>
+      </table>
+    </tr>
+    </table>
 
-  <?php
-  }
-  if($deIdentificationStatus == 0 )
-  {
-  //0 - There is no De Identification in progress. (start new De Identification process)
- ?>
-<div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;">
-</div>
-<table style="width: 74%" border=0>
+        <?php
+    }
+    if($deIdentificationStatus == 0 )
+    {
+    //0 - There is no De Identification in progress. (start new De Identification process)
+    ?>
+  <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;">
+  </div>
+  <table style="width: 74%" border=0>
 	<tr rowspan=2>
 		<td>&nbsp;</td>
 		<td><span class="text"><?php xl('Begin Date','e'); ?></span>
-		<input type="text" size="10" name="begin_date" id="begin_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
+		<input type="text" size="10" name="begin_date" id="begin_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d');
+?>" title="<?php xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
 		<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php xl('Click here to choose a date','e'); ?>">&nbsp;
 		</td>
 		<td><span class="text"><?php xl('End Date','e'); ?></span>
-		<input type="text" size="10" name="end_date" id="end_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>" title="<?php xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
+		<input type="text" size="10" name="end_date" id="end_date" value="<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d');
+?>" title="<?php xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
 		<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php xl('Click here to choose a date','e'); ?>">
 		</td>
 		<td>&nbsp;</td>
@@ -449,7 +455,8 @@ function download_file()
 		<tr>
 		<td>&nbsp;</td> </tr>
 		<tr><td>&nbsp;</td>
-		<td colspan=2 class="de_identification_input_controls_box"><input type="checkbox" name="unstructured" id="unstructured" value=<?php echo xl("unstructured");?>><span class="text"><?php xl('Include Unstructured data','e'); ?></span></td>
+		<td colspan=2 class="de_identification_input_controls_box"><input type="checkbox" name="unstructured" id="unstructured" value=<?php echo xl("unstructured");
+?>><span class="text"><?php xl('Include Unstructured data','e'); ?></span></td>
 		<td>&nbsp;</td></tr>
 		<tr>
 		<td>&nbsp;</td>
@@ -463,7 +470,7 @@ function download_file()
 				<br />
 				<input type="checkbox" name="prescriptions" id="prescriptions" value="prescriptions"><span class="text"><?php xl('Prescriptions','e'); ?></span>
 
-&nbsp;</td>		<br />
+  &nbsp;</td>     <br />
 				<td><br>
 				<input type="checkbox" name="lists" id="lists" value="lists"><span class="text"><?php xl('Issues','e'); ?> </span><br />
 				<input type="checkbox" name="transactions" id="transactions" value="transactions"><span class="text"><?php xl('Transactions','e'); ?></span>
@@ -471,7 +478,7 @@ function download_file()
 				<input type="checkbox" name="insurance_data" id="insurance_data" value="insurance_data"><span class="text"><?php xl('Insurance Data','e'); ?> </span><br />
 				<input type="checkbox" name="billing_data" id="billing_data" value="billing_data"><span class="text"><?php xl('Billing Data','e'); ?></span> <br />
 
-&nbsp;</td>
+  &nbsp;</td>
 			</tr>
 		</table>
 		</td>
@@ -529,7 +536,7 @@ function download_file()
 		<input type="button" name="add_immunization" id="add_immunization" value=<?php echo xl("Add Immunization"); ?> onclick="get_values('immunizations')">
 		<input type="button" name="remove_immunization" id="remove_immunization" value=<?php echo xl("Remove"); ?> onclick="remove_selected('immunizations')">
 		<br>
-&nbsp;</td>
+  &nbsp;</td>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
@@ -542,17 +549,17 @@ function download_file()
 	<input type="hidden" name="diagnosis_text" id="diagnosis_text"><br>
 		<input type="hidden" name="drug_text" id="drug_text"><br>
 		<input type="hidden" name="immunization_text" id="immunization_text">
-</table>
-<script language='JavaScript'>
-/* required for popup calendar */
-Calendar.setup({inputField:"begin_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
-Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
-</script>
+  </table>
+  <script language='JavaScript'>
+  /* required for popup calendar */
+  Calendar.setup({inputField:"begin_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
+  Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
+  </script>
 	<?php
-	}
-       }
+    }
+}
 
-   ?>
+    ?>
 </form>
 </body>
 </html>

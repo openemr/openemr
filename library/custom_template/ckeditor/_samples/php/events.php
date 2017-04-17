@@ -60,30 +60,32 @@ $CKEditor->editor("editor1", $initialValue);
 /**
  * Adds a global event, will hide the "Target" tab in the "Link" dialog window in all instances.
  */
-function CKEditorHideLinkTargetTab(&$CKEditor) {
+function CKEditorHideLinkTargetTab(&$CKEditor)
+{
 
-	$function = 'function (ev) {
-		// Take the dialog window name and its definition from the event data.
-		var dialogName = ev.data.name;
-		var dialogDefinition = ev.data.definition;
+    $function = 'function (ev) {
+        // Take the dialog window name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
 
-		// Check if the definition comes from the "Link" dialog window.
-		if ( dialogName == "link" )
-			dialogDefinition.removeContents("target")
-	}';
+        // Check if the definition comes from the "Link" dialog window.
+        if ( dialogName == "link" )
+            dialogDefinition.removeContents("target")
+    }';
 
-	$CKEditor->addGlobalEventHandler('dialogDefinition', $function);
+    $CKEditor->addGlobalEventHandler('dialogDefinition', $function);
 }
 
 /**
  * Adds a global event, will notify about an open dialog window.
  */
-function CKEditorNotifyAboutOpenedDialog(&$CKEditor) {
-	$function = 'function (evt) {
-		alert("Loading a dialog window: " + evt.data.name);
-	}';
+function CKEditorNotifyAboutOpenedDialog(&$CKEditor)
+{
+    $function = 'function (evt) {
+        alert("Loading a dialog window: " + evt.data.name);
+    }';
 
-	$CKEditor->addGlobalEventHandler('dialogDefinition', $function);
+    $CKEditor->addGlobalEventHandler('dialogDefinition', $function);
 }
 
 // Include the CKEditor class.
@@ -105,7 +107,7 @@ $initialValue = '<p>This is some <strong>sample text</strong>. You are using <a 
 
 // Event that will be handled only by the first editor.
 $CKEditor->addEventHandler('instanceReady', 'function (evt) {
-	alert("Loaded editor: " + evt.editor.name);
+    alert("Loaded editor: " + evt.editor.name);
 }');
 
 // Create the first instance.
@@ -129,7 +131,7 @@ CKEditorNotifyAboutOpenedDialog($CKEditor);
 // Event that will only be handled by the second editor.
 // Instead of calling addEventHandler(), events may be passed as an argument.
 $events['instanceReady'] = 'function (evt) {
-	alert("Loaded second editor: " + evt.editor.name);
+    alert("Loaded second editor: " + evt.editor.name);
 }';
 
 // Create the second instance.

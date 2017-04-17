@@ -21,14 +21,15 @@
  * @link http://www.open-emr.org
  */
 
-	$this->assign('title', xlt('Patient Portal') . ' | ' . xlt('Onsite Activity Views'));
-	$this->assign('nav','onsiteactivityviews');
+    $this->assign('title', xlt('Patient Portal') . ' | ' . xlt('Onsite Activity Views'));
+    $this->assign('nav','onsiteactivityviews');
 
-	$this->display('_FormsHeader.tpl.php');
-	echo "<script>var cuser='" . $this->cuser . "';</script>";
+    $this->display('_FormsHeader.tpl.php');
+    echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script type="text/javascript">
-	$LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+	$LAB.script("<?php echo $GLOBALS['web_root'];
+?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 		$(document).ready(function(){
 			actpage.init();
 		});
@@ -159,5 +160,5 @@
 	</p>
 </div> <!-- /container -->
 <?php
-	$this->display('_Footer.tpl.php');
+    $this->display('_Footer.tpl.php');
 ?>

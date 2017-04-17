@@ -39,8 +39,8 @@ class HTML2PDF_myPdf extends FPDI
         $format='A4',
         $unicode=true,
         $encoding='UTF-8',
-        $diskcache=false)
-    {
+        $diskcache=false
+    ) {
         // call the parent constructor
         parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache);
 
@@ -252,8 +252,8 @@ class HTML2PDF_myPdf extends FPDI
         $cornerTL=null,
         $cornerTR=null,
         $cornerBL=null,
-        $cornerBR=null)
-    {
+        $cornerBR=null
+    ) {
         // init the path
         $path = '';
 
@@ -584,7 +584,7 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetX($x, $rtloff=false)
     {
-        if (!$rtloff AND $this->rtl) {
+        if (!$rtloff and $this->rtl) {
 
             parent::SetX($x, $rtloff);
         }else{
@@ -604,7 +604,7 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetY($y, $resetx=true, $rtloff=false)
     {
-        if (!$rtloff AND $this->rtl) {
+        if (!$rtloff and $this->rtl) {
 
             parent::SetY($y, $resetx, $rtloff);
         }else{
@@ -628,7 +628,7 @@ class HTML2PDF_myPdf extends FPDI
      */
     public function SetXY($x, $y, $rtloff=false)
     {
-        if (!$rtloff AND $this->rtl) {
+        if (!$rtloff and $this->rtl) {
 
             parent::SetXY($x, $y, $rtloff);
         }else{
@@ -816,50 +816,74 @@ class HTML2PDF_myPdf extends FPDI
                 case 'M':
                 case 'm':
                     $first = $action;
-                    $x = $action[1]; $y = $action[2]; $xc = $x; $yc = $y;
+                    $x = $action[1];
+                    $y = $action[2];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Point($x, $y, true);
                     break;
 
                 // Close the Path
                 case 'Z':
                 case 'z':
-                    $x = $first[1]; $y = $first[2]; $xc = $x; $yc = $y;
+                    $x = $first[1];
+                    $y = $first[2];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Line (new point)
                 case 'L':
-                    $x = $action[1]; $y = $action[2]; $xc = $x; $yc = $y;
+                    $x = $action[1];
+                    $y = $action[2];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Line (vector from last point)
                 case 'l':
-                    $x = $last[0]+$action[1]; $y = $last[1]+$action[2]; $xc = $x; $yc = $y;
+                    $x = $last[0]+$action[1];
+                    $y = $last[1]+$action[2];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Horizontal Line (new point)
                 case 'H':
-                    $x = $action[1]; $y = $last[1]; $xc = $x; $yc = $y;
+                    $x = $action[1];
+                    $y = $last[1];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Horisontal Line (vector from last point)
                 case 'h':
-                    $x = $last[0]+$action[1]; $y = $last[1]; $xc = $x; $yc = $y;
+                    $x = $last[0]+$action[1];
+                    $y = $last[1];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Vertical Line (new point)
                 case 'V':
-                    $x = $last[0]; $y = $action[1]; $xc = $x; $yc = $y;
+                    $x = $last[0];
+                    $y = $action[1];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
                 // Make a Vertical Line (vector from last point)
                 case 'v':
-                    $x = $last[0]; $y = $last[1]+$action[1]; $xc = $x; $yc = $y;
+                    $x = $last[0];
+                    $y = $last[1]+$action[1];
+                    $xc = $x;
+                    $yc = $y;
                     $this->_Line($x, $y, true);
                     break;
 
@@ -876,7 +900,10 @@ class HTML2PDF_myPdf extends FPDI
                     $y2 = $action[7];   // final y
 
                     $this->_Arc2($x1, $y1, $x2, $y2, $rx, $ry, $a, $l, $s, true);
-                    $x = $x2; $y = $y2; $xc = $x; $yc = $y;
+                    $x = $x2;
+                    $y = $y2;
+                    $xc = $x;
+                    $yc = $y;
                     break;
 
                 // Make a Arc (vector from last point)
@@ -892,7 +919,10 @@ class HTML2PDF_myPdf extends FPDI
                     $y2 = $last[1]+$action[7]; // final y
 
                     $this->_Arc2($x1, $y1, $x2, $y2, $rx, $ry, $a, $l, $s, true);
-                    $x = $x2; $y = $y2; $xc = $x; $yc = $y;
+                    $x = $x2;
+                    $y = $y2;
+                    $xc = $x;
+                    $yc = $y;
                     break;
 
                 // Make a Bezier Curve (new point)
@@ -904,7 +934,10 @@ class HTML2PDF_myPdf extends FPDI
                     $xf = $action[5];
                     $yf = $action[6];
                     $this->_Curve($x1, $y1, $x2, $y2, $xf, $yf, true);
-                    $x = $xf; $y = $yf; $xc = $x2; $yc = $y2;
+                    $x = $xf;
+                    $y = $yf;
+                    $xc = $x2;
+                    $yc = $y2;
                     break;
 
                 // Make a Bezier Curve (vector from last point)
@@ -916,7 +949,10 @@ class HTML2PDF_myPdf extends FPDI
                     $xf = $last[0]+$action[5];
                     $yf = $last[1]+$action[6];
                     $this->_Curve($x1, $y1, $x2, $y2, $xf, $yf, true);
-                    $x = $xf; $y = $yf; $xc = $x2; $yc = $y2;
+                    $x = $xf;
+                    $y = $yf;
+                    $xc = $x2;
+                    $yc = $y2;
                     break;
 
                 // Unknown Path
@@ -1007,8 +1043,8 @@ class HTML2PDF_myPdf extends FPDI
         $angleEnd,
         $direction = true,
         $drawFirst = true,
-        $trans=false)
-    {
+        $trans=false
+    ) {
         // if we want the no trigo direction : add 2PI to the begin angle, to invert the direction
         if (!$direction) $angleBegin+= M_PI*2.;
 
@@ -1017,7 +1053,8 @@ class HTML2PDF_myPdf extends FPDI
         $dtm = $dt/3;
 
         // center of the arc
-        $x0 = $xc; $y0 = $yc;
+        $x0 = $xc;
+        $y0 = $yc;
 
         // calculing the first point
         $t1 = $angleBegin;
@@ -1278,8 +1315,8 @@ class HTML2PDF_myPdf extends FPDI
         $bookmarkTitle = true,
         $displayPage = true,
         $page = null,
-        $fontName = 'helvetica')
-    {
+        $fontName = 'helvetica'
+    ) {
         // bookmark the Title if wanted
         if ($bookmarkTitle) $this->Bookmark($titre, 0, -1);
 

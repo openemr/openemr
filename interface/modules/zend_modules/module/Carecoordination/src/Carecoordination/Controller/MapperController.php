@@ -43,7 +43,7 @@ class MapperController extends AbstractActionController
         $lbfforms   = $this->getMapperTable()->getLbfList();
         $table_list = $this->getMapperTable()->getTableList();
         $folders    = $this->getMapperTable()->getDocuments();
-	$ccda_saved = $this->getMapperTable()->getMappedFields(1);
+        $ccda_saved = $this->getMapperTable()->getMappedFields(1);
         
         $index      = new ViewModel(array(
             'menu'                      => array('system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'),
@@ -51,10 +51,10 @@ class MapperController extends AbstractActionController
             'system_based_forms'        => $forms,
             'layout_based_forms'        => $lbfforms,
             'database_tables'           => $table_list,
-	    'saved'			=> $ccda_saved,
+        'saved'			=> $ccda_saved,
             'folders'                   => $folders,
-	));
-	return $index;
+        ));
+        return $index;
     }
     
     public function savedataAction()
@@ -126,7 +126,7 @@ class MapperController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getMapperTable()

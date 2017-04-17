@@ -1,3 +1,4 @@
+<?php
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  *
@@ -16,17 +17,21 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
+?>
+<?php if(isset($_REQUEST['review_id']))
+{ ?>
 
-var app_view_model={};
+<script type="text/javascript">
+    jQuery(document).ready(function()
+    {
+        jQuery("body table:first").hide();
+        jQuery(".encounter-summary-column").hide();
+        jQuery(".css_button").hide();
+        jQuery(".css_button_small").hide();
+        jQuery(".encounter-summary-column:first").show();
+        jQuery(".title:first").text("<?php echo xls("Review");
+?> " + jQuery(".title:first").text() + " ("+<?php echo addslashes($encounter); ?>+")");
+    });
+</script>
 
-app_view_model.application_data={};
-
-app_view_model.application_data.tabs=new tabs_view_model();
-
-app_view_model.application_data.patient=ko.observable(null);
-
-app_view_model.application_data.user=ko.observable(null);
-
-app_view_model.application_data.therapy_group=ko.observable(null);
-
-app_view_model.attendant_template_type=ko.observable('patient-data-template');
+<?php } ?>

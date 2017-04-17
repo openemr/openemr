@@ -24,8 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-
-
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/acl.inc");
@@ -37,7 +37,8 @@ $form_curid   = isset($_POST['form_curid'  ]) ? trim($_POST['form_curid'  ]) : '
 $form_newloc  = isset($_POST['form_newloc' ]) ? trim($_POST['form_newloc' ]) : '';
 $form_newuser = isset($_POST['form_newuser']) ? trim($_POST['form_newuser']) : '';
 
-if ($form_newuser) $form_newloc = ''; else $form_newuser = 0;
+if ($form_newuser) $form_newloc = '';
+else $form_newuser = 0;
 ?>
 <html>
 
@@ -81,30 +82,32 @@ echo "<span class='title'>" . xlt('Chart Tracker') . "</span>\n";
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-  $tracker = new \entities\ChartTracker();
-  $tracker->setPid($form_curpid);
-  $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
-  $tracker->setUserId($form_newuser);
-  $tracker->setLocation($form_newloc);
-  $chartTrackerService = new \services\ChartTrackerService();
-  $chartTrackerService->trackPatientLocation($tracker);
-  echo "<font color='green'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</font><br />";
+    $query = "INSERT INTO chart_tracker ( " .
+    "ct_pid, ct_when, ct_userid, ct_location " .
+    ") VALUES ( " .
+    "?, " .
+    "?, " .
+    "?, " .
+    "? " .
+    ")";
+    sqlInsert($query, array($form_curpid,date('Y-m-d H:i:s'),$form_newuser,$form_newloc) );
+    echo "<font color='green'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</font><br />";
 }
 
 $row = array();
 
 if ($form_newid) {
   // Find out where the chart is now.
-  $query = "SELECT pd.pid, pd.pubpid, pd.fname, pd.mname, pd.lname, " .
+    $query = "SELECT pd.pid, pd.pubpid, pd.fname, pd.mname, pd.lname, " .
     "pd.ss, pd.DOB, ct.ct_userid, ct.ct_location, ct.ct_when " .
     "FROM patient_data AS pd " .
     "LEFT OUTER JOIN chart_tracker AS ct ON ct.ct_pid = pd.pid " .
     "WHERE pd.pubpid = ? " .
     "ORDER BY pd.pid ASC, ct.ct_when DESC LIMIT 1";
-  $row = sqlQuery($query, array($form_newid) );
-  if (empty($row)) {
-    echo "<font color='red'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</font><br />";
-  }
+    $row = sqlQuery($query, array($form_newid) );
+    if (empty($row)) {
+        echo "<font color='red'>" . xlt('Chart ID') . " " . "'" . text($form_newid) . "' " . xlt('not found') . "!</font><br />";
+    }
 }
 ?>
 
@@ -112,83 +115,80 @@ if ($form_newid) {
 
 <?php
 if (!empty($row)) {
-  $userService = new \services\UserService();
-  $ct_userid   = $row['ct_userid'];
-  $ct_location = $row['ct_location'];
-  $current_location = xlt('Unassigned');
-  if ($ct_userid) {
-    $user = $userService->getUser($ct_userid);
-    $current_location = text( $user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when'] );
-  }
-  else if ($ct_location) {
-    $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);
-  }
+    $ct_userid   = $row['ct_userid'];
+    $ct_location = $row['ct_location'];
+    $current_location = xlt('Unassigned');
+    if ($ct_userid) {
+        $urow = sqlQuery("SELECT fname, mname, lname FROM users WHERE id = ?", array($ct_userid) );
+        $current_location = text( $urow['lname'] . ", " . $urow['fname'] . " " . $urow['mname'] . " " . $row['ct_when'] );
+    }
+    else if ($ct_location) {
+        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);
+    }
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('Patient ID') . ":</td>\n";
-  echo "  <td class='text'>" . text($row['pubpid']) .
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('Patient ID') . ":</td>\n";
+    echo "  <td class='text'>" . text($row['pubpid']) .
        "<input type='hidden' name='form_curpid' value='" . attr($row['pid']) . "' />" .
        "<input type='hidden' name='form_curid' value='" . attr($row['pubpid']) . "' /></td>\n";
-  echo " </tr>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('Name') . ":</td>\n";
-  echo "  <td class='text'>" . text( $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] ) . "</td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('Name') . ":</td>\n";
+    echo "  <td class='text'>" . text( $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] ) . "</td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('DOB') . ":</td>\n";
-  echo "  <td class='text'>" . text($row['DOB']) . "</td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('DOB') . ":</td>\n";
+    echo "  <td class='text'>" . text($row['DOB']) . "</td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('SSN') . ":</td>\n";
-  echo "  <td class='text'>" . text($row['ss']) . "</td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('SSN') . ":</td>\n";
+    echo "  <td class='text'>" . text($row['ss']) . "</td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('Current Location') . ":</td>\n";
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('Current Location') . ":</td>\n";
   // Note that $current_location has already been html escaped
-  echo "  <td class='text'>$current_location</td>\n";
-  echo " </tr>\n";
+    echo "  <td class='text'>$current_location</td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('Check In To') . ":</td>\n";
-  echo " <td class='text'>";
-  generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), '');
-  echo " </td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('Check In To') . ":</td>\n";
+    echo " <td class='text'>";
+    generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), '');
+    echo " </td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td class='bold'>" . xlt('Or Out To') . ":</td>\n";
-  echo "  <td class='text'><select name='form_newuser' onchange='userSelect()'>\n";
-  echo "   <option value=''></option>";
-
-  $users = $userService->getActiveUsers();
-
-  foreach($users as $activeUser) {
-    echo "    <option value='" . attr($activeUser->getId()) . "'";
-    echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
+    echo " <tr>\n";
+    echo "  <td class='bold'>" . xlt('Or Out To') . ":</td>\n";
+    echo "  <td class='text'><select name='form_newuser' onchange='userSelect()'>\n";
+    echo "   <option value=''></option>";
+    $ures = sqlStatement("SELECT id, fname, mname, lname FROM users " .
+    "WHERE username != '' AND active = 1 ORDER BY lname, fname, mname");
+    while ($urow = sqlFetchArray($ures)) {
+        echo "    <option value='" . attr($urow['id']) . "'";
+        echo ">" . text($urow['lname']) . ', ' . text($urow['fname']) . ' ' . text($urow['mname']) .
         "</option>\n";
-  }
+    }
+    echo "  </select></td>\n";
+    echo " </tr>\n";
 
-  echo "  </select></td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td>&nbsp;</td>\n";
+    echo "  <td class='text'><input type='submit' name='form_save' value='" . xlt('Save') . "' /></td>\n";
+    echo " </tr>\n";
 
-  echo " <tr>\n";
-  echo "  <td>&nbsp;</td>\n";
-  echo "  <td class='text'><input type='submit' name='form_save' value='" . xlt('Save') . "' /></td>\n";
-  echo " </tr>\n";
-
-  echo " <tr>\n";
-  echo "  <td class='text' colspan='2'>&nbsp;</td>\n";
-  echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td class='text' colspan='2'>&nbsp;</td>\n";
+    echo " </tr>\n";
 }
 ?>
 
  <tr>
   <td class='bold'>
-   <?php echo xlt('New Patient ID'); ?>: &nbsp;
+    <?php echo xlt('New Patient ID'); ?>: &nbsp;
   </td>
   <td class='text'>
    <input type='text' name='form_newid' size='10' value=''

@@ -43,7 +43,7 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
     define('K_TCPDF_EXTERNAL_CONFIG', true);
 
     // DOCUMENT_ROOT fix for IIS Webserver
-    if ((!isset($_SERVER['DOCUMENT_ROOT'])) OR (empty($_SERVER['DOCUMENT_ROOT']))) {
+    if ((!isset($_SERVER['DOCUMENT_ROOT'])) or (empty($_SERVER['DOCUMENT_ROOT']))) {
         if (isset($_SERVER['SCRIPT_FILENAME'])) {
             $_SERVER['DOCUMENT_ROOT'] = str_replace(
                 '\\',
@@ -65,9 +65,9 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
     // be sure that the end slash is present
     $_SERVER['DOCUMENT_ROOT'] = str_replace('//', '/', $_SERVER['DOCUMENT_ROOT'].'/');
 
-	/**
-	 * Installation path of tcpdf with composer.
-	 */
+    /**
+     * Installation path of tcpdf with composer.
+     */
     $vendorFolders = array(
         dirname(dirname(__FILE__)) . '/vendor/',
         dirname(dirname(__FILE__)) . '/../../',
@@ -92,22 +92,22 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
     define ('K_PATH_MAIN', $k_path_main);
 
     // Automatic calculation for the following K_PATH_URL constant
-	$k_path_url = $k_path_main; // default value for console mode
-    if (isset($_SERVER['HTTP_HOST']) AND (!empty($_SERVER['HTTP_HOST']))) {
-        if (isset($_SERVER['HTTPS']) AND (!empty($_SERVER['HTTPS'])) AND strtolower($_SERVER['HTTPS'])!='off') {
-			$k_path_url = 'https://';
+    $k_path_url = $k_path_main; // default value for console mode
+    if (isset($_SERVER['HTTP_HOST']) and (!empty($_SERVER['HTTP_HOST']))) {
+        if (isset($_SERVER['HTTPS']) and (!empty($_SERVER['HTTPS'])) and strtolower($_SERVER['HTTPS'])!='off') {
+            $k_path_url = 'https://';
         } else {
-			$k_path_url = 'http://';
+            $k_path_url = 'http://';
         }
-		$k_path_url .= $_SERVER['HTTP_HOST'];
-		$k_path_url .= str_replace( '\\', '/', substr(K_PATH_MAIN, (strlen($_SERVER['DOCUMENT_ROOT']) - 1)));
+        $k_path_url .= $_SERVER['HTTP_HOST'];
+        $k_path_url .= str_replace( '\\', '/', substr(K_PATH_MAIN, (strlen($_SERVER['DOCUMENT_ROOT']) - 1)));
     }
 
     /**
      * URL path to tcpdf installation folder (http://localhost/tcpdf/).
      * By default it is automatically calculated but you can also set it as a fixed string to improve performances.
      */
-	define ('K_PATH_URL', $k_path_url);
+    define ('K_PATH_URL', $k_path_url);
 
     /**
      * path for PDF fonts
@@ -266,10 +266,10 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
      */
     define('K_TCPDF_CALLS_IN_HTML', false);
 
-	/**
-	 * if true and PHP version is greater than 5, then the Error() method throw new exception instead of terminating the execution.
-	 */
-	define('K_TCPDF_THROW_EXCEPTION_ERROR', true);
+    /**
+     * if true and PHP version is greater than 5, then the Error() method throw new exception instead of terminating the execution.
+     */
+    define('K_TCPDF_THROW_EXCEPTION_ERROR', true);
 }
 
 //============================================================+

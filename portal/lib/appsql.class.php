@@ -29,7 +29,8 @@
 require_once ( dirname( __FILE__ ) . '/../../library/sql.inc' );
 class ApplicationTable{
 
-    public function __construct(){
+    public function __construct()
+    {
 
     }
 
@@ -47,7 +48,8 @@ class ApplicationTable{
      *            Error Display True / False
      * @return type
      */
-    public function zQuery( $sql, $params = '', $log = FALSE, $error = TRUE ){
+    public function zQuery( $sql, $params = '', $log = false, $error = true )
+    {
         $return = false;
         $result = false;
 
@@ -65,7 +67,8 @@ class ApplicationTable{
         }
         return $return;
     }
-    public function getPortalAudit( $patientid, $action = 'review', $activity='profile', $status='waiting', $auditflg = 1, $rtn = 'last', $oelog = TRUE, $error = TRUE ){
+    public function getPortalAudit( $patientid, $action = 'review', $activity='profile', $status='waiting', $auditflg = 1, $rtn = 'last', $oelog = true, $error = true )
+    {
         $return = false;
         $result = false;
         $audit = array (
@@ -125,10 +128,11 @@ class ApplicationTable{
      *         $audit['action_taken_time']="";
      *         $audit['checksum']="";
      */
-    public function portalAudit( $type='insert', $rec = '', array $auditvals, $oelog = TRUE, $error = TRUE ){
+    public function portalAudit( $type='insert', $rec = '', array $auditvals, $oelog = true, $error = true )
+    {
         $return = false;
         $result = false;
-        $audit = Array ();
+        $audit = array ();
         if($type != 'insert')
             $audit['date'] = $auditvals['date'] ? $auditvals['date'] : date("Y-m-d H:i:s");
         $audit['patient_id'] = $auditvals['patient_id'] ? $auditvals['patient_id'] : $_SESSION['pid'];
@@ -175,7 +179,8 @@ class ApplicationTable{
         return $return;
     }
 
-    public function portalLog( $event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0 ){
+    public function portalLog( $event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0 )
+    {
         $groupname = isset( $GLOBALS['groupname'] ) ? $GLOBALS['groupname'] : 'none';
         $user = isset( $_SESSION['portal_username'] ) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
         $log_from = isset( $_SESSION['portal_username'] ) ? 'onsite-portal' : 'portal-dashboard';
@@ -213,7 +218,8 @@ class ApplicationTable{
      * @param string $sql
      * @param array $binds
      */
-    public function errorHandler( $e, $sql, $binds = '' ){
+    public function errorHandler( $e, $sql, $binds = '' )
+    {
         $trace = $e->getTraceAsString();
         $nLast = strpos( $trace, '[internal function]' );
         $trace = substr( $trace, 0, ( $nLast - 3 ) );
@@ -255,7 +261,8 @@ class ApplicationTable{
         $logMsg .= "\n $trace";
         error_log( "ERROR: " . $logMsg, 0 );
     }
-    public function escapeHtml( $string ){
+    public function escapeHtml( $string )
+    {
         return htmlspecialchars( $string, ENT_QUOTES );
     }
     /*
@@ -264,7 +271,8 @@ class ApplicationTable{
      * @param Date format set in GLOBALS
      * @return Date format in PHP
      */
-    public function dateFormat( $format ){
+    public function dateFormat( $format )
+    {
         if( $format == "0" ) $date_format = 'yyyy/mm/dd';
         else if( $format == 1 ) $date_format = 'mm/dd/yyyy';
         else if( $format == 2 ) $date_format = 'dd/mm/yyyy';
@@ -279,7 +287,8 @@ class ApplicationTable{
      * @param String $date_format
      *            Target Date Format
      */
-    public function fixDate( $input_date, $output_format = null, $input_format = null ){
+    public function fixDate( $input_date, $output_format = null, $input_format = null )
+    {
         if( ! $input_date ) return;
 
         $input_date = preg_replace( '/T|Z/', ' ', $input_date );
@@ -319,10 +328,12 @@ class ApplicationTable{
      * @param integer $startID id to start with for a new sequence (default is 1)
      * @return integer returns the sequence integer
      */
-    public function generateSequenceID(){
+    public function generateSequenceID()
+    {
         return generate_id();
     }
-    public function portalNewEvent( $event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from='', $user_notes="", $ccda_doc_id=0 ){
+    public function portalNewEvent( $event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from='', $user_notes="", $ccda_doc_id=0 )
+    {
         $adodb = $GLOBALS['adodb']['db'];
         $crt_user = isset( $_SERVER['SSL_CLIENT_S_DN_CN'] ) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 

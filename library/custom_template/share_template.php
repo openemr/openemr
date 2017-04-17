@@ -86,17 +86,17 @@ $list_id = $_REQUEST['list_id'];
                             $res = sqlStatement($query);
                             $sel_query = "SELECT tu_user_id FROM template_users WHERE tu_template_id=?";
                             $row_sel =sqlQuery($sel_query,array($list_id));
-                           while ($row = sqlFetchArray($res)) {
-                            foreach($row_sel as $key=>$value){
-                                if($value==$row['id']){
-                                    $sel="selected";
-                                }
-                                else{
-                                    $sel='';
-                                }
+                            while ($row = sqlFetchArray($res)) {
+                                foreach($row_sel as $key=>$value){
+                                    if($value==$row['id']){
+                                        $sel="selected";
+                                    }
+                                    else{
+                                        $sel='';
+                                    }
                                 
-                            }
-                            echo "<option value='".htmlspecialchars($row['id'],ENT_QUOTES)."' $sel>".htmlspecialchars($row['lname'].",".$row['fname'],ENT_QUOTES)."</option>";
+                                }
+                                echo "<option value='".htmlspecialchars($row['id'],ENT_QUOTES)."' $sel>".htmlspecialchars($row['lname'].",".$row['fname'],ENT_QUOTES)."</option>";
                             }
                             ?>
                         </select>

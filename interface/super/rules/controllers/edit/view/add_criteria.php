@@ -29,7 +29,10 @@
     <ul>
     <?php foreach ( $allowed as $type ) { ?>
         <li>
-        <a href="index.php?action=edit!choose_criteria&id=<?php echo out( $ruleId ); ?>&group_id=<?php echo out( $groupId ); ?>&type=<?php echo out( $viewBean->type ); ?>&criteriaType=<?php echo out( $type->code ); ?>" onclick="top.restoreSession()">
+        <a href="index.php?action=edit!choose_criteria&id=<?php echo out( $ruleId );
+?>&group_id=<?php echo out( $groupId );
+?>&type=<?php echo out( $viewBean->type );
+?>&criteriaType=<?php echo out( $type->code ); ?>" onclick="top.restoreSession()">
             <?php echo out( xl( $type->lbl ) ); ?>
         </a>
         </li>

@@ -40,41 +40,43 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 $Processed=0;
-function era_callback(&$out) {
-  global $where, $eracount, $eraname;
-  ++$eracount;
-  $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
+function era_callback(&$out)
+{
+    global $where, $eracount, $eraname;
+    ++$eracount;
+    $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
-  list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
-  if ($pid && $encounter) {
-    if ($where) $where .= ' OR ';
-      $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
-  }
+    list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+    if ($pid && $encounter) {
+        if ($where) $where .= ' OR ';
+        $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
+    }
 }
 //===============================================================================
   // Handle X12 835 file upload.
-  if ($_FILES['form_erafile']['size']) {
+if ($_FILES['form_erafile']['size']) {
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
     // Handle .zip extension if present.  Probably won't work on Windows.
     if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
-      rename($tmp_name, "$tmp_name.zip");
-      exec("unzip -p $tmp_name.zip > $tmp_name");
-      unlink("$tmp_name.zip");
+        rename($tmp_name, "$tmp_name.zip");
+        exec("unzip -p $tmp_name.zip > $tmp_name");
+        unlink("$tmp_name.zip");
     }
     $alertmsg .= parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
     if (is_file($erafullname)) {
-      $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
-      if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
-	   {
-        $Processed=1;
-		$alertmsg .=  xl("and processed.").' ';
-	   }
-      else
-        $alertmsg .=  xl("but not yet processed.").' ';;
+        $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
+        if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
+        {
+            $Processed=1;
+            $alertmsg .=  xl("and processed.").' ';
+        }
+        else
+        $alertmsg .=  xl("but not yet processed.").' ';
+        ;
     }
     rename($tmp_name, $erafullname);
-  } // End 835 upload
+} // End 835 upload
 //===============================================================================
 
 //===============================================================================
@@ -127,19 +129,20 @@ function OnloadAction()
    {
     alert(after_value);
    }
-  <?php
-  if ($_FILES['form_erafile']['size']) {
-  ?>
+    <?php
+    if ($_FILES['form_erafile']['size']) {
+    ?>
 	  var f = document.forms[0];
 	  var debug = <?php echo htmlspecialchars($_REQUEST['form_without']*1);?> ;
 	  var paydate = f.check_date.value;
 	  var post_to_date = f.post_to_date.value;
 	  var deposit_date = f.deposit_date.value;
-	  window.open('sl_eob_process.php?eraname=<?php echo htmlspecialchars($eraname); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo htmlspecialchars(formData('hidden_type_code')); ?>' , '_blank');
+	  window.open('sl_eob_process.php?eraname=<?php echo htmlspecialchars($eraname);
+?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo htmlspecialchars(formData('hidden_type_code')); ?>' , '_blank');
 	  return false;
-  <?php
-  }
-  ?>
+    <?php
+    }
+    ?>
  }
 
 $(document).ready(function() {

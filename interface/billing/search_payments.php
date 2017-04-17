@@ -42,177 +42,177 @@ require_once("$srcdir/payment.inc.php");
 set_time_limit(0);
 if (isset($_POST["mode"]))
  {
-  if ($_POST["mode"] == "DeletePayments")
-   {
-    $DeletePaymentId=trim(formData('DeletePaymentId' ));
-	$ResultSearch = sqlStatement("SELECT distinct encounter,pid from ar_activity where  session_id ='$DeletePaymentId'");
-	if(sqlNumRows($ResultSearch)>0)
-	 {
-	  while ($RowSearch = sqlFetchArray($ResultSearch))
-	   {
-	    $Encounter=$RowSearch['encounter'];
-		$PId=$RowSearch['pid'];
-		sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid ='$PId' and encounter='$Encounter'" );
-	   }
-	 }
-	//delete and log that action
-	row_delete("ar_session", "session_id ='$DeletePaymentId'");
-	row_delete("ar_activity", "session_id ='$DeletePaymentId'");
-	$Message='Delete';
-	//------------------
-    $_POST["mode"] = "SearchPayment";
-   }
+    if ($_POST["mode"] == "DeletePayments")
+    {
+        $DeletePaymentId=trim(formData('DeletePaymentId' ));
+        $ResultSearch = sqlStatement("SELECT distinct encounter,pid from ar_activity where  session_id ='$DeletePaymentId'");
+        if(sqlNumRows($ResultSearch)>0)
+        {
+            while ($RowSearch = sqlFetchArray($ResultSearch))
+            {
+                $Encounter=$RowSearch['encounter'];
+                $PId=$RowSearch['pid'];
+                sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid ='$PId' and encounter='$Encounter'" );
+            }
+        }
+      //delete and log that action
+        row_delete("ar_session", "session_id ='$DeletePaymentId'");
+        row_delete("ar_activity", "session_id ='$DeletePaymentId'");
+        $Message='Delete';
+      //------------------
+        $_POST["mode"] = "SearchPayment";
+    }
 //===============================================================================
 //Search section.
 //===============================================================================
-  if ($_POST["mode"] == "SearchPayment")
-   {
-    $FromDate=trim(formData('FromDate' ));
-    $ToDate=trim(formData('ToDate' ));
-    $PaymentMethod=trim(formData('payment_method' ));
-    $CheckNumber=trim(formData('check_number' ));
-    $PaymentAmount=trim(formData('payment_amount' ));
-    $PayingEntity=trim(formData('type_name' ));
-    $PaymentCategory=trim(formData('adjustment_code' ));
-    $PaymentFrom=trim(formData('hidden_type_code' ));
-    $PaymentStatus=trim(formData('PaymentStatus' ));
-    $PaymentSortBy=trim(formData('PaymentSortBy' ));
-    $PaymentDate=trim(formData('payment_date' ));
-	$QueryString.="Select * from  ar_session where  ";
-	$And='';
+    if ($_POST["mode"] == "SearchPayment")
+    {
+        $FromDate=trim(formData('FromDate' ));
+        $ToDate=trim(formData('ToDate' ));
+        $PaymentMethod=trim(formData('payment_method' ));
+        $CheckNumber=trim(formData('check_number' ));
+        $PaymentAmount=trim(formData('payment_amount' ));
+        $PayingEntity=trim(formData('type_name' ));
+        $PaymentCategory=trim(formData('adjustment_code' ));
+        $PaymentFrom=trim(formData('hidden_type_code' ));
+        $PaymentStatus=trim(formData('PaymentStatus' ));
+        $PaymentSortBy=trim(formData('PaymentSortBy' ));
+        $PaymentDate=trim(formData('payment_date' ));
+        $QueryString.="Select * from  ar_session where  ";
+        $And='';
 
-	if($PaymentDate=='date_val')
-	 {
-	  $PaymentDateString=' check_date ';
-	 }
-	elseif($PaymentDate=='post_to_date')
-	 {
-	  $PaymentDateString=' post_to_date ';
-	 }
-	elseif($PaymentDate=='deposit_date')
-	 {
-	  $PaymentDateString=' deposit_date ';
-	 }
+        if($PaymentDate=='date_val')
+        {
+            $PaymentDateString=' check_date ';
+        }
+        elseif($PaymentDate=='post_to_date')
+        {
+            $PaymentDateString=' post_to_date ';
+        }
+        elseif($PaymentDate=='deposit_date')
+        {
+            $PaymentDateString=' deposit_date ';
+        }
 
-	if($FromDate!='')
-	 {
-		 $QueryString.=" $And $PaymentDateString >='".DateToYYYYMMDD($FromDate)."'";
-		 $And=' and ';
-	 }
-	if($ToDate!='')
-	 {
-		 $QueryString.=" $And $PaymentDateString <='".DateToYYYYMMDD($ToDate)."'";
-		 $And=' and ';
-	 }
-	if($PaymentMethod!='')
-	 {
-		 $QueryString.=" $And payment_method ='".$PaymentMethod."'";
-		 $And=' and ';
-	 }
-	if($CheckNumber!='')
-	 {
-		 $QueryString.=" $And reference like '%".$CheckNumber."%'";
-		 $And=' and ';
-	 }
-	if($PaymentAmount!='')
-	 {
-		 $QueryString.=" $And pay_total ='".$PaymentAmount."'";
-		 $And=' and ';
-	 }
-	if($PayingEntity!='')
-	 {
-		 if($PayingEntity=='insurance')
-		  {
-			 $QueryString.=" $And payer_id !='0'";
-		  }
-		 if($PayingEntity=='patient')
-		  {
-			 $QueryString.=" $And payer_id ='0'";
-		  }
-		 $And=' and ';
-	 }
-	if($PaymentCategory!='')
-	 {
-		 $QueryString.=" $And adjustment_code ='".$PaymentCategory."'";
-		 $And=' and ';
-	 }
-	if($PaymentFrom!='')
-	 {
-		 if($PayingEntity=='insurance' || $PayingEntity=='')
-		  {
-			//-------------------
-			$res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
+        if($FromDate!='')
+        {
+             $QueryString.=" $And $PaymentDateString >='".DateToYYYYMMDD($FromDate)."'";
+             $And=' and ';
+        }
+        if($ToDate!='')
+        {
+             $QueryString.=" $And $PaymentDateString <='".DateToYYYYMMDD($ToDate)."'";
+             $And=' and ';
+        }
+        if($PaymentMethod!='')
+        {
+             $QueryString.=" $And payment_method ='".$PaymentMethod."'";
+             $And=' and ';
+        }
+        if($CheckNumber!='')
+        {
+             $QueryString.=" $And reference like '%".$CheckNumber."%'";
+             $And=' and ';
+        }
+        if($PaymentAmount!='')
+        {
+             $QueryString.=" $And pay_total ='".$PaymentAmount."'";
+             $And=' and ';
+        }
+        if($PayingEntity!='')
+        {
+            if($PayingEntity=='insurance')
+            {
+                $QueryString.=" $And payer_id !='0'";
+            }
+            if($PayingEntity=='patient')
+              {
+                $QueryString.=" $And payer_id ='0'";
+            }
+             $And=' and ';
+        }
+        if($PaymentCategory!='')
+        {
+             $QueryString.=" $And adjustment_code ='".$PaymentCategory."'";
+             $And=' and ';
+        }
+        if($PaymentFrom!='')
+        {
+            if($PayingEntity=='insurance' || $PayingEntity=='')
+            {
+                //-------------------
+                $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
 					where insurance_companies.id ='$PaymentFrom'");
-			$row = sqlFetchArray($res);
-			$div_after_save=$row['name'];
-			//-------------------
+                $row = sqlFetchArray($res);
+                $div_after_save=$row['name'];
+                //-------------------
 
-			 $QueryString.=" $And payer_id ='".$PaymentFrom."'";
-		  }
-		 if($PayingEntity=='patient')
-		  {
-			//-------------------
-			$res = sqlStatement("SELECT fname,lname,mname FROM patient_data
+                $QueryString.=" $And payer_id ='".$PaymentFrom."'";
+            }
+            if($PayingEntity=='patient')
+              {
+                //-------------------
+                $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
 					where pid ='$PaymentFrom'");
-			$row = sqlFetchArray($res);
-				$fname=$row['fname'];
-				$lname=$row['lname'];
-				$mname=$row['mname'];
-				$div_after_save=$lname.' '.$fname.' '.$mname;
-			//-------------------
+                $row = sqlFetchArray($res);
+                 $fname=$row['fname'];
+                 $lname=$row['lname'];
+                 $mname=$row['mname'];
+                 $div_after_save=$lname.' '.$fname.' '.$mname;
+                //-------------------
 
-			 $QueryString.=" $And patient_id ='".$PaymentFrom."'";
-		  }
-		 $And=' and ';
-	 }
+                $QueryString.=" $And patient_id ='".$PaymentFrom."'";
+            }
+             $And=' and ';
+        }
 
-	if($PaymentStatus!='')
-	 {
-		 	$QsString="select ar_session.session_id,pay_total,global_amount,sum(pay_amount) sum_pay_amount from ar_session,ar_activity
-				where ar_session.session_id=ar_activity.session_id group by ar_activity.session_id,ar_session.session_id
-				having pay_total-global_amount-sum_pay_amount=0 or pay_total=0";
-			$rs= sqlStatement("$QsString");
-			while($rowrs=sqlFetchArray($rs))
-			 {
-			  $StringSessionId.=$rowrs['session_id'].',';
-			 }
-		 	$QsString="select ar_session.session_id from ar_session	where  pay_total=0";
-			$rs= sqlStatement("$QsString");
-			while($rowrs=sqlFetchArray($rs))
-			 {
-			  $StringSessionId.=$rowrs['session_id'].',';
-			 }
-			 $StringSessionId=substr($StringSessionId, 0, -1);
-		 if($PaymentStatus=='fully_paid')
-		  {
-			 $QueryString.=" $And session_id in($StringSessionId) ";
-		  }
-		 elseif($PaymentStatus=='unapplied')
-		  {
-			 $QueryString.=" $And session_id not in($StringSessionId) ";
-		  }
-		 $And=' and ';
-	 }
-	if($PaymentSortBy!='')
-	 {
-		 $SortFieldOld=trim(formData('SortFieldOld' ));
-		 $Sort=trim(formData('Sort' ));
-		 if($SortFieldOld==$PaymentSortBy)
-		  {
-		   if($Sort=='DESC' || $Sort=='')
-		    $Sort='ASC';
-		   else
-		    $Sort='DESC';
-		  }
-		 else
-		  {
-		   $Sort='ASC';
-		  }
-		$QueryString.=" order by $PaymentSortBy $Sort";
-	 }
-	 $ResultSearch = sqlStatement($QueryString);
-   }
- }
+        if($PaymentStatus!='')
+        {
+            $QsString="select ar_session.session_id,pay_total,global_amount,sum(pay_amount) sum_pay_amount from ar_session,ar_activity
+                where ar_session.session_id=ar_activity.session_id group by ar_activity.session_id,ar_session.session_id
+                having pay_total-global_amount-sum_pay_amount=0 or pay_total=0";
+            $rs= sqlStatement("$QsString");
+            while($rowrs=sqlFetchArray($rs))
+             {
+                $StringSessionId.=$rowrs['session_id'].',';
+            }
+            $QsString="select ar_session.session_id from ar_session	where  pay_total=0";
+            $rs= sqlStatement("$QsString");
+            while($rowrs=sqlFetchArray($rs))
+             {
+                $StringSessionId.=$rowrs['session_id'].',';
+            }
+             $StringSessionId=substr($StringSessionId, 0, -1);
+            if($PaymentStatus=='fully_paid')
+            {
+                $QueryString.=" $And session_id in($StringSessionId) ";
+            }
+            elseif($PaymentStatus=='unapplied')
+              {
+                $QueryString.=" $And session_id not in($StringSessionId) ";
+            }
+             $And=' and ';
+        }
+        if($PaymentSortBy!='')
+        {
+             $SortFieldOld=trim(formData('SortFieldOld' ));
+             $Sort=trim(formData('Sort' ));
+            if($SortFieldOld==$PaymentSortBy)
+            {
+                if($Sort=='DESC' || $Sort=='')
+                $Sort='ASC';
+                else
+                $Sort='DESC';
+            }
+            else
+              {
+                $Sort='ASC';
+            }
+            $QueryString.=" order by $PaymentSortBy $Sort";
+        }
+        $ResultSearch = sqlStatement($QueryString);
+    }
+}
 //===============================================================================
 ?>
 <html>
@@ -505,136 +505,154 @@ document.onclick=HideTheAjaxDivs;
 
 		<!--Search-->
 		<?php //
-		  if ($_POST["mode"] == "SearchPayment")
-		   {
-			?>
-			  <tr>
-				<td>
-					<table  border="0" cellspacing="0" cellpadding="0">
-					<?php //
-						if(sqlNumRows($ResultSearch)>0)
-						 {
-						?>
-							  <tr class="text" bgcolor="#dddddd">
-								<td width="25" class="left top" >&nbsp;</td>
-								<td width="60" class="left top" ><?php echo htmlspecialchars( xl('ID'), ENT_QUOTES) ?></td>
-								<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?></td>
-								<td width="83" class="left top" ><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES) ?></td>
-								<td width="245" class="left top" ><?php echo htmlspecialchars( xl('Payer'), ENT_QUOTES) ?></td>
-								<td width="57" class="left top" ><?php echo htmlspecialchars( xl('Ins Code'), ENT_QUOTES) ?></td>
-								<td width="110" class="left top" ><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES) ?></td>
-								<td width="130" class="left top" ><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES) ?></td>
-								<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES) ?></td>
-								<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
-							    <td width="70" class="left top right" ><?php echo htmlspecialchars( xl('Undistributed'), ENT_QUOTES) ?></td>
-							  </tr>
-							  <?php
-								$CountIndex=0;
-								while ($RowSearch = sqlFetchArray($ResultSearch))
-								 {
-									 $Payer='';
-									 if($RowSearch['payer_id']*1 > 0)
-									  {
-										//-------------------
-										$res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
+        if ($_POST["mode"] == "SearchPayment")
+           {
+            ?>
+            <tr>
+              <td>
+                  <table  border="0" cellspacing="0" cellpadding="0">
+                    <?php //
+                    if(sqlNumRows($ResultSearch)>0)
+                       {
+                        ?>
+                          <tr class="text" bgcolor="#dddddd">
+                            <td width="25" class="left top" >&nbsp;</td>
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('ID'), ENT_QUOTES) ?></td>
+                            <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?></td>
+                            <td width="83" class="left top" ><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES) ?></td>
+                            <td width="245" class="left top" ><?php echo htmlspecialchars( xl('Payer'), ENT_QUOTES) ?></td>
+                            <td width="57" class="left top" ><?php echo htmlspecialchars( xl('Ins Code'), ENT_QUOTES) ?></td>
+                            <td width="110" class="left top" ><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES) ?></td>
+                            <td width="130" class="left top" ><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES) ?></td>
+                            <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES) ?></td>
+                            <td width="50" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
+                            <td width="70" class="left top right" ><?php echo htmlspecialchars( xl('Undistributed'), ENT_QUOTES) ?></td>
+                          </tr>
+                            <?php
+                            $CountIndex=0;
+                            while ($RowSearch = sqlFetchArray($ResultSearch))
+                             {
+                                 $Payer='';
+                                if($RowSearch['payer_id']*1 > 0)
+                                  {
+                                    //-------------------
+                                    $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
 												where insurance_companies.id ='{$RowSearch['payer_id']}'");
-										$row = sqlFetchArray($res);
-										$Payer=$row['name'];
-										//-------------------
-									  }
-									 elseif($RowSearch['patient_id']*1 > 0)
-									  {
-										//-------------------
-										$res = sqlStatement("SELECT fname,lname,mname FROM patient_data
+                                    $row = sqlFetchArray($res);
+                                    $Payer=$row['name'];
+                                    //-------------------
+                                }
+                                elseif($RowSearch['patient_id']*1 > 0)
+                                    {
+                                    //-------------------
+                                    $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
 												where pid ='{$RowSearch['patient_id']}'");
-										$row = sqlFetchArray($res);
-											$fname=$row['fname'];
-											$lname=$row['lname'];
-											$mname=$row['mname'];
-											$Payer=$lname.' '.$fname.' '.$mname;
-										//-------------------
-									  }
-									//=============================================
-									$CountIndex++;
-									if($CountIndex==sqlNumRows($ResultSearch))
-									 {
-										$StringClass=' bottom left top ';
-									 }
-									else
-									 {
-										$StringClass=' left top ';
-									 }
-									if($CountIndex%2==1)
-									 {
-										$bgcolor='#ddddff';
-									 }
-									else
-									 {
-										$bgcolor='#ffdddd';
-									 }
-								?>
+                                    $row = sqlFetchArray($res);
+                                      $fname=$row['fname'];
+                                      $lname=$row['lname'];
+                                      $mname=$row['mname'];
+                                      $Payer=$lname.' '.$fname.' '.$mname;
+                                    //-------------------
+                                }
+                                    //=============================================
+                                    $CountIndex++;
+                                if($CountIndex==sqlNumRows($ResultSearch))
+                                    {
+                                    $StringClass=' bottom left top ';
+                                }
+                                else
+                                    {
+                                    $StringClass=' left top ';
+                                }
+                                if($CountIndex%2==1)
+                                    {
+                                    $bgcolor='#ddddff';
+                                }
+                                else
+                                    {
+                                    $bgcolor='#ffdddd';
+                                }
+                                ?>
 							  <tr class="text"  bgcolor='<?php echo $bgcolor; ?>'>
-								<td class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);" ><img src="../pic/Delete.gif" border="0"/></a></td>
-								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['session_id']); ?></a></td>
-								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a></td>
-								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php
-								$frow['data_type']=1;
-								$frow['list_id']='payment_type';
-								$PaymentType='';
-								if($RowSearch['payment_type']=='insurance' || $RowSearch['payer_id']*1 > 0)
-								 {
-										$PaymentType='insurance';
-								 }
-								elseif($RowSearch['payment_type']=='patient' || $RowSearch['patient_id']*1 > 0)
-								 {
-										$PaymentType='patient';
-								 }
-								elseif(($RowSearch['payer_id']*1 == 0 && $RowSearch['patient_id']*1 == 0))
-								 {
-										$PaymentType='';
-								 }
+								<td class="<?php echo $StringClass;
+?>" ><a href="#" onClick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);" ><img src="../pic/Delete.gif" border="0"/></a></td>
+                              <td class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['session_id']); ?></a></td>
+                              <td class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a></td>
+                              <td class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php
+                              $frow['data_type']=1;
+                              $frow['list_id']='payment_type';
+                              $PaymentType='';
+if($RowSearch['payment_type']=='insurance' || $RowSearch['payer_id']*1 > 0)
+                             {
+        $PaymentType='insurance';
+}
+elseif($RowSearch['payment_type']=='patient' || $RowSearch['patient_id']*1 > 0)
+                                {
+        $PaymentType='patient';
+}
+elseif(($RowSearch['payer_id']*1 == 0 && $RowSearch['patient_id']*1 == 0))
+                                {
+        $PaymentType='';
+}
 
-								generate_print_field($frow, $PaymentType);
-				  ?></a></td>
-								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a></td>
-								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['payer_id']*1 > 0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a></td>
-								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
-								$frow['data_type']=1;
-								$frow['list_id']='payment_method';
-								generate_print_field($frow, $RowSearch['payment_method']);
-				  ?></a></td>
-								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a></td>
-								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
-								$rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
-								$row=sqlFetchArray($rs);
-								$pay_total=$row['pay_total'];
-								$global_amount=$row['global_amount'];
-								$rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='".$RowSearch['session_id']."'");
-								$row=sqlFetchArray($rs);
-								$pay_amount=$row['sum_pay_amount'];
-								$UndistributedAmount=$pay_total-$pay_amount-$global_amount;
-								echo $UndistributedAmount*1==0 ? htmlspecialchars( xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars( xl('Unapplied'), ENT_QUOTES); ?></a></td>
-								<td align="right" class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
-							    <td align="right" class="<?php echo $StringClass; ?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount,2)); ?></a></td>
-							  </tr>
-								<?php
-								 }//while ($RowSearch = sqlFetchArray($ResultSearch))
-							}//if(sqlNumRows($ResultSearch)>0)
-						   else
-							{
-						   ?>
-							  <tr>
-								<td colspan="11" class="text"><?php echo htmlspecialchars( xl('No Result Found, for the above search criteria.'), ENT_QUOTES) ?></td>
-							  </tr>
-						   <?php
-							}// else
-						   ?>
+                                generate_print_field($frow, $PaymentType);
+                    ?></a></td>
+                            <td class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal'  ><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a></td>
+                            <td class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo $RowSearch['payer_id']*1 > 0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a></td>
+                            <td align="left" class="<?php echo $StringClass;
+?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
+                              $frow['data_type']=1;
+                              $frow['list_id']='payment_method';
+                              generate_print_field($frow, $RowSearch['payment_method']);
+                    ?></a></td>
+                            <td align="left" class="<?php echo $StringClass;
+?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a></td>
+                            <td align="left" class="<?php echo $StringClass;
+?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
+                              $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
+                              $row=sqlFetchArray($rs);
+                              $pay_total=$row['pay_total'];
+                              $global_amount=$row['global_amount'];
+                              $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='".$RowSearch['session_id']."'");
+                              $row=sqlFetchArray($rs);
+                              $pay_amount=$row['sum_pay_amount'];
+                              $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
+                              echo $UndistributedAmount*1==0 ? htmlspecialchars( xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars( xl('Unapplied'), ENT_QUOTES); ?></a></td>
+								<td align="right" class="<?php echo $StringClass;
+?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
+                              <td align="right" class="<?php echo $StringClass;
+?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
+?>"  class='iframe medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount,2)); ?></a></td>
+                            </tr>
+                                <?php
+                            }//while ($RowSearch = sqlFetchArray($ResultSearch))
+                    }//if(sqlNumRows($ResultSearch)>0)
+                    else
+                          {
+                        ?>
+                       <tr>
+                         <td colspan="11" class="text"><?php echo htmlspecialchars( xl('No Result Found, for the above search criteria.'), ENT_QUOTES) ?></td>
+                            </tr>
+                            <?php
+                    }// else
+                            ?>
 					</table>
 				</td>
 			  </tr>
-		   <?php
-			}//if ($_POST["mode"] == "SearchPayment")
-		?>
+            <?php
+        }//if ($_POST["mode"] == "SearchPayment")
+        ?>
     </table>
 	</td>
   </tr>

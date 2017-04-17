@@ -580,7 +580,7 @@ $pntable['stories_column'] = array ('sid'           => $stories . '.pn_sid',
                                     'alanguage'     => $stories . '.pn_language',
                                     'language'      => $stories . '.pn_language',
                                     'withcomm'      => $stories . '.pn_withcomm',
-						'format_type'   => $stories . '.pn_format_type');
+                        'format_type'   => $stories . '.pn_format_type');
 
 $stories_cat = $prefix . '_stories_cat';
 $pntable['stories_cat'] = $stories_cat;

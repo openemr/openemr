@@ -6,7 +6,7 @@ return array(
         ),
     ),
 
-	'router' => array(
+    'router' => array(
         'routes' => array(
             'syndromicsurveillance' => array(
                 'type'    => 'segment',

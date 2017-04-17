@@ -33,7 +33,8 @@ require_once("$phpgacl_location/gacl_api.class.php");
   </tr>
   <tr>
         <td>
-        	<a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') ); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>
+        	<a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') );
+?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>
         </td>
   </tr>        
 </table>
@@ -51,7 +52,8 @@ require_once("$phpgacl_location/gacl_api.class.php");
                 <th width="40px">&nbsp;</th>
                 <th width="10px"><?php echo out( xl('Patient Reminder') ); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="100px"><?php echo out( xl('Access Control') ); ?> <span title='<?php echo out( xl('User is required to have this access control for Active Alerts and Passive Alerts') ); ?>'>?</span></th>
+                <th width="100px"><?php echo out( xl('Access Control') );
+?> <span title='<?php echo out( xl('User is required to have this access control for Active Alerts and Passive Alerts') ); ?>'>?</span></th>
                 <th></th>
         </tr>
         <?php $index = -1; ?>
@@ -81,24 +83,24 @@ require_once("$phpgacl_location/gacl_api.class.php");
                  <td>
                         <?php //Place the ACO selector here
                         $gacl_temp = new gacl_api();
-                        $list_aco_objects = $gacl_temp->get_objects(NULL, 0, 'ACO');
+                        $list_aco_objects = $gacl_temp->get_objects(null, 0, 'ACO');
                         foreach ($list_aco_objects as $key => $value) {
-                          asort($list_aco_objects[$key]);
+                            asort($list_aco_objects[$key]);
                         }
                         echo "<select name='access_control[" . $index . "]'>";
                         foreach ($list_aco_objects as $section => $array_acos) {
-                          $aco_section_data = $gacl_temp->get_section_data($section, 'ACO');
-                          $aco_section_title = $aco_section_data[3];
-                          foreach ($array_acos as $aco) {
-                            $aco_id = $gacl_temp->get_object_id($section, $aco,'ACO');
-                            $aco_data = $gacl_temp->get_object_data($aco_id, 'ACO');
-                            $aco_title = $aco_data[0][3];
-                            $select = '';
-                            if ($rule->access_control() == $section.":".$aco) {
-                              $select = 'selected';
+                            $aco_section_data = $gacl_temp->get_section_data($section, 'ACO');
+                            $aco_section_title = $aco_section_data[3];
+                            foreach ($array_acos as $aco) {
+                                $aco_id = $gacl_temp->get_object_id($section, $aco,'ACO');
+                                $aco_data = $gacl_temp->get_object_data($aco_id, 'ACO');
+                                $aco_title = $aco_data[0][3];
+                                $select = '';
+                                if ($rule->access_control() == $section.":".$aco) {
+                                    $select = 'selected';
+                                }
+                                echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . ">" . xlt($aco_section_title) . ": " . xlt($aco_title)  . "</option>";
                             }
-                            echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . ">" . xlt($aco_section_title) . ": " . xlt($aco_title)  . "</option>";
-                          }
                         }
                         echo "</select>";
                         ?>

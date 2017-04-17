@@ -45,11 +45,11 @@ $assigned_to = '';
 $body        = '';
 $activity    = 0;
 if ($noteid) {
-  $nrow = getPnoteById($noteid, 'title,assigned_to,activity,body');
-  $title = $nrow['title'];
-  $assigned_to = $nrow['assigned_to'];
-  $activity = $nrow['activity'];
-  $body = $nrow['body'];
+    $nrow = getPnoteById($noteid, 'title,assigned_to,activity,body');
+    $title = $nrow['title'];
+    $assigned_to = $nrow['assigned_to'];
+    $activity = $nrow['activity'];
+    $body = $nrow['body'];
 }
 ?>
 <html>
@@ -65,9 +65,11 @@ if ($noteid) {
   "</b>" . htmlspecialchars( xl('for','',' ',' '), ENT_NOQUOTES) .
   "<b>" . htmlspecialchars( $ptname, ENT_NOQUOTES) . "</b>"; ?></p>
 
-<p><?php echo htmlspecialchars( xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( $assigned_to, ENT_NOQUOTES); ?></p>
+<p><?php echo htmlspecialchars( xl('Assigned To'), ENT_NOQUOTES);
+?>: <?php echo htmlspecialchars( $assigned_to, ENT_NOQUOTES); ?></p>
 
-<p><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( ($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
+<p><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES);
+?>: <?php echo htmlspecialchars( ($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
 
 <p><?php echo nl2br(htmlspecialchars( $body, ENT_NOQUOTES)); ?></p>
 

@@ -56,7 +56,7 @@ try{
     $htmlout = '';
     $pdf = new HTML2PDF( $GLOBALS['pdf_layout'], $GLOBALS['pdf_size'], $GLOBALS['pdf_language'], true,
             'UTF-8', array ($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']
-    ) );
+            ) );
     $pdf->writeHtml( $htmlin, false );
     if( $dispose == 'download' ){
         header( 'Content-type: application/pdf' );
@@ -77,7 +77,7 @@ try{
         echo $rc;
         $logit->portalLog('chart document',$_SESSION['pid'],('document:'.$form_filename));
 
-    exit(0);
+        exit(0);
     };
 }
 catch(Exception $e){
@@ -85,7 +85,8 @@ catch(Exception $e){
     die(xlt("no signature in document"));
 }
 // not currently used but meant to be.
-function doc_toDoc( $htmlin ){
+function doc_toDoc( $htmlin )
+{
     header( "Content-type: application/vnd.oasis.opendocument.text" );
     header( "Content-Disposition: attachment;Filename=document_name.html" );
     echo "<html>";

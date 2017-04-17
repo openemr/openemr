@@ -31,7 +31,7 @@ require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
 if($_REQUEST['approve'] == 1){
-	insert_patient($_REQUEST['am_id']);
+    insert_patient($_REQUEST['am_id']);
 ?>
   <html>
 		<head>
@@ -43,7 +43,7 @@ if($_REQUEST['approve'] == 1){
 		</body>
 	</html>
 	<?php
-	exit;
+    exit;
 }
 
 ?>
@@ -147,55 +147,58 @@ tbody tr.odd {
 		</th>
 	</tr>
 	<?php
-	$query = sqlStatement("SELECT *,am.id amid,CONCAT(ad.field_value,' ',ad1.field_value) as pat_name FROM audit_master am JOIN audit_details ad ON
-		ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname' JOIN audit_details ad1 ON
-		ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname' WHERE type='11' AND approval_status='1'");
-	if(sqlNumRows($query) > 0){
-		while($res = sqlFetchArray($query)){
-		$dup_query = sqlStatement("SELECT * FROM audit_master am JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data'
-			AND ad.field_name = 'lname' JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND
-			ad1.field_name = 'fname' JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
-			JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value) WHERE am.id = ?",
-		array($res['amid']));
-	?>
+    $query = sqlStatement("SELECT *,am.id amid,CONCAT(ad.field_value,' ',ad1.field_value) as pat_name FROM audit_master am JOIN audit_details ad ON
+        ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname' JOIN audit_details ad1 ON
+        ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname' WHERE type='11' AND approval_status='1'");
+    if(sqlNumRows($query) > 0){
+        while($res = sqlFetchArray($query)){
+            $dup_query = sqlStatement("SELECT * FROM audit_master am JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data'
+            AND ad.field_name = 'lname' JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND
+            ad1.field_name = 'fname' JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
+            JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value) WHERE am.id = ?",
+            array($res['amid']));
+    ?>
 	<tr>
 		<td class="bold" >
 			<?php echo text($res['pat_name']); ?>
 		</td>
 			<?php
-			if(sqlNumRows($dup_query)>0){
-				$dup_res = sqlFetchArray($dup_query);
-			?>
+            if(sqlNumRows($dup_query)>0){
+                $dup_res = sqlFetchArray($dup_query);
+            ?>
 		<td align="center" class="bold" >
 			<?php echo xlt('Yes'); ?>
 		</td>
 		<td align="center" >
-			<a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr($res['amid']); ?>&pid=<?php echo attr($dup_res['pid']); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
+			<a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr($res['amid']);
+?>&pid=<?php echo attr($dup_res['pid']);
+?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
 		</td>
 		<?php
-			}else{
-		?>
+            }else{
+        ?>
 		<td align="center" class="bold" >
 			<?php echo xlt('No'); ?>
 		</td>
 		<td align="center" >
-			<a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr($res['amid']); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
+			<a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr($res['amid']);
+?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
 		</td>
 		<?php
-			}
-		?>
+            }
+        ?>
 	</tr>
 	<?php
-		}
-	}else{
-	?>
+        }
+    }else{
+    ?>
 		<tr>
 			<td colspan="3" >
 				<?php echo xlt('Nothing Pending for Approval')."."; ?>
 			</td>
 		</tr>
 	<?php
-	}
+    }
 ?>
 </table>
 </center>

@@ -43,278 +43,278 @@ require_once("PatientMap.php");
  */
 class PatientDAO extends Phreezable
 {
-	/** @var int */
-	public $Id;
+    /** @var int */
+    public $Id;
 
-	/** @var string */
-	public $Title;
+    /** @var string */
+    public $Title;
 
-	/** @var string */
-	public $Language;
+    /** @var string */
+    public $Language;
 
-	/** @var string */
-	public $Financial;
+    /** @var string */
+    public $Financial;
 
-	/** @var string */
-	public $Fname;
+    /** @var string */
+    public $Fname;
 
-	/** @var string */
-	public $Lname;
+    /** @var string */
+    public $Lname;
 
-	/** @var string */
-	public $Mname;
+    /** @var string */
+    public $Mname;
 
-	/** @var date */
-	public $Dob;
+    /** @var date */
+    public $Dob;
 
-	/** @var string */
-	public $Street;
+    /** @var string */
+    public $Street;
 
-	/** @var string */
-	public $PostalCode;
+    /** @var string */
+    public $PostalCode;
 
-	/** @var string */
-	public $City;
+    /** @var string */
+    public $City;
 
-	/** @var string */
-	public $State;
+    /** @var string */
+    public $State;
 
-	/** @var string */
-	public $CountryCode;
+    /** @var string */
+    public $CountryCode;
 
-	/** @var string */
-	public $DriversLicense;
+    /** @var string */
+    public $DriversLicense;
 
-	/** @var string */
-	public $Ss;
+    /** @var string */
+    public $Ss;
 
-	/** @var longtext */
-	public $Occupation;
+    /** @var longtext */
+    public $Occupation;
 
-	/** @var string */
-	public $PhoneHome;
+    /** @var string */
+    public $PhoneHome;
 
-	/** @var string */
-	public $PhoneBiz;
+    /** @var string */
+    public $PhoneBiz;
 
-	/** @var string */
-	public $PhoneContact;
+    /** @var string */
+    public $PhoneContact;
 
-	/** @var string */
-	public $PhoneCell;
+    /** @var string */
+    public $PhoneCell;
 
-	/** @var int */
-	public $PharmacyId;
+    /** @var int */
+    public $PharmacyId;
 
-	/** @var string */
-	public $Status;
+    /** @var string */
+    public $Status;
 
-	/** @var string */
-	public $ContactRelationship;
+    /** @var string */
+    public $ContactRelationship;
 
-	/** @var date */
-	public $Date;
+    /** @var date */
+    public $Date;
 
-	/** @var string */
-	public $Sex;
+    /** @var string */
+    public $Sex;
 
-	/** @var string */
-	public $Referrer;
+    /** @var string */
+    public $Referrer;
 
-	/** @var string */
-	public $Referrerid;
+    /** @var string */
+    public $Referrerid;
 
-	/** @var int */
-	public $Providerid;
+    /** @var int */
+    public $Providerid;
 
-	/** @var int */
-	public $RefProviderid;
+    /** @var int */
+    public $RefProviderid;
 
-	/** @var string */
-	public $Email;
+    /** @var string */
+    public $Email;
 
-	/** @var string */
-	public $EmailDirect;
+    /** @var string */
+    public $EmailDirect;
 
-	/** @var string */
-	public $Ethnoracial;
+    /** @var string */
+    public $Ethnoracial;
 
-	/** @var string */
-	public $Race;
+    /** @var string */
+    public $Race;
 
-	/** @var string */
-	public $Ethnicity;
+    /** @var string */
+    public $Ethnicity;
 
-	/** @var string */
-	public $Religion;
+    /** @var string */
+    public $Religion;
 
-	/** @var string */
-	public $Interpretter;
+    /** @var string */
+    public $Interpretter;
 
-	/** @var string */
-	public $Migrantseasonal;
+    /** @var string */
+    public $Migrantseasonal;
 
-	/** @var string */
-	public $FamilySize;
+    /** @var string */
+    public $FamilySize;
 
-	/** @var string */
-	public $MonthlyIncome;
+    /** @var string */
+    public $MonthlyIncome;
 
-	/** @var string */
-	public $BillingNote;
+    /** @var string */
+    public $BillingNote;
 
-	/** @var string */
-	public $Homeless;
+    /** @var string */
+    public $Homeless;
 
-	/** @var date */
-	public $FinancialReview;
+    /** @var date */
+    public $FinancialReview;
 
-	/** @var string */
-	public $Pubpid;
+    /** @var string */
+    public $Pubpid;
 
-	/** @var int */
-	public $Pid;
+    /** @var int */
+    public $Pid;
 
-	/** @var string */
-	public $Genericname1;
+    /** @var string */
+    public $Genericname1;
 
-	/** @var string */
-	public $Genericval1;
+    /** @var string */
+    public $Genericval1;
 
-	/** @var string */
-	public $Genericname2;
+    /** @var string */
+    public $Genericname2;
 
-	/** @var string */
-	public $Genericval2;
+    /** @var string */
+    public $Genericval2;
 
-	/** @var string */
-	public $HipaaMail;
+    /** @var string */
+    public $HipaaMail;
 
-	/** @var string */
-	public $HipaaVoice;
+    /** @var string */
+    public $HipaaVoice;
 
-	/** @var string */
-	public $HipaaNotice;
+    /** @var string */
+    public $HipaaNotice;
 
-	/** @var string */
-	public $HipaaMessage;
+    /** @var string */
+    public $HipaaMessage;
 
-	/** @var string */
-	public $HipaaAllowsms;
+    /** @var string */
+    public $HipaaAllowsms;
 
-	/** @var string */
-	public $HipaaAllowemail;
+    /** @var string */
+    public $HipaaAllowemail;
 
-	/** @var string */
-	public $Squad;
+    /** @var string */
+    public $Squad;
 
-	/** @var int */
-	public $Fitness;
+    /** @var int */
+    public $Fitness;
 
-	/** @var string */
-	public $ReferralSource;
+    /** @var string */
+    public $ReferralSource;
 
-	/** @var string */
-	public $Usertext1;
+    /** @var string */
+    public $Usertext1;
 
-	/** @var string */
-	public $Usertext2;
+    /** @var string */
+    public $Usertext2;
 
-	/** @var string */
-	public $Usertext3;
+    /** @var string */
+    public $Usertext3;
 
-	/** @var string */
-	public $Usertext4;
+    /** @var string */
+    public $Usertext4;
 
-	/** @var string */
-	public $Usertext5;
+    /** @var string */
+    public $Usertext5;
 
-	/** @var string */
-	public $Usertext6;
+    /** @var string */
+    public $Usertext6;
 
-	/** @var string */
-	public $Usertext7;
+    /** @var string */
+    public $Usertext7;
 
-	/** @var string */
-	public $Usertext8;
+    /** @var string */
+    public $Usertext8;
 
-	/** @var string */
-	public $Userlist1;
+    /** @var string */
+    public $Userlist1;
 
-	/** @var string */
-	public $Userlist2;
+    /** @var string */
+    public $Userlist2;
 
-	/** @var string */
-	public $Userlist3;
+    /** @var string */
+    public $Userlist3;
 
-	/** @var string */
-	public $Userlist4;
+    /** @var string */
+    public $Userlist4;
 
-	/** @var string */
-	public $Userlist5;
+    /** @var string */
+    public $Userlist5;
 
-	/** @var string */
-	public $Userlist6;
+    /** @var string */
+    public $Userlist6;
 
-	/** @var string */
-	public $Userlist7;
+    /** @var string */
+    public $Userlist7;
 
-	/** @var string */
-	public $Pricelevel;
+    /** @var string */
+    public $Pricelevel;
 
-	/** @var date */
-	public $Regdate;
+    /** @var date */
+    public $Regdate;
 
-	/** @var date */
-	public $Contrastart;
+    /** @var date */
+    public $Contrastart;
 
-	/** @var string */
-	public $CompletedAd;
+    /** @var string */
+    public $CompletedAd;
 
-	/** @var date */
-	public $AdReviewed;
+    /** @var date */
+    public $AdReviewed;
 
-	/** @var string */
-	public $Vfc;
+    /** @var string */
+    public $Vfc;
 
-	/** @var string */
-	public $Mothersname;
+    /** @var string */
+    public $Mothersname;
 
-	/** @var string */
-	public $Guardiansname;
+    /** @var string */
+    public $Guardiansname;
 
-	/** @var string */
-	public $AllowImmRegUse;
+    /** @var string */
+    public $AllowImmRegUse;
 
-	/** @var string */
-	public $AllowImmInfoShare;
+    /** @var string */
+    public $AllowImmInfoShare;
 
-	/** @var string */
-	public $AllowHealthInfoEx;
+    /** @var string */
+    public $AllowHealthInfoEx;
 
-	/** @var string */
-	public $AllowPatientPortal;
+    /** @var string */
+    public $AllowPatientPortal;
 
-	/** @var date */
-	public $DeceasedDate;
+    /** @var date */
+    public $DeceasedDate;
 
-	/** @var string */
-	public $DeceasedReason;
+    /** @var string */
+    public $DeceasedReason;
 
-	/** @var int */
-	public $SoapImportStatus;
+    /** @var int */
+    public $SoapImportStatus;
 
-	/** @var string */
-	public $CmsportalLogin;
+    /** @var string */
+    public $CmsportalLogin;
 
-	/** @var int */
-	public $CareTeam;
+    /** @var int */
+    public $CareTeam;
 
-	/** @var string */
-	public $County;
+    /** @var string */
+    public $County;
 
-	/** @var string */
-	public $Industry;
+    /** @var string */
+    public $Industry;
 
 
 

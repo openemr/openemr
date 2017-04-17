@@ -5,17 +5,17 @@
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
  *  http://postcalendar.tv
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -26,18 +26,18 @@
  */
 function smarty_function_pc_popup($args)
 {
-	// if we're not using popups just return an empty string
-	if(!_SETTING_USE_POPUPS) { return; }
-	
-	extract($args);
+    // if we're not using popups just return an empty string
+    if(!_SETTING_USE_POPUPS) { return; }
+    
+    extract($args);
 
     if (empty($text) && !isset($inarray) && empty($function)) {
         $text = "overlib: attribute 'text' or 'inarray' or 'function' required";
     }
 
-	if (empty($trigger)) { $trigger = "onMouseOver"; }
+    if (empty($trigger)) { $trigger = "onMouseOver"; }
 
-	echo $trigger.'="return overlib(\''.pc_clean($text).'\'';
+    echo $trigger.'="return overlib(\''.pc_clean($text).'\'';
     if ($sticky) { echo ",STICKY"; }
     if (!empty($caption)) 		{ echo ",CAPTION,'".pc_clean($caption)."'"; }
     if (!empty($fgcolor)) 		{ echo ",FGCOLOR,'$fgcolor'"; }

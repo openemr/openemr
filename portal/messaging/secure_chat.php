@@ -232,7 +232,7 @@ abstract class Controller
     }
     public function getIsFullScreen()
     {
-    	return IS_FULLSCREEN;
+        return IS_FULLSCREEN;
     }
     public function getModel()
     {
@@ -256,7 +256,8 @@ namespace SMA_Msg;
 use SMA_Common;
 class Model extends SMA_Common\Model
 {
-    public function getAuthUsers(){
+    public function getAuthUsers()
+    {
         $response = sqlStatementNoLog( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
         $resultpd = array ();
         while( $row = sqlFetchArray($response) ){
@@ -406,11 +407,11 @@ class Controller extends SMA_Common\Controller
 
     private function _parseAdminCommand($message)
     {
-        if (strpos($message,'/clear') !== FALSE) {
+        if (strpos($message,'/clear') !== false) {
             $this->getModel()->removeMessages();
             return true;
         }
-        if (strpos($message,'/online') !== FALSE) {
+        if (strpos($message,'/online') !== false) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {

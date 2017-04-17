@@ -93,8 +93,8 @@ echo $code;
 <?php
 // Configuration that will only be used by the second editor.
 $config['toolbar'] = array(
-	array( 'Source', '-', 'Bold', 'Italic', 'Underline', 'Strike' ),
-	array( 'Image', 'Link', 'Unlink', 'Anchor' )
+    array( 'Source', '-', 'Bold', 'Italic', 'Underline', 'Strike' ),
+    array( 'Image', 'Link', 'Unlink', 'Anchor' )
 );
 
 $config['skin'] = 'v2';

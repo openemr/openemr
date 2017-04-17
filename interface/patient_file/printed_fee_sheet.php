@@ -15,9 +15,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 
-$facilityService = new \services\FacilityService();
-
-function genColumn($ix) {
+function genColumn($ix)
+{
     global $html;
     global $SBCODES;
     for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
@@ -313,11 +312,12 @@ $today = date('Y-m-d');
 $alertmsg = ''; // anything here pops up in an alert box
 
 // Get details for the primary facility.
-$frow = $facilityService->getPrimaryBusinessEntity();
+$frow = sqlQuery("SELECT * FROM facility WHERE primary_business_entity = 1");
 
 // If primary is not set try to old method of guessing...for backward compatibility
 if (empty($frow)) {
-    $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
+    $frow = sqlQuery("SELECT * FROM facility " .
+            "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 }
 
 // Still missing...
@@ -541,12 +541,12 @@ foreach ($pid_list as $pid) {
 
 // Common End Code
 if ($form_fill != 2) {   //use native browser 'print' for multipage
-$html .= "<div id='hideonprint'>
+    $html .= "<div id='hideonprint'>
 <p>
 <input type='button' value='";
 
-$html .= xla('Print');
-$html .="' id='printbutton' />
+    $html .= xla('Print');
+    $html .="' id='printbutton' />
 </div>";
 }
 

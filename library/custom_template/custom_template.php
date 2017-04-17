@@ -30,11 +30,12 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc");
 // mdsupport : li code
-function listitemCode ($strDisp, $strInsert) {
-	if ($strInsert) {
-		echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
-			 "'" . htmlspecialchars($strInsert,ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp,ENT_QUOTES) . '</a></span></li>';
-	}
+function listitemCode ($strDisp, $strInsert)
+{
+    if ($strInsert) {
+        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
+             "'" . htmlspecialchars($strInsert,ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp,ENT_QUOTES) . '</a></span></li>';
+    }
 }
 
 $contextName = $_REQUEST['contextName'];
@@ -125,7 +126,8 @@ $(document).ready(function(){
                     <table width=100%>
 			<tr clss="text">
 			    <td>
-				<a href="#" onclick="return SelectToSave('<?php echo $type;?>')" class="css_button" ><span><?php echo htmlspecialchars(xl('SAVE'),ENT_QUOTES);?></span></a>
+				<a href="#" onclick="return SelectToSave('<?php echo $type;
+?>')" class="css_button" ><span><?php echo htmlspecialchars(xl('SAVE'),ENT_QUOTES);?></span></a>
 			    </td>
 			</tr>
                         <tr class="text">
@@ -135,7 +137,7 @@ $(document).ready(function(){
                                     <?php
                                     $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long",array($_SESSION['authId'],$rowContext['cl_list_id']));
                                     while($rowTemplates = sqlFetchArray($resTemplates)){
-                                    echo "<option value='".htmlspecialchars($rowTemplates['cl_list_slno'],ENT_QUOTES)."'>".htmlspecialchars(xl($rowTemplates['cl_list_item_long']),ENT_QUOTES)."</option>";
+                                        echo "<option value='".htmlspecialchars($rowTemplates['cl_list_slno'],ENT_QUOTES)."'>".htmlspecialchars(xl($rowTemplates['cl_list_item_long']),ENT_QUOTES)."</option>";
                                     }
                                     ?>
                                 </select>
@@ -145,14 +147,17 @@ $(document).ready(function(){
 				<a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'),ENT_QUOTES);?>"><img border=0 src="../../images/enter.gif"></a>&nbsp;
                                 <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'),ENT_QUOTES);?>"><img border=0 src="../../images/question.png"></a>&nbsp;
                                 <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');"  title="<?php echo htmlspecialchars(xl('New Paragraph'),ENT_QUOTES);?>"><img border=0 src="../../images/paragraph.png"></a>&nbsp;
-                                <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="css_button" title="<?php echo htmlspecialchars(xl('Space'),ENT_QUOTES);?>"><span><?php echo htmlspecialchars(xl('SPACE'),ENT_QUOTES);?></span></a>
+                                <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="css_button" title="<?php echo htmlspecialchars(xl('Space'),ENT_QUOTES);
+?>"><span><?php echo htmlspecialchars(xl('SPACE'),ENT_QUOTES);?></span></a>
                                 <?php
                                 $res=sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
                                                     WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order",array($_SESSION['authId']));
                                 while($row=sqlFetchArray($res)){
                                 ?>
-                                    <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short'];?>');" class="css_button" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES);?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES));?></span></a>
-                                <?php 
+                                    <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short'];
+?>');" class="css_button" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES);
+?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']),ENT_QUOTES));?></span></a>
+                                <?php
                                 }
                                 ?>
                             </td>
@@ -171,47 +176,49 @@ $(document).ready(function(){
                                     <?php
                                     if($pid!=''){
                                         $row = sqlQuery("SELECT p.*, IF(ISNULL(p.providerID), NULL, CONCAT(u.lname,',',u.fname)) pcp ".
-														"FROM patient_data p LEFT OUTER JOIN users u ".
-														"ON u.id=p.providerID WHERE pid=?"
-														,array($pid));
+                                                        "FROM patient_data p LEFT OUTER JOIN users u ".
+                                                        "ON u.id=p.providerID WHERE pid=?"
+                                                        ,array($pid));
                                     ?>
                                     <li><a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'),ENT_QUOTES);?></a>
                                         <ul>
                                         <?php
-                                        	listitemCode(xl('First name'), $row['fname']);
-                                        	listitemCode(xl('Last name'), $row['lname']);
-                                        	listitemCode(xl('Phone'), $row['phone_home']);
-                                        	listitemCode(xl('SSN'), $row['ss']);
-                                        	listitemCode(xl('Date Of Birth'), $row['DOB']);
-                                        	listitemCode(xl('PCP'), $row['pcp']);
+                                            listitemCode(xl('First name'), $row['fname']);
+                                            listitemCode(xl('Last name'), $row['lname']);
+                                            listitemCode(xl('Phone'), $row['phone_home']);
+                                            listitemCode(xl('SSN'), $row['ss']);
+                                            listitemCode(xl('Date Of Birth'), $row['DOB']);
+                                            listitemCode(xl('PCP'), $row['pcp']);
                                         ?>
                                         </ul>
                                     </li>
 	                                    <?php
-										foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
-	    									$res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title'
-															,array($pid, $issType));
-	    									if (sqlNumRows($res)) {
-										?>
+                                        foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
+                                            $res = sqlStatement('SELECT title, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title'
+                                                            ,array($pid, $issType));
+                                            if (sqlNumRows($res)) {
+                                        ?>
                                     <li><a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]),ENT_QUOTES);?></a>
                                         <ul>
                                     		<?php
-	                                    		while ($row = sqlFetchArray($res)) {
-													listitemCode((strlen($row['title'])>20) ? (substr($row['title'], 0, 18).'..') : $row['title'], ($row['title'].$row['codes']));
-												}
-											?>
+                                            while ($row = sqlFetchArray($res)) {
+                                                listitemCode((strlen($row['title'])>20) ? (substr($row['title'], 0, 18).'..') : $row['title'], ($row['title'].$row['codes']));
+                                            }
+                                            ?>
 										</ul>
 									</li>
 									<?php
-											}
-	    								}
+                                            }
+                                        }
                                     }
                                     ?>
                                 </ul>
                                 </div>
                                 </div>
-                                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'];?>" id="personalize_link" class="iframe_medium css_button"><span><?php echo htmlspecialchars(xl('Personalize'),ENT_QUOTES);?></span></a>
-                                <a href="add_custombutton.php" id="custombutton" class="iframe_medium css_button" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'),ENT_QUOTES);?>"><span><?php echo htmlspecialchars(xl('Add Buttons'),ENT_QUOTES);?></span></a>
+                                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'];
+?>" id="personalize_link" class="iframe_medium css_button"><span><?php echo htmlspecialchars(xl('Personalize'),ENT_QUOTES);?></span></a>
+                                <a href="add_custombutton.php" id="custombutton" class="iframe_medium css_button" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'),ENT_QUOTES);
+?>"><span><?php echo htmlspecialchars(xl('Add Buttons'),ENT_QUOTES);?></span></a>
                             </td>
                             <td valign=top style="width:700px;">
                                 <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
@@ -225,9 +232,9 @@ $(document).ready(function(){
         </tr>
     <?php
         }
-    else{
-        echo htmlspecialchars(xl('NO SUCH CONTEXT NAME').$contextName,ENT_QUOTES);
-    }
+        else{
+            echo htmlspecialchars(xl('NO SUCH CONTEXT NAME').$contextName,ENT_QUOTES);
+        }
     ?>
     </table>
     <table>

@@ -1,7 +1,7 @@
-<?php 
+<?php
 /**
  * Signature form view script for encounter module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

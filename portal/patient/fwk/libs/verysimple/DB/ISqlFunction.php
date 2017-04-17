@@ -18,14 +18,14 @@
  * @version 2.0
  */
 interface ISqlFunction {
-	/**
-	 * Return the quoted SQL that will be used for the insert/update/select
-	 * 
-	 * @param
-	 *        	Phreezer
-	 * @return string
-	 */
-	public function GetQuotedSql($phreezer);
+    /**
+     * Return the quoted SQL that will be used for the insert/update/select
+     *
+     * @param
+     *          Phreezer
+     * @return string
+     */
+    public function GetQuotedSql($phreezer);
 }
 
 ?>

@@ -26,138 +26,148 @@
  * @link http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
-	require_once("../globals.php");
-	require_once("$srcdir/forms.inc");
-	require_once("$srcdir/billing.inc");
-	require_once("$srcdir/patient.inc");
-	require_once "$srcdir/options.inc.php";
-	include_once("$srcdir/calendar.inc");
-	include_once("$srcdir/edi.inc");
+    //SANITIZE ALL ESCAPES
+    $sanitize_all_escapes=true;
+    //
 
-	// Element data seperator
-	$eleDataSep		= "*";
+    //STOP FAKE REGISTER GLOBALS
+    $fake_register_globals=false;
+    //
 
-	// Segment Terminator
-	$segTer			= "~";
+    require_once("../globals.php");
+    require_once("$srcdir/forms.inc");
+    require_once("$srcdir/billing.inc");
+    require_once("$srcdir/patient.inc");
+    require_once "$srcdir/options.inc.php";
+    include_once("$srcdir/calendar.inc");
+    include_once("$srcdir/edi.inc");
 
-	// Component Element seperator
-	$compEleSep		= ":";
+    // Element data seperator
+    $eleDataSep		= "*";
 
-	// filter conditions for the report and batch creation
+    // Segment Terminator
+    $segTer			= "~";
 
-	$from_date		= fixDate($_POST['form_from_date'], date('Y-m-d'));
-	$to_date		= fixDate($_POST['form_to_date'], date('Y-m-d'));
-	$form_facility	= $_POST['form_facility'] ? $_POST['form_facility'] : '';
-	$form_provider	= $_POST['form_users'] ? $_POST['form_users'] : '';
-	$exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
-	$X12info		= $_POST['form_x12'] ? explode("|",$_POST['form_x12']) : '';
+    // Component Element seperator
+    $compEleSep		= ":";
 
-	//Set up the sql variable binding array (this prevents sql-injection attacks)
-	$sqlBindArray = array();
+    // filter conditions for the report and batch creation
 
-	$where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
-	array_push($sqlBindArray, $from_date);
+    $from_date		= fixDate($_POST['form_from_date'], date('Y-m-d'));
+    $to_date		= fixDate($_POST['form_to_date'], date('Y-m-d'));
+    $form_facility	= $_POST['form_facility'] ? $_POST['form_facility'] : '';
+    $form_provider	= $_POST['form_users'] ? $_POST['form_users'] : '';
+    $exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
+    $X12info		= $_POST['form_x12'] ? explode("|",$_POST['form_x12']) : '';
 
-	//$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
+    //Set up the sql variable binding array (this prevents sql-injection attacks)
+    $sqlBindArray = array();
 
-	if ($to_date) {
-		$where .= " AND e.pc_eventDate <= ?";
-		array_push($sqlBindArray, $to_date);
-	}
+    $where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
+    array_push($sqlBindArray, $from_date);
 
-	if($form_facility != "") {
-		$where .= " AND f.id = ? ";
-		array_push($sqlBindArray, $form_facility);
-	}
+    //$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
 
-	if($form_provider != "") {
-		$where .= " AND d.id = ? ";
-		array_push($sqlBindArray, $form_provider);
-	}
+if ($to_date) {
+    $where .= " AND e.pc_eventDate <= ?";
+    array_push($sqlBindArray, $to_date);
+}
 
-	if($exclude_policy != ""){	$arrayExplode	=	explode(",", $exclude_policy);
-								array_walk($arrayExplode, 'arrFormated');
-								$exclude_policy = implode(",",$arrayExplode);
-								$where .= " AND i.policy_number not in (".stripslashes($exclude_policy).")";
-							}
+if($form_facility != "") {
+    $where .= " AND f.id = ? ";
+    array_push($sqlBindArray, $form_facility);
+}
 
-	$where .= " AND (i.policy_number is not null and i.policy_number != '')";
+if($form_provider != "") {
+    $where .= " AND d.id = ? ";
+    array_push($sqlBindArray, $form_provider);
+}
 
-	$query = sprintf("		SELECT DATE_FORMAT(e.pc_eventDate, '%%Y%%m%%d') as pc_eventDate,
-								   e.pc_facility,
-								   p.lname,
-								   p.fname,
-								   p.mname,
-								   DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
-								   p.ss,
-								   p.sex,
-								   p.pid,
-								   p.pubpid,
-								   i.policy_number,
-								   i.provider as payer_id,
-								   i.subscriber_relationship,
-								   i.subscriber_lname,
-								   i.subscriber_fname,
-								   i.subscriber_mname,
-								   DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
-								   i.subscriber_ss,
-								   i.subscriber_sex,
-								   DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
-								   d.lname as provider_lname,
-								   d.fname as provider_fname,
-								   d.npi as provider_npi,
-								   d.upin as provider_pin,
-								   f.federal_ein as federal_ein,
-								   f.facility_npi as facility_npi,
-								   f.name as facility_name,
-								   c.name as payer_name
-							FROM openemr_postcalendar_events AS e
-							LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
-							LEFT JOIN facility AS f on (f.id = e.pc_facility)
-							LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
-							LEFT JOIN insurance_data AS i ON (i.id =(
-																	SELECT id
-																	FROM insurance_data AS i
-																	WHERE pid = p.pid AND type = 'primary'
-																	ORDER BY date DESC
-																	LIMIT 1
-																	)
-																)
-							LEFT JOIN insurance_companies as c ON (c.id = i.provider)
-							WHERE %s ",	$where );
+if($exclude_policy != ""){	$arrayExplode	=	explode(",", $exclude_policy);
+                            array_walk($arrayExplode, 'arrFormated');
+                            $exclude_policy = implode(",",$arrayExplode);
+                            $where .= " AND i.policy_number not in (".stripslashes($exclude_policy).")";
+}
 
-	// Run the query
-	$res			= sqlStatement($query, $sqlBindArray);
+    $where .= " AND (i.policy_number is not null and i.policy_number != '')";
 
-	// Get the facilities information
-	$facilities		= getUserFacilities($_SESSION['authId']);
+    $query = sprintf("		SELECT DATE_FORMAT(e.pc_eventDate, '%%Y%%m%%d') as pc_eventDate,
+                                   e.pc_facility,
+                                   p.lname,
+                                   p.fname,
+                                   p.mname,
+                                   DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
+                                   p.ss,
+                                   p.sex,
+                                   p.pid,
+                                   p.pubpid,
+                                   i.policy_number,
+                                   i.provider as payer_id,
+                                   i.subscriber_relationship,
+                                   i.subscriber_lname,
+                                   i.subscriber_fname,
+                                   i.subscriber_mname,
+                                   DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
+                                   i.subscriber_ss,
+                                   i.subscriber_sex,
+                                   DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
+                                   d.lname as provider_lname,
+                                   d.fname as provider_fname,
+                                   d.npi as provider_npi,
+                                   d.upin as provider_pin,
+                                   f.federal_ein as federal_ein,
+                                   f.facility_npi as facility_npi,
+                                   f.name as facility_name,
+                                   c.name as payer_name
+                            FROM openemr_postcalendar_events AS e
+                            LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
+                            LEFT JOIN facility AS f on (f.id = e.pc_facility)
+                            LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
+                            LEFT JOIN insurance_data AS i ON (i.id =(
+                                                                    SELECT id
+                                                                    FROM insurance_data AS i
+                                                                    WHERE pid = p.pid AND type = 'primary'
+                                                                    ORDER BY date DESC
+                                                                    LIMIT 1
+                                                                    )
+                                                                )
+                            LEFT JOIN insurance_companies as c ON (c.id = i.provider)
+                            WHERE %s ",	$where );
 
-	// Get the Providers information
-	$providers		= getUsernames();
+    // Run the query
+    $res			= sqlStatement($query, $sqlBindArray);
 
-	//Get the x12 partners information
-	$clearinghouses	= getX12Partner();
+    // Get the facilities information
+    $facilities		= getUserFacilities($_SESSION['authId']);
+
+    // Get the Providers information
+    $providers		= getUsernames();
+
+    //Get the x12 partners information
+    $clearinghouses	= getX12Partner();
 
 
-	if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
-		header('Content-Type: text/plain');
-		header(sprintf('Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
-			$from_date,
-			$to_date
-		));
-		print_elig($res,$X12info,$segTer,$compEleSep);
-		exit;
-	}
+if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
+    header('Content-Type: text/plain');
+    header(sprintf('Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
+        $from_date,
+        $to_date
+    ));
+    print_elig($res,$X12info,$segTer,$compEleSep);
+    exit;
+}
 ?>
 
 <html>
 
 	<head>
 
+		<?php html_header_show();?>
+
 		<title><?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
 
-		<?php Header::setupHeader('datetime-picker'); ?>
+		<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 		<style type="text/css">
 
@@ -185,6 +195,11 @@ use OpenEMR\Core\Header;
 			}
 
 		</style>
+
+		<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 		<script type="text/javascript">
 
@@ -279,12 +294,13 @@ use OpenEMR\Core\Header;
 		<!-- Required for the popup date selectors -->
 		<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-		<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
+		<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES);
+?> - <?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
 
 		<div id="report_parameters_daterange">
 			<?php echo htmlspecialchars( date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .
-				" &nbsp; " . htmlspecialchars( xl('to'), ENT_NOQUOTES) .
-				"&nbsp; ". htmlspecialchars( date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
+                " &nbsp; " . htmlspecialchars( xl('to'), ENT_NOQUOTES) .
+                "&nbsp; ". htmlspecialchars( date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
 		</div>
 
 		<form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
@@ -296,34 +312,34 @@ use OpenEMR\Core\Header;
 							<div style='float:left'>
 								<table class='text'>
 									<tr>
-										<td class='control-label'>
-										   <?php xl('From','e'); ?>:
+										<td class='label_custom'>
+                                            <?php xl('From','e'); ?>:
 										</td>
 										<td>
-										   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
+										   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
 										</td>
-										<td class='control-label'>
-										   <?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:
+										<td class='label_custom'>
+                                            <?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
-										   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars( $to_date, ENT_QUOTES) ?>'
+										   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars( $to_date, ENT_QUOTES) ?>'
 											title='yyyy-mm-dd'>
 										</td>
 										<td>&nbsp;</td>
 									</tr>
 
 									<tr>
-										<td class='control-label'>
+										<td class='label_custom'>
 											<?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
 											<?php dropdown_facility($form_facility,'form_facility',false);	?>
 										</td>
-										<td class='control-label'>
-										   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
+										<td class='label_custom'>
+                                            <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
-											<select name='form_users' class='form-control' onchange='form.submit();'>
+											<select name='form_users' onchange='form.submit();'>
 												<option value=''>-- <?php echo htmlspecialchars( xl('All'), ENT_NOQUOTES); ?> --</option>
 												<?php foreach($providers as $user): ?>
 													<option value='<?php echo htmlspecialchars( $user['id'], ENT_QUOTES); ?>'
@@ -337,23 +353,23 @@ use OpenEMR\Core\Header;
 									</tr>
 
 									<tr>
-										<td class='control-label'>
+										<td class='label_custom'>
 											<?php echo htmlspecialchars( xl('X12 Partner'), ENT_NOQUOTES); ?>:
 										</td>
 										<td colspan='5'>
-											<select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
+											<select name='form_x12' id='form_x12' onchange='return toggleMessage("emptyVald","form_x12");' >
 														<option value=''>--<?php echo htmlspecialchars( xl('select'), ENT_NOQUOTES); ?>--</option>
 														<?php
-															if(isset($clearinghouses) && !empty($clearinghouses))
-															{
-																foreach($clearinghouses as $clearinghouse): ?>
+                                                        if(isset($clearinghouses) && !empty($clearinghouses))
+                                                            {
+                                                            foreach($clearinghouses as $clearinghouse): ?>
 																	<option value='<?php echo htmlspecialchars( $clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
 																		<?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
 																	><?php echo htmlspecialchars( $clearinghouse['name'], ENT_NOQUOTES); ?></option>
 														<?php	endforeach;
-															}
+                                                        }
 
-														?>
+                                                        ?>
 												</select>
 												<span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars( xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
 										</td>
@@ -365,16 +381,20 @@ use OpenEMR\Core\Header;
 							<table style='border-left:1px solid; width:100%; height:100%' >
 								<tr>
 									<td>
-										<div class="text-center">
-											<div class="btn-group" role="group">
-												<a href='#' class='btn btn-default btn-refresh' onclick='validate_policy(); $("#theform").submit();'>
-													<?php echo xlt('Refresh'); ?>
-												</a>
-												<a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch();'>
-													<?php echo xlt('Create batch'); ?>
+										<div style='margin-left:15px'>
+											<a href='#' class='css_button' onclick='validate_policy(); $("#theform").submit();'>
+											<span>
+												<?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
+											</span>
+											</a>
+
+											<a href='#' class='css_button' onclick='return validate_batch();'>
+												<span>
+													<?php echo htmlspecialchars( xl('Create batch'), ENT_NOQUOTES); ?>
 													<input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
-												</a>
-											</div>
+												</span>
+											</a>
+
 										</div>
 									</td>
 								</tr>
@@ -391,10 +411,10 @@ use OpenEMR\Core\Header;
 		</form>
 
 		<?php
-			if ($res){
-				show_elig($res,$X12info,$segTer,$compEleSep);
-			}
-		?>
+        if ($res){
+            show_elig($res,$X12info,$segTer,$compEleSep);
+        }
+        ?>
 	</body>
 
 	<script language='JavaScript'>

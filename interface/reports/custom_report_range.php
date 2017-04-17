@@ -19,16 +19,14 @@
  * @link    http://www.open-emr.org
  */
 
-
-
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
-
-$facilityService = new \services\FacilityService();
 
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {
@@ -162,11 +160,11 @@ if ($form_patient == '' ) $form_pid = '';
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 
@@ -187,7 +185,8 @@ if ($form_patient == '' ) $form_pid = '';
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Reports'); ?> - <?php echo xlt('Superbill'); ?></span>
+<span class='title'><?php echo xlt('Reports');
+?> - <?php echo xlt('Superbill'); ?></span>
 
 <div id="superbill_description" class='text'>
 <?php echo xlt('Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.'); ?>
@@ -205,14 +204,14 @@ if ($form_patient == '' ) $form_pid = '';
 	<table class='text'>
 		<tr>
 			<td class='label_custom'>
-			   <?php echo xlt('Start Date'); ?>:
+                <?php echo xlt('Start Date'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
 				title='yyyy-mm-dd'>
 			</td>
 			<td class='label_custom'>
-			   <?php echo xlt('End Date'); ?>:
+                <?php echo xlt('End Date'); ?>:
 			</td>
 			<td>
 			   <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
@@ -223,7 +222,8 @@ if ($form_patient == '' ) $form_pid = '';
 			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 			</td>
 			<td>
-			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select');
+?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
 			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 			</td>
 			</tr>
@@ -267,7 +267,12 @@ if ($form_patient == '' ) $form_pid = '';
 
 <?php
 if( !(empty($_POST['start']) || empty($_POST['end']))) {
-    $facility = $facilityService->getPrimaryBillingLocation();
+    $sql = "select * from facility where billing_location = 1";
+    $db = $GLOBALS['adodb']['db'];
+    $results = $db->Execute($sql);
+    $facility = array();
+    if (!$results->EOF) {
+        $facility = $results->fields;
 ?>
 <p>
 <h2><?php text($facility['name'])?></h2>
@@ -276,27 +281,29 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
 <?php
-		$sqlBindArray = array();
-		$res_query = 	"select * from forms where " .
+    }
+        $sqlBindArray = array();
+        $res_query = 	"select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
                 array_push($sqlBindArray,$startdate,$enddate);
-		if($form_pid) {
-		$res_query.= " and pid=? ";
-		array_push($sqlBindArray,$form_pid);
-		}
+    if($form_pid) {
+        $res_query.= " and pid=? ";
+        array_push($sqlBindArray,$form_pid);
+    }
         $res_query.=     " order by date DESC" ;
-		$res =sqlStatement($res_query,$sqlBindArray);
+        $res =sqlStatement($res_query,$sqlBindArray);
 
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
-			$pids[] = $result{"pid"};
+            $pids[] = $result{"pid"};
         }
     }
     $N = 6;
 
-    function postToGet($newpatient, $pids) {
+    function postToGet($newpatient, $pids)
+    {
         $getstring="";
         $serialnewpatient = serialize($newpatient);
         $serialpids = serialize($pids);
@@ -348,22 +355,22 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
                 $billing = getPatientBillingEncounter($pids[$iCounter],$ta[1]);
 
                 $billings[] = $billing;
-                foreach ($billing as $b) {
-                    // grab the date to reformat it in the output
-                    $bdate = strtotime($b['date']);
+            foreach ($billing as $b) {
+                // grab the date to reformat it in the output
+                $bdate = strtotime($b['date']);
 
-                    echo "<tr>\n";
-                    echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
-                    echo "<td class='text'>" . text($b['provider_name']) . "</td>";
-                    echo "<td class='text'>";
-                    echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-                    echo "</td>\n";
-                    echo "<td class='text'>";
-                    echo oeFormatMoney($b['fee']);
-                    echo "</td>\n";
-                    echo "</tr>\n";
-                    $total += $b['fee'];
-                }
+                echo "<tr>\n";
+                echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
+                echo "<td class='text'>" . text($b['provider_name']) . "</td>";
+                echo "<td class='text'>";
+                echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                echo "</td>\n";
+                echo "<td class='text'>";
+                echo oeFormatMoney($b['fee']);
+                echo "</td>\n";
+                echo "</tr>\n";
+                $total += $b['fee'];
+            }
             // Calculate the copay for the encounter
             $copays = getPatientCopay($pids[$iCounter],$ta[1]);
             //}

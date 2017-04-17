@@ -7,15 +7,16 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function hand_report( $pid, $encounter, $cols, $id) {
-  $count = 0;
-  $cols = 2;
-  $data = formFetch("form_hand", $id);
-  $width = 100/$cols;
-  if ($data) {
-	?>
+function hand_report( $pid, $encounter, $cols, $id)
+{
+    $count = 0;
+    $cols = 2;
+    $data = formFetch("form_hand", $id);
+    $width = 100/$cols;
+    if ($data) {
+        ?>
 
-	<table class='text' border='0px' cellpadding='2px' cellspacing='0px'>
+      <table class='text' border='0px' cellpadding='2px' cellspacing='0px'>
 		<tr>
 			<td width='80px'><b>&nbsp;</td>
 			<td width='80px'><b>1st</b></td>
@@ -55,6 +56,6 @@ function hand_report( $pid, $encounter, $cols, $id) {
 
 	<?php
 
-  }
+    }
 }
 ?>

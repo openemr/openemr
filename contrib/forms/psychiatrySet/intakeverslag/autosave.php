@@ -17,7 +17,7 @@ include_once("$srcdir/forms.inc");
 // escape the strings
 foreach ($_POST as $k => $var)
 {
-  $_POST[$k] = add_escape_custom($var);
+    $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 
@@ -34,12 +34,12 @@ $vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form
 // if yes then update this else insert
 if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
 {
-  if( $_POST["mode"] == "update" )
+    if( $_POST["mode"] == "update" )
     $newid = $_POST["id"];
-  else
+    else
     $newid = $vectAutosave['id'];
   
-  $strSql = "UPDATE form_intakeverslag 
+    $strSql = "UPDATE form_intakeverslag 
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 
                 intakedatum='".$_POST["intakedatum"]."',
@@ -63,7 +63,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$newid.";";
 
-  sqlQuery( $strSql );
+    sqlQuery( $strSql );
 
 //echo "lalalalal id=$newid, sql=$strSql<br>";
 

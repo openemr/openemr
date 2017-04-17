@@ -33,14 +33,17 @@
 
     <?php foreach( ReminderIntervalType::values() as $type ) { ?>
     <?php foreach( ReminderIntervalRange::values() as $range ) { ?>
-    <?php $first = true; $detail = $intervals->getDetailFor( $type, $range ); ?>
+    <?php $first = true;
+    $detail = $intervals->getDetailFor( $type, $range ); ?>
         <p>
-            <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo out( $type->code ); ?>"><?php echo out( $type->lbl ); ?></span>
+            <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo out( $type->code );
+?>"><?php echo out( $type->lbl ); ?></span>
             <span class="mid_col"><?php echo out( xl( $range->lbl ) ); ?></span>
             <span class="mid_col">
                 <input data-grp-tgt="<?php echo out( $type->code ) ?>"
                        type="text"
-                       name="<?php echo out( $type->code ); ?>-<?php echo out( $range->code ); ?>"
+                       name="<?php echo out( $type->code );
+?>-<?php echo out( $range->code ); ?>"
                        value="<?php echo is_null( $detail ) ? "" : out( $detail->amount ); ?>" />
             </span>
             <span class="end_col">

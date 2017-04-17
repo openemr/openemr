@@ -21,34 +21,34 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 
-function thisLineItem($row) {
-  $provname = $row['provider_lname'];
-  if (!empty($row['provider_fname'])) {
-    $provname .= ', ' . $row['provider_fname'];
-    if (!empty($row['provider_mname'])) {
-      $provname .= ' ' . $row['provider_mname'];
+function thisLineItem($row)
+{
+    $provname = $row['provider_lname'];
+    if (!empty($row['provider_fname'])) {
+        $provname .= ', ' . $row['provider_fname'];
+        if (!empty($row['provider_mname'])) {
+            $provname .= ' ' . $row['provider_mname'];
+        }
     }
-  }
 
-  if ($_POST['form_csvexport']) {
-    echo '"' . addslashes($row['patient_name'  ]) . '",';
-    echo '"' . addslashes($row['pubpid'        ]) . '",';
-    echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
-    echo '"' . addslashes($row['organization'  ]) . '",';
-    echo '"' . addslashes($provname             ) . '",';
-    echo '"' . addslashes($row['priority_name' ]) . '",';
-    echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
-  }
-  else {
-?>
- <tr>
-  <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
+    if ($_POST['form_csvexport']) {
+        echo '"' . addslashes($row['patient_name'  ]) . '",';
+        echo '"' . addslashes($row['pubpid'        ]) . '",';
+        echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
+        echo '"' . addslashes($row['organization'  ]) . '",';
+        echo '"' . addslashes($provname             ) . '",';
+        echo '"' . addslashes($row['priority_name' ]) . '",';
+        echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
+    }
+    else {
+    ?>
+   <tr>
+    <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
   <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
   <td class="detail"><?php echo oeFormatShortDate($row['date_ordered'  ]); ?></td>
   <td class="detail"><?php echo $row['organization'  ]; ?></td>
@@ -57,7 +57,7 @@ function thisLineItem($row) {
   <td class="detail"><?php echo $row['status_name'   ]; ?></td>
  </tr>
 <?php
-  } // End not csv export
+    } // End not csv export
 }
 
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
@@ -67,30 +67,34 @@ $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Content-Type: application/force-download");
-  header("Content-Disposition: attachment; filename=pending_orders.csv");
-  header("Content-Description: File Transfer");
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=pending_orders.csv");
+    header("Content-Description: File Transfer");
   // CSV headers:
-  echo '"' . xl('Patient') . '",';
-  echo '"' . xl('ID') . '",';
-  echo '"' . xl('Ordered') . '",';
-  echo '"' . xl('From') . '",';
-  echo '"' . xl('Procedure') . '",';
-  echo '"' . xl('Provider') . '",';
-  echo '"' . xl('Priority') . '",';
-  echo '"' . xl('Status') . '"' . "\n";
+    echo '"' . xl('Patient') . '",';
+    echo '"' . xl('ID') . '",';
+    echo '"' . xl('Ordered') . '",';
+    echo '"' . xl('From') . '",';
+    echo '"' . xl('Procedure') . '",';
+    echo '"' . xl('Provider') . '",';
+    echo '"' . xl('Priority') . '",';
+    echo '"' . xl('Status') . '"' . "\n";
 }
 else { // not export
 ?>
 <html>
 <head>
+<?php html_header_show();?>
+
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php xl('Pending Orders','e') ?></title>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -122,30 +126,19 @@ else { // not export
 
  <tr>
   <td>
-   <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
-  </td>
-  <td class='control-label'>
-   &nbsp;<?php echo xlt('From')?>:
-  </td>
-  <td>
-   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+    <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
+   &nbsp;<?xl('From:','e')?>
+   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     title='yyyy-mm-dd'>
-  </td>
-  <td class='control-label'>
-   &nbsp;<?php echo xlt('To')?>:
-  </td>
-  <td>
-   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+   &nbsp;To:
+   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     title='yyyy-mm-dd'>
-  </td>
- </tr>
- <tr>
-  <td>
-   <div class="btn-group" role="group">
-    <button type='submit' class='btn btn-default btn-refresh' name='form_refresh'><?php echo xlt('Refresh'); ?></button>
-    <button type='submit' class='btn btn-default btn-transmit' name='form_csvexport'><?php echo xlt('Export to CSV'); ?></button>
-    <button type='button' class='btn btn-default btn-print' id='printbutton'><?php echo xlt('Print'); ?></button>
-   </div>
+   &nbsp;
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   &nbsp;
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+   &nbsp;
+   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
  </tr>
 
@@ -172,10 +165,10 @@ else { // not export
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-  $from_date = $form_from_date;
-  $to_date   = $form_to_date;
+    $from_date = $form_from_date;
+    $to_date   = $form_to_date;
 
-  $query = "SELECT po.patient_id, po.date_ordered, " .
+    $query = "SELECT po.patient_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
     "u1.lname AS provider_lname, u1.fname AS provider_fname, u1.mname AS provider_mname, " .
@@ -197,16 +190,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
   // TBD: What if preliminary and final reports for the same order?
 
-  if ($form_facility) {
-    $query .= " AND fe.facility_id = '$form_facility'";
-  }
-  $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
+    if ($form_facility) {
+        $query .= " AND fe.facility_id = '$form_facility'";
+    }
+    $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
-  $res = sqlStatement($query);
-  while ($row = sqlFetchArray($res)) {
-    thisLineItem($row);
-  }
+    $res = sqlStatement($query);
+    while ($row = sqlFetchArray($res)) {
+        thisLineItem($row);
+    }
 
 } // end report generation
 

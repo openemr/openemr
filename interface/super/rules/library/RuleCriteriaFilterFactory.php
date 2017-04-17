@@ -15,7 +15,8 @@ require_once( library_src( 'RuleCriteriaFactory.php') );
  */
 class RuleCriteriaFilterFactory extends RuleCriteriaFactory {
 
-    function modify($criteria, $ruleId) {
+    function modify($criteria, $ruleId)
+    {
         // noop
     }
 

@@ -30,9 +30,9 @@ exit();
 <?php
 
 if ( isset( $_POST ) )
-	$postArray = &$_POST ;			// 4.1.0 or later, use $_POST
+    $postArray = &$_POST ;			// 4.1.0 or later, use $_POST
 else
-	$postArray = &$HTTP_POST_VARS ;	// prior to 4.1.0, use HTTP_POST_VARS
+    $postArray = &$HTTP_POST_VARS ;	// prior to 4.1.0, use HTTP_POST_VARS
 
 foreach ( $postArray as $sForm => $value )
 {

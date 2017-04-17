@@ -6,30 +6,32 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
+ $sanitize_all_escapes  = true;
+ $fake_register_globals = false;
+
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
 
- $facilityService = new \services\FacilityService();
-
- function send_email($subject, $body) {
-  $recipient = $GLOBALS['practice_return_email_path'];
-  if (empty($recipient)) return;
-  $mail = new PHPMailer();
-  $mail->From = $recipient;
-  $mail->FromName = 'In-House Pharmacy';
-  $mail->isMail();
-  $mail->Host = "localhost";
-  $mail->Mailer = "mail";
-  $mail->Body = $body;
-  $mail->Subject = $subject;
-  $mail->AddAddress($recipient);
-  if(!$mail->Send()) {
-   error_log(xl('There has been a mail error sending to','','',' ') . $recipient .
-    " " . $mail->ErrorInfo);
-  }
- }
+function send_email($subject, $body)
+{
+    $recipient = $GLOBALS['practice_return_email_path'];
+    if (empty($recipient)) return;
+    $mail = new PHPMailer();
+    $mail->From = $recipient;
+    $mail->FromName = 'In-House Pharmacy';
+    $mail->isMail();
+    $mail->Host = "localhost";
+    $mail->Mailer = "mail";
+    $mail->Body = $body;
+    $mail->Subject = $subject;
+    $mail->AddAddress($recipient);
+    if(!$mail->Send()) {
+        error_log(xl('There has been a mail error sending to','','',' ') . $recipient .
+        " " . $mail->ErrorInfo);
+    }
+}
 
  $sale_id         = $_REQUEST['sale_id'];
  $drug_id         = $_REQUEST['drug_id'];
@@ -51,57 +53,57 @@
 
  // If there is no sale_id then this is a new dispensation.
  //
- if (! $sale_id) {
+if (! $sale_id) {
   // Post the order and update inventory, deal with errors.
   //
-  if ($drug_id) {
-   $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
-   if (!$sale_id) die(xlt('Inventory is not available for this order.'));
+    if ($drug_id) {
+        $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
+        if (!$sale_id) die(xlt('Inventory is not available for this order.'));
 
-   /******************************************************************
-   $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
-    "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
-    "ORDER BY expiration, inventory_id");
-   while ($row = sqlFetchArray($res)) {
-    if ($row['expiration'] > $today && $row['on_hand'] >= $quantity) {
-     break;
-    }
-    $tmp = $row['lot_number'];
-    if (! $tmp) $tmp = '[missing lot number]';
-    if ($bad_lot_list) $bad_lot_list .= ', ';
-    $bad_lot_list .= $tmp;
-   }
+     /******************************************************************
+     $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
+      "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
+      "ORDER BY expiration, inventory_id");
+     while ($row = sqlFetchArray($res)) {
+      if ($row['expiration'] > $today && $row['on_hand'] >= $quantity) {
+       break;
+      }
+      $tmp = $row['lot_number'];
+      if (! $tmp) $tmp = '[missing lot number]';
+      if ($bad_lot_list) $bad_lot_list .= ', ';
+      $bad_lot_list .= $tmp;
+     }
 
-   if ($bad_lot_list) {
-    send_email("Lot destruction needed",
-     "The following lot(s) are expired or too small to fill prescription " .
-     "$prescription_id and should be destroyed: $bad_lot_list\n");
-   }
+     if ($bad_lot_list) {
+      send_email("Lot destruction needed",
+       "The following lot(s) are expired or too small to fill prescription " .
+       "$prescription_id and should be destroyed: $bad_lot_list\n");
+     }
 
-   if (! $row) {
-    die("Inventory is not available for this order.");
-   }
+     if (! $row) {
+      die("Inventory is not available for this order.");
+     }
 
-   $inventory_id = $row['inventory_id'];
+     $inventory_id = $row['inventory_id'];
 
-   sqlStatement("UPDATE drug_inventory SET " .
-    "on_hand = on_hand - $quantity " .
-    "WHERE inventory_id = $inventory_id");
+     sqlStatement("UPDATE drug_inventory SET " .
+      "on_hand = on_hand - $quantity " .
+      "WHERE inventory_id = $inventory_id");
 
-   $rowsum = sqlQuery("SELECT sum(on_hand) AS sum FROM drug_inventory WHERE " .
-    "drug_id = '$drug_id' AND on_hand > '$quantity' AND expiration > CURRENT_DATE");
-   $rowdrug = sqlQuery("SELECT * FROM drugs WHERE " .
-    "drug_id = '$drug_id'");
-   if ($rowsum['sum'] <= $rowdrug['reorder_point']) {
-     send_email("Drug re-order required",
-      "Drug '" . $rowdrug['name'] . "' has reached its reorder point.\n");
-   }
+     $rowsum = sqlQuery("SELECT sum(on_hand) AS sum FROM drug_inventory WHERE " .
+      "drug_id = '$drug_id' AND on_hand > '$quantity' AND expiration > CURRENT_DATE");
+     $rowdrug = sqlQuery("SELECT * FROM drugs WHERE " .
+      "drug_id = '$drug_id'");
+     if ($rowsum['sum'] <= $rowdrug['reorder_point']) {
+       send_email("Drug re-order required",
+        "Drug '" . $rowdrug['name'] . "' has reached its reorder point.\n");
+     }
 
-   // TBD: Set and check a reorder notification date so we don't
-   // send zillions of redundant emails.
-   ******************************************************************/
+     // TBD: Set and check a reorder notification date so we don't
+     // send zillions of redundant emails.
+     ******************************************************************/
 
-  } // end if $drug_id
+    } // end if $drug_id
 
   /*******************************************************************
   $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
@@ -112,14 +114,15 @@
    ")");
   *******************************************************************/
 
-  if (!$sale_id) die(xlt('Internal error, no drug ID specified!'));
+    if (!$sale_id) die(xlt('Internal error, no drug ID specified!'));
 
- } // end if not $sale_id
+} // end if not $sale_id
 
  // Generate the bottle label for the sale identified by $sale_id.
 
  // Get details for what we guess is the primary facility.
- $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
+ $frow = sqlQuery("SELECT * FROM facility " .
+  "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 
  // Get everything else.
  $row = sqlQuery("SELECT " .
@@ -174,69 +177,69 @@
  // printing HTML is much faster and easier if the browser's page setup is
  // configured properly.
  //
- if (false) { // if PDF output is desired
-  $pdf = new Cezpdf($dconfig['paper_size']);
-  $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
-  $pdf->selectFont('Helvetica');
-  $pdf->ezSetDy(20); // dunno why we have to do this...
-  $pdf->ezText($header_text, 7, array('justification'=>'center'));
-  if(!empty($dconfig['logo'])) {
-   $pdf->ezSetDy(-5); // add space (move down) before the image
-   $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-   $pdf->ezSetDy(8);  // reduce space (move up) after the image
-  }
-  $pdf->ezText($label_text, 9, array('justification'=>'center'));
-  $pdf->ezStream();
- }
- else { // HTML output
+if (false) { // if PDF output is desired
+    $pdf = new Cezpdf($dconfig['paper_size']);
+    $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+    $pdf->selectFont('Helvetica');
+    $pdf->ezSetDy(20); // dunno why we have to do this...
+    $pdf->ezText($header_text, 7, array('justification'=>'center'));
+    if(!empty($dconfig['logo'])) {
+        $pdf->ezSetDy(-5); // add space (move down) before the image
+        $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+        $pdf->ezSetDy(8);  // reduce space (move up) after the image
+    }
+    $pdf->ezText($label_text, 9, array('justification'=>'center'));
+    $pdf->ezStream();
+}
+else { // HTML output
 ?>
 <html>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
 <?php html_header_show();?>
 <style type="text/css">
- body {
-  font-family: sans-serif;
-  font-size: 9pt;
-  font-weight: normal;
- }
- .labtop {
-  color: #000000;
-  font-family: sans-serif;
-  font-size: 7pt;
-  font-weight: normal;
-  text-align: center;
-  padding-bottom: 1pt;
- }
- .labbot {
-  color: #000000;
-  font-family: sans-serif;
-  font-size: 9pt;
-  font-weight: normal;
-  text-align: center;
-  padding-top: 2pt;
- }
+body {
+ font-family: sans-serif;
+ font-size: 9pt;
+ font-weight: normal;
+}
+.labtop {
+ color: #000000;
+ font-family: sans-serif;
+ font-size: 7pt;
+ font-weight: normal;
+ text-align: center;
+ padding-bottom: 1pt;
+}
+.labbot {
+ color: #000000;
+ font-family: sans-serif;
+ font-size: 9pt;
+ font-weight: normal;
+ text-align: center;
+ padding-top: 2pt;
+}
 </style>
 <title><?php echo xlt('Prescription Label') ; ?></title>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 <table border='0' cellpadding='0' cellspacing='0' style='width: 200pt'>
- <tr><td class="labtop" nowrap>
-  <?php echo nl2br(text($header_text)); ?>
- </td></tr>
- <tr><td style='background-color: #000000; height: 5pt;'></td></tr>
- <tr><td class="labbot" nowrap>
-  <?php echo nl2br(text($label_text)); ?>
- </td></tr>
+<tr><td class="labtop" nowrap>
+    <?php echo nl2br(text($header_text)); ?>
+</td></tr>
+<tr><td style='background-color: #000000; height: 5pt;'></td></tr>
+<tr><td class="labbot" nowrap>
+    <?php echo nl2br(text($label_text)); ?>
+</td></tr>
 </table>
 </center>
 <script language="JavaScript">
- var win = top.printLogPrint ? top : opener.top;
- win.printLogPrint(window);
+var win = top.printLogPrint ? top : opener.top;
+win.printLogPrint(window);
 </script>
 </body>
 </html>
 <?php
- }
+}
 ?>

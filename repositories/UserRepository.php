@@ -32,7 +32,8 @@ class UserRepository extends EntityRepository {
      *
      * @return user.
      */
-    public function getCurrentlyLoggedInUser() {
+    public function getCurrentlyLoggedInUser()
+    {
         $results = $this->_em->getRepository($this->_entityName)->findOneBy(array("username" => $_SESSION["authUser"]));
         return $results;
     }

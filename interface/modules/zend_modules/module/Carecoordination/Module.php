@@ -26,7 +26,7 @@ class Module
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                	
+                    
                 ),
             ),
         );
@@ -36,7 +36,7 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-	
+    
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
@@ -60,30 +60,30 @@ class Module
                     $table = new CarecoordinationTable($tableGateway);
                     return $table;
                 },
-		
-		'Carecoordination\Model\EncounterccdadispatchTable' =>  function($sm) {
+        
+            'Carecoordination\Model\EncounterccdadispatchTable' =>  function($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new EncounterccdadispatchTable($tableGateway);
                     return $table;
-                },
-		
-		'Carecoordination\Model\EncountermanagerTable' =>  function($sm) {
+            },
+        
+            'Carecoordination\Model\EncountermanagerTable' =>  function($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new EncountermanagerTable($tableGateway);
                     return $table;
-                },
-		
-		'Carecoordination\Model\SetupTable' =>  function($sm) {
+            },
+        
+            'Carecoordination\Model\SetupTable' =>  function($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new SetupTable($tableGateway);
                     return $table;
-                },
+            },
                         
-		'Carecoordination\Model\CcdTable' =>  function($sm) {
+            'Carecoordination\Model\CcdTable' =>  function($sm) {
                     $tableGateway = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new CcdTable($tableGateway);
                     return $table;
-                },
+            },
             ),
         );
     }

@@ -30,13 +30,13 @@ $labid =  0 + $_GET['labid'];
 //////////////////////////////////////////////////////////////////////
 // The form was submitted with the selected code type.
 if (isset($_GET['typeid'])) {
-  $typeid = $_GET['typeid'] + 0;
-  $name = '';
-  if ($typeid) {
-    $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
-      "procedure_type_id = '$typeid'");
-    $name = addslashes($ptrow['name']);
-  }
+    $typeid = $_GET['typeid'] + 0;
+    $name = '';
+    if ($typeid) {
+        $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
+        "procedure_type_id = '$typeid'");
+        $name = addslashes($ptrow['name']);
+    }
 ?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script language="JavaScript">
@@ -49,16 +49,16 @@ else {
 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
 // GET parms needed for this are: formid, formseq.
 if (isset($_GET['formid'])) {
-  if ($typeid) {
-    require_once("qoe.inc.php");
-    $qoe_init_javascript = '';
-    echo ' opener.set_proc_html("';
-    echo generate_qoe_html($typeid, intval($_GET['formid']), 0, intval($_GET['formseq']));
-    echo '", "' . $qoe_init_javascript .  '");' . "\n";
-  }
-  else {
-    echo ' opener.set_proc_html("", "");' . "\n";
-  }
+    if ($typeid) {
+        require_once("qoe.inc.php");
+        $qoe_init_javascript = '';
+        echo ' opener.set_proc_html("';
+        echo generate_qoe_html($typeid, intval($_GET['formid']), 0, intval($_GET['formseq']));
+        echo '", "' . $qoe_init_javascript .  '");' . "\n";
+    }
+    else {
+        echo ' opener.set_proc_html("", "");' . "\n";
+    }
 }
 ?>
 }
@@ -87,9 +87,9 @@ td { font-size:10pt; }
 // Reload the script with the select procedure type ID.
 function selcode(typeid) {
  location.href = 'find_order_popup.php<?php
-echo "?order=$order&labid=$labid";
-if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+    echo "?order=$order&labid=$labid";
+    if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
+    if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
 ?>&typeid=' + typeid;
  return false;
 }
@@ -119,7 +119,7 @@ if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
   <td>
    <b>
 
- <?php echo xlt('Search for:'); ?>
+    <?php echo xlt('Search for:'); ?>
    <input type='text' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
     title='<?php echo xla('Any part of the desired code or its description'); ?>' />
    &nbsp;
@@ -159,17 +159,17 @@ if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
 
   $res = sqlStatement($query, array($labid, $search_term, $search_term));
 
-  while ($row = sqlFetchArray($res)) {
+while ($row = sqlFetchArray($res)) {
     $itertypeid = $row['procedure_type_id'];
     $itercode = $row['procedure_code'];
     $itertext = trim($row['name']);
     $anchor = "<a href='' onclick='return selcode(" .
-      "\"" . $itertypeid . "\")'>";
+    "\"" . $itertypeid . "\")'>";
     echo " <tr>";
     echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
     echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
     echo " </tr>";
-  }
+}
 ?>
 </table>
 

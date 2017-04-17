@@ -25,7 +25,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Home'); ?></title>
+<title><?php echo xlt('OpenEMR Portal');
+?> | <?php echo xlt('Home'); ?></title>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
@@ -65,20 +66,23 @@
 							class="fa fa-envelope"></i> <span class="label label-success"> <?php echo text($newcnt); ?></span>
 					</a>
 						<ul class="dropdown-menu">
-							<li class="header"><?php echo xlt('You have'); ?> <?php echo text($newcnt); ?> <?php echo xlt('new messages'); ?></li>
+							<li class="header"><?php echo xlt('You have');
+?> <?php echo text($newcnt);
+?> <?php echo xlt('new messages'); ?></li>
 							<li>
 								<!-- inner menu: contains the actual data -->
 								<ul class="menu">
 								<?php
-								 foreach ( $msgs as $i ) {
-								  	if($i['message_status']=='New'){
-										echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
-									}
-								}
-								?>
+                                foreach ( $msgs as $i ) {
+                                    if($i['message_status']=='New'){
+                                        echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
+                                    }
+                                }
+                                ?>
 								</ul>
 							</li>
-							<li class="footer"><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a></li>
+							<li class="footer"><a href="<?php echo $GLOBALS['web_root'];
+?>/portal/messaging/messages.php"><?php echo xlt('See All Messages'); ?></a></li>
 						</ul></li>
 
 					<li class="dropdown user user-menu"><a href="#"
@@ -89,9 +93,11 @@
 						<ul class="dropdown-menu dropdown-custom dropdown-menu-right">
 							<li class="dropdown-header text-center"><?php echo xlt('Account'); ?></li>
 							<li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
-									<span class="badge badge-danger pull-right"> <?php echo text($msgcnt); ?></span> <?php echo xlt('Messages'); ?></a></li>
+									<span class="badge badge-danger pull-right"> <?php echo text($msgcnt);
+?></span> <?php echo xlt('Messages'); ?></a></li>
 							<li class="divider"></li>
-							<li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
+							<li><a href="<?php echo $GLOBALS['web_root'];
+?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
 								<a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i
 									class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
 
@@ -126,7 +132,9 @@
 					<li data-toggle="pill"><a href="#lists" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
 					</a></li>
-					<li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
+					<li><a href="<?php echo $GLOBALS['web_root'];
+?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid);
+?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
 					</a></li>
 					<li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
 						data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
@@ -148,7 +156,8 @@
 							class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span>
 					</a>
 						<ul class="dropdown-menu">
-							<li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+							<li><a id="callccda" href="<?php echo $GLOBALS['web_root'];
+?>/ccdaservice/ccda_gateway.php?action=startandrun"><i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
 							<li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
 								data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
 							<li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"

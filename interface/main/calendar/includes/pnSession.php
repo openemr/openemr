@@ -149,14 +149,14 @@ function pnSessionGetVar($name)
  */
 function pnSessionSetVar($name, $value)
 {
-	global $HTTP_SESSION_VARS;
-    	$var = "PNSV$name";
+    global $HTTP_SESSION_VARS;
+        $var = "PNSV$name";
 
-    	global $$var;
-	$$var = $value;
-	$_SESSION[$var]=$value;
+        global $$var;
+    $$var = $value;
+    $_SESSION[$var]=$value;
 
-    	return true;
+        return true;
 }
 
 /**
@@ -168,9 +168,9 @@ function pnSessionDelVar($name)
     $var = "PNSV$name";
 
     global $$var;
-	// Fix for PHP >4.0.6 By John Barnett (johnpb)
+    // Fix for PHP >4.0.6 By John Barnett (johnpb)
     //unset($$var);
-	unset($GLOBALS[$var]);
+    unset($GLOBALS[$var]);
 
     unset($_SESSION[$var]);
 
@@ -183,13 +183,13 @@ function pnSessionDelVar($name)
 function pnSessionInit()
 {
 
-	global $HTTP_SERVER_VARS;
+    global $HTTP_SERVER_VARS;
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     // First thing we do is ensure that there is no attempted pollution
     // of the session namespace
-	//--pennfirm
+    //--pennfirm
 /*    foreach($GLOBALS as $k=>$v) {
         if (preg_match('/^PNSV/', $k)) {
             return false;
@@ -198,7 +198,7 @@ function pnSessionInit()
 */
     // Kick it
     if (!session_id)
-		session_start();
+        session_start();
 
     // Have to re-write the cache control header to remove no-save, this
     // allows downloading of files to disk for application handlers

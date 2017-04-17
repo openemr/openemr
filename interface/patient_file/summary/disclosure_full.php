@@ -33,27 +33,27 @@ $res = sqlQuery("select username from users where username=?", array($_SESSION{"
 $uname=$res{"username"};
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
-	$dates=trim($_POST['dates']);
-	$event=trim($_POST['form_disclosure_type']);
-	$recipient_name=trim($_POST['recipient_name']);
-	$disclosure_desc=trim($_POST['desc_disc']);
-	$disclosure_id=trim($_POST['disclosure_id']);
-	if (isset($_POST["updatemode"]) AND $_POST["updatemode"] == "disclosure_update")
-	{
-		//update the recorded disclosure in the extended_log table.
-		updateRecordedDisclosure($dates,$event,$recipient_name,$disclosure_desc,$disclosure_id);
-	}
-	else
-	{
-		//insert the disclosure records in the extended_log table.
-		 recordDisclosure($dates,$event,$pid,$recipient_name,$disclosure_desc,$uname);
-	}
+    $dates=trim($_POST['dates']);
+    $event=trim($_POST['form_disclosure_type']);
+    $recipient_name=trim($_POST['recipient_name']);
+    $disclosure_desc=trim($_POST['desc_disc']);
+    $disclosure_id=trim($_POST['disclosure_id']);
+    if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update")
+    {
+        //update the recorded disclosure in the extended_log table.
+        updateRecordedDisclosure($dates,$event,$recipient_name,$disclosure_desc,$disclosure_id);
+    }
+    else
+    {
+        //insert the disclosure records in the extended_log table.
+         recordDisclosure($dates,$event,$pid,$recipient_name,$disclosure_desc,$uname);
+    }
 }
 if (isset($_GET['deletelid']))
 {
-$deletelid=$_GET['deletelid'];
+    $deletelid=$_GET['deletelid'];
 //function to delete the recorded disclosures
-deleteDisclosure($deletelid);
+    deleteDisclosure($deletelid);
 }
 ?>
 <html>
@@ -73,7 +73,8 @@ deleteDisclosure($deletelid);
 </div>
 <div class="disclosure_wrap">
 <div style='float: left; margin-right: 10px'><?php echo xlt('for'); ?>&nbsp;
-	<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php $pname = getPatientName($pid); echo text($pname); ?></a></span>
+	<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php $pname = getPatientName($pid);
+    echo text($pname); ?></a></span>
 </div>
 <div>
 	<a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo xlt('Record'); ?></span></a>
@@ -123,27 +124,28 @@ if ($n>0){?>
 			<th style="border-style: 1px solid #000"><?php echo xlt('Provider'); ?></th>
 		</tr>
 	<?php
-	$result2 = array();
-	for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
-		$result2[$iter] = $frow;
-	foreach($result2 as $iter)
-	{
-		$description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
-		?>
+    $result2 = array();
+    for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
+        $result2[$iter] = $frow;
+    foreach($result2 as $iter)
+    {
+        $description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
+        ?>
 		<!-- List the recipient name, description, date and edit and delete options-->
 		<tr  class="noterow" height='25'>
 			<!--buttons for edit and delete.-->
 			<td valign='top'><a href='record_disclosure.php?editlid=<?php echo text($iter{id}); ?>'
 			class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
 			<a href='#' class='deletenote css_button_small'
-			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
+			id='<?php echo text($iter{id});
+?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
 			<td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
             <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type',$iter['event'])); ?>&nbsp;</td>
             <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{user_fullname});?></td>
 		</tr>
 		<?php
-	}
+    }
 }
 else
 {?>
@@ -159,7 +161,7 @@ else
   <td>
 <?php
 if ($offset > ($N-1) && $n!=0) {
-  echo "   <a class='link' href='disclosure_full.php?active=" . $active .
+    echo "   <a class='link' href='disclosure_full.php?active=" . $active .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
     xlt('Previous') . "]</a>\n";
 }
@@ -168,7 +170,7 @@ if ($offset > ($N-1) && $n!=0) {
 <?php
 
 if ($n >= $N && $noOfRecordsLeft!=$N) {
-  echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
+    echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
     "&offset=" . ($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
     xlt('Next') . "]</a>\n";
 }

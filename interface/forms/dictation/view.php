@@ -18,8 +18,10 @@ $obj = formFetch("form_dictation", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
 <span class="title"><?php echo xlt('Speech Dictation'); ?></span><Br><br>
-<span class=text><?php echo xlt('Dictation: '); ?></span><br><textarea cols=80 rows=24 wrap=virtual name="dictation" ><?php echo text($obj{"dictation"});?></textarea><br>
-<span class=text><?php echo xlt('Additional Notes: '); ?></span><br><textarea cols=80 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj{"additional_notes"});?></textarea><br>
+<span class=text><?php echo xlt('Dictation: ');
+?></span><br><textarea cols=80 rows=24 wrap=virtual name="dictation" ><?php echo text($obj{"dictation"});?></textarea><br>
+<span class=text><?php echo xlt('Additional Notes: ');
+?></span><br><textarea cols=80 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj{"additional_notes"});?></textarea><br>
 <br>
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br>

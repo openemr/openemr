@@ -22,21 +22,12 @@
  * @link    http://www.open-emr.org
  */
 
-
-
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once("../../globals.php");
 require_once("functions.php");
 require_once(dirname(__FILE__) . "/../../../library/group.inc");
-
-//Check acl
-$can_view = acl_check("groups","gadd",false, 'view');
-$can_edit = acl_check("groups","gadd",false, 'write');
-
-if (!$can_view && !$can_edit)
-{
-    formJump();
-}
 
 $statuses_in_meeting = getGroupAttendanceStatuses();
 
@@ -53,17 +44,14 @@ else {//In case didn't click 'edit' but an attendance form already exists (can't
 
 
 if($form_id){//If editing a form or the form already exists (inwhich case will automatically go into edit mode for existing form)
-    $participants_sql =  "SELECT tgpa.*, p.fname, p.lname " .
-        "FROM therapy_groups_participant_attendance as tgpa " .
-        "JOIN patient_data as p ON tgpa.pid = p.id " .
-        "WHERE tgpa.form_id = ?;";
+    $participants_sql = "SELECT tgp.*, tgpa.*, p.fname, p.lname FROM therapy_groups_participant_attendance as tgpa JOIN patient_data as p ON tgpa.pid = p.id JOIN therapy_groups_participants tgp ON tgp.pid = tgpa.pid WHERE tgpa.form_id = ? AND tgp.group_patient_status = 10;";
     $result = sqlStatement($participants_sql, array($form_id));
     while($p = sqlFetchArray($result)){
         $participants[] = $p;
     }
 }
 else{//new form
-    $participants = getParticipants($therapy_group, true);
+    $participants = getParticipants($therapy_group);
 }
 
 ?>
@@ -82,18 +70,19 @@ else{//new form
 
 <body class="body_top">
 <?php if($form_id){ ?>
-<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($form_id) ;?>" name="my_form">
+<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;
+?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($form_id) ;?>" name="my_form">
 <?php } else { ?>
 <form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
 <?php } ?>
     <div id="add_participant">
         <div class="button_wrap">
             <span class='title'><?php echo xlt('Group Attendance Form'); ?></span>
-            <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>" <?php if(!$can_edit){ ?> disabled <?php } ?> >
+            <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>">
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
-                <span class="input_label"><?php echo xlt("Participant's name");?></span>
+                <span class="input_label"><?php echo xlt("Patient Name");?></span>
                 <input name="new_id" class="button-css new_patient_id" type="hidden" value="">
                 <input name="new_patient" class="button-css new_patient" type="text" value=""  readonly>
                 <div class="error_wrap">
@@ -125,21 +114,24 @@ else{//new form
                 <td ><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
-                    <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if(!$can_edit){ ?> disabled <?php } ?> >
+                    <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>">
                         <?php foreach ($statuses_in_meeting as $status_in_meeting){?>
-                            <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if($participant['meeting_patient_status'] == $status_in_meeting['option_id']) echo 'selected';?> > <?php echo xlt($status_in_meeting['title']); ?></option>
+                            <option value="<?php echo attr($status_in_meeting['option_id']);
+?>" <?php if($participant['meeting_patient_status'] == $status_in_meeting['option_id']) echo 'selected';
+?> > <?php echo xlt($status_in_meeting['title']); ?></option>
                         <?php } ?>
                     </select>
                 </td>
                 <td >
-                    <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if(!$can_edit){ ?> disabled <?php } ?> ></input>
+                    <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";
+?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>"></input>
                 </td>
             </tr>
         <?php } ?>
         </tbody>
     </table>
     <div class="action_buttons">
-        <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>" <?php if(!$can_edit){ ?> disabled <?php } ?> >
+        <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>">
         <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
     </div>
 </form>

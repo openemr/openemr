@@ -1061,7 +1061,7 @@ class HTML2PDF
                 } else if ($digit==9) {
                     $nbRoman=$nbRoman.$nbBaseTen[$i].$nbBaseTen[$i+1];
                 } else if ($digit==4) {
-                $nbRoman=$nbRoman.$nbBaseTen[$i].$nbBaseFive[$i];
+                    $nbRoman=$nbRoman.$nbBaseTen[$i].$nbBaseFive[$i];
                 } else {
                     $nbRoman=$nbRoman.$nbBaseFive[$i];
                     for ($j=$digit-5; $j>=1; $j--) {
@@ -1628,12 +1628,16 @@ class HTML2PDF
                 $imageYmax = $bY+$bH;
 
                 if (!$iRepeat[0] && !$iRepeat[1]) {
-                    $imageXmin =     $iPosition[0]; $imageXmax =     $iPosition[0]+$imageWidth;
-                    $imageYmin =     $iPosition[1]; $imageYmax =     $iPosition[1]+$imageHeight;
+                    $imageXmin =     $iPosition[0];
+                    $imageXmax =     $iPosition[0]+$imageWidth;
+                    $imageYmin =     $iPosition[1];
+                    $imageYmax =     $iPosition[1]+$imageHeight;
                 } else if ($iRepeat[0] && !$iRepeat[1]) {
-                    $imageYmin =     $iPosition[1]; $imageYmax =     $iPosition[1]+$imageHeight;
+                    $imageYmin =     $iPosition[1];
+                    $imageYmax =     $iPosition[1]+$imageHeight;
                 } else if (!$iRepeat[0] && $iRepeat[1]) {
-                    $imageXmin =     $iPosition[0]; $imageXmax =     $iPosition[0]+$imageWidth;
+                    $imageXmin =     $iPosition[0];
+                    $imageXmax =     $iPosition[0]+$imageWidth;
                 }
 
                 // build the path to display the image (because of radius)
@@ -1687,17 +1691,26 @@ class HTML2PDF
         if (is_array($outBL) && ($testBb || $testBl)) {
             if ($inBL) {
                 $courbe = array();
-                $courbe[] = $x+$outBL[0];              $courbe[] = $y+$h;
-                $courbe[] = $x;                        $courbe[] = $y+$h-$outBL[1];
-                $courbe[] = $x+$outBL[0];              $courbe[] = $y+$h-$border['b']['width'];
-                $courbe[] = $x+$border['l']['width'];  $courbe[] = $y+$h-$outBL[1];
-                $courbe[] = $x+$outBL[0];              $courbe[] = $y+$h-$outBL[1];
+                $courbe[] = $x+$outBL[0];
+                $courbe[] = $y+$h;
+                $courbe[] = $x;
+                $courbe[] = $y+$h-$outBL[1];
+                $courbe[] = $x+$outBL[0];
+                $courbe[] = $y+$h-$border['b']['width'];
+                $courbe[] = $x+$border['l']['width'];
+                $courbe[] = $y+$h-$outBL[1];
+                $courbe[] = $x+$outBL[0];
+                $courbe[] = $y+$h-$outBL[1];
             } else {
                 $courbe = array();
-                $courbe[] = $x+$outBL[0];              $courbe[] = $y+$h;
-                $courbe[] = $x;                        $courbe[] = $y+$h-$outBL[1];
-                $courbe[] = $x+$border['l']['width'];  $courbe[] = $y+$h-$border['b']['width'];
-                $courbe[] = $x+$outBL[0];              $courbe[] = $y+$h-$outBL[1];
+                $courbe[] = $x+$outBL[0];
+                $courbe[] = $y+$h;
+                $courbe[] = $x;
+                $courbe[] = $y+$h-$outBL[1];
+                $courbe[] = $x+$border['l']['width'];
+                $courbe[] = $y+$h-$border['b']['width'];
+                $courbe[] = $x+$outBL[0];
+                $courbe[] = $y+$h-$outBL[1];
             }
             $this->_drawCurve($courbe, $border['l']['color']);
         }
@@ -1706,17 +1719,26 @@ class HTML2PDF
         if (is_array($outTL) && ($testBt || $testBl)) {
             if ($inTL) {
                 $courbe = array();
-                $courbe[] = $x;                        $courbe[] = $y+$outTL[1];
-                $courbe[] = $x+$outTL[0];              $courbe[] = $y;
-                $courbe[] = $x+$border['l']['width'];  $courbe[] = $y+$outTL[1];
-                $courbe[] = $x+$outTL[0];              $courbe[] = $y+$border['t']['width'];
-                $courbe[] = $x+$outTL[0];              $courbe[] = $y+$outTL[1];
+                $courbe[] = $x;
+                $courbe[] = $y+$outTL[1];
+                $courbe[] = $x+$outTL[0];
+                $courbe[] = $y;
+                $courbe[] = $x+$border['l']['width'];
+                $courbe[] = $y+$outTL[1];
+                $courbe[] = $x+$outTL[0];
+                $courbe[] = $y+$border['t']['width'];
+                $courbe[] = $x+$outTL[0];
+                $courbe[] = $y+$outTL[1];
             } else {
                 $courbe = array();
-                $courbe[] = $x;                        $courbe[] = $y+$outTL[1];
-                $courbe[] = $x+$outTL[0];              $courbe[] = $y;
-                $courbe[] = $x+$border['l']['width'];  $courbe[] = $y+$border['t']['width'];
-                $courbe[] = $x+$outTL[0];              $courbe[] = $y+$outTL[1];
+                $courbe[] = $x;
+                $courbe[] = $y+$outTL[1];
+                $courbe[] = $x+$outTL[0];
+                $courbe[] = $y;
+                $courbe[] = $x+$border['l']['width'];
+                $courbe[] = $y+$border['t']['width'];
+                $courbe[] = $x+$outTL[0];
+                $courbe[] = $y+$outTL[1];
             }
             $this->_drawCurve($courbe, $border['t']['color']);
         }
@@ -1725,17 +1747,26 @@ class HTML2PDF
         if (is_array($outTR) && ($testBt || $testBr)) {
             if ($inTR) {
                 $courbe = array();
-                $courbe[] = $x+$w-$outTR[0];             $courbe[] = $y;
-                $courbe[] = $x+$w;                       $courbe[] = $y+$outTR[1];
-                $courbe[] = $x+$w-$outTR[0];             $courbe[] = $y+$border['t']['width'];
-                $courbe[] = $x+$w-$border['r']['width']; $courbe[] = $y+$outTR[1];
-                $courbe[] = $x+$w-$outTR[0];             $courbe[] = $y+$outTR[1];
+                $courbe[] = $x+$w-$outTR[0];
+                $courbe[] = $y;
+                $courbe[] = $x+$w;
+                $courbe[] = $y+$outTR[1];
+                $courbe[] = $x+$w-$outTR[0];
+                $courbe[] = $y+$border['t']['width'];
+                $courbe[] = $x+$w-$border['r']['width'];
+                $courbe[] = $y+$outTR[1];
+                $courbe[] = $x+$w-$outTR[0];
+                $courbe[] = $y+$outTR[1];
             } else {
                 $courbe = array();
-                $courbe[] = $x+$w-$outTR[0];             $courbe[] = $y;
-                $courbe[] = $x+$w;                       $courbe[] = $y+$outTR[1];
-                $courbe[] = $x+$w-$border['r']['width']; $courbe[] = $y+$border['t']['width'];
-                $courbe[] = $x+$w-$outTR[0];             $courbe[] = $y+$outTR[1];
+                $courbe[] = $x+$w-$outTR[0];
+                $courbe[] = $y;
+                $courbe[] = $x+$w;
+                $courbe[] = $y+$outTR[1];
+                $courbe[] = $x+$w-$border['r']['width'];
+                $courbe[] = $y+$border['t']['width'];
+                $courbe[] = $x+$w-$outTR[0];
+                $courbe[] = $y+$outTR[1];
             }
             $this->_drawCurve($courbe, $border['r']['color']);
         }
@@ -1744,17 +1775,26 @@ class HTML2PDF
         if (is_array($outBR) && ($testBb || $testBr)) {
             if ($inBR) {
                 $courbe = array();
-                $courbe[] = $x+$w;                       $courbe[] = $y+$h-$outBR[1];
-                $courbe[] = $x+$w-$outBR[0];             $courbe[] = $y+$h;
-                $courbe[] = $x+$w-$border['r']['width']; $courbe[] = $y+$h-$outBR[1];
-                $courbe[] = $x+$w-$outBR[0];             $courbe[] = $y+$h-$border['b']['width'];
-                $courbe[] = $x+$w-$outBR[0];             $courbe[] = $y+$h-$outBR[1];
+                $courbe[] = $x+$w;
+                $courbe[] = $y+$h-$outBR[1];
+                $courbe[] = $x+$w-$outBR[0];
+                $courbe[] = $y+$h;
+                $courbe[] = $x+$w-$border['r']['width'];
+                $courbe[] = $y+$h-$outBR[1];
+                $courbe[] = $x+$w-$outBR[0];
+                $courbe[] = $y+$h-$border['b']['width'];
+                $courbe[] = $x+$w-$outBR[0];
+                $courbe[] = $y+$h-$outBR[1];
             } else {
                 $courbe = array();
-                $courbe[] = $x+$w;                       $courbe[] = $y+$h-$outBR[1];
-                $courbe[] = $x+$w-$outBR[0];             $courbe[] = $y+$h;
-                $courbe[] = $x+$w-$border['r']['width']; $courbe[] = $y+$h-$border['b']['width'];
-                $courbe[] = $x+$w-$outBR[0];             $courbe[] = $y+$h-$outBR[1];
+                $courbe[] = $x+$w;
+                $courbe[] = $y+$h-$outBR[1];
+                $courbe[] = $x+$w-$outBR[0];
+                $courbe[] = $y+$h;
+                $courbe[] = $x+$w-$border['r']['width'];
+                $courbe[] = $y+$h-$border['b']['width'];
+                $courbe[] = $x+$w-$outBR[0];
+                $courbe[] = $y+$h-$outBR[1];
             }
             $this->_drawCurve($courbe, $border['b']['color']);
         }
@@ -1762,25 +1802,33 @@ class HTML2PDF
         // draw the left border
         if ($testBl) {
             $pt = array();
-            $pt[] = $x;                       $pt[] = $y+$h;
-            $pt[] = $x;                       $pt[] = $y+$h-$border['b']['width'];
-            $pt[] = $x;                       $pt[] = $y+$border['t']['width'];
-            $pt[] = $x;                       $pt[] = $y;
-            $pt[] = $x+$border['l']['width']; $pt[] = $y+$border['t']['width'];
-            $pt[] = $x+$border['l']['width']; $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x;
+            $pt[] = $y+$h;
+            $pt[] = $x;
+            $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x;
+            $pt[] = $y+$border['t']['width'];
+            $pt[] = $x;
+            $pt[] = $y;
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y+$border['t']['width'];
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y+$h-$border['b']['width'];
 
             $bord = 3;
             if (is_array($outBL)) {
                 $bord-=1;
                 $pt[3] -= $outBL[1] - $border['b']['width'];
                 if ($inBL) $pt[11]-= $inBL[1];
-                unset($pt[0]);unset($pt[1]);
+                unset($pt[0]);
+                unset($pt[1]);
             }
             if (is_array($outTL)) {
                 $bord-=2;
                 $pt[5] += $outTL[1]-$border['t']['width'];
                 if ($inTL) $pt[9] += $inTL[1];
-                unset($pt[6]);unset($pt[7]);
+                unset($pt[6]);
+                unset($pt[7]);
             }
 
             $pt = array_values($pt);
@@ -1790,25 +1838,33 @@ class HTML2PDF
         // draw the top border
         if ($testBt) {
             $pt = array();
-            $pt[] = $x;                          $pt[] = $y;
-            $pt[] = $x+$border['l']['width'];    $pt[] = $y;
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y;
-            $pt[] = $x+$w;                       $pt[] = $y;
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y+$border['t']['width'];
-            $pt[] = $x+$border['l']['width'];    $pt[] = $y+$border['t']['width'];
+            $pt[] = $x;
+            $pt[] = $y;
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y;
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y;
+            $pt[] = $x+$w;
+            $pt[] = $y;
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y+$border['t']['width'];
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y+$border['t']['width'];
 
             $bord = 3;
             if (is_array($outTL)) {
                 $bord-=1;
                 $pt[2] += $outTL[0] - $border['l']['width'];
                 if ($inTL) $pt[10]+= $inTL[0];
-                unset($pt[0]);unset($pt[1]);
+                unset($pt[0]);
+                unset($pt[1]);
             }
             if (is_array($outTR)) {
                 $bord-=2;
                 $pt[4] -= $outTR[0] - $border['r']['width'];
                 if ($inTR) $pt[8] -= $inTR[0];
-                unset($pt[6]);unset($pt[7]);
+                unset($pt[6]);
+                unset($pt[7]);
             }
 
             $pt = array_values($pt);
@@ -1818,25 +1874,33 @@ class HTML2PDF
         // draw the right border
         if ($testBr) {
             $pt = array();
-            $pt[] = $x+$w;                       $pt[] = $y;
-            $pt[] = $x+$w;                       $pt[] = $y+$border['t']['width'];
-            $pt[] = $x+$w;                       $pt[] = $y+$h-$border['b']['width'];
-            $pt[] = $x+$w;                       $pt[] = $y+$h;
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y+$h-$border['b']['width'];
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y+$border['t']['width'];
+            $pt[] = $x+$w;
+            $pt[] = $y;
+            $pt[] = $x+$w;
+            $pt[] = $y+$border['t']['width'];
+            $pt[] = $x+$w;
+            $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x+$w;
+            $pt[] = $y+$h;
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y+$border['t']['width'];
 
             $bord = 3;
             if (is_array($outTR)) {
                 $bord-=1;
                 $pt[3] += $outTR[1] - $border['t']['width'];
                 if ($inTR) $pt[11]+= $inTR[1];
-                unset($pt[0]);unset($pt[1]);
+                unset($pt[0]);
+                unset($pt[1]);
             }
             if (is_array($outBR)) {
                 $bord-=2;
                 $pt[5] -= $outBR[1] - $border['b']['width'];
                 if ($inBR) $pt[9] -= $inBR[1];
-                unset($pt[6]);unset($pt[7]);
+                unset($pt[6]);
+                unset($pt[7]);
             }
 
             $pt = array_values($pt);
@@ -1846,25 +1910,33 @@ class HTML2PDF
         // draw the bottom border
         if ($testBb) {
             $pt = array();
-            $pt[] = $x+$w;                       $pt[] = $y+$h;
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y+$h;
-            $pt[] = $x+$border['l']['width'];    $pt[] = $y+$h;
-            $pt[] = $x;                          $pt[] = $y+$h;
-            $pt[] = $x+$border['l']['width'];    $pt[] = $y+$h-$border['b']['width'];
-            $pt[] = $x+$w-$border['r']['width']; $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x+$w;
+            $pt[] = $y+$h;
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y+$h;
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y+$h;
+            $pt[] = $x;
+            $pt[] = $y+$h;
+            $pt[] = $x+$border['l']['width'];
+            $pt[] = $y+$h-$border['b']['width'];
+            $pt[] = $x+$w-$border['r']['width'];
+            $pt[] = $y+$h-$border['b']['width'];
 
             $bord = 3;
             if (is_array($outBL)) {
                 $bord-=2;
                 $pt[4] += $outBL[0] - $border['l']['width'];
                 if ($inBL) $pt[8] += $inBL[0];
-                unset($pt[6]);unset($pt[7]);
+                unset($pt[6]);
+                unset($pt[7]);
             }
             if (is_array($outBR)) {
                 $bord-=1;
                 $pt[2] -= $outBR[0] - $border['r']['width'];
                 if ($inBR) $pt[10]-= $inBR[0];
-                unset($pt[0]);unset($pt[1]);
+                unset($pt[0]);
+                unset($pt[1]);
 
             }
 
@@ -1916,25 +1988,73 @@ class HTML2PDF
 
             // clean the end of the line, if radius
             if ($radius==1) {
-                $tmp = array(); $tmp[]=$pt[0]; $tmp[]=$pt[1]; $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[8]; $tmp[]=$pt[9];
+                $tmp = array();
+                $tmp[]=$pt[0];
+                $tmp[]=$pt[1];
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[8];
+                $tmp[]=$pt[9];
                 $this->pdf->Polygon($tmp, 'F');
 
-                $tmp = array(); $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[4]; $tmp[]=$pt[5]; $tmp[]=$pt[6]; $tmp[]=$pt[7]; $tmp[]=$pt[8]; $tmp[]=$pt[9];
+                $tmp = array();
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[4];
+                $tmp[]=$pt[5];
+                $tmp[]=$pt[6];
+                $tmp[]=$pt[7];
+                $tmp[]=$pt[8];
+                $tmp[]=$pt[9];
                 $pt = $tmp;
             } else if ($radius==2) {
-                $tmp = array(); $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[4]; $tmp[]=$pt[5]; $tmp[]=$pt[6]; $tmp[]=$pt[7];
+                $tmp = array();
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[4];
+                $tmp[]=$pt[5];
+                $tmp[]=$pt[6];
+                $tmp[]=$pt[7];
                 $this->pdf->Polygon($tmp, 'F');
 
-                $tmp = array(); $tmp[]=$pt[0]; $tmp[]=$pt[1]; $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[6]; $tmp[]=$pt[7]; $tmp[]=$pt[8]; $tmp[]=$pt[9];
+                $tmp = array();
+                $tmp[]=$pt[0];
+                $tmp[]=$pt[1];
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[6];
+                $tmp[]=$pt[7];
+                $tmp[]=$pt[8];
+                $tmp[]=$pt[9];
                 $pt = $tmp;
             } else if ($radius==3) {
-                $tmp = array(); $tmp[]=$pt[0]; $tmp[]=$pt[1]; $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[10]; $tmp[]=$pt[11];
+                $tmp = array();
+                $tmp[]=$pt[0];
+                $tmp[]=$pt[1];
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[10];
+                $tmp[]=$pt[11];
                 $this->pdf->Polygon($tmp, 'F');
 
-                $tmp = array(); $tmp[]=$pt[4]; $tmp[]=$pt[5]; $tmp[]=$pt[6]; $tmp[]=$pt[7]; $tmp[]=$pt[8]; $tmp[]=$pt[9];
+                $tmp = array();
+                $tmp[]=$pt[4];
+                $tmp[]=$pt[5];
+                $tmp[]=$pt[6];
+                $tmp[]=$pt[7];
+                $tmp[]=$pt[8];
+                $tmp[]=$pt[9];
                 $this->pdf->Polygon($tmp, 'F');
 
-                $tmp = array(); $tmp[]=$pt[2]; $tmp[]=$pt[3]; $tmp[]=$pt[4]; $tmp[]=$pt[5]; $tmp[]=$pt[8]; $tmp[]=$pt[9]; $tmp[]=$pt[10]; $tmp[]=$pt[11];
+                $tmp = array();
+                $tmp[]=$pt[2];
+                $tmp[]=$pt[3];
+                $tmp[]=$pt[4];
+                $tmp[]=$pt[5];
+                $tmp[]=$pt[8];
+                $tmp[]=$pt[9];
+                $tmp[]=$pt[10];
+                $tmp[]=$pt[11];
                 $pt = $tmp;
             }
 
@@ -1943,14 +2063,18 @@ class HTML2PDF
                 $l = abs(($pt[3]-$pt[1])*0.5);
                 $px = 0;
                 $py = $width;
-                $x1 = $pt[0]; $y1 = ($pt[3]+$pt[1])*0.5;
-                $x2 = $pt[6]; $y2 = ($pt[7]+$pt[5])*0.5;
+                $x1 = $pt[0];
+                $y1 = ($pt[3]+$pt[1])*0.5;
+                $x2 = $pt[6];
+                $y2 = ($pt[7]+$pt[5])*0.5;
             } else {
                 $l = abs(($pt[2]-$pt[0])*0.5);
                 $px = $width;
                 $py = 0;
-                $x1 = ($pt[2]+$pt[0])*0.5; $y1 = $pt[1];
-                $x2 = ($pt[6]+$pt[4])*0.5; $y2 = $pt[7];
+                $x1 = ($pt[2]+$pt[0])*0.5;
+                $y1 = $pt[1];
+                $x2 = ($pt[6]+$pt[4])*0.5;
+                $y2 = $pt[7];
             }
 
             // if dashed : 3x bigger than dotted
@@ -1964,24 +2088,36 @@ class HTML2PDF
             for ($i=0; $l-($px+$py)*($i-0.5)>0; $i++) {
                 if (($i%2)==$mode) {
                     $j = $i-0.5;
-                    $lx1 = $px*($j);   if ($lx1<-$l) $lx1 =-$l;
-                    $ly1 = $py*($j);   if ($ly1<-$l) $ly1 =-$l;
-                    $lx2 = $px*($j+1); if ($lx2>$l)  $lx2 = $l;
-                    $ly2 = $py*($j+1); if ($ly2>$l)  $ly2 = $l;
+                    $lx1 = $px*($j);
+                    if ($lx1<-$l) $lx1 =-$l;
+                    $ly1 = $py*($j);
+                    if ($ly1<-$l) $ly1 =-$l;
+                    $lx2 = $px*($j+1);
+                    if ($lx2>$l)  $lx2 = $l;
+                    $ly2 = $py*($j+1);
+                    if ($ly2>$l)  $ly2 = $l;
 
                     $tmp = array();
-                    $tmp[] = $x1+$lx1; $tmp[] = $y1+$ly1;
-                    $tmp[] = $x1+$lx2; $tmp[] = $y1+$ly2;
-                    $tmp[] = $x2+$lx2; $tmp[] = $y2+$ly2;
-                    $tmp[] = $x2+$lx1; $tmp[] = $y2+$ly1;
+                    $tmp[] = $x1+$lx1;
+                    $tmp[] = $y1+$ly1;
+                    $tmp[] = $x1+$lx2;
+                    $tmp[] = $y1+$ly2;
+                    $tmp[] = $x2+$lx2;
+                    $tmp[] = $y2+$ly2;
+                    $tmp[] = $x2+$lx1;
+                    $tmp[] = $y2+$ly1;
                     $this->pdf->Polygon($tmp, 'F');
 
                     if ($j>0) {
                         $tmp = array();
-                        $tmp[] = $x1-$lx1; $tmp[] = $y1-$ly1;
-                        $tmp[] = $x1-$lx2; $tmp[] = $y1-$ly2;
-                        $tmp[] = $x2-$lx2; $tmp[] = $y2-$ly2;
-                        $tmp[] = $x2-$lx1; $tmp[] = $y2-$ly1;
+                        $tmp[] = $x1-$lx1;
+                        $tmp[] = $y1-$ly1;
+                        $tmp[] = $x1-$lx2;
+                        $tmp[] = $y1-$ly2;
+                        $tmp[] = $x2-$lx2;
+                        $tmp[] = $y2-$ly2;
+                        $tmp[] = $x2-$lx1;
+                        $tmp[] = $y2-$ly1;
                         $this->pdf->Polygon($tmp, 'F');
                     }
                 }
@@ -2067,42 +2203,57 @@ class HTML2PDF
             switch($name)
             {
                 case 'scale':
-                    if (!isset($val[0])) $val[0] = 1.;      else $val[0] = 1.*$val[0];
-                    if (!isset($val[1])) $val[1] = $val[0]; else $val[1] = 1.*$val[1];
+                    if (!isset($val[0])) $val[0] = 1.;
+                    else $val[0] = 1.*$val[0];
+                    if (!isset($val[1])) $val[1] = $val[0];
+                    else $val[1] = 1.*$val[1];
                     $actions[] = array($val[0],0,0,$val[1],0,0);
                     break;
 
                 case 'translate':
-                    if (!isset($val[0])) $val[0] = 0.; else $val[0] = $this->parsingCss->ConvertToMM($val[0], $this->_isInDraw['w']);
-                    if (!isset($val[1])) $val[1] = 0.; else $val[1] = $this->parsingCss->ConvertToMM($val[1], $this->_isInDraw['h']);
+                    if (!isset($val[0])) $val[0] = 0.;
+                    else $val[0] = $this->parsingCss->ConvertToMM($val[0], $this->_isInDraw['w']);
+                    if (!isset($val[1])) $val[1] = 0.;
+                    else $val[1] = $this->parsingCss->ConvertToMM($val[1], $this->_isInDraw['h']);
                     $actions[] = array(1,0,0,1,$val[0],$val[1]);
                     break;
 
                 case 'rotate':
-                    if (!isset($val[0])) $val[0] = 0.; else $val[0] = $val[0]*M_PI/180.;
-                    if (!isset($val[1])) $val[1] = 0.; else $val[1] = $this->parsingCss->ConvertToMM($val[1], $this->_isInDraw['w']);
-                    if (!isset($val[2])) $val[2] = 0.; else $val[2] = $this->parsingCss->ConvertToMM($val[2], $this->_isInDraw['h']);
+                    if (!isset($val[0])) $val[0] = 0.;
+                    else $val[0] = $val[0]*M_PI/180.;
+                    if (!isset($val[1])) $val[1] = 0.;
+                    else $val[1] = $this->parsingCss->ConvertToMM($val[1], $this->_isInDraw['w']);
+                    if (!isset($val[2])) $val[2] = 0.;
+                    else $val[2] = $this->parsingCss->ConvertToMM($val[2], $this->_isInDraw['h']);
                     if ($val[1] || $val[2]) $actions[] = array(1,0,0,1,-$val[1],-$val[2]);
                     $actions[] = array(cos($val[0]),sin($val[0]),-sin($val[0]),cos($val[0]),0,0);
                     if ($val[1] || $val[2]) $actions[] = array(1,0,0,1,$val[1],$val[2]);
                     break;
 
                 case 'skewx':
-                    if (!isset($val[0])) $val[0] = 0.; else $val[0] = $val[0]*M_PI/180.;
+                    if (!isset($val[0])) $val[0] = 0.;
+                    else $val[0] = $val[0]*M_PI/180.;
                     $actions[] = array(1,0,tan($val[0]),1,0,0);
                     break;
 
                 case 'skewy':
-                    if (!isset($val[0])) $val[0] = 0.; else $val[0] = $val[0]*M_PI/180.;
+                    if (!isset($val[0])) $val[0] = 0.;
+                    else $val[0] = $val[0]*M_PI/180.;
                     $actions[] = array(1,tan($val[0]),0,1,0,0);
                     break;
                 case 'matrix':
-                    if (!isset($val[0])) $val[0] = 0.; else $val[0] = $val[0]*1.;
-                    if (!isset($val[1])) $val[1] = 0.; else $val[1] = $val[1]*1.;
-                    if (!isset($val[2])) $val[2] = 0.; else $val[2] = $val[2]*1.;
-                    if (!isset($val[3])) $val[3] = 0.; else $val[3] = $val[3]*1.;
-                    if (!isset($val[4])) $val[4] = 0.; else $val[4] = $this->parsingCss->ConvertToMM($val[4], $this->_isInDraw['w']);
-                    if (!isset($val[5])) $val[5] = 0.; else $val[5] = $this->parsingCss->ConvertToMM($val[5], $this->_isInDraw['h']);
+                    if (!isset($val[0])) $val[0] = 0.;
+                    else $val[0] = $val[0]*1.;
+                    if (!isset($val[1])) $val[1] = 0.;
+                    else $val[1] = $val[1]*1.;
+                    if (!isset($val[2])) $val[2] = 0.;
+                    else $val[2] = $val[2]*1.;
+                    if (!isset($val[3])) $val[3] = 0.;
+                    else $val[3] = $val[3]*1.;
+                    if (!isset($val[4])) $val[4] = 0.;
+                    else $val[4] = $this->parsingCss->ConvertToMM($val[4], $this->_isInDraw['w']);
+                    if (!isset($val[5])) $val[5] = 0.;
+                    else $val[5] = $this->parsingCss->ConvertToMM($val[5], $this->_isInDraw['h']);
                     $actions[] =$val;
                     break;
             }
@@ -2112,7 +2263,8 @@ class HTML2PDF
         if (!$actions) return null;
 
         // get the first matrix
-        $m = $actions[0]; unset($actions[0]);
+        $m = $actions[0];
+        unset($actions[0]);
 
         // foreach matrix => multiply to the last matrix
         foreach ($actions as $n) {
@@ -2157,7 +2309,8 @@ class HTML2PDF
                 if (isset($corr[$y][$x]) && is_array($corr[$y][$x]) && $corr[$y][$x][2]>1) {
 
                     // sum the max width of each column in colspan
-                    $s = 0; for ($i=0; $i<$corr[$y][$x][2]; $i++) $s+= $sw[$x+$i];
+                    $s = 0; for ($i=0; $i<$corr[$y][$x][2];
+                    $i++) $s+= $sw[$x+$i];
 
                     // if the max width is < the width of the cell with colspan => we adapt the width of each max width
                     if ($s>0 && $s<$cases[$corr[$y][$x][1]][$corr[$y][$x][0]]['w']) {
@@ -2239,7 +2392,8 @@ class HTML2PDF
                         for ($j=1; $j<$corr[$y][$x][3]; $j++) {
                             $tx = $x+1;
                             $ty = $y+$j;
-                            for (true; isset($corr[$ty][$tx]) && !is_array($corr[$ty][$tx]); $tx++);
+                            for (true; isset($corr[$ty][$tx]) && !is_array($corr[$ty][$tx]);
+                            $tx++);
                             if (isset($corr[$ty][$tx])) {
                                 $cases[$corr[$ty][$tx][1]][$corr[$ty][$tx][0]]['dw']+= $cases[$corr[$y][$x][1]][$corr[$y][$x][0]]['w'];
                             }
@@ -2711,7 +2865,8 @@ class HTML2PDF
         $level = $this->parsingHtml->getLevel($this->_parsePos);
 
         // create a sub HTML2PDF to get the dimensions of the content of the div
-        $w = 0; $h = 0;
+        $w = 0;
+        $h = 0;
         if (count($level)) {
             $sub = null;
             $this->_createSubHTML($sub);
@@ -2747,8 +2902,12 @@ class HTML2PDF
         switch($this->parsingCss->value['rotate'])
         {
             case 90:
-                $tmp = $overH; $overH = $overW; $overW = $tmp;
-                $tmp = $hReel; $hReel = $wReel; $wReel = $tmp;
+                $tmp = $overH;
+                $overH = $overW;
+                $overW = $tmp;
+                $tmp = $hReel;
+                $hReel = $wReel;
+                $wReel = $tmp;
                 unset($tmp);
                 $w = $this->parsingCss->value['height'];
                 $h = $this->parsingCss->value['width'];
@@ -2764,8 +2923,12 @@ class HTML2PDF
                 break;
 
             case 270:
-                $tmp = $overH; $overH = $overW; $overW = $tmp;
-                $tmp = $hReel; $hReel = $wReel; $wReel = $tmp;
+                $tmp = $overH;
+                $overH = $overW;
+                $overW = $tmp;
+                $tmp = $hReel;
+                $hReel = $wReel;
+                $wReel = $tmp;
                 unset($tmp);
                 $w = $this->parsingCss->value['height'];
                 $h = $this->parsingCss->value['width'];
@@ -3015,11 +3178,15 @@ class HTML2PDF
         switch($this->parsingCss->value['rotate'])
         {
             case 90:
-                $t = $w; $w = $h; $h = $t;
+                $t = $w;
+                $w = $h;
+                $h = $t;
                 break;
 
             case 270:
-                $t = $w; $w = $h; $h = $t;
+                $t = $w;
+                $w = $h;
+                $h = $t;
                 break;
 
             default:
@@ -3119,8 +3286,10 @@ class HTML2PDF
 
         $x = $this->pdf->getX();
         $y = $this->pdf->getY();
-        $w = $this->parsingCss->value['width'];    if (!$w) $w = $this->parsingCss->ConvertToMM('50mm');
-        $h = $this->parsingCss->value['height'];    if (!$h) $h = $this->parsingCss->ConvertToMM('10mm');
+        $w = $this->parsingCss->value['width'];
+        if (!$w) $w = $this->parsingCss->ConvertToMM('50mm');
+        $h = $this->parsingCss->value['height'];
+        if (!$h) $h = $this->parsingCss->ConvertToMM('10mm');
         $txt = ($param['label']!=='none' ? $this->parsingCss->value['font-size'] : false);
         $c = $this->parsingCss->value['color'];
         $infos = $this->pdf->myBarcode($param['value'], $param['type'], $x, $y, $w, $h, $txt, $c);
@@ -3189,7 +3358,8 @@ class HTML2PDF
         $y = $this->pdf->getY();
         $w = $this->parsingCss->value['width'];
         $h = $this->parsingCss->value['height'];
-        $size = max($w, $h); if (!$size) $size = $this->parsingCss->ConvertToMM('50mm');
+        $size = max($w, $h);
+        if (!$size) $size = $this->parsingCss->ConvertToMM('50mm');
 
         $style = array(
                 'fgcolor' => $this->parsingCss->value['color'],
@@ -3426,7 +3596,8 @@ class HTML2PDF
                 // if more than 10000 line => error
                 $nb++;
                 if ($nb>10000) {
-                    $txt = ''; foreach ($words as $k => $word) $txt.= ($k ? ' ' : '').$word[0];
+                    $txt = '';
+                    foreach ($words as $k => $word) $txt.= ($k ? ' ' : '').$word[0];
                     throw new HTML2PDF_exception(2, array($txt, $right-$left, $w));
                 }
 
@@ -3437,7 +3608,8 @@ class HTML2PDF
 
         // if we have words after automatic cut, it is because they fit on the line => we write the text
         if (count($words)) {
-            $txt = ''; foreach ($words as $k => $word) $txt.= ($k ? ' ' : '').$word[0];
+            $txt = '';
+            foreach ($words as $k => $word) $txt.= ($k ? ' ' : '').$word[0];
             $w+= $this->pdf->getWordSpacing()*(count($words));
             $this->pdf->setXY($this->pdf->getX(), $y+$dh+$dy);
             $this->pdf->Cell(($align=='L' ? $w : $this->parsingCss->value['width']), $h, $txt, 0, 0, $align, $fill, $this->_isInLink);
@@ -3521,7 +3693,8 @@ class HTML2PDF
         $this->parsingCss->value['font-size'] = 0;
         $this->_tag_open_BR($param);
 
-        $this->parsingCss->value['font-size']=$fontSize*0.5; $this->_tag_open_BR($param);
+        $this->parsingCss->value['font-size']=$fontSize*0.5;
+        $this->_tag_open_BR($param);
         $this->parsingCss->value['font-size']=$fontSize;
 
         $this->parsingCss->value['text-align'] = $oldAlign;
@@ -4538,7 +4711,8 @@ class HTML2PDF
             $tmpLst2 = $this->parsingHtml->code[$tmpPos+2];
             $this->parsingHtml->code[$tmpPos+1] = array();
             $this->parsingHtml->code[$tmpPos+1]['name']    = (isset($paramPUCE['src'])) ? 'img' : 'write';
-            $this->parsingHtml->code[$tmpPos+1]['param']    = $paramPUCE; unset($this->parsingHtml->code[$tmpPos+1]['param']['style']['width']);
+            $this->parsingHtml->code[$tmpPos+1]['param']    = $paramPUCE;
+            unset($this->parsingHtml->code[$tmpPos+1]['param']['style']['width']);
             $this->parsingHtml->code[$tmpPos+1]['close']    = 0;
             $this->parsingHtml->code[$tmpPos+2] = array();
             $this->parsingHtml->code[$tmpPos+2]['name']    = 'li';
@@ -5364,7 +5538,8 @@ class HTML2PDF
                 $total = '';
                 $last = $this->parsingCss->getLastWidth();
                 if (count($colParam['style']['width'])) {
-                    $total = $colParam['style']['width'][0]; unset($colParam['style']['width'][0]);
+                    $total = $colParam['style']['width'][0];
+                    unset($colParam['style']['width'][0]);
                     foreach ($colParam['style']['width'] as $width) {
                         if (substr($total, -1)=='%' && substr($width, -1)=='%')
                             $total = (str_replace('%', '', $total)+str_replace('%', '', $width)).'%';
@@ -5745,7 +5920,8 @@ class HTML2PDF
         $f = 1.08*$this->parsingCss->value['font-size'];
 
         // width
-        $w = $this->parsingCss->value['width']; if (!$w) $w = 50;
+        $w = $this->parsingCss->value['width'];
+        if (!$w) $w = 50;
 
         // height (automatic)
         $h = ($f*1.07*$this->_lstSelect['size'] + 1);
@@ -5915,29 +6091,36 @@ class HTML2PDF
                 break;
 
             case 'text':
-                $w = $this->parsingCss->value['width']; if (!$w) $w = 40;
+                $w = $this->parsingCss->value['width'];
+                if (!$w) $w = 40;
                 $h = $f*1.3;
                 $prop['value'] = $param['value'];
                 $this->pdf->TextField($name, $w, $h, $prop, array(), $x, $y);
                 break;
 
             case 'submit':
-                $w = $this->parsingCss->value['width'];    if (!$w) $w = 40;
-                $h = $this->parsingCss->value['height'];    if (!$h) $h = $f*1.3;
+                $w = $this->parsingCss->value['width'];
+                if (!$w) $w = 40;
+                $h = $this->parsingCss->value['height'];
+                if (!$h) $h = $f*1.3;
                 $action = array('S'=>'SubmitForm', 'F'=>$this->_isInForm, 'Flags'=>array('ExportFormat'));
                 $this->pdf->Button($name, $w, $h, $param['value'], $action, $prop, array(), $x, $y);
                 break;
 
             case 'reset':
-                $w = $this->parsingCss->value['width'];    if (!$w) $w = 40;
-                $h = $this->parsingCss->value['height'];    if (!$h) $h = $f*1.3;
+                $w = $this->parsingCss->value['width'];
+                if (!$w) $w = 40;
+                $h = $this->parsingCss->value['height'];
+                if (!$h) $h = $f*1.3;
                 $action = array('S'=>'ResetForm');
                 $this->pdf->Button($name, $w, $h, $param['value'], $action, $prop, array(), $x, $y);
                 break;
 
             case 'button':
-                $w = $this->parsingCss->value['width'];    if (!$w) $w = 40;
-                $h = $this->parsingCss->value['height'];    if (!$h) $h = $f*1.3;
+                $w = $this->parsingCss->value['width'];
+                if (!$w) $w = 40;
+                $h = $this->parsingCss->value['height'];
+                if (!$h) $h = $f*1.3;
                 $action = isset($param['onclick']) ? $param['onclick'] : '';
                 $this->pdf->Button($name, $w, $h, $param['value'], $action, $prop, array(), $x, $y);
                 break;

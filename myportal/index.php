@@ -28,7 +28,7 @@
 
 
 if (!extension_loaded('soap')) {
-   die("PLEASE ENABLE SOAP EXTENSION");
+    die("PLEASE ENABLE SOAP EXTENSION");
 }
 require_once("../interface/globals.php");
  $emr_path = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -38,29 +38,29 @@ require_once("../interface/globals.php");
  sqlStatement("DELETE FROM audit_details WHERE audit_master_id IN(SELECT id FROM audit_master WHERE type=5 AND created_time<'".date("Y-m-d H:m",(strtotime(date("Y-m-d H:m")-7200))).":00')");
  sqlStatement("DELETE FROM audit_master WHERE type=5 AND created_time<'".date("Y-m-d H:m",(strtotime(date("Y-m-d H:m")-7200))).":00'");
  
- function md5_pass($length = 8)
- {
-  $randkey = substr(md5(rand().rand()), 0, $length);
-  $res = sqlStatement("SELECT * FROM audit_master AS am LEFT OUTER JOIN audit_details AS ad ON ad.audit_master_id=am.id WHERE type=5 AND field_value=?",array($randkey));
-  if(sqlNumRows($res)){
-  md5_pass();
-  }
-  else{
-  $grpID = sqlInsert("INSERT INTO audit_master SET type=5");
-  sqlStatement("INSERT INTO audit_details SET field_value=? , audit_master_id=?",array($randkey,$grpID));
-  return $randkey;
-  }
- }
- for($i=1;$i<=5;$i++){//some times php is continuing without getting the return value from the function md5_pass()
-   if(!$randkey){
-     if($i>1)
-     sleep(1);
-     $randkey = md5_pass();
-   }
-   else{
-     break;
-   }
- }
+function md5_pass($length = 8)
+{
+    $randkey = substr(md5(rand().rand()), 0, $length);
+    $res = sqlStatement("SELECT * FROM audit_master AS am LEFT OUTER JOIN audit_details AS ad ON ad.audit_master_id=am.id WHERE type=5 AND field_value=?",array($randkey));
+    if(sqlNumRows($res)){
+        md5_pass();
+    }
+    else{
+        $grpID = sqlInsert("INSERT INTO audit_master SET type=5");
+        sqlStatement("INSERT INTO audit_details SET field_value=? , audit_master_id=?",array($randkey,$grpID));
+        return $randkey;
+    }
+}
+for($i=1;$i<=5;$i++){//some times php is continuing without getting the return value from the function md5_pass()
+    if(!$randkey){
+        if($i>1)
+        sleep(1);
+        $randkey = md5_pass();
+    }
+    else{
+        break;
+    }
+}
  $pass = sha1($GLOBALS['portal_offsite_password'].gmdate('Y-m-d H').$randkey);
 ?>
 <html>

@@ -3,7 +3,7 @@
  * view/plans_config.php  UI for CDR admin rules plan
  *
  * UI to select or add new plans in plans configuration
- *  
+ *
  * Copyright (C) 2014 Jan Jajalla <Jajalla23@gmail.com>
  * Copyright (C) 2014 Roberto Vasquez <robertogagliotta@gmail.com>
  *
@@ -107,7 +107,7 @@ $.extend($.ui.multiselect.locale, {
 				$.post
 		    	(
 			    	'<?php echo  _base_url() .
-			    			"/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + selected_plan
+                            "/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + selected_plan
 			    			+ '&plan_pid=' + selected_plan_pid							
 				)
 				.done(function(resp) {
@@ -257,7 +257,7 @@ $.extend($.ui.multiselect.locale, {
 		    $.post
 		    	(
 			    	'<?php echo  _base_url() .
-			    			'/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan								
+                            '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan								
 				)
 				.done(function(resp) {
 			        var data = $.parseJSON(resp);
@@ -292,7 +292,7 @@ $.extend($.ui.multiselect.locale, {
 		$.post
     	(
 	    	'<?php echo  _base_url() .
-	    			'/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + selected_plan
+                    '/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + selected_plan
 	    			+ '&plan_pid=' + selected_plan_pid
 		)
 		.done(function(resp) {

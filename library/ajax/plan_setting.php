@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . "/../clinical_rules.php");
 
 //set the rule setting for patient (ensure all variables exist)
 if ($_POST['plan'] && $_POST['type'] && $_POST['setting'] && $_POST['patient_id']) {
-  set_plan_activity_patient($_POST['plan'], $_POST['type'], $_POST['setting'], $_POST['patient_id']);
+    set_plan_activity_patient($_POST['plan'], $_POST['type'], $_POST['setting'], $_POST['patient_id']);
 }
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * class definitions for objects used in processing fee sheet related data
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

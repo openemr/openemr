@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Form controller implementation
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ require_once $GLOBALS['srcdir'].'/authentication/login_operations.php';
 class Form_Controller extends Abstract_Controller
 {
     /**
-     * 
+     *
      */
     public function esign_form_view()
     {
@@ -70,7 +70,7 @@ class Form_Controller extends Abstract_Controller
     }
     
     /**
-     * 
+     *
      * @return multitype:string
      */
     public function esign_form_submit()

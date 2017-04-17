@@ -15,11 +15,13 @@ class PhysicalExam extends ClinicalType
     const NOT_DONE_SYSTEM = 'phys_exm_not_done_system';
     const FINDING_BMI_PERC = 'phys_exm_finding_bmi_perc';
     
-    public function getListId() {
+    public function getListId()
+    {
         return 'Clinical_Rules_Phys_Exm_Type';
     }
     
-    public function getListType() {
+    public function getListType()
+    {
         return "medical_problem"; // TODO this may not be the correct type for BMI icd9 codes
     }
     
@@ -37,8 +39,8 @@ class PhysicalExam extends ClinicalType
         
         if ( $this->getOptionId() == self::FINDING_BMI_PERC ) {
             // check for any BMI percentile finding
-            // there are a few BMI codes, but it doesn't matter, 
-            // because we just want to check for any finding    
+            // there are a few BMI codes, but it doesn't matter,
+            // because we just want to check for any finding
             $query = "SELECT form_vitals.BMI " .
                 "FROM `form_vitals` " .
                 "WHERE form_vitals.BMI IS NOT NULL " .

@@ -38,17 +38,17 @@ set_time_limit(0);
 
 $eRxSOAP = new eRxSOAP;
 $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS))
-	->setStore(new eRxStore)
-	->setAuthUserId($_SESSION['authUserID']);
+    ->setStore(new eRxStore)
+    ->setAuthUserId($_SESSION['authUserID']);
 
 if(array_key_exists('patient', $_REQUEST)) {
-	$eRxSOAP->setPatientId($_REQUEST['patient']);
+    $eRxSOAP->setPatientId($_REQUEST['patient']);
 } elseif(array_key_exists('pid', $GLOBALS)) {
-	$eRxSOAP->setPatientId($GLOBALS['pid']);
+    $eRxSOAP->setPatientId($GLOBALS['pid']);
 }
 
 $accountStatus = $eRxSOAP->getAccountStatus()
-	->GetAccountStatusResult->accountStatusDetail;
+    ->GetAccountStatusResult->accountStatusDetail;
 
 ?>
 <head>

@@ -692,7 +692,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
                              str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler));
         }
 
-        if ($this->maxDepth > 0 AND $currentDepth == $this->maxDepth) {
+        if ($this->maxDepth > 0 and $currentDepth == $this->maxDepth) {
             $maxDepthPrefix = $prefix;
         }
 
@@ -789,12 +789,12 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
             }
         }
 
-		if ($this->promoText) {
-        	return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
-		}
-		else {
-			return $nodeHTML;
-		}
+        if ($this->promoText) {
+            return sprintf('<option value="">%s</option>%s', $this->promoText, $nodeHTML);
+        }
+        else {
+            return $nodeHTML;
+        }
     }
 
     /**
