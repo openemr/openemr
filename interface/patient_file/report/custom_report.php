@@ -39,6 +39,9 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
 require_once("$srcdir/appointments.inc.php");
+
+$facilityService = new \services\FacilityService();
+
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
@@ -191,18 +194,13 @@ if ($printable) {
   $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
   *******************************************************************/
   $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+  $facility = null;
   if ($_SESSION['pc_facility']) {
-    $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+    $facility = $facilityService->getById($_SESSION['pc_facility']);
   } else {
-    $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+    $facility = $facilityService->getPrimaryBillingLocation();
   }
   /******************************************************************/
-  $db = $GLOBALS['adodb']['db'];
-  $results = $db->Execute($sql);
-  $facility = array();
-  if (!$results->EOF) {
-    $facility = $results->fields;
-  }
   // Setup Headers and Footers for mPDF only Download
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';

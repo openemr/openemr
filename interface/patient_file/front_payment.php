@@ -22,6 +22,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
+$facilityService = new \services\FacilityService();
+
 ?>
 <html>
 <head>
@@ -338,8 +340,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
   }
 
   // Get details for what we guess is the primary facility.
-  $frow = sqlQuery("SELECT * FROM facility " .
-    "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+  $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 
   // Get the patient's name and chart number.
   $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
@@ -366,8 +367,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     SELECT facility_id
     FROM form_encounter
     WHERE encounter = ?", array($payrow['encounter']) );
-  $frow = sqlQuery("SELECT * FROM facility " .
-    " WHERE id = ?", array($tmprow['facility_id']) );
+  $frow = $facilityService->getById($tmprow['facility_id']);
 
   // Now proceed with printing the receipt.
 ?>

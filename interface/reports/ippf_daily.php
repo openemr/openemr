@@ -9,6 +9,8 @@ include_once("../../library/acl.inc");
 //
 if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
+$facilityService = new \services\FacilityService();
+
 $from_date     = fixDate($_POST['form_from_date']);
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
@@ -125,11 +127,10 @@ else { // not export
 <?php
  // Build a drop-down list of facilities.
  //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
+ $fres = $facilityService->getAll();
  echo "   <select name='form_facility'>\n";
  echo "    <option value=''>-- All Facilities --\n";
- while ($frow = sqlFetchArray($fres)) {
+ foreach ($fres as $frow) {
   $facid = $frow['id'];
   echo "    <option value='$facid'";
   if ($facid == $_POST['form_facility']) echo " selected";

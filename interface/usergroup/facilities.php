@@ -2,62 +2,70 @@
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 
+$facilityService = new \services\FacilityService();
+
 $alertmsg = '';
 
 /*		Inserting New facility					*/
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
-  $insert_id=sqlInsert("INSERT INTO facility SET " .
-  "name = '"         . trim(formData('facility'    )) . "', " .
-  "phone = '"        . trim(formData('phone'       )) . "', " .
-  "fax = '"          . trim(formData('fax'         )) . "', " .
-  "street = '"       . trim(formData('street'      )) . "', " .
-  "city = '"         . trim(formData('city'        )) . "', " .
-  "state = '"        . trim(formData('state'       )) . "', " .
-  "postal_code = '"  . trim(formData('postal_code' )) . "', " .
-  "country_code = '" . trim(formData('country_code')) . "', " .
-  "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
-  "website = '"      . trim(formData('website'     )) . "', " .
-  "email = '"      	 . trim(formData('email'       )) . "', " .
-  "color = '"  . trim(formData('ncolor' )) . "', " .
-  "service_location = '"  . trim(formData('service_location' )) . "', " .
-  "billing_location = '"  . trim(formData('billing_location' )) . "', " .
-  "accepts_assignment = '"  . trim(formData('accepts_assignment' )) . "', " .
-  "pos_code = '"  . trim(formData('pos_code' )) . "', " .
-  "domain_identifier = '"  . trim(formData('domain_identifier' )) . "', " .
-  "attn = '"  . trim(formData('attn' )) . "', " .
-  "tax_id_type = '"  . trim(formData('tax_id_type' )) . "', " .
-  "primary_business_entity = '"  . trim(formData('primary_business_entity' )) . "', ".
-  "facility_npi = '" . trim(formData('facility_npi')) . "',".
-  "facility_code = '" . trim(formData('facility_id')) . "'");
+  $newFacility = array(
+      "name" => trim(formData("facility")),
+      "phone" => trim(formData("phone")),
+      "fax" => trim(formData("fax")),
+      "street" => trim(formData("street")),
+      "city" => trim(formData("city")),
+      "state" => trim(formData("state")),
+      "postal_code" => trim(formData("postal_code")),
+      "country_code" => trim(formData("country_code")),
+      "federal_ein" => trim(formData("federal_ein")),
+      "website" => trim(formData("website")),
+      "email" => trim(formData("email")),
+      "color" => trim(formData("ncolor")),
+      "service_location" => trim(formData("service_location")),
+      "billing_location" => trim(formData("billing_location")),
+      "accepts_assignment" => trim(formData("accepts_assignment")),
+      "pos_code" => trim(formData("pos_code")),
+      "domain_identifier" => trim(formData("domain_identifier")),
+      "attn" => trim(formData("attn")),
+      "tax_id_type" =>  trim(formData("tax_id_type")),
+      "primary_business_entity" => trim(formData("primary_business_entity")),
+      "facility_npi" => trim(formData("facility_npi")),
+      "facility_code" => trim(formData("facility_id"))
+  );
+
+  $insert_id = $facilityService->insert($newFacility);
 }
 
 /*		Editing existing facility					*/
-if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
 {
-	sqlStatement("update facility set
-		name='" . trim(formData('facility')) . "',
-		phone='" . trim(formData('phone')) . "',
-		fax='" . trim(formData('fax')) . "',
-		street='" . trim(formData('street')) . "',
-		city='" . trim(formData('city')) . "',
-		state='" . trim(formData('state')) . "',
-		postal_code='" . trim(formData('postal_code')) . "',
-		country_code='" . trim(formData('country_code')) . "',
-		federal_ein='" . trim(formData('federal_ein')) . "',
-		website='" . trim(formData('website')) . "',
-		email='" . trim(formData('email')) . "',
-		color='" . trim(formData('ncolor')) . "',
-		service_location='" . trim(formData('service_location')) . "',
-		billing_location='" . trim(formData('billing_location')) . "',
-		accepts_assignment='" . trim(formData('accepts_assignment')) . "',
-		pos_code='" . trim(formData('pos_code')) . "',
-		domain_identifier='" . trim(formData('domain_identifier')) . "',
-		facility_npi='" . trim(formData('facility_npi')) . "',
-		attn='" . trim(formData('attn')) . "' ,
-		primary_business_entity='" . trim(formData('primary_business_entity')) . "' ,
-		tax_id_type='" . trim(formData('tax_id_type')) . "' ,
-    facility_code = '" . trim(formData('facility_id')) . "'
-	where id='" . trim(formData('fid')) . "'" );
+  $newFacility = array(
+      "fid" => trim(formData("fid")),
+      "name" => trim(formData("facility")),
+      "phone" => trim(formData("phone")),
+      "fax" => trim(formData("fax")),
+      "street" => trim(formData("street")),
+      "city" => trim(formData("city")),
+      "state" => trim(formData("state")),
+      "postal_code" => trim(formData("postal_code")),
+      "country_code" => trim(formData("country_code")),
+      "federal_ein" => trim(formData("federal_ein")),
+      "website" => trim(formData("website")),
+      "email" => trim(formData("email")),
+      "color" => trim(formData("ncolor")),
+      "service_location" => trim(formData("service_location")),
+      "billing_location" => trim(formData("billing_location")),
+      "accepts_assignment" => trim(formData("accepts_assignment")),
+      "pos_code" => trim(formData("pos_code")),
+      "domain_identifier" => trim(formData("domain_identifier")),
+      "attn" => trim(formData("attn")),
+      "tax_id_type" =>  trim(formData("tax_id_type")),
+      "primary_business_entity" => trim(formData("primary_business_entity")),
+      "facility_npi" => trim(formData("facility_npi")),
+      "facility_code" => trim(formData("facility_id"))
+  );
+
+  $facilityService->update($newFacility);
 }
 
 ?>
@@ -121,24 +129,24 @@ $(document).ready(function(){
     </tr>
      <?php
         $fres = 0;
-        $fres = sqlStatement("select * from facility order by name");
+        $fres = $facilityService->getAll();
         if ($fres) {
           $result2 = array();
-          for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
-            $result2[$iter3] = $frow;
+          for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++)
+            $result2[$iter3] = $fres[$iter3];
           foreach($result2 as $iter3) {
 			$varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
 			$varcity="";
 			$varstate="";
-          $varstreet=$iter3{street };
-          if ($iter3{street }!="")$varstreet=$iter3{street }.",";
-          if ($iter3{city}!="")$varcity=$iter3{city}.",";
-          if ($iter3{state}!="")$varstate=$iter3{state}.",";
+          $varstreet=$iter3["street"];
+          if ($iter3["street"]!="")$varstreet=$iter3["street"].",";
+          if ($iter3["city"]!="")$varcity=$iter3["city"].",";
+          if ($iter3["state"]!="")$varstate=$iter3["state"].",";
     ?>
     <tr height="22">
-       <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3{name});?></span></a></b>&nbsp;</td>
-       <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3{country_code}." ".$iter3{postal_code}); ?>&nbsp;</td>
-       <td><?php echo htmlspecialchars($iter3{phone});?>&nbsp;</td>
+       <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3["id"];?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3["name"]);?></span></a></b>&nbsp;</td>
+       <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
+       <td><?php echo htmlspecialchars($iter3["phone"]);?>&nbsp;</td>
     </tr>
 <?php
   }

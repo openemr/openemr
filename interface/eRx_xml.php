@@ -22,6 +22,8 @@
  * @link       http://www.open-emr.org
  */
 
+$facilityService = new \services\FacilityService();
+
 function getErxPath()
 {
     return $GLOBALS['erx_newcrop_path'];
@@ -185,8 +187,8 @@ function destination($doc,$r,$page='',$pid)
 
 function account($doc,$r)
 {
-    global $msg;
-    $erxSiteID=sqlQuery("SELECT * FROM facility WHERE primary_business_entity='1'");
+    global $msg, $facilityService;
+    $erxSiteID= $facilityService->getPrimaryBusinessEntity();
     if(!$erxSiteID['federal_ein'])
     {
 	echo htmlspecialchars( xl("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system."), ENT_NOQUOTES);

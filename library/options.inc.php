@@ -41,6 +41,8 @@ require_once("patient.inc");
 require_once("lists.inc");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
+$facilityService = new \services\FacilityService();
+
 $date_init = "";
 
 function get_pharmacies() {
@@ -1703,7 +1705,7 @@ function generate_print_field($frow, $currvalue) {
 }
 
 function generate_display_field($frow, $currvalue) {
-  global $ISSUE_TYPES;
+  global $ISSUE_TYPES, $facilityService;
 
   $data_type  = $frow['data_type'];
   $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
@@ -2029,8 +2031,7 @@ function generate_display_field($frow, $currvalue) {
 
   // facility
   else if ($data_type == 35) {
-    $urow = sqlQuery("SELECT id, name FROM facility ".
-      "WHERE id = ?", array($currvalue) );
+    $urow = $facilityService->getById($currvalue);
     $s = htmlspecialchars($urow['name'],ENT_NOQUOTES);
   }
 
@@ -2918,9 +2919,10 @@ function generate_layout_validation($form_id) {
 function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspecified = true,
   $allow_allfacilities = true, $disabled='', $onchange='')
 {
+  global $facilityService;
+
   $have_selected = false;
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
+  $fres = $facilityService->getAll();
 
   $name = htmlspecialchars($name, ENT_QUOTES);
   echo "   <select class='form-control' name='$name' id='$name'";
@@ -2947,7 +2949,7 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
     echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
     }
 
-  while ($frow = sqlFetchArray($fres)) {
+  foreach($fres as $frow) {
     $facility_id = $frow['id'];
     $option_value = htmlspecialchars($facility_id, ENT_QUOTES);
     $option_selected_attr = '';
@@ -3073,9 +3075,11 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 
 //billing_facility fuction will give the dropdown list which contain billing faciliies.
 function billing_facility($name,$select){
-	$qsql = sqlStatement("SELECT id, name FROM facility WHERE billing_location = 1");
+  global $facilityService;
+
+  $fres = $facilityService->getAllBillingLocations();
 		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
-			while ($facrow = sqlFetchArray($qsql)) {
+      foreach ($fres as $facrow) {
 				$selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
 				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
 				}

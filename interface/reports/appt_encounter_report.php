@@ -46,6 +46,8 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/billing.inc");
 
+$facilityService = new \services\FacilityService();
+
  $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
  $grand_total_charges    = 0;
@@ -241,11 +243,10 @@ $(document).ready(function() {
 				<?php
 				 // Build a drop-down list of facilities.
 				 //
-				 $query = "SELECT id, name FROM facility ORDER BY name";
-				 $fres = sqlStatement($query);
+         $fres = $facilityService->getAll();
 				 echo "   <select name='form_facility'>\n";
 				 echo "    <option value=''>-- " . xl('All Facilities', 'e') . " --\n";
-				 while ($frow = sqlFetchArray($fres)) {
+         foreach ($fres as $frow) {
 				  $facid = $frow['id'];
 				  echo "    <option value='$facid'";
 				  if ($facid == $form_facility) echo " selected";

@@ -50,6 +50,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the ar_activity table
+  var $facilityService;
 
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -123,6 +124,8 @@ class Claim {
     $this->diags = array();
     $this->copay = 0;
 
+    $this->facilityService = new \services\FacilityService();
+
     // We need the encounter date before we can identify the payers.
     $sql = "SELECT * FROM form_encounter WHERE " .
       "pid = '{$this->pid}' AND " .
@@ -186,10 +189,7 @@ class Claim {
       "id = '" . $this->procs[0]['x12_partner_id'] . "'";
     $this->x12_partner = sqlQuery($sql);
 
-    $sql = "SELECT * FROM facility WHERE " .
-      "id = '" . addslashes($this->encounter['facility_id']) . "' " .
-      "LIMIT 1";
-    $this->facility = sqlQuery($sql);
+    $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
 
     /*****************************************************************
     $provider_id = $this->procs[0]['provider_id'];
@@ -200,14 +200,11 @@ class Claim {
     // Selecting the billing facility assigned  to the encounter.  If none,
     // try the first (and hopefully only) facility marked as a billing location.
     if (empty($this->encounter['billing_facility'])) {
-      $sql = "SELECT * FROM facility " .
-        "ORDER BY billing_location DESC, id ASC LIMIT 1";
+      $this->billing_facility = $this->facilityService->getPrimaryBillingLocation();
     }
     else {
-      $sql = "SELECT * FROM facility " .
-      " where id ='" . addslashes($this->encounter['billing_facility']) . "' ";
+      $this->billing_facility = $this->facilityService->getById($this->encounter['billing_facility']);
     }
-    $this->billing_facility = sqlQuery($sql);
 
     $sql = "SELECT * FROM insurance_numbers WHERE " .
       "(insurance_company_id = '" . $this->procs[0]['payer_id'] .

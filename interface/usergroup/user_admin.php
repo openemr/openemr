@@ -9,6 +9,8 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+$facilityService = new \services\FacilityService();
+
 if (!$_GET["id"] || !acl_check('admin', 'users'))
   exit();
 
@@ -394,10 +396,10 @@ $bg_count=count($acl_name);
 <td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
 <td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
 <?php
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
+$fres = $facilityService->getAllBillingLocations();
 if ($fres) {
-for ($iter2 = 0; $frow = sqlFetchArray($fres); $iter2++)
-                $result[$iter2] = $frow;
+for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++)
+                $result[$iter2] = $fres[$iter2];
 foreach($result as $iter2) {
 ?>
   <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
@@ -419,14 +421,14 @@ foreach($result as $iter2) {
   $ufid = array();
   foreach($userFacilities as $uf)
     $ufid[] = $uf['id'];
-  $fres = sqlStatement("select * from facility where service_location != 0 order by name");
+  $fres = $facilityService->getAllServiceLocations();
   if ($fres) {
-    while($frow = sqlFetchArray($fres)):
+    foreach($fres as $frow):
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
       value="<?php echo $frow['id'] ?>"><?php echo htmlspecialchars($frow['name']) ?></option>
 <?php
-  endwhile;
+  endforeach;
 }
 ?>
   </select>
