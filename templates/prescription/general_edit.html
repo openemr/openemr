@@ -3,7 +3,7 @@
 {php}html_header_show();{/php}
 
 <link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
-
+<link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
 <link rel="stylesheet" href="{$WEBROOT}/library/js/jquery-ui.min.css" type="text/css" /> 
 
 
@@ -32,11 +32,11 @@ select{
     var x = document.forms["prescribe"]["dosage"].value;
   var y = document.forms["prescribe"]["quantity"].value;
     if (x == null || x == "") {
-        alert("Name must be filled out");
+        alert("<?php print xls('Name must be filled out')?>");
         return false;
     }
   if (y == null || y == "") {
-        alert("<?php print xlt('Name must be filled out')?>");
+        alert("<?php print xls('Name must be filled out')?>");
         return false;
     }
 }
@@ -45,11 +45,11 @@ select{
 {literal}
 {/literal}
 <!---Gen Look up-->
-<script type="text/javascript" src="{$WEBROOT}/library/dialog.js"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
+<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-2-2/index.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
-
+<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
 
 {literal}
 <script language='JavaScript'>

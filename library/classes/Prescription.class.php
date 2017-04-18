@@ -497,8 +497,9 @@ class Prescription extends ORDataObject {
         $this->drug = $drug;
 		
        if($GLOBALS['weno_rx_enable']){
-		$sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE '%".$drug."%'";
-		$getNDC = sqlStatement($sql);
+        $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+        $val = array('%'.$drug.'%');
+        $getNDC = sqlStatement($sql, $val);
 		$ndc = sqlFetchArray($getNDC);
 		$drug_id = $ndc['NDC'];
 		    //Save this drug id
