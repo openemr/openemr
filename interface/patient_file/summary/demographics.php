@@ -500,7 +500,7 @@ if ($thisauth): ?>
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
         <td style='padding-left:1em;' class="delete">
             <a class='css_button iframe'
-               href='../deleter.php?patient="<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+               href='../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
                 <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
             </a>
