@@ -6,7 +6,7 @@ use Symfony\CS\FixerInterface;
 
 // Files and directories that will be scanned
 $finder = DefaultFinder::create()
-    ->exclude(['vendor','Documentation','phpmyadmin','gacl','images','tests'])
+    ->exclude(['vendor','Documentation','gacl','images','tests'])
     ->in(__DIR__);
 
 // CS issues to fix

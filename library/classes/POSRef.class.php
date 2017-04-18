@@ -19,15 +19,15 @@
  */
 
 class POSRef {
-	
+
 	var $pos_ref;
-	
+
 	function __construct($state = "") {
 		$this->pos_ref = array();
 		$this->pos_ref = POSRef::init_pos();
 		$this->pos_ref = array_merge ($this->pos_ref,$this->state_overides($state));
 	}
-	
+
 	function init_pos() {
 		$pos = array();
 		$pos[] = array ("code" => "01","title" => xl("Pharmacy") . " **", "description" => "A facility or location where drugs and other medically related items and services are sold, dispensed, or otherwise provided directly to patients.");
@@ -141,7 +141,7 @@ class POSRef {
 		}
 		return $pos;
 	}
-	
+
 	function get_pos_ref() {
 		return $this->pos_ref;
 	}

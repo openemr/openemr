@@ -30,16 +30,11 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
-require_once(dirname(__FILE__) . "/../../library/classes/OFX.class.php");
-require_once(dirname(__FILE__) . "/../../library/classes/X12Partner.class.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/payment.inc.php");
 //===============================================================================
 	$screen='new_payment';
@@ -91,7 +86,7 @@ if ($mode == "new_payment" || $mode == "distribute")
         "', payment_method = '"   . trim(formData('payment_method'   )) .
         "'");
 }
- 
+
 //===============================================================================
 //ar_activity addition code
 //===============================================================================
@@ -118,12 +113,12 @@ if ($mode == "PostPayments" || $mode == "FinishPayments")
     $mode = "search";
 	$_POST['mode'] = $mode;
 }
- 
+
 //==============================================================================
 //===============================================================================
 $payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
 //===============================================================================
-$DateFormat=DateFormatRead();
+
 //==============================================================================
 //===============================================================================
 ?>
@@ -131,19 +126,19 @@ $DateFormat=DateFormatRead();
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+
+
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
 <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
- <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+ <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script LANGUAGE="javascript" TYPE="text/javascript">
 function CancelDistribute()
  {//Used in the cancel button.Helpful while cancelling the distribution.
@@ -289,6 +284,16 @@ function FillUnappliedAmount()
  {//Filling the amount
   document.getElementById('TdUnappliedAmount').innerHTML=document.getElementById('payment_amount').value;
  }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 </script>
 <script language="javascript" type="text/javascript">
 document.onclick=HideTheAjaxDivs;
@@ -316,6 +321,8 @@ document.onclick=HideTheAjaxDivs;
 }
 </style>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 </head>
 <body class="body_top" onLoad="OnloadAction()"  >
 <form name='new_payment' method='post'  action="new_payment.php"  onsubmit='
@@ -351,7 +358,7 @@ return false;
   </tr>
   <tr>
     <td colspan="3" align="left" >
-    <?php 
+    <?php
 	require_once("payment_master.inc.php"); //Check/cash details are entered here.
 	?>
 	</td>
@@ -366,7 +373,7 @@ return false;
 	  <tr>
 		<td colspan="13" align="left" >
 				<!--Distribute section-->
-				<?php 
+				<?php
 				if($PaymentType=='patient' && $default_search_patient != "default_search_patient")
 				 {
 				  $default_search_patient = "default_search_patient";
@@ -381,7 +388,7 @@ return false;
 		  </tr>
 		  <tr>
 			<td colspan="13" align="left" >
-				<?php 
+				<?php
 				if($CountIndexBelow>0)
 				 {
 				?>

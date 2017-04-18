@@ -8,8 +8,6 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-require_once("ORDataObject.class.php");
-require_once("InsuranceNumbers.class.php");
 /**
  * class Provider
  *
@@ -118,7 +116,7 @@ class Provider extends ORDataObject{
         function get_npi() {
                 return $this->npi;
         }
-        
+
         function get_state_license_number() {
                 return $this->state_license_number;
         }

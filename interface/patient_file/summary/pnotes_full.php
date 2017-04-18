@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -31,9 +31,7 @@ require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/classes/Document.class.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
-require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
 if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
@@ -185,7 +183,7 @@ $result_sent = getSentPnotesByDate("", $active, 'id,date,body,user,activity,titl
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -240,7 +238,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
     <div>
         <span class="title"><?php echo xlt('Patient Notes') . $title_docname; ?></span>
     </div>
-    <div style='float:left;margin-right:10px'>
+    <div id='namecontainer_pnotes' class='namecontainer_pnotes' style='float:left;margin-right:10px'>
         <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
       <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
     </div>

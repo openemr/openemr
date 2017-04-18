@@ -5,7 +5,7 @@
 * Functions to allow safe access control modifications
 * during upgrading.
 *
-* Copyright (C) 2012 Brady Miller <brady@sparmy.com>
+* Copyright (C) 2012 Brady Miller <brady.g.miller@gmail.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -19,9 +19,13 @@
 * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
-* @author    Brady Miller <brady@sparmy.com>
+* @author    Brady Miller <brady.g.miller@gmail.com>
 * @link      http://www.open-emr.org
 */
+
+// Making global to be accessed in subsequent function scopes
+global $versionService;
+$versionService = new \services\VersionService();
 
 /**
  * Returns the current access control version.
@@ -29,8 +33,9 @@
  * @return  integer  The current access control version.
  */
 function get_acl_version() {
-  $acl_version = sqlQuery("SELECT `v_acl` FROM `version`");
-  return $acl_version['v_acl'];
+  global $versionService;
+  $version = $versionService->fetch();
+  return $version->getAcl();
 }
 
 /**
@@ -39,7 +44,11 @@ function get_acl_version() {
  * @param  integer  $acl_version  access control version
  */
 function set_acl_version($acl_version) {
-  sqlStatement("UPDATE `version` SET `v_acl` = ?", array($acl_version) );
+  global $versionService;
+  $version = $versionService->fetch();
+  $version->setAcl($acl_version);
+  $response = $versionService->update($version);
+  return $response;
 }
 
 /**

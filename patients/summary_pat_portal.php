@@ -40,12 +40,8 @@ global $ignoreAuth;
  require_once("../interface/globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/acl.inc");
- require_once("$srcdir/classes/Address.class.php");
- require_once("$srcdir/classes/InsuranceCompany.class.php");
- require_once("$srcdir/classes/Document.class.php");
  require_once("$srcdir/options.inc.php");
  require_once("../interface/patient_file/history/history.inc.php");
- require_once("$srcdir/formatting.inc.php");
  require_once("$srcdir/edi.inc");
  include_once("$srcdir/lists.inc");
 
@@ -61,7 +57,7 @@ global $ignoreAuth;
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $web_root; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -177,8 +173,8 @@ $(document).ready(function(){
                   }
           });
       });
-      
-      
+
+
       refreshAppointments();
 
     // fancy box
@@ -200,7 +196,7 @@ $(document).ready(function(){
     'centerOnScroll' : false,
     'autoscale' : true
   });
-  
+
   $(".add_event").fancybox( {
   	'overlayOpacity' : 0.0,
     'showCloseButton' : true,
@@ -514,7 +510,7 @@ $(document).ready(function(){
            </div>
           </div>
           <br/>
-          
+
          </div>
         </td>
        </tr>
@@ -575,12 +571,12 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $fixedWidth = true;
                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
 
-                </div>         
+                </div>
 
-           
+
                         </td>
                 </tr>
-              
+
        <tr>
        <td width='650px'>
 <?php
@@ -602,7 +598,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 </div>
 
      </td>
-    </tr>		
+    </tr>
 
     <tr>
      <td width='650px'>
@@ -625,7 +621,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
      </td>
     </tr>
-	
+
 <!-- Amendments -->
 <?php if ( $GLOBALS['amendments'] ) { ?>
 	<tr>
@@ -643,11 +639,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
   $widgetAuth, $fixedWidth);
 ?>
-                    
+
 <br/>
 	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
 	</td>
-	</tr>		
+	</tr>
 <?php } ?>
     <tr>
       <td width='650px'>

@@ -14,7 +14,7 @@
 * $upgrade_acl = <acl_version_here>;
 * if ($acl_version < $upgrade_acl) {
 *   echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
-* 
+*
 *   //Collect the ACL ID numbers.
 *   echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
 *
@@ -88,9 +88,17 @@
 *   4.1.3
 *     Section "menus" (Menus)
 *       ADD modle Module (Administrators, Emergency Login)
+*   5.0.1
+*     Section "patients" (Patients):
+*       ADD  reminder    Patient Reminders         (Physicians)
+*       ADD  alert       Clinical Reminders/Alerts (Physicians)
+*       ADD  disclosure  Disclosures               (Physicians)
+*       ADD  rx          Prescriptions             (Physicians)
+*       ADD  amendment   Amendments                (Physicians)
+*       ADD  lab         Lab Results               (Physicians)
 * </pre>
 *
-* Copyright (C) 2012 Brady Miller <brady@sparmy.com>
+* Copyright (C) 2012 Brady Miller <brady.g.miller@gmail.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -104,9 +112,17 @@
 * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
-* @author    Brady Miller <brady@sparmy.com>
+* @author    Brady Miller <brady.g.miller@gmail.com>
 * @link      http://www.open-emr.org
 */
+
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
 
 $ignoreAuth = true; // no login required
 
@@ -336,7 +352,7 @@ if ($acl_version < $upgrade_acl) {
 
   //Collect the ACL ID numbers.
   echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
-  
+
   //Add new object Sections
   echo "<BR/><B>Adding new object sections</B><BR/>";
 
@@ -405,9 +421,163 @@ if ($acl_version < $upgrade_acl) {
   $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 4
 $upgrade_acl = 4;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+  //Get Administrator ACL ID number
+  $admin_write = getAclIdNumber('Administrators', 'write');
+  //Get Doctor ACL ID Number
+  $doc_write = getAclIdNumber('Physicians', 'write');
+  //Get Clinician ACL with write access ID number
+  $clin_write = getAclIdNumber('Clinicians', 'write');
+  //Get Clinician ACL with addonly access ID number
+  $clin_addonly = getAclIdNumber('Clinicians', 'addonly');
+  //Get Receptionist ACL ID number
+  $front_write = getAclIdNumber('Front Office', 'write');
+  //Get Accountant ACL ID number
+  $back_write = getAclIdNumber('Accounting', 'write');
+
+  //Add new object Sections
+  // echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+  // Add 'Patient Reminders (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'reminder'  , 'Patient Reminders (write,addonly optional)');
+  // Add 'Clinical Reminders/Alerts (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'alert'     , 'Clinical Reminders/Alerts (write,addonly optional)');
+  // Add 'Disclosures (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'disclosure', 'Disclosures (write,addonly optional)');
+  // Add 'Prescriptions (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'rx'        , 'Prescriptions (write,addonly optional)');
+  // Add 'Amendments (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'amendment' , 'Amendments (write,addonly optional)');
+  // Add 'Lab Results (write,addonly optional)' object (added in 5.0.1)
+  addObjectAcl('patients', 'Patients', 'lab'       , 'Lab Results (write,addonly optional)');
+
+  //Update already existing Objects
+  // echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  // echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+  //Insert the 'reminder' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'reminder', 'Patient Reminders (write,addonly optional)', 'write');
+  //Insert the 'alert' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'alert', 'Clinical Reminders/Alerts (write,addonly optional)', 'write');
+  //Insert the 'disclosure' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'disclosure', 'Disclosures (write,addonly optional)', 'write');
+  //Insert the 'rx' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'rx', 'Prescriptions (write,addonly optional)', 'write');
+  //Insert the 'amendment' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'amendment', 'Amendments (write,addonly optional)', 'write');
+  //Insert the 'lab' object from the 'patients' section into the Physicians group write ACL (added in 5.0.1)
+  updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'lab', 'Lab Results (write,addonly optional)', 'write');
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 5
+$upgrade_acl = 5;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+*/
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 6
+$upgrade_acl = 6;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+*/
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 7
+$upgrade_acl = 7;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+*/
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 8
+$upgrade_acl = 8;
 if ($acl_version < $upgrade_acl) {
   echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
 
@@ -436,7 +606,12 @@ if ($acl_version < $upgrade_acl) {
 */
 
 //All done
-set_acl_version($acl_version);
-echo "DONE upgrading access controls";
+$response = set_acl_version($acl_version);
+
+if ($response) {
+  echo "DONE upgrading access controls";
+} else {
+  echo "ERROR upgrading access control version";
+}
 
 ?>

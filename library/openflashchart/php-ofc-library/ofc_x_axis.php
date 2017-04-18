@@ -2,14 +2,14 @@
 
 class x_axis
 {
-	function x_axis(){}
+	public function __construct(){}
 
 	/**
 	 * @param $stroke as integer, with of the line and ticks
 	 */
 	function set_stroke( $stroke )
 	{
-		$this->stroke = $stroke;
+		$this->stroke = $stroke;	
 	}
 	
 	function stroke( $stroke )
@@ -33,7 +33,7 @@ class x_axis
 	 */
 	function set_colour( $colour )
 	{
-		$this->colour = $colour;
+		$this->colour = $colour;	
 	}
 	
 	function colour( $colour )
@@ -72,7 +72,7 @@ class x_axis
 	 */
 	function set_offset( $o )
 	{
-		$this->offset = $o?true:false;
+		$this->offset = $o?true:false;	
 	}
 	
 	function offset( $o )
@@ -102,7 +102,7 @@ class x_axis
 	function set_3d( $val )
 	{
 		$tmp = '3d';
-		$this->$tmp				= $val;
+		$this->$tmp				= $val;		
 	}
 	
 	/**

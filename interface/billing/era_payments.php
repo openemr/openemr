@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
@@ -33,7 +33,6 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/formatting.inc.php");
 //===============================================================================
 // This is called back by parse_era() if we are processing X12 835's.
 $alertmsg = '';
@@ -77,28 +76,24 @@ function era_callback(&$out) {
     rename($tmp_name, $erafullname);
   } // End 835 upload
 //===============================================================================
-$DateFormat=DateFormatRead();
+
 //===============================================================================
 ?>
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
@@ -128,7 +123,7 @@ function Validate()
 function OnloadAction()
  {//Displays message after upload action,and popups the details.
   after_value=document.getElementById('after_value').value;
-  if(after_value!='') 
+  if(after_value!='')
    {
     alert(after_value);
    }
@@ -146,6 +141,16 @@ function OnloadAction()
   }
   ?>
  }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 </script>
 <script language="javascript" type="text/javascript">
 document.onclick=HideTheAjaxDivs;
@@ -175,10 +180,10 @@ document.onclick=HideTheAjaxDivs;
   </tr>
   <tr>
     <td colspan="3" align="left">
-		<ul class="tabNav"> 
-		 <li><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li> 
-		 <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li> 
-		 <li class='current'><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li> 
+		<ul class="tabNav">
+		 <li><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
+		 <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
+		 <li class='current'><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
 		</ul>	</td>
   </tr>
   <tr>
@@ -202,51 +207,36 @@ document.onclick=HideTheAjaxDivs;
 	  <tr>
 	    <td  align="left"  class="text"></td>
 	    <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
-	    <td  align="left"  class="text"><input type='text' size='6' name='check_date' id='check_date' value="<?php echo formData('check_date') ?>"  class="class1 text " onKeyDown="PreventIt(event)" />
-		<img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='texttop' 
-		id='img_checkdate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"check_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_checkdate"});
-	   </script></td>
+	    <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='check_date' id='check_date' value="<?php echo formData('check_date') ?>"  class="class1 text " onKeyDown="PreventIt(event)" />
+		</td>
 	    <td  align="left"  class="text"><input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
    <input name="form_erafile" id="uploadedfile"  type="file" class="text" size="10" style="display:inline" /></td>
 	    </tr>
 	  <tr>
 	    <td  align="left"  class="text"></td>
 	    <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
-	    <td  align="left"  class="text"><input type='text' size='6' name='post_to_date' id='post_to_date'  value="<?php echo formData('post_to_date') ?>" class="class1 text "   onKeyDown="PreventIt(event)"  />
-		<img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='texttop' 
-		id='img_post_to_date' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"post_to_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_post_to_date"});
-	   </script></td>
+	    <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='post_to_date' id='post_to_date'  value="<?php echo formData('post_to_date') ?>" class="class1 text "   onKeyDown="PreventIt(event)"  />
+		</td>
 	    <td  align="left"  class="text"><input type='checkbox' name='form_without' value='1' <?php echo $_REQUEST['form_without']*1==1 || ($_REQUEST['form_without']*1==0 && !isset($_FILES['form_erafile'])) ? "checked" : '' ?>/> <?php echo htmlspecialchars( xl('Without Update'), ENT_QUOTES); ?></td>
 	    </tr>
 	  <tr>
 	    <td  align="left"  class="text"></td>
 	    <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
-	    <td  align="left"  class="text"><input type='text' size='6' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="text " value="<?php echo formData('deposit_date') ?>"    />
-		<img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='texttop' 
-		id='img_depositdate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"deposit_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_depositdate"});
-	   </script></td>
+	    <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="text " value="<?php echo formData('deposit_date') ?>"    />
+		</td>
 	    <td  align="left"  class="text"></td>
 	    </tr>
 	  <tr>
 	    <td  align="left"  class="text"></td>
 	    <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Insurance'), ENT_QUOTES).':' ?></td>
 	    <td colspan="2"  align="left"  class="text">
-		
-		
+
+
 		<table width="335" border="0" cellspacing="0" cellpadding="0">
 			  <tr>
 				<td width="280">
 				<input type="hidden" id="hidden_ajax_close_value" value="<?php echo formData('type_code') ?>" /><input name='type_code'  id='type_code' class="text "
-				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo formData('type_code') ?>"  autocomplete="off"   /><br> 
+				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo formData('type_code') ?>"  autocomplete="off"   /><br>
 				<!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
 					<div id='ajax_div_insurance_section'>
 					<div id='ajax_div_insurance_error'>
@@ -259,13 +249,13 @@ document.onclick=HideTheAjaxDivs;
 				<td width="50" style="padding-left:5px;"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;"><?php echo formData('hidden_type_code') ?></div><input type="hidden" name="description"  id="description" /></td>
 			  </tr>
 			</table>
-		
-		
-		
-		
+
+
+
+
 		</td>
 	    </tr>
-	  
+
 	  <tr height="5">
 	    <td colspan="4"  align="center" ><table  border="0" cellspacing="0" cellpadding="0">
   <tr>

@@ -18,7 +18,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
@@ -27,7 +26,7 @@ $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] :
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <?php
 // Format dollars for display.
@@ -152,10 +151,10 @@ if ($_POST['form_save']) {
 			", post_to_date = now() " .
 			", payment_method = ?",
 			array(0,$form_pid,$_SESSION['authUserID'],0,$form_source,$_REQUEST['form_prepayment'],$NameNew,$form_method));
-	
+
 		 frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
 	 }
-  
+
   if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment']!='pre_payment') {
     foreach ($_POST['form_upay'] as $enc => $payment) {
       if ($amount = 0 + $payment) {
@@ -241,7 +240,7 @@ if ($_POST['form_save']) {
 						array($form_pid,$enc));//new fees screen copay gives account_code='PCP'
 					$rowMoneyGot = sqlFetchArray($resMoneyGot);
 					$Copay=$rowMoneyGot['PatientPay'];
-					
+
 	//--------------------------------------------------------------------------------------------------------------------
 
 					//Looping the existing code and modifier
@@ -254,7 +253,7 @@ if ($_POST['form_save']) {
 						$Code=$RowSearch['code'];
 						$Modifier =$RowSearch['modifier'];
 						$Fee =$RowSearch['fee'];
-						
+
 						$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where pid =? ".
 							"and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
 						array($form_pid,$Codetype,$Code,$Modifier,$enc));
@@ -267,7 +266,7 @@ if ($_POST['form_save']) {
 						  array($form_pid,$Codetype,$Code,$Modifier,$enc));
 						$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 						$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
-						
+
 						$Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 						$Copay=0;
 						if(round($Remainder,2)!=0 && $amount!=0)
@@ -326,7 +325,7 @@ if ($_POST['form_save']) {
 
 	//--------------------------------------------------------------------------------------------------------------------
 			   }//invoice_balance
-			}//if ($amount = 0 + $payment) 
+			}//if ($amount = 0 + $payment)
 		}//foreach
 	 }//if ($_POST['form_upay'])
   }//if ($_POST['form_save'])
@@ -375,7 +374,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -511,7 +510,7 @@ $(document).ready(function() {
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 
 
@@ -522,11 +521,11 @@ $(document).ready(function() {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.easydrag.handler.beta2.js"></script> 
+<script type="text/javascript" src="../../library/js/jquery.easydrag.handler.beta2.js"></script>
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
@@ -555,7 +554,7 @@ function calctotal() {
 }
 function coloring()
  {
-   for (var i = 1; ; ++i) 
+   for (var i = 1; ; ++i)
     {
 	  if(document.getElementById('paying_'+i))
 	   {
@@ -622,7 +621,7 @@ function validate()
    }
   if(document.getElementById('radio_type_of_payment_self1').checked==true || document.getElementById('radio_type_of_payment_self2').checked==true || document.getElementById('radio_type_of_payment1').checked==true || document.getElementById('radio_type_of_payment5').checked==true)
    {
-	 for (var i = 0; i < f.elements.length; ++i) 
+	 for (var i = 0; i < f.elements.length; ++i)
 	 {
 	  var elem = f.elements[i];
 	  var ename = elem.name;
@@ -645,10 +644,10 @@ function validate()
 	}
    }
 
-  if(document.getElementById('radio_type_of_payment1').checked==true)//CO-PAY 
+  if(document.getElementById('radio_type_of_payment1').checked==true)//CO-PAY
    {
 	 var total = 0;
-	 for (var i = 0; i < f.elements.length; ++i) 
+	 for (var i = 0; i < f.elements.length; ++i)
 	 {
 	  var elem = f.elements[i];
 	  var ename = elem.name;
@@ -674,11 +673,11 @@ function validate()
   {
    if(document.getElementById('Today').innerHTML=='')
     {
-	 for (var i = 0; i < f.elements.length; ++i) 
+	 for (var i = 0; i < f.elements.length; ++i)
 	  {
 	   var elem = f.elements[i];
 	   var ename = elem.name;
-	   if (ename.indexOf('form_upay[') == 0) 
+	   if (ename.indexOf('form_upay[') == 0)
 		{
 		 if (elem.value*1 > 0)
 		  {
@@ -706,11 +705,11 @@ function cursor_pointer()
  {//Point the cursor to the latest encounter(Today)
 	 var f = document.forms[0];
 	 var total = 0;
-	 for (var i = 0; i < f.elements.length; ++i) 
+	 for (var i = 0; i < f.elements.length; ++i)
 	 {
 	  var elem = f.elements[i];
 	  var ename = elem.name;
-	  if (ename.indexOf('form_upay[') == 0) 
+	  if (ename.indexOf('form_upay[') == 0)
 	  {
 	   elem.focus();
 	   break;
@@ -724,13 +723,13 @@ function make_it_hide_enc_pay()
   	document.getElementById('td_head_patient_co_pay').style.display="none";
   	document.getElementById('td_head_co_pay').style.display="none";
   	document.getElementById('td_head_insurance_balance').style.display="none";
-  for (var i = 1; ; ++i) 
+  for (var i = 1; ; ++i)
   {
    	var td_inspaid_elem = document.getElementById('td_inspaid_'+i)
 		var td_patient_copay_elem = document.getElementById('td_patient_copay_'+i)
    	var td_copay_elem = document.getElementById('td_copay_'+i)
    	var balance_elem = document.getElementById('balance_'+i)
-   if (td_inspaid_elem) 
+   if (td_inspaid_elem)
    {
     td_inspaid_elem.style.display="none";
 		td_patient_copay_elem.style.display="none";
@@ -746,7 +745,7 @@ function make_it_hide_enc_pay()
   document.getElementById('td_total_7').style.display="none";
 	document.getElementById('td_total_8').style.display="none";
   document.getElementById('td_total_6').style.display="none";
- 
+
   document.getElementById('table_display').width="420px";
  }
 
@@ -762,7 +761,7 @@ function make_visible()
   document.getElementById('td_head_co_pay').style.display="none";
   document.getElementById('td_head_insurance_balance').style.display="none";
   document.getElementById('td_head_patient_balance').style.display="none";
-  for (var i = 1; ; ++i) 
+  for (var i = 1; ; ++i)
   {
    var td_charges_elem = document.getElementById('td_charges_'+i)
    var td_inspaid_elem = document.getElementById('td_inspaid_'+i)
@@ -771,7 +770,7 @@ function make_visible()
    var td_copay_elem = document.getElementById('td_copay_'+i)
    var balance_elem = document.getElementById('balance_'+i)
    var duept_elem = document.getElementById('duept_'+i)
-   if (td_charges_elem) 
+   if (td_charges_elem)
    {
     td_charges_elem.style.display="none";
     td_inspaid_elem.style.display="none";
@@ -794,7 +793,7 @@ function make_visible()
   document.getElementById('td_total_4').style.display="none";
   document.getElementById('td_total_5').style.display="none";
   document.getElementById('td_total_6').style.display="none";
- 
+
   document.getElementById('table_display').width="505px";
  }
 function make_it_hide()
@@ -808,7 +807,7 @@ function make_it_hide()
 	document.getElementById('td_head_co_pay').style.display="";
   document.getElementById('td_head_insurance_balance').style.display="";
   document.getElementById('td_head_patient_balance').style.display="";
-  for (var i = 1; ; ++i) 
+  for (var i = 1; ; ++i)
   {
    var td_charges_elem = document.getElementById('td_charges_'+i)
    var td_inspaid_elem = document.getElementById('td_inspaid_'+i)
@@ -817,7 +816,7 @@ function make_it_hide()
    var td_copay_elem = document.getElementById('td_copay_'+i)
    var balance_elem = document.getElementById('balance_'+i)
    var duept_elem = document.getElementById('duept_'+i)
-   if (td_charges_elem) 
+   if (td_charges_elem)
    {
     td_charges_elem.style.display="";
     td_inspaid_elem.style.display="";
@@ -840,7 +839,7 @@ function make_it_hide()
   document.getElementById('td_total_6').style.display="";
 	document.getElementById('td_total_7').style.display="";
   document.getElementById('td_total_8').style.display="";
- 
+
   document.getElementById('table_display').width="635px";
  }
 function make_visible_radio()
@@ -926,7 +925,7 @@ function make_insurance()
   </select>
   </td>
  </tr>
- 
+
  <tr height="5"><td colspan='3'></td></tr>
 
  <tr>
@@ -1063,7 +1062,7 @@ function make_insurance()
   $query = "SELECT fe.encounter, s.drug_id, s.fee, " .
     "LEFT(fe.date, 10) AS encdate,fe.last_level_closed " .
     "FROM form_encounter AS fe left join drug_sales AS s " .
-    "on s.pid = ? AND s.fee != 0 " .//AND s.billed = 0 
+    "on s.pid = ? AND s.fee != 0 " .//AND s.billed = 0
     "AND fe.pid = s.pid AND fe.encounter = s.encounter " .
 	"where fe.pid = ? " .
     "ORDER BY s.encounter";

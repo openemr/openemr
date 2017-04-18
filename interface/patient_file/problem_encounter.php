@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
- * Copyright (C) 2015 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2015 Brady Miller <brady.g.miller@gmail.com>
  * 
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -79,6 +79,8 @@
   ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
   . "<script language='JavaScript'>\n";
   if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
+  echo " var myboss = opener ? opener : parent;\n";
+  echo " myboss.location.reload();\n";
   echo " window.close();\n";
   echo "</script></body></html>\n";
   exit();
@@ -108,7 +110,7 @@ tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

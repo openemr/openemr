@@ -2,7 +2,7 @@
 <head>
 <!-- Get the style sheet for the theme defined in globals.php -->
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['css_header'][-/php-]" type="text/css">
-<link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/font-awesome-4-6-3/css/font-awesome.min.css">  
+<link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/font-awesome-4-6-3/css/font-awesome.min.css">
 
 [-if $cal_ui eq 3-]
 <!-- this style sheet is used for the ajax_* style calendars -->
@@ -12,7 +12,7 @@
 <![endif]-->
 
 <!-- the javascript used for the ajax_* style calendars -->
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $v_js_includes; [-/php-]"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/textformat.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-1-6-4/index.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/calendarDirectSelect.js"></script>

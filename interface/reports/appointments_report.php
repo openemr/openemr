@@ -1,29 +1,42 @@
 <?php
-// Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This report shows upcoming appointments with filtering and
+ * sorting by patient, practitioner, appointment type, and date.
+ * 2012-01-01 - Added display of home and cell phone and fixed header
+ * 2015-06-19 - brought up to security standards terry@lillysystems.com
+ *
+ * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
-// This report shows upcoming appointments with filtering and
-// sorting by patient, practitioner, appointment type, and date.
-// 2012-01-01 - Added display of home and cell phone and fixed header
-// 2015-06-19 - brought up to security standards terry@lillysystems.com
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 # Clear the pidList session whenever load this page.
-# This session will hold array of patients that are listed in this 
+# This session will hold array of patients that are listed in this
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
 unset($_SESSION['pidList']);
@@ -102,13 +115,14 @@ function fetch_reminders($pid, $appt_date) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Appointments Report'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
 
@@ -117,6 +131,15 @@ function fetch_reminders($pid, $appt_date) {
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
+
+  $('.datepicker').datetimepicker({
+   <?php $datetimepicker_timepicker = false; ?>
+   <?php $datetimepicker_showseconds = false; ?>
+   <?php $datetimepicker_formatInput = false; ?>
+   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+
  });
 
  function dosort(orderby) {
@@ -185,10 +208,10 @@ function fetch_reminders($pid, $appt_date) {
 
 		<table class='text'>
 			<tr>
-				<td class='label'><?php echo xlt('Facility'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
 				<td><?php dropdown_facility($facility , 'form_facility'); ?>
 				</td>
-				<td class='label'><?php echo xlt('Provider'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
 				<td><?php
 
 				// Build a drop-down list of providers.
@@ -214,26 +237,22 @@ function fetch_reminders($pid, $appt_date) {
 				</td>
 			</tr>
 			<tr>
-				<td class='label'><?php echo xlt('From'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('From'); ?>:</td>
 				<td><input type='text' name='form_from_date' id="form_from_date"
+				    class='datepicker'
 					size='10' value='<?php echo attr($from_date) ?>'
-					onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-					title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
-					align='absbottom' width='24' height='22' id='img_from_date'
-					border='0' alt='[?]' style='cursor: pointer'
-					title='<?php echo xlt('Click here to choose a date'); ?>'></td>
-				<td class='label'><?php echo xlt('To'); ?>:</td>
+					title='yyyy-mm-dd'>
+				</td>
+				<td class='label_custom'><?php echo xlt('To'); ?>:</td>
 				<td><input type='text' name='form_to_date' id="form_to_date"
+				    class='datepicker'
 					size='10' value='<?php echo attr($to_date) ?>'
-					onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-					title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif'
-					align='absbottom' width='24' height='22' id='img_to_date'
-					border='0' alt='[?]' style='cursor: pointer'
-					title='<?php echo xlt('Click here to choose a date'); ?>'></td>
+					title='yyyy-mm-dd'>
+				</td>
 			</tr>
-			
+
 			<tr>
-				<td class='label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+				<td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
 				<td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
 				<td><?php echo xlt('Category') #category drop down creation ?>:</td>
 				<td>
@@ -260,10 +279,10 @@ function fetch_reminders($pid, $appt_date) {
 					<?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
 				</label></td>
 			    <td></td>
-                <td><label><input type="checkbox" name="incl_reminders" id="incl_reminders" 
+                <td><label><input type="checkbox" name="incl_reminders" id="incl_reminders"
                     <?php echo ($incl_reminders ? ' checked':''); # This will include the reminder for the patients on the report ?>>
                     <?php echo xlt('Show Reminders'); ?></label></td>
-			
+
 			<tr>
 			    <td></td>
                 <?php # these two selects will show entries that do not have a facility or a provider ?>
@@ -271,7 +290,7 @@ function fetch_reminders($pid, $appt_date) {
 			    <td></td>
 				<td><label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php echo xlt('Without Facility'); ?></label></td>
 			</tr>
-			
+
 		</table>
 
 		</div>
@@ -283,14 +302,14 @@ function fetch_reminders($pid, $appt_date) {
 				<td>
 				<div style='margin-left: 15px'>
                                 <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-				<span> <?php echo xlt('Submit'); ?> </span> </a> 
+				<span> <?php echo xlt('Submit'); ?> </span> </a>
                                 <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-        <a href='#' class='css_button' id='printbutton'> 
-                                    <span> <?php echo xlt('Print'); ?> </span> </a> 
-                                <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'> 
-                                    <span> <?php echo xlt('Superbills'); ?> </span> </a> 
-                               <a href='#' class='css_button' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'> 
-                                    <span> <?php echo xlt('Address Labels'); ?> </span> </a> 
+        <a href='#' class='css_button' id='printbutton'>
+                                    <span> <?php echo xlt('Print'); ?> </span> </a>
+                                <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'>
+                                    <span> <?php echo xlt('Superbills'); ?> </span> </a>
+                               <a href='#' class='css_button' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'>
+                                    <span> <?php echo xlt('Address Labels'); ?> </span> </a>
                                 <?php } ?></div>
 				</td>
 			</tr>
@@ -332,11 +351,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
          	<th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
 
                 <th><?php echo xlt('Cell'); //Sorting by phone# not really useful ?></th>
-                
+
 		<th><a href="nojs.php" onclick="return dosort('type')"
 	<?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Type'); ?></a>
 		</th>
-		
+
 		<th><a href="nojs.php" onclick="return dosort('status')"
 			<?php if ($form_orderby == "status") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Status'); ?></a>
 		</th>
@@ -356,7 +375,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 $form_apptcat=intval($_POST['form_apptcat']);
             }
         }
-            
+
 	//Without provider and facility data checking
 	$with_out_provider = null;
 	$with_out_facility = null;
@@ -364,12 +383,12 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	if( isset($_POST['with_out_provider']) ){
 		$with_out_provider = $_POST['with_out_provider'];
 	}
-	
+
 	if( isset($_POST['with_out_facility']) ){
 		$with_out_facility = $_POST['with_out_facility'];
 	}
 	$appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility,$form_apptcat );
-	
+
 	if ( $show_available_times ) {
 		$availableSlots = getAvailableSlots( $from_date, $to_date, $provider, $facility );
 		$appointments = array_merge( $appointments, $availableSlots );
@@ -378,12 +397,12 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	$appointments = sortAppointments( $appointments, $form_orderby );
     $pid_list = array();  // Initialize list of PIDs for Superbill option
     $totalAppontments = count($appointments);
-	
+
 	foreach ( $appointments as $appointment ) {
                 array_push($pid_list,$appointment['pid']);
 		$patient_id = $appointment['pid'];
 		$docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
-                
+
         $errmsg  = "";
 		$pc_apptstatus = $appointment['pc_apptstatus'];
 
@@ -409,7 +428,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         <td class="detail">&nbsp;<?php echo text($appointment['phone_cell']) ?></td>
 
 		<td class="detail">&nbsp;<?php echo text(xl_appt_category($appointment['pc_catname'])) ?></td>
-		
+
 		<td class="detail">&nbsp;
 			<?php
 				//Appointment Status
@@ -477,18 +496,5 @@ if ($alertmsg) { echo " alert('$alertmsg');\n"; }
 </script>
 
 </body>
-
-<!-- stuff for the popup calendar -->
-<style type="text/css">
-    @import url(../../library/dynarch_calendar.css);
-</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript"
-	src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript">
- Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-</script>
 
 </html>

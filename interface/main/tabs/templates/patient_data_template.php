@@ -25,6 +25,10 @@
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
+            <span style="float:left;" class="fa-stack"><a data-bind="click: viewPtFinder" href="#">
+                <i class="fa fa-list fa-stack-1x" aria-hidden="true"></i>
+                <strong><i style="margin: 10px 0 0 10px;" class="fa fa-search fa-stack-x" aria-hidden="true"></i></strong>
+            </a></span>
             <div class="patientInfo">
                 <?php echo xlt("Patient"); ?>:
                 <!-- ko if: patient -->

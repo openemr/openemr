@@ -3,6 +3,7 @@
  * add or edit a medical problem.
  *
  * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,6 +12,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -29,10 +31,8 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 ?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
 
 if (isset($ISSUE_TYPES['football_injury'])) {
@@ -60,8 +60,9 @@ $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
-if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not authorized!"));
-if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
+if ($thistype && !$issue && !acl_check_issue($thistype, '', array('write', 'addonly'))) {
+  die(xlt("Add is not authorized!"));
+}
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -71,7 +72,6 @@ function QuotedOrNull($fld) {
   if ($fld) return "'".add_escape_custom($fld)."'";
   return "NULL";
 }
-
 
 // Do not use this function since quotes are added in query escaping mechanism
 // Only keeping since used in the football injury code football_injury.inc.php that is included.
@@ -134,7 +134,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
     $modeIssueTypes[$idx2] = $issueTypeX;
     $issueTypeIdx2[$issueTypeX] = $idx2;
     ++$idx2;
-  
+
   }
 
   $pe2 = array($thispid2);
@@ -181,7 +181,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
       list($codeTyX,) = explode(":", $listCode2);
 
       if (in_array($codeTyX, $allowCodes2)) {
-            
+
         array_push($memberCodes[$akey1], $listCode2);
 
       }
@@ -201,7 +201,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
   foreach ($displayCodeSets as $akey => $displayCodeSet) {
 
     echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
-  
+
     if ($displayCodeSet) {
 
       foreach ($displayCodeSet as $dispCode2) {
@@ -210,9 +210,9 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
         echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option('" . attr($dispCode2) . " (" . attr(trim($codeDesc2)) . ") ' ,'" . attr($dispCode2) . "' , false, false);\n";
 
       }
-    
+
     }
- 
+
   }
 
   // map issues to a set of display options
@@ -361,10 +361,15 @@ if ($_POST['form_save']) {
 }
 
 $irow = array();
-if ($issue)
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?",array($issue));
-else if ($thistype)
+if ($issue) {
+  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
+  if (!acl_check_issue($irow['type'], '', 'write')) {
+    die(xlt("Edit is not authorized!"));
+  }
+}
+else if ($thistype) {
   $irow['type'] = $thistype;
+}
 
 $type_index = 0;
 
@@ -381,6 +386,7 @@ if (!empty($irow['type'])) {
 
 <title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 
@@ -400,12 +406,9 @@ div.section {
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-<?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -428,7 +431,7 @@ div.section {
   ++$i;
  }
 
-///////////     
+///////////
 ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
 ///////////
 ?>
@@ -564,8 +567,11 @@ function set_related(codetype, code, selector, codedesc) {
  var s = f.form_diagnosis.value;
  var title = f.form_title.value;
  if (code) {
-  if (s.length > 0) s += ';';
-  s += codetype + ':' + code;
+     //disabled duplicate codes
+     if (s.indexOf(codetype + ':' + code) == -1){
+         if (s.length > 0) s += ';';
+         s += codetype + ':' + code;
+     }
  } else {
   s = '';
  }
@@ -620,6 +626,16 @@ function divclick(cb, divid) {
  return true;
 }
 
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 
 </head>
@@ -637,7 +653,7 @@ function divclick(cb, divid) {
   <td>
 <?php
  $index = 0;
- foreach ($ISSUE_TYPES as $value) {
+ foreach ($ISSUE_TYPES as $key => $value) {
   if ($issue || $thistype) {
     if ($index == $type_index) {
       echo text($value[1]);
@@ -646,6 +662,7 @@ function divclick(cb, divid) {
   } else {
     echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
     if ($index == $type_index) echo " checked";
+    if (!acl_check_issue($key, '', array('write','addonly'))) echo " disabled";
     echo " />" . text($value[1]) . "&nbsp;\n";
   }
   ++$index;
@@ -692,26 +709,18 @@ function divclick(cb, divid) {
   <td valign='top' nowrap><b><?php echo xlt('Begin Date'); ?>:</b></td>
   <td>
 
-   <input type='text' size='10' name='form_begin' id='form_begin'
+   <input type='text' size='10' class='datepicker' name='form_begin' id='form_begin'
     value='<?php echo attr($irow['begdate']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_begin' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
   </td>
  </tr>
 
  <tr id='row_enddate'>
   <td valign='top' nowrap><b><?php echo xlt('End Date'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_end' id='form_end'
+   <input type='text' size='10' class='datepicker' name='form_end' id='form_end'
     value='<?php echo attr($irow['enddate']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_end' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
     &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
   </td>
  </tr>
@@ -729,7 +738,7 @@ function divclick(cb, divid) {
    <td>
    <input type='hidden'  name='form_return' id='form_return' />
    <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
-  <img  
+  <img
     id='img_return'/>
   </td>
  </tr>
@@ -768,7 +777,7 @@ function divclick(cb, divid) {
     <td><?php
         $severity=$irow['severity_al'];
         generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
-      ?>  
+      ?>
     </td>
   </tr>
   <tr id='row_reaction'>
@@ -853,9 +862,6 @@ function divclick(cb, divid) {
 </form>
 <script language='JavaScript'>
  newtype(<?php echo $type_index ?>);
- Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
- Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
- Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
 
 <?php validateUsingPageRules($_SERVER['PHP_SELF']);?>

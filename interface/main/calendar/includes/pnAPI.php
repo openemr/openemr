@@ -521,6 +521,9 @@ function pnDBInit()
         $dbconn->Execute("alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'");
     }
 
+    // Sync MySQL time zone with PHP time zone.
+    $dbconn->Execute("SET time_zone = '" . (new DateTime())->format("P") . "'");
+
     return true;
 }
 

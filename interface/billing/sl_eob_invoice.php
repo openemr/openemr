@@ -31,7 +31,6 @@
   require_once("$srcdir/sl_eob.inc.php");
   require_once("$srcdir/invoice_summary.inc.php");
   require_once("../../custom/code_types.inc.php");
-  require_once("$srcdir/formdata.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
 
@@ -319,16 +318,17 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
           "pid = '$patient_id' AND encounter = '$encounter_id'");
 
       if ($_POST['form_secondary']) {
-          arSetupSecondary($patient_id, $encounter_id, $debug);
-        }
-
+        arSetupSecondary($patient_id, $encounter_id, $debug);
+      }
       echo "<script language='JavaScript'>\n";
-      echo " if (opener.document.forms[0].form_amount) {\n";
-      echo "  var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
-      echo "  opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
-      echo " }\n";
+      echo " if (opener.document.forms[0] !== undefined) {\n";
+      echo "   if (opener.document.forms[0].form_amount) {\n";
+      echo "     var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
+      echo "     opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
+      echo "   }\n";
+      echo " }\n"; 
     } else {
-      echo "<script language='JavaScript'>\n";
+        echo "<script language='JavaScript'>\n";
     }
     if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
     if (! $debug) echo " window.close();\n";

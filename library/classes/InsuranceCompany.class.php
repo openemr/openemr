@@ -35,10 +35,6 @@ define ("INS_TYPE_VETERANS_ADMINISTRATION_PLAN",24);
 define ("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN",25);
 define ("INS_TYPE_MUTUALLY_DEFINED",26);
 
-require_once("PhoneNumber.class.php");
-require_once("Address.class.php");
-require_once("X12Partner.class.php");
-require_once("ORDataObject.class.php");
 
 /**
  * class Insurance Company
@@ -183,7 +179,12 @@ class InsuranceCompany extends ORDataObject{
 	function set_zip($zip) {
 		$this->address->set_zip($zip);
 	}
-
+	function set_inactive($inactive){
+		$this->inactive = $inactive;
+	}
+    function get_inactive(){
+		return $this->inactive;
+	}
 	function set_name($name) {
 		$this->name = $name;
 	}

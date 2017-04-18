@@ -13,8 +13,6 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formatting.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
@@ -165,7 +163,7 @@ $(document).ready(function() {
  </tr>
  </thead>
  <tbody>
-<?php 
+<?php
  $lastid = "";
  $encount = 0;
  while ($row = sqlFetchArray($res)) {

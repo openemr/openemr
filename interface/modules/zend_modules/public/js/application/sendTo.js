@@ -258,13 +258,16 @@ function getComponents(val){
 function send(){
 	var send_to = $('input:radio[name="send_to"]:checked').val();	
 	var cover_letter = 0;
+  var latest_ccda = '';
 	if($("#include_coverletter").is(":checked")) cover_letter = 1;
+	if($("#latest_ccda").is(":checked")) latest_ccda = 1;
 	$('.activity_indicator').css({
             "display" :"block"
             });
   $("#downloadccda").val('');
   $("#downloadccr").val('');
   $("#downloadccd").val('');
+  $("#latestccda").val('');
   var comp = '';
     $(".check_component1").each(function(){
 			if($(this).is(":checked")){
@@ -356,7 +359,7 @@ function send(){
             
             $.ajax({
                 type: "POST",
-                url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+str+"&send=1&recipient=hie&components="+comp,
+                url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+str+"&send=1&recipient=hie&components="+comp+"&latest_ccda="+latest_ccda,
                 dataType: "html",
                 data: {
                 },
@@ -425,7 +428,7 @@ function send(){
 		if(recipients != '') {
 			$.ajax({
 			type: "POST",
-			url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+components+"&view=1&emr_transfer=1&recipient=emr_direct&param="+recipients+"&referral_reason="+referral_reason+"&components="+comp,
+			url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+components+"&view=1&emr_transfer=1&recipient=emr_direct&param="+recipients+"&referral_reason="+referral_reason+"&components="+comp+"&latest_ccda="+latest_ccda,
 			dataType: "html",
 			data: {
 			},
@@ -484,10 +487,11 @@ function send(){
       var download_format = $('input:radio[name="downloadformat"]:checked').val();	
       if(download_format == 'ccda') {
         if($('#ccda_pid').val()) {
-          window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="+pid+"&downloadccda=download_ccda&components="+comp);
+          window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="+pid+"&downloadccda=download_ccda&components="+comp+"&latest_ccda="+latest_ccda);
         }
         else {
           $('#components').val(comp);
+          $("#latestccda").val(latest_ccda);
           $('#download_ccda').trigger("click"); 
           $(".check_pid").prop("checked",false);
         }

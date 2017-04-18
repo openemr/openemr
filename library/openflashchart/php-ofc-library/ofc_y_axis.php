@@ -2,7 +2,7 @@
 
 class y_axis extends y_axis_base
 {
-	function y_axis(){}
+	public function __construct(){}
 	
 	/**
 	 * @param $colour as string. The grid are the lines inside the chart.

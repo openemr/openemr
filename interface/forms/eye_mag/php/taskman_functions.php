@@ -65,7 +65,7 @@ function make_task($ajax_req) {
 	} else if ($task['ID'] && $task['COMPLETED'] =='1') {
 		if ($task['DOC_TYPE'] == 'Fax') {
 			$send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
-								target='_blank' title='".xla('View the Summay Report sent to Fax Server.')."'>
+								target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."'>
 								<i class='fa fa-file-pdf-o fa-fw'></i></a>
 								<i class='fa fa-repeat fa-fw' 
 									onclick=\"top.restoreSession(); create_task('".attr($pat_data['ref_providerID'])."','Fax-resend','ref'); return false;\">

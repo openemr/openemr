@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -8,12 +8,12 @@
 //
 // This script is for automatic installation and ocnfiguration
 //   of OpenEMR.
-// 
+//
 // This script is meant to be run as php command line (php-cli),
 //  and needs to be first activated by removing the 'exit' line
 //  at top (via sed command).
 //
-// To activate script, need to comment out the exit command at top 
+// To activate script, need to comment out the exit command at top
 //   of script.
 //
 // Command ( Note that the ordering and number of custom settings

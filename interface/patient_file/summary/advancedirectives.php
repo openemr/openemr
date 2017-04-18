@@ -1,8 +1,6 @@
 <?php
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
-include_once("$srcdir/formdata.inc.php");
 ?>
 <html>
 <head>
@@ -10,7 +8,7 @@ include_once("$srcdir/formdata.inc.php");
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>

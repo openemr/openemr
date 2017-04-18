@@ -25,8 +25,6 @@ $fake_register_globals =false;
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 
 // Collect user id if editing entry
 $ppid = $_REQUEST['ppid'];
@@ -41,7 +39,7 @@ function invalue($name) {
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Procedure Provider'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
@@ -142,7 +140,7 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-	<select name='form_name' id='form_name' class='inputtext' style='width:150px'> 
+	<select name='form_name' id='form_name' class='inputtext' style='width:150px'>
           <?php echo $optionsStr; ?>
     </select>
   </td>

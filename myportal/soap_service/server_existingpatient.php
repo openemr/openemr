@@ -101,7 +101,6 @@ class existingpatient {
             break;
             
             case 'A5':
-            include_once('../../library/formdata.inc.php');
             $enc_set_array=array();
             $enc_set_array[]=$pid;
             if($data[1][1]=='' && $data[1][2]>0)
@@ -387,7 +386,6 @@ class existingpatient {
             
             case 'B8':
             //List of Service Facility
-            include_once('../../library/formdata.inc.php');
             $query="select * from facility where service_location != 0 and id in (".add_escape_custom($data[1][0]).") order by name";
             return array($query);
             break;

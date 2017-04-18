@@ -1,6 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once ($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once("FormVitals.class.php");
@@ -96,7 +95,7 @@ class C_FormVitals extends Controller {
 	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
     }
-	
+
     function default_action_process() {
 		if ($_POST['process'] != "true")
 			return;
@@ -119,9 +118,9 @@ class C_FormVitals extends Controller {
 		}
 
 		$this->vitals = new FormVitals($_POST['id']);
-		
+
 		parent::populate_object($this->vitals);
-		
+
 		$this->vitals->persist();
 		if ($GLOBALS['encounter'] < 1) {
 			$GLOBALS['encounter'] = date("Ymd");

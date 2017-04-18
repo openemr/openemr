@@ -66,8 +66,8 @@ function ProductRegistrationService() {
                 var rawErrorObject = jqXHR.responseText;
                 var parsedErrorObject = JSON.parse(rawErrorObject);
 
-                if (parsedErrorObject && parsedErrorObject.hasOwnProperty('error')) {
-                    callback(parsedErrorObject.error, null);
+                if (parsedErrorObject && parsedErrorObject.hasOwnProperty('message')) {
+                    callback(parsedErrorObject.message, null);
                 }
             } catch (jsonParseException) {
                 callback(registrationTranslations.genericError, null);

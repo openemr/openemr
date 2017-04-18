@@ -3,9 +3,7 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/forms.inc");
-include_once("../../../library/sql.inc");
 include_once("content_parser.php");
-include_once("../../../library/formdata.inc.php");
 
 $field_names = array('category' => formData("category"), 'subcategory' => formData("subcategory"), 'item' => formData("item"), 'content' => strip_escape_custom($_POST['content']));
 $camos_array = array();

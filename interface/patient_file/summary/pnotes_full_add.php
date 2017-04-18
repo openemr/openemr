@@ -18,7 +18,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/gprelations.inc.php");
 
 if ($_GET['set_pid']) {
@@ -154,7 +153,7 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -236,7 +235,6 @@ $urlparms = "docid=$docid&orderid=$orderid";
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:</b>
    <select name='assigned_to'>
-    <option value=''>** <?php echo htmlspecialchars( xl('Close'), ENT_NOQUOTES); ?> **</option>
 <?php
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";

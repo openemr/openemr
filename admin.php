@@ -6,7 +6,19 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 require_once "version.php";
+
+// Please note that the plain sql is used over the Doctrine ORM for
+// `version` table interactions because it cannot connect due to a
+// lack of context (this code is ran outside of the OpenEMR context).
 
 $webserver_root = dirname(__FILE__);
 if (stripos(PHP_OS,'WIN') === 0)

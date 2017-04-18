@@ -9,7 +9,6 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
 $typeid = formData('typeid', 'R') + 0;
 $parent = formData('parent', 'R') + 0;
@@ -82,7 +81,7 @@ td { font-size:10pt; }
 </style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 <script language="JavaScript">

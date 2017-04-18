@@ -2,7 +2,8 @@
 /**
  * Administration Lists Module.
  *
- * Copyright (C) 2007-2016 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2017 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017      Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,19 +18,27 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
- * @author  Teny <teny@zhservices.com> 
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Teny <teny@zhservices.com>
  * @link    http://www.open-emr.org
  */
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
+require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
-$list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
+// Below allows the list to default to the first item on the list
+//   when list_id is blank.
+if (empty($_REQUEST['list_id'])) {
+    $list_id = 'language';
+    $blank_list_id = true;
+}
+else {
+    $list_id = $_REQUEST['list_id'];
+}
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
@@ -112,30 +121,23 @@ if ($_POST['formaction']=='save' && $list_id) {
       sqlStatement("DELETE FROM issue_types");
       for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
         $iter        = $opt["$lino"];
-        $it_active   = formTrim($iter['active']);
         $it_category = formTrim($iter['category']);
-        $it_ordering = formTrim($iter['ordering']);
         $it_type     = formTrim($iter['type']);
-        $it_plural   = formTrim($iter['plural']);
-        $it_singular = formTrim($iter['singular']);
-        $it_abbr     = formTrim($iter['abbreviation']);
-        $it_style    = formTrim($iter['style']);
-        $it_fshow    = formTrim($iter['force_show']);
-        
-        if ( (strlen($it_category) > 0) && (strlen($it_type) > 0) ) {
-          sqlInsert("INSERT INTO issue_types ( " .
-            "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show` " .
-            ") VALUES ( "   .
-            "'$it_active' , " .
-            "'$it_category' , " .
-            "'$it_ordering' , " .
-            "'$it_type' , " .
-            "'$it_plural'  , " .
-            "'$it_singular' , " .
-            "'$it_abbr' , " .
-            "'$it_style', " .
-            "'$it_fshow' " .
-            ")");
+        if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
+          sqlInsert("INSERT INTO issue_types (" .
+            "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
+            "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
+              formTrim($iter['active']),
+              $it_category,
+              formTrim($iter['ordering']),
+              $it_type,
+              formTrim($iter['plural']),
+              formTrim($iter['singular']),
+              formTrim($iter['abbreviation']),
+              formTrim($iter['style']),
+              formTrim($iter['force_show']),
+              formTrim($iter['aco_spec']),
+            ));
         }
       }
     }
@@ -184,7 +186,7 @@ if ($_POST['formaction']=='save' && $list_id) {
               if ($list_id == 'transactions' && substr($id,0,3) != 'LBT')
                 $id = "LBT$id";
 
-              if ($list_id == 'apptstat') {
+              if ($list_id == 'apptstat' || $list_id == 'groupstat') {
                 $notes = formTrim($iter['apptstat_color']) .'|'. formTrim($iter['apptstat_timealert']);
               }
               else
@@ -384,7 +386,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
         htmlspecialchars($mapping, ENT_QUOTES) . "' size='12' maxlength='15' class='optin' />";
     echo "</td>\n";
   }
-  else if($list_id == 'apptstat') {
+  else if($list_id == 'apptstat' || $list_id == 'groupstat') {
     list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' class='color' name='opt[$opt_line_no][apptstat_color]' value='" .
@@ -397,10 +399,14 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   } else {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
-        htmlspecialchars($notes, ENT_QUOTES) . "' size='25' class='optin' />";
+      attr($notes) . "' size='25' class='optin' ";
+    if ($list_id == 'lbfnames') {
+      echo "onclick='edit_layout_props($opt_line_no)' ";
+    }
+    echo "/>";
     echo "</td>\n";
   }
-  if($list_id == 'apptstat') {
+  if($list_id == 'apptstat' || $list_id == 'groupstat') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='checkbox' name='opt[$opt_line_no][toggle_setting_1]' value='1' " .
       "onclick='defClicked($opt_line_no)' class='optin'$checked_tog1 />";
@@ -574,25 +580,33 @@ function writeITLine($it_array) {
   echo " <tr bgcolor='$bgcolor'>\n";
   echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
   echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
-  echo ctGenCell($opt_line_no, $it_array, 'ordering' , 10, 10, xl('Order'));
-  echo ctGenCell($opt_line_no, $it_array, 'type' , 20, 75, xl('Issue Type'));
-  echo ctGenCell($opt_line_no, $it_array, 'plural' , 20, 75, xl('Plural'));
+  echo ctGenCell($opt_line_no, $it_array, 'ordering' , 4, 10, xl('Order'));
+  echo ctGenCell($opt_line_no, $it_array, 'type' , 15, 75, xl('Issue Type'));
+  echo ctGenCell($opt_line_no, $it_array, 'plural' , 15, 75, xl('Plural'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
   }
-  echo ctGenCell($opt_line_no, $it_array, 'singular' , 20,  75, xl('Singular'));
+  echo ctGenCell($opt_line_no, $it_array, 'singular' , 15,  75, xl('Singular'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
   }
-  echo ctGenCell($opt_line_no, $it_array, 'abbreviation' , 10,  10, xl('Abbreviation'));
+  echo ctGenCell($opt_line_no, $it_array, 'abbreviation' , 5,  10, xl('Abbreviation'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
   }
   echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
   echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
+
+  echo "<td align='center' class='optcell'>";
+  echo "<select name='opt[$opt_line_no][aco_spec]' class='optin'>";
+  echo "<option value=''></option>";
+  echo gen_aco_html_options($it_array['aco_spec']);
+  echo "</select>";
+  echo "</td>";
+
   echo " </tr>\n";
 }
 
@@ -620,7 +634,7 @@ a, a:visited, a:hover { color:#0000cc; }
 .translation { color:green; }
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
 
 <script language="JavaScript">
@@ -707,6 +721,12 @@ function sel_cvxcode(e) {
 function select_clin_term_code(e) {
  current_sel_clin_term = e.name;
  dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("clinical_term","csv")) ?>', '_blank', 500, 400);
+}
+
+// This invokes the popup to edit properties in the "notes" column.
+function edit_layout_props(lineno) {
+ var layoutid = document.forms[0]['opt[' + lineno + '][id]'].value;
+ dlgopen('edit_layout_props.php?layout_id=' + layoutid + '&lineno=' + lineno, '_blank', 600, 300);
 }
 
 // This is for callback by the find-code popup.
@@ -823,15 +843,23 @@ else {
     "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
     "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
     "ld.lang_id = '$lang_id' " .
-    "WHERE lo.list_id = 'lists' " .
+    "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
     "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
 }
 
 while ($row = sqlFetchArray($res)) {
-  $key = $row['option_id'];
-  echo "<option value='$key'";
-  if ($key == $list_id) echo " selected";
-  echo ">" . $row['title'] . "</option>\n";
+
+    // This allows the list to default to the first item on the list
+    //   when the list_id request parameter is blank.
+    if( ($blank_list_id) && ($list_id == 'language') ) {
+        $list_id = $row['option_id'];
+        $blank_list_id = false;
+    }
+
+    $key = $row['option_id'];
+    echo "<option value='$key'";
+    if ($key == $list_id) echo " selected";
+    echo ">" . $row['title'] . "</option>\n";
 }
 
 ?>
@@ -871,14 +899,14 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Medical Problem','e'); ?></b></td>
   <td><b><?php xl('Drug'        ,'e'); ?></b></td>
   <td><b><?php xl('External'    ,'e'); ?></b></td>
-<?php } else if ($list_id == 'apptstat') { ?> 
+<?php } else if ($list_id == 'apptstat' || $list_id == 'groupstat') { ?>
   <td><b><?php  xl('ID'       ,'e'); ?></b></td>
-  <td><b><?php xl('Title'     ,'e'); ?></b></td>   
+  <td><b><?php xl('Title'     ,'e'); ?></b></td>
   <td><b><?php xl('Order'     ,'e'); ?></b></td>
   <td><b><?php xl('Default'   ,'e'); ?></b></td>
   <td><b><?php xl('Active','e'); ?></b></td>
-  <td><b><?php xl('Color'     ,'e'); ?></b></td> 
-  <td><b><?php xl('Alert Time','e'); ?></b></td> 
+  <td><b><?php xl('Color'     ,'e'); ?></b></td>
+  <td><b><?php xl('Alert Time','e'); ?></b></td>
   <td><b><?php xl('Check In'  ,'e');?>&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
   <td><b><?php xl('Check Out' ,'e'); ?></b></td>
   <td><b><?php xl('Code(s)'   ,'e');?></b></td>
@@ -897,20 +925,21 @@ while ($row = sqlFetchArray($res)) {
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
   } ?>
-  <td><b><?php echo xlt('Abbreviation'); ?></b></td>
+  <td><b><?php echo xlt('Mini'); ?></b></td>
   <?php //show translation column if not english and the translation lists flag is set
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
   } ?>
   <td><b><?php echo xlt('Style'); ?></b></td>
   <td><b><?php echo xlt('Force Show'); ?></b></td>
+  <td><b><?php echo xlt('Access Control'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>
-  <td><b><?php xl('Title'  ,'e'); ?></b></td>	
-  <?php //show translation column if not english and the translation lists flag is set 
+  <td><b><?php xl('Title'  ,'e'); ?></b></td>
+  <?php //show translation column if not english and the translation lists flag is set
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
     echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";
-  } ?>  
+  } ?>
   <td><b><?php xl('Order'  ,'e'); ?></b></td>
   <td><b><?php xl('Default','e'); ?></b></td>
   <td><b><?php xl('Active','e'); ?></b></td>
@@ -929,47 +958,49 @@ while ($row = sqlFetchArray($res)) {
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
-  <td><b><?php 
-		  if ($list_id == 'language') {
-		  	xl('ISO 639-2 Code','e');
-		  } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route'){
-                        xl('HL7-V3 Concept Code','e');
-                  } else if ($list_id == 'Immunization_Completion_Status'){
-                        xl('Treatment Completion Status','e');
-                  } else if ($list_id == 'race') {
-                        xl('CDC Code','e');
-                  } else if ($list_id == 'Immunization_Manufacturer') {
-                        xl('MVX Code','e');
-                  } else if ($list_id == 'marital') {
-                        xl('Marital Status','e');
-                  } else if ( $list_id == 'county' ) {
-                        xl('INCITS Code','e'); //International Committee for Information Technology Standards
-                  }else if ( $list_id == 'immunization_registry_status' || $list_id == 'imm_vac_eligibility_results' ) {
-                        xl('IIS Code','e');
-                  }else if ( $list_id == 'publicity_code' ) {
-                        xl('CDC Code','e');
-                  }else if ( $list_id == 'immunization_refusal_reason' || $list_id == 'immunization_informationsource' ) {
-                        xl('CDC-NIP Code','e');
-                  }else if ( $list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
-                        xl('HL7 Code','e');
-                  }else if ( $list_id == 'immunization_observation' ) {
-                        xl('LOINC Code','e');
-                  }else if ( $list_id == 'page_validation' ) {
-                              xl('Page Validation','e');
-          } else {
-		  	xl('Notes','e');
-		  }
+  <td><b><?php
+    if ($list_id == 'language') {
+      echo xlt('ISO 639-2 Code');
+    } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
+      echo xlt('HL7-V3 Concept Code');
+    } else if ($list_id == 'Immunization_Completion_Status') {
+      echo xlt('Treatment Completion Status');
+    } else if ($list_id == 'race') {
+      echo xlt('CDC Code');
+    } else if ($list_id == 'Immunization_Manufacturer') {
+      echo xlt('MVX Code');
+    } else if ($list_id == 'marital') {
+      echo xlt('Marital Status');
+    } else if ($list_id == 'county') {
+      echo xlt('INCITS Code'); //International Committee for Information Technology Standards
+    } else if ($list_id == 'immunization_registry_status' || $list_id == 'imm_vac_eligibility_results') {
+      echo xlt('IIS Code');
+    } else if ($list_id == 'publicity_code') {
+      echo xlt('CDC Code');
+    } else if ($list_id == 'immunization_refusal_reason' || $list_id == 'immunization_informationsource') {
+      echo xlt('CDC-NIP Code');
+    } else if ($list_id == 'next_of_kin_relationship' || $list_id == 'immunization_administered_site') {
+      echo xlt('HL7 Code');
+    } else if ($list_id == 'immunization_observation') {
+      echo xlt('LOINC Code');
+    } else if ($list_id == 'page_validation') {
+      echo xlt('Page Validation');
+    } else if ($list_id == 'lbfnames') {
+      echo xlt('Attributes');
+    } else {
+      echo xlt('Notes');
+    }
   ?></b></td>
 
   <td><b><?php xl('Code(s)','e'); ?></b></td>
-  <?php 
+  <?php
     if (preg_match('/_issue_list$/',$list_id)) { ?>
   <td><b><?php echo xlt('Subtype'); ?></b></td>
 <?php }
  } // end not fee sheet ?>
  </tr>
 
-<?php 
+<?php
 // Get the selected list's elements.
 if ($list_id) {
   if ($list_id == 'feesheet') {
@@ -1003,8 +1034,18 @@ if ($list_id) {
     }
   }
   else {
-    $res = sqlStatement("SELECT * FROM list_options WHERE " .
-      "list_id = '$list_id' ORDER BY seq,title");
+    /*
+     *  Add edit options to show or hide in list management
+     *   If the edit_options setting of the main list entry is set to 0,
+     *    then none of the list items will show.
+     *   If the edit_options setting of the main list entry is set to 1,
+     *    then the list items with edit_options set to 1 will show.
+     */
+    $res = sqlStatement("SELECT lo.*
+                         FROM list_options as lo
+                         right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.edit_options = 1
+                         WHERE lo.list_id = '{$list_id}' AND lo.edit_options = 1
+                         ORDER BY seq,title");
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
         $row['is_default'], $row['option_value'], $row['mapping'],
@@ -1083,7 +1124,7 @@ $(document).ready(function(){
             }
         }
         $("#newlistname").val(validname);
-    
+
         // submit the form to add a new field to a specific group
         $("#formaction").val("addlist");
         $("#theform").submit();
@@ -1098,7 +1139,7 @@ $(document).ready(function(){
             $("#theform").submit();
         }
     };
-    
+
     // just hide the new list DIV
     var CancelNewList = function(btnObj) {
         // hide the list details DIV

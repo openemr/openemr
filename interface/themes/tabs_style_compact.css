@@ -80,20 +80,19 @@ body
     flex-direction: column;
     margin: 0;
     padding: 0;
-    border-left: 1pt solid black;
-    border-right: 1pt solid black;
 }
 
 #framesDisplay > div > iframe
 {
     flex: 1 0 auto;
     border: 0px solid black;
+    width: 100%;
 }
 
 .tabControls
 {
-    margin: 0 0 0 0;
-    padding: 0 0 0 0;
+    margin: -9px 0 0 0;
+    padding: 9px 0 0 0;
     display: flex;
     flex-direction: row;
     overflow: auto;
@@ -125,7 +124,6 @@ body
     border-bottom:1pt solid black;
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
     display:block;
-    max-width:1000px;
 }
 
 #dialogDiv
@@ -181,7 +179,7 @@ div.closeDlgIframe {
     height:100%;
     width:100%;
 }
-#patientData
+#attendantData
 {
     min-height: 4em;
 }
@@ -331,7 +329,7 @@ div.closeDlgIframe {
     background-color:#C9DBF2;
     display: none;
     position: absolute;
-    top: 20px;
+    top: 19px;
     z-index:1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
@@ -360,7 +358,7 @@ div.closeDlgIframe {
 .menuLabel
 {
     cursor: pointer;
-    padding: 5px 12px 3px;
+    padding: 5px 12px 5px;
 }
 .menuDisabled
 {

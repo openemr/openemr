@@ -1,11 +1,21 @@
 <?php
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
+
+$response = Checker::checkPhpVersion();
+if ($response !== true) {
+  die($response);
+}
+
 // Default values for optional variables that are allowed to be set by callers.
 
 // Unless specified explicitly, apply Auth functions
 if (!isset($ignoreAuth)) $ignoreAuth = false;
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Same for onsite
+if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
 // Unless specified explicitly, do not reverse magic quotes
 if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
@@ -87,6 +97,11 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 // Now that restore_session() is implemented in javaScript, session IDs are
 // effectively saved in the top level browser window and there is no longer
 // any need to change the session name for different OpenEMR instances.
+// On 4/8/17, added cookie_path to improve security when using different
+// OpenEMR instances on same server to prevent session conflicts; also
+// modified interface/login/login.php and library/restoreSession.php to be
+// consistent with this.
+ini_set('session.cookie_path', $web_root ? $web_root : '/');
 session_name("OpenEMR");
 
 session_start();
@@ -98,7 +113,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     $tmp = $_GET['site'];
   }
   else {
-    if (!$ignoreAuth) die("Site ID is missing from session data!");
+    if (empty($ignoreAuth)) die("Site ID is missing from session data!");
     $tmp = $_SERVER['HTTP_HOST'];
     if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) $tmp = "default";
   }
@@ -158,6 +173,13 @@ $GLOBALS['webroot'] = $web_root;
 // Static assets directory, relative to the webserver root.
 // (it is very likely that this path will be changed in the future))
 $GLOBALS['assets_static_relative'] = "$web_root/public/assets";
+
+// Relative images directory, relative to the webserver root.
+$GLOBALS['images_static_relative'] = "$web_root/public/images";
+
+// Static images directory, absolute to the webserver root.
+$GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
+
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
@@ -169,35 +191,37 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-// Include the translation engine. This will also call sql.inc to
-//  open the openemr mysql connection.
-require_once (dirname(__FILE__) . "/../library/translation.inc.php");
-
-// Include convenience functions with shorter names than "htmlspecialchars" (for security)
-require_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
-
-// Include sanitization/checking functions (for security)
-require_once (dirname(__FILE__) . "/../library/formdata.inc.php");
-
-// Include sanitization/checking function (for security)
-require_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
-
-// Includes functions for date internationalization
-require_once (dirname(__FILE__) . "/../library/date_functions.php");
-
-// Includes compoaser autoload
+// Includes composer autoload
+// Note this also brings in following library files:
+//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
+//  library/formdata.inc.php - Include sanitization/checking functions (for security)
+//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
+//  library/date_functions.php - Includes functions for date internationalization
+//  library/validation/validate_core.php - Includes functions for page validation
+//  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
-// Includes functions for page validation
-require_once (dirname(__FILE__) . "/../library/validation/validate_core.php");
+// This will open the openemr mysql connection.
+require_once (dirname(__FILE__) . "/../library/sql.inc");
 
 // Include the version file
 require_once (dirname(__FILE__) . "/../version.php");
 
+// The logging level for common/logging/logger.php
+// Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
+//    - DEBUG/INFO are great for development
+//    - INFO/WARN/ERROR are great for production
+//    - TRACE is useful when debugging hard to spot bugs
+$GLOBALS["log_level"] = "OFF";
+
+// Should Doctrine make use of connection pooling? Database connection pooling is a method
+// used to keep database connections open so they can be reused by others. (The only reason
+// to not use connection pooling is if your server has limited resources.)
+$GLOBALS["doctrine_connection_pooling"] = true;
+
 // Defaults for specific applications.
 $GLOBALS['weight_loss_clinic'] = false;
 $GLOBALS['ippf_specific'] = false;
-$GLOBALS['cene_specific'] = false;
 
 // Defaults for drugs and products.
 $GLOBALS['inhouse_pharmacy'] = false;
@@ -270,6 +294,16 @@ if (!empty($glrow)) {
       if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
+    else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
+      if ($gl_value) {
+        date_default_timezone_set($gl_value);
+      }
+      // Synchronize MySQL time zone with PHP time zone.
+      sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
+    }
     else {
       $GLOBALS[$gl_name] = $gl_value;
     }
@@ -295,7 +329,15 @@ if (!empty($glrow)) {
             $rtl_override = true;
         }
     }
-
+    else if (isset( $_SESSION['language_choice'] )) {
+        //this will support the onsite patient portal which will have a language choice but not yet a set language direction
+        $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
+        if ( $_SESSION['language_direction'] == 'rtl' &&
+        !strpos($GLOBALS['css_header'], 'rtl')) {
+            // the $css_header_value is set above
+            $rtl_override = true;
+        }
+    }
     else {
         //$_SESSION['language_direction'] is not set, so will use the default language
         $default_lang_id = sqlQuery('SELECT lang_id FROM lang_languages WHERE lang_description = ?',array($GLOBALS['language_default']));
@@ -366,7 +408,7 @@ $bottom_bg_line = $top_bg_line;
 $title_bg_line = ' bgcolor="#bbbbbb" ';
 $nav_bg_line = ' bgcolor="#94d6e7" ';
 $login_filler_line = ' bgcolor="#f7f0d5" ';
-$logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+$logocode = "<img class='img-responsive center-block' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
 $tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
@@ -401,12 +443,24 @@ if (!empty($special_timeout)) {
   $timeout = intval($special_timeout);
 }
 
-//Version tag
-$patch_appending = "";
-if ( ($v_realpatch != '0') && (!(empty($v_realpatch))) ) {
-$patch_appending = " (".$v_realpatch.")";
+$versionService = new \services\VersionService();
+$version = $versionService->fetch();
+
+if (!empty($version)) {
+    //Version tag
+    $patch_appending = "";
+    //Collected below function call to a variable, since unable to directly include
+    // function calls within empty() in php versions < 5.5 .
+    $version_getrealpatch = $version->getRealPatch();
+    if ( ($version->getRealPatch() != '0') && (!(empty($version_getrealpatch))) ) {
+        $patch_appending = " (".$version->getRealPatch().")";
+    }
+
+    $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
+    $openemr_version .= $version->getTag() . $patch_appending;
+} else {
+    $openemr_version = xl('Unknown version');
 }
-$openemr_version = "$v_major.$v_minor.$v_patch".$v_tag.$patch_appending;
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
@@ -429,6 +483,9 @@ $GLOBALS['include_de_identification']=0;
 
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
+}
+elseif ( ($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1) ) {
+	$ignoreAuth = true;
 }
 if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");
@@ -461,6 +518,10 @@ elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
 $userauthorized = empty($_SESSION['userauthorized']) ? 0 : $_SESSION['userauthorized'];
 $groupname = empty($_SESSION['authProvider']) ? 0 : $_SESSION['authProvider'];
+
+//This is crucial for therapy groups and patients mechanisms to work together properly
+$attendant_type = (empty($pid) && isset($_SESSION['therapy_group'])) ? 'gid' : 'pid';
+$therapy_group = (empty($pid) && isset($_SESSION['therapy_group'])) ? $_SESSION['therapy_group'] : 0;
 
 // global interface function to format text length using ellipses
 function strterm($string,$length) {

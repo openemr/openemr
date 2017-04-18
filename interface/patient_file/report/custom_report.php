@@ -16,7 +16,7 @@ use ESign\Api;
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Tony McCormick <tony@mi-squared.com>
  * @link    http://www.open-emr.org
@@ -31,18 +31,13 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
-
+require_once("$srcdir/appointments.inc.php");
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
@@ -132,7 +127,7 @@ function postToGet($arin) {
 
 <?php // do not show stuff from report.php in forms that is encaspulated
       // by div of navigateLink class. Specifically used for CAMOS, but
-      // can also be used by other forms that require output in the 
+      // can also be used by other forms that require output in the
       // encounter listings output, but not in the custom report. ?>
 <style>
   div.navigateLink {display:none;}
@@ -154,7 +149,7 @@ function postToGet($arin) {
 
 <?php if (!$PDF_OUTPUT) { ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-5/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
@@ -164,7 +159,7 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <?php  } ?>
 
 </head>
-<?php 
+<?php
 // remove blank header for printable version to conserve space
 // adjust this if you are printing to letterhead to appropriate height
 ($printable) ? ($style = ''):($style='padding-top:95px;');
@@ -308,8 +303,46 @@ foreach ($ar as $key => $val) {
     //
     if (stristr($key,"include_")) {
 
-        if ($val == "demographics") {
-            
+        if($val == "recurring_days"){
+
+            /// label/header for recurring days
+            echo "<hr />";
+            echo "<div class='text' id='appointments'>\n";
+            print "<h1>".xlt('Recurrent Appointments').":</h1>";
+
+            //fetch the data of the recurring days
+            $recurrences = fetchRecurrences($pid);
+
+            //print the recurring days to screen
+            if($recurrences[0] == false){ //if there are no recurrent appointments:
+                echo "<div class='text' >";
+                echo "<span>" . xlt('None') . "</span>";
+                echo "</div>";
+                echo "<br>";
+            }
+            else {
+                foreach ($recurrences as $row) {
+                    //checks if there are recurrences and if they are current (git didn't end yet)
+                    if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                        continue;
+                    echo "<div class='text' >";
+                    echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
+                    echo "<br>";
+                    echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
+                    echo "<br>";
+                    $red_text = ""; //if ends in a week, make font red
+                    if (ends_in_a_week($row['pc_endDate'])) {
+                        $red_text = " style=\"color:red;\" ";
+                    }
+                    echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
+                    echo "</div>";
+                    echo "<br>";
+                }
+            }
+            echo "</div><br>";
+        }
+        elseif ($val == "demographics") {
+
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
             print "<h1>".xl('Patient Data').":</h1>";
@@ -370,7 +403,7 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class=text>";
-                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars( $b['code_text'] ) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
                         echo oeFormatMoney($b['fee']);
@@ -630,7 +663,7 @@ foreach ($ar as $key => $val) {
         }
 
         else if (strpos($key, "issue_") === 0) {
-            // display patient Issues
+                // display patient Issues
 
             if ($first_issue) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
@@ -710,22 +743,22 @@ foreach ($ar as $key => $val) {
                     echo ' '. xl('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
                 echo "<br>\n";
-   
+
                 // call the report function for the form
-                ?>                
+                ?>
                 <div name="search_div" id="search_div_<?php echo attr($form_id)?>_<?php echo attr($res[1])?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                 <?php
                 if (substr($res[1],0,3) == 'LBF')
                   call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
-                
+
                 $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
                 if ( $esign->isLogViewable("report") ) {
                     $esign->renderLog();
                 }
                 ?>
-                
+
                 </div>
                 <?php
 
@@ -741,13 +774,13 @@ foreach ($ar as $key => $val) {
                       "ORDER BY b.date",
                       array($pid, $form_encounter));
                     while ($brow=sqlFetchArray($bres)) {
-                        echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-                            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                        echo "<div class='bold' style='display: inline-block'>&nbsp;".xl('Procedure').": </div><div class='text' style='display: inline-block'>" .
+                            $brow['code'] . " " . htmlspecialchars($brow['code_text']) . "</div><br>\n";
                     }
                 }
 
                 print "</div>";
-            
+
             } // end auth-check for encounter forms
 
         } // end if('issue_')... else...

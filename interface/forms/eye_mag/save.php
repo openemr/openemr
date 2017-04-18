@@ -49,7 +49,6 @@ require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("php/".$form_name."_functions.php");
-require_once("$srcdir/formatting.inc.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 require_once("$srcdir/patient.inc");
@@ -57,9 +56,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 $returnurl = 'encounter_top.php';
@@ -615,7 +611,7 @@ if ($_REQUEST["mode"] == "new")             {
 
   if ($_REQUEST['action'] == 'code_visit'){
     $CODING = json_decode($_REQUEST['parameter'],true);
-    $query = "delete from billing where encounter =?";
+    $query  = "delete from billing where encounter =?";
     sqlStatement($query,array($encounter));
     foreach ($CODING as $item) //need toremove duplicate codes
     {
@@ -632,8 +628,8 @@ if ($_REQUEST["mode"] == "new")             {
               " LIMIT 1";
       $result = sqlStatement($sql,array($item['code']));
       while ($res = sqlFetchArray($result)) {
-          $item["codedesc"] = $res["code_text"];// = "NP EYE intermediate exam"
-          $item["modifier"] = $res["modifier"];
+          $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
+          if (!$item["modifier"]) $modifier = $res["modifier"];
           $item["units"] = $res["units"];
           $item["fee"] = $res["pr_price"];
       }
@@ -728,7 +724,7 @@ if ($_REQUEST["mode"] == "new")             {
     if (!$_POST['confused']) $fields['confused'] = '0';
     if (!$_POST['PUPIL_NORMAL']) $fields['PUPIL_NORMAL'] = '0';
     if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
-    if (!$_POST['ACT']) $fields['ACT'] = '0';
+    if (!$_POST['ACT']) $fields['ACT'] = 'off';
     if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
     if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
     if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';

@@ -56,7 +56,7 @@ $returnurl = 'encounter_top.php';
 
 <!-- supporting javascript code -->
 <!-- for dialog -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 
 <!-- Global Stylesheet -->

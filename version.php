@@ -5,7 +5,7 @@
 // upgrade file is the starting point for the next upgrade.
 $v_major = '5';
 $v_minor = '0';
-$v_patch = '0';
+$v_patch = '1';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
@@ -17,7 +17,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 198;
+$v_database = 220;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -25,14 +25,18 @@ $v_database = 198;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 3;
+$v_acl = 4;
 
 //Offsite Portal SOAP functions version, which are at myportal directory.
 $v_offsite_portal='1.47';
 
-// Version for JavaScript includes. Increment whenever a .js file changes.
-// Also whenever you change a .js file, make sure that all URLs referencing it
+// Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
+// Also whenever you change a .js or .css file, make sure that all URLs referencing it
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
-$v_js_includes = 14;
+// Need to assign it as a global below to work in template scripts.
+$v_js_includes = 24;
+
+// Do note modify below
+$GLOBALS['v_js_includes'] = $v_js_includes;
 ?>

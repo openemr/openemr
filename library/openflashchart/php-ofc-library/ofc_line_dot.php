@@ -2,7 +2,7 @@
 
 class dot_value
 {
-	function dot_value( $value, $colour )
+	public function __construct( $value, $colour )
 	{
 		$this->value = $value;
 		$this->colour = $colour;
@@ -26,7 +26,7 @@ class dot_value
 
 class line_dot extends line_base
 {
-	function line_dot()
+	public function __construct()
 	{
 		$this->type      = "line_dot";
 	}

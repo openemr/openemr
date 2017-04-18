@@ -17,8 +17,6 @@
  include_once("../globals.php");
  include_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/formdata.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  // Collect user id if editing entry
  $userid = $_REQUEST['userid'];
@@ -293,14 +291,14 @@ td { font-size:10pt; }
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>' '), $row['title']);
 ?>
-   <b><?php echo xlt('Last'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['lname']); ?>'/>&nbsp;
-   <b><?php echo xlt('First'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;
-   <b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['mname']); ?>' />
-   <b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_suffix' class='inputtext'
-     maxlength='50' value='<?php echo attr($row['suffix']); ?>' />
+   <div style="display: inline-block"><b><?php echo xlt('Last'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
+                                                                               maxlength='50' value='<?php echo attr($row['lname']); ?>'/></div>
+   <div style="display: inline-block"><b><?php echo xlt('First'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
+                                                                                 maxlength='50' value='<?php echo attr($row['fname']); ?>' />&nbsp;</div>
+   <div style="display: inline-block"><b><?php echo xlt('Middle'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
+                                                                                  maxlength='50' value='<?php echo attr($row['mname']); ?>' /></div>
+   <div style="display: inline-block"><b><?php echo xlt('Suffix'); ?>:</b> <input type='text' size='4' name='form_suffix' class='inputtext'
+                                                                                  maxlength='50' value='<?php echo attr($row['suffix']); ?>' /></div>
   </td>
  </tr>
 

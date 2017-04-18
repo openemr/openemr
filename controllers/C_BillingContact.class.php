@@ -1,7 +1,5 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceCompany.class.php");
 
 class C_InsuranceCompany extends Controller {
 
@@ -42,7 +40,7 @@ class C_InsuranceCompany extends Controller {
 		else {
 			$this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
 		}
-		
+
 		return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_list.html");
 	}
 
@@ -57,13 +55,13 @@ class C_InsuranceCompany extends Controller {
 		else {
 			$this->icompanies[0] = new InsuranceCompany();
 		}
-  		
+
   		parent::populate_object($this->icompanies[0]);
 		//print_r($this->pharmacies[0]);
 		//echo $this->pharmacies[0]->toString(true);
 
 		$this->icompanies[0]->persist();
-		
+
 		//echo "action processeed";
 		$_POST['process'] = "";
 	}

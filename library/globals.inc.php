@@ -62,6 +62,7 @@
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
+//   Tamil                          // xl('Tamil')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Vietnamese                     // xl('Vietnamese')
@@ -116,6 +117,17 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'ptkr_visit_reason',
                                'checkout_roll_off',
                                'erx_import_status_message');
+
+// Gets array of time zones supported by PHP.
+//
+function gblTimeZones() {
+  $zones = timezone_identifiers_list();
+  $arr = array('' => xl('Unassigned'));
+  foreach ($zones as $zone) {
+    $arr[$zone] = str_replace('_', ' ', $zone);
+  }
+  return $arr;
+}
 
 $GLOBALS_METADATA = array(
 
@@ -191,6 +203,13 @@ $GLOBALS_METADATA = array(
       'text',
       'OpenEMR',
       xl('Application name for login page and main window title.')
+    ),
+
+    'enable_group_therapy' => array(
+      xl('Enable Group Therapy'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Enables groups module in system.')
     ),
 
     'full_new_patient_form' => array(
@@ -272,14 +291,26 @@ $GLOBALS_METADATA = array(
 
     // TajEmo Work BY CB 2012/06/21 10:42:31 AM added option to Hide Fees
     'enable_fees_in_left_menu' => array(
-      xl('Enable Fees In Left Menu'),
+      xl('Enable Fees Submenu'),
       'bool',                           // data type
       '1',                              // default = true
-      xl('Enable Fees In Left Menu')
+      xl('Enable Fees Submenu')
+    ),
+    'enable_batch_payment' => array(
+      xl('Enable Batch Payment'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Enable Batch Payment')
+    ),
+    'enable_posting' => array(
+      xl('Enable Posting'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Enable Posting')
     ),
     // EDI history  2012-09-13
     'enable_edihistory_in_left_menu' => array(
-      xl('Enable EDI History In Left Menu'),
+      xl('Enable EDI History'),
       'bool',                           // data type
       '1',                              // default = true
       xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
@@ -351,9 +382,10 @@ $GLOBALS_METADATA = array(
         '2' => xl('Address and Postal Code'),
         '3' => xl('Address and State'),
         '4' => xl('Address, State and Postal Code'),
-        '5' => xl('Postal Code and Box Number'),
+        '5' => xl('Address, City, State and Postal Code'),
+        '6' => xl('Postal Code and Box Number')
       ),
-      '4',                              // default
+      '5',                              // default
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
     ),
 
@@ -427,6 +459,13 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '1',                              // default = true during development and false for production releases
       xl('This will allow selection of the debugging (\'dummy\') language.')
+    ),
+
+    'translate_no_safe_apostrophe' => array(
+      xl('Do Not Use Safe Apostrophe'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
     ),
 
     'translate_layout' => array(
@@ -526,6 +565,13 @@ $GLOBALS_METADATA = array(
       ),
       '0',
       xl('Format used to display most times.')
+    ),
+
+    'gbl_time_zone' => array(
+      xl('Time Zone'),
+      gblTimeZones(),
+      '',
+      xl('If unassigned will default to php.ini setting for date.timezone.')
     ),
 
     'currency_decimals' => array(
@@ -629,13 +675,6 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('Removes the Chart Tracker feature')
-    ),
-
-    'disable_phpmyadmin_link' => array(
-     xl('Disable phpMyAdmin'),
-     'bool',                            // data type
-     '0',                               // default = false
-     xl('Removes support for phpMyAdmin')
     ),
 
     'disable_immunizations' => array(
@@ -790,6 +829,27 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = true
       xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
+    ),
+
+    'preprinted_cms_1500' => array(
+      xl('Prints the CMS 1500 on the Preprinted form'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Prints the CMS 1500 on the Preprinted form')
+    ),
+
+    'cms_top_margin_default' => array(
+      xl('Default top print margin for CMS 1500'),
+      'num', // data type
+      '24', // default
+      xl('This is the default top print margin for CMS 1500. It will adjust the final printed output up or down.')
+    ),
+
+    'cms_left_margin_default' => array(
+      xl('Default left print margin for CMS 1500'),
+      'num', // data type
+      '20', // default
+      xl('This is the default left print margin for CMS 1500. It will adjust the final printed output left or right.')
     ),
 
       'cms_1500' => array(
@@ -982,6 +1042,23 @@ $GLOBALS_METADATA = array(
       xl('This will use the custom Statment showing the description instead of the codes.')
     ),
 
+      'statement_appearance' => array(
+      xl('Statement Appearance'),
+      array(
+                '0' => xl('Plain Text'),
+                '1' => xl('Modern/images')
+            ),                          // data type
+      '1',                              // default = true
+      xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
+    ),
+
+      'billing_phone_number' => array(
+      xl('Custom Billing Phone Number'),
+      'text',                           // data type
+      '',
+      xl('Phone number for billing inquiries')
+    ),
+
     'show_aging_on_custom_statement' => array(
       xl('Show Aging on Custom Statement'),
       'bool',                           // data type
@@ -1107,6 +1184,12 @@ $GLOBALS_METADATA = array(
       '',
       xl('Text for fifth account message.')
     ),
+      'save_codes_history' => array(
+          xl('Save codes history'),
+          'bool',                           // data type
+          '1',                              // default
+          xl('Save codes history')
+      ),
   ),
 
     // E-Sign Tab
@@ -1318,7 +1401,7 @@ $GLOBALS_METADATA = array(
         '1' => 'Last name',
         '2' => 'Last name, first name',
         '3' => 'Last name, first name (title)',
-        '4' => 'Last name, first name (title: description)',
+        '4' => 'Last name, first name (title: comments)',
       ),
       '2',                               // default
       xl('This determines how appointments display on the calendar.')
@@ -1341,8 +1424,21 @@ $GLOBALS_METADATA = array(
       xl('Number of Appointments to display in the Patient Summary')
     ),
 
+      'number_of_group_appts_to_show' => array(
+      xl('Appointments - Group Summary - Number to Display'),
+      'num',
+      '10',
+      xl('Number of Appointments to display in the Group Summary')
+    ),
+    'number_of_ex_appts_to_show' => array(
+          xl('Excluded Appointments - Tooltip - Number to Display'),
+          'num',
+          '15',
+          xl('Number of Excluded Appointments to display in the Tooltip')
+     ),
 
-    'patient_portal_appt_display_num' => array(
+
+      'patient_portal_appt_display_num' => array(
       xl('Appointments - Onsite Patient Portal - Number to Display'),
       'num',
       '20',
@@ -1483,26 +1579,43 @@ $GLOBALS_METADATA = array(
       xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
     ),
 
+    'submit_changes_for_all_appts_at_once' => array(
+      xl('Submit Changes For All Appts At Once'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enables to submit changes for all appointments of a recurrence at once.')
+    ),
+
+
   ),
 
   // Security Tab
   //
   'Security' => array(
-
+     'sql_string_no_show_screen' => array(
+          xl('Mode - Do Not Show SQL Queries'),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Do not allow SQL queries to be outputted to screen.')
+    ),
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
       'num',                            // data type
       '7200',                           // default
       xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
     ),
-
+    'secure_upload' => array(
+      xl('Secure Upload Files with White List'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Block all files types that are not found in the White List. Can find interface to edit the White List at Administration->Files.')
+    ),
     'secure_password' => array(
       xl('Require Strong Passwords'),
       'bool',                           // data type
       '0',                              // default
       xl('Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.')
     ),
-
     'password_history' => array(
       xl('Require Unique Passwords'),
       'bool',                           // data type
@@ -1564,12 +1677,55 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Email address, if any, to receive emergency login user activation messages.')
     ),
-     'new_validate' => array(
+
+    'new_validate' => array(
       xl('New form validation'),
       'bool',
       '1',
       xl('New form validation')
-     ),
+    ),
+
+    'allow_multiple_databases' => array(
+      xl('Allow multiple databases'),
+      'bool',
+      '0',
+      xl('Allow to use with multiple database')
+    ),
+
+    'safe_key_database' => array(
+      xl('Safe key database'),
+      'text',                           // data type
+      '',                               // default
+      xl('Key for multiple database credentials encryption')
+    ),
+
+    'use_active_directory' => array(
+      xl('Use Active Directory'),
+      'bool',
+      '0',
+      xl('If enabled, uses the specified active directory for login and authentication.')
+    ),
+
+    'account_suffix' => array(
+      xl('Active Directory - Suffix Of Account'),
+      'text',
+      '',
+      xl('The suffix of the account.')
+    ),
+
+    'base_dn' => array(
+      xl('Active Directory - Domains Base'),
+      'text',
+      '',
+      xl('Users is the standard windows CN, replace the DC stuff with your domain.')
+    ),
+
+    'domain_controllers' => array(
+      xl('Active Directory - Domains Controllers'),
+      'text',
+      '',
+      xl('The IP address of your domain controller(s).')
+    ),
 
   ),
 
@@ -1854,7 +2010,12 @@ $GLOBALS_METADATA = array(
       '1',                               // default
       xl('Enable Itemization of AMC Reports')
     ),
-
+    'dated_reminders_max_alerts_to_show' => array(
+       xl('Dated reminders maximum alerts to show'),
+       'num',                           // data type
+       '5',                               // default
+       xl('Dated reminders maximum alerts to show')
+      ),
   ),
 
   // Logging
@@ -2147,18 +2308,32 @@ $GLOBALS_METADATA = array(
   //
   'Portal' => array(
 
-    'portal_onsite_enable' => array(
-      xl('Enable Onsite Patient Portal'),
+    'portal_onsite_two_enable' => array(
+      xl('Enable Version 2 Onsite Patient Portal'),
       'bool',                           // data type
       '0',
-      xl('Enable Onsite Patient Portal.')
+      xl('Enable Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_two_address' => array(
+      xl('Version 2 Onsite Patient Portal Site Address'),
+      'text',                           // data type
+      'https://your_web_site.com/openemr/portal',
+      xl('Website link for the Version 2 Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_enable' => array(
+      xl('Enable Version 1 Onsite Patient Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_address' => array(
-      xl('Onsite Patient Portal Site Address'),
+      xl('Version 1 Onsite Patient Portal Site Address'),
       'text',                           // data type
       'https://your_web_site.com/openemr/patients',
-      xl('Website link for the Onsite Patient Portal.')
+      xl('Website link for the Version 1 Onsite Patient Portal.')
     ),
 
     'portal_onsite_document_download' => array(
@@ -2174,7 +2349,6 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Enable Offsite Patient Portal.')
     ),
-
     'portal_offsite_providerid' => array(
       xl('Offsite Patient Portal Provider ID'),
       'text',                           // data type
@@ -2363,6 +2537,18 @@ $GLOBALS_METADATA = array(
         xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
+	'ccda_alt_service_enable' => array(
+			xl('Enable C-CDA Alternate Service'),
+			array(
+					0 => xl('Off'),
+					1 => xl('Care Coordination Only'),
+					2 => xl('Portal Only'),
+					3 => xl('Both'),
+			),
+			'0',
+			xl('Enable C-CDA Alternate Service')
+	),
+ 
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
@@ -2610,7 +2796,7 @@ $GLOBALS_METADATA = array(
             'ka' => xl('Georgian'),
             'de' => xl('German'),
             'el' => xl('Greek, Modern'),
-            'gn' => xl('Guaraní'),
+            'gn' => xl('Guarani'),
             'gu' => xl('Gujarati'),
             'ht' => xl('Haitian- Haitian Creole'),
             'ha' => xl('Hausa'),
@@ -2660,13 +2846,13 @@ $GLOBALS_METADATA = array(
             'ms' => xl('Malay'),
             'ml' => xl('Malayalam'),
             'mt' => xl('Maltese'),
-            'mi' => xl('Māori'),
-            'mr' => xl('Marathi (Marāṭhī)'),
+            'mi' => xl('Maori'),
+            'mr' => xl('Marathi (Marathi)'),
             'mh' => xl('Marshallese'),
             'mn' => xl('Mongolian'),
             'na' => xl('Nauru'),
             'nv' => xl('Navajo, Navaho'),
-            'nb' => xl('Norwegian Bokmål'),
+            'nb' => xl('Norwegian Bokmal'),
             'nd' => xl('North Ndebele'),
             'ne' => xl('Nepali'),
             'ng' => xl('Ndonga'),
@@ -2681,7 +2867,7 @@ $GLOBALS_METADATA = array(
             'or' => xl('Oriya'),
             'os' => xl('Ossetian, Ossetic'),
             'pa' => xl('Panjabi, Punjabi'),
-            'pi' => xl('Pāli'),
+            'pi' => xl('Pali'),
             'fa' => xl('Persian (Farsi)'),
             'pl' => xl('Polish'),
             'ps' => xl('Pashto, Pushto'),
@@ -2691,7 +2877,7 @@ $GLOBALS_METADATA = array(
             'rn' => xl('Kirundi'),
             'ro' => xl('Romanian'),
             'ru' => xl('Russian'),
-            'sa' => xl('Sanskrit (Saṁskṛta)'),
+            'sa' => xl('Sanskrit (Samskrta)'),
             'sc' => xl('Sardinian'),
             'sd' => xl('Sindhi'),
             'se' => xl('Northern Sami'),
@@ -2731,7 +2917,7 @@ $GLOBALS_METADATA = array(
             'uz' => xl('Uzbek'),
             've' => xl('Venda'),
             'vi' => xl('Vietnamese'),
-            'vo' => xl('Volapük'),
+            'vo' => xl('Volapuk'),
             'wa' => xl('Walloon'),
             'cy' => xl('Welsh'),
             'wo' => xl('Wolof'),

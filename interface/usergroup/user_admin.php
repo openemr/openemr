@@ -5,8 +5,6 @@
 // of the License, or (at your option) any later version.
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
@@ -166,7 +164,7 @@ parent.$.fn.fancybox.close();
 <head>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 
@@ -176,7 +174,6 @@ parent.$.fn.fancybox.close();
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -208,7 +205,7 @@ function submitform() {
 
 	top.restoreSession();
 	var flag=0;
-
+    <?php if(!$GLOBALS['use_active_directory']){ ?>
 	if(document.forms[0].clearPass.value!="")
 	{
 		//Checking for the strong password if the 'secure password' feature is enabled
@@ -223,6 +220,7 @@ function submitform() {
 		}
 
 	}//If pwd null ends here
+    <?php } ?>
 	//Request to reset the user password if the user was deactived once the password expired.
 	if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
 		if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
@@ -282,7 +280,7 @@ function submitform() {
 	<?php } ?>
 	if(flag == 0){
                     document.forms[0].submit();
-                    parent.$.fn.fancybox.close(); 
+                    parent.$.fn.fancybox.close();
 	}
 }
 //Getting the list of selected item in ACL
@@ -331,8 +329,8 @@ function authorized_clicked() {
 <input type=hidden name="get_admin_id" value="<?php echo $GLOBALS['Emergency_Login_email']; ?>" >
 <input type=hidden name="admin_id" value="<?php echo $GLOBALS['Emergency_Login_email_id']; ?>" >
 <input type=hidden name="check_acl" value="">
-<?php 
-//Calculating the grace time 
+<?php
+//Calculating the grace time
 $current_date = date("Y-m-d");
 $password_exp=$iter["pwd_expiration_date"];
 if($password_exp != "0000-00-00")
@@ -358,16 +356,19 @@ $bg_count=count($acl_name);
 <TR>
     <TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD>
     <TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
-    <TD style="width:200px;"><span class=text><?php xl('Your Password','e'); ?>: </span></TD>
-    <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
+    <?php if(!$GLOBALS['use_active_directory']){ ?>
+        <TD style="width:200px;"><span class=text><?php xl('Your Password','e'); ?>: </span></TD>
+        <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
+    <?php } ?>
 </TR>
+    <?php if(!$GLOBALS['use_active_directory']){ ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
     <TD style="width:200px;"><span class=text><?php xl('User\'s New Password','e'); ?>: </span></TD>
     <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
 </TR>
-
+    <?php } ?>
 
 <TR height="30" style="valign:middle;">
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>

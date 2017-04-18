@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains functions for handling notes attached to patient files. 
+ * This file contains functions for handling notes attached to patient files.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -10,8 +10,6 @@
  * 2013-02-08 EMR Direct: changes to allow notes added by background-services with pid=0
  */
 
-/* for sqlQuery(), sqlStatement(), sqlNumRows(), sqlFetchArray(). */
-require_once($GLOBALS['srcdir'].'/sql.inc');
 
 /**
  * Retrieve a note, given its ID
@@ -34,7 +32,7 @@ function getPnoteById($id, $cols = "*")
  *
  * @param string $activity 0 for deleted notes, 1 (the default) for active
  *                         notes, or 'All' for all.
- * @param string $show_all whether to display only the selected user's 
+ * @param string $show_all whether to display only the selected user's
  *                         messages, or all users' messages.
  * @param string $user The user whom's notes you want to retrieve.
  * @param bool $count Whether to return a count, or just return 0.
@@ -63,9 +61,9 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
     $usrvar='_%';
   } else {
     $usrvar=$user;
-  } 
+  }
 
-  // run the query 
+  // run the query
   // 2013-02-08 EMR Direct: minor changes to query so notes with pid=0 don't disappear
   $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status,
           IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
@@ -216,11 +214,11 @@ function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
       p.message_status,
       'Message' as `type`
     FROM
-      pnotes AS p 
-      LEFT JOIN patient_data AS pd 
-        ON pd.id = p.pid 
-    WHERE assigned_to = '-patient-' 
-      AND p.deleted != 1 
+      pnotes AS p
+      LEFT JOIN patient_data AS pd
+        ON pd.id = p.pid
+    WHERE assigned_to = '-patient-'
+      AND p.deleted != 1
       AND p.pid = ?
       $search
     ORDER BY `date` desc
@@ -248,12 +246,12 @@ function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = 
       '' as message_status,
       'Notification' as `type`
     FROM
-      patient_reminders AS pr 
-      LEFT JOIN list_options AS lo 
-        ON lo.option_id = pr.category 
+      patient_reminders AS pr
+      LEFT JOIN list_options AS lo
+        ON lo.option_id = pr.category
         AND lo.list_id = 'rule_action_category' AND lo.activity = 1
-      LEFT JOIN list_options AS lo2 
-        ON lo2.option_id = pr.item 
+      LEFT JOIN list_options AS lo2
+        ON lo2.option_id = pr.item
         AND lo2.list_id = 'rule_action' AND lo2.activity = 1
     WHERE pid = ?
       AND active = 1
@@ -289,11 +287,11 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
       p.message_status,
       'Message' as `type`
     FROM
-      pnotes AS p 
-      LEFT JOIN patient_data AS pd 
-        ON pd.id = p.pid 
+      pnotes AS p
+      LEFT JOIN patient_data AS pd
+        ON pd.id = p.pid
     WHERE `user` = ?
-      AND p.deleted != 1 
+      AND p.deleted != 1
       AND p.pid = ?
       AND p.message_status != 'Done'
       $search

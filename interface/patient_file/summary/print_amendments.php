@@ -29,7 +29,6 @@ $fake_register_globals=false;
 //
 
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
 
 $amendments = $_REQUEST["ids"];
@@ -40,7 +39,7 @@ $patientDetails = getPatientData($pid,"fname,lname");
 $patientName = $patientDetails['lname'] . ", " . $patientDetails['fname'];
 
 function printAmendment($amendmentID,$lastAmendment) {
-	$query = "SELECT lo.title AS 'amendmentFrom', lo1.title AS 'amendmentStatus',a.* FROM amendments a 
+	$query = "SELECT lo.title AS 'amendmentFrom', lo1.title AS 'amendmentStatus',a.* FROM amendments a
 		LEFT JOIN list_options lo ON a.amendment_by = lo.option_id AND lo.list_id = 'amendment_from' AND lo.activity = 1
 		LEFT JOIN list_options lo1 ON a.amendment_status = lo1.option_id AND lo1.list_id = 'amendment_status' AND lo1.activity = 1
 		WHERE a.amendment_id = ?";
@@ -67,7 +66,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 	echo "</tr>";
 
 	echo "</table>";
-	
+
 	echo "<hr>";
 	echo "<span class='bold'>" . xlt("History") . "</span><br>";
 	$pageBreak = ( $lastAmendment ) ? "" : "page-break-after:always";
@@ -77,7 +76,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 	echo "<th align=left style='width:20%'>" . xlt("By") . "</th>";
 	echo "<th align=left >" . xlt("Comments") . "</th>";
 	echo "</tr>";
-	
+
 	$query = "SELECT u.fname,u.lname,ah.* FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE ah.amendment_id = ?";
 	$resultSet = sqlStatement($query,array($amendmentID));
 	while( $row = sqlFetchArray($resultSet)) {
@@ -100,7 +99,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 
 <!-- page styles -->
@@ -122,7 +121,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 <script language='JavaScript'>
 	opener.top.printLogPrint(window);
 </script>
-	
+
 </body>
 
 </html>

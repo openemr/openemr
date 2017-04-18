@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
@@ -34,10 +34,7 @@ require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
-require_once(dirname(__FILE__) . "/../../library/classes/OFX.class.php");
-require_once(dirname(__FILE__) . "/../../library/classes/X12Partner.class.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/payment.inc.php");
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -83,7 +80,7 @@ if (isset($_POST["mode"]))
     $PaymentDate=trim(formData('payment_date' ));
 	$QueryString.="Select * from  ar_session where  ";
 	$And='';
-	
+
 	if($PaymentDate=='date_val')
 	 {
 	  $PaymentDateString=' check_date ';
@@ -96,7 +93,7 @@ if (isset($_POST["mode"]))
 	 {
 	  $PaymentDateString=' deposit_date ';
 	 }
-	
+
 	if($FromDate!='')
 	 {
 		 $QueryString.=" $And $PaymentDateString >='".DateToYYYYMMDD($FromDate)."'";
@@ -217,32 +214,25 @@ if (isset($_POST["mode"]))
    }
  }
 //===============================================================================
-$DateFormat=DateFormatRead();
 ?>
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
-<script type='text/javascript'>  
+<script type='text/javascript'>
 //For different browsers there was disparity in width.So this code is used to adjust the width.
 if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;
  var ieversion=new Number(RegExp.$1) // capture x.x portion and store as a number
@@ -289,6 +279,17 @@ else
 	});
 });
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 <script language='JavaScript'>
  var mypcc = '1';
@@ -435,24 +436,14 @@ document.onclick=HideTheAjaxDivs;
 				<table  border="0" cellspacing="0" cellpadding="0">
 				  <tr>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:90px;" name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
-					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-						id='img_FromDate' border='0' alt='[?]' style='cursor:pointer'
-						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-					   <script>
-						Calendar.setup({inputField:"FromDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_FromDate"});
-					   </script></td>
+					<td><input type='text'  style="width:90px;" class='datepicker' name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
+					</td>
 					<td width="53">&nbsp;</td>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:103px;"  name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
-					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-						id='img_ToDate' border='0' alt='[?]' style='cursor:pointer'
-						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-					   <script>
-						Calendar.setup({inputField:"ToDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_ToDate"});
-					   </script></td>
+					<td><input type='text'  style="width:103px;"  class='datepicker' name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
+					</td>
 				  </tr>
-				</table>	   
+				</table>
 	    </td>
         <td class="text"></td>
 	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
@@ -484,7 +475,7 @@ document.onclick=HideTheAjaxDivs;
 			  <tr>
 				<td width="280">
 				<input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' class="text "
-				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br> 
+				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
 				<!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
 					<div id='ajax_div_insurance_section'>
 					<div id='ajax_div_insurance_error'>					</div>
@@ -602,7 +593,7 @@ document.onclick=HideTheAjaxDivs;
 								 {
 										$PaymentType='';
 								 }
-								
+
 								generate_print_field($frow, $PaymentType);
 				  ?></a></td>
 								<td class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal'  ><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a></td>
@@ -613,7 +604,7 @@ document.onclick=HideTheAjaxDivs;
 								generate_print_field($frow, $RowSearch['payment_method']);
 				  ?></a></td>
 								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a></td>
-								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php 
+								<td align="left" class="<?php echo $StringClass; ?> " ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php
 								$rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
 								$row=sqlFetchArray($rs);
 								$pay_total=$row['pay_total'];

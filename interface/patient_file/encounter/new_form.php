@@ -19,17 +19,22 @@ $esignApi = new Esign\Api();
 <script language="JavaScript">
 
 function openNewForm(sel) {
- top.restoreSession();
+  top.restoreSession();
   FormNameValueArray = sel.split('formname=');
-  if(FormNameValueArray[1] == 'newpatient')
-   {
-    parent.location.href = sel
-   }
+  if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
+  {
+    parent.location.href = sel;
+  }
+  else if (!parent.Forms)
+  {
+    location.href = sel;
+  }
   else
-   {
-	parent.Forms.location.href = sel;
-   }
+  {
+    parent.Forms.location.href = sel;
+  }
 }
+
 function toggleFrame1(fnum) {
   top.frames['left_nav'].document.forms[0].cb_top.checked=false;
   top.window.parent.left_nav.toggleFrame(fnum);
@@ -56,7 +61,7 @@ function mopen(id)
 {
 	// cancel close timer
 	//mcancelclosetime();
-	
+
 	flag=10;
 
 	// close old layer
@@ -136,9 +141,19 @@ function findPosX(id)
 include_once("$srcdir/registry.inc");
 
 function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
+    global $attendant_type;
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date FROM registry WHERE " .
-    "state LIKE \"$state\" ORDER BY category, priority, name";
+    "unpackaged, date, aco_spec FROM registry WHERE ";
+  // select different forms for groups
+  if($attendant_type == 'pid' )
+  {
+    $sql .= "patient_encounter = 1 AND ";
+  }
+  else
+  {
+    $sql .= "therapy_group_encounter = 1 AND ";
+  }
+  $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
   if ($limit != "unlimited") $sql .= " limit $limit, $offset";
   $res = sqlStatement($sql);
   if ($res) {
@@ -168,19 +183,34 @@ isset($GLOBALS['encounter']) &&
       $encounterLocked = true;
   }
 }
-  
+
 if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
   if(isset($hide)){
     $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }else{
-    $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
+    if ($GLOBALS['new_tabs_layout']) {
+      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame('enc2','enc','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
+    }
+    else {
+      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
+    }
   }
-  if ( $encounterLocked === false ) {
+  if ($encounterLocked === false) {
       foreach ($reg as $entry) {
+        // Check permission to create forms of this type.
+        $tmp = explode('|', $entry['aco_spec']);
+        if (!empty($tmp[1])) {
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
         $new_category = trim($entry['category']);
         $new_nickname = trim($entry['nickname']);
-        if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+        if ($new_category == '') {
+          $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
+        }else{
+          $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
+        }
         if ($new_nickname != '') {$nickname = $new_nickname;}
         else {$nickname = $entry['name'];}
         if ($old_category != $new_category) {
@@ -197,34 +227,37 @@ if (!empty($reg)) {
   }
   $StringEcho.= '</table></div></li>';
 }
+
 if($StringEcho){
   $StringEcho2= '<div style="clear:both"></div>';
 }else{
   $StringEcho2="";
 }
-?>
-<!--<table   style="border:solid 1px black" cellspacing="0" cellpadding="0">
- <tr>
-    <td valign="top"><?php //echo $StringEcho; ?></td>
-  </tr>
-</table>-->
-<?php
-//$StringEcho='';
+
 // This shows Layout Based Form names just like the above.
 //
-if ( $encounterLocked === false ) {
+if ($encounterLocked === false) {
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
     if (sqlNumRows($lres)) {
       if(!$StringEcho){
         $StringEcho= '<ul id="sddm">';
       }
-      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >".xl('Layout Based') ."</a><div id='lbf' ><table border='0'  cellspacing='0' cellpadding='0'>";
+      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
+        xl('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
       while ($lrow = sqlFetchArray($lres)) {
-      $option_id = $lrow['option_id']; // should start with LBF
-      $title = $lrow['title'];
-      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname='
-    				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        // Check ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+          $tmp = explode('|', $jobj['aco']);
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
+        $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
+          $rootdir . '/patient_file/encounter/load_form.php?formname=' .
+          urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
       }
     }
 }
@@ -232,7 +265,7 @@ if ( $encounterLocked === false ) {
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
 	$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
   $DivId = 'mod_installer';
   if (sqlNumRows($module_query)) {

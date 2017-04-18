@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,17 +19,15 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
 //This section handles ajax for insurance,patient and for encounters.
 //===============================================================================
 require_once("../../interface/globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
 //=================================
 if (isset($_REQUEST["ajax_mode"]))
  {
@@ -132,7 +130,7 @@ function AjaxDropDownCode()
 
 	  ";
 	$res = sqlStatement("SELECT pid as id,fname,lname,mname,DOB FROM patient_data
-			 where  fname like '$patient_code%' or lname like '$patient_code%' or mname like '$patient_code%' or 
+			 where  fname like '$patient_code%' or lname like '$patient_code%' or mname like '$patient_code%' or
 			 CONCAT(lname,' ',fname,' ',mname) like '$patient_code%' or pid like '$patient_code%' ORDER BY lname");
 	while ($row = sqlFetchArray($res))
 	 {

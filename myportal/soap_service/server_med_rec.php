@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
@@ -48,7 +48,7 @@ class Userforms extends UserAudit{
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-      
+
 
 
   public function print_report($data){
@@ -65,9 +65,6 @@ class Userforms extends UserAudit{
 	require_once("../../library/acl.inc");
 	require_once("../../library/lists.inc");
 	require_once("../../library/report.inc");
-	require_once("../../library/classes/Document.class.php");
-	require_once("../../library/classes/Note.class.php");
-	require_once("../../library/formatting.inc.php");
 	require_once("../../custom/code_types.inc.php");
 	     foreach($repArr as $value){
 		    ob_start();
@@ -82,7 +79,7 @@ class Userforms extends UserAudit{
 		    $this->getforms($value);
 		    $out .= ob_get_clean();
 		    }
-		    
+
 	     }
        return $out;
 	}
@@ -90,8 +87,8 @@ class Userforms extends UserAudit{
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-    
-    
+
+
 
 
   public function print_ccr_report($data){
@@ -104,7 +101,7 @@ class Userforms extends UserAudit{
 		      $html = ob_get_clean();
 		      if($ccraction=='viewccd')
 		      {
-		      
+
 		      $html = preg_replace('/<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4.01\/\/EN" "http:\/\/www.w3.org\/TR\/html4\/strict.dtd">/','',$html);
 		      $pos1 = strpos($html,'body {');
 		      $pos2 = strpos($html,'.h1center');
@@ -125,7 +122,7 @@ class Userforms extends UserAudit{
 		throw new SoapFault("Server", "credentials failed");
 	}
     }
-    
+
     //Return the forms requested from Portal.
 
     private function getforms($fId){
@@ -162,9 +159,9 @@ class Userforms extends UserAudit{
 	    <?php
 	}
     }
-    
-    
-    
+
+
+
     private function getIid($val){
 	global $pid;
 	global $ISSUE_TYPES;
@@ -183,7 +180,7 @@ class Userforms extends UserAudit{
 	    <?php
 	    $irow = sqlQuery("SELECT type, title, comments, diagnosis FROM lists WHERE id =? ",array($val));
 	    $diagnosis = $irow['diagnosis'];
-	    
+
 	    if ($prevIssueType != $irow['type'])
 	    {
 		$disptype = $ISSUE_TYPES[$irow['type']][0];
@@ -225,7 +222,7 @@ class Userforms extends UserAudit{
 		<?php
 		display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?",array($rowid)));
 		?>
-    
+
 		</table>
 		<?php
 	    }
@@ -242,14 +239,14 @@ class Userforms extends UserAudit{
 	   ?>
 	    </div>
 	    <?php
-	    ?>                            
+	    ?>
 		</td>
-	    <?php 
+	    <?php
 
     }
-    
-    
-    
+
+
+
     private function getIncudes($val){
 	global $pid;
 	if ($val == "demographics")
@@ -364,7 +361,7 @@ class Userforms extends UserAudit{
 	}
 	elseif ($val == "immunizations")
 	{
-	   
+
 		?>
 		<hr />
 		<div class='text immunizations'>
@@ -428,7 +425,7 @@ class Userforms extends UserAudit{
 	    <?php
 	}
     }
-	
+
 	/**
      * Method to fetch CCDA
      * @param type $data
@@ -438,7 +435,7 @@ class Userforms extends UserAudit{
     {
 	  global $pid;
 	  global $server_url;
-        
+
 	  if (UserService::valid($data[0])=='existingpatient') {
 		if ($this->checkModuleInstalled($moduleName = 'Carecoordination')) {
 		  $site_id = $data[0][0];
@@ -490,7 +487,7 @@ class Userforms extends UserAudit{
 		  <body>Un known error occured</body>
 		  </note>';
     }
-    
+
     public function checkModuleInstalled($moduleName  = 'Carecoordination')
     {
 	  $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
@@ -498,7 +495,7 @@ class Userforms extends UserAudit{
 	  $row = sqlFetchArray($res);
 	  return !empty($row);
     }
-    
+
 	/**
     * @param mysql_resource - $inputArray - mysql query result
     * @param string - $rootElementName - root element name
@@ -521,9 +518,9 @@ class Userforms extends UserAudit{
 
       return $xmlData;
 	}
-   
+
 	/**
-    * 
+    *
     * @param type $data
     * @return type
     */
@@ -536,14 +533,14 @@ class Userforms extends UserAudit{
 		$keyword = $data['keyword'];
 		$arrBinds = array();
 		$cols = "DISTINCT log.date, event, user, groupname, patient_id, success, comments,checksum,crt_user";
-		$sql = "SELECT $cols, CONCAT(fname, ' ', lname) as patient_ful_name, patient_portal_menu.`menu_name`, 
-            patient_portal_menu_group.`menu_group_name`, ccda_doc_id FROM log 
+		$sql = "SELECT $cols, CONCAT(fname, ' ', lname) as patient_ful_name, patient_portal_menu.`menu_name`,
+            patient_portal_menu_group.`menu_group_name`, ccda_doc_id FROM log
 			JOIN patient_data ON log.patient_id = patient_data.pid
 			JOIN patient_access_offsite ON log.patient_id = patient_access_offsite.pid
 			JOIN patient_portal_menu ON patient_portal_menu.`patient_portal_menu_id` = log.menu_item_id
 			JOIN patient_portal_menu_group ON patient_portal_menu_group.`patient_portal_menu_group_id` = patient_portal_menu.`patient_portal_menu_group_id`
 			WHERE log.date >= ? AND log.date <= ?";
-		  
+
 		$sql .= " AND log_from = 'patient-portal'";
 		$sql .= " AND patient_id = ?";
 		$arrBinds = array($date1  . ' 00:00:00', $date2 . ' 23:59:59', $pid);
@@ -551,8 +548,8 @@ class Userforms extends UserAudit{
 		  $sql .= " AND (log.date LIKE ?
 					  OR LOWER(event) LIKE ?
 					  OR LOWER(user) LIKE ?
-						  OR LOWER(CONCAT(fname, ' ', lname)) LIKE ? 
-					  OR LOWER(groupname) LIKE ?  
+						  OR LOWER(CONCAT(fname, ' ', lname)) LIKE ?
+					  OR LOWER(groupname) LIKE ?
 					  OR LOWER(comments) LIKE ?
 					  OR LOWER(user) LIKE ?
 					  ) ";
@@ -565,7 +562,7 @@ class Userforms extends UserAudit{
 		  $arrBinds[] = '%' . strtolower($keyword) . '%';
 		}
 		$sql .= "  ORDER BY date DESC LIMIT 5000";
-		
+
 		$res = sqlStatement($sql, $arrBinds);
 		$all = array();
 		for($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -577,11 +574,11 @@ class Userforms extends UserAudit{
 		return $responseString;
 	  }
     }
-    
+
     /*
      * Connect to a phiMail Direct Messaging server and transmit
      * a CCD document to the specified recipient. If the message is accepted by the
-     * server, the script will return "SUCCESS", otherwise it will return an error msg. 
+     * server, the script will return "SUCCESS", otherwise it will return an error msg.
      * @param DOMDocument ccd the xml data to transmit, a CCDA document is assumed
      * @param string recipient the Direct Address of the recipient
      * @param string requested_by user | patient
@@ -592,9 +589,9 @@ class Userforms extends UserAudit{
         $recipient =  $data['recipient'];
         $requested_by = $data['requested_by'];
         $xml_type = $data['xml_type'];
-       
+
         if (UserService::valid($data[0])=='existingpatient') {
-                        
+
         try {
             $_SESSION['authProvider'] = 1;
             global $pid;
@@ -639,7 +636,7 @@ class Userforms extends UserAudit{
             $text_len=strlen($text_out);
             phimail_write($fp,"TEXT $text_len\n");
             $ret=@fgets($fp,256);
-            
+
             if($ret!="BEGIN\n") {
                 phimail_close($fp);
                 return("$config_err 5");
@@ -660,7 +657,7 @@ class Userforms extends UserAudit{
                 $add_type = (strtolower($xml_type) == 'html') ? 'TEXT' : 'RAW';
                 phimail_write($fp, "ADD " . $add_type . " " . $message_length . "" . $att_filename . "\n");
             }
-            
+
 
             $ret=fgets($fp,256);
 
@@ -672,7 +669,7 @@ class Userforms extends UserAudit{
 
             if($ret!==TRUE) return("$config_err 8");
 
-            
+
             phimail_write($fp,"SEND\n");
             $ret=fgets($fp,256);
             phimail_close($fp);
@@ -680,7 +677,7 @@ class Userforms extends UserAudit{
             if($requested_by=="patient")  {
              $reqBy="portal-user";
              $sql = "SELECT id FROM users WHERE username='portal-user'";
-             
+
              if (($r = sqlStatement($sql)) === FALSE ||
                  ($u = sqlFetchArray($r)) === FALSE) {
                  $reqID = 1; //default if we don't have a service user
@@ -702,7 +699,7 @@ class Userforms extends UserAudit{
             /**
              * If we get here, the message was successfully sent and the return
              * value $ret is of the form "QUEUED recipient message-id" which
-             * is suitable for logging. 
+             * is suitable for logging.
              */
             $msg_id=explode(" ",trim($ret),4);
             if($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
@@ -712,7 +709,7 @@ class Userforms extends UserAudit{
             }
             newEvent("transmit-".$xml_type,$reqBy,$_SESSION['authProvider'],1,$ret,$pid);
             $adodb=$GLOBALS['adodb']['db'];
-            
+
 	//            $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
 	//             "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
 	//            $res=@sqlStatement($sql,array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));

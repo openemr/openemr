@@ -1,20 +1,33 @@
 <?php
+/**
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
-include_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 #logview {
     width: 100%;
@@ -43,6 +56,11 @@ require_once("$srcdir/formatting.inc.php");
     color: #336699;
 }
 </style>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script>
 //function to disable the event type field if the event name is disclosure
 function eventTypeChange(eventname)
@@ -52,7 +70,7 @@ function eventTypeChange(eventname)
           }
          else {
             document.theform.type_event.disabled = false;
-         }              
+         }
 }
 
 // VicarePlus :: This invokes the find-patient popup.
@@ -72,7 +90,7 @@ function eventTypeChange(eventname)
 <body class="body_top">
 <font class="title"><?php  xl('Logs Viewer','e'); ?></font>
 <br>
-<?php 
+<?php
 $err_message=0;
 if ($_GET["start_date"])
 $start_date = formData('start_date','G');
@@ -114,8 +132,8 @@ $ures = sqlStatement($sqlQuery);
 ?>
 
 <?php
-$get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
-$get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
+$get_sdate=$start_date ? $start_date : date("Y-m-d H:i");
+$get_edate=$end_date ? $end_date : date("Y-m-d H:i");
 
 ?>
 
@@ -124,21 +142,21 @@ $get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
 <?php
 
 $sortby = formData('sortby','G') ;
+$direction = formData('direction','G') ;
 ?>
+<input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? $direction : 'asc'; ?>">
 <input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>">
 <input type=hidden name=csum value="">
 <table>
 <tr><td>
 <span class="text"><?php  xl('Start Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
-<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
+<input class="datetimepicker" type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" />
 </td>
 <td>
 <span class="text"><?php  xl('End Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
-<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
+<input class="datetimepicker" type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" />
 </td>
 <!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
 <td>
@@ -172,7 +190,7 @@ echo "</select>\n";
 <span class='text'><?php  xl('Name of Events','e'); ?>: </span>
 </td>
 <td>
-<?php 
+<?php
 $res = sqlStatement("select distinct event from log order by event ASC");
 $ename_list=array(); $j=0;
 while ($erow = sqlFetchArray($res)) {
@@ -220,7 +238,7 @@ echo "</select>\n";
 <td>
 &nbsp;&nbsp;<span class='text'><?php  xl('Type of Events','e'); ?>: </span>
 </td><td>
-<?php 
+<?php
 $event_types=array("select", "update", "insert", "delete", "replace");
 $lcount=count($event_types);
 if($eventname=="disclosure"){
@@ -253,6 +271,14 @@ $check_sum = formData('check_sum','G');
 <input type=hidden name="event" value=<?php echo $event ; ?>>
 <a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh','e'); ?>]</a>
 </td>
+<td>
+<div id='valid_button'>
+<input type=button id='validate_log' onclick='validatelog();' value='<?php echo xla('Validate Log'); ?>'></input>
+</div>
+<div id='log_loading' style="display: none">
+<img src='../../images/loading.gif'/>
+</div>
+</td>
 </tr>
 </table>
 </FORM>
@@ -263,16 +289,17 @@ $check_sum = formData('check_sum','G');
 <table>
  <tr>
   <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
-  <th id="sortby_date" class="text" title="<?php xl('Sort by date/time','e'); ?>"><?php xl('Date','e'); ?></th>
-  <th id="sortby_event" class="text" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></th>
-  <th id="sortby_user" class="text" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></th>
-  <th id="sortby_cuser" class="text" title="<?php xl('Sort by Crt User','e'); ?>"><?php  xl('Certificate User','e'); ?></th>
-  <th id="sortby_group" class="text" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></th>
-  <th id="sortby_pid" class="text" title="<?php xl('Sort by PatientID','e'); ?>"><?php  xl('PatientID','e'); ?></th>
-  <th id="sortby_success" class="text" title="<?php xl('Sort by Success','e'); ?>"><?php  xl('Success','e'); ?></th>
-  <th id="sortby_comments" class="text" title="<?php xl('Sort by Comments','e'); ?>"><?php  xl('Comments','e'); ?></th>
+  <th id="sortby_date" class="text sortby" title="<?php xl('Sort by date/time','e'); ?>"><?php xl('Date','e'); ?></th>
+  <th id="sortby_event" class="text sortby" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></th>
+  <th id="sortby_category" class="text sortby" title="<?php xl('Sort by Category','e'); ?>"><?php  xl('Category','e'); ?></th>
+  <th id="sortby_user" class="text sortby" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></th>
+  <th id="sortby_cuser" class="text sortby" title="<?php xl('Sort by Crt User','e'); ?>"><?php  xl('Certificate User','e'); ?></th>
+  <th id="sortby_group" class="text sortby" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></th>
+  <th id="sortby_pid" class="text sortby" title="<?php xl('Sort by PatientID','e'); ?>"><?php  xl('PatientID','e'); ?></th>
+  <th id="sortby_success" class="text sortby" title="<?php xl('Sort by Success','e'); ?>"><?php  xl('Success','e'); ?></th>
+  <th id="sortby_comments" class="text sortby" title="<?php xl('Sort by Comments','e'); ?>"><?php  xl('Comments','e'); ?></th>
  <?php  if($check_sum) {?>
-  <th id="sortby_checksum" class="text" title="<?php xl('Sort by Checksum','e'); ?>"><?php  xl('Checksum','e'); ?></th>
+  <th id="sortby_checksum" class="text sortby" title="<?php xl('Sort by Checksum','e'); ?>"><?php  xl('Checksum','e'); ?></th>
   <?php } ?>
  </tr>
 <?php
@@ -288,7 +315,7 @@ if($eventname != "" && $type_event != "")
 {
 	$getevent=$eventname."-".$type_event;
 }
-      
+
 	if(($eventname == "") && ($type_event != ""))
     {	$tevent=$type_event;
     }
@@ -298,33 +325,34 @@ if($eventname != "" && $type_event != "")
  	{$gev = "";}
  else
     {$gev = $getevent;}
-    
-if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
 
 
   foreach ($ret as $iter) {
     //translate comments
     $patterns = array ('/^success/','/^failure/','/ encounter/');
 	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
-	
+
 	$log_id = $iter['id'];
 	$commentEncrStatus = "No";
 	$logEncryptData = logCommentEncryptData($log_id);
 	if(count($logEncryptData) > 0){
 		$commentEncrStatus = $logEncryptData['encrypt'];
 	}
-	
+
 	//July 1, 2014: Ensoftek: Decrypt comment data if encrypted
 	if($commentEncrStatus == "Yes"){
 		$trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
 	}else{
 		$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
 	}
-	
+
 ?>
  <TR class="oneresult">
   <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
   <TD class="text"><?php echo preg_replace('/select$/','Query',$iter["event"]); //Convert select term to Query for MU2 requirements ?></TD>
+  <TD class="text"><?php echo $iter["category"]?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
   <TD class="text"><?php echo $iter["crt_user"]?></TD>
   <TD class="text"><?php echo $iter["groupname"]?></TD>
@@ -350,6 +378,7 @@ foreach ($ret as $iter) {
 <TR class="oneresult">
   <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10),ENT_NOQUOTES); ?></TD>
   <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]),ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars(xl($iter["category"]),ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["crt_user"],ENT_NOQUOTES);?></TD>
   <TD class="text"><?php echo htmlspecialchars($iter["groupname"],ENT_NOQUOTES);?></TD>
@@ -387,22 +416,65 @@ $(document).ready(function(){
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
 
     // click-able column headers to sort the list
-    $("#sortby_date").click(function() { $("#sortby").val("date"); $("#theform").submit(); });
-    $("#sortby_event").click(function() { $("#sortby").val("event"); $("#theform").submit(); });
-    $("#sortby_user").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
-    $("#sortby_cuser").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
-    $("#sortby_group").click(function() { $("#sortby").val("groupname"); $("#theform").submit(); });
-    $("#sortby_pid").click(function() { $("#sortby").val("patient_id"); $("#theform").submit(); });
-    $("#sortby_success").click(function() { $("#sortby").val("success"); $("#theform").submit(); });
-    $("#sortby_comments").click(function() { $("#sortby").val("comments"); $("#theform").submit(); });
-    $("#sortby_checksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
+    $('.sortby')
+    $("#sortby_date").click(function() { set_sort_direction(); $("#sortby").val("date"); $("#theform").submit(); });
+    $("#sortby_event").click(function() { set_sort_direction(); $("#sortby").val("event"); $("#theform").submit(); });
+    $("#sortby_category").click(function() { set_sort_direction(); $("#sortby").val("category"); $("#theform").submit(); });
+    $("#sortby_user").click(function() { set_sort_direction(); $("#sortby").val("user"); $("#theform").submit(); });
+    $("#sortby_cuser").click(function() { set_sort_direction(); $("#sortby").val("user"); $("#theform").submit(); });
+    $("#sortby_group").click(function() { set_sort_direction(); $("#sortby").val("groupname"); $("#theform").submit(); });
+    $("#sortby_pid").click(function() { set_sort_direction(); $("#sortby").val("patient_id"); $("#theform").submit(); });
+    $("#sortby_success").click(function() { set_sort_direction(); $("#sortby").val("success"); $("#theform").submit(); });
+    $("#sortby_comments").click(function() { set_sort_direction(); $("#sortby").val("comments"); $("#theform").submit(); });
+    $("#sortby_checksum").click(function() { set_sort_direction(); $("#sortby").val("checksum"); $("#theform").submit(); });
+
+    $('.datetimepicker').datetimepicker({
+       <?php $datetimepicker_timepicker = true; ?>
+       <?php $datetimepicker_showseconds = false; ?>
+       <?php $datetimepicker_formatInput = false; ?>
+       <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+       <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
+function set_sort_direction(){
+	if($('#direction').val() == 'asc')
+		$('#direction').val('desc');
+	else
+		$('#direction').val('asc');
+}
 
-/* required for popup calendar */
-Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:true});
-Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_end_date", showsTime:true});
+function validatelog(){
+	 var img = document.getElementById('log_loading');
+	 var btn = document.getElementById('valid_button');
+	 if(img){
+		 if(img.style.display == "block"){
+			 return false;
+		 }
+		 img.style.display = "block";
+	 	if(btn){btn.style.display = "none"}
+	 }
+	 $.ajax({
+		 	url:"../../library/log_validation.php",
+	        asynchronous : true,
+	        method: "post",
+	        success :function(response){
+	                if(img){
+	                        img.style.display="none";
+	                        if(btn){btn.style.display="block";}
+	                }
+	                alert(response);
+	                },
+	        failure :function(){
+	                if(img){
+	                        img.style.display="none";
+	                        if(btn){btn.style.display="block";}
+	                }
+	                alert('<?php echo xls("Audit Log Validation Failed"); ?>');
+	        }
+	 });
 
+}
 </script>
 
 </html>

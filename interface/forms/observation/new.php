@@ -1,6 +1,7 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+// Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
 //
 //
 // This program is free software; you can redistribute it and/or
@@ -19,9 +20,10 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Jacob T Paul <jacob@zhservices.com>
 //           Vinish K <vinish@zhservices.com>
+//           Brady Miller <brady.g.miller@gmail.com>
 //
 // +------------------------------------------------------------------------------+
 
@@ -57,14 +59,15 @@ $check_res = $formid ? $check_res : array();
 <html>
     <head>
         <?php html_header_show(); ?>
-        <!-- pop up calendar -->
-        <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-        <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
     </head>
 
     <body class="body_top">
@@ -77,7 +80,6 @@ $check_res = $formid ? $check_res : array();
                 changeIds('comments');
                 changeIds('code');
                 changeIds('description');
-                changeIds('img_code_date');
                 changeIds('code_date');
                 changeIds('displaytext');
                 changeIds('code_type');
@@ -96,7 +98,6 @@ $check_res = $formid ? $check_res : array();
                 document.getElementById("comments" + rowid1[1]).value = '';
                 document.getElementById("code_" + rowid1[1]).value = '';
                 document.getElementById("description_" + rowid1[1]).value = '';
-                document.getElementById("img_code_date_" + rowid1[1]).value = '';
                 document.getElementById("code_date_" + rowid1[1]).value = '';
                 document.getElementById("displaytext_" + rowid1[1]).innerHTML = '';
                 document.getElementById("code_type_" + rowid1[1]).value = '';
@@ -114,10 +115,6 @@ $check_res = $formid ? $check_res : array();
                     if (elem[i].id) {
                         index = i + 1;
                         elem[i].id = class_val + "_" + index;
-                    }
-                    if (class_val == 'code_date')
-                    {
-                        Calendar.setup({inputField: class_val + "_" + index, ifFormat: "%Y-%m-%d", button: "img_code_date_" + index});
                     }
                 }
             }
@@ -138,7 +135,7 @@ $check_res = $formid ? $check_res : array();
                 document.getElementById('clickId').value = checkId;
                 dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=LOINC,PHIN Questions', '_blank', 700, 400);
             }
-            
+
             function set_related(codetype, code, selector, codedesc) {
                 var checkId = document.getElementById('clickId').value;
                 document.getElementById("code" + checkId).value = code;
@@ -199,12 +196,25 @@ $check_res = $formid ? $check_res : array();
                   document.getElementById('ob_value_phin' + checkId).style.display = '';
                 }
             }
-            
+
+            $(document).ready(function() {
+                // special case to deal with static and dynamic datepicker items
+                $(document).on('mouseover','.datepicker', function(){
+                    $(this).datetimepicker({
+                        <?php $datetimepicker_timepicker = false; ?>
+                        <?php $datetimepicker_showseconds = false; ?>
+                        <?php $datetimepicker_formatInput = false; ?>
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                    });
+                });
+            });
+
         </script>
         <p><span class="forms-title"><?php echo xlt('Observation Form'); ?></span></p>
         </br>
         <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/observation/save.php?id=" . attr($formid) . "'>\n"; ?>
-        <table id="table_observation" border="0" >            
+        <table id="table_observation" border="0" >
 
             <?php
             if (!empty($check_res)) {
@@ -218,11 +228,11 @@ $check_res = $formid ? $check_res : array();
                             <span id="displaytext_<?php echo $key + 1; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($obj{"description"}); ?></span>
                             <input type="hidden" id="description_<?php echo $key + 1; ?>" name="description[]" class="description" value="<?php echo text($obj{"description"}); ?>">
                             <input type="hidden" id="code_type_<?php echo $key + 1; ?>" name="code_type[]" class="code_type" value="<?php echo text($obj{"code_type"}); ?>">
-                            <input type="hidden" id="table_code_<?php echo $key + 1; ?>" name="table_code[]" class="table_code" value="<?php echo text($obj{"table_code"}); ?>">                          
+                            <input type="hidden" id="table_code_<?php echo $key + 1; ?>" name="table_code[]" class="table_code" value="<?php echo text($obj{"table_code"}); ?>">
                         </td>
                         <td id="ob_value_head_<?php echo $key + 1; ?>" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
-                        <td class="forms"> 
-                           <?php 
+                        <td class="forms">
+                           <?php
                                 if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
                                   $style = 'display: block;';
                                 }
@@ -238,7 +248,7 @@ $check_res = $formid ? $check_res : array();
                               <option value="261QU0200X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
                           </select>
                         </td>
-                        <?php 
+                        <?php
                             if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
                               $style = 'display: none;' ;
                             }
@@ -247,7 +257,7 @@ $check_res = $formid ? $check_res : array();
                             }
                         ?>
                         <td id="ob_unit_head_<?php echo $key + 1; ?>" class="forms ob_unit_head" align="left" style="<?php echo $style;?>"><?php echo xlt('Units'); ?>:</td>
-                        <td class="forms"> 
+                        <td class="forms">
                           <select <?php if(text($obj{"code"}) != '21612-7') { ?> style="display: none;" <?php }?>  name="ob_unit[]" id="ob_unit_<?php echo $key + 1; ?>" class="ob_unit">
                               <option value="d" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') echo 'selected = "selected"' ;?>><?php echo xlt('Day'); ?></option>
                               <option value="mo" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') echo 'selected = "selected"' ;?>><?php echo xlt('Month'); ?></option>
@@ -262,17 +272,12 @@ $check_res = $formid ? $check_res : array();
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                         <td class="forms">
-                            <input type='text' id="code_date_<?php echo $key + 1; ?>" size='10' name='code_date[]' class="code_date" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)' />
-                            <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo $key + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                            <input type='text' id="code_date_<?php echo $key + 1; ?>" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                         </td>
                         <td>
                             <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                             <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                         </td>
-                    <script language="javascript">
-                        /* required for popup calendar */
-                        Calendar.setup({inputField: "code_date_<?php echo $key + 1; ?>", ifFormat: "%Y-%m-%d", button: "img_code_date_<?php echo $key + 1; ?>"});
-                    </script>
                 </tr>
                 <?php
             }
@@ -288,8 +293,8 @@ $check_res = $formid ? $check_res : array();
                     <input type="hidden" id="table_code_1" name="table_code[]" class="table_code" value="<?php echo text($obj{"table_code"}); ?>">
                 </td>
                 <td id="ob_value_head_1" class="forms ob_value_head" align="left" <?php if( !$obj{"ob_value"}) {?>style="display: none;" <?php }?>><?php echo xlt('Value'); ?>:</td>
-                <td class="forms"> 
-                  <?php 
+                <td class="forms">
+                  <?php
                       if((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1')) {
                         $style = 'display: block;';
                       }
@@ -305,7 +310,7 @@ $check_res = $formid ? $check_res : array();
                     <option value="261QU0200X" <?php if(text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
                   </select>
                 </td>
-                <?php 
+                <?php
                     if(!$obj{"ob_unit"} || (text($obj{"code"}) == 'SS003')|| text($obj{"code"}) == '8661-1') {
                       $style = 'display: none;' ;
                     }
@@ -314,7 +319,7 @@ $check_res = $formid ? $check_res : array();
                     }
                 ?>
                 <td id="ob_unit_head_1" class="forms ob_unit_head" align="left" style="<?php echo $style;?>"><?php echo xlt('Units'); ?>:</td>
-                <td class="forms">  
+                <td class="forms">
                   <select <?php if(text($obj{"code"}) != '21612-7') { ?> style="display: none;" <?php }?> name="ob_unit[]" id="ob_unit_1" class="ob_unit">
                       <option value="d" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') echo 'selected = "selected"' ;?>><?php echo xlt('Day'); ?></option>
                       <option value="mo" <?php if(text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') echo 'selected = "selected"' ;?>><?php echo xlt('Month'); ?></option>
@@ -329,17 +334,12 @@ $check_res = $formid ? $check_res : array();
                 </td>
                 <td align="left" class="forms"><?php echo xlt('Date'); ?>:</td>
                 <td class="forms">
-                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' onkeyup='datekeyup(this, mypcc)' onblur='dateblur(this, mypcc)' />
-                    <img src='../../pic/show_calendar.gif' align='absbottom' id="img_code_date_<?php echo $key + 1; ?>" width='24' height='22' class="img_code_date" border='0' alt='[?]' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to choose a date'); ?>'>
+                    <input type='text' id="code_date_1" size='10' name='code_date[]' class="code_date datepicker" <?php echo attr($disabled) ?> value='<?php echo attr($obj{"date"}); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
                 </td>
                 <td>
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
                 </td>
-            <script language="javascript">
-                /* required for popup calendar */
-                Calendar.setup({inputField: "code_date_1", ifFormat: "%Y-%m-%d", button: "img_code_date_1"});
-            </script>
         </tr>
     <?php }
     ?>
@@ -355,11 +355,10 @@ $check_res = $formid ? $check_res : array();
         </td>
     </tr>
 </table>
-</form>    
+</form>
 <?php
 formFooter();
 ?>
 
 
 
-       

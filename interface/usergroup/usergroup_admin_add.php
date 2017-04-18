@@ -1,8 +1,6 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
@@ -15,7 +13,7 @@ $alertmsg = '';
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -26,7 +24,6 @@ $alertmsg = '';
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -57,7 +54,7 @@ function trimAll(sString)
 		sString = sString.substring(0,sString.length-1);
 	}
 	return sString;
-} 
+}
 
 function submitform() {
 
@@ -165,7 +162,11 @@ function authorized_clicked() {
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
 <td style="width:150px;"><span class="text"><?php xl('Username','e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
-<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type=entry style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+    <?php if(!$GLOBALS['use_active_directory']) { ?>
+<td style="width:150px;"><span class="text"><?php xl('Password','e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
+    <?php }else{ ?>
+        <td> <input type="hidden" value="124" name="stiltskin" /></td>
+    <?php } ?>
 </tr>
 <tr>
     <td style="width:150px;"></td><td  style="width:220px;"></span></td>
@@ -265,7 +266,7 @@ if ($fres) {
 <td><input type="text" name="state_license_number" style="width:120px;"></td>
 <td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
 <td>
-  <?php echo generate_select_list("erxrole", "newcrop_erx_role", '','','--Select Role--','','','',array('style'=>'width:120px')); ?>  
+  <?php echo generate_select_list("erxrole", "newcrop_erx_role", '','','--Select Role--','','','',array('style'=>'width:120px')); ?>
 </td>
 </tr>
 

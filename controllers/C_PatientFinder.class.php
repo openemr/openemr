@@ -1,14 +1,11 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/InsuranceNumbers.class.php");
 
 class C_PatientFinder extends Controller {
 
 	var $template_mod;
 	var $_db;
-	
+
 	function __construct($template_mod = "general") {
 		parent::__construct();
 		$this->_db = $GLOBALS['adodb']['db'];
@@ -20,13 +17,13 @@ class C_PatientFinder extends Controller {
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&patient_finder&");
 		/////////////////////////////////
 		$this->assign("STYLE", $GLOBALS['style']);
-		
+
 	}
 
 	function default_action($form_id='',$form_name='',$pid='') {
 		return $this->find_action($form_id,$form_name,$pid);
 	}
-	
+
 	/**
 	* Function that will display a patient finder widged, allowing
 	*	the user to input search parameters to find a patient id.
@@ -38,7 +35,7 @@ class C_PatientFinder extends Controller {
 		$form_id = strip_escape_custom($form_id);
 		$form_name = strip_escape_custom($form_name);
 		$pid = strip_escape_custom($pid);
-		
+
         //prevent javascript injection, whitespace and semi-colons are the worry
         $form_id = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS","",urldecode($form_id));
         $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS","",urldecode($form_name));
@@ -47,19 +44,19 @@ class C_PatientFinder extends Controller {
         if(!empty($pid))
         	$isPid = true;
         $this->assign('hidden_ispid', $isPid);
-		
+
 		return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
 	}
-	
+
 	/**
 	* Function that will take a search string, parse it out and return all patients from the db matching.
 	* @param string $search_string - String from html form giving us our search parameters
 	*/
 	function find_action_process() {
-		
+
 		if ($_POST['process'] != "true")
 			return;
-		
+
 		$isPub = false;
 		$search_string = $_POST['searchstring'];
 		if(!empty($_POST['pid']))
@@ -70,10 +67,10 @@ class C_PatientFinder extends Controller {
 		$sql = "SELECT CONCAT(lname, ' ', fname, ' ', mname) as name, DOB, pubpid, pid FROM patient_data";
 		//parse search_string to determine what type of search we have
 		$pos = strpos($search_string, ',');
-		
+
 		// get result set into array and pass to array
 		$result_array = array();
-		
+
 		if($pos === false) {
 			//no comma just last name
 			$result_array = $this->search_by_lName($sql, $search_string);
@@ -94,7 +91,7 @@ class C_PatientFinder extends Controller {
 	}
 
 	/**
-	*	Function that returns an array containing the 
+	*	Function that returns an array containing the
 	*	Results of a LastName search
 	*	@-param string $sql base sql query
 	*	@-param string $search_string parsed for last name
@@ -107,9 +104,9 @@ class C_PatientFinder extends Controller {
 		//print_r($result_array);
 		return $result_array;
 	}
-	
+
 	/**
-	*	Function that returns an array containing the 
+	*	Function that returns an array containing the
 	*	Results of a FirstName search
 	*	@param string $sql base sql query
 	*	@param string $search_string parsed for first name
@@ -121,9 +118,9 @@ class C_PatientFinder extends Controller {
 		$result_array = $this->_db->GetAll($sql);
 		return $result_array;
 	}
-	
+
 	/**
-	*	Function that returns an array containing the 
+	*	Function that returns an array containing the
 	*	Results of a Full Name search
 	*	@param string $sql base sql query
 	*	@param string $search_string parsed for first, last and middle name

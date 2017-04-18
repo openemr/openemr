@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
@@ -26,11 +26,8 @@ $sanitize_all_escapes=true;
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
 $date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
@@ -42,6 +39,8 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+//save therapy group if exist in external_id column
+$external_id         = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
 $facility = $facilityresult['name'];
@@ -68,6 +67,7 @@ if ($mode == 'new')
       "pid = '" . add_escape_custom($pid) . "', " .
       "encounter = '" . add_escape_custom($encounter) . "', " .
       "pos_code = '" . add_escape_custom($pos_code) . "', " .
+      "external_id = '" . add_escape_custom($external_id) . "', " .
       "provider_id = '" . add_escape_custom($provider_id) . "'"),
     "newpatient", $pid, $userauthorized, $date);
 }
@@ -101,9 +101,9 @@ else {
 setencounter($encounter);
 
 // Update the list of issues associated with this encounter.
-sqlStatement("DELETE FROM issue_encounter WHERE " .
-  "pid = ? AND encounter = ?", array($pid,$encounter) );
 if (is_array($_POST['issues'])) {
+  sqlStatement("DELETE FROM issue_encounter WHERE " .
+    "pid = ? AND encounter = ?", array($pid, $encounter));
   foreach ($_POST['issues'] as $issue) {
     $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
     sqlStatement($query, array($pid,$issue,$encounter));

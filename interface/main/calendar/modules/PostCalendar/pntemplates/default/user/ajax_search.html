@@ -1,14 +1,15 @@
 [-*Smarty*-]
 [-include file="$TPL_NAME/views/header.html"-]
-[-php-]require_once($GLOBALS['srcdir']."/formdata.inc.php");[-/php-]
 
 [-* we want to include our stylesheet for this view*-]
 <link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css">
+<link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css" type="text/css">
 
-<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- js for the popup window -->
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $v_js_includes; [-/php-]"></script>
 
 <!-- main navigation -->
 [-*Load the Language Definitions*-]
@@ -40,12 +41,9 @@
 </select>
 [-/if-]
 <br>
-[-php-] xl('between','e'); [-/php-] 
-<input type="text" name="start" id="start" value="[-$DATE_START-]" size="10"/>
-<img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
-[-php-] xl('and','e'); [-/php-] 
-<input type="text" name="end" id="end" value="[-$DATE_END-]" size="10"/>
-<img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
+[-php-] xl('between','e'); [-/php-]
+<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START-]" size="10"/>
+<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END-]" size="10"/>
 <br>
 [-php-] xl('for','e'); [-/php-]
 <select name="provider_id" id="provider_id">
@@ -109,7 +107,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
         $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
         echo " <img class'provinfo' src='".$GLOBALS['webroot']."/images/info.png' title=\"".$imgtitle."\" />";
         echo "</td>";
-        
+
         // category
         echo "<td class='calsearch_category'>";
         echo $event['catname'];
@@ -147,16 +145,6 @@ if ($eventCount == 0) {
 
 [-/if-]  [-*end of SEARCH_PERFORMED*-]
 
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url([-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.js"></script>
-[-php-] include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); [-/php-]
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- Calendar.setup({inputField:"start", ifFormat:"%m/%d/%Y", button:"img_from_date"});
- Calendar.setup({inputField:"end", ifFormat:"%m/%d/%Y", button:"img_to_date"});
-</script>
-
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
@@ -166,6 +154,15 @@ $(document).ready(function(){
     $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".calsearch_event").click(function() { EditEvent(this); });
+
+    $('.datepicker').datetimepicker({
+        [-php-] $datetimepicker_timepicker = false; [-/php-]
+        [-php-] $datetimepicker_showseconds = false; [-/php-]
+        [-php-] $datetimepicker_formatInput = false; [-/php-]
+        [-php-] require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); [-/php-]
+        [-php-] // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma [-/php-]
+        ,format: 'm/d/Y'
+    });
 });
 
 // open a pop up to edit the event
@@ -187,7 +184,7 @@ function goPid(pid) {
     top.restoreSession();
     [-php-]
            echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
-           			 "+ '?set_pid=' + pid;\n";         	
+           			 "+ '?set_pid=' + pid;\n";
     [-/php-]
  }
 </script>

@@ -38,6 +38,11 @@ $esignApi = new Api();
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+// Since this should be the parent window, this is to prevent calls to the
+// window that opened this window. For example when a new window is opened
+// from the Patient Flow Board or the Patient Finder.
+window.opener = null;
+
 // This flag indicates if another window or frame is trying to reload the login
 // page to this top-level window.  It is set by javascript returned by auth.inc
 // and is checked by handlers of beforeunload events.
@@ -102,9 +107,9 @@ var webroot_url="<?php echo $web_root; ?>";
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
+
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
 
 
@@ -116,16 +121,20 @@ var webroot_url="<?php echo $web_root; ?>";
 <!-- Newly file added -->
 
 
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
 // Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
 var xl_strings_tabs_view_model = <?php echo json_encode( array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
-    'must_select_patient'  => xla('You must first select or add a patient.'),
+    'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
     'must_select_encounter'    => xla('You must first select or create an encounter.')
 ));
 ?>;
@@ -158,6 +167,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php require_once("templates/tabs_template.php"); ?>
 <?php require_once("templates/menu_template.php"); ?>
 <?php require_once("templates/patient_data_template.php"); ?>
+<?php require_once("templates/therapy_group_template.php"); ?>
 <?php require_once("templates/user_data_template.php"); ?>
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
@@ -184,11 +194,11 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <div id="mainBox">
     <div id="dialogDiv"></div>
     <div class="body_top">
-        <a href="http://www.open-emr.org" title="<?php echo xla("OpenEMR Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $webroot; ?>/interface/pic/favicon.ico"></a>
+        <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo" style="float: left; margin:3px 4px 0px 10px;width:20px;z-index:10000;" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>
-    <div id="patientData" class="body_title acck" data-bind="template: {name: 'patient-data-template', data: application_data} ">
+    <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
     </div>
     <div class="body_title" id="tabsContainer" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
 
@@ -203,7 +213,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
     $(document).ready(function() {
         goRepeaterServices();
         $('#patient_caret').click(function() {
-           $('#patientData').slideToggle();
+           $('#attendantData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
         });
         

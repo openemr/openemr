@@ -3,6 +3,7 @@
  * Add/Edit Amendments
  *
  * Copyright (C) 2014 Ensoftek
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  *
  * @package OpenEMR
  * @author  Hema Bandaru <hemab@drcloudemr.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -29,16 +31,14 @@ $fake_register_globals=false;
 //
 
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
 
-$DateFormat=DateFormatRead();
 if ( isset($_POST['mode'] )) {
 	$currentUser = $_SESSION['authUserID'];
 	$created_time = date('Y-m-d H:i');
 	if ( $_POST["amendment_id"] == "" ) {
 		// New. Insert
-		$query = "INSERT INTO amendments SET 
+		$query = "INSERT INTO amendments SET
 			amendment_date = ?,
 			amendment_by = ?,
 			amendment_status = ?,
@@ -60,7 +60,7 @@ if ( isset($_POST['mode'] )) {
 	} else {
 		$amendment_id = $_POST['amendment_id'];
 		// Existing. Update
-		$query = "UPDATE amendments SET 
+		$query = "UPDATE amendments SET
 			amendment_date = ?,
 			amendment_by = ?,
 			amendment_status = ?,
@@ -79,9 +79,9 @@ if ( isset($_POST['mode'] )) {
 		);
 		sqlStatement($query,$sqlBindArray);
 	}
-	
+
 	// Insert into amendments_history
-	$query = "INSERT INTO amendments_history SET 
+	$query = "INSERT INTO amendments_history SET
 		amendment_id = ? ,
 		amendment_note = ?,
 		amendment_status = ?,
@@ -107,7 +107,7 @@ if ( $amendment_id ) {
 	$amendment_status = $resultSet['amendment_status'];
 	$amendment_by = $resultSet['amendment_by'];
 	$amendment_desc = $resultSet['amendment_desc'];
-	
+
 	$query = "SELECT * FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE amendment_id = ? ";
 	$resultSet = sqlStatement($query,array($amendment_id));
 }
@@ -124,12 +124,14 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style>
 .highlight {
@@ -142,15 +144,9 @@ tr.selected {
  border-collapse: collapse;
 }
 .historytbl td th{
-  border: 1px solid #000; 
-}	
+  border: 1px solid #000;
+}
 </style>
-		
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script type="text/javascript">
 
@@ -168,6 +164,17 @@ function formValidation() {
 
 	$("#add_edit_amendments").submit();
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+
 </script>
 
 </head>
@@ -188,7 +195,7 @@ function formValidation() {
 		<?php } ?>
 		<td>
 			<a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
-		</td>			
+		</td>
 	</tr>
 	</table>
 
@@ -196,52 +203,51 @@ function formValidation() {
     <table border=0 cellpadding=1 cellspacing=1>
 		<tr>
 			<td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
-			<td ><input type='text' size='10' name="amendment_date" id="amendment_date" readonly 
-						value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
-    		/>
+			<td>
 			<?php if ( ! $onlyRead ) { ?>
-         	<img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' width='24' height='22'
-    			id='img_amendment_date' valign="middle" border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    			title='<?php echo xlt('Click here to choose a date'); ?>'>
-			<script type="text/javascript">
-				Calendar.setup({inputField:"amendment_date", ifFormat:"<?php echo $DateFormat ?>", button:"img_amendment_date"});
-			</script>
+                <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
+	                value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                />
+			<?php } else  { ?>
+                <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
+                    value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                />
 			<?php } ?>
 			</td>
 		</tr>
-		
+
 		<tr>
 			<td><span class=text ><?php echo xlt('Requested By'); ?></span></td>
 			<td>
 				<?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by,'Amendment Request By',' ','','','',$customAttributes); ?>
 			</td>
 		</tr>
-		
+
 		<tr>
 			<td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
-			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php 
+			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php
 			if($amendment_id) { echo text($amendment_desc); }else{ echo ""; } ?></textarea></td>
 		</tr>
-		
+
 		<tr>
 			<td><span class=text ><?php echo xlt('Request Status'); ?></span></td>
 			<td>
 				<?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status,'Amendment Status',' ','','','',$customAttributes); ?>
 			</td>
 		</tr>
-		
+
 		<tr>
 			<td><span class=text ><?php echo xlt('Comments'); ?></span></td>
-			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php 
+			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
 			if($amendment_id) echo ""; else echo xlt('New amendment request'); ?></textarea></td>
 		</tr>
 	</table>
-	
+
 	<?php if ( $amendment_id ) { ?>
 	<hr>
-	
+
 	<span class="title"><?php echo xlt("History") ; ?></span>
-    
+
 	<table border="1" cellpadding=3 cellspacing=0 class="historytbl">
 
     <!-- some columns are sortable -->
@@ -250,9 +256,9 @@ function formValidation() {
 		<th align="left" style="width:25%"><?php echo xlt('By'); ?></th>
 		<th align="left" style="width:15%"><?php echo xlt('Status'); ?></th>
 		<th align="left"><?php echo xlt('Comments'); ?></th>
-	</tr>	
+	</tr>
 
-	<?php 
+	<?php
 	 if (sqlNumRows($resultSet)) {
 		while ( $row = sqlFetchArray($resultSet) ) {
 			$created_date = date('Y-m-d', strtotime($row['created_time']));
@@ -268,7 +274,7 @@ function formValidation() {
 	?>
 	</table>
 	<?php } ?>
-	
+
 	<input type="hidden" id="mode" name="mode" value=""/>
 	<input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
 </form>

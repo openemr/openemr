@@ -30,6 +30,7 @@ release_prefix = "adodb"
 exclude_list = (".git*",
                 "replicate",
                 "scripts",
+                "tests",
                 # There are no png files in there...
                 # "cute_icons_for_site/*.png",
                 "hs~*.*",
@@ -58,7 +59,8 @@ def usage():
     Options:
         -h | --help             Show this usage message
 
-        -b | --branch <branch>  Use specified branch (defaults to %s)
+        -b | --branch <branch>  Use specified branch (defaults to '%s' for '.0'
+                                releases, or 'hotfix/<version>' for patches)
         -d | --debug            Debug mode (ignores upstream: no fetch, allows
                                 build even if local branch is not in sync)
         -f | --fresh            Create a fresh clone of the repository
@@ -87,9 +89,9 @@ def set_version_and_tag(version):
     subprocess.call("git checkout %s" % release_branch, shell=True)
 
     if not debug_mode:
-        # Make sure we're up-to-date
+        # Make sure we're up-to-date, ignore untracked files
         ret = subprocess.check_output(
-            "git status --branch --porcelain",
+            "git status --branch --porcelain --untracked-files=no",
             shell=True
         )
         if not re.search(release_branch + "$", ret):
@@ -141,12 +143,15 @@ def main():
     version = updateversion.version_check(args[0])
     release_path = args[1]
 
-    global release_prefix
-    release_prefix += version.split(".")[0]
+    # Default release branch
+    if updateversion.version_is_patch(version):
+        release_branch = 'hotfix/' + version
 
     # -------------------------------------------------------------------------
     # Start the build
     #
+    global release_prefix
+
     print "Building ADOdb release %s into '%s'\n" % (
         version,
         release_path
@@ -198,8 +203,9 @@ def main():
         set_version_and_tag(version)
 
     # Copy files to release dir
-    release_tmp_dir = path.join(release_path, release_prefix)
-    print "Copying files to '%s'" % release_path
+    release_files = release_prefix + version.split(".")[0]
+    release_tmp_dir = path.join(release_path, release_files)
+    print "Copying release files to '%s'" % release_tmp_dir
     retry = True
     while True:
         try:
@@ -224,26 +230,19 @@ def main():
 
     # Create tarballs
     print "Creating release tarballs..."
-    release_name = release_prefix + version.split(".")[1]
+    release_name = release_prefix + '-' + version
+    print release_prefix, version, release_name
 
     os.chdir(release_path)
     print "- tar"
     subprocess.call(
-        "tar -czf %s.tar.gz %s" % (release_name, release_prefix),
+        "tar -czf %s.tar.gz %s" % (release_name, release_files),
         shell=True
     )
     print "- zip"
     subprocess.call(
-        "zip -rq %s.zip %s" % (release_name, release_prefix),
+        "zip -rq %s.zip %s" % (release_name, release_files),
         shell=True
-    )
-
-    print "Copying documentation"
-    docs = path.join(release_path, "docs")
-    shutil.rmtree(docs, ignore_errors=True)
-    shutil.copytree(
-        path.join(release_tmp_dir, "docs"),
-        path.join(release_path, "docs")
     )
 
     if cleanup:

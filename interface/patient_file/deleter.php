@@ -31,7 +31,6 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
-require_once dirname(__FILE__) . '/../../library/classes/CouchDB.class.php';
 
  $patient     = $_REQUEST['patient'];
  $encounterid = $_REQUEST['encounterid'];
@@ -62,7 +61,10 @@ require_once dirname(__FILE__) . '/../../library/classes/CouchDB.class.php';
   }
   if ($count) {
    $query = "DELETE FROM $table WHERE $where";
-   echo text($query) . "<br>\n";
+       if(!$GLOBALS['sql_string_no_show_screen']){
+           echo text($query) . "<br>\n";
+       }
+
    sqlStatement($query);
   }
  }
@@ -74,7 +76,9 @@ require_once dirname(__FILE__) . '/../../library/classes/CouchDB.class.php';
   if (sqlQuery("SELECT * FROM $table WHERE $where")) {
    newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
    $query = "UPDATE $table SET $set WHERE $where";
-   echo text($query) . "<br>\n";
+      if(!$GLOBALS['sql_string_no_show_screen']) {
+          echo text($query) . "<br>\n";
+      }
    sqlStatement($query);
   }
  }
@@ -117,6 +121,7 @@ function delete_drug_sales($patient_id, $encounter_id=0) {
 //
 function form_delete($formdir, $formid) {
   $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
+  $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
   if (substr($formdir,0,3) == 'LBF') {
     row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
   }
@@ -189,8 +194,8 @@ function popup_close() {
 	  	window.close();
 	 }
 	 else {
-	  	parent.$.fn.fancybox.close(); 
-	 }	  
+	  	parent.$.fn.fancybox.close();
+	 }
 }
 </script>
 </head>

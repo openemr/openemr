@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //           Paul Simon   <paul@zhservices.com>
@@ -34,22 +34,19 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
  require_once("../../globals.php");
- require_once("$srcdir/sql.inc");
- require_once("$srcdir/formdata.inc.php");
- require_once("$srcdir/classes/postmaster.php");
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
 $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "off";
 if ($portalsite != "off" && $portalsite != "on") $portalsite = "off";
 
  $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . add_escape_custom($portalsite) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?",array($pid));
- 
+
 function generatePassword($length=6, $strength=1) {
 	$consonants = 'bdghjmnpqrstvzacefiklowxy';
 	$numbers = '0234561789';
 	$specials = '@#$%';
-	
- 
+
+
 	$password = '';
 	$alt = time() % 2;
 	for ($i = 0; $i < $length/3; $i++) {
@@ -74,8 +71,15 @@ function validEmail($email){
 function messageCreate($uname,$pass,$site){
     $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>";
     if ($site == "on") {
-        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
-                    htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br><br>";
+        if ($GLOBALS['portal_onsite_enable']) {
+            $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br>";
+        }
+        if ($GLOBALS['portal_onsite_two_enable']) {
+            $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_two_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_onsite_two_address'],ENT_NOQUOTES) . "</a><br>";
+        }
+        $message .= "<br>";
     } // $site == "off"
     else {
 	$offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  htmlspecialchars($GLOBALS['portal_offsite_address_patient_link'],ENT_QUOTES) : htmlspecialchars("https://mydocsportal.com",ENT_QUOTES);
@@ -84,7 +88,7 @@ function messageCreate($uname,$pass,$site){
 	$message .= htmlspecialchars(xl("Provider Id"),ENT_NOQUOTES) . ": " .
 		    htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_NOQUOTES) . "<br><br>";
     }
-    
+
         $message .= htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
                     htmlspecialchars($uname,ENT_NOQUOTES) . "<br><br>" .
                     htmlspecialchars(xl("Password"),ENT_NOQUOTES) . ": " .
@@ -116,7 +120,7 @@ function emailLogin($patient_id,$message){
     $mail->MsgHTML("<html><body><div class='wrapper'>".$message."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $message;
-				    
+
     if ($mail->Send()) {
         return true;
     } else {
@@ -141,7 +145,7 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
     require_once("$srcdir/authentication/common_operations.php");
 
     $clear_pass=$_REQUEST['pwd'];
-    
+
     $res = sqlStatement("SELECT * FROM patient_access_" . add_escape_custom($portalsite) . "site WHERE pid=?",array($pid));
     $query_parameters=array($_REQUEST['uname']);
     $salt_clause="";
@@ -165,7 +169,7 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
     else{
     sqlStatement("INSERT INTO patient_access_" . add_escape_custom($portalsite) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?",$query_parameters);
     }
-   
+
     // Create the message
     $message = messageCreate($_REQUEST['uname'],$clear_pass,$portalsite);
     // Email and display/print the message
@@ -187,8 +191,8 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-6-4/index.js"></script>
 <script type="text/javascript">
 function transmit(){
-    
-                // get a public key to encrypt the password info and send    
+
+                // get a public key to encrypt the password info and send
                 document.getElementById('form_save').value='SUBMIT';
                 document.forms[0].submit();
 }
@@ -206,8 +210,8 @@ function transmit(){
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('Provider Id').':',ENT_QUOTES);?></td>
             <td><span><?php echo htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_QUOTES);?></span></td>
-        </tr>			
-	<?php	
+        </tr>
+	<?php
 		}
 	?>
         <tr class="text">

@@ -30,6 +30,7 @@
 //  Require utility classes
 //=========================================================================
 require_once($GLOBALS['fileroot']."/library/patient.inc");
+require_once($GLOBALS['fileroot']."/library/group.inc");
 include_once($GLOBALS['fileroot']."/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
@@ -986,12 +987,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
-    "DOB as patient_dob, a.pc_facility, pd.pubpid " .
+    "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
+    "tg.group_name, tg.group_type, tg.group_status " .
     "FROM  ( $table AS a ) " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid ".
     "LEFT JOIN users as u ON a.pc_aid = u.id " .
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid " .
+    "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = $eventstatus " .
     "AND ((a.pc_endDate >= '$start' AND a.pc_eventDate <= '$end') OR " .
     "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND " .
@@ -1093,7 +1096,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
          $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
          $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
          $tmp['patient_name'], $tmp['owner_name'],  $tmp['patient_dob'],
-         $tmp['facility'],     $tmp['pubpid']) = $result->fields;
+         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
+		 $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
 
     // grab the name of the topic
     $topicname = pcGetTopicName($tmp['topic']);
@@ -1202,7 +1206,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
       $events[$i]['state']      = $prepFunction($loc['event_state']);
       $events[$i]['postal']     = $prepFunction($loc['event_postal']);
     }
-    $i++;
+    $events[$i]['gid']          = $tmp['gid'];
+    $events[$i]['group_name']   = $tmp['group_name'];
+    $events[$i]['group_type']   = $tmp['group_type'];
+    $events[$i]['group_status'] = $tmp['group_status'];
+    $counselors = getProvidersOfEvent($tmp['eid']);
+    $events[$i]['group_counselors'] = $counselors;
+
+	  $i++;
   }
   unset($tmp);
   $result->Close();
@@ -1309,46 +1320,37 @@ function &postcalendar_userapi_pcGetEvents($args)
 // fill days with events (recurring is the challenge)
 //===========================
 function calculateEvents($days,$events,$viewtype) {
+  //
   $date =postcalendar_getDate();
   $cy = substr($date,0,4);
   $cm = substr($date,4,2);
   $cd = substr($date,6,2);
 
+  // here the start_date value is set to whatever comes in
+  // on postcalendar_getDate() which is not always the first
+  // date of the days array -- JRM
+  $start_date = "$cy-$cm-$cd";
+
+  // here we've made the start_date equal to the first date
+  // of the days array, makes sense, right? -- JRM
+  $days_keys = array_keys($days);
+  $start_date = $days_keys[0];
+  $day_number = count($days_keys);
+
+  // Optimization of the stop date to not be much later than required.
+  $tmpsecs = strtotime($start_date);
+  if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
+  else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
+  else if ($viewtype == 'month') {
+    if($day_number > 35) $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
+    else $tmpsecs = strtotime("+34 days", $tmpsecs);
+  }
+  else $tmpsecs += 367 * 24 * 3600;
+  $last_date = date('Y-m-d', $tmpsecs);
+
   foreach($events as $event) {
     // get the name of the topic
     $topicname = pcGetTopicName($event['topic']);
-
-    // parse the event start date
-    list($esY,$esM,$esD) = explode('-',$event['eventDate']);
-
-    // grab the recurring specs for the event
-    $event_recurrspec = @unserialize($event['recurrspec']);
-
-    // determine the stop date for this event
-    if($event['endDate'] == '0000-00-00') {
-      $stop = $end_date;  // <--- this isn't previously defined !!
-    } else {
-      $stop = $event['endDate'];
-    }
-   
-    // here the start_date value is set to whatever comes in
-    // on postcalendar_getDate() which is not always the first
-    // date of the days array -- JRM
-    $start_date = "$cy-$cm-$cd";
-
-    // here we've made the start_date equal to the first date
-    // of the days array, makes sense, right? -- JRM
-    $days_keys = array_keys($days);
-    $start_date = $days_keys[0];
-
-    // Optimization of the stop date to not be much later than required.
-    $tmpsecs = strtotime($start_date);
-    if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
-    else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
-    else if ($viewtype == 'month') $tmpsecs += 34 * 24 * 3600;
-    else $tmpsecs += 367 * 24 * 3600;
-    $tmp = date('Y-m-d', $tmpsecs);
-    if ($stop > $tmp) $stop = $tmp;
 
     $eventD = $event['eventDate'];
     $eventS = $event['startTime'];
@@ -1383,6 +1385,14 @@ function calculateEvents($days,$events,$viewtype) {
       //  Day,Week,Month,Year,MWF,TR,M-F,SS
       //==============================================================
       case REPEAT :
+      case REPEAT_DAYS:
+
+        // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
+        if($last_date > $event['endDate']) $stop = $event['endDate'];
+        else $stop = $last_date;
+
+        list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+        $event_recurrspec = @unserialize($event['recurrspec']);
 
         $rfreq = $event_recurrspec['event_repeat_freq'];
         $rtype = $event_recurrspec['event_repeat_freq_type'];
@@ -1436,6 +1446,13 @@ function calculateEvents($days,$events,$viewtype) {
       //==============================================================
       case REPEAT_ON :
 
+        // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
+        if($last_date > $event['endDate']) $stop = $event['endDate'];
+        else $stop = $last_date;
+
+        list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+        $event_recurrspec = @unserialize($event['recurrspec']);
+
         $rfreq = $event_recurrspec['event_repeat_on_freq'];
         $rnum  = $event_recurrspec['event_repeat_on_num'];
         $rday  = $event_recurrspec['event_repeat_on_day'];
@@ -1445,6 +1462,13 @@ function calculateEvents($days,$events,$viewtype) {
         //  Populate - Enter data into the event array
         //==============================================================
         $nm = $esM; $ny = $esY; $nd = $esD;
+
+        if(isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1; // Added by epsdky 2016.
+        // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
+        // below a problem with overfow will occur so it is set to 1 to prevent this.
+        // (for rt2 appointments set prior to fix it remains unchanged). This can be done
+        // since $nd has no influence past the mktime functions - epsdky 2016.
+
         // make us current
         while($ny < $cy) {
           $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
@@ -1482,52 +1506,6 @@ function calculateEvents($days,$events,$viewtype) {
             }
           }
           $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-          list($ny,$nm,$nd) = explode('-',$occurance);
-        }
-
-        break;
-
-		case REPEAT_DAYS:
-			$rfreq = $event_recurrspec['event_repeat_freq'];
-			$rtype = $event_recurrspec['event_repeat_freq_type'];
-			$exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
-
-			// we should bring the event up to date to make this a tad bit faster
-			// any ideas on how to do that, exactly??? dateToDays probably.
-			$nm = $esM; $ny = $esY; $nd = $esD;
-			$occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-			while($occurance < $start_date) {
-				$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-				list($ny,$nm,$nd) = explode('-',$occurance);
-			}
-		   	while($occurance <= $stop) {
-            if(isset($days[$occurance])) {
-            // check for date exceptions before pushing the event into the days array -- JRM
-            $excluded = false;
-            if (isset($exdate)) {
-                foreach (explode(",", $exdate) as $exception) {
-                    // occurrance format == yyyy-mm-dd
-                    // exception format == yyyymmdd
-                    if (preg_replace("/-/", "", $occurance) == $exception) {
-                        $excluded = true;
-                    }
-                }
-            }
-
-            // push event into the days array
-            if ($excluded == false) array_push($days[$occurance],$event);
-
-            if ($viewtype == "week") {
-                fillBlocks($occurance, $days);
-                //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
-                $gbt = getBlockTime($eventS);
-                $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
-                //echo "begin printing blocks for $eventD<br />";
-                //print_r($days[$occurance]['blocks']);
-                //echo "end printing blocks<br />";
-            }
-          }
-          $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
         break;

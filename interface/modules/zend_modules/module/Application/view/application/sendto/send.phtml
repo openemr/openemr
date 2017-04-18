@@ -156,6 +156,10 @@ $download_format		= $this->download_format;
     </div>
   </div>
   <div id="componentsForCCDA" style="height:160px!important;display:none;" class="ap-st-st-13">
+            <div>
+             <input type="checkbox" id="latest_ccda"/>
+             <?php echo $this->listenerObject->z_xlt('Latest Medical Records');?>
+            </div>
            <?php if(count($this->ccda_components) > 0) {?>
              <div id="chkall_cmp_div1" style="margin-left: 70%;">
               <input type="checkbox" id="chkall_cmp1" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All - Components');?>

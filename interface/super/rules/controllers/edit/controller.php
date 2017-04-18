@@ -72,7 +72,7 @@ class Controller_edit extends BaseController {
         if ( $change ) {
             $this->getRuleManager()->updateIntervals( $rule, $intervals );
         }
-        
+
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
@@ -133,7 +133,7 @@ class Controller_edit extends BaseController {
     function _action_categories() {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            $columns[] = array( "code" => $row['option_id'], "lbl" => $row['title'] );
+            $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
         $this->emit_json($columns);
     }
@@ -141,7 +141,7 @@ class Controller_edit extends BaseController {
     function _action_items() {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            $columns[] = array( "code" => $row['option_id'], "lbl" => $row['title'] );
+            $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
         $this->emit_json($columns);
     }
@@ -290,7 +290,7 @@ class Controller_edit extends BaseController {
         if ( $type == "target") {
             $criteria = $this->getRuleManager()->createTargetRuleCriteria( $rule, $criteriaType );
         }
-        
+
         $criteria->groupId = $groupId;
         $this->viewBean->type = $type;
         $this->viewBean->rule = $rule;
@@ -300,6 +300,6 @@ class Controller_edit extends BaseController {
 
         $this->set_view( $criteria->getView(), "criteria.php" );
     }
-    
+
 }
 ?>

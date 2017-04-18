@@ -39,8 +39,6 @@ $fake_register_globals=false;
 
 //
 require_once("../../interface/globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 
 $pid=$_REQUEST['pid'];

@@ -7,7 +7,6 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/formdata.inc.php");
 
 $id = formData('id','G') + 0;
 $order = formData('order','G') + 0;

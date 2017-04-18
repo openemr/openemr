@@ -65,10 +65,6 @@ acl_reqs['Calendar']=['admin','calendar','main/calendar/index.php?module=PostCal
 
 acl_reqs['Logs']=['admin','users'];
 
-
-acl_reqs['Database']=['admin','database'];
-global_reqs['Database']="!disable_phpmyadmin_link";
-
 acl_reqs['Certificates']=['admin','users'];
 
 acl_reqs['Native Data Loads']=['admin','super'];
@@ -144,7 +140,7 @@ function parse_link(link,entry)
         {
             var url=parameters.replace(/\'/g,"").replace(/\"/g,"").replace("../","/interface/");
             entry.url=url;
-            entry.target="report";           
+            entry.target="report";
         }
         else
         {
@@ -207,7 +203,7 @@ function menu_entry(label,link,menu_id)
         }
     }
 
-      
+
     return this;
 }
 
@@ -218,6 +214,8 @@ function menu_entry_from_jq(elem)
 var menu_entries=[];
 function analyze_menu()
 {
+    alert('I think you will never see this. --Rod'); // debugging
+
     if(!top.left_nav)
     {
         setTimeout(analyze_menu,1000);
@@ -244,8 +242,8 @@ function analyze_menu()
                     var jqElem=$(elem);
                     var anchor=jqElem.children("a");
                     var subMenu = jqElem.children("ul");
-                    
-                    var newEntry=menu_entry_from_jq(anchor); 
+
+                    var newEntry=menu_entry_from_jq(anchor);
                     if(subMenu.length>0)
                     {
                         // 2 (Second) level menu items
@@ -261,14 +259,14 @@ function analyze_menu()
                             //Third Level Menu Items
                             if(subSubMenu.length>0 && sub_entry.label !=="Visit Forms")
                             {
-                                subSubMenu.children("li").each(function(idx,elem)   
+                                subSubMenu.children("li").each(function(idx,elem)
                                 {
                                     var sub_sub_anchor=$(elem).children("a");
                                     var sub_sub_entry=menu_entry_from_jq(sub_sub_anchor);
                                     sub_entry.children.push(sub_sub_entry);
 
                                 });
-                                
+
                             }
                             //End Third Level Menu Items
                             newEntry.children.push(sub_entry);
@@ -278,11 +276,11 @@ function analyze_menu()
                     else
                     {
 
-                        
+
                     };
                     menu_entries.push(newEntry);
-                    
-                    
+
+
                 }
         );
         // Scan popup select
@@ -301,7 +299,7 @@ function analyze_menu()
                 }
             });
         // Process Complete
-        
+
         post_process(menu_entries);
         var data=$("<div id='#menuData'></div>");
         data.text("$menu_json=\""+JSON.stringify(menu_entries).replace(/\"/g,"\\\"")+"\";");

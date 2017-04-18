@@ -1,10 +1,24 @@
 <?php
-////////////////////////////////////////////////////////////////////
-// Form:	brief_aan_verwijzer
-// Package:	letter to verwijzer - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 30-03-2008
-////////////////////////////////////////////////////////////////////
+/*
+ * brief_aan_verwijzer
+ * letter to verwijzer - Dutch specific form
+ * Version: 1.0 - 30-03-2008
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package   OpenEMR
+ * @author    Larry Lart
+ * @link      http://www.open-emr.org
+ */
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
@@ -21,12 +35,12 @@ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{
 function getPatientDateOfLastEncounter( $nPid )
 {
   // get date of last encounter no codes
-  $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max 
-                  FROM openemr_postcalendar_events 
-                  WHERE pc_pid = $nPid 
-                  AND pc_apptstatus = '@' 
+  $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
+                  FROM openemr_postcalendar_events
+                  WHERE pc_pid = $nPid
+                  AND pc_apptstatus = '@'
                   AND pc_eventDate >= '2007-01-01'");
-  
+
   // now check if there was a previous encounter
   if( $strEventDate['max'] != "" )
     return( $strEventDate['max'] );
@@ -37,21 +51,21 @@ function getPatientDateOfLastEncounter( $nPid )
 $m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
 
 // get last saved id for intakeverslag
-$vectIntakeverslagQuery = sqlQuery( "SELECT id FROM form_intakeverslag 
+$vectIntakeverslagQuery = sqlQuery( "SELECT id FROM form_intakeverslag
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
-                            AND autosave_flag=0 
+                            AND autosave_flag=0
                             ORDER by id DESC limit 1" );
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectPO = sqlQuery( "SELECT id FROM form_psychiatrisch_onderzoek 
+$vectPO = sqlQuery( "SELECT id FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
-                            AND autosave_flag=0 
+                            AND autosave_flag=0
                             ORDER by id DESC limit 1" );
 
 // get autosave id for Psychiatrisch Onderzoek
@@ -60,7 +74,7 @@ $vectAutosaveBAV = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM f
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
-                            AND autosave_flag=1 
+                            AND autosave_flag=1
                             ORDER by id DESC limit 1" );
 
 //fetch data from INTAKE-VERSLAG
@@ -80,14 +94,14 @@ if( $obj_bav['introductie'] != '' )
 else
   $obj['introductie'] = xl("Since","",""," ") . $m_strEventDate . xl("we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.",""," ");
 
-// Reden van aanmelding 
+// Reden van aanmelding
 if( $obj_bav['reden_van_aanmelding'] != '' )
   $obj['reden_van_aanmelding'] = $obj_bav['reden_van_aanmelding'];
 elseif( $obj_iv['reden_van_aanmelding'] != '' )
   $obj['reden_van_aanmelding'] = $obj_iv['reden_van_aanmelding'];
 else
   $obj['reden_van_aanmelding'] = '';
-  
+
 // Anamnese
 if( $obj_bav['anamnese'] != '' )
   $obj['anamnese'] = $obj_bav['anamnese'];
@@ -96,7 +110,7 @@ elseif( $obj_iv['klachten_probleemgebieden'] != '' )
 else
   $obj['anamnese'] = '';
 
-// Psychiatrisch onderzoek 
+// Psychiatrisch onderzoek
 if( $obj_bav['psychiatrisch_onderzoek'] != '' )
   $obj['psychiatrisch_onderzoek'] = $obj_bav['psychiatrisch_onderzoek'];
 elseif( $obj_po['psychiatrisch_onderzoek'] != '' )
@@ -104,14 +118,14 @@ elseif( $obj_po['psychiatrisch_onderzoek'] != '' )
 else
   $obj['psychiatrisch_onderzoek'] = '';
 
-// Beschrijvend conclusie 
+// Beschrijvend conclusie
 if( $obj_bav['beschrijvend_conclusie'] != '' )
   $obj['beschrijvend_conclusie'] = $obj_bav['beschrijvend_conclusie'];
 elseif( $obj_po['beschrijvende_conclusie'] != '' )
   $obj['beschrijvend_conclusie'] = $obj_po['beschrijvende_conclusie'];
 else
   $obj['beschrijvend_conclusie'] = '';
-  
+
 // Advies/beleid
 if( $obj_bav['advies_beleid'] != '' )
   $obj['advies_beleid'] = $obj_bav['advies_beleid'];
@@ -126,13 +140,12 @@ else
 <html>
 <head>
     <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 </head>
 
-                               
+
 
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -141,15 +154,11 @@ else
                  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal;
                                padding-left:3px; padding-right:3px; }
 </style>
-                               
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <?php
 
@@ -162,6 +171,13 @@ else
 <script type="text/javascript">
 $(document).ready(function(){
         autosave();
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+           <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
                         });
 
 function delete_autosave( )
@@ -172,7 +188,7 @@ function delete_autosave( )
             {
               type: "POST",
               url: "../../forms/brief_aan_verwijzer/delete_autosave.php",
-              data: "id=" + <?php echo $brief_aan_verwijzer_id ?>  
+              data: "id=" + <?php echo $brief_aan_verwijzer_id ?>
                         ,
                                 cache: false,
                                 success: function( message )
@@ -181,7 +197,7 @@ function delete_autosave( )
                 }
             });
     return true;
-    
+
   } else
   {
     return false;
@@ -192,21 +208,21 @@ function delete_autosave( )
 function autosave( )
 {
   var t = setTimeout("autosave()", 20000);
-  
+
   var a_introductie = $("#introductie").val();
   var a_reden_van_aanmelding = $("#reden_van_aanmelding").val();
   var a_anamnese = $("#anamnese").val();
   var a_psychiatrisch_onderzoek = $("#psychiatrisch_onderzoek").val();
   var a_beschrijvend_conclusie = $("#beschrijvend_conclusie").val();
   var a_advies_beleid = $("#advies_beleid").val();
-    
+
   if( a_introductie.length > 0 || a_reden_van_aanmelding.length > 0 )
   {
     $.ajax(
             {
               type: "POST",
               url: "../../forms/brief_aan_verwijzer/autosave.php",
-              data: "id=" + <?php echo $brief_aan_verwijzer_id ?> + 
+              data: "id=" + <?php echo $brief_aan_verwijzer_id ?> +
                         "&introductie=" + $("#introductie").val() +
                         "&reden_van_aanmelding=" + a_reden_van_aanmelding +
                         "&anamnese=" + a_anamnese +
@@ -225,7 +241,7 @@ function autosave( )
 }
 
 </script>
-        
+
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/brief_aan_verwijzer/save.php?mode=new&saveid=<?php echo $brief_aan_verwijzer_id; ?>" name="my_form">
 <span class="title"><?php xl('Psychiatric Brief Letter','e'); ?></span><br><br>
@@ -246,8 +262,8 @@ function autosave( )
 
 <table><tr>
 
-<?php 
-// here we fill in the header above with patient name etc ? ??? - move above 
+<?php
+// here we fill in the header above with patient name etc ? ??? - move above
 
 ?>
 </tr></table>

@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2017 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -143,7 +143,7 @@
  // Create ACOs for modules.
  //
  $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
-     // xl('Modules') 
+     // xl('Modules')
 
  // Create ACOs for patients.
  //
@@ -161,6 +161,18 @@
      // xl('Patient Notes (write,addonly optional)')
  $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign'  , 10, 0, 'ACO');
      // xl('Sign Lab Results (write,addonly optional)')
+ $gacl->add_object('patients', 'Patient Reminders (write,addonly optional)','reminder', 10, 0, 'ACO');
+     // xl('Patient Reminders (write,addonly optional)')
+ $gacl->add_object('patients', 'Clinical Reminders/Alerts (write,addonly optional)','alert', 10, 0, 'ACO');
+     // xl('Clinical Reminders/Alerts (write,addonly optional)')
+ $gacl->add_object('patients', 'Disclosures (write,addonly optional)','disclosure', 10, 0, 'ACO');
+     // xl('Disclosures (write,addonly optional)')
+ $gacl->add_object('patients', 'Prescriptions (write,addonly optional)','rx', 10, 0, 'ACO');
+     // xl('Prescriptions (write,addonly optional)')
+ $gacl->add_object('patients', 'Amendments (write,addonly optional)','amendment', 10, 0, 'ACO');
+     // xl('Amendments (write,addonly optional)')
+ $gacl->add_object('patients', 'Lab Results (write,addonly optional)','lab', 10, 0, 'ACO');
+     // xl('Lab Results (write,addonly optional)')
 
  // Create ACOs for sensitivities.
  //
@@ -264,12 +276,14 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
   1, 1, 'wsome', 'Things that physicians can read and partly modify'
  );
      // xl('Things that physicians can read and partly modify')
+
  $gacl->add_acl(
   array(
    'acct'=>array('disc', 'rep'),
    'admin'=>array('drugs'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign'),
+   'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
+     'disclosure', 'rx', 'amendment', 'lab'),
    'sensitivities'=>array('normal', 'high')
   ),
   NULL, array($doc), NULL, NULL,

@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
@@ -84,7 +84,7 @@ if($payment_id>0)
 	$row=sqlFetchArray($rs);
 	$pay_amount=$row['sum_pay_amount'];
 	$UndistributedAmount=$pay_total-$pay_amount-$global_amount;
-	
+
 	$res = sqlStatement("SELECT check_date ,reference ,insurance_companies.name,
 	payer_id,pay_total,payment_type,post_to_date,patient_id ,
 	adjustment_code,description,deposit_date,payment_method
@@ -184,26 +184,16 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	  <tr>
 	    <td align="left" class='text'></td>
 		<td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
-		<td align="left" class="text" ><input type='text' size='9' name='check_date' id='check_date' class="class1 text "  value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
-		<td><img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='absbottom'
-		id='img_checkdate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"check_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_checkdate"});
-	   </script></td>
+		<td align="left" class="text" ><input type='text' size='9' class='datepicker' name='check_date' id='check_date' class="class1 text "  value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
+		<td> </td>
 		<td></td>
 	    <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
-	    <td align="left" class="text"><input type='text' size='9' name='post_to_date' id='post_to_date' class="class1 text "   value="<?php echo $screen=='new_payment'?htmlspecialchars(oeFormatShortDate(date('Y-m-d'))):htmlspecialchars(oeFormatShortDate($PostToDate));?>"  readonly="" /></td>
-	    <td><img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='absbottom'
-		id='img_post_to_date' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"post_to_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_post_to_date"});
-	   </script></td>
+	    <td align="left" class="text"><input type='text' size='9' class='datepicker' name='post_to_date' id='post_to_date' class="class1 text "   value="<?php echo $screen=='new_payment'?htmlspecialchars(oeFormatShortDate(date('Y-m-d'))):htmlspecialchars(oeFormatShortDate($PostToDate));?>" /></td>
+	    <td> </td>
 	    <td></td>
 	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
 	    <td align="left">
-			<?php	
+			<?php
 				if($PaymentMethod=='' && $screen=='edit_payment')
 					$blankValue=' ';
 				else
@@ -286,13 +276,8 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	  <tr>
 	    <td align="left" class='text'></td>
 		<td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
-		<td align="left"><input type='text' size='9' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="class1 text " value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"    />	   </td>
-		<td><img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align='absbottom'
-		id='img_depositdate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"deposit_date", ifFormat:"<?php echo $DateFormat; ?>", button:"img_depositdate"});
-	   </script></td>
+		<td align="left"><input type='text' size='9' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="class1 text " value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"    />	   </td>
+		<td> </td>
 		<td></td>
 	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
 	    <td colspan="6" align="left"><input type="text" name="description"  id="description"   onKeyDown="PreventIt(event)"   value="<?php echo htmlspecialchars($Description);?>"   style="width:396px" class="text "   /></td>

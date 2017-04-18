@@ -20,7 +20,7 @@
  * @package OpenEMR
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -51,6 +51,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 ?>
 <html>
 <head>
+<title><?php echo xlt('External Data Loads'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'/>
 <link rel='stylesheet' href='../../library/css/jquery-ui-1.8.21.custom.css' type='text/css'/>
 
@@ -63,7 +64,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 // var db_list = [ "DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED"];
 var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED", "CQM_VALUESET"];
 var accOpts = {
-    header: "h3", 
+    header: "h3",
     autoHeight: false,
 
     //add change event callback
@@ -129,7 +130,7 @@ var accOpts = {
 			$(this).attr("disabled", "disabled");
 			var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
   			$(stg_load_id).show();
-			var thisInterval; 
+			var thisInterval;
       		        var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version');
 			var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
 			$activeAccordionSection = $("#accordion").accordion('option', 'active');
@@ -161,7 +162,7 @@ var accOpts = {
       		return false;
 	    }
 	});
-    }    
+    }
 };
 
 $(function() {
@@ -184,9 +185,9 @@ $(function() {
       hide: "fade",
       width: "800px",
       position: "top",
-      buttons: { "Close": function() { $(this).dialog("close"); } } 
+      buttons: { "Close": function() { $(this).dialog("close"); } }
     });
-    
+
     $( ".history_button" ).button({ icons: {primary:'ui-icon-triangle-1-s'}});
     $("#accordion").accordion("activate", <?php echo $activeAccordionSection; ?>);
   });
@@ -282,11 +283,11 @@ foreach ($db_list as $db) {
                 <hr>
    		<div id="<?php echo attr($db); ?>_install_details">
 			<div id='<?php echo attr($db); ?>_inst_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
-		</div> 
+		</div>
             </div>
         </div>
         <div class="wrpr">
-	    <div class="stg_dets"> 
+	    <div class="stg_dets">
 	        <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
 	        <hr>
 		<div id="<?php echo attr($db); ?>_stage_details"></div>

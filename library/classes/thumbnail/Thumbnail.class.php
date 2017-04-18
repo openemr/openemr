@@ -32,6 +32,13 @@ class Thumbnail
      */
     public function __construct($max_size = null)
     {
+        //validate that GD extension was enabled
+        if (!extension_loaded('gd'))
+        {
+            error_log('Thumbnail generator error: Missing GD extension');
+            die('Abort. Thumbnail generator error : Missing GD extension');
+        }
+
         if(!is_null($max_size)) {
             $this->max_size = $max_size;
         } else {

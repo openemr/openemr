@@ -4,16 +4,16 @@
     "license": "GPL",
     "support": {
         "website": "http://www.open-emr.org/",
-        "issues": "https://sourceforge.net/p/openemr/bugs/",
-        "forum": "https://sourceforge.net/p/openemr/discussion/",
+        "issues": "https://github.com/openemr/openemr/issues",
+        "forum": "https://community.open-emr.org/",
         "wiki": "http://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page",
         "source": "http://github.com/openemr/openemr"
     },
     "require": {
 
-        "php" : "^5.3 || ^7.0",
+        "adldap2/adldap2": "7.0.4",
         "smarty/smarty": "2.6.29",
-        "adodb/adodb-php": "5.20.2",
+        "adodb/adodb-php": "5.20.9",
         "phpmailer/phpmailer": "5.2.16",
         "rospdf/pdf-php": "0.12.22",
         "phpseclib/phpseclib": "2.0.2",
@@ -22,13 +22,40 @@
         "phenx/php-svg-lib": "0.1",
         "dompdf/dompdf": "0.7.0",
         "doctrine/common": "2.5.0",
-        "doctrine/couchdb": "1.0-beta2"
+        "doctrine/couchdb": "1.0-beta2",
+        "doctrine/orm": "2.5.5"
 
     },
     "require-dev": {
 
         "phing/phing": "2.14.0"
 
+    },
+    "autoload": {
+        "exclude-from-classmap": ["library/classes/ClinicalTypes/",
+            "library/classes/rulesets/",
+            "library/classes/smtp/",
+            "library/classes/Prescription.class.php"
+        ],
+        "classmap": ["library/classes"],
+        "files": [
+            "library/htmlspecialchars.inc.php",
+            "library/formdata.inc.php",
+            "library/sanitize.inc.php",
+            "library/formatting.inc.php",
+            "library/date_functions.php",
+            "library/validation/validate_core.php",
+            "library/translation.inc.php"
+        ],
+        "psr-4": {
+            "common\\": "common",
+            "common\\database\\": "common/database",
+            "common\\logging\\": "common/logging",
+            "common\\http\\": "common/http",
+            "entities\\": "entities",
+            "services\\": "services",
+            "repositories\\": "repositories"
+        }
     },
     "config": {
         "preferred-install": {

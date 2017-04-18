@@ -34,8 +34,6 @@
 * Then export as a CSV file and read it into your favorite spreadsheet app.
 */
 
-require_once("$srcdir/classes/Address.class.php");
-require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$webserver_root/custom/code_types.inc.php");
 
 function hl7Text($s) {
@@ -437,7 +435,7 @@ function send_hl7_order($ppid, $out) {
     if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
 
     // Connect to the server and write the file.
-    $sftp = new Net_SFTP($remote_host);
+    $sftp = new \phpseclib\Net\SFTP($remote_host);
     if (!$sftp->login($pprow['login'], $pprow['password'])) {
       return xl('Login to this remote host failed') . ": '$remote_host'";
     }

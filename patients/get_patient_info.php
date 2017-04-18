@@ -36,22 +36,17 @@
         }
     //
 
-    require_once("../library/translation.inc.php");
-
     // set the language
     if (!empty($_POST['languageChoice'])) {
-        $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
+            $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
     }
     else if (empty($_SESSION['language_choice'])) {
-        // just in case both are empty, then use english
-        $_SESSION['language_choice'] = 1;
+            // just in case both are empty, then use english
+            $_SESSION['language_choice'] = 1;
     }
     else {
-        // keep the current session language token
+            // keep the current session language token
     }
-    $_SESSION['language_direction'] = getLanguageDir( $_SESSION['language_choice'] );
-
-
 
     //SANITIZE ALL ESCAPES
     $fake_register_globals=false;
@@ -63,7 +58,7 @@
     $ignoreAuth = 1;
     //
 
-    //Authentication (and language setting)
+    //Authentication
 	require_once('../interface/globals.php');
     require_once("$srcdir/authentication/common_operations.php");
     $password_update=isset($_SESSION['password_update']);

@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../formdata.inc.php");
 
 
 class Controller extends Smarty {
@@ -51,11 +50,11 @@ class Controller extends Smarty {
 			       //modified 01-2010 by BGM to centralize to formdata.inc.php
 			       // have place several debug statements to allow standardized testing over next several months
                                if (!is_array($var)) {
-				       //DEBUG LINE - error_log("Controller populate before strip: ".$var, 0); 
+				       //DEBUG LINE - error_log("Controller populate before strip: ".$var, 0);
                                        $var = strip_escape_custom($var);
 				       //DEBUG LINE - error_log("Controller populate after strip: ".$var, 0);
                                }
-			   
+
                                call_user_func_array(array(&$obj,$func),array($var, $_POST));
                        }
                }
@@ -92,7 +91,7 @@ class Controller extends Smarty {
                $c_action = preg_replace("/[^A-Za-z0-9_]/","",array_pop($args));
                $args = array_reverse($args);
 
-               if(!call_user_func(array(Controller,"i_once"),$GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
+               if(!call_user_func(array("Controller","i_once"),$GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
                        echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
                        exit;
                }

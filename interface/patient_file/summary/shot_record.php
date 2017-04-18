@@ -9,7 +9,6 @@ $fake_register_globals=false;
 //
 
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
 include_once("$srcdir/immunization_helper.php");
 
@@ -62,7 +61,7 @@ function convertToDataArray($data_array) {
             }
         }
 		$data[$current][xl('Vaccine')] = $vaccine_display;
-		
+
 		//Amount
                 if ($row['amount_administered'] > 0) {
 		        $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " .
@@ -71,7 +70,7 @@ function convertToDataArray($data_array) {
                 else {
                         $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
                 }
-		
+
 		//expiration date fixed by checking for empty value, smw 040214
 		if (isset($row['expiration_date'])) {
 		$temp_date = new DateTime($row['expiration_date']);
@@ -80,26 +79,26 @@ function convertToDataArray($data_array) {
 		else{
 		$data[$current][xl('Expiration') . "\n" . xl('Date')] = '';//$temp_date->format('Y-m-d');
 		}
-		
+
 		//Manufacturer
 		$data[$current][xl('Manufacturer')] = $row['manufacturer'];
-		
+
 		//Lot Number
 		$data[$current][xl('Lot') . "\n" . xl('Number')] = $row['lot_number'];
 
 		//Admin By
 		$data[$current][xl('Admin') . "\n" . xl('By')] = $row['administered_by'];
-		
+
 		//education date
 		$temp_date = new DateTime($row['education_date']);
 		$data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
 
 		//Route
 		$data[$current][xl('Route')] = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']);
-		
+
 		//Admin Site
 		$data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']);
-		
+
 		//Comments
 		$data[$current][xl('Comments')] = $row['note'];
 		$current ++;
@@ -112,15 +111,15 @@ function printPDF($res, $res2, $data) {
 	$pdf = new Cezpdf("LETTER");
 	$pdf->ezSetMargins(72,30,50,30);
 	$pdf->selectFont('Helvetica');
-	
+
 	$opts = array('justification' => "center");
 	$pdf->ezText($res['facility_address'] ,"",$opts);
-	
+
 	$pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
 	$pdf->ezText("\n");
-	
+
 	$opts = array('maxWidth' => 550, 'fontSize' => 8);
-	
+
 	$pdf->ezTable($data, "", $title, $opts);
 	$pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
 	$pdf->ezStream();
@@ -136,12 +135,12 @@ function printHTML($res, $res2, $data) {
   $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
   $res2['patient_address'] = htmlspecialchars( $res2['patient_address'], ENT_NOQUOTES);
   $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
-  
+
   //deal with bug (last array index is empty)
   //array_pop($data);
 
-  ?>  
-	
+  ?>
+
   <html>
   <head>
   <style>
@@ -155,7 +154,7 @@ function printHTML($res, $res2, $data) {
     div {
       padding: 0;
       margin: 0;
-    }	
+    }
     div.paddingdiv {
       width: 524pt;
       height: 668pt;
@@ -169,7 +168,7 @@ function printHTML($res, $res2, $data) {
       text-align: center;
       width: 100%;
       font-size: 10pt;
-    }	
+    }
     div.sign {
       margin: 30pt 0 0 20pt;
     }
@@ -177,12 +176,12 @@ function printHTML($res, $res2, $data) {
       font-size: 12pt;
       text-align: center;
       width: 100%;
-    }	
+    }
     table {
       margin: 0 20pt 0 20pt;
       border-collapse: collapse;
       border: 1pt solid black;
-    }	
+    }
     td {
       font-size: 10pt;
       padding: 2pt 3pt 2pt 3pt;
@@ -190,13 +189,13 @@ function printHTML($res, $res2, $data) {
       border-left: 1pt solid black;
     }
     td.odd {
-      background-color: #D8D8D8; 	
-    }	
+      background-color: #D8D8D8;
+    }
     th {
       font-size: 10pt;
       border: 1pt solid black;
       padding: 2pt 3pt 2pt 3pt;
-    }	
+    }
     div.pageNumber {
       margin-top: 15pt;
       font-size: 8pt;
@@ -207,17 +206,17 @@ function printHTML($res, $res2, $data) {
   <title><?php xl ('Shot Record','e'); ?></title>
   </head>
   <body>
-	
+
   <?php
   //plan 15 lines per page
   $linesPerPage=15;
   $countTotalPages = (ceil((count($data))/$linesPerPage));
   for ($i=0;$i<$countTotalPages;$i++) {
     echo "<div class='paddingdiv'>\n";
-      
+
     //display facility information (Note it is already escaped)
     echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
-    
+
     //display patient information (Note patient address is already escaped)
     echo "<div class='patientAddress'>" . htmlspecialchars( $res2['patient_name'], ENT_NOQUOTES) . "<br>" .
       htmlspecialchars( xl('Date of Birth') . ": " . $res2['patient_DOB'], ENT_NOQUOTES) . "<br>" .
@@ -225,9 +224,9 @@ function printHTML($res, $res2, $data) {
 
     //display table title
     echo "<div class='tabletitle'>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</div>\n";
-      
+
     echo "<table cellspacing='0' cellpadding='0'>\n";
-      
+
     //display header
     echo "<tr>\n";
     foreach ($data[0] as $key => $value) {
@@ -239,7 +238,7 @@ function printHTML($res, $res2, $data) {
       	echo "<th>".htmlspecialchars( $key, ENT_NOQUOTES)."</th>\n";
     }
     echo "</tr>\n";
-    
+
     //display shot data
     for ($j=0;$j<$linesPerPage;$j++) {
       if ($rowData = array_shift($data)) {
@@ -256,7 +255,7 @@ function printHTML($res, $res2, $data) {
 	  else {
 	    echo "<td>";
 	  }
-	    
+
 	  // output data of cell
 	    echo ($value == "") ? "&nbsp;" : htmlspecialchars($value, ENT_NOQUOTES);
 	  echo "</td>";
@@ -267,25 +266,25 @@ function printHTML($res, $res2, $data) {
         break;
       }
     }
-  
+
     echo "</table>\n";
-    
+
     //display signature line
     echo "<div class='sign'>" . htmlspecialchars( xl('Signature'), ENT_NOQUOTES) .
       ":________________________________" . "</div>\n";
-  
+
     if ($countTotalPages > 1) {
       //display page number if greater than one page
       echo "<div class='pageNumber'>" .
         htmlspecialchars( xl('Page') . " " . ($i+1) . "/" . $countTotalPages, ENT_NOQUOTES) .
 	"</div>\n";
     }
-      
+
     echo "</div>\n";
   }
-  
+
   ?>
-    
+
   <script language='JavaScript'>
     opener.top.printLogPrint(window);
   </script>

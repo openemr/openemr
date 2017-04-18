@@ -1,11 +1,10 @@
 <?php
-require_once("ORDataObject.class.php");
 
 /**
  * class X12Partner
  *
  */
- 
+
 class X12Partner extends ORDataObject{
 
 	var $id;
@@ -31,7 +30,7 @@ class X12Partner extends ORDataObject{
 	/**
 	 * Constructor sets all Insurance attributes to their default value
 	 */
-	
+
 	function __construct ($id = "", $prefix = "")	{
 		parent::__construct();
 		$this->id = $id;
@@ -48,7 +47,7 @@ class X12Partner extends ORDataObject{
 			$this->populate();
 		}
 	}
-	
+
 	function x12_partner_factory() {
 		$partners = array();
 		$x = new X12Partner();
@@ -60,53 +59,53 @@ class X12Partner extends ORDataObject{
 		}
 		return $partners;
 	}
-	
+
 	function get_id() {
 		return $this->id;
 	}
-	
+
 	function set_id($id) {
 		if (is_numeric($id)) {
 			$this->id = $id;
 		}
 	}
-	
+
 	function get_name() {
 		return $this->name;
 	}
-	
+
 	function set_name($string) {
 			$this->name = $string;
 	}
-	
+
 	function get_id_number() {
 		return $this->id_number;
 	}
-	
+
 	function set_id_number($string) {
 			$this->id_number = $string;
 	}
-	
+
 	function get_x12_sender_id() {
 		return $this->x12_sender_id;
 	}
-	
+
 	function set_x12_sender_id($string) {
 			$this->x12_sender_id = $string;
 	}
-	
+
 	function get_x12_receiver_id() {
 		return $this->x12_receiver_id;
 	}
-	
+
 	function set_x12_receiver_id($string) {
 			$this->x12_receiver_id = $string;
 	}
-	
+
 	function get_x12_version() {
 		return $this->x12_version;
 	}
-	
+
 	function set_x12_version($string) {
 			$this->x12_version = $string;
 	}
@@ -114,79 +113,79 @@ class X12Partner extends ORDataObject{
 	function get_x12_isa01() {
 		return $this->x12_isa01;
 	}
-	
+
 	function set_x12_isa01($string) {
 			$this->x12_isa01 = $string;
 	}
-	
+
 	function get_x12_isa02() {
 		return $this->x12_isa02;
 	}
-	
+
 	function set_x12_isa02($string) {
 			$this->x12_isa02 = $string;
 	}
-	
+
 	function get_x12_isa03() {
 		return $this->x12_isa03;
 	}
-	
+
 	function set_x12_isa03($string) {
 			$this->x12_isa03 = $string;
 	}
-	
+
 	function get_x12_isa04() {
 		return $this->x12_isa04;
 	}
-	
+
 	function set_x12_isa04($string) {
 			$this->x12_isa04 = $string;
 	}
-		
+
 	function get_x12_isa05() {
 		return $this->x12_isa05;
 	}
-	
+
 	function set_x12_isa05($string) {
 			$this->x12_isa05 = $string;
 	}
-	
+
 	function get_x12_isa07() {
 		return $this->x12_isa07;
 	}
-	
+
 	function set_x12_isa07($string) {
 			$this->x12_isa07 = $string;
 	}
-	
+
 	function get_x12_isa14() {
 		return $this->x12_isa14;
 	}
-	
+
 	function set_x12_isa14($string) {
 			$this->x12_isa14 = $string;
 	}
-	
+
 	function get_x12_isa15() {
 		return $this->x12_isa15;
 	}
-	
+
 	function set_x12_isa15($string) {
 			$this->x12_isa15 = $string;
 	}
-	
+
 	function get_x12_gs02() {
 		return $this->x12_gs02;
 	}
-	
+
 	function set_x12_gs02($string) {
 			$this->x12_gs02 = $string;
 	}
-	
+
 	function get_x12_per06() {
 		return $this->x12_per06;
 	}
-	
+
 	function set_x12_per06($string) {
 			$this->x12_per06 = $string;
 	}
@@ -199,12 +198,12 @@ class X12Partner extends ORDataObject{
 		}
 		return $this->processing_format;
 	}
-	
+
 	function get_processing_format_array() {
-		//flip it because normally it is an id to name lookup, for templates it needs to be a name to id lookup 
+		//flip it because normally it is an id to name lookup, for templates it needs to be a name to id lookup
 		return array_flip($this->processing_format_array);
 	}
-	
+
 	function set_processing_format($string) {
 			$this->processing_format = $string;
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2005-2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2005-2017 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,15 +22,23 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 
- // Check authorization.
- if (acl_check('patients','med')) {
+// Check if user has permission for any issue type.
+$auth = false;
+foreach ($ISSUE_TYPES as $type => $dummy) {
+  if (acl_check_issue($type)) {
+    $auth = true;
+    break;
+  }
+}
+if ($auth) {
   $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
- }
- else {
-  die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
- }
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    die(xlt('Not authorized'));
+  }
+}
+else {
+  die(xlt('Not authorized'));
+}
 
  // Collect parameter(s)
  $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
@@ -48,7 +56,7 @@ $language = $tmp['language'];
 
 <title><?php echo xlt('Patient Issues'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 
 <script language="JavaScript">
@@ -60,21 +68,20 @@ function refreshIssue(issue, title) {
 }
 
 function dopclick(id,category) {
-    <?php if (acl_check('patients','med','','write')): ?>
+    top.restoreSession();
     if (category == 0) category = '';
     dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 550, 400);
-    <?php else: ?>
-    alert("<?php echo addslashes( xl('You are not authorized to add/edit issues') ); ?>");
-    <?php endif; ?>
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
+    top.restoreSession();
     dlgopen('../problem_encounter.php?issue=' + id, '_blank', 550, 400);
 }
 
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
+  top.restoreSession();
   dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
     '&code=' + encodeURIComponent(codevalue) +
     '&language=<?php echo urlencode($language); ?>',
@@ -112,6 +119,7 @@ $encount = 0;
 $lasttype = "";
 $first = 1; // flag for first section
 foreach ($ISSUE_TYPES as $focustype => $focustitles) {
+  if (!acl_check_issue($focustype)) continue;
 
   if ($category) {
     // Only show this category
@@ -127,11 +135,17 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // Show header
   $disptype = $focustitles[0];
-  if(($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable'])
-  echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
-  else
-  echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
-  echo "  <span class='title'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n";
+  if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
+    if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
+      echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
+        xlt('Add') . "</span></a>\n";
+    }
+    else {
+      echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" .
+        attr($focustype)  . "\")'><span>" . xlt('Add') . "</span></a>\n";
+    }
+  }
+  echo "  <span class='title'>" . text($disptype) . "</span>\n";
   // echo " <table style='margin-bottom:1em;text-align:center'>";
   echo " <table style='margin-bottom:1em;'>";
   ?>
@@ -168,7 +182,9 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     else {
       // Data entry has not happened to this type, so can show the none selection option.
       echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
-        attr($focustype) . "' value='none' /><b>" . xlt("None") . "</b></td></tr>";
+        attr($focustype) . "' value='none'";
+      if (!acl_check_issue($focustype, '', 'write')) echo " disabled";
+      echo " /><b>" . xlt("None") . "</b></td></tr>";
     }
   }
 

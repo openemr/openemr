@@ -10,7 +10,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 
 // This script can be run either inside the OpenEMR frameset for order catalog
 // maintenance, or as a popup window for selecting an item to order.  In the
@@ -113,7 +112,7 @@ tr.oddrow {
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

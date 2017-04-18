@@ -3,7 +3,7 @@
  * Script for the globals editor.
  *
  * Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016 Brady Miller <brady@sparmy.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -28,10 +28,8 @@ $sanitize_all_escapes=true;
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
-require_once("$srcdir/classes/CouchDB.class.php");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -107,6 +105,20 @@ function checkBackgroundServices(){
   $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
   $phimail_interval = max(0, (int) $GLOBALS['phimail_interval']);
   updateBackgroundService('phimail', $phimail_active, $phimail_interval);
+}
+function handleAltServices($this_serviceid, $gln = '', $sinterval = 1){
+	$bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name = '$gln'");
+	while($globalsrow = sqlFetchArray($bgservices)){
+		$GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+	}
+	$bs_active = empty($GLOBALS[$gln]) ? '0' : '1';
+	$bs_interval = max(0, (int) $sinterval);
+	updateBackgroundService($this_serviceid, $bs_active, $bs_interval);
+	if(!$bs_active && $this_serviceid == 'ccdaservice'){
+		require_once(dirname(__FILE__)."/../../ccdaservice/ssmanager.php");
+		
+		service_shutdown(0);
+	}
 }
 ?>
 
@@ -283,7 +295,8 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
   }
   checkCreateCDB();
   checkBackgroundServices();
-
+  handleAltServices('ccdaservice','ccda_alt_service_enable', 1);
+  
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.
   $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
@@ -308,7 +321,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 ?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -369,6 +382,13 @@ input     { font-size:10pt; }
   <p><b><?php echo xlt('Edit Global Settings'); ?></b>
 <?php } ?>
 
+<?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
+<span style='float: right;'>
+    <input name='srch_desc' size='20'
+        value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
+    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+</span>
+
 <ul class="tabNav">
 <?php
 $i = 0;
@@ -406,6 +426,11 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   foreach ($grparr as $fldid => $fldarr) {
    if ( !$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS) ) {
     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+    // mdsupport - Check for matches
+    $srch_cl = '';
+    if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== FALSE)) {
+        $srch_cl = 'class="srch"';
+    }
 
     // Most parameters will have a single value, but some will be arrays.
     // Here we cater to both possibilities.
@@ -430,7 +455,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
     }
 
-    echo " <tr title='" . attr($flddesc) . "'><td valign='top'><b>" . text($fldname) . "</b></td><td valign='top'>\n";
+    echo " <tr $srch_cl title='" . attr($flddesc) . "'><td valign='top'><b>" . text($fldname) . "</b></td><td valign='top'>\n";
 
     if (is_array($fldtype)) {
       echo "  <select name='form_$i' id='form_$i'>\n";
@@ -662,6 +687,12 @@ $(document).ready(function(){
   tabbify();
   enable_modals();
 
+  <?php // mdsupport - Highlight search results ?>
+  $('.srch td').wrapInner("<mark></mark>");
+  $('.tab > table').find('tr.srch:first').each(function() {
+      var srch_div = $(this).closest('div').prevAll().length + 1;
+      $('.tabNav > li:nth-child('+srch_div+') a').wrapInner("<mark></mark>");
+  });
   // Use the counter ($i) to make the form user friendly for user-specific globals use
   <?php if ($userMode) { ?>
     <?php for ($j = 0; $j <= $i; $j++) { ?>

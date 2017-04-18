@@ -21,7 +21,6 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/formdata.inc.php");
 
 $layouts = array(
   'DEM' => xl('Demographics'),
@@ -582,6 +581,8 @@ function writeFieldLine($linedata) {
         ", B = " . xla('Gestational Age') .
         ", C = " . xla('Capitalize') .
         ", D = " . xla('Dup Check') .
+        ", E = " . xla('Dup Check on only Edit') .
+        ", W = " . xla('Dup Check on only New') .
         ", G = " . xla('Graphable') .
         ", L = " . xla('Lab Order') .
         ", N = " . xla('New Patient Form') .
@@ -594,6 +595,7 @@ function writeFieldLine($linedata) {
         ", 0 = " . xla('Read Only') .
         ", 1 = " . xla('Write Once') .
         ", 2 = " . xla('Billing Code Descriptions') .
+
         "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
       htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
@@ -744,7 +746,7 @@ function writeFieldLine($linedata) {
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('Validation rule  ') . "</td>\n" .
+    "  <td align='left' class='bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .

@@ -1,9 +1,7 @@
 <?php
 //our api for 3rd party developers
 include_once("../../globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
 include_once("{$GLOBALS['srcdir']}/billing.inc");
-include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 $GLOBALS['form_exit_url'] = "$rootdir/patient_file/encounter/encounter_top.php";
 
@@ -35,20 +33,21 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
         // Bring in $sanitize_all_escapes variable, which will decide
         // the variable escaping method.
         global $sanitize_all_escapes;
+		global $attendant_type;
 
-	$sql = "insert into " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
+	$sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
 		if (strpos($key,"openemr_net_cpt") === 0) {
 			//code to auto add cpt code
 			if (!empty($value)) {
 				$code_array = explode(" ",$value,2);
-				
+
 				addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
 			}
-					
+
 		}
 		//case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
-		
+
 		elseif (strpos($key,"diagnosis") == (strlen($key) -10) && !(strpos($key,"diagnosis")=== false )) {
 			//icd auto add ICD9-CM
 			if (!empty($value)) {
@@ -89,7 +88,7 @@ function formUpdate ($tableName, $values, $id, $authorized = "0")
                 }
 	$sql = substr($sql, 0, -1);
 	$sql .= " where id='".add_escape_custom($id)."'";
-	
+
 	return sqlInsert($sql);
 }
 
@@ -129,7 +128,7 @@ function formGetIds ($tableName, $cols = "*", $limit='all', $start=0, $activity 
         }
 
         $res = sqlStatement($sql);
-        
+
         for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $all[$iter] = $row;
         return $all;

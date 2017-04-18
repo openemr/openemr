@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +19,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Jacob T Paul <jacob@zhservices.com>
 //           Vinish K <vinish@zhservices.com>
 //
@@ -35,9 +35,7 @@ $fake_register_globals=false;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 
 $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -45,7 +43,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 <html>
     <head>
         <?php html_header_show(); ?>
-        <title><?php xlt('External Data'); ?></title>
+        <title><?php echo xlt('External Data'); ?></title>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
         <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
         <script>
@@ -66,7 +64,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
         </script>
         <style>
             .dm-ed-in-1 {
-                height: 35px;   
+                height: 35px;
                 width: 100%;
                 background-color: #E7ECF2;
                 border-bottom: thin solid #C0C0C0;
@@ -85,31 +83,31 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 margin:2px 6px 0 6px;background-size: contain;
             }
             .dm-ed-in-4 {
-                display: none;   
+                display: none;
             }
             .dm-ed-in-5 {
                 margin-left: 10%;
                 margin-top: 3%;
             }
             .dm-ed-in-6 {
-                width: 20% !important;  
+                width: 20% !important;
             }
             .dm-ed-in-7 {
-                font-size: 12px; 
+                font-size: 12px;
             }
             .dm-ed-in-8 {
-                width: 60%; 
+                width: 60%;
                 margin-left: 10%;
                 margin-top: 40px;
-                border: 1px solid #CCCCCC; 
-                text-align:center; 
-                padding: 30px; 
-                font-size: 15px; 
-                font-weight: bold; 
+                border: 1px solid #CCCCCC;
+                text-align:center;
+                padding: 30px;
+                font-size: 15px;
+                font-weight: bold;
                 background: #f7f7f7;
             }
             .dm-ed-in-9 {
-                line-height:30px; 
+                line-height:30px;
             }
             ul.ext-tab-head li {
                 border-bottom: 2px solid #faffff;
@@ -129,7 +127,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
     <body class="body_top">
         <div class="dm-ed-in-1">
             <div class="dm-ed-in-2"></div>
-            <h3><?php echo xlt('External Data') ?></h3> 
+            <h3><?php echo xlt('External Data') ?></h3>
         </div>
         <div class="clear"></div>
         <div>
@@ -159,11 +157,11 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 foreach ($records1 as $value1) {
                     ?>
                     <tr>
-                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value1['ee_date']); ?></span></td> 
+                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value1['ee_date']); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td> 
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td> 
-                    </tr>   
+                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
+                    </tr>
                 <?php } ?>
             </table>
             <?php if (empty($records1)) { ?>
@@ -192,11 +190,11 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 foreach ($records2 as $value2) {
                     ?>
                     <tr>
-                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value2['ep_date']); ?></span></td> 
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td> 
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td> 
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td> 
-                    </tr>   
+                        <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value2['ep_date']); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
+                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
+                    </tr>
             <?php } ?>
             </table>
                 <?php if (empty($records2)) { ?>

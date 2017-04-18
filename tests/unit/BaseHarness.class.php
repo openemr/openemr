@@ -49,10 +49,8 @@ class BaseHarness extends PHPUnit_Framework_TestCase
           echo $installer->error_message;
           exit;
         }
-        require_once 'translation.inc.php';
         require_once 'globals.inc.php';
         require_once 'interface/globals.php';
-        require_once "$srcdir/sql.inc";
         require_once "$srcdir/options.inc.php";
 
         $_SESSION['authUser']  = 'tester';

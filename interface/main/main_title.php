@@ -19,7 +19,7 @@ include_once('../globals.php');
 </style>
 
 <script type="text/javascript" language="javascript">
-function toencounter(rawdata) {
+function toencounter(rawdata, isTherapyGroup) {
 //This is called in the on change event of the Encounter list.
 //It opens the corresponding pages.
 	document.getElementById('EncounterHistory').selectedIndex=0;
@@ -29,7 +29,13 @@ function toencounter(rawdata) {
 	 }
 	else if(rawdata=='New Encounter')
 	 {
-	 	top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=')
+	    if( parent.left_nav.active_gid == 0){
+	        // for patient
+            top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=');
+        } else {
+	        //for therapy group
+            top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+        }
 		return true;
 	 }
 	else if(rawdata=='Past Encounter List')
@@ -66,15 +72,24 @@ function showhideMenu() {
 		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 	}
 }
+
 </script>
 </head>
 <body class="body_title">
 <?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
-
 <table id="main-title" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
+
+<?php if ($GLOBALS['tiny_logo_1'] || $GLOBALS['tiny_logo_2']) {
+    $width_column = "100px";
+    if (!$GLOBALS['tiny_logo_1'] || !$GLOBALS['tiny_logo_2']) $width_column = "50px"; ?>
+    <td align="left" style="width:<?php echo attr($width_column) ?>">
+        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
+    </td>
+<?php } ?>
+
 <td align="left">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
@@ -86,6 +101,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
     <td style="vertical-align:text-bottom;">
             <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
+    </td>
+    <td style="vertical-align:text-bottom;">
+        <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active_group' onClick="javascript:parent.left_nav.clearactive();return false;">
+            <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE THERAPY GROUP'), ENT_QUOTES); ?></span></a>
     </td>
 </tr>
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
@@ -116,7 +135,6 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
-		<td id='tinylogocontainer' class='tinylogocontainer'><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></td>
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>

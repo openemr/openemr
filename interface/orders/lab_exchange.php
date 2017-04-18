@@ -9,7 +9,6 @@ require_once("../globals.php");
 require_once("$srcdir/lab_exchange_api.php");
 require_once("lab_exchange_tools.php");
 require_once("../main/messages/lab_results_messages.php");
-include_once("$srcdir/formdata.inc.php");
 
 $lab_query_report = "";
 $lab_patient_success = array();
@@ -352,7 +351,7 @@ else {
 
 <?php html_header_show(); ?>
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <script type="text/javascript" src="../../../library/dialog.js"></script>
+        <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="../../../library/textformat.js"></script>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
     </head>

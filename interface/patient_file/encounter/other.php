@@ -1,6 +1,5 @@
 <?php
 include_once("../../globals.php");
-include_once("$srcdir/sql.inc");
 
 //the number of rows to display before resetting and starting a new column:
 $N=10
@@ -36,7 +35,7 @@ document.other_form.noofunits.value='1';
 }
 function isNumberKey(evt)
       {var charCode = (evt.which) ? evt.which : event.keyCode
-         if (charCode > 31 && (charCode < 48 || charCode > 57)) 
+         if (charCode > 31 && (charCode < 48 || charCode > 57))
          {
          alert("<?php xl('Units must be a number','e'); ?>");
          return false;

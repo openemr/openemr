@@ -1,13 +1,16 @@
 <?php
-include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
-require_once(dirname(__FILE__) . '/formdata.inc.php');
 
 // Translation function
 // This is the translation engine
 //  Note that it is recommended to no longer use the mode, prepend, or append
 //  parameters, since this is not compatible with the htmlspecialchars() php
 //  function.
-function xl($constant,$mode='r',$prepend='',$append='') {
+//
+//  Note there are cases in installation where this function has already been
+//   declared, so check to ensure has not been declared yet.
+//
+if (!(function_exists('xl'))) {
+ function xl($constant,$mode='r',$prepend='',$append='') {
   // set language id
   if (!empty($_SESSION['language_choice'])) {
     $lang_id = $_SESSION['language_choice'];
@@ -37,19 +40,28 @@ function xl($constant,$mode='r',$prepend='',$append='') {
     $row = SqlFetchArray($res);
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
-    
+
     // remove dangerous characters and remove comments
-    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-    $replace = array (' ','','`','`','');
-    $string = preg_replace($patterns, $replace, $string);
+    if ($GLOBALS['translate_no_safe_apostrophe']) {
+      $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
+      $replace = array (' ','','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
+    else {
+      // convert apostrophes and quotes to safe apostrophe
+      $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+      $replace = array (' ','','`','`','');
+      $string = preg_replace($patterns, $replace, $string);
+    }
   }
-    
+
   $string = "$prepend" . "$string" . "$append";
   if ($mode=='e') {
     echo $string;
   } else {
     return $string;
   }
+ }
 }
 
 // ----------- xl() function wrappers ------------------------------
@@ -109,7 +121,7 @@ function xl_layout_label($constant,$mode='r',$prepend='',$append='') {
     }
   }
 }
-// Added 6-2009 by BM for translation of access control group labels 
+// Added 6-2009 by BM for translation of access control group labels
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_gacl_groups'] is set to true.
 function xl_gacl_group($constant,$mode='r',$prepend='',$append='') {
@@ -220,7 +232,7 @@ function getLanguageTitle($val) {
  else {
    $lang_id = 1;
  }
- 
+
  // get language title
  $res = sqlStatement("select lang_description from lang_languages where lang_id =?",array($lang_id));
  for ($iter = 0;$row = sqlFetchArray($res);$iter++) $result[$iter] = $row;
@@ -252,72 +264,19 @@ function getLanguageDir($lang_id) {
 /**
 HEADER HTML
 
-shows some informations for pages html header 
+shows some informations for pages html header
 
 @param none
 @return void
 */
 function html_header_show() {
-    
+
     // Below line was commented by the UTF-8 project on 05-2009 by BM.
     //  We commented this out since we are now standardizing encoding
     //  in the globals.php file.
     // echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> '."\n";
-}
-
-
-// ----------------------------------------------------------------------------
-/**
-* Returns a string padded to a certain length with another string.
-*
-* This method behaves exactly like str_pad but is multibyte safe.
-*
-* @param string $input    The string to be padded.
-* @param int $length      The length of the resulting string.
-* @param string $pad      The string to pad the input string with. Must
-*                         be in the same charset like the input string.
-* @param const $type      The padding type. One of STR_PAD_LEFT,
-*                         STR_PAD_RIGHT, or STR_PAD_BOTH.
-* @param string $charset  The charset of the input and the padding
-*                         strings.
-*
-* @return string  The padded string.
-*/
-function mb_strpad($input, $length, $pad = ' ', $type = STR_PAD_RIGHT, $charset = 'UTF-8') {
-    mb_internal_encoding($charset);
-    $mb_length = mb_strlen($input, $charset);
-    $sb_length = strlen($input);
-    $pad_length = mb_strlen($pad, $charset);
-
-    /* Return if we already have the length. */
-    if ($mb_length >= $length) {
-        return $input;
-    }
-
-    /* Shortcut for single byte strings. */
-    if ($mb_length == $sb_length && $pad_length == strlen($pad)) {
-        return str_pad($input, $length, $pad, $type);
-    }
-
-    switch ($type) {
-        case STR_PAD_LEFT:
-            $left = $length - $mb_length;
-            $output = mb_substr(str_repeat($pad, ceil($left / $pad_length)), 0, $left, $charset) . $input;
-        break;
-        case STR_PAD_BOTH:
-            $left = floor(($length - $mb_length) / 2);
-            $right = ceil(($length - $mb_length) / 2);
-            $output = mb_substr(str_repeat($pad, ceil($left / $pad_length)), 0, $left, $charset) .
-            $input .
-            mb_substr(str_repeat($pad, ceil($right / $pad_length)), 0, $right, $charset);
-        break;
-        case STR_PAD_RIGHT:
-            $right = $length - $mb_length;
-            $output = $input . mb_substr(str_repeat($pad, ceil($right / $pad_length)), 0, $right, $charset);
-        break;
-    }
-
-return $output;
+    //
+    // Keeping this function, since it may prove useful for user interface improvements
 }
 
 ?>

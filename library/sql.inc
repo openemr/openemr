@@ -15,7 +15,7 @@
 * GNU General Public License for more details.
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-* 
+*
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 */
@@ -152,7 +152,7 @@ if (!$GLOBALS['dbh']) {
   if ($host == "localhost") {
     echo "Check that mysqld is running.<p>";
   } else {
-    echo "Check that you can ping the server '".text($host)."'.<p>";
+    echo "Check that you can ping the server " . text($host) . ".<p>";
   }//if local
   HelpfulDie("Could not connect to server!", getSqlLastError());
   exit;
@@ -194,7 +194,7 @@ function sqlStatement($statement, $binds=false )
 * Function that will allow use of the adodb binding
 * feature to prevent sql-injection. Will continue to
 * be compatible with previous function calls that do
-* not use binding. It is equivalent to the 
+* not use binding. It is equivalent to the
 * sqlStatement() function, EXCEPT it skips the
 * audit engine. This function should only be used
 * in very special situations.
@@ -223,7 +223,7 @@ function sqlStatementNoLog($statement, $binds=false )
 * sqlStatement() function wrapper for CDR engine in OpenEMR.
 * Allows option to turn on/off auditing specifically for the
 * CDR engine.
-* 
+*
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 * @return recordset/resource
@@ -269,9 +269,9 @@ function sqlFetchArray($r)
 
 /**
  * Wrapper for ADODB getAssoc
- * 
+ *
  * @see http://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getassoc
- * 
+ *
  * @param string $sql
  * @param string[] $bindvars
  * @param boolean $forceArray
@@ -279,9 +279,9 @@ function sqlFetchArray($r)
  * @return array
  */
 function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=false ) {
-  
+
   return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
-  
+
 }
 
 /**
@@ -531,7 +531,7 @@ function HelpfulDie ($statement, $sqlerr='')
   }
   $logMsg.="==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"];
   error_log($logMsg);
-  
+
   exit;
 }
 

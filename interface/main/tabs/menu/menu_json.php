@@ -26,6 +26,7 @@ $menu_parsed=load_menu("default");
 if(count($menu_parsed)==0)
 {
     $menu_parsed=json_decode($menu_json);
+    if (!$menu_parsed) die("\nJSON ERROR: " . json_last_error()); // debugging
 }
 
 menu_update_entries($menu_parsed);
@@ -84,6 +85,21 @@ menu_apply_restrictions($menu_parsed,$menu_restrictions);
                         && app_view_model.application_data.patient().selectedEncounter()!=null);
             });
             
+        }
+        else if(object.requirement===4)
+        {
+            self.enabled=ko.computed(function()
+            {
+                return app_view_model.application_data.therapy_group()!==null;
+            });
+        }
+        else if(object.requirement===5)
+        {
+            self.enabled=ko.computed(function()
+            {
+                return (app_view_model.application_data.therapy_group()!==null
+                && app_view_model.application_data.therapy_group().selectedEncounter()!=null);
+            });
         }
         if(self.header)
         {

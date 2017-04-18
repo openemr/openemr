@@ -12,7 +12,6 @@
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("../drugs/drugs.inc.php");
- require_once("$srcdir/formatting.inc.php");
 
  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
  $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));

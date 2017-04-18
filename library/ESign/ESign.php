@@ -3,7 +3,7 @@ namespace ESign;
 
 /**
  *   ESign object consists of the all the essential parts.
- *   
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -20,11 +20,10 @@ namespace ESign;
  * @package OpenEMR
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Medical Information Integration, LLC
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  **/
 
-include_once $GLOBALS['srcdir'].'/sql.inc';
 
 class ESign
 {
@@ -32,7 +31,7 @@ class ESign
     private $_signable = null;
     private $_button = null;
     private $_log = null;
-  
+
     function __construct( ConfigurationIF $configuration, SignableIF $signable, ButtonIF $button, LogIF $log )
     {
         $this->_configuration = $configuration;
@@ -40,22 +39,22 @@ class ESign
         $this->_button = $button;
         $this->_log = $log;
     }
-    
+
     /**
      * Check if the signable object is locked from futher editing
-     * 
+     *
      * @return boolean
      */
     public function isLocked()
     {
         return $this->_signable->isLocked();
     }
-    
+
     public function isButtonViewable()
     {
         return $this->_button->isViewable();
     }
-    
+
     /**
      * Check if the log is viewable
      * @param  string  $mode  Currently supports "default" and "report"
@@ -80,12 +79,12 @@ class ESign
 
         return $viewable;
     }
-    
+
     public function renderLog()
     {
         $this->_log->render( $this->_signable );
     }
-    
+
     public function buttonHtml()
     {
         return $this->_button->getHtml();

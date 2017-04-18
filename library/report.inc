@@ -4,10 +4,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once("{$GLOBALS['srcdir']}/acl.inc");
-require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
-require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 $patient_data_array = array(
@@ -271,7 +268,7 @@ function printPatientBilling($pid) {
     echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
     echo "<span class=text>(".$result{"code_type"}.") ";
     echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
-    echo " - ". wordwrap($result['code_text'], 70, "\n", true)."</span>";
+    echo " - ". wordwrap(htmlspecialchars($result['code_text']), 70, "\n", true)."</span>";
     echo "<br>\n";
 	}
 }
@@ -313,7 +310,7 @@ function printPatientForms($pid, $cols) {
     while($result = sqlFetchArray($inclookupres)) {
         include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     }
-	
+
     $res = sqlStatement("select * from forms where pid='$pid' AND deleted=0 order by date");
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
@@ -369,7 +366,7 @@ function getRecHistoryData ($pid) {
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
 	$res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
-	
+
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
 			if ($key == "pid" || $key == "date" || $key == "id") {
@@ -393,7 +390,7 @@ function getRecEmployerData ($pid) {
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
 	$res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
-	
+
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
 			if ($key == "pid" || $key == "date" || $key == "id") {
@@ -417,7 +414,7 @@ function getRecPatientData ($pid) {
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
 	$res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
-	
+
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
 			if ($key == "pid" || $key == "date" || $key == "id") {
@@ -441,7 +438,7 @@ function getRecInsuranceData ($pid, $ins_type) {
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
 	$res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
-	
+
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
 			if ($key == "pid" || $key == "date" || $key == "id") {

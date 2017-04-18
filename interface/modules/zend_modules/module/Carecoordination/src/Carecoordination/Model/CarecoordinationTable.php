@@ -3843,4 +3843,16 @@ class CarecoordinationTable extends AbstractTableGateway
             return "Dec";
         }
     }
+    
+    public function getListCodes($option_id, $list_id) {
+        $appTable = new ApplicationTable();
+        if ($option_id) {
+            $query = "SELECT codes 
+                  FROM list_options 
+                  WHERE list_id=? AND option_id=?";
+            $result = $appTable->zQuery($query, array($list_id, $option_id));
+            $res_cur = $result->current();
+        }
+        return $res_cur['codes'];
+    }
 }

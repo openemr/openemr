@@ -1,8 +1,7 @@
 <?php
 //these are the functions used to access the forms registry database
 //
-//include_once("../../globals.php");
-include_once("{$GLOBALS['srcdir']}/sql.inc");
+
 
 function registerForm ( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 {
@@ -30,7 +29,7 @@ function updateRegistered ( $id, $mod )
 {
 	return sqlInsert("update registry set
 		$mod,
-		date=NOW() 
+		date=NOW()
 	where
 		id='$id'
 	");
@@ -58,6 +57,11 @@ function getRegistryEntry ( $id, $cols = "*" )
 	return sqlQuery($sql);
 }
 
+function getRegistryEntryByDirectory($directory, $cols = "*") {
+	$sql = "select $cols from registry where directory = ?";
+	return sqlQuery($sql, $directory);
+}
+
 function installSQL ( $dir )
 {
 	$sqltext = $dir."/table.sql";
@@ -71,18 +75,18 @@ function installSQL ( $dir )
 		   sqlStatement(rtrim("$sqlq"));
 		  }
 		}
-			
+
 		return true;
 	}else
 		return false;
 }
 
 
-/* 
+/*
  * is a form registered
  *  (optional - and active)
  * in the database?
- * 
+ *
  * NOTE - sometimes the Name of a form has a line-break at the end, thus this function might be better
  *
  *  INPUT =   directory => form directory
@@ -97,6 +101,11 @@ function isRegistered ( $directory, $state = 1)
     $result = sqlQuery($sql);
     if ($result['id'] != '') return true;
     return false;
+}
+
+function getTherapyGroupCategories(){
+
+	return array('');
 }
 
 ?>

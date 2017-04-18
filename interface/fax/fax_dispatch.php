@@ -91,7 +91,7 @@ if ($_POST['form_save']) {
     //
     if ($_POST['form_cb_copy_type'] == 1) {
       // Compute a target filename that does not yet exist.
-      $ffname = trim($_POST['form_filename']);
+      $ffname = check_file_dir_name(trim($_POST['form_filename']));
       $i = strrpos($ffname, '.');
       if ($i) $ffname = trim(substr($ffname, 0, $i));
       if (!$ffname) $ffname = $filebase;
@@ -391,7 +391,7 @@ div.section {
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>

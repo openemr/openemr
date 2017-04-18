@@ -28,9 +28,7 @@
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
- require_once("$srcdir/formdata.inc.php");
  require_once("$srcdir/options.inc.php");
- require_once("$srcdir/htmlspecialchars.inc.php");
 
  $popup = empty($_GET['popup']) ? 0 : 1;
 
@@ -187,7 +185,7 @@ $res = sqlStatement($query,$sqlBindArray);
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -201,7 +199,7 @@ function refreshme() {
 
 // Process click to pop up the add window.
 function doedclick_add(type) {
- top.restoreSession(); 
+ top.restoreSession();
  dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
 }
 

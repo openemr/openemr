@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -31,8 +31,8 @@ $fake_register_globals=false;
 //
 
 require_once("../../globals.php");
-require_once("$srcdir/sql.inc");
 require_once("$srcdir/log.inc");
+require_once("$srcdir/options.inc.php");
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}) );
@@ -58,7 +58,7 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
 if (isset($_GET['deletelid']))
 {
 $deletelid=$_GET['deletelid'];
-//function to delete the recorded disclosures  
+//function to delete the recorded disclosures
 deleteDisclosure($deletelid);
 }
 ?>
@@ -68,7 +68,7 @@ deleteDisclosure($deletelid);
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -119,7 +119,7 @@ if ($n>0){?>
 		<td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
 		</tr>
 	</table>
-<div id='pnotes'>	
+<div id='pnotes'>
 	<table border='0' cellpadding="1" width='80%'>
 		<tr class="showborder_head" align='left' height="22">
 			<th style='width: 120px';>&nbsp;</th>
@@ -134,20 +134,18 @@ if ($n>0){?>
 		$result2[$iter] = $frow;
 	foreach($result2 as $iter)
 	{
-		$app_event=$iter{event};
-		$event=explode("-",$app_event);
 		$description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
 		?>
 		<!-- List the recipient name, description, date and edit and delete options-->
-		<tr  class="noterow" height='25'>		
+		<tr  class="noterow" height='25'>
 			<!--buttons for edit and delete.-->
 			<td valign='top'><a href='record_disclosure.php?editlid=<?php echo text($iter{id}); ?>'
 			class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
 			<a href='#' class='deletenote css_button_small'
 			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
 			<td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xlt('health care operations'); } else echo text($event[1]); ?>&nbsp;</td>
-			<td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
+            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type',$iter['event'])); ?>&nbsp;</td>
+            <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{user_fullname});?></td>
 		</tr>
 		<?php
@@ -165,15 +163,15 @@ else
 <table width='400' border='0' cellpadding='0' cellspacing='0'>
  <tr>
   <td>
-<?php 
+<?php
 if ($offset > ($N-1) && $n!=0) {
   echo "   <a class='link' href='disclosure_full.php?active=" . $active .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
     xlt('Previous') . "]</a>\n";
 }
 ?>
-  
-<?php 
+
+<?php
 
 if ($n >= $N && $noOfRecordsLeft!=$N) {
   echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active.
@@ -190,23 +188,23 @@ if ($n >= $N && $noOfRecordsLeft!=$N) {
 <script type="text/javascript">
 $(document).ready(function()
         {
-/// todo, move this to a common library  
-	//for row highlight.	
+/// todo, move this to a common library
+	//for row highlight.
 	 $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
 	 $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-	 //fancy box  
+	 //fancy box
     	enable_modals();
     	//for deleting the disclosures
     	$(".deletenote").click(function() { DeleteNote(this); });
-	
-      	var DeleteNote = function(logevent) 
+
+      	var DeleteNote = function(logevent)
 		{
-		if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?','','','\n ') . xl('This action CANNOT be undone.'),ENT_QUOTES); ?>")) 
+		if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?','','','\n ') . xl('This action CANNOT be undone.'),ENT_QUOTES); ?>"))
 			{
 	                top.restoreSession();
-                        window.location.replace("disclosure_full.php?deletelid="+logevent.id)                         
+                        window.location.replace("disclosure_full.php?deletelid="+logevent.id)
          		}
-       		}	
+       		}
        });
 </script>
 </html>

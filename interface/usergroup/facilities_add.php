@@ -1,9 +1,6 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/classes/POSRef.class.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
@@ -13,7 +10,7 @@ $alertmsg = '';
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
@@ -26,7 +23,6 @@ $alertmsg = '';
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
 <?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validate_core.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -86,7 +82,7 @@ function submitform() {
 				alertMsg += checkLength(f[i].name,f[i].value,10);
 				alertMsg += checkFederalEin(f[i].name,f[i].value);
 			}
-		}		
+		}
 	}
 	if(alertMsg)
 	{
@@ -95,8 +91,8 @@ function submitform() {
 	}
 	<?php } ?>
 
-    document.forms[0].submit();
     top.restoreSession();
+    document.forms[0].submit();
 }
 
 function toggle( target, div ) {
@@ -145,6 +141,15 @@ $(document).ready(function(){
     $("#cancel").click(function() {
 		  parent.$.fn.fancybox.close();
 	 });
+
+    /**
+     * add required/star sign to required form fields
+     */
+    for (var prop in collectvalidation) {
+        //if (collectvalidation[prop].requiredSign)
+        if (collectvalidation[prop].presence)
+            jQuery("input[name='" + prop + "']").after('*');
+    }
 });
 var cp = new ColorPicker('window');
   // Runs when a color is clicked
@@ -188,7 +193,7 @@ function displayAlert()
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
-        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""><span class="mandatory">&nbsp;*</span></td>
+        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
         <td width=20>&nbsp;</td>
         <td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
         </tr>
@@ -227,7 +232,7 @@ function displayAlert()
         <tr>
           <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
 	<?php
 	 $disabled='';

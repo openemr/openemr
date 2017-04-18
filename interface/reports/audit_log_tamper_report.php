@@ -30,14 +30,12 @@ $fake_register_globals=false;
 
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
-include_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
@@ -84,7 +82,7 @@ function eventTypeChange(eventname)
           }
          else {
             document.theform.type_event.disabled = false;
-         }              
+         }
 }
 
 // VicarePlus :: This invokes the find-patient popup.
@@ -104,7 +102,7 @@ function eventTypeChange(eventname)
 <body class="body_top">
 <font class="title"><?php echo xlt('Audit Log Tamper Report'); ?></font>
 <br>
-<?php 
+<?php
 $err_message=0;
 if ($_GET["start_date"])
 $start_date = $_GET['start_date'];
@@ -213,7 +211,7 @@ $gev="";
 if($eventname != "" && $type_event != ""){
 	$getevent=$eventname."-".$type_event;
 }
-      
+
 if(($eventname == "") && ($type_event != "")){
 	$tevent=$type_event;
 }else if($type_event =="" && $eventname != ""){
@@ -231,18 +229,18 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
     //translate comments
     $patterns = array ('/^success/','/^failure/','/ encounter/');
 	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
-	
+
 	$dispCheck = false;
 	$log_id = $iter['id'];
 	$commentEncrStatus = "No";
 	$logEncryptData = logCommentEncryptData($log_id);
-	
+
 	if(count($logEncryptData) > 0){
 		$commentEncrStatus = $logEncryptData['encrypt'];
 		$checkSumOld = $logEncryptData['checksum'];
 		$concatLogColumns = $iter['date'].$iter['event'].$iter['user'].$iter['groupname'].$iter['comments'].$iter['patient_id'].$iter['success'].$iter['checksum'].$iter['crt_user'];
 		$checkSumNew = sha1($concatLogColumns);
-		
+
 		if($checkSumOld != $checkSumNew){
 			$dispCheck = true;
 		}else{
@@ -252,7 +250,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 	}else{
 		continue;
 	}
-	
+
 	if($commentEncrStatus == "Yes"){
 		$decrypt_comment =  trim(aes256Decrypt($iter["comments"]));
 		$trans_comments = preg_replace($patterns, $replace, $decrypt_comment);
@@ -260,7 +258,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 		$comments = trim($iter["comments"]);
 		$trans_comments = preg_replace($patterns, $replace, $comments);
 	}
-	
+
 	//Alter Checksum value records only display here
 	if($dispCheck){
 		$dispArr[] = $icnt++;
@@ -279,10 +277,10 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
       }
     }
   }
-  
+
   if( count($dispArr) == 0 ){?>
 	 <TR class="oneresult">
-		 <?php 
+		 <?php
 			$colspan = 4;
 			if($check_sum) $colspan=6;
 		 ?>
@@ -293,7 +291,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 	<script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
   <?php
   }
-  
+
 ?>
 </table>
 </div>

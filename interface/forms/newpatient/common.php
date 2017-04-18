@@ -14,12 +14,17 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/classes/POSRef.class.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/lists.inc");
+
+if($GLOBALS['enable_group_therapy']){
+    require_once("$srcdir/group.inc");
+}
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
@@ -56,13 +61,15 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- validation library -->
 <?php
@@ -70,11 +77,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
 <script language="JavaScript">
 
@@ -94,7 +96,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
  <?php
  //Gets validation rules from Page Validation list.
- //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
  $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
  if (empty($collectthis)) {
    $collectthis = "undefined";
@@ -114,6 +116,14 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
    }
 
    enable_big_modals();
+
+   $('.datepicker').datetimepicker({
+     <?php $datetimepicker_timepicker = false; ?>
+     <?php $datetimepicker_showseconds = false; ?>
+     <?php $datetimepicker_formatInput = false; ?>
+     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+   });
  });
 
 function bill_loc(){
@@ -190,10 +200,14 @@ function cancelClicked() {
       <select name='pc_catid' id='pc_catid'>
 	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
 <?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname " .
+ $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
+ $therapyGroupCategories = array();
  while ($crow = sqlFetchArray($cres)) {
   $catid = $crow['pc_catid'];
+  if($crow['pc_cattype'] == 3)$therapyGroupCategories[] = $catid;
+  // Show Thrapy group category only if global enable_group_therapy is true
+  if($crow['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) continue;
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='" . attr($catid) . "'";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
@@ -306,47 +320,67 @@ if ($fres) {
      </td>
     </tr>
 
+    <?php if($GLOBALS['enable_group_therapy']) { ?>
+        <!-- select group name - showing just if therapy group type is selected -->
+    <tr id="therapy_group_name" style="display: none">
+        <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
+        <td>
+            <input type='text' size='10' name='form_group' id="form_group" style='width:100%;cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+            <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
+        </td>
+    </tr>
+
+    <?php }?>
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service:'); ?></td>
      <td class='text' nowrap>
-      <input type='text' size='10' name='form_date' id='form_date' <?php echo $disabled ?>
+      <input type='text' size='10' class='datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
-       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
      </td>
     </tr>
 
     <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
-      <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
-       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_onset_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+      <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
+       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>' />
      </td>
     </tr>
 	<tr>
      <td class='text' colspan='2' style='padding-top:1em'>
 	 </td>
-    </tr> 
+    </tr>
    </table>
 
   </td>
 
+
   <td class='bold' width='33%' nowrap>
+
+<?php
+  // To see issues stuff user needs write access to all issue types.
+  $issuesauth = true;
+  foreach ($ISSUE_TYPES as $type => $dummy) {
+    if (!acl_check_issue($type, '', 'write')) {
+      $issuesauth = false;
+      break;
+    }
+  }
+  if ($issuesauth) {
+?>
     <div style='float:left'>
    <?php echo xlt('Issues (Injuries/Medical/Allergy)'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
-       onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php if (acl_check('patients','med','','write')) { ?>
+       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+        onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+      <?php } ?>
     </div>
+<?php } ?>
+
   </td>
  </tr>
 
@@ -356,6 +390,8 @@ if ($fres) {
     ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
   </td>
   <td class='text' valign='top'>
+
+<?php if ($issuesauth) { ?>
    <select multiple name='issues[]' size='8' style='width:100%'
     title='<?php echo xla('Hold down [Ctrl] for multiple selections or to unselect'); ?>'>
 <?php
@@ -378,10 +414,10 @@ while ($irow = sqlFetchArray($ires)) {
 }
 ?>
    </select>
-
    <p><i><?php echo xlt('To link this encounter/consult to an existing issue, click the '
    . 'desired issue above to highlight it and then click [Save]. '
    . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
+<?php } ?>
 
   </td>
  </tr>
@@ -393,13 +429,10 @@ while ($irow = sqlFetchArray($ires)) {
 </body>
 
 <script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
-Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_form_onset_date"});
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -407,7 +440,7 @@ if (!$viewmode) { ?>
             return;
         }
         // otherwise just continue normally
-    }    
+    }
 <?php
 
   // Search for an encounter from today
@@ -427,8 +460,34 @@ if (!$viewmode) { ?>
   }
 }
 ?>
+
+<?php if($GLOBALS['enable_group_therapy']) { ?>
+/* hide / show group name input */
+  var groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
+  $('#pc_catid').on('change', function () {
+      if(groupCategories.indexOf($(this).val()) > -1){
+          $('#therapy_group_name').show();
+      } else {
+          $('#therapy_group_name').hide();
+      }
+  })
+
+  function sel_group() {
+      top.restoreSession();
+      var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
+      dlgopen(url, '_blank', 500, 400);
+  }
+  // This is for callback by the find-group popup.
+  function setgroup(gid, name) {
+     var f = document.forms[0];
+     f.form_group.value = name;
+     f.form_gid.value = gid;
+  }
+
+  <?php if($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
+    $('#therapy_group_name').show();
+  <?php } ?>
+<?php } ?>
 </script>
-
-
 
 </html>

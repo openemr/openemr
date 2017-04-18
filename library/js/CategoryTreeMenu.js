@@ -222,9 +222,14 @@ function arrayCopy(input)
 			var imgTag    = this.stringFormat('<img src="{0}/{1}{2}.gif" width="20" height="20" align="top" border="0" name="img_{3}" {4}>', this.iconpath, gifname, modifier, layerID, onMDown);
 			var linkTarget= nodes[i].linkTarget ? nodes[i].linkTarget : this.linkTarget;
 			var linkStart = nodes[i].link ? this.stringFormat('<a href="{0}" target="{1}">', nodes[i].link, linkTarget) : '';
-			
 			var delLink	  = nodes[i].link.replace('add_node','delete_node');
-			var linkEnd   = nodes[i].link ? '</a>&nbsp;&nbsp;&nbsp;<a href="' + delLink  + 'process=1" style="text-decoration:none;"><span style="color:red; font-size:70%; font-family: sans-serif;">(' + deleteLabel + ')</span></a>' : '';
+      var editLink = nodes[i].link.replace('add_node','edit_node');
+      var linkEnd = nodes[i].link ? '</a>' +
+        '&nbsp;&nbsp;<a href="' + editLink + '" style="text-decoration:none;">' +
+        '<span style="font-size:70%; font-family: sans-serif;">(' + editLabel + ')</span></a>' +
+        '&nbsp;&nbsp;<a href="' + delLink  + 'process=1" style="text-decoration:none;">' +
+        '<span style="color:red; font-size:70%; font-family: sans-serif;">(' + deleteLabel + ')</span></a>'
+        : '';
 
 			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br></div>',
 			                  layerTag,

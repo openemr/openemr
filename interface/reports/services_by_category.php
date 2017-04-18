@@ -8,8 +8,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
 
 // Format dollars for display.
 //
@@ -66,9 +64,8 @@ table.mymaintable td, table.mymaintable th {
 </style>
 <title><?php xl('Services by Category','e'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -150,7 +147,7 @@ table.mymaintable td, table.mymaintable th {
 </table>
 </div> <!-- end of parameters -->
 
-<?php 
+<?php
     if ($_POST['form_refresh']) {
 ?>
 

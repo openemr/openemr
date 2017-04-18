@@ -28,7 +28,6 @@ $fake_register_globals = false;
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/classes/Document.class.php");
 
 // Set this to true for production use. If false you will get a "dry run" with no updates.
 $PRODUCTION = true;
@@ -41,7 +40,7 @@ if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Merge Patients'); ?></title>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

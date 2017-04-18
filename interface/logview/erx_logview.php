@@ -29,8 +29,6 @@ $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 
 require_once(__DIR__.'/../globals.php');
 require_once($srcdir.'/log.inc');
-require_once($srcdir.'/formdata.inc.php');
-require_once($srcdir.'/formatting.inc.php');
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
@@ -76,7 +74,7 @@ if($filename) {
 		<?php html_header_show(); ?>
 		<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css" type="text/css">
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
 		<?php include_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
 		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>

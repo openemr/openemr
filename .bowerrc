@@ -1,13 +1,22 @@
 {
   "directory": "public/assets",
   "ignoredDependencies": [
+    "angular",
     "bootstrap",
     "datatables",
+    "datatables.net-bs",
+    "datatables.net-dt",
     "datatables.net-jqui",
+    "datatables.net-colreorder",
     "datatables.net-scroller",
     "datatables.net",
     "jquery",
+    "jquery-mousewheel",
     "imagesloaded",
-    "react"
+    "moment",
+    "php-date-formatter",
+    "react",
+    "summernote",
+    "underscore"
   ]
 }

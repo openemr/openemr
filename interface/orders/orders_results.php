@@ -1,18 +1,28 @@
 <?php
 /**
- * Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2010-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
- * This program is free software; you can redistribute it and/or
+ * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package   OpenEMR
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @link      http://www.open-emr.org
  */
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("../orders/lab_exchange_tools.php");
 
 // Indicates if we are entering in batch mode.
@@ -34,7 +44,7 @@ if ($_GET['set_pid'] && $form_review) {
   require_once("$srcdir/pid.inc");
   require_once("$srcdir/patient.inc");
   setpid($_GET['set_pid']);
-  
+
   $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
   ?>
   <script language='JavaScript'>
@@ -84,7 +94,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
       // Set the review status to reviewed.
       if ($form_review)
         $sets .= ", review_status = 'reviewed'";
-    
+
       if ($report_id) { // Report already exists.
         sqlStatement("UPDATE procedure_report SET $sets "  .
           "WHERE procedure_report_id = '$report_id'");
@@ -136,6 +146,8 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <title><?php  xl('Procedure Results','e'); ?></title>
 
 <style>
@@ -182,14 +194,10 @@ a, a:visited, a:hover { color:#0000cc; }
 }
 
 </style>
-
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -283,6 +291,23 @@ function validate(f) {
  return true;
 }
 
+$(document).ready(function() {
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+});
+
 </script>
 
 </head>
@@ -317,22 +342,14 @@ if ($form_batch) {
    <input type='hidden' name='form_proc_type' value='<?php echo $form_proc_type ?>' />
 
    &nbsp;<?php xl('From','e'); ?>:
-   <input type='text' size='10' name='form_from_date' id='form_from_date'
+   <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
     value='<?php echo $form_from_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd','e'); ?>' />
 
    &nbsp;<?php xl('To','e'); ?>:
-   <input type='text' size='10' name='form_to_date' id='form_to_date'
+   <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo $form_to_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd','e'); ?>' />
 
    &nbsp;
 <?php
@@ -373,7 +390,7 @@ if ($form_batch) {
   <td><?php xl('?','e'); ?></td>
  </tr>
 
-<?php 
+<?php
 $selects =
   "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
   "pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .
@@ -556,23 +573,17 @@ while ($row = sqlFetchArray($res)) {
     if ($report_id != $lastprid) {
       echo "  <td nowrap>";
       echo "<input type='text' size='13' name='form_date_report[$lino]'" .
-        " id='form_date_report[$lino]' class='celltextfw' value='" . attr($date_report) . "' " .
+        " id='form_date_report[$lino]' class='celltextfw datetimepicker' value='" . attr($date_report) . "' " .
         " title='" . xl('Date and time of this report') . "'" .
-        " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
         " />";
-      echo "<span class='bold' id='q_date_report[$lino]' style='cursor:pointer' " .
-        "title='" . xl('Click here to choose a date and time') . "' />?</span>";
       echo "</td>\n";
 
       echo "  <td nowrap>";
       echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
         " id='form_date_collected[$lino]'" .
-        " class='celltextfw' value='" . attr($date_collected) . "' " .
+        " class='celltextfw datetimepicker' value='" . attr($date_collected) . "' " .
         " title='" . xl('Date and time of sample collection') . "'" .
-        " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
         " />";
-      echo "<span class='bold' id='q_date_collected[$lino]' style='cursor:pointer' " .
-        "title='" . xl('Click here to choose a date and time') . "' />?</span>";
       echo "</td>\n";
 
       echo "  <td>";
@@ -734,29 +745,6 @@ else {
 <?php } ?>
 
 <?php echo $extra_html; ?>
-
-<script language='JavaScript'>
-
-<?php if ($form_batch) { ?>
-// Initialize calendar widgets for "from" and "to" dates.
-Calendar.setup({inputField:'form_from_date', ifFormat:'%Y-%m-%d',
- button:'img_from_date'});
-Calendar.setup({inputField:'form_to_date', ifFormat:'%Y-%m-%d',
- button:'img_to_date'});
-<?php } ?>
-
-// Initialize calendar widgets for report dates and collection dates.
-var f = document.forms[0];
-for (var lino = 0; f['form_line['+lino+']']; ++lino) {
- if (f['form_date_report['+lino+']']) {
-  Calendar.setup({inputField:'form_date_report['+lino+']', ifFormat:'%Y-%m-%d %H:%M',
-   button:'q_date_report['+lino+']', showsTime:true});
-  Calendar.setup({inputField:'form_date_collected['+lino+']', ifFormat:'%Y-%m-%d %H:%M',
-   button:'q_date_collected['+lino+']', showsTime:true});
- }
-}
-
-</script>
 
 </form>
 </body>

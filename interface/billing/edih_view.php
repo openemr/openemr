@@ -1,22 +1,22 @@
 <?php
 /**
  * edih_view.php
- * 
+ *
  * Copyright 2012 Kevin McCormick Longview, Texas
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have 
- * received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 
+ * the Free Software Foundation; version 3 or later.  You should have
+ * received a copy of the GNU General Public License along with this program;
+ * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  <http://opensource.org/licenses/gpl-license.php>
- * 
+ *
  * @author Kevin McCormick
  * @link: http://www.open-emr.org
  * @package OpenEMR
@@ -41,8 +41,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <!-- jQuery-ui and datatables -->
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/css/dataTables.jqueryui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-1/css/scroller.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-2/css/scroller.jqueryui.min.css" />
 
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
@@ -51,7 +51,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar_setup.js"></script>
     <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
-    
+
     <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 </head>
 <!-- style for OpenEMR color -->
@@ -65,15 +65,15 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
    <li><a href="#x12text" id="btn-x12text"><?php echo xlt("EDI File"); ?></a></li>
    <li><a href="#edinotes" id="btn-edinotes"><?php echo xlt("Notes"); ?></a></li>
    <li><a href="#archive" id="btn-archive"><?php echo xlt("Archive"); ?></a></li>
-  </ul> 	
+  </ul>
 
     <div id="newfiles">
-        <table> 
+        <table>
         <tr vertical-align="middle">
-         <td align="center">       
+         <td align="center">
             <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
                 <fieldset>
-                <legend><?php echo xlt("Select one or more files to upload"); ?></legend> 
+                <legend><?php echo xlt("Select one or more files to upload"); ?></legend>
                 <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
                 <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
                 <input type="submit" id="uplsubmit" name="upl_submit" form="formupl" value=<?php echo xla("Submit"); ?> />
@@ -85,7 +85,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
             <form id="processnew" name="process_new" action="edih_main.php" method="GET">
                 <fieldset>
                 <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
-                <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?> 
+                <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
                 <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br>
                 <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
                 <label for="process"><?php echo xlt("Process New Files"); ?></label>
@@ -95,20 +95,20 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
          </td>
         </tr>
         </table>
-        
+
 		<div id="fileupl1"></div>
 		<div id="fileupl2"></div>
 		<div id="processed"></div>
         <div id="rsp" title="<?php echo xla("Response"); ?>"></div>
         <div id="sub" title="<?php echo xla("Submitted"); ?>"></div>
         <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
-    </div> 
-    
+    </div>
+
     <div id="csvdatatables">
 		<table>
 		<tr>
 		<td colspan=4>
-		
+
 		<form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
 			<fieldset>
 				<legend><?php echo xlt("View CSV tables"); ?>:</legend>
@@ -125,7 +125,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 					<tr height='1.5em'>
 						<td align='center'>
 							<select id="csvselect" name="csvtables"></select>
-						</td>						
+						</td>
 						<td align='center'>
 							<select id="csvperiod" name="csv_period">
 								<option value='2w' selected='selected'>2 <?php echo xlt('weeks'); ?></option>
@@ -143,13 +143,13 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 						   <input type='text' size='10' name="csv_date_start" id="caldte1" value="" title="<?php echo xla('yyyy-mm-dd Start Date'); ?>" />
                            <img src="<?php echo $web_root?>/interface/pic/show_calendar.gif" align='absbottom' width='24' height='22'
                               id="csvdate1_cal" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="<?php echo xla('Start date'); ?>">
-                        
+
                            <input type="text" size="10" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
                            <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22"
                               id="csvdate2_cal" border="0" alt="[?]" style="cursor:pointer;cursor:hand" title="<?php echo xla('End date'); ?>">
                         </td>
                         <!-- OEMR calendar srcipt -->
-                        <script type="text/javascript"> 
+                        <script type="text/javascript">
                             Calendar.setup({inputField:"caldte1", ifFormat:"%Y-%m-%d", button:"csvdate1_cal"});
                             Calendar.setup({inputField:"caldte2", ifFormat:"%Y-%m-%d", button:"csvdate2_cal"});
                         </script>
@@ -158,22 +158,22 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 							<input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable">
 							<input id="csvshow" type="submit" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>" />
 						</td>
-                        
+
 					</tr>
                 </table>
            </fieldset>
-        </form> 
-        
+        </form>
+
         </td>
         <td colspan=2>
 	        <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
 	           <fieldset>
 				  <legend><?php echo xlt("Per Encounter"); ?></legend>
-				  <table cols='2'> 
+				  <table cols='2'>
 				        <tr><td colspan='2'><?php echo xlt("Enter Encounter Number"); ?></td></tr>
 						<tr>
 							<td><?php echo xlt("Encounter"); ?></td>
-							<td><?php echo xlt("Submit"); ?></td>	
+							<td><?php echo xlt("Submit"); ?></td>
 						</tr>
 						<tr>
 							<td><input id="histenctr" type="text" size=10 name="hist_enctr" value="" /></td>
@@ -181,26 +181,26 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 						</tr>
 				  </table>
 				</fieldset>
-			</form>   
+			</form>
 		</td>
-		</tr> 
+		</tr>
 		</table>
-		
+
         <div id='tblshow'></div>
         <div id='tbcsvhist'></div>
         <div id='tbrpt'></div>
 		<div id='tbrsp'></div>
-        <div id='tbsub'></div> 
+        <div id='tbsub'></div>
         <div id='tbseg'></div>
-     
+
     </div>
  <!--     erafiles to be replaced by functionality in x12text
     <div id='erafiles'>
 
     </div>
  -->
- 
-	<div id="x12text" > 
+
+	<div id="x12text" >
 		<form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
 		<fieldset>
 		<legend><?php echo xlt("View EDI x12 file"); ?>:</legend>
@@ -211,7 +211,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			  <td align='left'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
 			  <td align='center'><label for="x12_filereset"><?php echo xlt("Reset"); ?>:</label></td>
 			</tr>
-			<tr>  	
+			<tr>
 			  <td align='left'>
 				<input type="hidden" name="viewx12Files" value="view_x12">
 			    <input type="checkbox" id="x12htm" name="x12_html" value="html"  />
@@ -227,11 +227,11 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 	    </table>
 		</fieldset>
 		</form>
-		
-		<div id="x12rsp"></div> 
-    
-	</div> 
-        
+
+		<div id="x12rsp"></div>
+
+	</div>
+
     <div id="edinotes">
 		<table>
 			<tr>
@@ -241,10 +241,10 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 				<td>
 					<form id ="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
 					<fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
-					<label for="logfile"><?php echo xlt("View Log"); ?></label>			
-					<select id="logselect" name="log_select"> </select>	
+					<label for="logfile"><?php echo xlt("View Log"); ?></label>
+					<select id="logselect" name="log_select"> </select>
 					<input type="hidden" name="logshowfile" value="getlog">
-					<input id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />								
+					<input id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />
 					<input id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />
 					<input id="logarch" type="button" form="formlog" value="<?php echo xla("Archive"); ?>" />
 					</fieldset>
@@ -262,12 +262,12 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 				</td>
 			</tr>
 		</table>
-        
-		<div id='logrsp'></div> 
+
+		<div id='logrsp'></div>
 		<div id='notesrsp'></div>
 
     </div>
-    
+
     <div id="archive">
 		<table>
 			<tr>
@@ -276,7 +276,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			<tr>
 				<td colspan=2>
 					<form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
-					<fieldset><legend><?php echo xlt("Archive old files "); ?></legend>
+					<fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
 					<label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
 					<select id="archiveselect" name="archive_sel">
 						<option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
@@ -287,7 +287,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 						<option value="6m">6 <?php echo xlt('months'); ?></option>
 						<option value="3m">3 <?php echo xlt('months'); ?></option>
 					</select>
-					<label for="archivereport"><?php echo xlt("Report"); ?>:</label>					
+					<label for="archivereport"><?php echo xlt("Report"); ?>:</label>
 					<input type="button" id="archiverpt" name="archivereport" form="formarchive" value="<?php echo xla("Report"); ?>" />
 					<input type="hidden" name="ArchiveRequest" form="formarchive" value="requested" />
 					<label for="archivesbmt"><?php echo xlt("Archive"); ?>:</label>
@@ -300,25 +300,25 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 					<label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
 					<select id="archrestoresel" name="archrestore_sel"> </select>
 					<input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
-					<label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>					
+					<label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>
 					<input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value=<?php echo xla("Restore"); ?> />
 					</fieldset>
 					</form>
 				</td>
 			</tr>
 		</table>
-		
+
 		<div id="archiversp"></div>
-		
-	</div>  
-</div> 
+
+	</div>
+</div>
 <!-- End tabs section -->
 <!--  -->
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-11/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-11/js/dataTables.jqueryui.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-1/js/dataTables.scroller.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/js/dataTables.jqueryui.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-2/js/dataTables.scroller.min.js"></script>
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -338,10 +338,10 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
         jQuery("#fileupl1").toggle(false);
 		jQuery("#fileupl2").toggle(false);
 	});
-/* ************ 
- *   end of document ready() jquery 
+/* ************
+ *   end of document ready() jquery
  * ************
- */ 	
+ */
 /* ****  from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/ *** */
 	function bytesToSize(bytes) {
 	    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -355,12 +355,12 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 	var phpserver = [];
 	jQuery(function() {
 		jQuery.ajax({
-			url: 'edih_main.php', 
-			data: { srvinfo: 'yes' }, 
+			url: 'edih_main.php',
+			data: { srvinfo: 'yes' },
 			dataType: 'json',
 			success: function(rsp){ phpserver = rsp }
 		});
-	}); 
+	});
 /* *** update the list of available csv tables  *** */
 	function csvlist() {
 		jQuery.ajax({
@@ -384,7 +384,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			  }
 			}
 		});
-	};	
+	};
 /* *** update the list of log files *** */
 	function loglist() {
 		jQuery.ajax({
@@ -392,7 +392,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			url: 'edih_main.php',
 			data: { loglist: 'yes' },
 			dataType: 'json',
-			success: function(data) {	
+			success: function(data) {
 			  var options = jQuery('#logselect').attr('options');
 			  var optct = data.length;
 			  if (optct) {
@@ -418,14 +418,14 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 				jQuery('#archrestoresel').empty();
 				var optct = data.length;
 				var options = [];
-				if (optct) {				
+				if (optct) {
 					options.push("<option selected='selected'><?php echo xla("Choose from list"); ?></option>");
 					for (var i=0; i<optct; i++) {
 						options.push("<option value=" + data[i] + ">" + data[i] + "</option>");
 					}
 				} else {
 					options.push("<option selected='selected'><?php echo xla("No Archives"); ?></option>");
-				} 
+				}
 				jQuery('#archrestoresel').html(options.join(""));
 			}
 		});
@@ -433,7 +433,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 
 /*
 jQuery-UI dialog
-    control visibility by designating to which div the dialog is appended 
+    control visibility by designating to which div the dialog is appended
 */
     function dialogOptions(appendElem) {
 		var tblDialogOpts = {
@@ -452,8 +452,8 @@ jQuery-UI dialog
 	    };
 	    return tblDialogOpts;
 	}
- 
-			
+
+
 	jQuery('#tbcsvhist').on('click', 'a', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -470,7 +470,7 @@ jQuery-UI dialog
 		jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 	        .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
 	});
-/* 		
+/*
 	jQuery('#tbrpt').on('click', 'a', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -506,7 +506,7 @@ jQuery-UI dialog
  *
  * === upload multiple files
  *     buttons are enabled/disabled
- *     selected and uploaded files are listed    
+ *     selected and uploaded files are listed
  *     the process files script html output displayed,
  */
 /* **** if files have been uploaded **** */
@@ -565,14 +565,14 @@ jQuery-UI dialog
 	jQuery('#formupl').on('submit', function( event )  {
 		event.stopPropagation();
 		event.preventDefault();
-		var uplForm = document.getElementById("formupl"); 
-		var upldata = new FormData( document.getElementById('formupl') );  
+		var uplForm = document.getElementById("formupl");
+		var upldata = new FormData( document.getElementById('formupl') );
 		var rspElem = jQuery('#fileupl2');
 		rspElem.html('');
 		jQuery.ajax({
-			    url: jQuery('#formupl').attr('action'),  
+			    url: jQuery('#formupl').attr('action'),
 			    type: 'POST',
-			    cache: false, 
+			    cache: false,
 			    data: upldata,
 			    dataType: 'html',
 			    processData: false,
@@ -594,7 +594,7 @@ jQuery-UI dialog
 		e.stopPropagation();
 		e.preventDefault();
 		jQuery.ajax({
-			    url: jQuery('#processnew').attr('action'), 
+			    url: jQuery('#processnew').attr('action'),
 			    type: 'GET',
 			    data: jQuery('#processnew').serialize(),  //prcForm.serialize(),
 			    success: [
@@ -611,7 +611,7 @@ jQuery-UI dialog
 			    error: function( xhr, status ) {
 					alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ),
 					jQuery('#processed').html(status)
-				}				
+				}
 			});
 		upld_ct = 0;
 		/* ***  update list of csv tables *** */
@@ -655,7 +655,7 @@ jQuery-UI dialog
 		jQuery(this).css('font-weight', 'normal');
 		outlineMatch(fl1, 'none');
 	});
-	jQuery('#fileupl1').on('mouseenter', 'li', function(event){	
+	jQuery('#fileupl1').on('mouseenter', 'li', function(event){
 		jQuery(this).css('font-weight', 'bolder');
 		if ( jQuery('#fileupl2').length ) {
 			var fl2 = jQuery('#fileupl2').find('li');
@@ -669,7 +669,7 @@ jQuery-UI dialog
 			var fl2 = jQuery('#fileupl2').find('li');
 			var fname = jQuery(this).text();
 			outlineMatch(fl2, 'none');
-		}			
+		}
 	});
 
 /* *****  ==== end file upload lists  match uploaded to selected
@@ -694,25 +694,27 @@ jQuery-UI dialog
 		}
 		jQuery.ajax({
 			type:'get',
-			url: "edih_main.php", 
-			data: jQuery('#formcsvtables').serialize(), 
+			url: "edih_main.php",
+			data: jQuery('#formcsvtables').serialize(),
 			dataType: "html",
-			success: [ 
+			success: [
 				function(data){
 					jQuery('#tblshow').html(data);
-					jQuery('#tblshow').css('maxWidth', 'fit-contents'); 
+					jQuery('#tblshow').css('maxWidth', 'fit-contents');
 					jQuery('#tblshow table#csvTable').DataTable({
                         'processing': true,
 						'scrollY': '300px',
 						'scrollCollapse': true,
 						'scrollX': true,
-						'paging': true
+						'paging': true,
+						<?php // Bring in the translations ?>
+                        <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
 					});
-				},	
-			]              
+				},
+			]
 		});
-	}); 
-	
+	});
+
 	// csv encounter history
 	jQuery('#formcsvhist').on('submit', function(e) {
 		e.preventDefault();
@@ -731,17 +733,17 @@ jQuery-UI dialog
 				};
 		jQuery.ajax({
 			type: "GET",
-			url: jQuery('#formcsvhist').attr('action'), 
+			url: jQuery('#formcsvhist').attr('action'),
 			data: jQuery('#formcsvhist').serialize(), //{ csvenctr: chenctr },
 			dataType: "html",
 			success: [ function(data){
 				jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
 					.appendTo('#tbcsvhist').html(jQuery.trim(data)).dialog(histopts).dialog('open');
 				}
-			]				
+			]
 		});
     });
-    //		
+    //
     jQuery('#csvClear').on('click', function(e) {
 		e.preventDefault();
         jQuery("#tblshow").html('');
@@ -808,7 +810,7 @@ jQuery-UI dialog
 		//
 		jQuery.ajax({
             type: 'get',
-            url: jQuery('#formlog').attr('action'), 
+            url: jQuery('#formlog').attr('action'),
             data: { archivelog: 'yes' },
             dataType: "json",
             success: function(data) {
@@ -825,43 +827,43 @@ jQuery-UI dialog
 				jQuery('#notesrsp').hide();
 		        jQuery('#logrsp').html('');
 		        jQuery('#logrsp').html(str);
-		        jQuery('#logrsp').show();				
+		        jQuery('#logrsp').show();
 			},
 		    error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); }
 		});
 		loglist();
 
     });
-    
+
     jQuery('#logclose').on('click', function(e) {
 		e.preventDefault();
         jQuery('#logrsp').html('');
         jQuery('#logrsp').hide();
         jQuery('#notesrsp').show();
     });
-    	
+
 	jQuery('#logselect').on('change', function(e) {
 		jQuery('#logshow').prop('disabled', false );
 	});
-	     
+
     jQuery('#logshow').on('click', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		var fn = jQuery('#logselect').val();
         jQuery.ajax({
             type: 'get',
-            url: jQuery('#formlog').attr('action'), 
+            url: jQuery('#formlog').attr('action'),
             //data: { archivelog: 'yes', logfile: fn },
             data: jQuery('#formlog').serialize(),
             dataType: "html",
             success: function(data){
 				jQuery('#notesrsp').hide();
-                jQuery('#logrsp').html(''), 
+                jQuery('#logrsp').html(''),
                 jQuery('#logrsp').html(jQuery.trim(data));
-                jQuery('#logrsp').show(); 
+                jQuery('#logrsp').show();
             }
         });
-    }); 
+    });
 
     jQuery('#notesget').on('click', function(e) {
         e.preventDefault();
@@ -874,14 +876,14 @@ jQuery-UI dialog
             success: function(data){
 				jQuery('#notesrsp').html('');
                 jQuery('#notesrsp').html("<H4>Notes:</H4>");
-                jQuery('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>"); 
+                jQuery('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>");
                 // necessary to trim the data since php from script has leading newlines (UTF-8 issue) '|:|'
 		        jQuery('#logrsp').hide();
                 jQuery('#notesrsp \\:textarea').val(jQuery.trim(data));
                 jQuery('#notesrsp').show();
             }
         });
-    });	
+    });
 
     jQuery('#notessave').on('click', function(e) {
 		e.preventDefault();
@@ -899,19 +901,19 @@ jQuery-UI dialog
 
 /*
  * ==== Archive form id="formarchive"
- * 
+ *
  */
 	jQuery('#formarchive').on('submit', function(e) {
 		//e.stopPropagation();
 		e.preventDefault();
-		var archForm = document.getElementById('formarchive'); 
-		var archdata = new FormData(archForm);  
+		var archForm = document.getElementById('formarchive');
+		var archdata = new FormData(archForm);
 		var rspElem = jQuery('#archiversp');
 		rspElem.html('');
 		jQuery.ajax({
 			url: jQuery('#formarchive').attr('action'),
 			type: 'POST',
-			cache: false, 
+			cache: false,
 			data: archdata,
 			dataType: 'html',
 			processData: false,
@@ -920,7 +922,7 @@ jQuery-UI dialog
 				rspElem.html(data);
 				jQuery('#archivesubmit').prop('disabled', true );
 				archForm.reset();
-				
+
 			},
 			error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
 			// code to run regardless of success or failure
@@ -947,7 +949,7 @@ jQuery-UI dialog
 			//cache: false,
 			dataType: 'html',
 			data: { archivereport: 'yes', period: sprd },
-			
+
 			success: function(data) {
 				//rspElem.html(data);
 				//rspElem.show();
@@ -961,30 +963,30 @@ jQuery-UI dialog
 		});
 		return false;
 	});
-	//		
+	//
 	jQuery('#archiveselect').on('change', function(e) {
 		jQuery('#archivesubmit').prop('disabled', false );
 	});
 
-	// 
+	//
 	jQuery('#formarchrestore').on('submit', function(e) {
 		//e.stopPropagation();
 		e.preventDefault();
-		
+
 		var sel = jQuery( "#archrestoresel option:selected" ).text();
 		console.log( sel );
 		if (sel == "No Archives") {
 			alert("<?php echo xls('No archive files present'); ?>");
 			return false;
 		}
-		var archrstForm = document.getElementById('formarchrestore'); 
-		var archrstdata = new FormData(archrstForm);  
+		var archrstForm = document.getElementById('formarchrestore');
+		var archrstdata = new FormData(archrstForm);
 		var rspElem = jQuery('#archiversp');
 		//var archf = jQuery('#archrestoresel').val();
 		//archrstdata = { archrestore: 'yes', archfile: archf };
 		jQuery.ajax({
 			url: jQuery('#formarchrestore').attr('action'),
-			type: 'POST', 
+			type: 'POST',
 			data: archrstdata,
 			dataType: 'html',
 			processData: false,
@@ -1001,10 +1003,10 @@ jQuery-UI dialog
 		return false;
 	});
 
-/* ************ 
+/* ************
  * end of javascript block
- */             
-</script>     
+ */
+</script>
 
 </body>
 

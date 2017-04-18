@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
 // Modified 2011 Rod Roark <rod@sunsetsystems.com>
 // Modified 2014 Joe Slam <joe@produnis.de>
 //
@@ -21,7 +21,6 @@ $fake_register_globals=false;
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-chart.php");
-require_once($GLOBALS['srcdir'] . "/formdata.inc.php");
 
 // get $_POSTed data
 //+++++++++++++++++++++++

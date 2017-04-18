@@ -1,8 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/ORDataObject.class.php");
-require_once(dirname(__FILE__) . "/CouchDB.class.php");
-require_once(dirname(__FILE__) . "/thumbnail/Thumbnail.class.php");
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
@@ -10,49 +7,49 @@ require_once(dirname(__FILE__) . "/../gprelations.inc.php");
  * class Document
  * This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
  * of some type. This URL is not necessarily a web url, it could be a file URL or reference to a BLOB in a db.
- * It is implicit that a document can have other related tables to it at least a one document to many notes which join on a documents 
- * id and categories which do the same. 
+ * It is implicit that a document can have other related tables to it at least a one document to many notes which join on a documents
+ * id and categories which do the same.
  */
- 
+
 class Document extends ORDataObject{
-	
+
 	/*
 	*	Database unique identifier
 	*	@var id
 	*/
 	var $id;
-	
+
 	/*
 	*	DB unique identifier reference to some other table, this is not unique in the document table
 	*	@var int
 	*/
 	var $foreign_id;
-	
+
 	/*
 	*	Enumerated DB field which is met information about how to use the URL
 	*	@var int can also be a the properly enumerated string
 	*/
 	var $type;
-	
+
 	/*
 	*	Array mapping of possible for values for the type variable
 	*	mapping is array text name to index
 	*	@var array
 	*/
 	var $type_array = array();
-	
+
 	/*
 	*	Size of the document in bytes if that is available
 	*	@var int
 	*/
 	var $size;
-	
+
 	/*
 	*	Date the document was first persisted
 	*	@var string
 	*/
 	var $date;
-	
+
 	/*
 	*	URL which point to the document, may be a file URL, a web URL, a db BLOB URL, or others
 	*	@var string
@@ -64,26 +61,26 @@ class Document extends ORDataObject{
 	*	@var string
 	*/
 	var $thumb_url;
-	
+
 	/*
 	*	Mimetype of the document if available
 	*	@var string
 	*/
 	var $mimetype;
-	
+
 	/*
 	*	If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater, if a non-multi-page format this should be null or empty
 	*	@var int
 	*/
 	var $pages;
-	
+
 	/*
 	*	Foreign key identifier of who initially persisited the document,
 	*	potentially ownership could be changed but that would be up to an external non-document object process
 	*	@var int
 	*/
 	var $owner;
-	
+
 	/*
 	*	Timestamp of the last time the document was changed and persisted, auto maintained by DB, manually change at your own peril
 	*	@var int
@@ -95,19 +92,19 @@ class Document extends ORDataObject{
 	* @var string
 	*/
 	var $docdate;
-	
+
 	/*
-	* 40-character sha1 hash key of the document from when it was uploaded. 
+	* 40-character sha1 hash key of the document from when it was uploaded.
 	* @var string
 	*/
 	var $hash;
-	
+
 	/*
 	* DB identifier reference to the lists table (the related issue), 0 if none.
 	* @var int
 	*/
 	var $list_id;
-	
+
 	// For tagging with the encounter
 	var $encounter_id;
 	var $encounter_check;
@@ -120,19 +117,19 @@ class Document extends ORDataObject{
 
 	/**
 	 * Constructor sets all Document attributes to their default value
-	 * @param int $id optional existing id of a specific document, if omitted a "blank" document is created 
+	 * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
 	 */
 	function __construct($id = "")	{
 		//call the parent constructor so we have a _db to work with
 		parent::__construct();
-		
+
 		//shore up the most basic ORDataObject bits
 		$this->id = $id;
 		$this->_table = "documents";
-		
+
 		//load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
 		$this->type_array = $this->_load_enum("type");
-		
+
 		$this->type = $this->type_array[0];
 		$this->size = 0;
 		$this->date = date("Y-m-d H:i:s");
@@ -143,31 +140,31 @@ class Document extends ORDataObject{
 		$this->list_id = 0;
 		$this->encounter_id = 0;
 		$this->encounter_check = "";
-		
+
 		if ($id != "") {
 			$this->populate();
 		}
 	}
-	
+
 	/**
 	 * Convenience function to get an array of many document objects
 	 * For really large numbers of documents there is a way more efficient way to do this by overwriting the populate method
-	 * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned 
+	 * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
 	 */
 	function documents_factory($foreign_id = "") {
 		$documents = array();
-		
+
 		if (empty($foreign_id)) {
 			 $foreign_id= "like '%'";
 		}
 		else {
 			$foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
 		}
-		
+
 		$d = new Document();
 		$sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id " .$foreign_id ;
 		$result = $d->_db->Execute($sql);
-		
+
 		while ($result && !$result->EOF) {
 			$documents[] = new Document($result->fields['id']);
 			$result->MoveNext();
@@ -175,26 +172,26 @@ class Document extends ORDataObject{
 
 		return $documents;
 	}
-	
+
 	/**
 	 * Convenience function to get a document object from a url
 	 * Checks to see if there is an existing document with that URL and if so returns that object, otherwise
 	 * creates a new one, persists it and returns it
-	 * @param string $url  
+	 * @param string $url
 	 * @return object new or existing document object with the specified URL
 	 */
 	function document_factory_url($url) {
 		$d = new Document();
 		//strip url handler, for now we always assume file://
 		$filename = preg_replace("|^(.*)://|","",$url);
-		
+
 		if (!file_exists($filename)) {
 			die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
 		}
-		
+
 		$sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . add_escape_custom($url) ."'" ;
 		$result = $d->_db->Execute($sql);
-		
+
 		if ($result && !$result->EOF) {
 			if (file_exists($filename)) {
 				$d = new Document($result->fields['id']);
@@ -208,7 +205,7 @@ class Document extends ORDataObject{
 		else {
 			$file_command = $GLOBALS['oer_config']['document']['file_command_path'] ;
 			$cmd_args = "-i ".escapeshellarg($new_path.$fname);
-		  		
+
 		  	$command = $file_command." ".$cmd_args;
 		  	$mimetype = exec($command);
 		  	$mime_array = explode(":", $mimetype);
@@ -223,7 +220,7 @@ class Document extends ORDataObject{
 
 		return $d;
 	}
-	
+
 	/**
 	 * Convenience function to generate string debug data about the object
 	 */
@@ -310,7 +307,7 @@ class Document extends ORDataObject{
 	* this returns the url stripped down to basename
 	*/
 	function get_url_web() {
-		return basename($this->url);
+		return basename_international($this->url);
 	}
 	/**
 	* get the url without the protocol handler
@@ -322,7 +319,7 @@ class Document extends ORDataObject{
 	* get the url filename only
 	*/
 	function get_url_file() {
-		return basename(preg_replace("|^(.*)://|","",$this->url));
+		return basename_international(preg_replace("|^(.*)://|","",$this->url));
 	}
 	/**
 	* get the url path only
@@ -384,7 +381,7 @@ class Document extends ORDataObject{
 	function get_encounter_check() {
 		return $this->encounter_check;
 	}
-	
+
 	function get_ccr_type($doc_id){
     $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
     return $type['name'];
@@ -400,43 +397,43 @@ class Document extends ORDataObject{
 	}
 	/*
 	*	Overridden function to stor current object state in the db.
-	*	current overide is to allow for a just in time foreign id, often this is needed 
+	*	current overide is to allow for a just in time foreign id, often this is needed
 	*	when the object is never directly exposed and is handled as part of a larger
 	*	object hierarchy.
 	*	@param int $fid foreign id that should be used so that this document can be related (joined) on it later
 	*/
-	
+
 	function persist($fid ="") {
 		if (!empty($fid)) {
 			$this->foreign_id = $fid;
 		}
 		parent::persist();
 	}
-        
+
         function set_storagemethod($str) {
 	    $this->storagemethod = $str;
 	}
-        
+
         function get_storagemethod() {
 	    return $this->storagemethod;
 	}
-        
+
         function set_couch_docid($str) {
 	    $this->couch_docid = $str;
 	}
-        
+
         function get_couch_docid() {
 	    return $this->couch_docid;
 	}
-        
+
         function set_couch_revid($str) {
 	    $this->couch_revid = $str;
 	}
-        
+
         function get_couch_revid() {
 	    return $this->couch_revid;
 	}
-        
+
         function get_couch_url($pid,$encounter){
             $couch_docid = $this->get_couch_docid();
             $couch_url = $this->get_url();
@@ -470,7 +467,7 @@ class Document extends ORDataObject{
       // Have to retrieve the entire document, update the necessary value and save again
       list ($db, $docid, $revid, $patient_id, $encounter, $type, $json) = $data;
       $data = array($db, $couch_docid, $couch_revid, $new_patient_id, $couchresp->encounter,
-        $couchresp->mimetype, json_encode($couchresp->data));
+        $couchresp->mimetype, json_encode($couchresp->data), json_encode($couchresp->th_data));
       $resp = $couch->update_doc($data);
       // Sometimes the response from CouchDB is not available, still it would
       // have saved in the DB. Hence check one more time.
@@ -608,6 +605,12 @@ class Document extends ORDataObject{
       }
       // Filename modification to force valid characters and uniqueness.
       $filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", $filename);
+
+      $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
+      if (empty($fileExtension)) {
+        return xl('Your file doesn\'t have an extension');
+      }
+
       $fnsuffix = 0;
       $fn1 = $filename;
       $fn2 = '';

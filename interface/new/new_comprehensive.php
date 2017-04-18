@@ -1,10 +1,26 @@
 <?php
-// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+*
+* Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+*
+* @package   OpenEMR
+* @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @link      http://www.open-emr.org
+*/
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -65,6 +81,8 @@ $fres = getLayoutRes();
 <?php html_header_show(); ?>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <style>
 body, td, input, select, textarea {
@@ -86,18 +104,14 @@ div.section {
 
 </style>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
-<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
@@ -222,7 +236,7 @@ function policykeyup(e) {
   if ((c >= '0' && c <= '9') ||
      (c >= 'A' && c <= 'Z') ||
      (c == '*') ||
-     (c == '-') ||     
+     (c == '-') ||
      (c == '_') ||
      (c == '(') ||
      (c == ')') ||
@@ -291,9 +305,9 @@ function validate(f) {
          msg += errMsgs[i] + "\n";
   }
   msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'),ENT_QUOTES); ?>";
- 
-  
-//Misc  Deceased Date Validation for Future Date 
+
+
+//Misc  Deceased Date Validation for Future Date
 var dateVal = document.getElementById("form_deceased_date").value;
 var currentDate;
 var d = new Date();
@@ -305,12 +319,12 @@ if (day.length < 2) day = '0' + day;
 currentDate = year+'-'+month+'-'+day;
 if(errMsgs.length > 0 || dateVal > currentDate)
 {
-if(errMsgs.length > 0)	
+if(errMsgs.length > 0)
 	alert(msg);
 if(dateVal > currentDate)
-	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>'); 
+	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
 	return false;
-} 
+}
  return true;
 }
 
@@ -468,10 +482,10 @@ while ($frow = sqlFetchArray($fres)) {
       echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
         "onclick='return divclick(this,\"div_$group_seq\");'";
       if ($display_style == 'block') echo " checked";
-        
-      // Modified 6-09 by BM - Translate if applicable  
+
+      // Modified 6-09 by BM - Translate if applicable
       echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
-        
+
       echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
       echo " <table border='0' cellpadding='0'>\n";
       $display_style = 'none';
@@ -502,10 +516,10 @@ while ($frow = sqlFetchArray($fres)) {
   ++$item_count;
 
   echo "<b>";
-    
+
   // Modified 6-09 by BM - Translate if applicable
   if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
-    
+
   echo "</b>";
 
   // Handle starting of a new data cell.
@@ -581,21 +595,10 @@ if (! $GLOBALS['simplified_demographics']) {
       <span class='required'><?php xl('Effective Date','e'); ?>: </span>
      </td>
      <td>
-      <input type='entry' size='11' name='i<?php echo $i ?>effective_date'
+      <input type='entry' size='11' class='datepicker' name='i<?php echo $i ?>effective_date'
        id='i<?php echo $i ?>effective_date'
        value='<?php echo $result3['date'] ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
        title='yyyy-mm-dd' />
-
-      <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-      id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer'
-      title='<?php xl('Click here to choose a date','e'); ?>'>
-
-      <script LANGUAGE="JavaScript">
-      Calendar.setup({inputField:"i<?php echo $i ?>effective_date", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>effective_date"});
-      </script>
-
-
      </td>
     </tr>
 
@@ -678,27 +681,17 @@ if (! $GLOBALS['simplified_demographics']) {
    <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
 
    <span class=bold><?php xl('D.O.B.','e'); ?>: </span>
-   <input type='entry' size='11' name='i<?php echo $i?>subscriber_DOB'
+   <input type='entry' size='11' class='datepicker' name='i<?php echo $i?>subscriber_DOB'
     id='i<?php echo $i?>subscriber_DOB'
     value='<?php echo $result3['subscriber_DOB'] ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
-
-   <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
-    <script LANGUAGE="JavaScript">
-    Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>dob_date"});
-    </script>
-
 
    <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
    <?php
     // Modified 6/2009 by BM to use list_options and function
     generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
-   ?>	
+   ?>
    <br>
    <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
    <input type=entry size=25 name=i<?php echo $i?>subscriber_street
@@ -713,7 +706,7 @@ if (! $GLOBALS['simplified_demographics']) {
     // Modified 7/2009 by BM to incorporate data types
     generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
    ?>
-   <br />	
+   <br />
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
    <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
    <?php xl('Country','e'); ?>: </span>
@@ -722,7 +715,7 @@ if (! $GLOBALS['simplified_demographics']) {
     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
    ?>
    <br />
-   <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
+   <span class=bold><?php xl('Subscriber Phone','e'); ?>:
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />
    <span class=bold><?php xl('CoPay','e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
@@ -816,6 +809,7 @@ enable_modals();
         if (valid) {
             if (force_submit) {
                 // In this case dups were shown already and Save should just save.
+                top.restoreSession();
                 f.submit();
                 return;
             }
@@ -826,7 +820,7 @@ enable_modals();
         $mflist = "";
         $mfres = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
-            "edit_options LIKE '%D%' " .
+            "(edit_options LIKE '%D%' OR  edit_options LIKE '%W%' )" .
             "ORDER BY group_name, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
@@ -876,6 +870,21 @@ while ($lrow = sqlFetchArray($lres)) {
   }
 }
 ?>
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 
 }); // end document.ready
 

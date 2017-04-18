@@ -1,12 +1,12 @@
 <?php
 
-/** 
- * forms/eye_mag/help.php 
- * 
+/**
+ * forms/eye_mag/help.php
+ *
  * Help File for Shorthand Entry Technique on the Eye Form
- *    
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
- * 
+ *
+ * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
+ *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
  *  published by the Free Software Foundation, either version 3 of the
@@ -19,10 +19,10 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * @package OpenEMR 
- * @author Ray Magauran <magauran@MedFetch.com> 
- * @link http://www.open-emr.org 
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
  */
 
 $fake_register_globals=false;
@@ -31,8 +31,6 @@ include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/api.inc");
-include_once("$srcdir/sql.inc");
-require_once("$srcdir/formatting.inc.php");
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];
@@ -48,8 +46,8 @@ if ($showit=='ext') $showit="external";
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css"> 
-    
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Eye Exam Help">
@@ -60,7 +58,7 @@ if ($showit=='ext') $showit="external";
 	<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.js"></script>
 	<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
   	<!-- Latest compiled JavaScript -->
-	<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>  
+	<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script>
 	 $(function() {
 		$("[id^='accordion_']" ).accordion({
@@ -81,22 +79,22 @@ if ($showit=='ext') $showit="external";
 			$("[id$='_group']").hide();
 			$("[id^='accordion_"+zone+"_group']").show();
 			var showit = zone+'_0';
-			
+
 		});
-		
+
 		$("[id^='accordion_']").click(function() {
 			var active_panel = $(this).accordion( "option", "active" );
-			$("[id^='accordion_']").accordion({	
+			$("[id^='accordion_']").accordion({
 				active: active_panel
 			});
 		})
 	});
 	</script>
- 
+
 	<style>
 	 	body {
 		 	font: 12px/18px FontAwesome, normal helvetica, sans-serif;
-			font-family: FontAwesome,Arial,sans-serif; 	
+			font-family: FontAwesome,Arial,sans-serif;
 		 }
 		 .nodisplay {
 		 	display:none;
@@ -126,7 +124,7 @@ if ($showit=='ext') $showit="external";
 				width:98%;
 				font-size:1em;
 				display:inline-block;
-			} 
+			}
 			.style3 {
 				margin:20;
 				border-bottom:1pt solid black;
@@ -191,7 +189,7 @@ if ($showit=='ext') $showit="external";
 		<button id="retina_button">Retina</button>
 		<button id="neuro_button">Neuro</button>
 		<div id="container" name="container_group" style="margin:10;text-align:left;">
-			
+
 			<div id="accordion_general_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
 				<h3 class="ui-accordion-header external">Introduction: Paper vs. EHR</h3>
 				<div id="general" style="text-align:left;">
@@ -211,50 +209,50 @@ if ($showit=='ext') $showit="external";
 						<br />
 						Look around the form - openEMR: Eye Exam is automatically filled.<br />
 						Done. No extra clicks.<br />
-						
+
 						<hr />
 						This tutorial shows you how to document each area using Shorthand.  <br />
 						We'll show you how to complete the HPI, PMH, POH, Medication list, Surgical History and Allergies.<br />
-						As an example, using a handful of lines of typing in the Shorthand textbox,<br /> 
-						you will document all your normal findings <b>and more than 40 different clinical issues</b>. 
+						As an example, using a handful of lines of typing in the Shorthand textbox,<br />
+						you will document all your normal findings <b>and more than 40 different clinical issues</b>.
 							<br />
 							That's a lot to document and one mighty complicated patient!<br />
 							Combined it may be many more issues than we would see on a routine day, with routine patients, but it could happen...  <br />
 						Documenting this many findings would take a little bit of time on paper, and a lifetime in a typical EHR. <br />
-						The average typist can now do it <b>in less than a minute.</b>  A normal encounter can be completed in seconds.
+						The average typist can now do it <b>in less than a minute.</b>  A normal encounter can be accurately documented in seconds.
 						<hr />
 
-						<h4 class="bold">HPI: </h4> 
+						<h4 class="bold">HPI: </h4>
 						<textarea class="kb_entry">D;CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;</textarea>
 						<button id="hpi_button2">Details</button>
 						<br />
-						<h4 class="bold">PMH: </h4> 
+						<h4 class="bold">PMH: </h4>
 						<textarea class="kb_entry">POH: POAG.Myopia. Dry Eye; POS:Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995. Yag/PCO OD 6/5/1999;Meds:Timolol 0.5% GFS QHS OU. Latanoprost 0.01% QHS OU.
 Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998. Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 						<button id="pmh_button2">Details</button>
 						<br />
 
-						<h4 class="bold">External: </h4> 
+						<h4 class="bold">External: </h4>
 						<textarea class="kb_entry">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a</textarea>
 						<button id="external_button2">Details</button>
 						<br /><h4 class="bold">Anterior Segment:</h4>
 						<textarea class="kb_entry">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</textarea>
 						<button id="antseg_button2">Details</button>
-						
+
 						<br />
 						<h4 class="bold">Retina:</h4>
 						<textarea class="kb_entry">D;bd:+2 bowtie pallor;rcup:0.6Vx0.4H w/ inf notch;lcup:0.5;rmac:+2 BDR, +CSME;lmac:flat, tr BDR;v:+PPDR, ++venous beading;rp:ht 1 o,no vh;</textarea>
 						<button id="retina_button2">Details</button>
-						
+
 						<h4 class="bold">Strabismus:</h4>
 						<textarea class="kb_entry">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho</textarea>
 						<button id="neuro_button2">Details</button>
-						
+
 						<hr>
 						Below all these lines are strung together. Copy and paste this into a test patient's chart.  <br />
-						Voila! HPI, PMH, POH, Medications Allergies and 40 clinical findings + normals, are documented.  
+						Voila! HPI, PMH, POH, Medications Allergies and 40 clinical findings + normals, are documented.
 						<hr />
-						
+
 						<textarea class="kb_entry" style="height:2.3in;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
 POH:POAG. Myopia. Dry Eye; POS: Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995. Yag/PCO OD 6/5/1999;Meds:Timolol 0.5% GFS QHS OU. Latanoprost 0.01% QHS OU.
 Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998. Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;
@@ -267,9 +265,9 @@ scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho</textar
 						Get back to working at the speed of your brain.<br /><br /><br />
 
 						<small>Now imagine documenting this without typing, without a scribe?  It is not that far away...</small>
-						
+
 					</blockquote>
-				</div>				
+				</div>
 
 				<h3 class="ui-accordion-header external">Shorthand Structure</h3>
 				<div id="general" style="text-align:left;">
@@ -280,15 +278,15 @@ scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho</textar
 						<br />
 						<b>field</b> and <b>text</b> are separated by a "<strong>:</strong>" colon.
 						<br />
-						The trailing "<b>.a</b>" 
+						The trailing "<b>.a</b>"
 						is optional and will <b>append</b> the <b>text</b> to the data already in the field, instead of replacing it.<br />
 						The semi-colon "<b>;</b>" is used to divide entries, allowing multiple field entries simultaneously. <br />
 						<small><i>The semi-colon separates entries.</i></small><br />
 						After pressing <b>Enter/Return</b> or <b>Tab</b>, the data are submitted and the form is populated.  <br />
 					</blockquote>
 				</div>
-			</div>	
-				
+			</div>
+
 			<div id="accordion_hpi_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
 				<div name="hpi" class="ui-accordion external">
 					<h3 name="hpi_group" id="hpi_0">History of Present Illness: Shorthand Walk Through</h3>
@@ -342,7 +340,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 							Input:<br /><br />
 							<b>D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a</b>
 							<br />
-							<br />						 
+							<br />
 							Output:
 							<br /><br />
 							<div class="output_EMR" >
@@ -436,7 +434,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 									<td><b style="color:red;">rad</b>:1.8x2.0cm bcc lat<br /><b style="color:red;">RAD</b>:healed DCR scar</td>
 									<td>1cm BCC<br />healed DCR scar</td>
 								</tr>
-								
+
 								<tr>
 									<td>Left Adnexa</td><td>lad or LAD</td>
 									<td><b style="color:red;">lad</b>:1cm lacr cyst protruding under lid<br /><b style="color:red;">LAD</b>:1.2cm x 8mm mass</td>
@@ -449,18 +447,18 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 								</tr>
 							</table>
 							<br />*<i>case insensitive</i><br />
-							**<i>The default action is to replace the field with the new text.  
+							**<i>The default action is to replace the field with the new text.
 							<br />
 							Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-							<br >For example, <b>entering "4xL:+2 meibomitis.a" will <u>append</u> "+2 meibomitis"</b> 
+							<br >For example, <b>entering "4xL:+2 meibomitis.a" will <u>append</u> "+2 meibomitis"</b>
 							to each of the eyelid fields, RUL/RLL/LUL/LLL.</i>
-						
+
 							<hr />
 							<a name="abbrev_external"></a>
 							<h2 class="underline">External Shorthand Abbreviations:</h2>
 
 							The following terms will be expanded from their shorthand to full expression in the EMR fields:
-						
+
 							<table style="border:1pt solid black;margin:10;width:85%;">
 									<tr class="style3"><th>Enter this:</th><th>Get this:</th></tr>
 									<tr><td>inf</td><td>inferior</td></tr>
@@ -483,13 +481,13 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="accordion_antseg_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
 				<div name="antseg">
 					<h3 class="antseg" id="antseg_0" name="antseg_group">Anterior Segment: Shorthand Walk Through</h3>
 					<div id="antseg_input" class="ANTSEG" style="text-align:left;margin:0;padding:0;">
 							<a name="example_antseg"></a>
-							
+
 							<blockquote class="style2">
 								<h4 class="underline">Shorthand</h4>
 								<textarea class="kb_entry">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells
@@ -502,18 +500,18 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 					<div id="external_output" style="text-align:left;margin:0;padding:20;">
 						<blockquote class="style2">
 							Input:<br /><br />
-							<b>D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells/b><br />
-							<br />						 
+							<b>D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</b><br />
+							<br />
 							Output:
 							<br /><br />
-							<div class="output_EMR">
+							<div class="output_EMR well-sm">
 								<h4>Eye Exam</h4>
-								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" width="95%" alt="Shorthand Example: openEMR">
+								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" width="90%" alt="Shorthand Example: openEMR">
 							</div>
 							<div class="output_reports">
 								<h4>Reports</h4>
 								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_report.png" width="95%" alt="Shorthand Example: Reports">
-							</div>	
+							</div>
 						</blockquote>
 					</div>
 					<h3>Anterior Segment: Field Codes and Shorthand/Abbreviations</h3>
@@ -584,13 +582,13 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 								</tr>
 							</table>
 							<br />*<i>case insensitive</i><br />
-							**<i>The default action is to replace the field with the new text.  
+							**<i>The default action is to replace the field with the new text.
 							<br />
 							Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-							<br >For example, entering <b>"bk:+2 str scarring.a"</b> will <class="underline bold">append</class> "+2 stromal scarring"</b> 
+							<br >For example, entering <b>"bk:+2 str scarring.a"</b> will <class="underline bold">append</class> "+2 stromal scarring"</b>
 							to both the right (rk) and left cornea fields (lk).</i></small>
 							<br>
-						
+
 							<br />
 							<a name="abbrev_antseg"></a>
 							<h2 class="underline">External Shorthand Abbreviations:</h2>
@@ -618,7 +616,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 					</div>
 				</div>
 			</div>
-				
+
 			<div id="accordion_retina_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
 				<div name="retina">
 					<h3 class="retina">Retina: Shorthand Walk Through</h3>
@@ -637,7 +635,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 							Input:<br /><br />
 							<b>D;bd:+2 bowtie pallor;rcup:0.6Vx0.4H w/ inf notch;lcup:0.5;rmac:+2 BDR, +CSME;lmac:flat, tr BDR;v:+PPDR, ++venous beading;rp:ht 1 o,no vh;
 							</b><br />
-							<br />						 
+							<br />
 							Output:
 							<br /><br />
 							<div class="output_EMR">
@@ -647,7 +645,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 							<div class="output_reports">
 								<h4>Reports</h4>
 								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_report.png" width="95%" alt="Shorthand Example: Reports">
-							</div>	
+							</div>
 						</blockquote>
 					</div>
 					<h3>Retina: Field Codes and Shorthand/Abbreviations</h3>
@@ -698,19 +696,19 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 									</tr>
 							</table>
 							<br />*<i>case insensitive</i><br />
-							**<i>The default action is to replace the field with the new text.  
+							**<i>The default action is to replace the field with the new text.
 							<br />
 							Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-							<br >For example, entering <b>"bcup:0.5 w/ inf notch.a"</b> will <class="underline bold">append</class> "0.5 with inferior notch"</b> 
+							<br >For example, entering <b>"bcup:0.5 w/ inf notch.a"</b> will <class="underline bold">append</class> "0.5 with inferior notch"</b>
 							to both the right (rcup) and left cup fields (lcup).</i></small>
 							<br>
-							
+
 							<br />
 							<a name="abbrev_retina"></a>
 							<h2 class="underline">Retina Shorthand Abbreviations:</h2>
-							
+
 							The following terms will be expanded from their shorthand to full expression in the EMR fields:
-					
+
 							<table style="border:1pt solid black;margin:10;width:85%;">
 								<tr class="style3"><th>Enter this:</th><th>Get this:</th></tr>
 								<tr><td>inf</td><td>inferior</td></tr>
@@ -769,7 +767,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 						<blockquote class="style2">
 							Input:<br /><br />
 							<b>scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;</b><br />
-							<br />						 
+							<br />
 							Output:
 							<br /><br />
 							<div class="output_EMR">
@@ -780,7 +778,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 							<div class="output_reports">
 								<h4>Reports</h4>
 								<img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_report.png" width="75%" alt="Shorthand Example: Reports">
-							</div>	
+							</div>
 						</blockquote>
 					</div>
 					<h3>Neuro: Field Codes and Shorthand/Abbreviations</h3>
@@ -814,19 +812,19 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 									</tr>
 							</table>
 							<br />*<i>case insensitive</i><br />
-							**<i>The default action is to replace the field with the new text.  
+							**<i>The default action is to replace the field with the new text.
 							<br />
 							Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-							<br >For example, entering <b>"4:5ix.a"</b> will <class="underline bold">append</class> "5 X(T)"</b> 
+							<br >For example, entering <b>"4:5ix.a"</b> will <class="underline bold">append</class> "5 X(T)"</b>
 							to any measurements previously entered into the right gaze field.</i></small>
 							<br>
-							
+
 							<br />
 							<a name="abbrev_neuro"></a>
 							<h2 class="underline">Neuro Shorthand Abbreviations:</h2>
-							
+
 							The following terms will be expanded from their shorthand to full expression in the EMR fields:
-					
+
 							<table style="border:1pt solid black;margin:10;width:85%;">
 								<tr class="style3"><th>Strabismus</th><th>Enter this:</th><th>Get this:</th></tr>
 	                            <tr><td>Exophoria</td><td>x</td><td>X</td></tr>
@@ -839,7 +837,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                                 <tr><td>Intermittent Hypertropia</td><td>H(T)</td><td>H(T)</td></tr>
                                 <tr><td>Hypertropia</td><td>rht<br />lht</td><td>RHT<br />LHT</td></tr>
                                 <tr><td>Hypotropia</td><td>hyt</td><td>HyT</td></tr>
-                                
+
 	                        </table>
 						</blockquote>
 					</div>

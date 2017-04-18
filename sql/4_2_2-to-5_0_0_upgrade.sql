@@ -2137,3 +2137,89 @@ CREATE TABLE `product_registration` (
 #IfNotRow2D list_options list_id Eye_Defaults_for_GENERAL option_id LADNEXA
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Eye_Defaults_for_GENERAL', 'LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 0, '');
 #EndIf
+
+#IfMissingColumn log category
+ALTER TABLE `log` ADD `category` varchar(255) default NULL;
+#EndIf
+
+#IfNotTable log_validator
+CREATE TABLE `log_validator` (
+  `log_id` bigint(20) NOT NULL,
+  `log_checksum` longtext,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow2D list_options list_id note_type option_id Image Results
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`) VALUES ('note_type', 'Image Results', 'Image Results', 30, 0);
+#EndIf
+
+#IfMissingColumn insurance_companies inactive
+ALTER TABLE `insurance_companies` ADD `inactive` INT(1) NOT NULL DEFAULT '0' ;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id formdir_keys
+INSERT INTO list_options (list_id, option_id, title,activity) VALUES ('lists','formdir_keys','Form Keys',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','newpatient','"tbl":"form_encounter"',10,'Patient encounter table has non-std name',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','procedure_order','"tbl":"procedure_order","id":"procedure_order_id"',20,'Lab order header table has non-std name and id',1);
+INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('formdir_keys','physical_exam','"id":"forms_id","limit":"*"',30,'Physical exam form table has non-std id and n records',1);
+#EndIf
+
+#IfMissingColumn form_misc_billing_options medicaid_referral_code
+  ALTER TABLE form_misc_billing_options ADD COLUMN medicaid_referral_code varchar(2) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options epsdt_flag
+  ALTER TABLE form_misc_billing_options ADD COLUMN epsdt_flag tinyint(1) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options provider_qualifier_code
+  ALTER TABLE form_misc_billing_options ADD COLUMN provider_qualifier_code varchar(2) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options provider_id
+  ALTER TABLE form_misc_billing_options ADD COLUMN provider_id int(11) default NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options icn_resubmission_number
+  ALTER TABLE form_misc_billing_options ADD COLUMN icn_resubmission_number int(35) default NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id provider_qualifier_code
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dk','DK',10,0);
+ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dn','DN',20,0);
+#EndIf
+
+#IfNotTable codes_history
+CREATE TABLE `codes_history` (
+  `log_id` bigint(20) NOT NULL auto_increment,
+  `date` datetime,
+  `code` varchar(25),
+  `modifier` varchar(12),
+  `active` tinyint(1),
+  `diagnosis_reporting` tinyint(1),
+  `financial_reporting` tinyint(1),
+  `category` varchar(255),
+  `code_type_name` varchar(255),
+  `code_text` varchar(255),
+  `code_text_short` varchar(24),
+  `prices` text,
+  `action_type` varchar(25),
+  `update_by` varchar(255),
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn form_care_plan care_plan_type
+ALTER TABLE form_care_plan ADD COLUMN care_plan_type VARCHAR(30) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id Plan_of_Care_Type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('lists','Plan_of_Care_Type','Plan of Care Type','305','1','0','','','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','appointments','Appointments','4','0','0','','INT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','instructions','Instructions','5','0','0','','INT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','plan_of_care','Plan of Care','1','0','0','','INT','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','procedure','Procedure','3','0','0','','RQO','','1','0','0','');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','test_or_order','Test/Order','2','0','0','','RQO','','1','0','0','');
+#EndIf

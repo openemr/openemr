@@ -9,7 +9,6 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formatting.inc.php");
 
 function formatcyp($amount) {
   if ($amount) return sprintf("%.2f", $amount);

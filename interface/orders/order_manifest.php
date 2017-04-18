@@ -24,11 +24,8 @@ $fake_register_globals = false;
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/classes/InsuranceCompany.class.php");
 
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
@@ -220,7 +217,7 @@ function generate_order_summary($orderid) {
   <td><?php echo xlt('Notes'); ?></td>
  </tr>
 
-<?php 
+<?php
   $query = "SELECT " .
     "procedure_order_seq, procedure_code, procedure_name, diagnoses, do_not_send " .
     "FROM procedure_order_code WHERE " .
@@ -317,7 +314,7 @@ $orderid = intval($_GET['orderid']);
 <style>
 body {
  margin: 9pt;
- font-family: sans-serif; 
+ font-family: sans-serif;
  font-size: 1em;
 }
 </style>

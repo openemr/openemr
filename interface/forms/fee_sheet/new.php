@@ -1,24 +1,24 @@
 <?php
 /*
 * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
-* 
+*
 * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
-* 
-* LICENSE: This program is free software; you can redistribute it and/or 
-* modify it under the terms of the GNU General Public License 
-* as published by the Free Software Foundation; either version 3 
-* of the License, or (at your option) any later version. 
-* This program is distributed in the hope that it will be useful, 
-* but WITHOUT ANY WARRANTY; without even the implied warranty of 
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-* GNU General Public License for more details. 
-* You should have received a copy of the GNU General Public License 
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
-* 
-* @package OpenEMR 
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
 * @author Rod Roark <rod@sunsetsystems.com>
 * @author Terry Hill <terry@lillysystems.com>
-* @link http://www.open-emr.org 
+* @link http://www.open-emr.org
 */
 
 $fake_register_globals = false;
@@ -492,13 +492,11 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -870,6 +868,7 @@ echo " </tr>\n";
 <?php } // end encounter not billed ?>
 
 <table cellspacing='5'>
+ <?php if ($billresult) { ?>
  <tr>
   <td class='billcell'><b><?php echo xlt('Type');?></b></td>
   <td class='billcell'><b><?php echo xlt('Code');?></b></td>
@@ -892,10 +891,10 @@ echo " </tr>\n";
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
 <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
   <td class='billcell' align='center'><b><?php echo xlt('Rx'); ?></b></td>
-<?php } ?>  
+<?php } ?>
   <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
  </tr>
-
+ <?php } ?>
 <?php
 $justinit = "var f = document.forms[0];\n";
 
@@ -937,7 +936,7 @@ if ($billresult) {
       $notecodes  = trim($bline['notecodes']);
       $provider_id = 0 + $bline['provid'];
     }
-    
+
     if($iter['code_type'] == 'COPAY'){ // moved copay display to below
       continue;
     }
@@ -1219,7 +1218,7 @@ if (true) {
 &nbsp; &nbsp; &nbsp;
 
 <?php if (!$isBilled) { // visit is not yet billed ?>
-<input type='submit' name='bn_save' value='<?php echo xla('Save');?>' 
+<input type='submit' name='bn_save' value='<?php echo xla('Save');?>'
 <?php if ($rapid_data_entry) echo " style='background-color:#cc0000';color:#ffffff'"; ?>
 />
 <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
@@ -1230,7 +1229,7 @@ if (true) {
 <?php } // end no charges ?>
 &nbsp;
 <?php } // end ippf-only ?>
-<input type='submit' name='bn_refresh' onclick='return this.clicked = true;' 
+<input type='submit' name='bn_refresh' onclick='return this.clicked = true;'
 value='<?php echo xla('Refresh');?>'>
 &nbsp;
 <?php } else { // visit is billed ?>

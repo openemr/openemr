@@ -1,16 +1,16 @@
 <?php
 /**
  * FILTREATMENT CLASS FILE
- * 
- * 
+ *
+ *
  * @author Cristian Năvălici {@link http://www.lemonsoftware.eu} lemonsoftware [at] gmail [.] com
  * @version 1.31 17 March 2008
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  * @package Filtreatment
- * 
+ *
  */
 
-//error_reporting(E_ALL); 
+//error_reporting(E_ALL);
 
 /**
  * constant used in float comparisions
@@ -51,9 +51,9 @@ function __construct() {
 //-----------------------------------------------------------------------------
 /**
  * CHECKS FOR AN INTEGER
- * 
+ *
  * if the $minval and|or $maxval are set, a comparison will be performed
- * 
+ *
  * NOTE: because the function can return 0 also as a valid result, check with === the return value
  * @param int $input - what to check/transform
  * @return int|bool
@@ -87,9 +87,9 @@ function ft_integer($input) {
 //-----------------------------------------------------------------------------
 /**
  * CHECKS FOR A FLOAT
- * 
+ *
  * if the $minval and|or $maxval are set, a comparison will be performed
- * 
+ *
  * @param int $input - what to check/transform
  * @return int|bool
  */
@@ -114,7 +114,7 @@ function ft_float($input) {
 
         $gt = $this->ft_realcmp($input, $mnval); //1 or 0 for true
         if ( $gt === 1 || $gt === 0 ) $gt = TRUE; else $gt = FALSE;
-  
+
         return (( $lt && $gt ) ? $input_c : FALSE);
     } else {
         // only one value set
@@ -134,9 +134,9 @@ function ft_float($input) {
 //-----------------------------------------------------------------------------
 /**
  * VALIDATES A DATE
- * 
+ *
  * must be in YYYY-MM-DD format
- * 
+ *
  * @param string $str - date in requested format
  * @return string|bool - the string itselfs only for valid date
  */
@@ -155,9 +155,9 @@ function ft_validdate($str) {
 //-----------------------------------------------------------------------------
 /**
  * VALIDATES AN EMAIL
- * 
+ *
  * implies RFC 2822
- * 
+ *
  * @param string $str - email to validate
  * @return string|bool - the string itselfs only for valid email
  */
@@ -180,7 +180,7 @@ function ft_email($email) {
     }
 
     if (!preg_match("/^\[?[0-9\.]+\]?$/", $email_array[1])) {
-    // verify if domain is IP. If not, it must be a valid domain name 
+    // verify if domain is IP. If not, it must be a valid domain name
         $domain_array = explode(".", $email_array[1]);
         if (sizeof($domain_array) < 2) { return FALSE; }
 
@@ -189,7 +189,7 @@ function ft_email($email) {
                 return false;
             }
         }
-    } // if 
+    } // if
 
     return $email;
 }
@@ -197,7 +197,7 @@ function ft_email($email) {
 //-----------------------------------------------------------------------------
 /**
  * PREPARES THE INPUT FOR DATABASE
- * 
+ *
  * works with mysql/postgresql
  *
  * @param string $value - email to validate
@@ -224,16 +224,16 @@ function ft_dbsql($value, $db_type = 'MYSQL') {
 //-----------------------------------------------------------------------------
 /**
  * WORKS ON A STRING WITH REGEX EXPRESSION
- * 
+ *
  * checks a string for specified characters
- * 
+ *
  * @param string $value - variable to sanitize
  * @param string $regex - is in a special form detailed below:
  * it contains ONLY allowed characters, ANY other characters making invalid string
  * it must NOT contain begin/end delimitators  /[... ]/
  * eg: 0-9, 0-9A-Za-z, AERS
  * @param int $cv - 1 or 2
- * @return string|bool return string if check succeed ($cv = 1) or string with replaced chars 
+ * @return string|bool return string if check succeed ($cv = 1) or string with replaced chars
 
  */
 function ft_strregex($value, $regex, $cv = 1) {
@@ -264,7 +264,7 @@ function ft_strregex($value, $regex, $cv = 1) {
 //-----------------------------------------------------------------------------
 /**
  * CLEANS AGAINST XSS
- * 
+ *
  * NOTE all credits goes to codeigniter.com
  * @param string $str - string to check
  * @param string $charset - character set (default ISO-8859-1)
@@ -289,7 +289,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u',"\\1;",$str);
-		
+
     /*
     * Validate UTF16 two byte encoding (x00)
     *
@@ -310,7 +310,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     */
     $str = preg_replace("/%u0([a-z0-9]{3})/i", "&#x\\1;", $str);
     $str = preg_replace("/%([a-z0-9]{2})/i", "&#x\\1;", $str);
-				
+
     /*
     * Convert character entities to ASCII
     *
@@ -325,7 +325,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
                 html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset), $str);
         }
     }
-	
+
     /*
     * Convert all tabs to spaces
     *
@@ -334,7 +334,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = preg_replace("#\t+#", " ", $str);
-	
+
     /*
     * Makes PHP tags safe
     *
@@ -346,7 +346,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = str_replace(array('<?php', '<?PHP', '<?', '?>'),  array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
-	
+
     /*
     * Compact any exploded words
     *
@@ -360,7 +360,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
         for ($i = 0; $i < strlen($word); $i++) {
             $temp .= substr($word, $i, 1)."\s*";
         }
-	
+
         $temp = substr($temp, 0, -3);
         $str = preg_replace('#'.$temp.'#s', $word, $str);
         $str = preg_replace('#'.ucfirst($temp).'#s', ucfirst($word), $str);
@@ -382,7 +382,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU',"\\1>",$str);
-    
+
     /*
     * Sanitize naughty HTML elements
     *
@@ -394,7 +394,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = preg_replace('#<(/*\s*)(alert|applet|basefont|base|behavior|bgsound|blink|body|embed|expression|form|frameset|frame|head|html|ilayer|iframe|input|layer|link|meta|object|plaintext|style|script|textarea|title|xml|xss)([^>]*)>#is', "&lt;\\1\\2\\3&gt;", $str);
-            
+
     /*
     * Sanitize naughty scripting elements
     *
@@ -409,7 +409,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
     *
     */
     $str = preg_replace('#(alert|cmd|passthru|eval|exec|system|fopen|fsockopen|file|file_get_contents|readfile|unlink)(\s*)\((.*?)\)#si', "\\1\\2&#40;\\3&#41;", $str);
-                                            
+
     /*
     * Final clean up
     *
@@ -427,7 +427,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
             '<!--'			=> '&lt;!--',
             '-->'			=> '--&gt;'
     );
-    
+
     foreach ($bad as $key => $val)	{
             $str = preg_replace("#".$key."#i", $val, $str);
     }
@@ -439,7 +439,7 @@ function ft_xss($str, $charset = 'ISO-8859-1') {
 //-----------------------------------------------------------------------------
 /**
  * DISPLAY ERRORS
- * 
+ *
  * @param int $mode - if 1 then echo the string; if 2 then echo the string
  * @return void
  */
@@ -456,12 +456,12 @@ function display_error($mode = 1) {
 //-----------------------------------------------------------------------------
 /**
  * REAL COMPARASION BETWEEN FLOATS
- * 
+ *
  * 0 - for ==, 1 for r1 > r2, -1 for r1 '<' r2
  *
  * @param float $r1
  * @param float $r2
- * @return int 
+ * @return int
  */
 function ft_realcmp($r1, $r2) {
     $diff = $r1 - $r2;

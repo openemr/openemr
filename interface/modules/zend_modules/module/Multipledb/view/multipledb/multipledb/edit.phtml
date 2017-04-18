@@ -1,0 +1,99 @@
+<script>
+    /* +-----------------------------------------------------------------------------+
+     * Copyright 2016 matrix israel
+     * LICENSE: This program is free software; you can redistribute it and/or
+     * modify it under the terms of the GNU General Public License
+     * as published by the Free Software Foundation; either version 3
+     * of the License, or (at your option) any later version.
+     * This program is distributed in the hope that it will be useful,
+     * but WITHOUT ANY WARRANTY; without even the implied warranty of
+     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+     * GNU General Public License for more details.
+     * You should have received a copy of the GNU General Public License
+     * along with this program. If not, see
+     * http://www.gnu.org/licenses/licenses.html#GPL
+     *    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
+     * +------------------------------------------------------------------------------+
+     *
+     */
+    <?php if ($closeBeforeOpening):?>
+    opener.document.forms[0].submit();
+    window.close();
+
+    <?php endif;?>
+</script>
+<form id="editForm" action="save" method="POST">
+    <ul class="form-style-1">
+        <li>
+            <label><?php echo $translate->z_xlt('Namespace')?> <span class="required">*</span></label>
+            <input id="namespace" type="text" value="<?php echo $this->escapeHtml($db->namespace)?>" name="db[namespace]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Namespace')?>" />
+
+        </li>
+        <li>
+            <label><?php echo $translate->z_xlt('Username')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo $this->escapeHtml($db->username)?>" name="db[username]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Username')?>" />
+
+        </li>
+        <li>
+            <label><?php echo $translate->z_xlt('Database name')?></label>
+            <input type="text" value="<?php echo $this->escapeHtml($db->dbname)?>" name="db[dbname]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Database name')?>" />
+        </li>
+        <li>
+            <label><?php echo $translate->z_xlt('Password')?> <span class="required">*</span></label>
+            <input type="password"  name="db[password]" class="field-divided" <?php echo ($db->password) ? '' : 'required' ?> placeholder="<?php echo ($db->password) ? '****' : $translate->z_xlt('Password') ?>" />
+        </li>
+        <li>
+            <label><?php echo $translate->z_xlt('Host')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo ($db->host) ? $this->escapeHtml($db->host) : 'localhost' ?>" name="db[host]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Host')?>" />
+        </li>
+        <li>
+            <label><?php echo $translate->z_xlt('Port')?> <span class="required">*</span></label>
+            <input type="text" value="<?php echo ($db->port) ? $this->escapeHtml($db->port) : '3306' ?>" name="db[port]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Port')?>" onkeypress="return onlynumber(event,this);" />
+        </li>
+        <li>
+            <input type="button" name="back" value="<?php echo $translate->z_xlt('Back')?>" onclick=" window.location.href = window.history.back(1);" />
+            <input type="submit" value="<?php echo $translate->z_xlt('Save')?>" />
+        </li>
+    </ul>
+</form>
+
+<script>
+
+    $('input[type=submit]').on('click', function(e){
+        e.preventDefault();
+        var namespace = $('#namespace').val();
+        $.post( "checknamespacejson", { namespace: namespace }, function( data ) {
+            if(data == 1){
+                if($('#namespace-error').length){
+                    $('#namespace-error').remove();
+                }
+                $('#namespace').addClass('error')
+                $('#namespace').after('<label id="namespace-error" class="error" for="namespace"><?php echo $translate->z_xlt('This namespace already exists in database')?> </label>');
+            }else{
+                $('#editForm').submit();
+            }
+        }, "text");
+    });
+
+    $("#editForm").validate();
+    function onlynumber(e, t) {
+
+        try {
+            if (window.event) {
+                var charCode = window.event.keyCode;
+            }
+            else if (e) {
+                var charCode = e.which;
+            }
+            else { return true; }
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        catch (err) {
+            alert(err.Description);
+        }
+    }
+
+</script>

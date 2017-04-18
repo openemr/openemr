@@ -2,7 +2,7 @@
 
 class y_axis_base
 {
-	function y_axis_base(){}
+	public function __construct(){}
 	
 	/**
 	 * @param $s as integer, thickness of the Y axis line
@@ -103,7 +103,7 @@ class y_axis_base
 	 */
 	function set_steps( $steps )
 	{
-		$this->steps = $steps;
+		$this->steps = $steps;	
 	}
 	
 	/**

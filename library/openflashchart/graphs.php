@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
 // Modified 2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@ $fake_register_globals=false;
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-chart.php");
-require_once($GLOBALS['srcdir'] . "/formdata.inc.php");
 
 // Collect passed variable(s)
 //  $table is the sql table (or form name if LBF)

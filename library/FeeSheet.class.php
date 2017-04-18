@@ -1,7 +1,7 @@
 <?php
 /**
  * library/FeeSheet.class.php
- * 
+ *
  * Base class for implementations of the Fee Sheet.
  * This should not include UI but may be extended by a class that does.
  *
@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see 
+ * along with this program. If not, see
  * http://www.gnu.org/licenses/licenses.html#GPL .
  *
  * @package OpenEMR
@@ -26,23 +26,21 @@
 $fake_register_globals = false;
 $sanitize_all_escapes = true;
 
+
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/acl.inc");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
-require_once(dirname(__FILE__) . "/formatting.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
 require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/log.inc");
-
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
 
 // require_once(dirname(__FILE__) . "/api.inc");
 // require_once(dirname(__FILE__) . "/forms.inc");
-// require_once(dirname(__FILE__) . "/formdata.inc.php");
 
 class FeeSheet {
 
@@ -118,7 +116,7 @@ class FeeSheet {
       "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($this->pid, $this->encounter) );
     $this->visit_date    = substr($visit_row['date'], 0, 10);
     $this->provider_id   = $visit_row['provider_id'];
-    if (empty($this->provider_id)) $this->provider_id = findProvider();
+    if (empty($this->provider_id)) $this->provider_id = $this->findProvider();
     $this->supervisor_id = $visit_row['supervisor_id'];
     // This flag is specific to IPPF validation at form submit time.  It indicates
     // that most contraceptive services and products should match up on the fee sheet.
@@ -704,7 +702,7 @@ class FeeSheet {
           deleteBilling($id);
         }
         else {
-          $tmp = sqlQuery("SELECT * FROM billing WHERE id = ? AND billed = 0 AND activity = 1",
+          $tmp = sqlQuery("SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
             array($id));
           if (!empty($tmp)) {
             $tmparr = array('code' => $code, 'authorized' => $auth);

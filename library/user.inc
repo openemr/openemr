@@ -1,13 +1,11 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once(dirname(__FILE__) . "/sql.inc");
-require_once(dirname(__FILE__) . "/formdata.inc.php");
 
 // Set effective user - If no user id is provided, then use the currently logged in user
 function effectiveUser($user) {
@@ -16,7 +14,7 @@ function effectiveUser($user) {
 
 /**
  * Return user setting(s) from the 'users' table
- * 
+ *
  * @param string $label - Setting key
  * @param int $user - user id number from users table
  * @param int $defaultUser - user id to check as alternative/default
@@ -27,7 +25,7 @@ function getUserSetting($label, $user=NULL, $defaultUser=0) {
   $user = effectiveUser($user);
 
   // Collect entry for specified user or 0 (global default user)
-  $res = sqlQuery("SELECT setting_value FROM user_settings 
+  $res = sqlQuery("SELECT setting_value FROM user_settings
       WHERE (setting_user=? OR setting_user=?) AND setting_label=?
       ORDER BY setting_user DESC", array($user, $defaultUser, $label));
 
@@ -37,7 +35,7 @@ function getUserSetting($label, $user=NULL, $defaultUser=0) {
 
 /**
  * Check if effective user setting matches given value
- * 
+ *
  * @param string $label - Setting key
  * @param string $value - Setting value
  * @param int $user - user id number from users table
@@ -56,8 +54,8 @@ function checkUserSetting($label, $value, $user=NULL) {
 }
 
 /**
- * Set a user setting 
- * 
+ * Set a user setting
+ *
  * @param string $label - Setting key
  * @param string $value - Setting value
  * @param int $user - user id number from users table
@@ -65,7 +63,7 @@ function checkUserSetting($label, $value, $user=NULL) {
  * @param boolean $overwrite - If this is set to true, then overwrite the current setting
  */
 function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE, $overwrite=TRUE) {
-  
+
   $user = effectiveUser($user);
 
   $cur_value = getUserSetting($label, $user, $user);
@@ -78,7 +76,7 @@ function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE, $overwr
     sqlStatement("UPDATE user_settings SET setting_value=? " .
       "WHERE setting_user=? AND setting_label=?", array($value, $user, $label) );
   }
-  
+
   // Call self to create default token
   // (Note this is only done if a default token does not yet exist, thus set overwrite to FALSE))
   if ($createDefault) {
@@ -92,7 +90,7 @@ function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE, $overwr
 function removeUserSetting($label,$user=NULL) {
 
   $user = effectiveUser($user);
-  
+
   // mdsupport - DELETE has implicit select, no need to check and delete
   sqlQuery("DELETE FROM user_settings " .
       "WHERE setting_user=? AND setting_label=?", array($user, $label) );
@@ -104,7 +102,7 @@ function getUserIDInfo($id)
 }
 
 /**
- * Function to retain current user's choices from prior sessions  
+ * Function to retain current user's choices from prior sessions
  * @param string $uspfx - Caller specified prefix to be used in settings key, typically script name
  * @param string $postvar - $_POST variable name containing current value
  * @param string $label - Caller specified constant added to $uspfx to create settings key
@@ -112,9 +110,9 @@ function getUserIDInfo($id)
  * @return Prior setting (if found) or initial value to be used in script
  */
 function prevSetting($uspfx, $postvar, $label, $initval) {
-  
+
   $setting_key = $uspfx.$label;
-  
+
   if (isset($_POST[$postvar])) {
     // If script provides current value, store it for future use.
     $pset = $_POST[$postvar];

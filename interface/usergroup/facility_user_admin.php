@@ -3,7 +3,7 @@
  * edit per-facility user information.
  *
  * Copyright (C) 2012 NP Clinics <info@npclinics.com.au>
- *
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,7 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * @package OpenEMR
- * @Author  Scott Wakefield <scott@npclinics.com.au>
+ * @author  Scott Wakefield <scott@npclinics.com.au>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://open-emr.org
  */
 
@@ -36,8 +37,6 @@ $fake_register_globals=false;
 
 
 require_once("../globals.php");
-require_once("$srcdir/sql.inc");
-require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 
@@ -58,16 +57,17 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <script language="JavaScript">
 
 function submitform() {
@@ -87,11 +87,11 @@ function submitform() {
 	}
 	if(flag == 0){
 		document.forms[0].submit();
-		parent.$.fn.fancybox.close(); 
+		parent.$.fn.fancybox.close();
 	}
-	
-	
-	
+
+
+
 }
 
 $(document).ready(function(){
@@ -99,6 +99,20 @@ $(document).ready(function(){
 		  parent.$.fn.fancybox.close();
 	 });
 
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+    $('.datetimepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 
 </script>
@@ -172,7 +186,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                        "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']) );
                 echo "<td><span class='text'>" . generate_form_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
-                ?> 
+                ?>
 	</td>
   </tr>
 <?php } ?>

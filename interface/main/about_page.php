@@ -103,37 +103,40 @@ require_once("../globals.php");
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }
 
-                if (data.status === 'UNREGISTERED') {
+                if (data.statusAsString === 'UNREGISTERED') {
                     productRegistrationController.showProductRegistrationModal();
-                } else if (data.status === 'REGISTERED') {
+                } else if (data.statusAsString === 'REGISTERED') {
                     productRegistrationController.displayRegistrationInformationIfDivExists(data);
                 }
             });
         });
     </script>
 </head>
-
+<?php
+$versionService = new \services\VersionService();
+$version = $versionService->fetch();
+?>
 <body class="body_top">
     <div style="text-align: center;">
-        <span class="title"><?php  echo xlt('About OpenEMR'); ?> </span><br><br>
+        <span class="title"><?php  echo xlt('About'); ?> OpenEMR</span><br><br>
         <span class="text"><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></span><br><br>
         <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br><br>
         <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
             <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span><br><br>
         <?php } ?>
     </div>
-    <a href="<?php echo "http://open-emr.org/wiki/index.php/OpenEMR_".attr($v_major).".".attr($v_minor).".".attr($v_patch)."_Users_Guide"; ?>" target="_blank" class="css_button"><span><?php echo xlt('User Manual'); ?></span></a><br><br>
+    <a href="<?php echo "http://open-emr.org/wiki/index.php/OpenEMR_".attr($version->getMajor()).".".attr($version->getMinor()).".".attr($version->getPatch())."_Users_Guide"; ?>" target="_blank" class="css_button"><span><?php echo xlt('User Manual'); ?></span></a><br><br>
     <?php if (!empty($GLOBALS['online_support_link'])) { ?>
         <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="css_button"><span><?php echo xlt('Online Support'); ?></span></a><br><br>
     <?php } ?>
     <a href="../../acknowledge_license_cert.html" target="_blank" class="css_button"><span><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></span></a><br>
     <div class="donations-needed">
-        <span class="text"><?php echo xlt("Please consider sending in a donation to OpenEMR"); ?>:</span><br>
+        <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br>
         <a href="http://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V6EVVTYYK264C" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
     </div>
 
     <div class="product-registration-modal" style="display: none">
-        <p class="context"><?php echo xlt("Register your installation with OEMR 501(c)(3) to receive important notifications, such as security fixes and new release announcements."); ?></p>
+        <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
         <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
         <p class="message" style="font-style: italic"></p>
     </div>

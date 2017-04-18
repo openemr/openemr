@@ -2,7 +2,6 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
-include_once("$srcdir/sql.inc");
 include_once("../../library/acl.inc");
 include_once("batchcom.inc.php");
 
@@ -56,8 +55,6 @@ if($result)
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="batchcom.css" type="text/css">
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 
 
 </head>
@@ -94,7 +91,7 @@ if($result)
         <br>
         <?php xl('SMS Gateway API key','e')?> :
         <INPUT TYPE="text" NAME="SMS_gateway_apikey" size="40" value="<?php $SMS_gateway_apikey?>">
-        
+
         <br><br>
         <INPUT TYPE="submit" name="form_action" value="Save">
     </div>

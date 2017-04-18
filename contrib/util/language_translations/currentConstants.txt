@@ -23,6 +23,7 @@ A unique value to identify this field, not visible to the user
 A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.
 a.c.
 a.m.
+A/C{{anterior chamber}}
 A/F Level Right:
 AB
 Abbreviation
@@ -41,6 +42,7 @@ Abortion Issues
 Abortion Method
 Abortion-Related Categories
 Abortions
+About
 About the calendar
 Above upper panic limits
 Absences by Diagnosis
@@ -61,6 +63,7 @@ Account Name issued for NewCrop eRx service.
 Account Password issued for NewCrop eRx service.
 Accounting
 Acct
+ACD{{anterior chamber depth}}
 Aches
 Acknowledgment Requested (ISA14)
 Acknowledgments, Licensing and Certification
@@ -69,6 +72,7 @@ ACL Administration
 ACL Administration Not Authorized
 ACL Updated Successfully
 Acne
+ACOM{{Anterior Segment}}
 Act
 Act Date
 Action
@@ -79,6 +83,7 @@ Active
 Active Alert
 Active Alert Rules
 Active Alerts/Reminders
+Active Chart
 Active Encounter
 Active Issue Codes
 Active lists
@@ -87,6 +92,15 @@ Active Plans
 Activity
 Activity Type
 Actual Receipts
+Acuity
+ACUITY
+Acuity with Autorefraction
+Acuity with Contact Lenses
+Acuity with correction
+Acuity with Cycloplegic Refraction
+Acuity with Manifest Refraction
+Acuity with Pinhole
+Acuity without correction
 Acute Intoxication/Withdrawal
 Acute Manifestation of a Chronic Condition
 Acute on Chronic
@@ -123,6 +137,7 @@ Add is not authorized!
 Add Issue
 Add item to track
 Add Language
+Add More Items
 Add New
 Add new
 Add new category : 
@@ -150,6 +165,7 @@ Add Top Level
 Add Transaction
 Add User
 Add User To Group
+Add.{{Additional Measurements}}
 Add/Edit eRx
 Add/Edit Patient Transaction
 added
@@ -158,7 +174,9 @@ Adding item to track failed
 Addison Syndrom
 Addison Syndrome
 Additional Attributes
+Additional Data Points
 Additional Diagnosis:
+Additional Findings
 Additional History
 Additional history notes
 Additional Info
@@ -169,6 +187,7 @@ Additional Notes:
 Additional Notes: 
 Additional X-RAY Notes:
 Additionally, the corresponding US Snomed Extension Package can be imported separately after installing the International (English version) Snomed Release
+Additonal Rx{{Additional glasses}}
 addonly
 Addr Bk
 Addr Book
@@ -187,6 +206,8 @@ Address, State and Postal Code
 Address1
 Address2
 ADDRESSEE
+ADD{{Bifocal Add}}
+ADD{{Near Add}}
 Adj
 Adj Amount
 Adjust
@@ -208,6 +229,7 @@ Administration Site
 Administrators
 Administrators can do anything
 Admit Date
+Adnexa
 Adopted Child
 Adult Weight Screening and Follow-Up
 Adult Weight Screening and Follow-Up (CQM)
@@ -250,6 +272,7 @@ Albanian
 Alcohol
 Alcohol consumption
 Alcohol Use
+Alert
 Alert Count
 Alert Time
 Alerts
@@ -266,6 +289,7 @@ All Automated Measure Calculations (AMC)
 All Categories
 All Clinical Quality Measures (CQM)
 All Codes
+All Dates
 All Day
 All day event
 All demographics fields, with search and duplication check
@@ -283,6 +307,7 @@ All Reviewed and Negative:
 All Topics
 All Users
 Allergic
+Allergic to
 Allergies
 Allergies:
 Allergy
@@ -293,6 +318,7 @@ ALLERGY WARNING
 Allergy Warning
 Allocate
 Allow
+Allow Administrators to Delete Patients
 Allow all available languages as choices on menu at login.
 Allow creation of claims containing diagnoses but not procedures or charges. Most clinics do not want this.
 Allow Debugging Language
@@ -308,6 +334,7 @@ Allow Patient Flow Board to Select Patients for Drug Testing.
 Allow Patient Portal
 Allow SMS
 Allow SMS (text messages)?
+Allow Statement Exclusions from Printing
 Allow submitted events to be made active instantly?
 Allow telephone messages?
 Allow users to publish Global Events
@@ -322,19 +349,26 @@ Allows Mail
 Allows Voice msgs
 already exists
 already exists.
+Already registered
 Already used, choose another identifier
 Already used, choose another title
 Alt Address
 alter
+Alternate Cover Test
 Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
 AM
 AM Program
+Amblyopia
+Ambulance - Air or Water
+Ambulance - Land
+Ambulatory Surgical Center
 AMC
 AMC Tracking
 AMC-2011
 AMC-2014
 AMC-2014 Stage I
 AMC-2014 Stage II
+AMD{{age related macular degeneration}}
 Amend Existing Note
 Amendment From
 Amendment Status
@@ -347,10 +381,13 @@ Amharic
 Amount
 Amount Administered
 Amount Charges
+Amount Due
 Amount for Past Balance
 Amount for This Visit
 Amount Paid
 Amount:
+Amplitudes
+Amsler
 Amt Billed
 An end date later than the start date is required for repeated events!
 An error occured signing the form
@@ -363,8 +400,8 @@ An unexpected error has occurred.
 An uppercase letter
 Analyzed
 And
-AND
 and
+AND
 and 
 and all subordinate data? This action will be logged
 and modifier
@@ -381,9 +418,14 @@ Ankylosing Spondlilitis
 Anorexia
 Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.
 ante
+Anterior Chamber Depth
+Anterior Segment
+Anterior Segment Default Values
+ant{{anterior}}
 Anus nl, no rectal tenderness/mass
 Anxiety
 Any
+Any carotid bruits appreciated?
 Any Category
 Any part of the desired code or its description
 Any part of the desired specialty
@@ -391,6 +433,8 @@ Any part of the drug id or drug name
 Any part of the immunization id or immunization name
 Any part of the patient name, or \"last,first\", or \"X-Y\"
 Anyother Relevant Information
+Anything else occur at the same time?
+APD{{afferent pupillary defect}}
 API key for SMS Gateway.
 Apnea
 Appearance
@@ -415,7 +459,13 @@ apply to skin
 Applying
 Applying Patch to site
 Appointment
+Appointment Category
 Appointment Date
+Appointment Display Sets - Color 1
+Appointment Display Sets - Color 2
+Appointment Display Sets - Color 3
+Appointment Display Sets - Color 4
+Appointment Display Sets - Ignore Display Limit (Last Set)
 Appointment Display Style
 Appointment Reminder Rule
 Appointment status
@@ -428,6 +478,7 @@ Appointments (write,wsome optional)
 Appointments - Onsite Patient Portal - Number to Display
 Appointments - Patient Summary - Number to Display
 Appointments and Encounters
+Appointments for
 Appointments Report
 Appointments-Encounters Report
 Appropriate Testing for Children with Pharyngitis (CQM)
@@ -439,15 +490,21 @@ Approved Successfully
 Appt Time
 Appt-Enc
 Appts
+App{{Applanation abbreviation}}
 Apr
 April
+AP{{applanation}}
 Arabic
 Aragonese
 Archive
+Archive Log Files
+Archive old files
 Are access control group names to be translated?
 Are appointment category names to be translated?
 Are document category names to be translated?
 Are fees charged for this type?
+are off
+are on
 Are patient note titles to be translated?
 Are the codes stored in external sql tables (0-No, 1-ICD10, 2-SNOMED(RF1), 3-SNOMED(RF2)) ?
 Are you prepared to complete a new GCAC issue for this visit?
@@ -473,11 +530,17 @@ Are you sure you\'d like to continue with these actions?
 Area not specified
 Arm
 Armenian
+ARNear{{Auto-refraction near acuity}}
+ARNear{{autorefraction near}}
 Arrive Time
+Arrived
+Arrived late
 Arrythmia
 Arthritis
 Arthritis / degen joint diseas
 Arthritis / degen joint disease
+AR{{Autorefraction Acuity}}
+AR{{autorefraction}}
 as
 As Of
 ASC
@@ -485,8 +548,12 @@ Asian
 Assamese
 Assess Penicillin Allergy
 Assessment
+Assign it to this one?
 Assigned To
 Assistant
+Assisted Living Facility
+Associate
+Associated
 Asthma
 at
 At least one search parameter is required if you select All.
@@ -499,6 +566,7 @@ ATNA audit CA certificate
 ATNA audit host
 ATNA audit local certificate
 ATNA audit port
+Atropine 1%
 Attending physician
 Attention
 Attn
@@ -506,6 +574,9 @@ Audiological physician
 Audit CDR Engine Queries
 Audit Log Tamper
 Audit Log Tamper Report
+Audit log tampering evident at entry number
+Audit Log Validated Successfully
+Audit Log Validation Failed
 Audit Logging Backups
 Audit Logging Miscellaneous
 Audit Logging Order
@@ -529,6 +600,7 @@ Authorize - my encounters
 Authorize.net
 Authorized
 Authorized Only
+Auto Refraction
 Auto Send
 Auto Sign-Off [days]
 Auto Transfer
@@ -542,12 +614,14 @@ Automated Measure Calculations (AMC) - 2014 Stage II
 Automated Measure Calculations (AMC) Tracking
 Automated Measures (AMC)
 Automatic
+Automatic from sale
 Automatically create a new encounter when an appointment check in status is selected.
 Automatically create a new encounter when appointment status is set to "@" (arrived).
 Automatically replicate justification codes in Fee Sheet
 Automatically replicate justification codes in Fee Sheet (basically fills in the blanks with the justification code above it).
 Automobile Medical
 autosaved
+Auto{{autorefraction}}
 Available categories
 Available Times
 Available Tracks
@@ -559,7 +633,11 @@ Avulsion / avulsion fracture
 Avulsion lateral malleolus
 Avulsion medial malleolus 
 Awareness-Based
+Axial Length
 Axillary
+Axis{{Axis of a glasses prescription}}
+AXIS{{Axis of a glasses prescription}}
+AxLength{{axial Length}}
 Aymara
 Azerbaijani
 b.i.d.
@@ -599,6 +677,8 @@ Balance
 balance
 Balance Amt
 Balance Due
+Balance Payment
+Balanced
 Bambara
 Bank Draft
 Barcode Label
@@ -615,6 +695,8 @@ Batch Payments
 Batch processing initiated; this may take a while.
 Batch Results
 BatchCom
+BAT{{Brightness Acuity Testing}}
+BC{{Base Curve}}
 Be patient, some files can take several minutes to process!
 because that id does not exist.
 Begin
@@ -628,7 +710,10 @@ Below lower panic limits
 Bengali
 Bengali- Bangla
 between
+bg{{image canvas label}}
 Bidirectional
+Bifocal
+Bifocals
 Bihari
 Bilateral
 Bilateral:
@@ -656,24 +741,31 @@ Billing Manager
 Billing Note
 Billing Note for 
 Billing Note:
+Billing queue results
 Billing queue results:
 Billing Report
 Billing Status
 Billing Status = Unbilled
 billing to 
 Billing View
+Binocular Pupillary Diameter - Distance
+Binocular Pupillary Diameter - Near
 Biopsy
+Birth Certificate
 Birth Date
 Birth-24 months
+Birthing Center
 Bislama
 Black
 Black Lung
 Black or African American
 Bladder Cancer
 Bladder Infections
+Blank
 Blank Forms
 Bleeding Problems
 Blind Spots
+Blindness
 Bloating
 Blocked
 Blood
@@ -701,13 +793,21 @@ Bottom Margin (px)
 BOX 10 A. Employment related 
 BOX 10 B. Auto Accident 
 BOX 10 C. Other Accident 
+BOX 10 D. EPSDT Referral Code
 BOX 14 Date Qualifier
+BOX 14. Is Populated from the Encounter Screen as the Onset Date
 BOX 15 Other Date Qualifier
 BOX 15. Date of same or similar illness (yyyy-mm-dd):
 BOX 15. Date of same or similar illness/Other Date (yyyy-mm-dd):
+BOX 16. Date unable to work from
 BOX 16. Date unable to work from (yyyy-mm-dd):
+BOX 16. Date unable to work to
 BOX 16. Date unable to work to (yyyy-mm-dd):
+BOX 17. Provider
+BOX 17. Provider Qualifier
+BOX 18. Hospitalization date from
 BOX 18. Hospitalization date from (yyyy-mm-dd): 
+BOX 18. Hospitalization date to
 BOX 18. Hospitalization date to (yyyy-mm-dd): 
 BOX 20. Is Outside Lab used?
 BOX 22. Medicaid Resubmission Code (ICD-9) 
@@ -717,8 +817,11 @@ BP Diastolic
 BP Systolic
 BPD
 Bpd
+BPD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}
+BPD-N{{abbreviation for Binocular Pupillary Diameter - Near}}
 BPS
 Bps
+Brand
 Brazilian Portuguese
 Breast
 Breast Biopsy
@@ -729,12 +832,16 @@ Breast Mass
 Breath
 Breath Sounds:
 Breton
+Brightness Acuity Testing
 Broken Bones
 broken form
 Bronchitis Form
+Brother
+Brow
 Browse
 Browse for Record
 Bruising/haematoma
+Build Your Plan
 Bulgarian
 Bulging Right:
 Burmese
@@ -750,10 +857,13 @@ By
 by mouth
 By/Source
 By:
+by{{made by/manufacturer}}
+B{{both sides}}
 C
 CA Certificate for verifying the RFC 5425 TLS syslog server.
 Cache Lifetime (in seconds)
 Cache template output?
+Caffeine
 Caffeine consumption
 Calendar
 Calendar Ending Hour
@@ -763,6 +873,7 @@ Calendar Settings
 Calendar Starting Hour
 Calendar UI
 Calendar View
+calendar_external to events
 Call to addForm() goes here.<br>
 Calories
 Cambodian
@@ -774,6 +885,7 @@ Canada
 Cancel
 Cancel Changes
 Canceled
+Canceled < 24h
 Cancer
 Cancer Screening: Colon Cancer Screening
 Cancer Screening: Mammogram
@@ -811,21 +923,27 @@ Capitalize
 Capitalize all
 capsule
 Card
+Cardiac
 Cardiac Catheterization
 Cardiac Echo
 Cardiovascular
 Care Coordination
+Care giver
 Care Plan
 Care Plan Form
 Care Team
+Carotid Bruit
+Carotid{{carotid arteries}}
 Cartilage / chondral / disc damage
 Cartilage injury
 Cartoid pulsations nl, pedal pulses nl
+CAR{{carotid arteries}}
 cash
 Cash
 Cash Rec
 Cash Receipts by Provider
 Catalan- Valencian
+Cataract
 Cataract Surgery
 Cataracts
 Categories
@@ -840,13 +958,23 @@ Category name is empty
 Category/Title
 Caucasian
 Causes Receipts to Print Encounter/Primary Provider Info
+cc Distance{{with correction at distance}}
+cc Near{{with correction at Near}}
 CCD
 CCDA
+ccDist{{ACT with Correction Distance}}
+ccDist{{with correction distance}}
+ccNear{{ACT with Correction Near}}
+ccNear{{with correction at near}}
 CCR
 CCR Approve
 CCR Patient Review
 CCR Review and Approve
+CC{{Chief Complaint}}
+cc{{with correction}}
+CC{{with correction}}
 CDC Code
+CDC-NIP Code
 CDR
 CDR Reports Processing Priority
 Cell
@@ -854,6 +982,7 @@ Cell Phone
 Cell phone number
 Cell Phone Number
 Central Certification
+Central Macular Thickness
 Central/South American
 Certificate Authority crt file location cannot be empty
 Certificate Authority key file location cannot be empty
@@ -889,6 +1018,7 @@ Chart Label
 Chart Location Activity
 Chart Note
 Chart Number
+Chart pulled
 Chart Storage Locations
 Chart Tracker
 Chart Trk
@@ -901,6 +1031,7 @@ Check All
 Check All - Components
 Check Amount
 Check Date
+Check expiration dates.
 Check for differences of translations with custom language table.
 Check In
 Check In To
@@ -928,6 +1059,7 @@ Checkboxes above indicate if you want to reject and delete the HL7 file.
 Checked
 Checked box = yes ,  empty = no
 Checked Drug Formulary?
+Checked out
 Checking the lock checkbox will prevent any futher edits on any forms in this encounter.
 Checkout
 Checksum
@@ -940,6 +1072,8 @@ Chest physician
 Chg
 Chichewa- Chewa- Nyanja
 Chief Complaint
+Chief Complaint 2
+Chief Complaint 3
 Child
 Child in-law
 Childhood immunization Status (CQM)
@@ -953,8 +1087,10 @@ Cholecystectomy
 cholecystectomy
 Cholecystestomy
 Choose
+Choose a period or dates (YYYY-MM-DD)
 Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.
 Choose Criteria
+Choose CSV table
 Choose Download or Display Inline
 Choose File
 Choose from list
@@ -963,13 +1099,18 @@ Choose list
 Choose Paper Size
 Choose PDF languange Preference
 Choose print format for this encounter report.
+Choose the layout (need to logout and then login to see this new setting).
 Choose your default encounter view
 Chronic Bronchitis
 Chronic Joint Pain
 Chronic Kidney Disease (CKD)
+Chronic or Inactive Problems
+Chronic Problems
 Chronic synovitis / effusion / joint pain / gout
+Chronic/Inactive Problems
 Chronic/Recurrent
 Chuvash
+Cigs
 Cirrhosis of the Liver
 Cirrhosis Of The Liver
 City
@@ -987,6 +1128,7 @@ Claim was generated to file
 Claims
 Classification
 Clear
+clear
 CLEAR ACTIVE PATIENT
 Clear All
 Clear HL7 Data
@@ -1002,9 +1144,11 @@ click for more
 Click for more details
 Click for order summary
 Click for results
+Click for Shorthand Help.
 Click here
 Click Here to add a new patient.
 Click here to add new injury change status and edit daily activity
+Click here to add new row
 Click here to choose a date
 Click here to choose a date and time
 Click here to choose a start date
@@ -1015,9 +1159,19 @@ Click Here to Configure This module
 Click here to delete the row
 Click Here to Disable This module
 Click here to duplicate the row
+Click here to edit list of available Lens Materials
+Click here to edit list of available Lens Treatment Options
+Click here to Edit the Contact Lens Brand List
+Click here to Edit the Course/Occurrence List
+Click here to Edit the Manufacter List
+Click here to Edit the Supplier List
+Click here to Edit this Doctor\'s Plan options
+Click here to Edit this Doctor\'s Quick Pick list
+Click here to Edit this Provider\'s Exam Default values
 Click Here to Enable This module
 Click Here to Install This module
 click here to search
+Click here to see observation results
 click here to update priority, category and nickname settings
 Click here to view all.
 Click here to view and graph
@@ -1030,10 +1184,12 @@ Click Install button to install database release from the following date
 Click on any of the time parts to increase it
 Click Patient Name to Open Patient File
 Click Refresh to view all results, or please input search criteria above to view specific results.
+Click this to display/hide additional tests
 Click to add a diagnosis
 Click to add new components
 Click to add new consultation
 Click to choose diagnoses to justify.
+Click to display shorthand field names.
 Click to download
 Click to edit
 Click to edit description
@@ -1107,12 +1263,19 @@ Clinicians
 Clone
 Clone Past Visit
 Close
+Close All Current Rx Panels and make this a Preference to stay closed
+Close and make this a Preference to stay closed
+Close this panel and delete this Rx
+Close this panel and make this a Preference to stay closed
 Close Window
 close window
 Closed
 cm
 CMS 1500 Margins
 CMS 1500 Paper Form Format
+CMS 1500 PDF
+CMS 1500 PREPRINTED FORM
+CMS 1500 TEXT
 CMS 1500: Box 31 Format
 CMS 1500: Date in Box 31 (Signature)
 CMS ID
@@ -1124,9 +1287,15 @@ CMS Portal Password
 CMS Portal Request
 CMS Portal Site Address
 CMS Portal Username
+CMT{{Central Macular Thickness}}
+CN VII{{cranial nerve seven}}
+CN V{{cranial nerve five}}
 CN2-12 intact
+CN5{{cranial nerve five}}
+CN7{{cranial nerve seven}}
 Co Pay
 Co Pay Paid
+Co-managing/referring provider
 CO-PAY
 Code
 code
@@ -1146,11 +1315,15 @@ Coding
 Coding (click for education)
 Coding - any encounters (write,wsome optional)
 Coding - my encounters (write,wsome optional)
+Coding done
+Coding Engine
 Coding not authorized
 Coffee
 Coffee Use
+Coins
 Coinsurance
 Coll w/o
+Collaborator
 Collapse
 collapse
 Collapse All
@@ -1166,6 +1339,11 @@ Colon Cancer Surgery
 Colonoscopy
 colonoscopy
 Color
+Color for even sets (except when last set is even and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).
+Color for odd sets (except when last set is odd and all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed) or not all member appointments are displayed).
+Color for the last set when all member appointments are displayed and at least one subsequent scheduled appointment exists (not displayed).
+Color for the last set when not all member appointments are displayed.
+Color Vision
 Color:Abbr
 Column
 Columns
@@ -1177,8 +1355,10 @@ Comments for this result or recommendation
 Commercial Insurance Co.
 Commit Changes
 Communication
+Communication Engine
 Communications
 Community health physician
+Community Mental Health Center
 Company
 Company Name
 Complete
@@ -1190,6 +1370,8 @@ Completion Status
 Complications by Service Provider
 Complications of Abortion
 Components
+Comprehensive Inpatient Rehabilitation Facility
+Comprehensive Outpatient Rehabilitation Facility
 Computer Aided Medical Ordering System
 Conclusions
 Condition
@@ -1213,6 +1395,7 @@ Conflicted Medications
 Conflicted Problems
 Congenital
 Conjuntiva, pupils
+Conj{{Conjunctiva}}
 Connection error
 Connectors
 Constant
@@ -1229,6 +1412,8 @@ Contact Email
 Contact Email Address
 Contact EMR Direct to subscribe to the phiMail Direct messaging service
 contact info
+Contact Lens
+Contact Lens Refraction
 Contact Lenses
 Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.
 Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service
@@ -1255,9 +1440,15 @@ Contraceptive Method
 Contraceptive Products
 Contraceptive services previously started
 Contraceptives Start
+Contrast Acuity
+Contrast Acuity Testing
+Contrast{{Constrast Visual Acuity}}
 Control ID
 Control No.
 Controlled Substance?
+Convergence
+Convergence Amps
+Convert between plus and minus cylinder
 COPAY
 Copay
 CoPay
@@ -1266,9 +1457,12 @@ Copay Paid
 Copays
 COPD
 Copy Pages to Patient Chart
+Copy these values into current visit.
 Copy Values
 Copying the database file. This will take some time...
 Copyright Notice
+Cor Disease
+Cornea
 Cornish
 Coronary Artery Bypass
 Coronary Artery Bypass Graft (CABG)
@@ -1289,6 +1483,7 @@ CouchDB UserName
 Cough
 Cough:
 could not connect to server
+Could not find RxNorm Table! Please install.
 Could not import the document. Please contact the EMR vendor.
 could not open table
 Could not read file
@@ -1313,6 +1508,7 @@ Country Name should be represent in two letters. (Example: United States is US)
 county
 County
 Coupon
+Course
 Cousin
 CPOE
 CPT
@@ -1322,6 +1518,8 @@ CPT4 Procedure/Service
 CPTII Performance Measures
 CQM
 Crackles:
+Cranial Nerve 5: Trigeminal Nerve
+Cranial Nerve 7: Facial Nerve
 cream
 Create a Client side SSL certificate for each user or client machine.
 Create a client side SSL certificate for either a user or a client hostname.
@@ -1357,11 +1555,17 @@ Criteria
 Croatian
 Crohn\'s Disease
 Crohns Disease
+CR{{Cycloplegic Refraction}}
+CSV
 CSV Export
 CSV File
 CSV Tables
+CSV to calendar_external table
+CTL{{Contact Lens Vision}}
+CTL{{Contact Lens}}
 CU.MM
 Cuban
+Cup
 Currency Decimal Places
 Currency Decimal Point Symbol
 Currency Designator
@@ -1372,7 +1576,9 @@ Current Consultation
 Current Criteria
 Current day highlight color
 Current every day smoker
+Current Eye Meds
 Current file name was changed to
+Current Glasses
 Current Hash
 Current Location
 Current Medications
@@ -1380,23 +1586,36 @@ Current Password
 Current Patient
 Current Pt Only
 Current Recreational Drugs
+Current RX
 Current some day smoker
 Current Status Time
+Current Target
+Current user
 Current Value
 Currently Active
 Currently Running
 Currently there are no facilities.
+Currently working on making this document
 Cushing Syndrom
 Cushing Syndrome
+Custodial Care Facility
 Custodian
 Custom
+Custom Billing Phone Number
 Custom input?
+Custom Statement message
 Custom Table
 Cvx Code
 CVX Code
 CVX Code Mapping
 CVX Immunization
+CV{{Cardiovascular}}
 Cycle
+Cyclo 1%
+CycloMydril
+Cycloplegic (Wet) Refraction
+Cyl{{Cylinder}}
+CYL{{Cylinder}}
 CYP
 CYP Factor
 CYP Report
@@ -1404,9 +1623,12 @@ Czech
 D
 D&C
 D&E
+D&V Full OU{{Ductions and Versions full both eyes}}
 D.O.B.
 daily
 Daily Record
+Daily Report
+Daily Summary Report
 Danish
 Data Alike is already in database, please change code and/or description
 Data Alike is already in database, please change constant name
@@ -1447,6 +1669,7 @@ Date format for "seen since" is not valid
 Date Immunization Information Statements Given
 Date is missing for code 
 Date Master Criteria
+Date of appointments mm/dd/yyyy
 Date of bank deposit yyyy-mm-dd
 Date of Billing
 Date of Birth
@@ -1477,11 +1700,14 @@ Date Sent
 Date The Message Was Sent
 Date Time
 Date values Cannot be Blank.
+Date VIS Presented
+Date VIS Published
 Date/Appt
 Date/Notes
 Date/Notes of Last
 Date/Time
 Date:
+dated
 Dated Message Log
 Day
 day
@@ -1495,6 +1721,7 @@ days ago
 Days and Games Missed
 Days From Last Encounter
 Days Missed
+Days Of Week
 Days per Column:
 Days/Col
 Days/Col:
@@ -1508,17 +1735,22 @@ De Identified data may not be complete
 De-identification files will be saved in
 DEA
 Deactivate
+Deactivated
 Deaf
 Debug Information
 DEBUG OUTPUT
 Debugging
 Dec
 DECEASED
+DECEASED (1 day ago)
+DECEASED (Today)
+Deceased Date should not be greater than Today
 December
 Decimal pounds or pounds and ounces separated by #(e.g. 5#4)
 Declined To Specify
 Deductible
 Deductible Met
+deep
 Default
 Default Calendar View
 Default Encounter Form ID
@@ -1526,14 +1758,17 @@ Default Encounter View
 Default Facility
 Default Language
 Default language if no other is allowed or chosen.
+Default left print margin for CMS 1500
 Default List (write,addonly optional)
 Default Method
 Default Password Expiration Days
 Default password expiration period in days. 0 means this feature is disabled.
 Default Patient Country
 Default Patient Country sent to NewCrop eRx, only if patient country is not set.
+Default Price Level
 Default Priority
 Default Provider
+Default provider changed
 Default Range
 Default Reason for Visit
 Default Search Code Type
@@ -1543,11 +1778,13 @@ Default Template
 Default to a provider for line item in the fee sheet
 Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)
 Default to previous value
+Default top print margin for CMS 1500
 Default Units
 Default Value
 Default Warehouse
 Default X12 Partner
 Default/Global
+Defaults
 Del
 del
 Delayed Recurrence (> 12 Mo)
@@ -1586,7 +1823,10 @@ Demographics filter criteria
 Demographics not authorized
 Demographics not authorized.
 Denied
+denies
 Denominator
+Denominator Exception
+Denominator Exclusion
 Dental
 Dental Issue List
 Dental Issues
@@ -1598,6 +1838,9 @@ Deposit Date Cannot be greater than Today
 Deposit Date:
 Depressed
 Depression
+Dermatology
+Derm{{dermatologic}}
+DERM{{Dermatology}}
 DESC
 Description
 description
@@ -1614,9 +1857,12 @@ Destroyed
 Destroyed Drugs
 Destroyed Drugs Report
 Detail
+Detailed exam
+Detailed HPI
 Details
 Developer
 Developmental abnormality
+Deviation
 Diabetes
 Diabetes Mellitus
 Diabetes: Blood Pressure Management (CQM)
@@ -1642,8 +1888,11 @@ Diagnosis Reporting Only
 Diagnosis Title
 Diagnosis:
 Diagnosis: 
+Diagnostic
 Diagnostic Tests:
 Dials
+Diam{{Diameter}}
+DIAM{{Diameter}}
 Diaphragms/Caps
 Diarrhea
 Diastolic
@@ -1652,6 +1901,9 @@ Dictation:
 Did you receive a copy of the HIPAA Notice?
 Diffuse:
 Digitally Signed
+Dilated with
+Dilation orders/risks reviewed
+Dim
 DIRECT ADDRESS
 Direct Address
 Direct Mail
@@ -1675,6 +1927,7 @@ Disable User Groups
 disabled
 Disabled
 Disabled Beneficiary Under Age 65 with Large Group Health Plan (LGHP)
+Disc
 DISC
 Discard
 Discarded
@@ -1699,21 +1952,32 @@ Discounts as Monetary Amounts
 Discounts at checkout time are entered as money amounts, as opposed to percentage.
 Discrete Result
 Disease
+Disease with presumed immunity
 Dislocation
 Disp #
 Dispatch
 Dispatch Received Document
+Dispense Rx
+Dispense this Rx
+Dispense this RX
 Dispensed
+Display Additional measurements (Ks, IOL cals, etc)
 Display advance directives in the demographics page.
 Display Documents
 Display event dates in block?
 Display Format for US Weights
 Display how many events?
+Display Invoice Number or Patient Name in the Cash Receipt Report
 Display Invoice Number or Patient Name or Both in the Sales Report
 Display location in block?
 Display Name
+Display the Autorefraction Panel
 Display the calendar?
+Display the Contact Lens Panel
 Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.
+Display the Manifest Refraction panel
+Display the patient's current glasses
+Display the recurrent appointment widget in the patient summary.
 Display the Units Column on the Billing Screen
 Display today\'s events in the block?
 Display topic in block?
@@ -1722,10 +1986,14 @@ Displayed Columns
 Displaying the following number of most recent disclosures:
 Displaying the following number of most recent notes
 Displaying the following number of most recent notes:
+Distance
 Distribution
 Distributions
 Distributor
+Dist{{distance}}
 Divehi- Dhivehi- Maldivian-
+Divergence
+Divergence Amps
 Diverticulitis
 Diverticulitis Surgery
 Divirticulitis
@@ -1747,6 +2015,7 @@ Do Not Resuscitate Order
 do not save
 do not substitute
 do nothing
+Do you really want to change Warehouse?
 Do You Really Want to Continue
 Do you really want to delete
 Do you really want to delete the selection?
@@ -1767,6 +2036,7 @@ Doctor:
 Doctor\'s name and signature
 Document
 document
+document 3 and their status to reach the detailed HPI level
 Document Categories
 Document category for lab results does not exist
 Document category name for storage of electronically received lab results.
@@ -1777,6 +2047,7 @@ Document created
 Document Date
 Document date and issue updated successfully
 Document ID
+Document Library
 Document moved to new category
 Document moved to patient id
 Document passed integrity check
@@ -1788,10 +2059,13 @@ Document Template Management
 Document Templates
 Document(s)
 Document/Imaging Store
+Documentation for a Detailed HPI requires
 Documents
 Documents (write,addonly optional)
 DOC{{document format}}
 DOE
+Does anything make it better? Worse?
+Does it occur in certain situations?
 Does not equal
 does not match the PV1 encounter number
 does not seem valid
@@ -1800,12 +2074,14 @@ Domestic Partner
 Don't Save
 Don\'t Save
 Don\'t Save Changes
+DONATE NOW!
 Done
 Done with:
 Done.  Will now send download.
 DOS
 Dosage
 Dose
+Double click on a DX\'s handle
 double click to edit
 Double Vision
 Download
@@ -1828,10 +2104,15 @@ Download Selected Statements
 Dr Check
 Dr Visit
 Dr.
+Drag a DX over by its handle
+Drag the arrow for each diagnosis to sort the list.
 Drag to move
+Draw
 Dribbling
 Drivers License or State ID
 Drug
+Drug - Drug Interaction
+Drug Code
 Drug Finder
 Drug Forms
 Drug ID missing!
@@ -1843,6 +2124,10 @@ Drug Screen
 Drug Screen Completed
 Drug Screen Report
 Drug Units
+Drug Use
+Drug-Drug
+Drug1 Name{{Drug1 Interaction}}
+Drug2 Name{{Drug2 Interaction}}
 Drugs
 Drugs and Products
 Dry Mouth
@@ -1873,29 +2158,36 @@ Dumping phpGACL web directory tree
 Dumping SQL-Ledger database
 Dumping SQL-Ledger web directory tree
 Dup Check
+Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}
 Duplicated ID on line
 Duplicated name on line
 DUPLICATION WARNING
 Durable Power of Attorney
-duration
 Duration
+duration
 Dutch
 Dx Rep
 Dysphagia
 Dyspnea:
 Dysuria
 Dzongkha
+E(T){{intermittent esotropia}}
+E-Mail
 E-Prescription?
 E-Reports
 e-Rx
 e-Rx EPCS
 e-Rx Renewal
+e-signed
 Each recipient must set their own messages as completed.
 Early Recurrence (<2 Mo)
 Ears
 ECG
 eClaims
+ECL{{equivalent contact lens power at the corneal level}}
+ECOM{{external comments abbreviation}}
 Edema
+EDI File
 edi history
 EDI History
 EDI History (under Fees) for storing and interpreting EDI claim response files
@@ -1932,6 +2224,7 @@ ee the  * GNU General Public License for more details.  *   * You should have re
 Effective Date
 Effective Dates
 Effectiveness
+eg. aching, burning, radiating pain
 EIN
 Ejaculations
 Elbow
@@ -1941,11 +2234,13 @@ Electronic document received
 Electronic Notes
 Electronic Remits
 Electronic Reports
+electronically signed on
 Eligibility
 Eligibility 270 Inquiry Batch
 Eligibility Response
 Eligibility status for Vaccine for Children supplied vaccine
 Eligible
+Ellipse
 Email
 email
 Email Address
@@ -1968,6 +2263,7 @@ Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the 
 Email Transport Method
 Email was sent to following address
 Emergency Care
+Emergency contact
 Emergency Contact
 Emergency Contact Person
 Emergency Contact Phone Number
@@ -1978,6 +2274,7 @@ Emergency Login activation email will be circulated only if following settings i
 Emergency Login Email Address
 Emergency Login user can do anything
 Emergency Phone
+Emergency Room - Hospital
 Emotional / Behavioral Conditions & Complications
 Emphysema
 Employee
@@ -2076,6 +2373,7 @@ Encounter
 encounter acute inpatient or ED
 Encounter Balance
 Encounter Billing Note
+Encounter Checkup Procedure
 Encounter Count
 encounter data
 Encounter Date
@@ -2130,12 +2428,14 @@ End Of Day Report
 End of report
 End Time
 End-Stage Renal Disease Beneficiary in MCP with Employer`s Group Plan
+End-Stage Renal Disease Treatment Facility
 Ending date of service yyyy-mm-dd
 Ending DOS mm/dd/yyyy if you wish to enter a range
 Ending hour of day for calendar events.
 Endo Abnormal Blood
 Endocrine
 Endoscopy
+ENDO{{Endocrine}}
 Engineer
 Engineering Firm
 English
@@ -2163,6 +2463,7 @@ Enter Recipient\'s Direct Address
 Enter the LOINC code for this procedure
 Enter the Re Identification code
 Enter your search criteria above
+Entered By
 Entered in Error
 entries
 Environmental
@@ -2174,11 +2475,14 @@ EOB Posting - Patient Note
 EOB Posting - Search
 EOBs
 Epilepsy
+EPSDT
 Equals
+Equivalent contact lens power at the corneal level
 ERA
 ERA Files
 ERA Posting
 Erase
+Eraser
 Erections
 Error
 ERROR
@@ -2215,6 +2519,7 @@ Error, unable to create the Certificate Authority certificate.
 Error, unable to create the Server certificate.
 Error, unable to open file
 Error, User Certificate Authentication is not enabled in OpenEMR
+Error. Try again later
 Error. You need to install the Archive/Tar.php php module.
 ERROR: could not open table.sql, broken form?
 Error: duplicated ID on line
@@ -2243,6 +2548,8 @@ Erythema:
 eSign
 eSign Log
 Eskimo
+Esophoria
+Esotropia
 Esperanto
 Established Patient
 Estonian
@@ -2250,6 +2557,8 @@ Ethnicity
 Ethnicity or Race
 Ethnicity-Race List (write,addonly optional)
 ETIN
+ETOH
+ET{{esotropia}}
 Event
 Event Begins
 Event Category
@@ -2272,12 +2581,18 @@ Events for
 Events open in new window
 every
 Every
+Every 2nd
 every 3 hours
+Every 3rd
 every 4 hours
+Every 4th
 every 5 hours
+Every 5th
 every 6 hours
+Every 6th
 every 8 hours
 Every Fourth
+Every name in the address book appears here, not only physicians.
 Every Other
 Every Third
 Every, every other, every 3rd, etc.
@@ -2291,6 +2606,7 @@ Examination Date
 Example
 Examples
 Exams/Tests
+Exam{{Physical Exam}}
 Except
 Excessive Tearing
 Excluded Patients
@@ -2298,10 +2614,12 @@ Exclusion
 Exclusive Provider Organization (EPO)
 Executive Paper Size
 Exercise
-Exercise Patterns
 Exercise patterns
+Exercise Patterns
 Exist
 Exit from Administration
+Exophoria
+Exotropia
 Exp
 Expand
 expand
@@ -2329,10 +2647,13 @@ Export to external billing system
 Exposure to Foreign Countries
 Exposure To Foreign Countries
 Ext Time Collected
+Extended family
 External
 External Data
 External Data Loads
 External Database Import Utility
+External Exam
+External Exam Default Values
 External ID
 External Id
 External identifier
@@ -2346,10 +2667,29 @@ External Referrals
 Extract the zip file
 Extracting the file. This will take some time...
 Exudate:
+Eye
+Eye Coding Fields
+Eye Coding Terms
+Eye Contact Lens Brand list
+Eye Contact Lens Manufacturer list
+Eye Contact Lens Supplier list
+Eye Dx{{eye diagnosis}}
+Eye Exam
+Eye Exam Default Values for New Providers
 Eye Irritation
+Eye Lens Material
+Eye Lens Treatments
+Eye Med
+Eye Orders Defaults
 Eye Pain
+Eye QP List ANTSEG for New Providers
+Eye QP List EXT for New Providers
+Eye QP List RETINA for New Providers
 Eye Redness
+Eye Surgery
+Eyedropper
 Eyes
+E{{esophoria}}
 F
 F/H Blood Problems
 F/H Female Hirsutism/Striae
@@ -2361,6 +2701,7 @@ Facility City
 Facility Code
 Facility Country code
 Facility Fax
+Facility ID
 Facility Name
 Facility NPI
 Facility Phone
@@ -2378,6 +2719,7 @@ Failed to add patient to portal
 Failed to compute a unique filename
 Failed to create
 Failed to create temporary folder. CouchDB will not work.
+Failed to generate
 Failed to send
 Failed.
 failure
@@ -2415,6 +2757,7 @@ FECA
 Federal Drug ID
 Federal EIN
 Federal Tax ID
+Federally Qualified Health Center
 Fee
 fee
 Fee is not allowed
@@ -2434,6 +2777,7 @@ Fetching following file from portal
 Fever
 Fever:
 FH Blood Problems
+FH{{Family History}}
 Fibroids
 Field
 Field 'name' cannot be NULL
@@ -2442,13 +2786,17 @@ Field type to use for employer or subscriber country in demographics.
 Field type to use for employer or subscriber state in demographics.
 Field(s) are missing!
 Fields in This Form
+Fields{{visual fields}}
 Fifth account message
 Fijian
 File
 file in the Documentation directory to learn how to automate the process of creating log backups
 file location
 File management
+file missing
 File Name
+File not found
+File on server (modification date)
 File path not found.
 File privilege granted to OpenEMR user.
 File retrieval from CouchDB failed
@@ -2459,7 +2807,9 @@ File with same name already exists at location:
 Filename
 Filename must end with ".pdf"
 Files
+Files with empty thumbnail
 Filipino
+fill
 Fill any of the Below Row.
 Fill here only if sending email notification to patients
 Fill in the values below
@@ -2489,16 +2839,21 @@ Find Patient Education Materials
 Findings
 Findings by specialist
 Fine
+Finish
 Finish Payments
 finished
 Finnish
 First
 First account message
+First day in the week
 First day of the week
+First Modern Contraception at this Clinic (with Prior Contraceptive Use)
+First Modern Contraceptive Use (Lifetime)
 First Name
 First name
 First Name:
 First Visit or Consultation
+First visit: No Old Records
 Firstname Lastname
 Fitness
 Fitness Level
@@ -2508,6 +2863,7 @@ Fitness to Play
 Fix encounter dates - any encounters
 Fix this
 FL
+Flash
 Flatulence
 Flow
 Flow Board
@@ -2522,6 +2878,7 @@ Follow these instructions for installing or upgrading the following database
 Follow Up
 Follow Up Note
 Follow Up Reason
+Following audit log entry number is missing
 Following is a new custom constant:
 Following is a new custom language:
 Following is a new definition (Language, Constant, Definition):
@@ -2551,6 +2908,7 @@ for patient
 For Provider
 For Referred Organization/Practitioner
 For the past
+for this patient not yet assigned to any encounter.
 for variable
 for:
 Force Billing Widget Open
@@ -2560,6 +2918,7 @@ Forearm
 Form
 form
 Form element not found
+Form Keys
 Form signed successfully
 Format
 format
@@ -2583,6 +2942,7 @@ Fracture at the Navicula
 Fracture lateral malleolus
 Fracture medial malleolus
 Fracture, Base of fifth (5th) Metatarsal
+Frame
 Frame support required
 French
 French (Canadian)
@@ -2592,10 +2952,13 @@ Frequent Colds
 Frequent Illness
 Fri
 Friday
+Friend
 From
 FROM
 from
 From Date Cannot be Greater than To Date.
+From date should be less than To date
+From Period
 From:
 From: 
 FROM_CITY
@@ -2615,6 +2978,10 @@ Front Office Receipts
 Front Office Receipts Report
 Front Rec
 Frontal Right:
+Fr{{Friday}}
+FTCF{{Full to count fingers}}
+FTN{{Finger Tension abbreviation}}
+FT{{finger tension}}
 Fula- Fulah- Pulaar- Pular
 Full Name
 Full path to directory containing MySQL executables.
@@ -2623,12 +2990,14 @@ Full path to directory for event log backup.
 Full path to directory used for temporary files.
 Full Play
 Full Training
+Fullscreen
 Fully Paid
 Functional and Cognitive Status Form
 Functional Cognitive Status
 Functional Condition
 Funding Source
 Future
+Future Appointments
 F{{Friday}}
 G
 G/DL
@@ -2653,8 +3022,10 @@ General
 General Issue List
 General physician
 General Service Category
+General Theme (need to logout/login after change this setting)
 Generate
 Generate and download CMS 1500 paper claims
+Generate and download CMS 1500 paper claims on Preprinted form
 Generate and download HCFA 1500 paper claims
 Generate and download X12 batch
 Generate and download X12 encounter claim batch
@@ -2675,22 +3046,30 @@ Generate PQRI report (Method E) - 2011
 Generate QRDA I – 2014
 Generate QRDA III - 2014
 Generate Report
+Generate thumbnail
+Generate thumbnail images
+Generate Thumbnails
 Generate Username And Password For
 Generate X12
 Generate X12 Encounter
 Generate/Download QRDA I - 2014
 Generated on
+Generated thumbnail(s)
 Generates
 Genitourinary
 Genitourinary medicine physician
+GEN{{General}}
 Georgian
 German
 Gest age
 Gestational Age
 GET HL7
 Get HL7
+GI{{Gastrointestinal}}
+Glare{{Acuity under Glare conditions}}
 Glaucoma
 Glaucoma Family History
+Glaucoma Zone
 Global
 Global Default Patient Country
 Global ID
@@ -2708,6 +3087,8 @@ Goal A
 Goal and Methods
 Goal B
 Goal C
+Gonioscopy
+Gonio{{Gonioscopy abbreviation}}
 Grade of Injury
 Grade:
 grams
@@ -2722,6 +3103,7 @@ Greater Than or Equal To
 Greek
 Greek, Modern
 Group
+Group Home
 Group Name
 Group names cannot be blank
 Group names cannot start with numbers or spaces.
@@ -2736,10 +3118,14 @@ Growth-Chart
 gtts(drops)
 Guamanian
 Guaraní
+Guardian
+Guardian Email Address
 Guardian's Name
 Gujarati
+GU{{Genitourinary}}
 Gynecological Exam
 h
+H(T){{intermittent hypertropia}}
 h.s.
 H/O Hepatitis
 had been successfully deleted. Any sub-categories if present were moved below
@@ -2749,6 +3135,7 @@ Haitian- Haitian Creole
 Half-Sibling
 Hand + fingers
 Hand Problems
+Handicapped dependent
 Hard Disk
 Hardship w/o
 has been linked to visit
@@ -2760,6 +3147,7 @@ Hausa
 Hawaiian
 Hazardous Activities
 Hazardous activities
+HB{{abbreviation for Horizontal Prism Base}}
 HCFA left margin in points
 HCFA Margins
 HCFA top margin in points
@@ -2813,6 +3201,8 @@ Herero
 Hernia Repair
 Herniated Disc
 Herpes
+Hertel Exophthalmometry
+HERT{{Hertel exophthalmometry}}
 Hesitancy
 heyyo. you have been here for 
 Hib 1
@@ -2822,6 +3212,7 @@ Hib 4
 Hidden
 Hidden Events Administration
 Hide
+Hide Billing Widget
 Hide Details
 Hide Empty E-Sign Logs On Report
 Hide Encryption/Decryption Options In Document Management
@@ -2844,6 +3235,7 @@ Hispanic
 Hispanic - Other (Born in US)
 Hispanic - Other (Born outside US)
 Hispanic or Latino
+Historical information -source unspecified
 History
 History Data
 History Date
@@ -2851,10 +3243,13 @@ History Fields
 History Murmur
 History not authorized
 History of Heart Murmur
+History of Present Illness: A detailed HPI may be completed by using either four or more HPI elements OR the status of three chronic or inactive problems.
+History order
 Hits
 HIV
 Hives
 HL7
+HL7 Code
 HL7 Viewer
 HL7-V3 Concept Code
 HMOL/L
@@ -2862,39 +3257,59 @@ Hmong
 Hold down [Ctrl] for multiple selections or to unselect
 Hold down Ctrl to select multiple items
 Hold down Ctrl to select multiple squads
+Holidays management
 Home
 Home Phone
 Home Phone Number
 Homeless or similar?
+Homeless Shelter
 Homeless, etc
 Homeless, etc.
 Hooks
+Horiz Base{{abbreviation for Horizontal Prism Base}}
+Horiz Prism{{abbreviation for Horizontal Prism Power}}
+Horizontal Prism Base
+Horizontal Prism Power
+Hospice
 Host Name
 Host Name cannot be empty
 hour
 Hour
 Hours
 hours
+How bad is it? 0-10, mild, mod, severe?
 How did Injury Occur?
 How did Injury Occur?:
 How did they hear about us
+How long does it last?
 How many months ahead to query for upcoming events?
+How to sort a drop-lists
+How-to Build the Impression/Plan
+HPI
+HPI Elements
 HPI:
+HP{{abbreviation for Horizontal Prism Power}}
 HT
 HTML
 HTML Output?
+HTN{{hypertension}}
 Https link for the OpenEMR Support LLC Lab Exchange Service.
+HT{{hyperphoria}}
 Hungarian
 Hylafax Directory
 Hylafax Enscript Command
 Hylafax Server
 Hylafax server hostname.
 Hyperactive
+Hyperphoria
 Hypertension
 Hypertension: Blood Pressure Measurement
 Hypertension: Blood Pressure Measurement (CQM)
 Hyperthyroidism
+hypo(T){{intermittent hypotropia}}
 Hypothyroidism
+Hypotropia
+hypoT{{hypotropia}}
 Hysterectomy
 I
 I am busy during this time.
@@ -2906,6 +3321,7 @@ ICD9
 ICD9 Diagnosis
 ICD9 Procedure/Service
 Icelandic
+icon
 ID
 Id
 ID cannot be blank
@@ -2924,35 +3340,53 @@ If paying by
 If person is deceased, then enter date of death.
 If SMTP is used, the server`s hostname or IP address.
 If SMTP is used, the server`s TCP port number (usually 25).
+If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
 if unemployed enter Student
 If YMD is selected for age display, switch to just Years when patients older than this value in years
 If you change e-RX Role for ePrescription, it may affect the ePrescription workflow. If you face any difficulty, contact your ePrescription vendor.
 If you do not select a match the patient will be created.
+If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
 If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file.  You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page.  This will produce a new window with a detailed report.
 If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file.  This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date.  Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
+If you made changes and want to re-send it, delete the original (in Communications) and try again.
 If you want to change data types, or add rows or columns
 If you want to upgrade the database, then place the database zip file in the following directory
 Igbo
 Ignore
+IIS Code
 Illness
 IM
+Image canvas
 Image Results
+Images
 Imaging
 Imaging Service
+Immune System
 Immunization
+Immunization Administered Site
 Immunization Code
 Immunization Completion Status
 Immunization Date
 Immunization Expiration Date
+Immunization Information Source
 Immunization Lot Number
 Immunization Manufacturer
+Immunization Observation Criteria
+Immunization Observation Results
+Immunization Ordering Provider
+Immunization Refusal Reason
 Immunization Registry
+Immunization Registry Status
+Immunization Registry Status Effective Date
 Immunization Report
 Immunization Service
 Immunization Title
+Immunization Vaccine Eligibility Results
 Immunizations
 Immunize
 Immunologic
+Immuno{{immunologic}}
+IMMUNO{{Immunology/Rheumatology}}
 Implants
 Import
 Import All
@@ -2961,6 +3395,8 @@ Import CCR
 Import certificate to the browser.
 Import Configuration
 Import deferred for time-to-live
+Import holiday events
+Import Holidays
 Import Patient
 Import Patient Demographics
 Important Codes
@@ -2969,16 +3405,25 @@ Imported Allergies
 Imported from Accounting
 Imported Medications
 Imported Problems
+Impression/Plan
+Impression/Plan Builder
 Improved
+IMP{{impression}}
 in
 IN
 in each eye
+In exam room
 in left eye
 in nostril
 In Office
 in right eye
+In the patient\'s words
 in-house
 Inactive
+Inactive - Lost to follow - up
+Inactive - Moved or gone elsewhere
+Inactive - Permanently inactive
+Inactive - Unspecified
 Inactive Days
 Inbox
 INCITS Code
@@ -2990,6 +3435,7 @@ Include Uncategorized
 Include Unstructured data
 Include Vitals
 Include vitals data?
+including CVF{{Confrontational Visual Fields}} and Pupils
 Inclusion
 Income
 Incoming results requiring attention:
@@ -3000,9 +3446,14 @@ Incorporate clinical lab-test results into certified EHR technology as structure
 Incorrect password!
 increased:
 Indemnity Insurance
+Independent Clinic
+Independent Laboratory
 Indeterminate
 Indian
+Indian Health Service Free-standing Facility
+Indian Health Service Provider-based Facility
 Indicates abnormality
+Indicates if this issue is an ophthalmic-specific medication
 Indicates if this issue is currently active
 Indications
 Indicator for specialized usage
@@ -3031,8 +3482,11 @@ Info test 4
 Info test 5
 Info test 6
 Informant
+Information Source
+inf{{inferior}}
 inhalations
 inhilations
+Initial Patient Population
 Initial Treatment
 Initial User
 Inj/Rehab
@@ -3047,6 +3501,8 @@ Injury Surveillance
 Injury Type
 Injury/illness-related
 Inline
+Inpatient Hospital
+Inpatient Psychiatric Facility
 Input does not begin with a MSH segment
 Input Fields
 INR
@@ -3062,11 +3518,15 @@ Ins overpaid
 Ins Policy
 Ins refund
 Ins Summary
+Ins/fin issue
 Ins1
 Ins2
 Ins3
 Insert
 Insert failed: 
+Insert normals
+Insert normals - 100/100
+Insert normals - 11/11
 Insert old events into tables
 Insert special field
 Insomnia
@@ -3082,6 +3542,7 @@ Instructed
 Instruction
 Instructions
 Instructions:
+Insufficient inventory for product
 Insufficient inventory for product ID
 Insulin Dependent Diabetes
 Insurance
@@ -3106,9 +3567,16 @@ Insurances
 Insured
 Intake Conclusion
 Intake Date
+Integers1-100
 Intellectual Decline
+Inter-pupillary distance
 Interlingua
 Interlingue
+Intermediate Care Facility/Mentally Retarded
+Intermittent Esotropia
+Intermittent Exotropia
+intermittent hyperphoria
+Intermittent hypotropia
 Internal Allergies
 Internal error - no pages were selected!
 Internal error - patient ID was not provided!
@@ -3136,7 +3604,10 @@ Intervention
 Intervention Provided
 Intolerance
 Intradermal
+Intramuscular
 intramuscularly
+Intraocular Pressures
+Intraocular Pressures (mmHg) by Date
 intravenously
 Introduction
 Inuktitut
@@ -3171,6 +3642,9 @@ Invoice reference number pool, if used
 Invoice Reference Number Pools
 Invoice Refno Pool
 Invoice:
+IOP Chart
+IOP Dilated{{Dilated Intraocular Pressure}}
+IOP Graph
 IPPF
 IPPF Abortion
 IPPF Contraception
@@ -3181,6 +3655,7 @@ IPV 1
 IPV 2
 IPV 3
 IPV 4
+Iris
 Irish
 Irregular Heart Beat
 Irritability
@@ -3193,7 +3668,9 @@ is a root node and can not be deleted.
 is an extension of the following database
 Is it ok to map these CVX codes to already existent immunizations?
 is misplaced or unknown
+is not a valid email address
 Is not selected
+is not valid
 is not valid (decimal fractions are OK).
 Is PHP using Safe Mode?
 Is selected
@@ -3217,6 +3694,7 @@ Issue
 issue
 Issue Date
 Issue ID
+Issue Subtypes
 Issue Title
 Issue Type
 Issue Types
@@ -3235,6 +3713,8 @@ Items load failed
 IU/L
 IUD
 IV
+Jaeger
+Jaeger{{Near Acuity Type Jaeger}}
 Jan
 January
 Japanese
@@ -3256,6 +3736,8 @@ Justify
 Justify/Save
 J{{Justify Header}}
 k, here's the rest 
+K1{{Keratometry 1}}
+K2{{Keratometry 2}}
 Kalaallisut, Greenlandic
 Kannada
 Kanuri
@@ -3311,7 +3793,9 @@ Laboratory Test
 Labs
 Laceration / skin condition
 Laceration/abrasion
+LAC{{left anterior chamber}}
 LADate
+LAD{{left adnexa}}
 Landscape
 Language
 Language Code
@@ -3322,6 +3806,8 @@ Language Name
 Language:
 Lao
 Laotian
+Laser Interferometry
+Laser Interferometry Acuity
 Last
 Last Activity Date
 Last Appendectomy
@@ -3367,9 +3853,11 @@ Latest Results Only
 Latest Visit or Consultation
 Latin
 Latvian
+lat{{lateral}}
 Law Firm
 Lawyer
 Layout
+Layout (need to logout/login after change this setting)
 Layout Based
 Layout Editor
 Layout groups
@@ -3378,8 +3866,14 @@ Layout-Based Transaction Forms
 Layout-Based Visit Forms
 Layouts
 lb
+LBF_Validations
 lbs
+LB{{left brow}}
+LCMT{{left Central Macular Thickness}}
+LCUP{{left cup}}
+LC{{left conjunctiva}}
 LDL
+LD{{left disc}}
 leave blank if still active
 Leave Blank To Keep Original Filename
 Leave blank to keep password unchanged.
@@ -3388,9 +3882,17 @@ Leave The Form
 Leaving the pass phrase blank will not encrypt the document
 Ledger
 Left
+Left Arm
+Left Deltoid
 Left Ear
 left ear
+Left Gluteus Medius
+Left Lens
+Left Lower Forearm
 Left Margin (mm)
+Left Thigh
+Left Vastus Lateralis
+Left w/o visit
 Left:
 Left: 
 Leg Pain/Cramping
@@ -3400,6 +3902,11 @@ Legal Paper Size
 Legend:
 Length
 Length of modifier, 0 if none
+Lens
+Lens Material
+Lens Material Options
+Lens Thickness
+Lens Treatments
 Less Than
 Less Than or Equal To
 Less-private information (write,addonly optional)
@@ -3408,9 +3915,14 @@ Letter Generator
 Letter Paper Size
 Letterhead that doctor signs
 Letterhead that patient signs
+Lev Fn{{levator function}}
+Levator Function
 Level of urgency
+LF{{levator function}}
+LH{{left hertel measurement}}
 Liability
 Liability Medical
+Library
 License/ID
 Licensed Prescriber First Name
 Licensed Prescriber Last Name
@@ -3419,6 +3931,7 @@ Licensed Prescriber Title (Prefix)
 LicensedPrescriber Last name
 LicensedPrescriber NPI
 LicensedPrescriber UPIN
+Life partner
 Life threatening severity
 Lifestyle
 Lifestyle status
@@ -3426,7 +3939,10 @@ Ligament tear or sprain
 Light tobacco smoker
 Limburgish, Limburgan, Limburger
 Limit Of Events
+Limited Exam
+Limited HPI
 Limits
+Line
 Lingala
 Link
 Link To Patient
@@ -3451,6 +3967,8 @@ List layout items
 List lists
 List Name
 List names cannot start with numbers.
+List of previous refractions
+List of previously dispensed Spectacle and Contact Lens Rxs
 List Prescriptions
 List used by above Country Data Type option.
 List used by above State Data Type option.
@@ -3458,7 +3976,15 @@ Listening port of the RFC 5425 TLS syslog server.
 Lists
 Lithuanian
 Living Will
+LI{{Laser Interferometry Acuity}}
+LI{{Laser Interferometry}}
+LK{{left cornea}}
 LLL:
+LLL{{left lower eyelid}}
+LL{{left iris}}
+LL{{left lens}}
+LMAC{{left macula}}
+LMC{{left medial chathus}}
 LMP
 Load Compendium
 Load Definitions
@@ -3507,6 +4033,7 @@ logout
 Logs
 Logs Viewer
 LOINC
+LOINC Code
 Look Up
 Lot
 Lot ID missing!
@@ -3514,8 +4041,13 @@ Lot Number
 Low
 Low Priority
 Lower leg
+Lower Lids
 Lowest Priority
+LP{{left peripheral retina}}
+LT{{lens thickness}}
 Luba-Katanga
+Luhn
+LUL{{left upper eyelid}}
 Lumbar spine
 LUNCH
 Lunch
@@ -3525,11 +4057,15 @@ LUNGS:
 Lungs:
 Lupus
 Luxembourgish, Letzeburgesch
+LV{{left vessels}}
+L{{left side}}
+L{{left}}
 M
 MA Category
 MA Client Accepting Abortion
 MA Stats
 Macedonian
+Macula
 Mail Sent
 Main
 Main Address
@@ -3555,17 +4091,24 @@ Manage Hooks
 Manage Modules
 Manage Translations
 Management
+Manager
 Mandatory and specified fields
 Mandatory or specified fields only, dup check, no search
 Mandatory or specified fields only, search and dup check
+Mandatory or specified fields only, use patient validation Zend module
+Manifest (Dry) Refraction
 Manual
 Manual Posting
+Manually retrieve description on Fee Sheet
+Manually type into the New DX box above.
 Manufacturer
 Manx
 Mar
 Marathi
 Marathi (Marāṭhī)
 March
+Marginal Reflex Distance
+Marital
 Marital Status
 Mark as Billed
 Mark as billed but skip billing
@@ -3579,16 +4122,20 @@ Mask
 Mask for Invoice Numbers
 Mask for Patient IDs
 Mask for Product IDs
+Mass Immunization Center
 Match
 Match case
 Match Found
 Matched Patient
 MaternalAunt
+MaternalCousin
 MaternalGrandparent
 MaternalGreatgrandparent
 MaternalUncle
 Matrix
+max
 Max
+max file count reached
 max file count reached - reload names below
 Max Size
 Maxillary Right:
@@ -3600,6 +4147,7 @@ Maximum number of times a Patient can be tested in a year. Zero is no limit.
 Maximum reasonable inventory, 0 if not applicable
 Maximum Size
 Maximum Size (entering 0 will allow any size)
+Maximum size of thumbnail file
 May
 MC
 mcg
@@ -3609,6 +4157,7 @@ Measure Blood Pressure
 Measure Group Code
 Measure INR
 Measurement
+Medial Canthi
 Medial malleolus:
 Medicaid
 Medical
@@ -3617,8 +4166,8 @@ Medical Administration
 Medical History
 Medical Issue
 Medical issue
-Medical problem
 Medical Problem
+Medical problem
 Medical Problem Issue List
 Medical Problems
 Medical Record
@@ -3642,6 +4191,7 @@ Medications:
 Medicine Units
 Medium
 MedlinePlus Connect
+med{{medial}}
 Member Association Statistics Report
 Memory Problems
 Men
@@ -3652,6 +4202,7 @@ Menopause
 Menstrual Flow
 Menstrual Frequency
 Mental Illness
+Mental Status
 Menu Text
 Menus
 Merge
@@ -3672,6 +4223,7 @@ Messages
 Messages You have sent Today
 Method
 Method and Specific Product
+Method Change at this Clinic
 Method for sending outgoing email.
 Method of Destruction
 Mexican/MexAmer/Chicano
@@ -3683,6 +4235,7 @@ mg/3cc
 mg/4cc
 mg/5cc
 MG/DL
+mid
 Middle
 Middle Name
 Middle name
@@ -3692,12 +4245,17 @@ Midlevel Prescriber First name
 Midlevel Prescriber Last name
 Midlevel Prescriber Prefix
 Midlevel Prescriber UPIN
+Mid{{Middle Distance Add}}
+Mid{{middle Rx strength}}
+Mid{{Middle segment in a trifocal glasses prescription}}
+mid{{middle}}
 Mien
 Migrant or seasonal worker?
 Migrant/Seasonal
 Mil/CU.MM
 Mild
 Mild to moderate
+Military Treatment Facility
 MIME Type
 MimeType
 Min
@@ -3723,26 +4281,37 @@ Missing or Invalid
 Missing PID.
 Missing report date
 Missing slash after payer in source for code 
+Missing Title
 Mixed
+mL
 ml
 MM/DD/YYYY
 mm/hg
 mmHg
 MMR 1
 MMR 2
+mm{{millimeters}}
 Mobile
 Mobile Phone
+Mobile Unit
 Mod
 Mod Date
 Moderate
 Moderate Priority
 Moderate to severe
 Moderate/Low Priority
+Modern/images
 Modifier
+Modifier 22: Increased Procedural Services: When the work required to provide a service is substantially greater than typically required, it may be identified by adding modifier 22 to the usual procedure code.
+Modifier 24: Unrelated Evaluation and Management Service by the Same Physician During a Postoperative Period
+Modifier 25: Significant, separately identifiable evaluation and management (E/M) service by the same physician on the day of a procedure or other service
+Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.
 Modifiers
 Modify
 Modify Date
+Modify Patient Form
 Modify Payments
+Modifying
 ModLength
 Module
 Module Directory not found
@@ -3755,13 +4324,16 @@ Mon thru Fri
 Mon, Wed &amp; Fri
 Monday
 Mongolian
-Month
+Monocular Pupillary Diameter - Distance
+Monocular Pupillary Diameter - Near
 month
+Month
 Month View
 Month(s)
 Monthly Income
-Months
 months
+Months
+Mood/Affect Nml{{Mood and affect normal}}
 More than 100 records found. Please narrow your search criteria.
 More than 50 results, please make your search more specific.
 Most column headers can be clicked to change sort order
@@ -3771,6 +4343,7 @@ Most recent vitals from:
 Mother
 Mother's Name
 Mothers History
+Motility
 Mouth
 Move
 Move Document to Category:
@@ -3780,9 +4353,16 @@ Move to Patient
 Move to...
 Move Up
 Moving
+Mo{{Monday}}
+MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}
+MPD-N{{abbreviation for Monocular Pupillary Diameter - Near}}
 Mr.
+MRD{{marginal reflex distance}}
 MRN (pid)
+MRNear{{Manifest Near Acuity}}
+MRNear{{manifest refraction near}}
 Mrs.
+MR{{Manifest Refraction}}
 Ms.
 MSH-11
 MSH-3.1
@@ -3794,6 +4374,7 @@ MSH.8 message type is not valid
 MSP Code
 MSP Remit Codes
 Multi Language Tool
+Multi-select desired DX(s) and click the
 Multiple areas
 Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click.
 Multiple Lots
@@ -3810,16 +4391,21 @@ Musc Warm
 Muscle
 Muscle injury
 Musculoskeletal
+Musculo{{musculoskeletal}}
 Must be empty if SMTP authentication is not used.
+Must choose at least one day!
 Mutually Defined
 MVA
 MVX Code
+My Default Values
 My Health
+My Term
 Myself
 M{{Monday}}
 Māori
 N/A
 n/a
+N/A{{not applicable}}
 Name
 NAME
 Name (click for more)
@@ -3832,11 +4418,14 @@ Name of Events
 Name of insurance company
 Name of Provider
 Name of the sender for patient reminders.
+Name of the Surgeon
 Name Translation
 Name/Value
 Name:
+Names
 NARES:
 NARES: Normal Right
+nasal
 Nasal mucosa pink, septum midline
 Nation Notes
 Nation Notes Configure
@@ -3846,6 +4435,7 @@ NationNotes
 Native Data Loads
 Native Hawaiian or Other Pacific Islander
 Natural Child
+Natural child
 Natural Parent
 Natural Sibling
 Nauru
@@ -3859,13 +4449,25 @@ Navigation Area Width
 Navigation menu consists of pairs of radio buttons
 Navigation menu is a tree view
 Navigation uses a sliding menu
+NCI CONCEPT ID
+NCOM{{Neuro comments}}
 NDC
 NDC Data
 NDC Number
 Ndonga
+Near
+Near Acuity AutoRefraction
+Near Acuity Manifest Refraction
+Near Acuity with Autorefraction
+Near Acuity with Correction
+Near Acuity with Manifest (Dry) refraction
+Near Acuity without Correction
+Near Point of Accomodation
+Near Point of Convergence
 Neck
 Neck Problems
 Neck supple
+Need more than one drug.
 Need to enter a description
 Need to enter a Return Value
 Need to enter identifier
@@ -3875,13 +4477,22 @@ Needs Justify
 Needs secondary billing
 Negative
 Negatives
+Neg{{negative}}
 Neighbor
+Neo 10%
+Neo 2.5%
 Nepali
 Nerve injury
 Neural condition / nerve damage
+Neuro
 Neuro Numbness
 Neuro Weakness
+Neuro-physiology
+Neuro/Phys Exam Default Values
 Neurologic
+Neurology
+Neuro{{neurologic}}
+NEURO{{Neurology}}
 Never
 Never Alcohol
 Never smoker
@@ -3901,6 +4512,7 @@ New Definition set added
 New Document
 New Documents
 New Due Clinical Reminders
+New Dx{{new diagnosis}}
 New Encounter
 New encounter created with id
 New Encounter Form
@@ -3909,8 +4521,10 @@ New Enctr
 New Facility Information
 New file
 New Files
+New form validation
 New Group
 New Group Information
+New Immunization Record
 New Inj/Status
 New Items (see above for details)
 New Limit of Events
@@ -3923,6 +4537,7 @@ NEW PATIENT
 New Patient Encounter
 New Patient Form
 New Patient ID
+New Patients
 New Payment
 New Portal Login
 New Pt
@@ -3964,16 +4579,21 @@ Next Appointment Date
 Next Day
 Next Month
 Next month (hold for menu)
+Next of Kin Relationship
 Next Scheduled Run
+Next Visit
+Next Visit Orders
 Next Week
 Next year (hold for menu)
 Nick Name
 Nickname
 Niece/Nephew
 Night Sweats
+NKDA{{No known drug allergies}}
 Nl ext genitalia, vag mucosa, cervix
 No
 NO
+no
 No access
 No active patient reminders.
 No adenopathy (2 areas required)
@@ -3981,6 +4601,8 @@ No adjustment reason type found for
 No adnexal tenderness/masses
 No amendment requests available
 No Appointments
+No archive files present
+No Archives
 No audit log tampering detected in the selected date range.
 No billing system is currently active
 No Bills Found to Include in OFX Export
@@ -3990,8 +4612,11 @@ No code was specified!
 No Configuration Defined for this Module
 No Data to Process
 No Diagnosis
+no diagnosis was auto-generated from the clinical findings.
+No Documents
 No Documents Found
 No Encounter could be created
+No encounter...
 No end date
 No entries found, use the form below to add an entry.
 No errors found
@@ -4004,6 +4629,7 @@ No Hooks Available in this Module
 No Hooks enabled for this Module
 No injury/illness
 No Insurance Companies Found
+No interactions found
 No Issues
 No issues in this encounter.
 No items under selected category
@@ -4024,6 +4650,7 @@ No Known Vitals
 No lab data documented.
 No log file exist for the selected date
 No logging
+No logs older than 7 days
 No masses, tenderness
 No match Patient record found for the given Re Idenitification code
 No matches found. Try search again.
@@ -4053,6 +4680,7 @@ No rash or abnormal lesions
 No records found
 No records found.
 No records found. Please expand your search criteria.
+No reminder/recall
 No Reminders
 No Result Found, for the above search criteria.
 No Results
@@ -4062,6 +4690,7 @@ No results found, please try again.
 No results, please tray again.
 No results, please try again.
 No Settings avaliable in this module
+No show
 No Show
 No signatures on file
 No Sinus Tenderness:
@@ -4069,6 +4698,7 @@ No skin dimpling or breast nodules
 NO SUCH CONTEXT NAME
 No table selected! Select a table.
 No testicular tenderness, masses
+No Thanks
 No thrills or heaves
 No track selected
 No tracks have been documented.
@@ -4084,11 +4714,13 @@ Non specific injury
 Non-electronic
 Non-Insulin Dependent Diabetes
 Non-Insured
+Non-residential Substance Abuse Treatment Facility
 Non-SRH Medical
 Non-SRH Non-Medical
 None
 none
 None defined
+None documented
 None have been documented
 None of the above
 None of the Top Distribution Row Can be Completly Blank.
@@ -4138,6 +4770,7 @@ Not billed
 Not Checked
 Not checked out
 Not Coded
+Not documented
 Not Due
 Not Esigned
 Not Examined
@@ -4154,6 +4787,7 @@ Not sent
 Not Sent Yet
 Not Specified
 Not Specified.
+Not VFC eligible
 Note
 Note Codes
 Note it will take 5-10 minutes to fully process after you click Install
@@ -4164,6 +4798,8 @@ Note: 12:00 noon is PM, not AM
 NOTE: Importing external data can take more than an hour depending on your hardware configuration. For example, one of the RxNorm data tables contain in excess of 6 million rows.
 NOTE: Only the Biannual International Snomed Release is currently supported
 NOTE: Only the full monthly RxNorm release is currently supported
+NOTE: Only the XML formats and Eligible Professionals valuesets supported
+NOTE: The import can take up to several hours
 Note: This code has not been authorized.
 Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.
 Note: This copay was entered against billing that has not been authorized. Please review status.
@@ -4195,10 +4831,13 @@ Now printing $stmt_count statements and updating encounters.
 Now printing $stmt_count statements and updating invoices.
 Now printing $stmt_count statements; encounters will not be updated.
 Now printing $stmt_count statements; invoices will not be updated.
+NPA{{near point of accomodation}}
+NPC{{near point of convergence}}
 NPI
 NQF
 Number
 Number labs
+Number of Appointments on Statement
 Number of Appointments to display in the Onsite Patient Portal
 Number of Appointments to display in the Patient Summary
 Number of columns in year view.
@@ -4224,6 +4863,7 @@ Numbness
 Numerator
 Numeric display order
 Nuosu
+Nursing Facility
 Nutrition
 Nutritional
 O.A.F.V.
@@ -4232,7 +4872,11 @@ Obesity I
 Obesity II
 Obesity III
 Objective
+Observation Criteria
+Observation Criteria Value
 Observation Form
+Observation Results
+Observation Results in Immunization
 Occitan
 Occupation
 Occupational physician
@@ -4240,12 +4884,15 @@ Occurrence
 Oct
 October
 OD
+OD{{right eye}}
 of
 of quantity
 of tablets
 of the month every
 Ofc Notes
 Off
+Off Campus-Outpatient Hospital
+Office
 Office Notes
 Office Visit
 Official Clinical Quality Measures (CQM) Measure Groups
@@ -4274,6 +4921,7 @@ Old fracture non / malunion
 Old style layout with no left menu
 Old-style static form without search or duplication check
 Older
+Older than
 Omit
 Omit circumferences
 Omit employer information in patient demographics
@@ -4283,11 +4931,13 @@ Omit insurance and some other things from the demographics form
 Omit internal users?
 Omit method of payment from the co-pay panel
 omit to autoassign
-on
 On
+on
 On Hand
 On Order
 On Site
+On this date there is a holiday, use it anyway?
+Once completed, view and store this encounter as a PDF file
 Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.
 Once you change your password, you will have to re-login.
 Oncology: Medical and Radiation – Pain Intensity Quantified (CQM)
@@ -4298,14 +4948,18 @@ Online Support
 Online Support Link
 Only Active
 Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.
+Only entries with a Code are billable
 Only for comparisons
 only if billing location
 Only Inactive
 Only Mine
+Only recall to provider, no reminder
+Only reminder to provider, no recall
 Only Show Diagnosis Reporting Codes
 Only Show Service Code Finance Reporting Codes
 Only upload active prescriptions
 Only upload active prescriptions to NewCrop eRx.
+Onset
 Onset of Current Symptoms or Illness
 Onset of Illness:
 Onset of Ilness: 
@@ -4315,21 +4969,46 @@ Onsite Patient Portal Site Address
 Oops!
 Open
 Open Demographics in New Window from Patient Flow Board
+Open Encounter
+Open Fee Sheet
 Open in New Window
 Open Patient
 Open Patient in New Window
+Open the Quick Pick panels
+Open the Shorthand Window and display Shorthand Codes
 Open Today`s Visit
+Open/Close the Anterior Segment drawing panel
+Open/Close the Anterior Segment Exam Quick Picks panel
+Open/Close the detailed HPI panel
+Open/Close the External drawing panel
+Open/Close the External Exam Quick Picks panel
+Open/Close the HPI Canvas
+Open/Close the Imp/Plan drawing panel
+Open/Close the Impression/Plan Builder panel
+Open/Close the Neuro drawing panel
+Open/Close the Neuro Exam Quick Picks panel
+Open/Close the PMH draw panel
+Open/Close the PMSFH summary panel
+Open/Close the Retina drawing panel
+Open/Close the Retinal Exam Quick Picks panel
+Open/Close the Shorthand Window and display Shorthand Codes
 OpenEMR already has a Certificate Authority configured.
 OpenEMR Application Category
 OpenEMR Database Upgrade
 OpenEMR Database Upgrade for De-identification
 OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database.
 OpenEMR must be configured to use certificates before it can create client certificates.
+OpenEMR Product Registration
 OpenEMR requires Javascript to perform user authentication.
 OpenEMR Users
 Openings
+Opens in Bottom frame
+Opens in Top frame
+Operation Failed
 Operator
 Opthalmic
+Optic Discs
+Optic Nerve Analysis
 Option
 Option to save method of document storage.
 Option to support inventory and sales of products
@@ -4341,6 +5020,7 @@ Optional default range for manual entry of results
 Optional default units for manual entry of results
 Optional Destination Name
 Optional drug name, use % as a wildcard
+Optional end date mm/dd/yyyy
 Optional immunization name or code, use % as a wildcard
 Optional information about this event
 Optional lot number, use % as a wildcard
@@ -4357,6 +5037,7 @@ Or Out To
 or select from inventory
 or Shift-click to decrease it
 Or upload ERA file:
+or utilize the Impression/Plan Builder
 Oral
 Oral mucosa pink, throat clear
 Order
@@ -4382,6 +5063,7 @@ Ordered
 Ordered By
 Ordered Procedure
 Ordering Provider
+Orders
 Orders Path
 Organ injury
 Organization
@@ -4389,20 +5071,31 @@ Organization Name
 Organizational Unit Name
 Organizations
 Orientated x 3
+Oriented TPP{{oriented to person and place}}
 Original
 Original Checksum
+Original file
 Oriya
 Oromo
 OROPHARYNX: 
+Ortho
+Orthophoric
 Orthopnea
+ORTHO{{Orthopedics}}
+Ortho{{orthophoric}}
+OR{{as in AND/OR, ie. not an abbreviation}}
 OS
 Osetoarthritis
 Ossetian, Ossetic
 Osteopathy
+OS{{left eye}}
 Other
+OTHER
 other
 Other (specify)
 Other - Specified
+Other adult
+Other Documents
 Other Federal Program
 Other HCFA
 Other injury not elsewhere specified
@@ -4412,7 +5105,10 @@ Other Non-Federal Programs
 Other Notes
 Other Pertinent Symptoms
 Other Pertinent Symptoms:
+Other Place of Service
+Other Provider
 Other pt resp
+Other Registry
 Other stress/Over use injury
 Other Surgical
 Other/Generic Abortion-Related
@@ -4426,9 +5122,13 @@ Out Of Office
 Outbound Referral
 Outcome
 Outlook
+Outpatient Hospital
 Output Type
+OU{{both eyes}}
+Over
 Overall Status Of Discharge
 OVERDUE
+Override (if necessary) the appointment display limit to allow all appointments to be displayed for the last set
 Overuse
 Overview
 Overweight
@@ -4440,9 +5140,13 @@ P
 p.c.
 p.m.
 p.r.n.
+Pachymetry
+Pachymetry: Central Corneal Thickness
+Pachy{{Pachymetry}}
 Pacific Islander
 Paedeatric
 Page
+Page Validation
 Pages
 Paid
 Paid amount that you will allocate
@@ -4451,6 +5155,8 @@ Paid Via
 Pain
 Palliative care physician
 Palpitation
+PAM{{Potential Acuity Meter}}
+Pan
 Panjabi, Punjabi
 Pap Smear
 Paper
@@ -4458,6 +5164,9 @@ Paper Size
 Paralysis
 Parent
 parent in-law
+Parent Recall
+Parent Written Record
+Parental decision
 Parse HL7
 Partially Administered
 Partner
@@ -4487,6 +5196,8 @@ Password:
 Passwords Don't match!
 Past Appoinments
 Past Appointment Display Widget
+Past Appointments
+Past Date
 Past due
 Past Due
 Past Due Interval (Clinical Reminders)
@@ -4495,6 +5206,11 @@ Past Encounter List
 Past Encounters
 Past Encounters and Documents
 Past Encounters for
+Past Medical History
+Past Ocular History
+Past Ocular Surgery
+Past Surgical History
+Past Year
 Paste HL7 Data
 Paste the data to import into the text area below:
 Pat
@@ -4539,6 +5255,7 @@ Patient Credit
 Patient Data
 Patient Date Of Birth
 Patient Date Of Birth is missing
+Patient decision
 Patient Details
 Patient DOB
 Patient Document
@@ -4548,6 +5265,7 @@ Patient Encounter
 Patient Encounter Form
 Patient Encounters
 Patient Finder
+Patient Finder Screen
 Patient First name
 Patient First Name
 Patient First name is missing
@@ -4618,6 +5336,7 @@ Patient Reminder Sender Email
 Patient Reminder Sender Name
 Patient Reminders
 Patient Report
+Patient Reports
 Patient Request
 Patient Requested Medical Records
 Patient Results
@@ -4625,9 +5344,11 @@ Patient Search Results Style
 Patient Search/Add Screen
 Patient Setting
 Patient State
+Patient statements can be generated as plain text or with a modern graphical appearance.
 Patient Street Address
 Patient Summary
 Patient Transactions
+Patient validation
 Patient Zip
 patient(s) in the database that match the demographic information you have entered.
 Patient/Client
@@ -4666,11 +5387,17 @@ Payments
 Payor
 PCP
 Pct (%) of rows
+PD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}
+PD-N{{abbreviation for Binocular Pupillary Diameter - Near}}
 PDF
 PDF Download Selected Statements
 PDF Language
+PD{{Inter-pupillary distance}}
+PD{{pupillary distance}}
 Pelvis and buttock
 Pemphigus
+Pencil
+pend
 Pending
 Pending Approval
 Pending F/U
@@ -4699,13 +5426,17 @@ Perforated Right:
 Perform Search
 Perform this action
 Performance Percentage
+performed
 Performer
 Performing Laboratory Facility
 Performing organization
 Period
 Period in days where a user may login with an expired password.
 Perioperative Care
+Periph
 Peripheral
+Periph{{peripheral retina}}
+Periph{{periphery}}
 Permit unsalted passwords
 Persian
 Persian (Farsi)
@@ -4737,6 +5468,8 @@ Phone Home
 Phone Notification Hour
 Phone Number
 Phone number
+Phone number for billing inquiries
+Phone Number for Vendor Support that Appears on the About Page.
 Photophobia
 Photos
 PHP compressed
@@ -4750,18 +5483,25 @@ Physician Request
 Physician Signature
 Physician Type
 Physicians
+PH{{pinhole acuity}}
+PH{{Pinhole Vision}}
+PH{{Pinhole}}
 pick
 Pick
 Pick a CSS theme.
+Pick a general theme (need to logout/login after change this setting).
 PID
 PID (Pelvic Inflammatory Disease)
 Pill Size
 Pills
+Pinhole Vision
+Place of Employment-Worksite
 Place the database zip file in the following directory if want the option to install
 Place the downloaded ICD 10 database zip files into the following directory
 Place the downloaded ICD 9 database zip file into the following directory
 Place the downloaded RxNorm database zip file into the following directory
 Place the downloaded Snomed database zip file into the following directory
+Place the downloaded VALUESET database zip file into the following directory
 Placeholder
 Placeholder (Maintains empty ACLs)
 Plain Text
@@ -4784,6 +5524,7 @@ Plans Configuration
 Player
 Playing Position
 Please call if any of the above information is incorrect
+Please call if any of the above information is incorrect.
 Please change your password.
 Please Choose a file
 Please choose a patient
@@ -4796,6 +5537,7 @@ Please Click download button to download the De Identified data
 Please Click download button to download the Re Identified data
 Please close this window.
 Please compare the new name
+Please consider sending in a donation to
 Please contact your systems administrator, the following component(s) are required but are missing.
 Please correct the value(s) before proceeding!
 Please create the following directory before proceeding
@@ -4840,9 +5582,11 @@ Please only use alphabetic characters
 Please only use alphabetic characters with no spaces
 Please pay this amount
 Please place your install files in following directory
+Please provide a valid email address
 Please refer to
 Please reset the password.
 Please restart the apache server before playing with de-identification
+Please return this bottom part with your payment
 Please see the attached PDF.
 Please Select
 Please select a format
@@ -4862,8 +5606,11 @@ Please select at least one criteria to download
 Please select at least one patient.
 Please select at least one prescription!
 Please select encounter
+Please select From date
+Please select image procedure
 Please select the desired pages to copy or forward:
 Please Select the Payment Method
+Please select To date
 Please Select Type Of Payment.
 Please select visit category
 Please select X12 partner, required to create the 270 batch
@@ -4881,6 +5628,11 @@ Plot selected Items
 Plural
 PM
 PM Program
+PMH
+PMH Dx
+PMH{{Past Medical History}}
+PMSFH Panel
+PMSFH{{Abbreviation for Past medical Surgical Family and Social History}}
 Pmt Method
 PND
 Pneumococcal Conjugate 1
@@ -4893,18 +5645,21 @@ Pneumonia Vaccination Status for Older Adults
 Pneumonia Vaccination Status for Older Adults (CQM)
 Podiatric
 Podiatry
+POH{{Past Ocular History}}
 Point of Service (POS)
 Policy
 Policy No
 Policy Number
 Polish
 Polydypsia
+Polygon
 Polyps
 Polyuria
 Poor Appetite
 Poor Circulation
 Poor Hearing
 Pop ups need to be enabled to see these reports
+Populate Fee Sheet
 Populate the year view with events?
 Popups
 Portal
@@ -4919,6 +5674,7 @@ Portuguese (Brazilian)
 Portuguese (European)
 POS Code
 Position
+Position of Gaze
 Positive
 Positives
 Post Date
@@ -4943,8 +5699,14 @@ PostCalendar Administration
 PostCalendar Category Settings
 PostCalendar Global Settings
 Posted on
+Posterior Segment
+Posting
 Posting Date
+post{{posterior}}
 Pos{{Abbreviation for Position}}
+POS{{Past Ocular Surgery}}
+Potential Acuity
+Potential Acuity Meter
 Powered by
 PPE + Prev Med/Surg Hx
 PQRI
@@ -4976,6 +5738,7 @@ Prescription History
 Prescription History import successfully completed
 Prescription Label
 Prescription Report
+Prescription successfully removed.
 Prescriptions
 Prescriptions and Dispensations
 Prescriptions and other referrals
@@ -4986,6 +5749,7 @@ Present
 Presenting Complaint
 Presenting Issue(s)
 Press Continue to proceed
+Press this icon to build your Impression/Plan.
 Presumed Diagnosis
 Presumed diagnosis by specialist
 Prev
@@ -4996,6 +5760,7 @@ Preventative Care
 Prevention Rehab
 Preventive Care and Screening: Tobacco Use: Screening and Cessation Intervention (CQM)
 Preview Event
+Preview file
 Preview not available for this document type
 Preview of
 Previous
@@ -5005,8 +5770,10 @@ Previous History/Screening
 Previous Month
 Previous Week
 Price
+Price changed
 Price Discounting
 Price Level
+Price level changed
 Price Level:
 Prices
 Primary
@@ -5031,6 +5798,7 @@ Print Amendments
 Print Any Encounter
 Print Blank Referral Form
 Print Command
+Print Custom Message
 Print Date
 Print End of Day Report 1
 Print End of Day Report 2
@@ -5050,6 +5818,7 @@ Print Patient Address Label
 Print Patient Billing Note
 Print Receipts by Provider
 Print Record
+Print Report
 Print Selected Statements
 Print Shot Record
 Print the Next Appointment on the Bottom of the Ledger
@@ -5066,11 +5835,19 @@ Printing Log Option
 Printing results:
 Printing skipped; see test output in
 Printing skipped; see test output in 
+Prints the CMS 1500 on the Preprinted form
 Prior Auth
 Prior Authorization Form
+Prior Exam
+Prior Eye Meds
+Prior IMP/PLAN
 Prior Visit
+Prior Visits
 Priority
 Priority 
+Prism
+Prism Diopters
+Prison Correctional Facility
 Private
 Problem
 Problem DX
@@ -5115,6 +5892,7 @@ Procedures
 Process
 Process and Send Reminders
 Process ERA File
+Process New Files
 Process new files for CSV records
 Process Reminders
 Process takes some time
@@ -5127,17 +5905,23 @@ Processing and Sending Patient Reminders
 Processing Patient Reminders
 Processing Time
 Product
+Product added
 Product Contraceptive Method
+Product deleted
 Production
 Products
 Products but no prescription drugs and no templates
 Prof.
+Prog.{{Progressive lenses}}
 Progress Notes
+Progressive
 Prostate Cancer
 Prostate Cancer Screening
 Prostate Exam
 Prostate Problems
 Prostate w/o enlrgmt, nodules, tender
+Protection Indicator
+Protection Indicator Effective Date
 Protocol
 Provide absolute path
 Provide absolute path of file
@@ -5157,8 +5941,10 @@ Provider Matching Errors
 Provider not available, please choose another.
 Provider not available, use it anyway?
 Provider Number
+Provider Qualifier Code
 Provider Relationship
 Provider Type
+Provider/Warehouse
 Provider:
 Providers
 Providers NPI
@@ -5166,15 +5952,20 @@ Providers See Entire Calendar
 Prv
 PSA
 Psoriasis
+Psych
 Psych Diagnosis
 Psych Medication
 Psychiatric
 Psychiatric Brief Letter
 Psychiatric Diagnosis
 Psychiatric Examination
+Psychiatric Facility-Partial Hospitalization
 Psychiatric History
 Psychiatric Intake
 Psychiatric Medication
+Psychiatric Residential Treatment Center
+Psych{{psychiatric}}
+PSYCH{{Psychiatry}}
 Pt %
 Pt Notes
 Pt Notes/Auth
@@ -5199,15 +5990,23 @@ PT_STATE
 PT_STREET
 Pubid
 Public
+Public Agency
+Public Health Clinic
 Public health physician
 Public Health Service (PHS) or Other Federal Agency
+Publicity Code
+Publicity Code Effective Date
 Puerto Rican
+puff
 Pulmonary
+PULM{{Pulmonary}}
 Pulse
 Punjabi
+Pupils
 Purchase
 Purchase/Return
 Purchases
+Pyschiatry
 P{{Justify Header}}
 Pāli
 q.3h
@@ -5224,6 +6023,7 @@ QTY
 Quality
 Quality Measures (CQM)
 Quantity
+Quantity changed
 Quantity for NDC
 Quantity On Hand
 quantity seems unusable
@@ -5238,30 +6038,49 @@ Queued Events Administration
 Queued for
 Queued for Transfer
 Queued Submissions Administration
+Quick Picks
 Quit
 Quit Alcohol
 R
+R/LG{{right/left gonioscopy}}
+R/LPACH{{right/left pachymetry}}
+R/LSCH1{{right/left Schirmers I (w/o anesthesia)}}
+R/LSCH2{{right/left Schirmers II (w/ anesthesia)}}
+R/LTBUT{{right/left Tear Break Up Time}}
 RA for Patient, Encounter, or Trace
 Race
 Race and Ethnicity
 Race/Ethnicity
+RAC{{right anterior chamber}}
 Radio
 Radio buttons
+RAD{{right adnexa}}
 Random Drug Screen
 Range
 Rashes
 Rate
 Ratio
 Raw Report
+RB{{right brow}}
+RCMT{{right Central Macular Thickness}}
+RCOM{{right comments}}
+RCUP{{right cup}}
+RC{{right conjunctiva}}
+RD{{retinal detachment}}
+RD{{right disc}}
 Re Identification
 Re Identification Process is completed
 Re Identification Process is ongoing
 Re-identification files will be saved in
 Re-Injury?
 Re-Open
+Re-Open Visit
 Re-opened
+Re-opening this visit will cause a void. Payment information will need to be re-entered. Do you want to proceed?
 Reaction
 Reactions
+Reactivate
+react{{reactivity}}
 Read
 Read Only
 Read-only from History
@@ -5274,6 +6093,10 @@ Reason for Referral
 Reason for referral
 Reason for Visit
 Reason/Form
+Reason/Plan
+Recall only - any method
+Recall only - no calls
+Recall to provider
 Receipt
 Receipt for Payment
 Receipt Generated
@@ -5300,6 +6123,7 @@ Recommendation For Follow Up
 Recommendations
 Recommendations and treatment
 Recommendations by specialist
+RECORD
 Record
 Record already exist
 Record and chart changes in vital signs ( Height / Weight / BP with in scope ).
@@ -5312,6 +6136,7 @@ Record demographics.
 Record Disclosure
 Record of Fitness
 Record Payment
+Record Request
 Record Request Date
 Record smoking status for patients 13 years old or older.
 Records
@@ -5322,8 +6147,15 @@ Recreational Drugs
 Rectal
 Rectal Exam
 rectally
+Rectangle
+Recurrence
+Recurrent Appointment Display Widget
+Recurrent Appointments
+Red Desaturation
+Red Desat{{red desaturation}}
 Redirection
 Redness
+Redo
 reduced:
 Refer
 Refer By
@@ -5355,11 +6187,15 @@ Referrer Address
 Referrer Diagnosis
 Referrer diagnosis
 Referring physician and practice
+Referring provider
 Referring Provider
 ReFill
 Refills
 refills
 Reflexes normal
+Refraction Comments
+Refraction Method
+Refractive States
 Refresh
 Refresh Screen
 Refreshing Reminders
@@ -5369,8 +6205,11 @@ Refused To State
 reg_re
 register
 Register
+Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements.
 Registered
 registered
+Registered email
+Registered id
 Registered Modules
 Registration Date
 Registration Form
@@ -5402,14 +6241,23 @@ Release
 Release Date
 Religion
 Religious Affiliation
+Religious exemption
 Reload
+reload names below
 Relogin
 Remdr
 Remember Selected Facility
 Reminder
+Reminder done
 Reminder intervals
 Reminder Not Sent Yet
+Reminder only - any method
+Reminder only - no calls
 Reminder Sent On
+Reminder to provider
+Reminder/recall - any method
+Reminder/recall - no calls
+Reminder/recall - to provider
 Reminders
 REMIT TO
 Remote Host
@@ -5418,6 +6266,7 @@ Remove all rules from plan
 Remove Bottom Pane
 Remove Group
 Remove Group Form
+Remove this Prescription from the list of RXs dispensed
 Removes support for immunizations
 Removes support for phpMyAdmin
 Removes support for prescriptions
@@ -5451,12 +6300,15 @@ Report Date
 Report End (Relinquished Care Date)
 Report has been sent to the patient.
 Report History/Results
+Report of visit
 Report Results
 Report Results/History
 Report Start (Assumed Care Date)
 Report Status
 Report Totals
+Report was faxed. Click to view.
 Report/ Form
+Report?
 Reportable
 Reported
 Reported Date
@@ -5492,12 +6344,16 @@ Reset
 Reset Offsite Portal Credentials
 Reset Onsite Portal Credentials
 Resident physician
+Residential Substance Abuse Treatment Facility
 Resn
 Resolved
 Respiration
 Respirator effort unlabored
 Respiratory
+Response
 Response Only
+Restore
+Restore Archive
 Restrict non-authorized users to the Schedule Facilities set in User admin.
 Restrict Users to Facilities
 Restricted Training
@@ -5514,6 +6370,8 @@ Results Only
 Results Path
 Results per page
 Results/Details
+Retina
+Retina Default Values
 Retinal Exam
 Retracted Right:
 Return
@@ -5524,31 +6382,48 @@ Return to this page and you will be able to complete the ICD10 installation proc
 Return to this page and you will be able to complete the ICD9 installation process by clicking on the ICD9 section header
 Return to this page and you will be able to complete the RxNorm installation process by clicking on the RXNORM section header
 Return to this page and you will be able to complete the Snomed installation process by clicking on the SNOMED section header
+Return to this page and you will be able to complete the Valueset installation process by clicking on the VALUESET section header
 Return Value
 Return Visit
 Returned to Play
 Reuse of three previous passwords not allowed!
+Revert
 Review
 Review & Approve
 Review and Approve
 Review of PMH:
+Review of System
 Review Of Systems
 Review of Systems Checks
 Reviewed
 Revision
 Rheumatoid Arthritis
 Rheumotoid Arthritis
+RH{{right hertel measurement}}
 Right
+Right Arm
+Right Deltoid
 Right Ear
 right ear
+Right Gluteus Medius
+Right Lens
+Right Lower Forearm
 Right Margin (mm)
+Right Thigh
+Right Vastus Lateralis
 Right:
 Ringing in Ears
 Ringing In Ears
 Risk Category Assessment
 Risk Factors
 Risk Level
+RI{{right iris}}
+RK{{right cornea}}
 RLL:
+RLL{{right lower eyelid}}
+RL{{right lens}}
+RMAC{{right macula}}
+RMC{{right medial canthus}}
 ROM
 Romanian
 Romansh
@@ -5558,10 +6433,13 @@ Room 3
 Room Number
 Roommate
 Roster
+ROS{{Review of Systems}}
+Round and Reactive
 Route
 Route of administration, if applicable
 Routed
 Rows
+RP{{right peripheral retina}}
 RRR without MOR
 Rub:
 Rubs:
@@ -5578,25 +6456,38 @@ Rule Title
 Rules
 rules already in plan
 Rules Configuration
+RUL{{right upper eyelid}}
 Running Command: 
 Rupture
+Rural Health Clinic
 Russian
+RV{{right vessels}}
 Rx
 RX
 Rx Bottom Margin (px)
+RX Date
+Rx Details
+Rx Dispensed History
 Rx Enable DEA #
 Rx Enable NPI
 Rx Enable State Lic. #
+Rx History
 Rx Left Margin (px)
+Rx NLM Drug-Drug
 Rx Paper Size
 Rx Right Margin (px)
 Rx Show DEA #
 Rx Show NPI
 Rx Show State Lic. #
 Rx Top Margin (px)
+Rx Type
+Rx Type{{Type of glasses prescription}}
+Rx/Distance
 RXCUI Medication
 RxNorm
 RxNorm Database
+R{{right side}}
+R{{right}}
 S
 S.S.
 S3:
@@ -5619,6 +6510,7 @@ Sat &amp; Sun
 Saturday
 Save
 SAVE
+Save and Checkout
 Save and Close
 Save and Delete Request
 Save and Dispense
@@ -5627,6 +6519,7 @@ Save as New
 Save as new note
 Save Certificate Settings
 Save Changes
+Save codes history
 Save Form
 Save Immunization
 Save New Field
@@ -5635,19 +6528,39 @@ Save New List
 Save new template
 Save omission selections
 Save Patient Demographics
+Save Report as PDF
 Save Successful for chart ID
 Save Transaction
 Saved Successfully
+Sa{{Saturday}}
+sc Distance{{without correction distance}}
+sc Near{{without correction near}}
 Scanned
 Scanned Encounter Note
 Scanner Directory
 Scanner In
+scDist{{ACT without Correction Distance}}
+scDist{{without correction distance}}
 Schedule
 Schedule Facilities:
+Schirmer I
+Schirmer II
+Schirmers I
+Schirmers I (w/o anesthesia)
+Schirmers II
+Schirmers II (w/ anesthesia)
+School
 SCHOOL NOTE
+School Record
+Sclera
+scNear{{ACT without Correction Near}}
+scNear{{without correction near}}
 Scoliosis
 Scottish Gaelic- Gaelic
 Screening / Testing
+SC{{Acuity without correction}}
+sc{{without correction}}
+SC{{without correction}}
 SE
 SE Address
 SE City
@@ -5661,6 +6574,7 @@ SEARCH
 search
 search again
 Search all columns
+Search Appointment
 Search by:
 Search for
 Search for:
@@ -5679,8 +6593,9 @@ Search/Add
 Search/Add Insurer
 Searching for appointments
 Searching...
-Seatbelt Use
+Seatbelt
 Seatbelt use
+Seatbelt Use
 Second
 second
 Second account message
@@ -5713,6 +6628,7 @@ Select a Context
 Select a percentage of the rows or or select dates
 Select a Time Span
 Select a User
+Select a validation rule
 Select All
 Select Amendment Date
 Select amendments to print
@@ -5736,6 +6652,7 @@ Select Encounter
 Select field
 Select Fields
 Select for printing
+Select Image Procedure
 Select Immunizations
 Select Immunizations for De Identification request
 Select Insurance, by typing
@@ -5752,6 +6669,7 @@ Select Role
 Select source
 Select Template
 Select the configuration items to export
+Select the diagnoses to include in the Impression/Plan.
 Select the issue primarily responsible for any missed events on this day
 Select to print patient address labels from popups in left nav screen.
 Select Track
@@ -5764,6 +6682,8 @@ Select1
 Select2
 Selected
 Selected Encounter
+Selected Files
+Selected files and data will be removed from folders and tables
 Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).
 Self
 Self Pay
@@ -5816,19 +6736,24 @@ Seq
 Sequence
 Serbian
 Serv Rep
+Server error: try again later
 Server may be offline
 Server message:
 Service
+Service added
 Service Category
 Service Code
 Service Code Finance Reporting
 Service Codes
 Service Date
 Service Date:
+Service deleted
 Service Facility
+Service is not compatible with the sex of this client.
 Service Location
 Service Name
 Service provided by specialist
+Service provider changed
 Service Reporting
 Service Reporting Only
 Services
@@ -5840,6 +6765,7 @@ Session Type
 Set
 Set a facility cookie to remember the selected facility between logins.
 Set As Completed
+Set POS code in encounter
 Set processing priority for CDR engine based reports.
 Set processing priority for creation of Patient Reminders (in full clinic mode).
 Set this to the full absolute path. For creating client SSL certificates for HTTPS.
@@ -5861,6 +6787,8 @@ Shell command for printing from the server.
 Shift
 Shona
 Short Description
+Shorthand
+Shorthand Help
 Shortness of Breath
 Shortness Of Breath
 Shortness Of Breath 2
@@ -5877,6 +6805,7 @@ Shoulder Problems
 Show
 Show Active
 Show Additional Insurance Information
+Show Aging on Custom Statement
 Show All
 Show all procedures
 Show All Results
@@ -5888,20 +6817,28 @@ Show both US and metric (main unit is metric)
 Show both US and metric (main unit is US)
 Show Details
 Show Errors Only?
+Show Extra Logo on Login
 Show Graph
 Show hovering event text on mouseover?
 Show how many events on admin pages?
 Show Inactive
 Show Insurance Address Information in the Insurance Panel of Demographics.
+Show IOP by Date
+Show IOP by Time
 Show Menu
 Show metric only
+Show Mini Logo 1
+Show Mini Logo 2
 Show Notes
 Show only latest values reported for each result code
 Show only procedures not omitted
+Show Patient Encounter Number in Patient Flow Board
+Show Patient ID in Patient Flow Board
 Show Patient Notes
 Show pounds and ounces
 Show pounds as decimal value
 Show Primary Complete
+Show Receipt
 Show Reminders
 Show Report
 Show search/submit links in block?
@@ -5909,9 +6846,11 @@ Show Selected for Drug Screens
 Show Status of Drug Screens
 Show the custom state form for the add list widget (will ask for title and abbreviation).
 Show this category on the patient summary screen even if no issues have been entered for this category.
+Show Title on Login
 Show track history
 Show Unbilled Only
 Show US only
+Show Visit Reason in Patient Flow Board
 Showing
 Showing result
 Sibling
@@ -5947,6 +6886,7 @@ Sinus Problems
 Sinus Surgery
 SINUS TENDERNESS:
 Sinusitis
+Sister
 Site
 Site ID
 Site ID for the Medical Information Integration, LLC Lab Exchange Service.
@@ -5954,8 +6894,10 @@ Site ID for the OpenEMR Support LLC Lab Exchange Service.
 Site Worker
 Six Months Ago
 Size
+size
 Size must be a number between 1 and 999
 Size/List
+Skilled Nursing Facility
 Skin
 Skin Cancer
 Skin Disease
@@ -5964,9 +6906,12 @@ Skip Authorization of Patient Notes
 Skipping section
 Skipping SQL-Ledger dump - not implemented for Windows server
 Sl.No
-Sleep Patterns
+Slab Off
+Sleep
 Sleep patterns
+Sleep Patterns
 Sleeping
+Sliding
 Slovak
 Slovene
 Sm debt w/o
@@ -6001,8 +6946,11 @@ SNOMED Clinical Term
 SNOMED Database
 SNOMED Diagnosis
 SNOMED Procedure
+SNOMED-CT Code
 Snoring
 SOAP
+Soc Hx{{Social History}}
+Social
 Social Difficulties
 Social History
 Social History Element
@@ -6026,8 +6974,10 @@ Soon Due Interval (Patient Reminders)
 Sore Throat
 Sorry No Appointment is Fixed
 Sorry, there was a problem uploading your file
+Sorry, there was a problem!
 Sort by
 Sort By
+Sort by Category
 Sort by Checksum
 Sort by Comments
 Sort by Crt User
@@ -6091,6 +7041,8 @@ Specimen Type
 Specimen type
 Speech Dictation
 Spermicides
+Sph{{Sphere}}
+SPH{{Sphere}}
 Splenectomy
 Spouse
 Spouses History
@@ -6114,6 +7066,7 @@ SSN
 Stability
 Staged Releases
 Standard
+Standard check
 Standard Code
 Standard Measures
 Standard Measures (Active Alerts)
@@ -6126,6 +7079,7 @@ Start (yyyy-mm-dd):
 Start Another Report
 Start Batch Processing
 Start Date
+Start date
 Start Date at This Clinic
 Start Date should not be greater than End Date
 Start date:
@@ -6143,6 +7097,7 @@ State List Widget Custom Fields
 State Or Province
 State/Locality
 State/Parish
+Statement Appearance
 STATEMENT SUMMARY
 statements and updating invoices.
 Statements Sent:
@@ -6160,18 +7115,22 @@ Stength and Conditioning
 Step Child
 Step Parent
 Step Sibling
+Stepchild
 Steps for uploading CCR XML
 Steps to install the DSM IV database
 Steps to install the ICD 10 database
 Steps to install the ICD 9 database
 Steps to install the RxNorm database
 Steps to install the Snomed database
+Steps to install the VALUSET database
+Stereopsis
 Stiff Joints
 Stiffness
 Stock Months
 Stomach Pains
 Stop
 Stored Hash
+Strabismus
 Strain of muscle
 Stream
 Street
@@ -6183,6 +7142,7 @@ Strep Throat
 Stress fracture
 Stress Test
 Stroke
+stroke
 Strong password means at least 8 characters, and at least three of: a number, a lowercase letter, an uppercase letter, a special character.
 Style
 Style of form used for adding new patients
@@ -6202,6 +7162,7 @@ Submit and Delete Request
 Submit Event
 submit form
 Submit Selected Content
+Submitted
 submitted
 Submitted by
 Submitter EDI Access Number (PER06)
@@ -6234,6 +7195,7 @@ Subscriber State
 Subscriber Zip
 Subscribter Phone
 Substance
+Substance Refusal Reason
 Substitution
 substitution allowed
 Subtype
@@ -6245,6 +7207,7 @@ Success retrieving results from Lab Exchange Network
 Successful Transfers
 Successfully added category
 successfully added to category,
+Successfully Completed
 Successfully Deleted
 Successfully Imported the details. Please approve the patient from the Pending Approval Screen
 Successfully installed the database.
@@ -6257,9 +7220,14 @@ successfully stored.
 Successfully upgraded the database.
 Successfully upgraded the following database
 successfully.
+Suffix
+Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)
 Suicide
 Summary
 Summary of
+Summary of Acuities for this patient
+Summary Of Care Provided?
+Summary of Care Provided?
 Summary of Care Sent
 Summary of Care Sent Electronically
 Sun
@@ -6280,18 +7248,23 @@ Supervising Doctor First name
 Supervising Doctor Last name
 Supervising Doctor NPI
 Supervising Doctor UPIN
+Supplier
 Supplier facility name
 Support calendar events that apply to multiple providers
 Support export/import of configuration data via the Backup page.
 Support Multi-Provider Events
+Support Phone Number
 Support provider in line item in fee sheet
 Supports TripleDES encryption/decryption only.
+sup{{superior}}
 Surface Type
+Surgeon
 Surgeries
 Surgery
 Surgery Issue List
 Suspended
 suspension
+Su{{Sunday}}
 Svc Date
 Svc Date:
 Swahili
@@ -6318,6 +7291,7 @@ Synovitis, impingement, bursitis
 System
 Systolic
 S{{Saturday}}
+s{{suffix to make Document plural, ie. Documents}}
 S{{Sunday}}
 T
 t.i.d.
@@ -6328,7 +7302,10 @@ Table creation failed
 Table update failed
 Tables
 tablet
+Tabs
+Tabs Layout Theme (need to logout/login after change this setting)
 Tag to Encounter
+Tag to Image Procedure
 Tagalog
 Tahitian
 Tajik
@@ -6349,32 +7326,45 @@ Target Patient
 Target patient has no DOB
 Target patient not found
 Target/Action Groups
+Taskman: Documents in openEMR
 Tatar
 Tax Id
 Tax ID
 Tax Rate
 Taxes
 Taxonomy
+TA{{temporal arteries}}
+TB
+TBUT
+TBUT{{tear breakup time}}
 Td
 Team Injury Overview
 Team Roster
 Team Roster View
 Team/Squad
+Tear Break Up Time
 Tel
 Telephone Country Code
 Telugu
 Temp
 Temp Location
 Temp Method
+Temp. Art.{{temporal arteries}}
 Temperature
 Template
 Template Name
 Template names cannot start with numbers.
+Template selector changed
 Template:
 Templates
+Temporal Art.{{Temporal Artery}}
+Temporal Arteries
 Temporal Artery
+Temporary Lodging
+temp{{temporal}}
 Tendon injury
 Tendonitis / osis / bursitis
+Tension
 Tentative Invoice Ref No
 Tertiary
 Tertiary Insurance
@@ -6382,9 +7372,11 @@ Tertiary Insurance Data
 Tertiary Insurance provider
 Test Scheduling
 Test System
+Tests Performed
 Text
 Text Diagnosis
 Text field
+Text for Custom statement message.
 Text for fifth account message.
 Text for first account message.
 Text for fourth account message.
@@ -6402,6 +7394,7 @@ Thai
 Thank You
 Thank you for choosing
 The 'Clear' button will remove all annotations.
+The *Tab* key creates each entry.
 The above statement failed
 The Apache SSL server certificate and public key
 The Certificate Authority certificate
@@ -6430,6 +7423,7 @@ The file could not be succesfully renamed, this error is usually related to perm
 The file could not be succesfully stored, this error is usually related to permissions problems on the storage system
 The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
 The first step is to download the SNOMED CT release. Access to SNOMED CT is provided by IHTSDO and their member countries. For more information see
+The first step is to download the VALUESET release. Access to VALUESET is provided by NLM. Only valueset for Eligible Professionals need to be downloaded and it should be downloaded in XML format from Sorted By CMS ID column. For more details see the below link
 The first step is to open an account with the Unified Medical Language System web site
 The following calendar event has been added:
 The following calendar event has been modifed:
@@ -6460,11 +7454,13 @@ The message could not be sent at this time.
 The new category will be a sub-category of 
 The new password can not be the same as the current password.
 The new password fields are not the same.
+The Number of Future Appointments to Display on the Statement.
 The number of staged files is incorrect. Only place the file that you wish to install/upgrade to.
 The number of staged files is incorrect. Only place the files that you wish to install/upgrade to.
 The page will be redirected to Demographics. You can edit the country field and clickthrough to NewCrop again.
 The password must be at least eight characters, and should
 The password you entered is invalid
+The Past Ocular History (POH) and Past Medical History (PMH) are negative.
 The patient record request has been recorded.
 The patient reminders have been sent
 The patient reminders have been updated
@@ -6481,6 +7477,7 @@ The Source and Date columns are copied from the first page, so normally you will
 The staged files release dates are not all from the same release.
 The staged files revisions are not all from the same release.
 The staged US Extension SNOMED package can not be installed until after the International SNOMED package has been installed.
+the status of three chronic/inactive problems
 The time granularity of the calendar and the smallest interval in minutes for an appointment slot.
 The translated label that will appear on the form in current language
 The translated Title that will appear in current language
@@ -6491,18 +7488,23 @@ The vendor-specific code identifying this procedure or result
 The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 The zip file will contain the following items
 Theme
+Theme of the tabs layout (need to logout and then login to see this new setting).
 Then the raw data feed release can be obtained from
 Therapeutic Injections
+Therapy
 There are
 There are currently no prescriptions
 There are errors with your submission.  These are outlined below.
 There are multiple patients with portal login
 There are no charts checked out.
 There are no disclosures recorded for this patient.
+There are no Glasses or Contact Lens Presciptions on file for this patient
 There are no New Submissions
 There are no notes on file for this patient.
+There are no record(s) found.
 There are no transactions on file for this patient.
 There has been a mail error sending to
+There is a lab order
 There is already a category named
 There is already a subcategory named
 There is already an item named
@@ -6560,13 +7562,18 @@ This determines which color schema used for appointment
 This Enables provider in line item in the fee sheet
 This Encounter
 This encounter has been billed. If you need to change it, it must be re-opened.
+This encounter has been billed. To make changes, re-open it or select Add More Items.
 This encounter is locked. No new forms can be added.
+This fax has already been sent.
 This feature is not yet available
 This feature is very experimental and not fully tested. Use at your own risk!
+This feature will allow the default POS facility code to be overriden from the encounter.
 This invoice number has been changed to 
 This is a child of result
 This is the Beginning date for the Ledger Report.
 This is the chart that is to be merged into the main chart and then deleted.
+This is the default left print margin for CMS 1500. It will adjust the final printed output left or right.
+This is the default top print margin for CMS 1500. It will adjust the final printed output up or down.
 This is the latest of multiple result values.
 This is the main chart that is to receive the merged data.
 this location
@@ -6598,11 +7605,15 @@ This was the older metric-only Vitals form, now deprecated.
 This Week to Date
 This will abandon your unsaved changes. Are you sure?
 This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.
+This will allow printing of a custom Message on the statements.
 This will allow printing of the Patient Billing Note on the statements.
 This will allow selection of the debugging (\'dummy\') language.
 This will allow the use of the custom End of Day report and indicate which report to use.
 This will allow use of the custom Dunning Messages on the statements.
 This will be a "dry run" with no physical data updates.
+This will clear the data from all Anterior Segment Exam fields
+This will clear the data from all External Exam fields
+This will clear the data from all Retina Exam fields
 This will create a backup in tar format and then send it to your web browser so you can save it
 This will deactivate document the encryption and decryption features, and hide them in the UI.
 This will disable the Edit button on all forms whose parent encounter is e-signed
@@ -6610,27 +7621,33 @@ This will disable the Edit button on any form that is e-signed
 This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.
 This will enable signing an entire encounter, rather than individual forms
 This will enable signing individual forms separately
+This will enable the Ability to Exclude Selected Patient Statements from Printing.
 This will force the Billing Widget in the Patient Summary screen to always be open.
 This will give the user the option to lock (separate locking and signing)
 This will hide empty e-sign logs on the patient report
+This will hide the Billing Widget in the Patient Summary screen
 This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!
 This will not prevent you from going to the e-Prescriptions site.
 This Will Print the Next Appointment on the Bottom of the Patient Ledger
+This will Show Aging on the custom Statement.
 This will use the custom immunizations list rather than the standard CVX immunization list.
 This will use the custom Statment showing the description instead of the codes.
 Thoracic physician
 Thoracic spine
 Thous/CU.MM
 Three Months Ago
+Thrills
 Throat
 Throat Cancer
 Throat Cancer Surgery
 Thrombosis/Stroke
 Thu
+Thumbnail size
 Thurdsay
 Thursday
 Thyroid normal
 Thyroid Problems
+Th{{Thursday}}
 TIA
 Tibetan Standard, Tibetan, Central
 TID
@@ -6647,6 +7664,7 @@ Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.
 Timed event
 Times array (N/A)
 Timestamp and Text
+Timing
 TIN
 Tinnitus
 Title
@@ -6684,6 +7702,7 @@ To link this encounter/consult to an existing issue, click the
 To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.
 to login again
 To record disclosures, please click
+To resend, delete the file from Communications and try again.
 to run
 To setup https access with client certificate authentication, do the following
 To Skin
@@ -6708,8 +7727,8 @@ TO_VALEDICTORY
 Tobacco
 Tobacco Cessation Intervention
 Tobacco Cessation Intervention (CQM)
-Tobacco Use
 Tobacco use
+Tobacco Use
 Tobacco Use Assessment
 Tobacco Use Assessment (CQM)
 Today
@@ -6720,11 +7739,15 @@ Today\'s Charges
 Today\'s Date
 Today\'s Events
 Toggle All
+Toggle navigation
+Toggle the Patient Panel
+Toggle the right-sided PMSFH panel
 Token ID for the Medical Information Integration, LLC Lab Exchange Service.
 Token ID for the OpenEMR Support LLC Lab Exchange Service.
 Tonga (Tonga Islands)
 Tonsillectomy
 tonsillectomy
+Tooltips
 Top
 Top Margin (mm)
 Topic
@@ -6740,6 +7763,7 @@ Total Balance Due
 Total Charge
 Total Charges
 Total Clients
+Total Co-Pay
 Total Cost
 Total Distribution for following check number is not full
 total entries
@@ -6749,6 +7773,8 @@ Total for
 Total for 
 Total for category
 Total inactivated reminders
+Total Minimum Amount of Statement to Allow Printing
+Total Minimum Dollar Amount of Statement to Allow Printing.(only applicable if Allow Statement Exclusions from Printing is enabled)
 Total new reminders
 Total number of appointments
 Total number of Drug Screen entries
@@ -6758,10 +7784,12 @@ Total number of Patient Flow Board entries
 Total Number of Patients
 Total Pages
 Total Patient Balance
+Total patients
 Total Patients
 Total Payments
 Total Records
 Total Records Found
+Total size
 Total SRH & Family Planning
 Total successful reminders sent via email
 Total successful reminders sent via phone
@@ -6779,9 +7807,13 @@ Totals for
 Totals Only
 to{{range}}
 To{{range}}
+Tpn{{Tonopen abbreviation}}
+TP{{tonopen}}
+tr
 Track
 Track Report
 Tracks
+Trainer
 Training Type
 Transact
 Transaction
@@ -6825,10 +7857,16 @@ Treatment Planning
 Treatment Received
 Treatment:
 Treatment: 
+Tree
 Trend
 trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
+Tribal 638 Free-standing Facility
+Tribal 638 Provider-based Facility
+Trifocal
+Trifocals
 Trigger point / compartment syndrome / DOMS / cramp
 Trimalleolar
+Tropic 2.5%
 Trunk and abdomen
 Trusted Direct Email Address
 Trusted Email
@@ -6844,6 +7882,8 @@ Tuesday
 Tumour
 Turkish
 Turkmen
+Turn the Tooltips on/off
+Tu{{Tuesday}}
 Twi
 twice daily
 Two Years Ago
@@ -6857,6 +7897,7 @@ Type of screen layout
 Type or scan the patient identifier here
 Type Your message here
 Types of Orders and Results
+T{{one letter abbreviation for Tension/Pressure}}
 T{{Thursday}}
 T{{Tuesday}}
 UAC Appl
@@ -6887,6 +7928,7 @@ Undiagnosed
 UNDISTRIBUTED
 Undistributed
 Undistributed is
+Undo
 Undo Checkout
 Unexpected non-match, creating new patient for segment
 Unique Clients
@@ -6936,9 +7978,12 @@ Update Info
 Update List
 Update Provider Number
 Update Selected Items
+Update the chart to activate the Builder.
+Update the chart to build this list
 Update the following variables in file
 Update User Information
 Updated By
+Updated fields will be purple.
 Updating demographics is not authorized.
 Updating global configuration defaults
 Updating version indicators
@@ -6949,6 +7994,7 @@ Upgrades the OpenEMR database to include Procedures, Functions and tables needed
 Upgrading will continue
 UPIN
 Upload
+Upload / Save
 Upload a Template
 Upload and Install
 Upload configuration data
@@ -6956,6 +8002,7 @@ Upload Document
 Upload failed!
 Upload Image to
 Upload import file:
+Upload Item
 Upload Patient Education PDF to
 Upload processed successfully
 Upload Report
@@ -6964,9 +8011,11 @@ Upload this file:
 Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Upon searching you are presented with a list of invoices.  You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
 Upper arm
+Upper Lids
 Urdu
 Urgency
 Urgent Care
+Urgent Care Facility
 Urine
 Urine Dribbling
 Urine Frequency
@@ -6990,6 +8039,8 @@ Use certified EHR technology to identify patient-specific education resources an
 Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate.
 Use Charges Panel
 Use CPOE for medication orders directly entered by any licensed healthcare professional who can enter orders into the medical record per state, local and professional guidelines.
+Use CPOE for medication orders.
+Use CPOE for medication orders.(Alternative)
 Use CPOE for procedure orders.
 Use CPOE for radiology orders.
 Use Custom Dunning Messages
@@ -7062,9 +8113,14 @@ Uzbek
 VACATION
 Vacation
 Vaccine
+Vaccine funding program eligibility category
+Vaccine Type
 Vaginal Ring
 Valedictory
 validate
+Validate Log
+Validation mechanism for when modifying patient demographics.
+Validation rule
 Value
 Value 1
 Value 2
@@ -7073,19 +8129,44 @@ Value Should be Numeric
 Var1
 Var2
 variable to one to run de-identification upgrade script
+Variation in red color discrimination between the eyes (eg. OD=100, OS=75)
+Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)
 Varicella 1
 Varicella 2
 Varicose Veins
 Vascular condition
 Vascular injury
 Vascular Surgery
+Va{{Visual Acuities}}
+VB{{abbreviation for Vertical Prism Base}}
+VD{{abbreviation for Vertex Distance}}
 Venda
 Vendor
 Version
+Version Number
+Vert Base{{abbreviation for Vertical Prism Base}}
+Vert Distance{{abbreviation for Vertex Distance}}
+Vert Fissure{{vertical fissure height}}
+Vert Fissure{{vertical fissure}}
+Vert Fusional Amps
+Vert Prism{{abbreviation for Vertical Prism Power}}
+Vertex Distance
+Vertical Fissure: central height between lid margins
+Vertical Fusional
+Vertical Menu Style
+Vertical Prism Base
+Vertical Prism Power
 Vertigo
+Vessels
 Veteran`s Administration
 Veterans Administration Plan
 VFC
+VFC eligible- American Indian/Alaskan Native
+VFC eligible- Uninsured
+VFC eligible-Federally Qualified Health Center Patient (under-insured)
+VFC eligible-Medicaid/Medicaid Managed Care
+VF{{vertical fissure}}
+via{{shipped by/supplier}}
 Vietnamese
 view
 View
@@ -7098,6 +8179,7 @@ View Comprehensive Patient Report
 View CSV tables
 View details
 View document
+View EDI x12 file
 View encounter
 View ERA x12 text
 View events in a popup window?
@@ -7105,9 +8187,12 @@ View Facility Specific User Information
 View Four Panel
 View local x12 file
 View Log
+View Messages
 View Page 1
 View Page 2
 View Past and Future Reminders
+View Past Encounter
+View Past Encounters
 View Patient
 View Plan Rules
 View Printable
@@ -7116,6 +8201,7 @@ View Printable Version
 View related encounters
 View Report
 View the README file
+View the Summary Report sent to Fax Server.
 View, Download, Transmit (VDT)  (Measure B)
 View, Download, Transmit (VDT) (Measure A)
 View/Edit Allergies
@@ -7124,8 +8210,10 @@ View/Print
 View:
 VISA
 VISA/MC/AMEX/Dis
+VISA/MC/Discovery/HSA
 Visceral damage/trauma/surgery
 VisForm
+Vision
 Visit
 Visit Attributes
 Visit Categories
@@ -7137,25 +8225,37 @@ Visit Form Attributes
 Visit Forms
 Visit History
 Visit Type
+Visited Patients
 Visits
 Visits From
+Visual Acuities
+Visual Acuity
+Visual Fields
 Vital Signs
 Vitals
 Vitals (Metric)
 Vitals Form Options
 Voice
 Voice Sent
+Void Checkout and Re-Open
 Volapük
 Vomiting
 Voucher Number
+VP{{abbreviation for Vertical Prism Power}}
+V{{One letter abbrevation for Vision}}
 W
+W Rx{{Acuity with correction}}
+W2W{{white-to-white}}
 Waist Circ
 Waist Circumference
 Waiting
 Walk-In
+Walk-in Retail Health Clinic
 Walloon
 Walt Pennington
+Ward of court
 Warehouse
+Warehouse changed
 Warehouse maximum, 0 if not applicable
 Warehouse minimum, 0 if not applicable
 Warehouses
@@ -7166,8 +8266,12 @@ WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES
 Warning, Check Number already exist in the database
 Warning, patient has ambiguous codes in the problems list!
 Warning: A visit was already created for this patient today!
+Warning: Contraception for a patient under 10 or over 50.
+Warning: Contraceptive method is not compatible with a male patient.
 WARNING: If you are using the 2012-10-31 Spanish version, then note you need to unzip it once before placing it in the contrib/snomed (this is because the released file was \"double-zipped\").
 Warning: Patient ID is not unique!
+Warning: There is no product matching the contraceptive service.
+Warning: There is no service matching the contraceptive product.
 WARNING: This will overwrite configuration information with data from the uploaded file!
 WARNINGS
 Warnings
@@ -7175,6 +8279,7 @@ WARNINGS and Alerts/Reminders
 was already uploaded
 was not found
 We appreciate prompt payment of balances due
+We appreciate prompt payment of balances due.
 we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.
 Weakness
 Web Reference
@@ -7199,23 +8304,33 @@ Weight loss clinic
 Welcome
 Welsh
 Western Frisian
+We{{Wednesday}}
 What is to be counted?
+What kind of sorting will be in the drop lists.
 Wheezes:
 Wheezing
 Wheezing:
+When and how often?
 When Checked, Demographics Will Open in New Window from Patient Flow Board.
+When Checked, Patient Encounter Number Will Show in Patient Flow Board.
+When Checked, Patient ID Will Show in Patient Flow Board.
+When Checked, Visit Reason Will Show in Patient Flow Board.
 When done, click Submit (below) to apply your choices.
 Where may related scanned or paper documents be found?
+Where on your body does it occur?
 Whether Insured
+which days are your weekend days?
 Which notes are to be displayed in the Billing Screen
 Whiplash
 White
+White-to-white
 Who
 Who replied?
 Widowed
 Width
 Width in pixels of the left navigation frame.
 will be hidden if
+will have the following validation rules
 With checked items plot
 with preferred language
 With selected:
@@ -7269,21 +8384,27 @@ write off
 Write Once
 wsome
 WT
+W{{Current Rx - wearing}}
 W{{Wednesday}}
 x Canceled
 x Cancelled
+X(T){{intermittent exophoria}}
 X-ray
 X-RAY Interpretation:
 X-Ray Interpretation:
+X12 only ICN resubmission No.
 X12 only: Replacement Claim 
 X12 Partner
 X12 Partners
+x12 Segments
 x12 Text
 Xhosa
 XML
+XT{{exotropia}}
+X{{exophoria}}
 Y
-Year
 year
+Year
 Year View
 Year(s)
 Years
@@ -7310,6 +8431,7 @@ You are not authorized to add/edit issues
 You are not authorized to schedule appointments.
 You are not authorized to see this encounter.
 You are posting against an old encounter?
+You are using patient validation module
 You can not access this function directly.
 You cannot access this page directly.
 You cannot add a blank value for a category!
@@ -7320,6 +8442,9 @@ You did not choose any actions.
 You do not have access to view/edit this note
 You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
 You have been successfully logged out.
+You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.
+You have unsaved changes.
+You have unsaved changes. Abandon them?
 You may only upload .txt files
 You may optionally upload HL7 results from a file
 You may put text here as the default complaint in the New Patient Encounter form.
@@ -7341,6 +8466,8 @@ Your event has been deleted.
 Your event has been modified.
 Your event has been submitted.
 Your file is too large
+Your first day of the week.
+Your installation of OpenEMR has been registered
 Your Lab Results
 Your list name has been changed to meet naming requirements.
 Your message was submitted for delivery to
@@ -7357,6 +8484,7 @@ Your repeating frequency must be at least 1.
 Your start date is greater than your end date
 Your start date is invalid
 Your submission failed.
+Your weekend days
 yyyy-mm-dd
 YYYY-MM-DD
 yyyy-mm-dd date associated with this document
@@ -7373,6 +8501,7 @@ yyyy-mm-dd Date of service
 yyyy-mm-dd date of this letter
 yyyy-mm-dd date returned to play
 yyyy-mm-dd document date
+yyyy-mm-dd End Date
 yyyy-mm-dd event date or starting date
 yyyy-mm-dd H:m End Date
 yyyy-mm-dd H:m End date
@@ -7381,14 +8510,18 @@ yyyy-mm-dd H:m Start date
 yyyy-mm-dd hh:mm:ss
 yyyy-mm-dd Hours(24):minutes
 yyyy-mm-dd last date of this event
+yyyy-mm-dd Start Date
 yyyy-mm-dd starting date for search
 ZEF segment internal error
 Zend Module
+Zend Module check in addition to standard check
 Zero
 Zhuang, Chuang
 Zip
 Zip Code
 Zip/Country:
+Zoom in
+Zoom out
 Zulu
  but was 
  could not be accessed.
@@ -7439,6 +8572,9 @@ $label (yyyy-mm-dd):
 ** Please move surgeries to Issues!
 *Required
 + Chart pulled
++1
++2
++3
 - None
 -- All --
 --Select Role--
@@ -7458,6 +8594,7 @@ $label (yyyy-mm-dd):
 11-14
 12 hr
 15-19
+1mm
 1st
 2
 2 Days From Now
@@ -7478,6 +8615,7 @@ $label (yyyy-mm-dd):
 24 hr
 25+
 25-29
+2mm
 2nd
 3 Days From Now
 3 months
@@ -7486,6 +8624,7 @@ $label (yyyy-mm-dd):
 3 Weeks From Now
 30-34
 35-39
+3mm
 3rd
 4 Days From Now
 4 months
@@ -7501,11 +8640,13 @@ $label (yyyy-mm-dd):
 491.8, Bronchitis, Chronic
 493.92, Asthma, Acute Exac.
 496.0, COPD
+4mm
 4th
 5 Days From Now
 5 Months From Now
 5 Weeks From Now
 519.7, Bronchospasm
+5mm
 5th
 6 Days From Now
 6 months
@@ -7526,6 +8667,7 @@ $label (yyyy-mm-dd):
 99212 Established - Uncomplicated
 99213 Established - Low Complexity
 < In exam room
+> 3 HPI elements
 > Checked out
 ?
 ? No show

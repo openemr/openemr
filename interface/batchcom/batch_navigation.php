@@ -4,24 +4,24 @@
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
  onclick="top.restoreSession()"
- title="Batch Communication and Export"><?xl('BatchCom','e');?></a>&nbsp;
+ title="Batch Communication and Export"><?php echo xlt('BatchCom');?></a>&nbsp;
 </td>
 <?php } ?>
 <?php if (acl_check('admin', 'notification')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/smsnotification.php"
  onclick="top.restoreSession()"
- title="SMS Notification"><?xl('SMS Notification','e');?></a>&nbsp;
+ title="SMS Notification"><?php echo xlt('SMS Notification');?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/emailnotification.php"
  onclick="top.restoreSession()"
- title="SMS Notification"><?xl('Email Notification','e');?></a>&nbsp;
+ title="SMS Notification"><?php echo xlt('Email Notification');?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/settingsnotification.php"
  onclick="top.restoreSession()"
- title="SMS/Email Alert Settings"><?xl('SMS/Email Alert Settings','e');?></a>&nbsp;
+ title="SMS/Email Alert Settings"><?php echo xlt('SMS/Email Alert Settings');?></a>&nbsp;
 </td>
 <?php } ?>
 

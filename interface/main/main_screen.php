@@ -14,7 +14,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -23,7 +23,6 @@ $sanitize_all_escapes=true;
 
 /* Include our required headers */
 require_once('../globals.php');
-require_once("$srcdir/formdata.inc.php");
 
 // Creates a new session id when load this outer frame
 // (allows creations of separate OpenEMR frames to view patients concurrently
@@ -114,15 +113,12 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 
 // This is where will decide whether to use tabs layout or non-tabs layout
 // Will also set Session variables to communicate settings to tab layout
-$_SESSION['frame1url'] = $frame1url;
-$_SESSION['frame1target'] = $frame1target;
-if (!$GLOBALS['new_tabs_layout']) {
-  $_REQUEST['tabs'] = "false";
+if ($GLOBALS['new_tabs_layout']) {
+  $_SESSION['frame1url'] = $frame1url;
+  $_SESSION['frame1target'] = $frame1target;
+  header('Location: '.$web_root."/interface/main/tabs/main.php");
+  exit();
 }
-require_once("tabs/redirect.php");
-// unset the Session variables that were only meant for the tab layout
-unset($_SESSION['frame1url']);
-unset($_SESSION['frame1target']);
 
 ?>
 <html>
@@ -133,10 +129,19 @@ unset($_SESSION['frame1target']);
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
-<link rel="shortcut icon" href="<?php echo $webroot; ?>/interface/pic/favicon.ico" />
+<link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
 <script language='JavaScript'>
+
+// Flag that tab mode is off
+var tab_mode=false;
+
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// Since this should be the parent window, this is to prevent calls to the
+// window that opened this window. For example when a new window is opened
+// from the Patient Flow Board or the Patient Finder.
+window.opener = null;
 
 // This flag indicates if another window or frame is trying to reload the login
 // page to this top-level window.  It is set by javascript returned by auth.inc
@@ -167,7 +172,7 @@ $sidebar_tpl = "<frameset rows='*,0' frameborder='0' border='0' framespacing='0'
    <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
     border='0' framespacing='0' />
   </frameset>";
-        
+
 $main_tpl = "<frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>" ;
 $main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
    <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' /></frameset>";
@@ -181,19 +186,19 @@ $main_tpl .= "<frame src='". $frame1url ."' name='RTop' scrolling='auto' />
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <?php if($lang_dir != 'rtl'){ ?>
- 
+
      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
      <?php echo $sidebar_tpl ?>
      <?php echo $main_tpl ?>
      </frameset>
- 
+
  <?php }else{ ?>
- 
+
      <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
      <?php echo $main_tpl ?>
      <?php echo $sidebar_tpl ?>
      </frameset>
- 
+
  <?php }?>
 
  </frameset>
