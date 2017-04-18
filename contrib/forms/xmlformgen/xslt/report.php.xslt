@@ -81,7 +81,17 @@ $lists = array(]]></xsl:text>
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[    if ($data) {
 
-        echo '<table style="width:775px;"><tr>';
+        if (isset($GLOBALS['PATIENT_REPORT_ACTIVE']) && ! empty($_POST['pdf'])) { // PDF Print
+            $td_style = "<td style='width:24%'><span class='bold'>";
+            echo '<table style="width:775px;"><tr>';
+        } elseif (isset($GLOBALS['PATIENT_REPORT_ACTIVE']) && empty($_POST['pdf'])) { // Patient report view/search and printable
+            $cols = 4;
+            $td_style = "<td><span class='bold'>";
+            echo '<table style="width:775px;"><tr>';
+        } else { // Okay an encounter view.
+            $td_style = "<td><span class='bold'>";
+            echo '<table><tr>';
+        }
 
         foreach($data as $key => $value) {
 
@@ -107,7 +117,7 @@ $lists = array(]]></xsl:text>
               $value = $dateparts[0];
             }
 
-	    echo "<td style='width:24%'><span class='bold'>";
+	    echo $td_style;
             
 ]]></xsl:text> 
 <xsl:for-each select="//field">
@@ -120,7 +130,7 @@ $lists = array(]]></xsl:text>
 ]]></xsl:text>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes"><![CDATA[
-                echo '</span><span class="text data">'.generate_display_field( $manual_layouts[$key], $value ).'</span></td>';
+                echo '</span><span class=text>'.generate_display_field( $manual_layouts[$key], $value ).'</span></td>';
 
             $count++;
             if ($count == $cols) {
