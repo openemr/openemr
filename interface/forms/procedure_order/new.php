@@ -230,7 +230,7 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 
-<script language='JavaScript'>
+<script type="text/javascript">
 
 // This invokes the find-procedure-type popup.
 // formseq = 0-relative index in the form.
@@ -289,16 +289,15 @@ function lab_id_changed() {
  }
 }
 
-// Add a line for entry of another procedure.
-function addProcedureLine() {
-    var nextRow = $("#procedure-order").clone();
-    nextRow
-    nextRow.appendTo($(".procedure-order-container").last());
+function addProcedure() {
+    $(".procedure-order-container").append($(".procedure-order").clone());
+    let newOrder = $(".procedure-order-container .procedure-order:last");
+    $(newOrder + " label:first").append("1");
 }
 
 function addProcLine() {
  var f = document.forms[0];
- var table = document.getElementById('proctable');
+ var table = document.getElementById('procedures');
  var e = document.getElementById("procedure_type_names");
  var prc_name = e.options[e.selectedIndex].value;
  // Compute i = next procedure index.
@@ -306,25 +305,13 @@ function addProcLine() {
  for (; f['form_proc_type[' + i + ']']; ++i);
  var row = table.insertRow(table.rows.length);
  var cell = row.insertCell(0);
- cell.vAlign = 'top';
- //cell.innerHTML = "<b><?php echo xl('Procedure'); ?> " + (i + 1) + ":</b>";
- cell.innerHTML = "<b>"+prc_name+"<input type='hidden' name='form_proc_order_title[" + i + "]' value='"+ prc_name +"'></b>";
+ cell.innerHTML = "<input type='hidden' name='form_proc_order_title[" + i + "]' value='"+ prc_name +"'><input type='text' class='form-control' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
+    "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;cursor:hand' readonly /> " +
+    "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' />";
  var cell = row.insertCell(1);
- cell.vAlign = 'top';
- cell.innerHTML =
-  "<input type='text' size='50' name='form_proc_type_desc[" + i + "]'" +
-  " onclick='sel_proc_type(" + i + ")'" +
-  " onfocus='this.blur()'" +
-  " title='<?php echo xla('Click to select the desired procedure'); ?>'" +
-  "  style='width:100%;cursor:pointer;cursor:hand' readonly />" +
-  " <input type='hidden' name='form_proc_type[" + i + "]' value='-1' />" +
-  "<br /><?php echo xla('Diagnosis Codes'); ?>: " +
-  "<input type='text' size='50' name='form_proc_type_diag[" + i + "]'" +
-  " onclick='sel_related(this.name)'" +
-  " title='<?php echo xla('Click to add a diagnosis'); ?>'" +
-  " onfocus='this.blur()'" +
-  " style='cursor:pointer;cursor:hand' readonly />" +
-  " <div style='width:95%;' id='qoetable[" + i + "]'></div>";
+ cell.innerHTML = "<input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
+     "title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;cursor:hand' readonly />" +
+     "<div id='qoetable[" + i + "]'></div>";
  sel_proc_type(i);
  return false;
 }
@@ -395,10 +382,9 @@ $(document).ready(function() {
 
 <body class="body_top">
 <div class="container">
-    <div class="col-md-6 col-md-offset-3">
-        <form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>"
-              onsubmit="return validate(this)" class="form-horizontal">
-
+    <form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>"
+    onsubmit="return validate(this)" class="form-horizontal">
+        <div class="col-xs-12">
             <p class='lead'>
                 <?php
                 $name = $enrow['fname'] . ' ';
@@ -408,6 +394,8 @@ $(document).ready(function() {
                 echo join(" ", $title);
                 ?>
             </p>
+        </div>
+        <div class="col-md-5">
 
             <div class="form-group">
                 <label for="provider_id" class="control-label col-sm-4"><?php xl('Ordering Provider', 'e'); ?></label>
@@ -507,7 +495,9 @@ $(document).ready(function() {
                     </textarea>
                 </div>
             </div>
-            <div class="procedure-order-container">
+
+        </div>
+        <div class="procedure-order-container col-md-7">
             <?php
 
             // This section merits some explanation. :)
@@ -554,55 +544,64 @@ $(document).ready(function() {
                     $ptid = $oprow['procedure_type_id'];
                 }
                 ?>
-                <div class="form-group" id="procedure-order">
-                    <?php if (empty($formid) || empty($oprow['procedure_order_title'])):?>
-                        <label for="" class="control-label col-sm-4"><?php echo xlt('Procedure:');?></label>
-                        <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]" value="Procedure">
-                    <?php else: ?>
-                        <label for="" class="control-label col-sm-4"><?php echo text($oprow['procedure_order_title']) ?></label>
-                        <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_order_title']) ?>'>
-                    <?php endif; ?>
-                    <div class="col-sm-8">
-                        <input type='text' size='50' name='form_proc_type_desc[<?php echo $i; ?>]'
-                               value='<?php echo attr($oprow['procedure_name']) ?>'
-                               onclick="sel_proc_type(<?php echo $i; ?>)"
-                               onfocus='this.blur()'
-                               title='<?php xla('Click to select the desired procedure','e'); ?>'
-                               style='cursor:pointer;cursor:hand' class='form-control' readonly />
-                        <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
-                        <br /><?php echo xlt('Diagnosis Codes'); ?>:
-                        <input class='form-control' type='text' size='50' name='form_proc_type_diag[<?php echo $i; ?>]'
-                               value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
-                               title='<?php echo xla('Click to add a diagnosis'); ?>'
-                               onfocus='this.blur()'
-                               style='cursor:pointer;cursor:hand' readonly />
-                        <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
-                        <div style='width:95%;' id='qoetable[<?php echo $i; ?>]'>
-                            <?php
-                            $qoe_init_javascript = '';
-                            echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
-                            if ($qoe_init_javascript)
-                                echo "<script language='JavaScript'>$qoe_init_javascript</script>";
-                            ?>
-                        </div>
+                <table class="table table-responsive" id="procedures">
+                    <thead>
+                    <tr>
+                        <td><?php echo xlt('Procedure');?></td>
+                        <td><?php echo xlt('Diagnosis Codes'); ?></td>
+                        <td><?php echo xlt("Type");?></td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <?php if (empty($formid) || empty($oprow['procedure_order_title'])):?>
+                                <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]" value="Procedure">
+                            <?php else: ?>
+                                <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_order_title']) ?>'>
+                            <?php endif; ?>
+                            <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
+                                   value='<?php echo attr($oprow['procedure_name']) ?>'
+                                   onclick="sel_proc_type(<?php echo $i; ?>)"
+                                   onfocus='this.blur()'
+                                   title='<?php xla('Click to select the desired procedure','e'); ?>'
+                                   placeholder='<?php xla('Click to select the desired procedure','e'); ?>'
+                                   style='cursor:pointer;cursor:hand' class='form-control' readonly />
+                            <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
+                        </td>
+                        <td>
+                            <input class='form-control' type='text' name='form_proc_type_diag[<?php echo $i; ?>]'
+                                   value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
+                                   title='<?php echo xla('Click to add a diagnosis'); ?>'
+                                   onfocus='this.blur()'
+                                   style='cursor:pointer;cursor:hand' readonly />
+                        </td>
+                        <td>
+                            <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
+                            <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
+                                <?php foreach($procedure_order_type as $ordered_types){?>
+                                    <option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
+                                <?php } ?>
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="form-group procedure-order" id="procedure-order">
+                    <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
+                    <div style='width:95%;' id='qoetable[<?php echo $i; ?>]'>
+                        <?php
+                        $qoe_init_javascript = '';
+                        echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
+                        if ($qoe_init_javascript)
+                            echo "<script language='JavaScript'>$qoe_init_javascript</script>";
+                        ?>
                     </div>
                 </div>
                 <?php
                 ++$i;
             }
             ?>
-
-            <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Procedure','e'); ?></label>
-                <div class="col-sm-8">
-                    <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
-                    <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
-                        <?php foreach($procedure_order_type as $ordered_types){?>
-                            <option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
-                        <?php } ?>
-                    </select>
-                </div>
-            </div>
             </div>
             <div class="btn-group pull-right" role="group">
                 <button type="button" class="btn" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
