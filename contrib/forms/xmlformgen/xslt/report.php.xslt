@@ -81,7 +81,7 @@ $lists = array(]]></xsl:text>
 </xsl:if>
 <xsl:text disable-output-escaping="yes"><![CDATA[    if ($data) {
 
-        echo '<table><tr>';
+        echo '<table style="width:775px;"><tr>';
 
         foreach($data as $key => $value) {
 
@@ -107,7 +107,7 @@ $lists = array(]]></xsl:text>
               $value = $dateparts[0];
             }
 
-	    echo "<td><span class='bold'>";
+	    echo "<td style='width:24%'><span class='bold'>";
             
 ]]></xsl:text> 
 <xsl:for-each select="//field">
@@ -120,7 +120,7 @@ $lists = array(]]></xsl:text>
 ]]></xsl:text>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes"><![CDATA[
-                echo '</span><span class=text>'.generate_display_field( $manual_layouts[$key], $value ).'</span></td>';
+                echo '</span><span class="text data">'.generate_display_field( $manual_layouts[$key], $value ).'</span></td>';
 
             $count++;
             if ($count == $cols) {
