@@ -478,14 +478,6 @@ $(document).ready(function() {
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Clinical History','e'); ?></label>
-                <div class="col-sm-8">
-                    <input type='text' maxlength='255' name='form_clinical_hx'
-                           class='form-control inputtext' value='<?php echo attr($row['clinical_hx']); ?>' />
-                </div>
-            </div>
-
             <?php // Hide this for now with a hidden class as it does not yet do anything ?>
             <div class="form-group hidden">
                 <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Patient Instructions','e'); ?></label>
@@ -498,6 +490,13 @@ $(document).ready(function() {
 
         </div>
         <div class="procedure-order-container col-md-7">
+            <div class="form-group">
+                <label for="form_data_ordered" class="col-sm-12"><?php xl('Clinical History','e'); ?></label>
+                <div class="col-sm-12">
+                    <textarea name="form_clinical_hx" id="" class="form-control"><?php echo attr($row['clinical_hx']);?></textarea>
+                </div>
+            </div>
+
             <?php
 
             // This section merits some explanation. :)
