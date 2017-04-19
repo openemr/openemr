@@ -11,7 +11,7 @@
     },
     "require": {
 
-        "mpdf/mpdf": "^6.1",
+        "mpdf/mpdf": "6.1.3",
         "adldap2/adldap2": "7.0.4",
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.9",
