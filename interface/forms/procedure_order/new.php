@@ -312,8 +312,6 @@ function addProcLine() {
     cell.innerHTML = "<input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
         "title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;cursor:hand' readonly />" +
         "<div id='qoetable[" + i + "]'></div>";
-    var cell = row.insertCell(2);
-    var proc_type = $("select[name=procedure_type_names]").clone();
     sel_proc_type(i);
     return false;
 }
@@ -551,7 +549,7 @@ $(document).ready(function() {
                     <tr>
                         <td><?php echo xlt('Procedure');?></td>
                         <td><?php echo xlt('Diagnosis Codes'); ?></td>
-                        <td><?php echo xlt("Type");?></td>
+                        <td><?php echo xlt("QOE");?></td>
                     </tr>
                     </thead>
                     <tbody>
@@ -579,31 +577,34 @@ $(document).ready(function() {
                                    style='cursor:pointer;cursor:hand' readonly />
                         </td>
                         <td>
-                            <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
-                            <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
-                                <?php foreach($procedure_order_type as $ordered_types){?>
-                                    <option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
-                                <?php } ?>
-                            </select>
+                            <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
+                            <div id='qoetable[<?php echo $i; ?>]'>
+                                <?php
+                                $qoe_init_javascript = '';
+                                echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
+                                if ($qoe_init_javascript)
+                                    echo "<script language='JavaScript'>$qoe_init_javascript</script>";
+                                ?>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <div class="form-group procedure-order" id="procedure-order">
-                    <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
-                    <div style='width:95%;' id='qoetable[<?php echo $i; ?>]'>
-                        <?php
-                        $qoe_init_javascript = '';
-                        echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
-                        if ($qoe_init_javascript)
-                            echo "<script language='JavaScript'>$qoe_init_javascript</script>";
-                        ?>
-                    </div>
-                </div>
                 <?php
                 ++$i;
             }
             ?>
+            <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-6">
+                    <div class="form-group">
+                        <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
+                            <?php foreach($procedure_order_type as $ordered_types){?>
+                                <option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="btn-group pull-right" role="group">
                 <button type="button" class="btn btn-default" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
