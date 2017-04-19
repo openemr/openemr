@@ -727,6 +727,15 @@ tr.odd, td.even {
   color: orangered;
 }
 
+.btn-default {
+  background: rgba(0,0,0,0.05) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+
+.btn-link {
+  color: #444 !important;
+}
+
 input[type="button"][style="background-color:#ffff55"] {
   background: #2672ec !important;
 }

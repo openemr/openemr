@@ -296,24 +296,26 @@ function addProcedure() {
 }
 
 function addProcLine() {
- var f = document.forms[0];
- var table = document.getElementById('procedures');
- var e = document.getElementById("procedure_type_names");
- var prc_name = e.options[e.selectedIndex].value;
- // Compute i = next procedure index.
- var i = 0;
- for (; f['form_proc_type[' + i + ']']; ++i);
- var row = table.insertRow(table.rows.length);
- var cell = row.insertCell(0);
- cell.innerHTML = "<input type='hidden' name='form_proc_order_title[" + i + "]' value='"+ prc_name +"'><input type='text' class='form-control' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
-    "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;cursor:hand' readonly /> " +
-    "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' />";
- var cell = row.insertCell(1);
- cell.innerHTML = "<input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
-     "title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;cursor:hand' readonly />" +
-     "<div id='qoetable[" + i + "]'></div>";
- sel_proc_type(i);
- return false;
+    var f = document.forms[0];
+    var table = document.getElementById('procedures');
+    var e = document.getElementById("procedure_type_names");
+    var prc_name = e.options[e.selectedIndex].value;
+    // Compute i = next procedure index.
+    var i = 0;
+    for (; f['form_proc_type[' + i + ']']; ++i);
+    var row = table.insertRow(table.rows.length);
+    var cell = row.insertCell(0);
+    cell.innerHTML = "<input type='hidden' name='form_proc_order_title[" + i + "]' value='" + prc_name + "'><input type='text' class='form-control' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
+        "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' style='cursor:pointer;cursor:hand' readonly /> " +
+        "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' />";
+    var cell = row.insertCell(1);
+    cell.innerHTML = "<input type='text' class='form-control' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
+        "title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;cursor:hand' readonly />" +
+        "<div id='qoetable[" + i + "]'></div>";
+    var cell = row.insertCell(2);
+    var proc_type = $("select[name=procedure_type_names]").clone();
+    sel_proc_type(i);
+    return false;
 }
 
 // The name of the form field for find-code popup results.
@@ -604,10 +606,10 @@ $(document).ready(function() {
             ?>
             </div>
             <div class="btn-group pull-right" role="group">
-                <button type="button" class="btn" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
-                <button type="submit" class="btn btn-success" name='bn_save' value="save" onclick='transmitting = false;'><i class="fa fa-check"></i>&nbsp;<?php echo xla('Save'); ?></button>
-                <button type="submit" class="btn btn-success" name='bn_xmit' value="transmit" onclick='transmitting = true;' ><i class="fa fa-arrow-right"></i>&nbsp;<?php echo xla('Save and Transmit'); ?></button>
-                <button type="button" class="btn btn-danger" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><i class="fa fa-times"></i>&nbsp;<?php echo xla('Cancel'); ?></button>
+                <button type="button" class="btn btn-default" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
+                <button type="submit" class="btn btn-default" name='bn_save' value="save" onclick='transmitting = false;'><i class="fa fa-check"></i>&nbsp;<?php echo xla('Save'); ?></button>
+                <button type="submit" class="btn btn-default" name='bn_xmit' value="transmit" onclick='transmitting = true;' ><i class="fa fa-arrow-right"></i>&nbsp;<?php echo xla('Save and Transmit'); ?></button>
+                <button type="button" class="btn btn-link" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><i class="fa fa-times"></i>&nbsp;<?php echo xla('Cancel'); ?></button>
             </div>
             <div class="clearfix"></div>
         </form>
