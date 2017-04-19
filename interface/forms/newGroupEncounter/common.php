@@ -364,7 +364,7 @@ if ($fres) {
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);

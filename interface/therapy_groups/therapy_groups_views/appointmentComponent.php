@@ -66,7 +66,7 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".xla("Repeating event")."' alt='".xla("Repeating event")."'>";
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
                         </br>
-                        <span><?php echo text($event['pc_catname']);?></span>
+                        <span><?php echo xlt($event['pc_catname']);?></span>
                         </br>
                         <span><?php echo text($event['ufname']) . "  " . text($event['ulname']) ;?></span>
                         </br></br>
