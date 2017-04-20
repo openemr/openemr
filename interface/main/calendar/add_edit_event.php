@@ -90,8 +90,8 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 
  ?>
 
-<?php $edit = acl_check("groups","gcalendar",false, 'write');?>
-<?php $view = acl_check("groups","gcalendar",false, 'view');?>
+<?php $g_edit = acl_check("groups","gcalendar",false, 'write');?>
+<?php $g_view = acl_check("groups","gcalendar",false, 'view');?>
 
 
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -105,7 +105,7 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
-if((!$edit && !$view) ) {
+if((!$g_edit && !$g_view) ) {
     $_GET['group'] = 'false';
     $have_group_global_enabled = false;
 
@@ -127,7 +127,7 @@ else {
     $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
 }
 ?>
-<?php $disabled = (!$edit && $have_group_global_enabled )?' disabled=true; ':'';?>
+<?php $disabled = (!$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
 <?php if($disabled) echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true); 
     $("select").prop("disabled", true); 

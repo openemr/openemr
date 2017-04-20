@@ -507,7 +507,7 @@ if ($acl_version < $upgrade_acl) {
     // Add 'Multipledb' object (added in 5.0.1)
     addObjectAcl('admin', 'Administration', 'Multipledb', 'multipledb');
     addObjectAcl('groups', 'Groups', 'gadd'  , 'Add/Update groups');
-    addObjectAcl('groups', 'Groups', 'gcalendar'  , 'Create/Update groups appointment in calender');
+    addObjectAcl('groups', 'Groups', 'gcalendar'  , 'Create/Update groups appointment in calendar');
     addObjectAcl('groups', 'Groups', 'glog'  , 'Group log');
     addObjectAcl('groups', 'Groups', 'gdlog'  , 'Group detailed log of appointment in patient record');
     addObjectAcl('groups', 'Groups', 'gm'  , 'Send message from the permanent group therapist to the personal therapist');
@@ -521,7 +521,7 @@ if ($acl_version < $upgrade_acl) {
   //Update the ACLs
   echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gadd', 'Add/Update groups','write');
-    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gcalendar','Create/Update groups appointment in calender','write');
+    updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gcalendar','Create/Update groups appointment in calendar','write');
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'glog',  'Group log','write');
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gdlog',  'Group detailed log of appointment in patient record','write');
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist','write');
