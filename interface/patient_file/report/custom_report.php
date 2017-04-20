@@ -49,7 +49,7 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF(
         $GLOBALS['pdf_language'], // codepage or language/codepage or language - this can help auto determine many other options such as RTL
         $GLOBALS['pdf_size'], // Globals default is 'letter'
-       '8', // default font size (pt)
+       '9', // default font size (pt)
         '', // default_font. will set explicitly in script.
        $GLOBALS['pdf_left_margin'],
        $GLOBALS['pdf_right_margin'],
@@ -59,7 +59,11 @@ if ($PDF_OUTPUT) {
        '', // default footer margin
        $GLOBALS['pdf_layout']
         ); // Globals default is 'P'
-   
+      
+      $pdf->shrink_tables_to_fit = 1;
+      $keep_table_proportions = true;
+      $pdf->use_kwt = true;
+      
  // set 'dejavusans' for now. which is supported by a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
  // TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization. Don't think this is issue here.
        $pdf->setDefaultFont('dejavusans'); // see config_fonts.php/config_lang2fonts.php for OTL font declarations for different languages/fonts. Important for auto font select getting right font for lanaguage.
@@ -69,6 +73,7 @@ if ($PDF_OUTPUT) {
         }
   ob_start();
 } // end pdf conditional.
+
 // get various authorization levels
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
@@ -92,7 +97,7 @@ $first_issue = 1;
 function getContent() {
   global $web_root, $webserver_root;
   $content = ob_get_clean();
-  // Fix a nasty html2pdf bug - it ignores document root!
+  // Fix a nasty mPDF bug - it ignores document root!
   $i = 0;
   $wrlen = strlen($web_root);
   $wsrlen = strlen($webserver_root);
@@ -173,9 +178,9 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 // adjust this if you are printing to letterhead to appropriate height
 ($printable) ? ($style = ''):($style='padding-top:95px;');
 ?>
-<body class="body_top" style="<?php echo $style; ?>">
+<body class="body_top" style="">
 <?php } ?>
-<div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
+<div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 
 <?php
 if (sizeof($_GET) > 0) { $ar = $_GET; }
@@ -198,7 +203,7 @@ if ($printable) {
   if (!$results->EOF) {
     $facility = $results->fields;
   }
-  // Setup Headers and Footers for html2PDF only Download
+  // Setup Headers and Footers for mPDF only Download
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
   echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
@@ -220,7 +225,6 @@ if ($printable) {
 <br><br>
 
 <?php
-
 }
 else { // not printable
 ?>
@@ -232,11 +236,11 @@ else { // not printable
 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
  [<?php xl('Printable Version','e'); ?>]
 </a><br>
-<div class="report_search_bar" style="width:100%;" id="search_options">
-  <table style="width:100%;">
+<div class="report_search_bar" style="width: 100%;" id="search_options">
+  <table style="width: 100%;">
     <tr>
       <td>
-        <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
+        <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width: 180px;"/>
       </td>
       <td>
          <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
@@ -253,7 +257,7 @@ else { // not printable
       <td>
         <span><?php echo xlt('Match case'); ?></span>
       </td>
-      <td style="padding-left:10px;">
+      <td style="padding-left: 10px;">
         <span class="text"><b><?php echo xlt('Search In'); ?>:</b></span>
         <br>
         <?php
@@ -281,8 +285,8 @@ else { // not printable
         }
         ?>
       </td>
-      <td style="padding-left:10px;;width:30%;">
-        <span id ='alert_msg' style='color:red;'></span>
+      <td style="padding-left: 10px;; width: 30%;">
+        <span id ='alert_msg' style='color: red;'></span>
       </td>
     </tr>
   </table>
@@ -528,7 +532,6 @@ foreach ($ar as $key => $val) {
         // Documents is an array of checkboxes whose values are document IDs.
         //
         if ($key == "documents") {
-
             echo "<hr />";
             echo "<div class='text documents'>";
             foreach($val as $valkey => $valvalue) {
@@ -538,7 +541,13 @@ foreach ($ar as $key => $val) {
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
                 $couch_revid = $d->get_couch_revid();
-                echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
+                //  Extract the extension by the mime/type and not the file name extension
+                // -There is an exception. Need to manually see if it a pdf since
+                //  the image_type_to_extension() is not working to identify pdf.
+                $extension = strtolower(substr($fname, strrpos($fname,".")));
+                if ($extension != '.pdf') { // Will print pdf header within pdf import
+                    echo "<h3>" . xl('Document') . " '" . $fname ."'</h3>";
+                }
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
                 if (!empty($notes)) echo "<table>";
@@ -579,10 +588,6 @@ foreach ($ar as $key => $val) {
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
 
-                //Extract the extension by the mime/type and not the file name extension
-                // -There is an exception. Need to manually see if it a pdf since
-                //  the image_type_to_extension() is not working to identify pdf.
-                $extension = substr($fname, strrpos($fname,"."));
                 if ($extension != ".pdf") {
                   $image_data = getimagesize($from_file);
                   $extension = image_type_to_extension($image_data[2]);
@@ -606,55 +611,51 @@ foreach ($ar as $key => $val) {
                   }
                 }
                 else {
-
-          // Most clinic documents are expected to be PDFs, and in that happy case
-          // we can avoid the lengthy image conversion process.
-          if ($PDF_OUTPUT && $extension == ".pdf") {
-            // HTML to PDF conversion will fail if there are open tags.
-            echo "</div></div>\n";
-            $content = getContent();
-            $pdf->writeHTML($content, false);
-            $pdf->SetImportUse();
-            $pagecount = $pdf->setSourceFile($from_file);
-            for($i = 0; $i < $pagecount; ++$i){
-              $pdf->AddPage();
-              $itpl = $pdf->importPage($i + 1, '/MediaBox');
-              $pdf->useTemplate($itpl);
-            }
-            // Make sure whatever follows is on a new page.
-            $pdf->AddPage();
-            // Resume output buffering and the above-closed tags.
-            ob_start();
-            echo "<div><div class='text documents'>\n";
-          }
-          else {
-            if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
-            if (is_file($to_file)) {
-              if ($PDF_OUTPUT) {
-                // OK to link to the image file because it will be accessed by the
-                // mPDF parser and not the browser.
-                echo "<img src='$to_file'><br><br>";
-              }
-              else {
-                echo "<img src='" . $GLOBALS['webroot'] .
-                  "/controller.php?document&retrieve&patient_id=&document_id=" .
-                  $document_id . "&as_file=false&original_file=false'><br><br>";
-              }
-            } else {
-              echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
-                xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
-              if($couch_docid && $couch_revid) {
-                unlink($from_file);
-              }
-            }
-          }
+                        // Most clinic documents are expected to be PDFs, and in that happy case
+                        // we can avoid the lengthy image conversion process.
+                    if ($PDF_OUTPUT && $extension == ".pdf") {
+                        echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
+                        $content = getContent();
+                        $pdf->writeHTML($content, false); // catch up with buffer.
+                        $pdf->SetImportUse();
+                        $pg_header = "<span>" . xl('Document') . " " . $fname ."</span>";
+                        //$pdf->SetHTMLHeader ($pg_header,'left',false); // A header for imported doc, don't think we need but will keep.
+                        $pagecount = $pdf->setSourceFile($from_file);
+                        for ($i = 0; $i < $pagecount; ++$i) {
+                            $pdf->AddPage();
+                            $itpl = $pdf->importPage($i+1);
+                            $pdf->useTemplate($itpl);
+                        }
+                        
+                        // Make sure whatever follows is on a new page.
+                       // $pdf->AddPage(); // Only needed for signature line. Patched out 04/20/2017 sjpadgett.
+                        
+                        // Resume output buffering and the above-closed tags.
+                        ob_start();
+                        
+                        echo "<div><div class='text documents'>\n";
+                    } else {
+                        if (! is_file($to_file))
+                            exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
+                        if (is_file($to_file)) {
+                            if ($PDF_OUTPUT) {
+                                // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
+                                echo "<img src='$to_file'><br><br>";
+                            } else {
+                                echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false&original_file=false'><br><br>";
+                            }
+                        } else {
+                            echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " . xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
+                            if ($couch_docid && $couch_revid) {
+                                unlink($from_file);
+                            }
+                        }
+                    }
                 } // end if-else
             } // end Documents loop
             echo "</div>";
         }
-
         // Procedures is an array of checkboxes whose values are procedure order IDs.
-        //
         else if ($key == "procedures") {
           if ($auth_med) {
             echo "<hr />";
@@ -673,7 +674,6 @@ foreach ($ar as $key => $val) {
 
         else if (strpos($key, "issue_") === 0) {
                 // display patient Issues
-
             if ($first_issue) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
                 $first_issue = 0;
@@ -798,8 +798,9 @@ foreach ($ar as $key => $val) {
 
 } // end $ar loop
 
-if ($printable)
+if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
   echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
+}
 ?>
 
 </div> <!-- end of report_custom DIV -->
@@ -808,7 +809,7 @@ if ($printable)
 if ($PDF_OUTPUT) {
     $content = getContent();
     $ptd = getPatientData($pid, "fname,lname");
-    $fn = $ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf';
+    $fn =  strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $pdf->writeHTML($content, false);
     if ($PDF_OUTPUT == 1) {
