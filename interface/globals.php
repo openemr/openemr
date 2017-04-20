@@ -191,6 +191,10 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
+//  Necessary writeable paths for mPDF tool
+define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'].'/documents/mpdf/pdf_tmp/');
+define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'].'/documents/mpdf/ttfontdata/');
+
 // Includes composer autoload
 // Note this also brings in following library files:
 //  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
