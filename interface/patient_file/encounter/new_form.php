@@ -15,7 +15,13 @@ $esignApi = new Esign\Api();
 <?php } ?>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 
+<script type="text/javascript"
+        src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript"
+    src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
 <script language="JavaScript">
 
 function openNewForm(sel) {
@@ -140,35 +146,119 @@ function findPosX(id)
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
-function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
+function myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
+{
     global $attendant_type;
-  $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
-    "unpackaged, date, aco_spec FROM registry WHERE ";
-  // select different forms for groups
-  if($attendant_type == 'pid' )
-  {
-    $sql .= "patient_encounter = 1 AND ";
-  }
-  else
-  {
-    $sql .= "therapy_group_encounter = 1 AND ";
-  }
-  $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
-  if ($limit != "unlimited") $sql .= " limit $limit, $offset";
-  $res = sqlStatement($sql);
-  if ($res) {
-    for($iter=0; $row=sqlFetchArray($res); $iter++) {
-      $all[$iter] = $row;
+    $sql = "SELECT * FROM registry WHERE {column}= 1 AND state LIKE ? ORDER BY category, priority, name";
+    $params = array();
+    $column = ($attendant_type == 'pid') ? 'patient_encounter' : 'therapy_group_encounter';
+    $sql = str_replace("{column}", $column, $sql);
+    $params[1] = $state;
+    if ($limit != "unlimited") {
+        $params[2] = $limit;
+        $params[3] = $offset;
+        $sql .= " LIMIT ?, ?";
     }
-  }
-  else {
-    return false;
-  }
-  return $all;
+    $res = sqlStatement($sql, $params);
+    if ($res) {
+        $all = array();
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $all[$iter] = $row;
+        }
+        return $all;
+    } else {
+        return false;
+    }
 }
 
-$reg = myGetRegistered();
 $old_category = '';
+
+function parseRegistry($registry, $oldCategory = '')
+{
+    global $old_category;
+    $prevCategory = '';
+    $return = array();
+    foreach ($registry as $item) {
+        $tmp = explode('|', $item['aco_spec']);
+        // Check permission to create forms of this type.
+        if (count($tmp) > 1) {
+            if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                continue;
+            }
+        }
+        $category = (trim($item['category']) == '') ? xlt("Miscellaneous") : xlt(trim($item['category']));
+        $nickname = (trim($item['nickname']) == '') ? $item['name'] : $item['nickname'];
+
+        if ($category == $prevCategory) {
+            array_push($return[count($return)-1]['subItems'], $nickname);
+        } else {
+            $return[] = array('name' => $category, 'subItems' => array());
+        }
+
+        $prevCategory = $category;
+    }
+
+    return $return;
+}
+
+function createEncounterMenu($elements)
+{
+    // Standard menu item with no dropdown
+    $menuListItem = '<li><a href="#">{linkText}</a></li>';
+
+    $submenuListItem = '<li><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
+
+    // Standard menu item dropdown support
+    $menuListItemWithDropdown = '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}&nbsp;<i class="fa fa-chevron-down"></i></a>{submenuList}</li>';
+
+    // Dropdown menu
+    $submenuList = '<ul class="dropdown-menu">{submenuListItems}</ul>';
+
+    $menu = "";
+    foreach ($elements as $group) {
+        if (count($group['subItems']) > 0) {
+            // We have a submenu
+            $submenu = array();
+            foreach ($group['subItems'] as $subItem) {
+                array_push($submenu, str_replace("{linkText}", $subItem, $menuListItem));
+            }
+            $submenuStr = implode("\n", $submenu);
+            $submenuContainer = str_replace("{submenuListItems}", $submenuStr, $submenuList);
+            $elementContainer = str_replace("{submenuList}", $submenuContainer, $menuListItemWithDropdown);
+            $elementContainer = str_replace("{linkText}", $group['name'], $elementContainer);
+            $menu = $menu . "\n" . $elementContainer;
+        } else {
+            $menu = $menu . str_replace("{linkText}", $group['name'], $menuListItem);
+        }
+    }
+    return $menu;
+}
+
+$test = myGetRegistered();
+$menu = createEncounterMenu(parseRegistry($test));
+?>
+
+<nav class="nav navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#encounter-form" aria-expanded="false">
+                <span class="sr-only"><?php echo xlt("Toggle Navigation");?></span>
+                <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#">2017-04-18 Encounter for Harlan Buffington</a>
+        </div>
+
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="#" id='enc2'><?php echo xlt('Encounter Summary');?></a></li>
+                <?php echo $menu;?>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<?php
+$reg = myGetRegistered();
 
   $DivId=1;
 
@@ -188,35 +278,18 @@ if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
   if(isset($hide)){
     $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-  }else{
-    if ($GLOBALS['new_tabs_layout']) {
-      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame('enc2','enc','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-    }
-    else {
-      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-    }
+  } else {
+        if ($GLOBALS['new_tabs_layout']) {
+            $encounterSummaryLoadFrame = 'loadFrame';
+            $framePosition = 'enc';
+        } else {
+            $encounterSummaryLoadFrame = 'loadFrame2';
+            $framePosition = 'RBot';
+        }
   }
   if ($encounterLocked === false) {
       foreach ($reg as $entry) {
-        // Check permission to create forms of this type.
-        $tmp = explode('|', $entry['aco_spec']);
-        if (!empty($tmp[1])) {
-          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
-            continue;
-        }
-        $new_category = trim($entry['category']);
-        $new_nickname = trim($entry['nickname']);
-        if ($new_category == '') {
-          $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
-        }else{
-          $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
-        }
-        if ($new_nickname != '') {$nickname = $new_nickname;}
-        else {$nickname = $entry['name'];}
         if ($old_category != $new_category) {
-          $new_category_ = $new_category;
-          $new_category_ = str_replace(' ','_',$new_category_);
-          if ($old_category != '') {$StringEcho.= "</table></div></li>";}
           $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
           $old_category = $new_category;
           $DivId++;
