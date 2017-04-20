@@ -201,6 +201,17 @@ function parseRegistry($registry, $oldCategory = '')
     return $return;
 }
 
+/**
+ * Create a bootstrap-based navbar based on array
+ *
+ * $elements needs to be specially formatted, top elements should have keys of `name` and `subItems` (even if subItems
+ * is an empty array)
+ *
+ * @todo This does not actually work, the links are not yet hooked up. RD 2017-04-19
+ *
+ * @param $elements array
+ * @return string
+ */
 function createEncounterMenu($elements)
 {
     // Standard menu item with no dropdown
