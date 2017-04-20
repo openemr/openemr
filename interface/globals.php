@@ -191,9 +191,21 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-//  Necessary writeable paths for mPDF tool
-define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'].'/documents/mpdf/pdf_tmp/');
-define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'].'/documents/mpdf/ttfontdata/');
+//  Check necessary writeable paths exist for mPDF tool
+if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
+    }
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+    }
+} else {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+}
+// Safe bet support directories exist, define them.
+define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
+define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
 
 // Includes composer autoload
 // Note this also brings in following library files:
