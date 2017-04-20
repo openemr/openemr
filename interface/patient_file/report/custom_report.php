@@ -178,7 +178,7 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 // adjust this if you are printing to letterhead to appropriate height
 ($printable) ? ($style = ''):($style='padding-top:95px;');
 ?>
-<body class="body_top" style="">
+<body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 
