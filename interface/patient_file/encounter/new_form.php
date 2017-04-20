@@ -245,8 +245,7 @@ function createEncounterMenu($elements)
     return $menu;
 }
 
-$test = myGetRegistered();
-$menu = createEncounterMenu(parseRegistry($test));
+$menu = createEncounterMenu(parseRegistry(myGetRegistered()));
 ?>
 
 <nav class="nav navbar-default">
