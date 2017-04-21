@@ -166,10 +166,13 @@ function upload_file_to_client($file_to_send) {
   // sleep one second to ensure there's no follow-on.
   sleep(1);
 }
-function upload_file_to_client_pdf($file_to_send) {
+function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false) { //modified for statement title name
   //Function reads a HTML file and converts to pdf.
 
-  global $STMT_TEMP_FILE_PDF;
+   $aPatFName = preg_replace("/[^A-Za-z]/", '', $aPatFirstName); //modified for statement title name
+   if($flagCFN) $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+   else global $STMT_TEMP_FILE_PDF;
+
   global $srcdir;
 
   if ($GLOBALS['statement_appearance'] == '1') {
@@ -253,12 +256,8 @@ $today = date("Y-m-d");
   //
 if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
-  $sqlBindArray = array();
   $where = "";
-  foreach ($_POST['form_cb'] as $key => $value) {
-    $where .= " OR f.id = ?";
-    array_push($sqlBindArray, $key);
-  }
+  foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
   $where = substr($where, 4);
   // need to only use summary invoice for multi visits
   $inv_pid = array();
@@ -274,10 +273,14 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     "FROM form_encounter AS f, patient_data AS p " .
     "WHERE ( $where ) AND " .
     "p.pid = f.pid " .
-    "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
+    "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
 
   $stmt = array();
   $stmt_count = 0;
+
+  $flagT = true;
+  $aPatientFirstName = '';
+  $aPatientID = null;
 
     // This loops once for each invoice/encounter.
     //
@@ -286,6 +289,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     $duedate = $svcdate; // TBD?
     $duncount = $row['stmt_count'];
     $enc_note = $row['enc_billing_note'];
+
+  if($flagT) {
+    $flagT = false;
+    $aPatientFirstName = $row['fname'];
+    $aPatientID = $row['pid'];
+    }
 
     // If this is a new patient then print the pending statement
     // and start a new one.  This is an associative array:
@@ -377,7 +386,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     	$inv_count += 1;
     	$pvoice[] = $stmt;
     	// we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
-    	if($inv_pid[$inv_count] != $inv_pid[$inv_count+1]){ 
+    	if($inv_pid[$inv_count] != $inv_pid[$inv_count+1]){
     		fwrite($fhprint, make_statement($stmt));
     		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])){
     			$alertmsg = xlt('Notification FAILED');
@@ -401,7 +410,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     if ($_POST['form_download']) {
       upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_POST['form_pdf']) {
-      upload_file_to_client_pdf($STMT_TEMP_FILE);
+      upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, true);
     } elseif ($_POST['form_portalnotify']) {
     	if($alertmsg == "")
     		$alertmsg = xl('Sending Invoice to Patient Portal Completed');
@@ -836,7 +845,7 @@ while ($row = sqlFetchArray($t_res)) {
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
      <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
-     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){ 
+     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){
      	echo(' PPt');	echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />"); $is_portal = true;
      	}?>
    </td>
