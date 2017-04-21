@@ -5,17 +5,17 @@
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
  *  http://postcalendar.tv
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -32,16 +32,16 @@ class pcSmarty extends Smarty
 		$osTheme = pnVarPrepForOS($theme);
 		pnThemeLoad($theme);
         global $bgcolor1,$bgcolor2,$bgcolor3,$bgcolor4,$bgcolor5,$bgcolor6,$textcolor1,$textcolor2;
-        
+
         // call constructor
         parent::__construct();
-		
+
 		// gather module information
         $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
         $pcDir = pnVarPrepForOS($pcModInfo['directory']);
         $pcDisplayName = $pcModInfo['displayname'];
 		unset($pcModInfo);
-		
+
 		// setup up pcSmarty configs
         $this->compile_check    = 	true;
 		$this->force_compile    = 	false;
@@ -49,8 +49,8 @@ class pcSmarty extends Smarty
 		$this->template_dir     =   "modules/$pcDir/pntemplates";
 		array_push($this->plugins_dir,"modules/$pcDir/pnincludes/Smarty/plugins");
 		array_push($this->plugins_dir,"modules/$pcDir/plugins");
-		$this->compile_dir      =   "modules/$pcDir/pntemplates/compiled";
-		$this->cache_dir        =   "modules/$pcDir/pntemplates/cache";
+		$this->compile_dir      =   $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/compiled';
+		$this->cache_dir        =   $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/cache';
 		$this->caching  		= 	_SETTING_USE_CACHE;
 		$this->cache_lifetime   =   _SETTING_CACHE_LIFETIME;
 		$this->left_delimiter   =   '[-';

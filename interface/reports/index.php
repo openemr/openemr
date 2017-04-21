@@ -13,7 +13,7 @@ $template_dir = dirname(__FILE__) . "/../../templates/report/";
 $smarty = new Smarty();
 
 //tell smarty where it can compile the templates, this is the defacto becuases postcalendar's smarty already uses it
-$smarty->compile_dir = dirname(__FILE__) . "/../main/calendar/modules/PostCalendar/pntemplates/compiled";
+$smarty->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/compiled';
 
 //assign the styles setup in globals.php
 $smarty->assign("STYLE",$GLOBALS['style']);

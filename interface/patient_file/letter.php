@@ -13,7 +13,7 @@ $fake_register_globals = false;
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
 // array of field name tags to allow internationalization
 //  of templates
@@ -56,7 +56,7 @@ $FIELD_TAG = array(
     'PT_SSN'           => xl('PT_SSN'),
     'PT_EMAIL'         => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
-    
+
 );
 
 $patdata = sqlQuery("SELECT " .
@@ -69,7 +69,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
 if ($_POST['formaction']=="generate") {
-    
+
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -139,7 +139,7 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}'          , $patdata['ss'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}'        , $patdata['email'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
-    
+
     if ($form_format == "pdf") {
       $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
       $pdf->ezSetMargins($GLOBALS['rx_top_margin']
@@ -171,7 +171,7 @@ if ($_POST['formaction']=="generate") {
 	 font-size: 12pt;
 	 background: white;
 	 color: black;
-	}	
+	}
 	.paddingdiv {
 	 width: 524pt;
 	 padding: 0pt;
@@ -179,13 +179,13 @@ if ($_POST['formaction']=="generate") {
 	}
 	.navigate {
 	 margin-top: 2.5em;
-	}	
+	}
 	@media print {
 	 .navigate {
 	  display: none;
-	 }	
-	}	
-	</style>	
+	 }
+	}
+	</style>
 	<title><?php xl('Letter','e'); ?></title>
 	</head>
         <body>
@@ -347,21 +347,21 @@ function insertAtCaret(areaId,text) {
     var txtarea = document.getElementById(areaId);
     var scrollPos = txtarea.scrollTop;
     var strPos = 0;
-    var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ? 
+    var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ?
             "ff" : (document.selection ? "ie" : false ) );
-    if (br == "ie") { 
+    if (br == "ie") {
         txtarea.focus();
         var range = document.selection.createRange();
         range.moveStart ('character', -txtarea.value.length);
         strPos = range.text.length;
     }
     else if (br == "ff") strPos = txtarea.selectionStart;
-                                                                            
-    var front = (txtarea.value).substring(0,strPos);  
-    var back = (txtarea.value).substring(strPos,txtarea.value.length); 
+
+    var front = (txtarea.value).substring(0,strPos);
+    var back = (txtarea.value).substring(strPos,txtarea.value.length);
     txtarea.value=front+text+back;
     strPos = strPos + text.length;
-    if (br == "ie") { 
+    if (br == "ie") {
         txtarea.focus();
         var range = document.selection.createRange();
         range.moveStart ('character', -txtarea.value.length);
@@ -469,7 +469,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template">
    <option value="">(<?php xl('none','e'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) die(xl('Cannot read','','',' ') . $tpldir);
 while (false !== ($tfname = readdir($dh))) {
@@ -602,14 +602,14 @@ $(document).ready(function(){
     $("#form_template").change(function() { $("#formaction").val("loadtemplate"); $("#theform").submit(); });
 
     $("#savetemplate").click(function() { SaveTemplate(this); });
-    
+
     $("#letter_field").change(function() { insertAtCursor(document.getElementById("form_body"), $(this).val()); $(this).attr("selectedIndex", "0"); });
-    
+
     $(".addtemplate").click(function() { AddTemplate(this); });
     $(".savenewtemplate").click(function() { SaveNewTemplate(this); });
     $(".deletetemplate").click(function() { DeleteTemplate(this); });
     $(".cancelnewtemplate").click(function() { CancelNewTemplate(this); });
-    
+
     // display the 'new group' DIV
     var AddTemplate = function(btnObj) {
         // show the field details DIV
@@ -618,8 +618,8 @@ $(document).ready(function(){
         $(btnObj).parent().append($("#newtemplatedetail"));
         $('#newtemplatedetail > #newtemplatename').focus();
     };
-    
-    // save the new template 
+
+    // save the new template
     var SaveNewTemplate = function(btnObj) {
         // the template name can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
@@ -634,7 +634,7 @@ $(document).ready(function(){
         $("#formaction").val("newtemplate");
         $("#theform").submit();
     }
-    
+
     // actually delete a template file
 /*
     var DeleteTemplate = function(btnObj) {
@@ -657,8 +657,8 @@ $(document).ready(function(){
         // reset the new group values to a default
         $('#newtemplatedetail > #newtemplatename').val("");
     };
-    
-    
+
+
     // save the template, overwriting the older version
     var SaveTemplate = function(btnObj) {
         if (! confirm("<?php xl('You are about to permanently replace the existing template. Are you sure you wish to continue?','e'); ?>")) {

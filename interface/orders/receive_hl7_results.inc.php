@@ -1066,7 +1066,7 @@ function poll_hl7_results(&$info) {
         ++$filecount;
         if (!isset($info["$ppid/$file"])) $info["$ppid/$file"] = array();
         // Ensure that archive directory exists.
-        $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+        $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
         if (!file_exists($prpath)) mkdir($prpath);
         $prpath .= '/' . $pprow['ppid'];
         if (!file_exists($prpath)) mkdir($prpath);
@@ -1135,7 +1135,7 @@ function poll_hl7_results(&$info) {
         ++$filecount;
         if (!isset($info["$ppid/$file"])) $info["$ppid/$file"] = array();
         // Ensure that archive directory exists.
-        $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+        $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
         if (!file_exists($prpath)) mkdir($prpath);
         $prpath .= '/' . $pprow['ppid'];
         if (!file_exists($prpath)) mkdir($prpath);

@@ -291,7 +291,7 @@ function genPopupsList($style='') {
 <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('acct', 'bill', '', 'write')) { ?>
  <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
 <?php } ?>
-<?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates") && acl_check('patients', 'med')) { ?>
+<?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates") && acl_check('patients', 'med')) { ?>
  <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
 <?php } ?>
 <?php if ($GLOBALS['chart_label_type'] != '0' && acl_check('patients', 'demo')) { ?>

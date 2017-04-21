@@ -115,7 +115,7 @@ function send_batch() {
   global $bat_content, $bat_filename, $webserver_root;
   // If a writable edi directory exists, log the batch to it.
   // I guarantee you'll be glad we did this.  :-)
-  $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+  $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
   if ($fh) {
     fwrite($fh, $bat_content);
     fclose($fh);
@@ -137,10 +137,10 @@ function process_form($ar) {
 
   if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])) {
     if ($GLOBALS['billing_log_option'] == 1) {
-      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/edi/process_bills.log", 'a');
+      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/documents/edi/process_bills.log", 'a');
     }
     else { // ($GLOBALS['billing_log_option'] == 2)
-      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/edi/process_bills.log", 'w');
+      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/documents/edi/process_bills.log", 'w');
     }
   }
 
@@ -284,7 +284,7 @@ function process_form($ar) {
   if (isset($ar['bn_process_hcfa'])) {
     fclose($hlog);
     // If a writable edi directory exists (and it should), write the pdf to it.
-    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
     if ($fh) {
       fwrite($fh, $pdf->ezOutput());
       fclose($fh);
@@ -296,7 +296,7 @@ function process_form($ar) {
   if ( isset($ar['bn_process_hcfa_form']) ) {
   	fclose($hlog);
   	// If a writable edi directory exists (and it should), write the pdf to it.
-  	$fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+  	$fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
   	if ($fh) {
   		fwrite($fh, $pdf->ezOutput());
   		fclose($fh);
@@ -316,7 +316,7 @@ function process_form($ar) {
 
   if (isset($ar['bn_hcfa_txt_file'])) {
     fclose($hlog);
-    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
     if ($fh) {
       fwrite($fh, $bat_content);
       fclose($fh);

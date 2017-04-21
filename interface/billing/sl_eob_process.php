@@ -479,7 +479,7 @@ require_once("$srcdir/billing.inc");
     // report files.  Do not save the report if this is a no-update situation.
     //
     if (!$debug) {
-        $nameprefix = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname";
+        $nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
         $namesuffix = '';
         for ($i = 1; is_file("$nameprefix$namesuffix.html"); ++$i) {
             $namesuffix = "_$i";
@@ -512,7 +512,7 @@ require_once("$srcdir/billing.inc");
 <?php
   if($_GET['original']=='original')
   {
-  $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+  $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
   echo $StringToEcho;
     }
     else
@@ -548,8 +548,8 @@ require_once("$srcdir/billing.inc");
         global $InsertionId;
 
           $eraname=$_REQUEST['eraname'];
-          $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
-          $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+          $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
+          $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
         if(!$debug)
          {
               $StringIssue=htmlspecialchars( xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';

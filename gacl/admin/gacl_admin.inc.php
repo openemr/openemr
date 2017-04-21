@@ -62,8 +62,8 @@ $db = &$gacl->db;
 
 $smarty = new Smarty;
 $smarty->compile_check = TRUE;
-$smarty->template_dir = $gacl_options['smarty_template_dir'];
-$smarty->compile_dir = $gacl_options['smarty_compile_dir'];
+$smarty->template_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates_c/';
+$smarty->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates/';
 
 /*
  * Email address used in setup.php, please do not change.

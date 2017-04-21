@@ -189,9 +189,31 @@ $GLOBALS['incdir'] = $include_root;
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Variable set for Eligibility Verification [EDI-271] path
-$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
 
-//  Check necessary writeable paths exist for mPDF tool
+//  Check necessary writable paths (add them if do not exist)
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/edi/')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/edi/', 0755);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/era/')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/era/', 0755);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/letter_templates/')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/letter_templates/', 0755);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates_c/')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates_c/', 0755, true);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates/')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl/templates/', 0755, true);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/compiled')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/compiled', 0755, true);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/cache')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/calendar/cache', 0755, true);
+}
+//  Check necessary writeable paths exist for mPDF tool (add them if do not exist)
 if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
     if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
         mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);

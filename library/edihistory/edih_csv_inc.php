@@ -44,7 +44,7 @@
  * </pre>
  *
  * The claim_history x12 files are claim (837) acknowledgement (997/999) claim status (277) and claim payment (835)
- * Also eligibility request (270) and eligibility response (271)  
+ * Also eligibility request (270) and eligibility response (271)
  *
  * <pre>
  * Basic workflow:
@@ -85,10 +85,10 @@
 
 /* *********** GLOBALS used for testing only **********
  */
-// //$GLOBALS['OE_SITE_DIR'].'/edi/history';
+// //$GLOBALS['OE_SITE_DIR'].'/documents/edi/history';
 //$OE_SITES_BASE = $GLOBALS['OE_SITE_DIR'];
 //$OE_SITE_DIR = $OE_SITES_BASE.'/testing';
-//$OE_EDIH_DIR = $OE_SITE_DIR.'/edi/history';
+//$OE_EDIH_DIR = $OE_SITE_DIR.'/documents/edi/history';
 
 /* ***********
  */
@@ -180,7 +180,7 @@ function csv_log_manage($list=true) {
 	} else {
 		// list is false, must be archive
 		$datetime1 = date_create(date('Y-m-d'));
-		//				
+		//
 		foreach($lognames as $log) {
 			if ($log == '.' || $log == '..') { continue; }
 			//
@@ -339,7 +339,7 @@ function csv_edih_basedir() {
 
 /**
  * generates path to edi_history tmp dir for file upload operations
- * 
+ *
  * @uses csv_edih_basedir()
  * @return string   directory path
  */
@@ -502,7 +502,7 @@ function csv_setup() {
 	} else {
 		$out_str .= 'Setup failed: Can not create directories <br>'.PHP_EOL;
 	}
- 
+
 	if ($isOK) {
 		csv_edihist_log($out_str);
 		return true;
@@ -558,15 +558,15 @@ function csv_clear_tmpdir() {
 
 /**
  * open and verify a default edih_x12_file object
- * 
+ *
  * @uses csv_check_filepath()
- * 
+ *
  * @param string   filepath or filename
  * @parm string    file x12 type
- * @return object  edih_x12_file class 
+ * @return object  edih_x12_file class
  */
 function csv_check_x12_obj($filepath, $type='') {
-	//	
+	//
 	$x12obj = false;
 	$ok = false;
 	//
@@ -649,7 +649,7 @@ function csv_check_filepath($filename, $type='ALL') {
  *
  * @param string    file type
  * @param bool      return GS02 code or fXXX
- * @return string   file type or empty 
+ * @return string   file type or empty
  */
 function csv_file_type($type, $gs_code=false) {
 	//
@@ -690,8 +690,8 @@ function csv_file_type($type, $gs_code=false) {
 /**
  * The array that holds the various parameters used in dealing with files
  *
- * A key function since it holds the paths, columns, etc.  
- * Unfortunately, there is an issue with matching the type in  * the case of the 
+ * A key function since it holds the paths, columns, etc.
+ * Unfortunately, there is an issue with matching the type in  * the case of the
  * values '997', '277', '999', etc, becasue these strings may be recast
  * from strings to integers, so the 'type' originally supplied is lost.
  * This introduces an inconsistency when the 'type' is used in comparison tests.
@@ -713,11 +713,11 @@ function csv_parameters($type='ALL') {
 		csv_edihist_log('csv_parameters() error: incorrect type '.$type);
 		return $p_ar;
 	}
-	//$edihist_dir = $GLOBALS['OE_SITE_DIR'].'/edi/history';
+	//$edihist_dir = $GLOBALS['OE_SITE_DIR'].'/documents/edi/history';
 	$edihist_dir = csv_edih_basedir();
 	//
 	// the batch file directory is a special case - decide whether to use OpenEMR batch files or make our own copies
-	// OpenEMR copies each batch file to sites/default/edi and this project never writes to that directory
+	// OpenEMR copies each batch file to sites/default//documents/edi and this project never writes to that directory
 	// batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
 	//
     $p_ar['f837'] = array('type'=>'f837', 'directory'=>$GLOBALS['OE_SITE_DIR'].DS.'edi', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f837.csv',
@@ -759,7 +759,7 @@ function csv_table_select_list($outtp='json') {
 	$labels = array('f835'=>'Payments', 'f837'=>'Claims', 'batch'=>'Claims', 'f277'=>'Status', 'f276'=>'Status Req',
 	                'f997'=>'Ack','f271'=>'Benefit', 'f270'=>'Benefit Req', 'f278'=>'Auth');
 
-    $edihist_dir = csv_edih_basedir();  // $GLOBALS['OE_SITE_DIR'].'/edi/history'
+    $edihist_dir = csv_edih_basedir();  // $GLOBALS['OE_SITE_DIR'].'/documents/edi/history'
     $csvdir = $edihist_dir.DS.'csv';
 	$tbllist = scandir($csvdir);
 	$idx = 0;
@@ -842,7 +842,7 @@ function csv_dirfile_list($type) {
     $search_dir = $params['directory'];
 	$ext_re = $params['regex'];
 	$dirfiles = array();
-	// 
+	//
 	if (is_dir($search_dir)) {
 	    if ($dh = opendir($search_dir)) {
 	        while (($file = readdir($dh)) !== false) {
@@ -873,7 +873,7 @@ function csv_dirfile_list($type) {
  *
  * @uses csv_parameters()
  * @uses csv_table_header()
- * 
+ *
  * @param string $type -- one of our types
  * @return array
  */
@@ -960,7 +960,7 @@ function csv_newfile_list($type) {
  * Parse 997 IK3 error segment to identify segment causing rejection
  * The error segment string is specially created in edih_997_csv_data()
  * Simple analysis, but the idea is just to identify the bad segment
- * 
+ *
  * @param string			error segment from edih_997_csv_data()
  * @param bool				true if only the 1st segmentID is wanted
  * return array|string
@@ -1002,7 +1002,7 @@ function edih_errseg_parse($err_seg, $id=false) {
  *  array['icn'] ['file'][i]['key']  ['claim'][i]['key']  ['type']['type']
  *
  * @uses csv_table_header()
- * 
+ *
  * @param array   data_ar    data array from edih_XXX_csv_data()
  * @return array|bool        ordered array or false on error
  */
@@ -1033,7 +1033,7 @@ function edih_csv_order($csvdata) {
 
 /**
  * insert dashes in ten-digit telephone numbers
- * 
+ *
  * @param string $str_val   the telephone number
  * @return string           the telephone number with dashes
  */
@@ -1051,9 +1051,9 @@ function edih_format_telephone ($str_val) {
 
 /**
  * order MM DD YYYY values and insert slashes in eight-digit dates
- * 
- * US MM/DD/YYYY or general YYYY-MM-DD 
- *  
+ *
+ * US MM/DD/YYYY or general YYYY-MM-DD
+ *
  * @param string $str_val   the eight-digit date
  * @param string $pref      if 'US' (default) anything else means YYYY-MM-DD
  * @return string           the date with slashes
@@ -1082,13 +1082,13 @@ function edih_format_date ($str_val, $pref = "Y-m-d") {
 
 /**
  * format monetary amounts with two digits after the decimal place
- * 
+ *
  * @todo                    add other formats
  * @param string $str_val   the amount string
  * @return string           the telephone number with dashes
  */
 function edih_format_money ($str_val) {
-	//  
+	//
 	if ($str_val || $str_val === '0') {
 		$mny = sprintf("$%01.2f", $str_val);
 	} else {
@@ -1100,8 +1100,8 @@ function edih_format_money ($str_val) {
 /**
  * format percentage amounts with % sign
  * typical example ".50" from x12 edi segment element
- * 
- * @param string $str_val   the amount string 
+ *
+ * @param string $str_val   the amount string
  * @return string           the value as a percentage
  */
 function edih_format_percent ($str_val) {
@@ -1116,7 +1116,7 @@ function edih_format_percent ($str_val) {
 
 /**
  * HTML string for table thead element
- * 
+ *
  * @uses csv_table_header()
  * @param string
  * @param string
@@ -1146,7 +1146,7 @@ function csv_thead_html($file_type, $csv_type, $tblhd=null) {
 
 /**
  * Give the column headings for the csv files
- * 
+ *
  * @uses csv_file_type()
  * @param string $file_type  	one of our edi types
  * @param string $csv_type 		either 'file' or 'claim'
@@ -1196,7 +1196,7 @@ function csv_table_header($file_type, $csv_type) {
 			case 'f835': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer'); break;
 		}
 	} else {
-		// unexpected error  
+		// unexpected error
 		csv_edihist_log ('edih_csv_table_header() error: failed to match file type ['.$ft.'] or csv type ['.$ct.']');
 		return false;
 	}
@@ -1296,7 +1296,7 @@ function csv_singlerecord_test ( $array ) {
 
 /*
  * give first and last index keys for an array
- * 
+ *
  * @param array
  * @return array
  */
@@ -1315,7 +1315,7 @@ function csv_array_bounds($array) {
  * the first row is the header or array keys for the row
  * array structure:
  *  array[i]=>array(hdr0=>csvrow[0], hdr1=>csvrow[1], hdr2=>csvrow[2], ...)
- * 
+ *
  * @param string   file type e.g. f837
  * @param string   csv type claim or file
  * @return array
@@ -1389,10 +1389,10 @@ function csv_array_flatten($array) {
 
 /**
  * Write parsed data from edi x12 files to csv file
- * 
+ *
  * @uses csv_parameters()
  * @usescsv_table_header()
- * 
+ *
  * @param array    data array from parse functions
  * @return bool    true if no error
  */
@@ -1565,7 +1565,7 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect='1') {
 /**
  * Search the 'claims' csv table for the patient control and find the associated file name
  *
- * Searchtype 
+ * Searchtype
  * In 'claims' csv tables, clm01 is position 2, ISA13 number is pos 4, and filename is pos 5;
  * Since we are interested usually in the filename, ISA13 is irrelevant usually.
  *
@@ -1660,7 +1660,7 @@ function csv_file_by_enctr($clm01, $filetype='f837') {
 	return $ret_ar;
 }
 
-   
+
 /**
  * get the x12 file containing the control_num ISA13
  *
@@ -1695,12 +1695,12 @@ function csv_file_by_controlnum($type, $control_num) {
 
 
 /**
- * Search the csv table to obtain the file name for a given 
+ * Search the csv table to obtain the file name for a given
  * trace value (835 / 997 999 type only)
- * 
+ *
  * Note: the 997/999 trace is the ISA13 of a batch file
- * 
- * 
+ *
+ *
  * @param string	 trace value (TRN02, TA101, or BHT03)
  * @param string     from type (default is f835)
  * @param string	 to type (default is f835)
@@ -1818,7 +1818,7 @@ function csv_denied_by_file($filetype, $filename, $trace='') {
 				} elseif ($data[5] == $filename) {
 					if (!in_array($data[3], array('1', '2', '3', '19', '20', '21')) ) { $ret_ar[] = $data; }
 				}
-			
+
 			}
 		} elseif ($ft == 'f277') {
 			while (($data = fgetcsv($fh1, 1024, ",")) !== false) {

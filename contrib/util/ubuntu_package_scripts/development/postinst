@@ -86,10 +86,10 @@ case "$1" in
       }
 
       #function to collect variables from config files
-      # 1st param is variable name, 2nd param is filename 
+      # 1st param is variable name, 2nd param is filename
       collect_var () {
          echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
-      }      
+      }
 
       #function to insert variables into config files
       # 1st param is variable name, 2nd param is variable, 3rd param is filename
@@ -127,11 +127,11 @@ case "$1" in
          unable_exit "Error reading process variable in configuration file."
       fi
 
-      if [ "$PLAN" == "upgrade" ] ; then       
+      if [ "$PLAN" == "upgrade" ] ; then
          #upgrade is not available with the git-openemr package
          log_only "Upgrading is not available with the git-openemr package"
          log_only "This package is for testing most recent development (unstable) OpenEMR version"
-         prompt_input git-openemr/upgrade_not_supported critical ret_result 
+         prompt_input git-openemr/upgrade_not_supported critical ret_result
          unable_exit "To upgrade to most recent git version, recommend removing/reinstalling package"
 
       elif [ "$PLAN" == "install" ] ; then
@@ -139,7 +139,7 @@ case "$1" in
          log_only "Installing git-openemr package..."
       else
          unable_exit "Error reading plan variable in configuration file."
-      fi      
+      fi
 
       #collect the mysql root password (if applicable)
       MPASS=""
@@ -169,7 +169,7 @@ case "$1" in
       fi
 
       #decide whether to configure OpenEMR after it is installed
-      configure_flag=true 
+      configure_flag=true
       if check_mysql "$MPASS" "mysql"; then
          #before auto configuration, ensure the openemr user and database do not exist
          # Check for openemr database in mysql, if exist then will not configure
@@ -217,19 +217,13 @@ case "$1" in
       cd $OPENEMR
       rmdir $TMPDIR
 
-      #secure openemr 
-      chown -Rf root:root $OPENEMR 
+      #secure openemr
+      chown -Rf root:root $OPENEMR
 
       # Set file and directory permissions
       chmod 666 $SITEDIR/sqlconf.php
       chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
       # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
       # Activate the OpenEMR conf file for apache
@@ -255,9 +249,9 @@ case "$1" in
          login="login=$INSTALL_USER" #username to MySQL openemr database
          pass="pass=$password" #password to MySQL openemr database
          dbname="dbname=$INSTALL_DATABASE" #MySQL openemr database name
- 
-         # 
-         # Run Auto Installer 
+
+         #
+         # Run Auto Installer
          #
          sed -e 's@^exit;@ @' <$INST >$INSTTEMP
          php -f $INSTTEMP $rootpass $login $pass $dbname >> $LOG 2>&1
@@ -278,7 +272,7 @@ case "$1" in
       if $configure_flag; then
          prompt_input git-openemr/success_install_config high ret_result
          log_only "user is 'admin' and password is 'pass'"
-      else 
+      else
          prompt_input git-openemr/success_install high ret_result
       fi
       log_only "See the openemr man page for further instructions:"
@@ -290,7 +284,7 @@ case "$1" in
       exit 0
    ;;
    abort-upgrade|abort-remove|abort-deconfigure)
-   
+
       echo "postinst asked to do $1"
       exit 0
    ;;
