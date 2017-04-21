@@ -147,8 +147,8 @@ if ($_POST['formaction']=="generate") {
                       ,$GLOBALS['rx_left_margin']
                       ,$GLOBALS['rx_right_margin']
                       );
-      if (file_exists("$template_dir/custom_pdf.php")) {
-        include("$template_dir/custom_pdf.php");
+      if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
+        include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
       }
       else {
         $pdf->selectFont('Helvetica');

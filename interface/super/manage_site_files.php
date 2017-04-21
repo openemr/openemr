@@ -26,7 +26,7 @@ $my_files = array(
   'faxtitle.eps',
   'referral_template.html',
   'statement.inc.php',
-  'letter_templates/custom_pdf.php',
+  'custom_pdf.php',
 );
 // Append LBF plugin filenames to the array.
 $lres = sqlStatement('SELECT * FROM list_options ' .
