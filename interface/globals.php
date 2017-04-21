@@ -141,6 +141,9 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
 // Set the site-specific directory path.
 $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id'];
 
+// Set a site-specific uri root path.
+$GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
+
 require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order

@@ -210,9 +210,12 @@ if ($printable) {
 
   // Use logo if it exists as 'practice_logo.gif' in the site dir
   // old code used the global custom dir which is no longer a valid
-   $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+  $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+  echo "<div><table><tr><td>";
    if (file_exists($practice_logo)) {
-        echo "<img src='$practice_logo' align='left'><br />\n";
+       $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/practice_logo.gif"; // property img src needs a uri path
+       echo "<img src='$logo_path' align='left'><br />";
+       echo "</td><td>";
      }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
@@ -222,7 +225,7 @@ if ($printable) {
 
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
 <span class='text'><?php xl('Generated on','e'); ?>: <?php echo oeFormatShortDate(); ?></span>
-<br><br>
+<?php echo "</td></tr></table></div>";?>
 
 <?php
 }
