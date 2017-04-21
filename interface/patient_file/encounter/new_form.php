@@ -8,6 +8,8 @@ include_once("../../globals.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 $esignApi = new Esign\Api();
+
+$assets_dir = $GLOBALS['assets_static_relative'];
 ?>
 <?php if (empty($hide)) { // if not included by forms.php ?>
 <html>
@@ -15,13 +17,11 @@ $esignApi = new Esign\Api();
 <?php } ?>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $assets_dir;?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $assets_dir;?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 
-<script type="text/javascript"
-        src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript"
-    src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
+<script type="text/javascript" src="<?php echo $assets_dir;?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $assets_dir;?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
 <script language="JavaScript">
 
 function openNewForm(sel) {
@@ -46,16 +46,8 @@ function toggleFrame1(fnum) {
   top.window.parent.left_nav.toggleFrame(fnum);
  }
 </script>
-<style type="text/css">
-#sddm
-{	margin: 0;
-	padding: 0;
-	z-index: 30;
-}
-
-</style>
 <script type="text/javascript" language="javascript">
-
+// @todo This whole thing can probably be deleted as it seems to only relate to the old menu. RD 2017-04-21
 var timeout	= 500;
 var closetimer	= 0;
 var ddmenuitem	= 0;
@@ -141,7 +133,7 @@ function findPosX(id)
 </script>
 
 </head>
-<body class="bgcolor2">
+<body class="bgcolor2" style="padding-top:45px;">
 <dl>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
@@ -159,11 +151,11 @@ function myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
         $params[3] = $offset;
         $sql .= " LIMIT ?, ?";
     }
-    $res = sqlStatement($sql, $params);
-    if ($res) {
+    $result = sqlStatement($sql, $params);
+    if ($result) {
         $all = array();
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
+        while ($row = sqlFetchArray($result)) {
+            array_push($all, $row);
         }
         return $all;
     } else {
@@ -190,9 +182,13 @@ function parseRegistry($registry, $oldCategory = '')
         $nickname = (trim($item['nickname']) == '') ? $item['name'] : $item['nickname'];
 
         if ($category == $prevCategory) {
-            array_push($return[count($return)-1]['subItems'], $nickname);
+            $tmp = array(
+                'href' => '#',
+                'name' => $nickname,
+            );
+            $return[count($return) - 1]['subItems'][] = $tmp;
         } else {
-            $return[] = array('name' => $category, 'subItems' => array());
+            $return[] = array('name' => $category);
         }
 
         $prevCategory = $category;
@@ -215,23 +211,25 @@ function parseRegistry($registry, $oldCategory = '')
 function createEncounterMenu($elements)
 {
     // Standard menu item with no dropdown
-    $menuListItem = '<li><a href="#">{linkText}</a></li>';
+    $menuListItem = '<li><a href="{href}">{linkText}</a></li>';
 
-    $submenuListItem = '<li><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
+    $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
     // Standard menu item dropdown support
-    $menuListItemWithDropdown = '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}&nbsp;<i class="fa fa-chevron-down"></i></a>{submenuList}</li>';
+    $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}&nbsp;<i class="fa fa-chevron-down"></i></a>{submenuList}</li>';
 
     // Dropdown menu
     $submenuList = '<ul class="dropdown-menu">{submenuListItems}</ul>';
 
     $menu = "";
     foreach ($elements as $group) {
-        if (count($group['subItems']) > 0) {
+        if (array_key_exists('subItems', $group)) {
             // We have a submenu
             $submenu = array();
             foreach ($group['subItems'] as $subItem) {
-                array_push($submenu, str_replace("{linkText}", $subItem, $menuListItem));
+                $submenuTmpStr = str_replace("{linkText}", $subItem['name'], $menuListItem);
+                $submenuTmpStr = str_replace("{href}", $subItem['href'], $submenuTmpStr);
+                array_push($submenu, $submenuTmpStr);
             }
             $submenuStr = implode("\n", $submenu);
             $submenuContainer = str_replace("{submenuListItems}", $submenuStr, $submenuList);
@@ -245,22 +243,84 @@ function createEncounterMenu($elements)
     return $menu;
 }
 
-$menu = createEncounterMenu(parseRegistry(myGetRegistered()));
+/**
+ * Create an array of elements based on layout based forms
+ *
+ * Similar to parseRegistry, create an array that can be processed by createEncounterMenu() to show a link to LBFs
+ *
+ * @return array|bool
+ */
+function getLayoutBasedForms()
+{
+    $sql = "SELECT * FROM list_options WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title";
+    $result = sqlStatement($sql);
+    $return = array();
+    if (sqlNumRows($result)) {
+        while ($row = sqlFetchArray($result)) {
+            $optionId = $row['option_id'];
+            $title = $row['title'];
+            $jobj = json_decode($row['notes'], true);
+            if (!empty($jobj['aco'])) {
+                $tmp = explode('|', $jobj['aco']);
+                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                    continue;
+                }
+            }
+            $row = array(
+                'href' => '{rootdir}/patient_file/encounter/load_form.php?formname=' . urlencode($optionId),
+                'name' => xl_form_title($title),
+                'class' => 'lbf-menu-item'
+            );
+            $return[] = $row;
+        }
+        $name = xlt('Layout Based');
+        return array('name' => $name, 'subItems' => $return);
+    } else {
+        return false;
+    }
+}
+
+$menuItems = parseRegistry(myGetRegistered());
+
+// Push this static element to the menu list
+$encounterSummary = array(
+    'name' => 'Encounter Summary',
+    'href' => '#',
+);
+if (isset($hide)) {
+    $encounterSummary['href'] = 'enc2';
+} else {
+    if ($GLOBALS['new_tabs_layout']) {
+        $encounterSummaryLoadFrame = 'loadFrame';
+        $framePosition = 'enc';
+    } else {
+        $encounterSummaryLoadFrame = 'loadFrame2';
+        $framePosition = 'RBot';
+    }
+}
+array_unshift($menuItems, $encounterSummary);
+
+// Get the layout based forms and push it to the menu
+$lbfItems = getLayoutBasedForms();
+if ($lbfItems) {
+    $menuItems[] = $lbfItems;
+}
+
+$menu = createEncounterMenu($menuItems);
 ?>
 
-<nav class="nav navbar-default">
+<nav class="nav navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#encounter-form" aria-expanded="false">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu-encounter" aria-expanded="false">
                 <span class="sr-only"><?php echo xlt("Toggle Navigation");?></span>
                 <i class="fa fa-bars"></i>
             </button>
-            <a class="navbar-brand" href="#">2017-04-18 Encounter for Harlan Buffington</a>
+            <a class="navbar-brand" href="#"><?php echo oeFormatShortDate($encounter_date);?> <?php echo xlt("Encounter");?> <?php echo xlt("for");?> <?php echo $patientName;?></a>
         </div>
 
-        <div class="collapse navbar-collapse">
+        <div class="collapse navbar-collapse" id="menu-encounter">
             <ul class="nav navbar-nav">
-                <li><a href="#" id='enc2'><?php echo xlt('Encounter Summary');?></a></li>
                 <?php echo $menu;?>
             </ul>
         </div>
@@ -276,7 +336,7 @@ $reg = myGetRegistered();
 $encounterLocked = false;
 if ( $esignApi->lockEncounters() &&
 isset($GLOBALS['encounter']) &&
-!empty($GLOBALS['encounter']) ) {
+!empty($GLOBALS['encounter'])) {
 
   $esign = $esignApi->createEncounterESign( $GLOBALS['encounter'] );
   if ( $esign->isLocked() ) {
@@ -320,29 +380,6 @@ if($StringEcho){
 // This shows Layout Based Form names just like the above.
 //
 if ($encounterLocked === false) {
-    $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-    if (sqlNumRows($lres)) {
-      if(!$StringEcho){
-        $StringEcho= '<ul id="sddm">';
-      }
-      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
-        xl('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
-      while ($lrow = sqlFetchArray($lres)) {
-        $option_id = $lrow['option_id']; // should start with LBF
-        $title = $lrow['title'];
-        // Check ACO attribute, if any, of this LBF.
-        $jobj = json_decode($lrow['notes'], true);
-        if (!empty($jobj['aco'])) {
-          $tmp = explode('|', $jobj['aco']);
-          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
-            continue;
-        }
-        $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
-          $rootdir . '/patient_file/encounter/load_form.php?formname=' .
-          urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
-      }
-    }
 }
 ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->

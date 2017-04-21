@@ -348,14 +348,16 @@ function divtoggle(spanid, divid) {
 
 <?php
 $hide=1;
+$dateres = getEncounterDateByEncounter($encounter);
+$encounter_date = date("Y-m-d",strtotime($dateres["date"]));
+$patientNameArray = getPatientData($pid, "fname,lname");
+$patientName = $patientNameArray['fname'] . " " . $patientNameArray['lname'];
 require_once("$incdir/patient_file/encounter/new_form.php");
 ?>
 
 <div id="encounter_forms">
 
 <?php
-$dateres = getEncounterDateByEncounter($encounter);
-$encounter_date = date("Y-m-d",strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres);
 ?>
