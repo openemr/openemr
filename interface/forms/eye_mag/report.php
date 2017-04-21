@@ -919,10 +919,11 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
                   $RX_TYPE = xlt('Progressive');
                 }
                 /*
-                    Note html2pdf does not like the last field of a table to be blank.
+                    Note html2pdf did not like the last field of a table to be blank.
                     If it is it will squish the lines together.
                     Work around: if the field is blank, then replace it with a "-" else echo it.
                     aka echo (text($field))?:"-");
+                    Will plan to test this in mPDF, after migrate to it from html2pdf
                 */
                 ?>
                 <tr>

@@ -15,9 +15,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
                     -o -path ./interface/reports \
                     -o -path ./contrib/util \
                     -o -path ./library/openflashchart \
-                    -o -path ./library/html2pdf/vendor/tecnickcom \
                     -o -path ./library/classes/fpdf \
-                    -o -path ./library/html2pdf \
                     -o -path ./gacl \
                     -o -path ./library/edihistory \) -prune -o \
          -name "*.php" -print0 | xargs -0 -n1 -P8 php -l

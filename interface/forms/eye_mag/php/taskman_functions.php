@@ -426,7 +426,8 @@ function make_document($task) {
     global $web_root, $webserver_root;
     $content = ob_get_clean();
 	
-	// Fix a nasty html2pdf bug - it ignores document root!
+	// Fixed a nasty html2pdf bug - it ignores document root!
+	// will plan to test this on new mPDF after complete migration to it from html2pdf
     $i = 0;
     $wrlen = strlen($web_root);
     $wsrlen = strlen($webserver_root);

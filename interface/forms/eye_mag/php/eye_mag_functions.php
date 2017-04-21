@@ -2293,7 +2293,8 @@ function show_PMSFH_report($PMSFH) {
     $counter++;
     $counter++;
     echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>".xlt("POH{{Past Ocular History}}").":</b>";
-    //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
+    //note the HTML2PDF did not like <span style="font-weight:bold;"></span> so we used the deprecated <b></b>
+    //will plan to test this with the new mPDF library that will be replacing html2pdf
     ?>
     <br />
     <?php

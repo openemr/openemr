@@ -187,7 +187,8 @@ function upload_file_to_client_pdf($file_to_send) {
     //echo $file;
     $content = ob_get_clean();
 
-    // Fix a nasty html2pdf bug - it ignores document root!
+    // Fixed a nasty html2pdf bug - it ignores document root!
+    // will plan to test this on new mPDF after complete migration to it from html2pdf
     global $web_root, $webserver_root;
     $i = 0;
     $wrlen = strlen($web_root);
