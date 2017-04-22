@@ -6,7 +6,7 @@
  * If it have been entered in Globals along with the Manual and On Line Support Links
  *
  * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,10 +35,9 @@ require_once("../globals.php");
 ?>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+
+    <?php $include_standard_style_js = array("jquery-ui","jquery-ui-darkness"); ?>
+    <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
     <style>
         .donations-needed {
@@ -69,10 +68,6 @@ require_once("../globals.php");
         }
     </style>
 
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-
     <script type="text/javascript">
         var registrationTranslations = <?php echo json_encode(array(
             'title' => xla('OpenEMR Product Registration'),
@@ -84,7 +79,7 @@ require_once("../globals.php");
             'registeredEmail' => xla('Registered email'),
             'registeredId' => xla('Registered id'),
             'genericError' => xla('Error. Try again later'),
-            'closeTooltip' => xla('Close')
+            'closeTooltip' => ''
         ));
         ?>;
 
