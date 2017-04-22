@@ -52,12 +52,12 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
             $value = "See Growth-Chart";
           }
         }
-        $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . xl($value) . "</div></td>";
+        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
       }
       elseif ($key == "Bps") {
         $bps = $value;
         if ($bpd) {
-          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</div></td>";
+          $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
           continue;
@@ -66,7 +66,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       elseif ($key == "Bpd") {
         $bpd = $value;
         if ($bps) {
-          $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . $bps . "/". $bpd  . "</div></td>";
+          $vitals .= "<td><span class=bold>" . xl('Blood Pressure') . ": </span><span class=text>" . $bps . "/". $bpd  . "</span></td>";
         }
         else {
           continue;
