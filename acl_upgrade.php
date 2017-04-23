@@ -505,7 +505,7 @@ if ($acl_version < $upgrade_acl) {
  //Add new Objects
   echo "<BR/><B>Adding new objects</B><BR/>";
     // Add 'Multipledb' object (added in 5.0.1)
-    addObjectAcl('admin', 'Administration', 'Multipledb', 'multipledb');
+    addObjectAcl('admin', 'Administration', 'multipledb', 'Multipledb');
     addObjectAcl('groups', 'Groups', 'gadd'  , 'View/Add/Update groups');
     addObjectAcl('groups', 'Groups', 'gcalendar'  , 'View/Create/Update groups appointment in calendar');
     addObjectAcl('groups', 'Groups', 'glog'  , 'Group encounter log');
