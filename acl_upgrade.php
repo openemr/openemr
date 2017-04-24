@@ -526,7 +526,7 @@ if ($acl_version < $upgrade_acl) {
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gdlog',  'Group detailed log of appointment in patient record','write');
     updateAcl($admin_write, 'Administrators','groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist','write');
     //Insert the 'Multipledb' object from the 'admin' section into the Administrators group write ACL (added in 5.0.1)
-    updateAcl($admin_write, 'Administrators','admin', 'Administration', 'Multipledb', 'multipledb','write');
+    updateAcl($admin_write, 'Administrators','admin', 'Administration', 'multipledb', 'Multipledb','write');
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
