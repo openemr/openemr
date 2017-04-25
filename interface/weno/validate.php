@@ -25,25 +25,23 @@ include_once('../globals.php');
 include_once('transmitDataClass.php');
 
 $pid = $GLOBALS['pid'];
+$uid = $_SESSION['authUserID'];
 
 $validation = new transmitData();
 
 
-$weno = $validation->validateWeno();
+
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
 
-if(empty($weno[0]['gl_value'])){
+if(empty($GLOBALS['weno_account_id'])){
 	print xlt("Weno Account ID information missing")."<br>";
 	exit;
 }
 
-if(empty($weno[1]['gl_value'])){
-	print xlt("Weno Account Password information missing")."<br>";
-	exit;
-}
 
-if(empty($weno[2]['gl_value'])){
+
+if(empty($GLOBALS['weno_provider_id'])){
 	print xlt("Weno Account Clinic ID information missing")."<br>";
 	exit;
 }

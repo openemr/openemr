@@ -45,14 +45,8 @@ class transmitData {
 				a.facility_id = b.id ";
 
 				$pFinfo = sqlQuery($sql, array($uid));
-			$wenoInfo = array();
         			
-        $wsql = "SELECT gl_value FROM `globals` WHERE `gl_name` LIKE '%weno%'";
-		$wFinfo = sqlStatement($wsql);
-		while($row = sqlFetchArray($wFinfo)){
-			$wenoInfo[] = $row;
-		}
-		 return array($wenoInfo, $pFinfo);
+		 return array($pFinfo);
 		 
 	}
 
@@ -97,19 +91,6 @@ class transmitData {
 		return $res;
 	}
 
-	public function validateWeno(){
-
-         $wenoInfo = "SELECT gl_value FROM globals WHERE gl_name LIKE ? ";
-         $val = array('%weno%');
-
-         $wenores = sqlStatement($wenoInfo,$val);
-         $wenoArray = array();
-         while($row = sqlFetchArray($wenores)){
-             $wenoArray[] = $row;
-         }
-         
-         return $wenoArray;
-	}
 
     public function validatePatient($pid){
          $patientInfo = "SELECT DOB, street, postal_code, city, state, sex FROM patient_data WHERE pid = ?";

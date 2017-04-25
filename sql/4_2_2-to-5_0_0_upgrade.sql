@@ -127,6 +127,24 @@ ALTER TABLE `procedure_order_code` MODIFY `procedure_order_seq` int(11) NOT NULL
 ALTER TABLE `procedure_order_code` ENGINE="InnoDB";
 #EndIf
 
+-- 1. users
+--
+#IfMissingColumn users weno_prov_id
+ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) NULL AFTER `newcrop_user_role`;
+#Endif
+
+-- 2. prescriptions 
+--
+#IfMissingColumn prescriptions ntx 
+ALTER TABLE `prescriptions` ADD `ntx` INT(2) NULL DEFAULT NULL AFTER `prn`, ADD `rtx` INT(2) NULL DEFAULT NULL AFTER `ntx`, ADD `txDate` DATE NOT NULL AFTER `rtx`;
+#Endif
+
+-- 3. pharmacies 
+--
+#IfMissingColumn pharmacies ncpdp
+ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL AFTER `email`, ADD `npi` INT(12) NULL AFTER `ncpdp`;
+#Endif
+
 --
 -- Other tables do not need special treatment before conversion to InnoDB.
 -- Warning: running this query can take a long time.
