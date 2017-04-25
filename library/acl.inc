@@ -801,35 +801,23 @@
                           ON group_settings.section_id = acl_sections.section_id
                       WHERE
                         group_settings.group_id IN (".$groupPlacemakers.") AND acl_sections.`section_identifier` = ? ";
-    $sql_group_acl_denied  = $sql_group_acl_base . " AND group_settings.allowed = '0'";
+
     $sql_group_acl_allowed = $sql_group_acl_base . " AND group_settings.allowed = '1'";
 
     // Complete the group queries sql binding array
     array_push($groups_sql_param, $section_identifier);
-
-        $count_user_denied      = 0;
-        $count_user_allowed     = 0;
-        $count_group_denied     = 0;
+      
         $count_group_allowed    = 0;
-
-        $res_user_denied        = sqlQuery($sql_user_acl,array($section_identifier,$user_id,0));
-        $count_user_denied      = $res_user_denied['count'];
-
+        $count_user_allowed     = 0;
+      
         $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
         $count_user_allowed     = $res_user_allowed['count'];
-
-        $res_group_denied       = sqlQuery($sql_group_acl_denied, $groups_sql_param);
-        $count_group_denied     = $res_group_denied['count'];
 
         $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
         $count_group_allowed    = $res_group_allowed['count'];
 
-        if($count_user_denied > 0)
-            return false;
-        elseif($count_user_allowed > 0)
+        if($count_user_allowed > 0)
             return true;
-        elseif($count_group_denied > 0 )
-            return false;
         elseif($count_group_allowed > 0)
             return true;
         else

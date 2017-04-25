@@ -119,7 +119,6 @@ function fetch_reminders($pid, $appt_date) {
 
 <title><?php echo xlt('Appointments Report'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
@@ -209,10 +208,10 @@ function fetch_reminders($pid, $appt_date) {
 
 		<table class='text'>
 			<tr>
-				<td class='label'><?php echo xlt('Facility'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
 				<td><?php dropdown_facility($facility , 'form_facility'); ?>
 				</td>
-				<td class='label'><?php echo xlt('Provider'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
 				<td><?php
 
 				// Build a drop-down list of providers.
@@ -238,13 +237,13 @@ function fetch_reminders($pid, $appt_date) {
 				</td>
 			</tr>
 			<tr>
-				<td class='label'><?php echo xlt('From'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('From'); ?>:</td>
 				<td><input type='text' name='form_from_date' id="form_from_date"
 				    class='datepicker'
 					size='10' value='<?php echo attr($from_date) ?>'
 					title='yyyy-mm-dd'>
 				</td>
-				<td class='label'><?php echo xlt('To'); ?>:</td>
+				<td class='label_custom'><?php echo xlt('To'); ?>:</td>
 				<td><input type='text' name='form_to_date' id="form_to_date"
 				    class='datepicker'
 					size='10' value='<?php echo attr($to_date) ?>'
@@ -253,7 +252,7 @@ function fetch_reminders($pid, $appt_date) {
 			</tr>
 
 			<tr>
-				<td class='label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+				<td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
 				<td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
 				<td><?php echo xlt('Category') #category drop down creation ?>:</td>
 				<td>

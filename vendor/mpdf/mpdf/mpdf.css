@@ -1,0 +1,82 @@
+
+
+
+/* LISTS */
+
+/* 
+A default margin-top/bottom for lists is NOT set in config.php - (standard browsers give outermost list a top and bottom margin).
+[mPDF default CSS set in config.php only works on basic elements, cannot do selectors such as "ol ol"]
+Need to add the following to do this, but also prevent margins in nested lists as per default HTML in most browsers: 
+*/
+
+ul, ol { margin-top: 0.83em; margin-bottom: 0.83em; }
+ul ul, ul ol, ol ul, ol ol { margin-top: 0; margin-bottom: 0; }
+
+
+
+
+/* INDEXES */
+div.mpdf_index_main {
+	font-family: sans-serif;
+	line-height: normal;
+}
+div.mpdf_index_entry {
+	line-height: normal;
+	text-indent: -1.5em;
+}
+div.mpdf_index_letter {
+	font-family: sans-serif;
+	font-size: 1.8em;
+	font-weight: bold;
+	line-height: normal;
+	text-transform: uppercase;
+	page-break-after: avoid; 
+	margin-top: 0.3em; 
+	margin-collapse: collapse;
+}
+a.mpdf_index_link { 
+	color: #000000; 
+	text-decoration: none; 
+}
+
+
+
+/* TABLE OF CONTENTS */
+div.mpdf_toc {
+	font-family: sans-serif;
+	line-height: normal;
+}
+a.mpdf_toc_a  {
+	text-decoration: none;
+	color: black;
+}
+div.mpdf_toc_level_0 {		/* Whole line level 0 */
+	line-height: 1.5;
+	margin-left: 0;
+	padding-right: 0em;	/* should match the outdent specified for ToC; 0 is default; suggested value 2em */
+}
+span.mpdf_toc_t_level_0 {	/* Title level 0 - may be inside <a> */
+	font-weight: bold;
+}
+span.mpdf_toc_p_level_0 {	/* Page no. level 0 - may be inside <a> */
+}
+div.mpdf_toc_level_1 {		/* Whole line level 1 */
+	margin-left: 2em;
+	text-indent: -2em;
+	padding-right: 0em;	/* should match the outdent specified for ToC; 0 is default; suggested value 2em */
+}
+span.mpdf_toc_t_level_1 {	/* Title level 1 */
+	font-style: italic;
+	font-weight: bold;
+}
+span.mpdf_toc_p_level_1  {	/* Page no. level 1 - may be inside <a> */
+}
+div.mpdf_toc_level_2 {		/* Whole line level 2 */
+	margin-left: 4em;
+	text-indent: -2em;
+	padding-right: 0em;	/* should match the outdent specified for ToC; 0 is default; suggested value 2em */
+}
+span.mpdf_toc_t_level_2 {	/* Title level 2 */
+}
+span.mpdf_toc_p_level_2 {	/* Page no. level 2 - may be inside <a> */
+}

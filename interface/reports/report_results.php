@@ -46,7 +46,6 @@ require_once "$srcdir/report_database.inc";
 
 <title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
@@ -115,7 +114,7 @@ require_once "$srcdir/report_database.inc";
 	<table class='text'>
 
                    <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                          <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
@@ -126,7 +125,7 @@ require_once "$srcdir/report_database.inc";
                    </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                               <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>

@@ -686,8 +686,13 @@ while ($result4 = sqlFetchArray($res4)) {
                       $codekey = 'CO-PAY';
                       $codekeydisp = xl('CO-PAY');
                     }
+                    if ($iter2['modifier']) {
+                      $codekey .= ':' . $iter2['modifier'];
+                      $codekeydisp .= ':' . $iter2['modifier'];
+                    }
+
                     $codekeydisp = htmlspecialchars($codekeydisp, ENT_NOQUOTES);
-                    if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
+
                     if ($binfo[0]) $binfo[0] .= '<br>';
                     if ($issue && !$billing_view) {
                       // Single issue clinical view: show code description after the code.

@@ -416,7 +416,7 @@ UPDATE `registry` SET `aco_spec` = 'patients|lab'      WHERE directory = 'proced
 #EndIf
 
 #IfNotColumnType lbf_data field_value longtext
-ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext NOT NULL;
+ALTER TABLE `lbf_data` CHANGE `field_value` `field_value` longtext;
 #EndIf
 
 #IfMissingColumn issue_types aco_spec
@@ -426,3 +426,12 @@ ALTER TABLE `issue_types` ADD `aco_spec` varchar(63) NOT NULL default 'patients|
 #IfMissingColumn categories aco_spec
 ALTER TABLE `categories` ADD `aco_spec` varchar(63) NOT NULL default 'patients|docs';
 #EndIf
+
+#IfNotRow background_services name ccdaservice
+INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES ('ccdaservice', 'C-CDA Node Service', 1, 'runCheck', '/ccdaservice/ssmanager.php', 95);
+ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL DEFAULT '-1' COMMENT 'True indicates managed service is busy. Skip this interval.';
+#EndIf
+
+#IfNotColumnType onsite_mail owner varchar(128)
+ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
+#Endif

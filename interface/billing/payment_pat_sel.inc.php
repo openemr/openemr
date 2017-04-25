@@ -45,13 +45,13 @@ if (isset($_POST["mode"]))
 	 {
 	  $StringForQuery=" and last_level_closed >= 1 ";
 	 }
-	$ResultSearchNew = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,billing.code_type,billing.code,billing.modifier,fee
-	 FROM billing ,form_encounter
-			 where billing.encounter=form_encounter.encounter and code_type!='ICD9' and  code_type!='COPAY' and billing.activity!=0 and
-			 form_encounter.pid ='$hidden_patient_code' and billing.pid ='$hidden_patient_code'  $StringForQuery ORDER BY form_encounter.`date`, 
-			 form_encounter.encounter,billing.code,billing.modifier");
+	$ResultSearchNew = sqlStatement("SELECT b.id,last_level_closed,b.encounter,fe.`date`,b.code_type,b.code,b.modifier,fee
+	                                 FROM billing AS b,form_encounter AS fe, code_types AS ct
+			                         WHERE b.encounter=fe.encounter AND b.code_type=ct.ct_key AND ct.ct_diag=0 
+			                         AND b.activity!=0 AND fe.pid ='$hidden_patient_code' AND b.pid ='$hidden_patient_code' 
+			                         $StringForQuery ORDER BY fe.`date`, fe.encounter,b.code,b.modifier");
 	$res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-			where pid ='".$_REQUEST['hidden_patient_code']."'");
+			             where pid ='".$_REQUEST['hidden_patient_code']."'");
 	$row = sqlFetchArray($res);
 		$fname=$row['fname'];
 		$lname=$row['lname'];
@@ -182,8 +182,10 @@ if (isset($_POST["mode"]))
 					
 					//Always associating the copay to a particular charge.
 					$BillingId=$RowSearch['id'];
-					$resId = sqlStatement("SELECT id  FROM billing where code_type!='ICD9' and  code_type!='COPAY'  and
-					pid ='$hidden_patient_code' and  encounter  ='$Encounter' and billing.activity!=0 order by id");
+					$resId = sqlStatement("SELECT b.id FROM billing AS b, code_types AS ct 
+					                       WHERE b.code_type=ct.ct_key AND ct.ct_diag=0 AND
+					                       b.pid='$hidden_patient_code' AND b.encounter='$Encounter' 
+					                       AND b.activity!=0 ORDER BY id");
 					$rowId = sqlFetchArray($resId);
 					$Id=$rowId['id'];
 

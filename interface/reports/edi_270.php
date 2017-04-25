@@ -311,13 +311,13 @@
 							<div style='float:left'>
 								<table class='text'>
 									<tr>
-										<td class='label'>
+										<td class='label_custom'>
 										   <?php xl('From','e'); ?>:
 										</td>
 										<td>
 										   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
 										</td>
-										<td class='label'>
+										<td class='label_custom'>
 										   <?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
@@ -328,13 +328,13 @@
 									</tr>
 
 									<tr>
-										<td class='label'>
+										<td class='label_custom'>
 											<?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
 											<?php dropdown_facility($form_facility,'form_facility',false);	?>
 										</td>
-										<td class='label'>
+										<td class='label_custom'>
 										   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
@@ -352,7 +352,7 @@
 									</tr>
 
 									<tr>
-										<td class='label'>
+										<td class='label_custom'>
 											<?php echo htmlspecialchars( xl('X12 Partner'), ENT_NOQUOTES); ?>:
 										</td>
 										<td colspan='5'>

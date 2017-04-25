@@ -189,7 +189,7 @@ else {
         <div style='float:left'>
           <table class='text'>
             <tr>
-              <td class='label'>
+              <td class='label_custom'>
                 <?php echo " "; ?>
               </td>
             </tr>

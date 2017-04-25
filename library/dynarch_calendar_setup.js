@@ -16,7 +16,8 @@
  * providing a quick and simple method for setting it up.  If you need
  * exhaustive customization of the calendar creation process feel free to
  * modify this code to suit your needs (this is recommended and much better
- * than modifying calendar.js itself).
+ * than modifying calendar.js itself; note calendar.js was removed from openemr
+ * codebase in 04/2017 as migrate to new datepicker).
  */
 
 // $Id$

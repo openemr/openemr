@@ -32,7 +32,7 @@
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
 
- $msgs = getPortalPatientNotes($pid);
+ $msgs = getPortalPatientNotes($_SESSION['portal_username']);
  $msgcnt = count($msgs);
  $newcnt = 0;
  foreach ( $msgs as $i ) {
@@ -119,13 +119,19 @@ $(document).ready(function(){
             $(".right-side").toggleClass("strech");
         }
     });
+    $(function(){
+        $('#popwait').hide();
+        $('#callccda').click(function(){
+            $('#popwait').show();
+        })
+    });
 });
 </script>
 	<!-- Right side column. Contains content of the page -->
 	<aside class="right-side">
 		<!-- Main content -->
 		<section class="container-fluid content panel-group" id="panelgroup">
-
+		<div id="popwait" class="alert alert-warning" style="font-size:18px"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
 			<div class="row collapse" id="lists">
 				<div class="col-sm-6">
 					<div class="panel panel-primary">
@@ -176,14 +182,14 @@ $(document).ready(function(){
 				</div><!-- /.col -->
 			</div><!-- /.row -->
 			<div class="row">
-				<div class="col-sm-12">
+				<!--<div class="col-sm-12">
 					<div class="panel panel-primary collapse" id="paymentpanel">
 						<header class="panel-heading"> <?php echo xlt('Payments'); ?> </header>
 						<div id="payment" class="panel-body"></div>
 						<div class="panel-footer">
 						</div>
 					</div>
-				</div><!-- /.col -->
+				</div> /.col -->
 			</div>
 			<div class="row">
 				<div class="col-sm-12">
@@ -210,7 +216,7 @@ $(document).ready(function(){
 					<div class="panel panel-primary collapse" id="downloadpanel">
 						<header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
 						<div id="docsdownload" class="panel-body">
-						<?php if ( $GLOBALS['portal_onsite_document_download'] ) { ?>
+						<?php if ( $GLOBALS['portal_onsite_document_download'] ) { ?>// really should always be able to download!
 							<div>
 								<span class="text"><?php echo xlt('Download all patient documents');?></span>
 								<form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
@@ -218,9 +224,6 @@ $(document).ready(function(){
 								</form>
 							</div>
 						<?php } ?>
-							<!-- <div class="input-group" style='padding-top:10px'>
-								<span class="input-group-addon" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">Patient Signature</span>
-							</div> -->
 						</div><!-- /.panel-body -->
 						<div class="panel-footer"></div>
 					</div>

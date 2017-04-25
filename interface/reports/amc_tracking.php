@@ -50,7 +50,6 @@ $provider  = trim($_POST['form_provider']);
 
 <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
@@ -204,7 +203,7 @@ $provider  = trim($_POST['form_provider']);
 	<table class='text'>
 
                  <tr>
-                      <td class='label'>
+                      <td class='label_custom'>
                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
@@ -215,7 +214,7 @@ $provider  = trim($_POST['form_provider']);
                  </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
@@ -226,7 +225,7 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-                        <td class='label'>
+                        <td class='label_custom'>
                             <?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
@@ -242,7 +241,7 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-			<td class='label'>
+			<td class='label_custom'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
 			<td>

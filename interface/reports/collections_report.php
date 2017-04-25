@@ -349,7 +349,7 @@ function checkAll(checked) {
 
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<table>
 					<tr>
 						<td><?php echo xlt('Displayed Columns') ?>:</td>
@@ -410,14 +410,14 @@ function checkAll(checked) {
 				<table>
 
 					<tr>
-						<td class='label'>
+						<td class='label_custom'>
 						   <?php echo xlt('Service Date'); ?>:
 						</td>
 						<td>
 						   <input type='text' class='datepicker' name='form_date' id="form_date" size='10' value='<?php echo attr($form_date) ?>'
 							title='yyyy-mm-dd'>
 						</td>
-						<td class='label'>
+						<td class='label_custom'>
 						   <?php echo xlt('To'); ?>:
 						</td>
 						<td>
@@ -440,14 +440,14 @@ function checkAll(checked) {
 
 
 					<tr>
-						<td class='label'>
+						<td class='label_custom'>
                         <?php echo xlt('Facility'); ?>:
                         </td>
                         <td>
                         <?php dropdown_facility($form_facility, 'form_facility', false); ?>
                         </td>
 
-                        <td class='label'>
+                        <td class='label_custom'>
                         <?php echo xlt('Payor'); ?>:
 						</td>
 						<td>
@@ -467,7 +467,7 @@ function checkAll(checked) {
 					</tr>
 
 					<tr>
-						<td class='label'>
+						<td class='label_custom'>
 						   <?php echo xlt('Age By') ?>:
 						</td>
 						<td>
@@ -482,7 +482,7 @@ function checkAll(checked) {
 						   </select>
 						</td>
 
-                        <td class='label'>
+                        <td class='label_custom'>
 						   <?php echo xlt('Provider') ?>:
 						</td>
 						<td>
@@ -510,13 +510,13 @@ function checkAll(checked) {
 						</td>
 					</tr>
 					</tr>
-						<td class='label'>
+						<td class='label_custom'>
 						   <?php echo xlt('Aging Columns') ?>:
 						</td>
 						<td>
 						   <input type='text' name='form_age_cols' size='2' value='<?php echo attr($form_age_cols); ?>' />
 						</td>
-						<td class='label'>
+						<td class='label_custom'>
 						   <?php echo xlt('Days/Col') ?>:
 						</td>
 						<td>

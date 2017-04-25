@@ -87,7 +87,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
             $tag_name_esc = $tag_name_esc . "[]";
         }
 
-	$s .= "<select name='$tag_name_esc'";
+  $s .= "<select name='$tag_name_esc'";
 
 	if ($multiple) {
 		$s .= " multiple='multiple'";
@@ -101,10 +101,14 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 
 	$s .= " id='$tag_id_esc'";
 
-	if ($class) {
-                $class_esc = attr($class);
-		$s .= " class='$class_esc'";
-	}
+  if (!empty($class)) {
+    $class_esc = attr($class);
+    $s .= " class='form-control $class_esc'";
+  }
+  else {
+    $s .= " class='form-control'";
+  }
+
 	if ($onchange) {
 		$s .= " onchange='$onchange'";
 	}
@@ -391,7 +395,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled>";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control'>";
     echo "<option value=''>" . xlt($empty_title) . "</option>";
     $got_selected = false;
     while ($urow = sqlFetchArray($ures)) {
@@ -2414,9 +2418,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
 	// Handle starting of a new label cell.
 	if ($titlecols > 0) {
 	  disp_end_cell();
-	  //echo "<td class='label' colspan='$titlecols' valign='top'";
+	  //echo "<td class='label_custom' colspan='$titlecols' valign='top'";
 	  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-	  echo "<td class='label' colspan='$titlecols_esc' ";
+	  echo "<td class='label_custom' colspan='$titlecols_esc' ";
 	  //if ($cell_count == 2) echo " style='padding-left:10pt'";
 	  echo ">";
 	  $cell_count += $titlecols;
@@ -2544,7 +2548,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
 					  $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='" . attr($field_id_label) . "'";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2682,7 +2686,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
                       $field_id_label = 'label_'.$group_fields['field_id'];
-					  echo "<td class='label' colspan='$titlecols_esc' id='$field_id_label' ";
+					  echo "<td class='label_custom' colspan='$titlecols_esc' id='$field_id_label' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}
@@ -2919,7 +2923,7 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
   $fres = sqlStatement($query);
 
   $name = htmlspecialchars($name, ENT_QUOTES);
-  echo "   <select name='$name' id='$name'";
+  echo "   <select class='form-control' name='$name' id='$name'";
   if ($onchange) echo " onchange='$onchange'";
   echo " $disabled>\n";
 

@@ -134,7 +134,7 @@ $grand_total_amt_balance  = 0;
 	<div style='float:left'>
 	<table class='text'>
 		<tr>
-			<td class='label'>
+			<td class='label_custom'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
@@ -164,7 +164,7 @@ $grand_total_amt_balance  = 0;
                            <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
                                 title='yyyy-mm-dd'>
                         </td>
-                        <td class='label'>
+                        <td class='label_custom'>
                            <?php echo xlt('To'); ?>:
                         </td>
                         <td>

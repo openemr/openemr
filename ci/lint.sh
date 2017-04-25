@@ -10,8 +10,7 @@ fi
 
 if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
   cd $2
-  find . -type d \( -path ./phpmyadmin \
-                    -o -path ./vendor \
+  find . -type d \( -path ./vendor \
                     -o -path ./interface/main/calendar/modules \
                     -o -path ./interface/reports \
                     -o -path ./contrib/util \

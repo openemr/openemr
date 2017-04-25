@@ -171,6 +171,10 @@ a:hover {
     color: #000000;
 }
 
+.sidebar {
+    background: #94d6e7;
+}
+
 /*=============================================================
  * Here we have taken variables from globals.php and turned them into CSS classes 
  * these should be used in place of the GLOBAL variables -- JRM March 2008
@@ -295,7 +299,7 @@ font-weight: bold;
     padding-right: 5px;
     vertical-align: top;
 }
-#DEM .label {
+#DEM .label_custom {
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: top;
@@ -318,7 +322,7 @@ font-weight: bold;
     vertical-align: top;
     height: 2em;
 }
-#HIS .label {
+#HIS .label_custom {
     font-weight: bold;
     font-size: 9pt;
     vertical-align: top;
@@ -637,6 +641,7 @@ font-weight: bold;
 .css_button_small:hover {
     background: #1050b6;
     box-shadow: 0px 1px 3px #DDD;
+    text-decoration: none;
 }
 
 .css_button, input[type="button"], input[type="submit"], button{
@@ -666,6 +671,7 @@ font-weight: bold;
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
     background: #1050b6;
     box-shadow: 3px 4px 6px #DDD ;
+    text-decoration: none;
 }
 
 input[type="button"][style="background-color:#ffff55"] {
@@ -723,7 +729,7 @@ div.tab table td {
 	padding-right: 1px; padding-bottom: 0px
 }
 
-div.tab table td.label {
+div.tab table td.label_custom {
 	min-width:80px;
 }
 
@@ -775,7 +781,7 @@ div.notab-right {
 	font-size: 0.8em;
 }
 
-#report_parameters table table td.label {
+#report_parameters table table td.label_custom {
 	text-align: right;
 }
 

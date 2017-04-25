@@ -24,19 +24,19 @@
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
-require_once("../globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/invoice_summary.inc.php");
-require_once("$srcdir/appointments.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/../controllers/C_Document.class.php");
-require_once("$srcdir/documents.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
+require_once ("../globals.php");
+require_once ("$srcdir/patient.inc");
+require_once ("$srcdir/invoice_summary.inc.php");
+require_once ("$srcdir/appointments.inc.php");
+require_once ($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once ("$srcdir/parse_era.inc.php");
+require_once ("$srcdir/sl_eob.inc.php");
+require_once ("$srcdir/api.inc");
+require_once ("$srcdir/forms.inc");
+require_once ("$srcdir/../controllers/C_Document.class.php");
+require_once ("$srcdir/documents.php");
+require_once ("$srcdir/options.inc.php");
+require_once ("$srcdir/acl.inc");
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -45,64 +45,88 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 /* Load dependencies only if we need them */
-if( ( isset($GLOBALS['portal_onsite_two_enable'])) || ($GLOBALS['portal_onsite_two_enable']) ){
-	/*  Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-	require_once("../../patients/lib/portal_mail.inc");
-	require_once("../../patients/lib/appsql.class.php");
-	
-	function is_auth_portal( $pid = 0){
-		if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid) )) {
-			if($pData['allow_patient_portal'] != "YES")
-				return false;
-				else return true;
-		}
-		else return false;
-	}
-	function notify_portal($thispid, array $invoices, $template, $invid){
-		$builddir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $thispid;
-		if( ! is_dir($builddir) )
-			mkdir($builddir, 0755, true);
-		if( fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl') != true ) return false; 
-		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
-		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
-		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) != 1)
-			return false;;
-		//addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
-		return true;
-	}
-	function fixup_invoice($template, $ifile){
-		$data = file_get_contents($template);
-		if($data == "") return false;
-		if( !file_put_contents($ifile, $data) ) return false;
-		return true;
-	}
-	function SavePatientAudit( $pid, $invs ){
-		$appsql = new ApplicationTable();
-		try{
-			$audit = Array ();
-			$audit['patient_id'] = $pid;
-			$audit['activity'] = "invoice";
-			$audit['require_audit'] = "0";
-			$audit['pending_action'] = "payment";
-			$audit['action_taken'] = "";
-			$audit['status'] = "waiting transaction";
-			$audit['narrative'] = "Request patient online payment.";
-			$audit['table_action'] = '';
-			$audit['table_args'] =  json_encode($invs);
-			$audit['action_user'] = $pid;
-			$audit['action_taken_time'] = "";
-			$audit['checksum'] = "";
-			$edata = $appsql->getPortalAudit( $pid, 'payment', 'invoice', "waiting transaction", 0 );
-			//$audit['date'] = $edata['date'];
-			if( $edata['id'] > 0 ) $appsql->portalAudit( 'update', $edata['id'], $audit );
-			else{
-				$appsql->portalAudit( 'insert', '', $audit );
-			}
-		} catch( Exception $ex ){
-			return $ex;
-		}
-		return true;
-	}
+if (! empty($GLOBALS['portal_onsite_two_enable'])) {
+    /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
+    require_once ("../../portal/lib/portal_mail.inc");
+    require_once ("../../portal/lib/appsql.class.php");
+
+    function is_auth_portal($pid = 0)
+    {
+        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array(
+            $pid
+        ))) {
+            if ($pData['allow_patient_portal'] != "YES") {
+                return false;
+            } else {
+                $_SESSION['portalUser'] = strtolower($pData['fname']) . $pData['id'];
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function notify_portal($thispid, array $invoices, $template, $invid)
+    {
+        $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
+        if (! is_dir($builddir))
+            mkdir($builddir, 0755, true);
+        if (fixup_invoice($template, $builddir . '/invoice' . $invid . '.tpl') != true) {
+            return false;
+        }
+        if (SavePatientAudit($thispid, $invoices) != true) {
+            return false;
+        } // this is all the invoice data for portal auditing
+        $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
+        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']) == 1) { // remind admin this was sent
+            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']); // notify patient
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    function fixup_invoice($template, $ifile)
+    {
+        $data = file_get_contents($template);
+        if ($data == "") {
+            return false;
+        }
+        if (! file_put_contents($ifile, $data)) {
+            return false;
+        }
+        return true;
+    }
+
+    function SavePatientAudit($pid, $invs)
+    {
+        $appsql = new ApplicationTable();
+        try {
+            $audit = Array();
+            $audit['patient_id'] = $pid;
+            $audit['activity'] = "invoice";
+            $audit['require_audit'] = "0";
+            $audit['pending_action'] = "payment";
+            $audit['action_taken'] = "";
+            $audit['status'] = "waiting transaction";
+            $audit['narrative'] = "Request patient online payment.";
+            $audit['table_action'] = '';
+            $audit['table_args'] = json_encode($invs);
+            $audit['action_user'] = $pid;
+            $audit['action_taken_time'] = "";
+            $audit['checksum'] = "";
+            $edata = $appsql->getPortalAudit($pid, 'payment', 'invoice', "waiting transaction", 0);
+            if ($edata['id'] > 0) {
+                $appsql->portalAudit('update', $edata['id'], $audit);
+            }
+            else {
+                $appsql->portalAudit('insert', '', $audit);
+            }
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return true;
+    }
 }
 // This is called back by parse_era() if we are processing X12 835's.
 function era_callback(&$out) {
@@ -237,8 +261,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
   }
   $where = substr($where, 4);
   // need to only use summary invoice for multi visits
+  $inv_pid = array();
+  $inv_count = -1;
   foreach ($_POST['form_invpids'] as $key => $v) {
-  	$inv_pid[$key] = key($v);
+  	if($_POST['form_cb'][$key]){
+  		array_push($inv_pid,key($v));
+  	}
   }
   $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .

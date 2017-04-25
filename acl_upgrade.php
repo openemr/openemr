@@ -117,7 +117,7 @@
 */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {
@@ -531,7 +531,6 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-
 /* This is a template for a new revision, when needed
 // Upgrade for acl_version 6
 $upgrade_acl = 6;
@@ -562,6 +561,65 @@ if ($acl_version < $upgrade_acl) {
 }
 */
 
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 7
+$upgrade_acl = 7;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+*/
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 8
+$upgrade_acl = 8;
+if ($acl_version < $upgrade_acl) {
+  echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+  //Collect the ACL ID numbers.
+  echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+
+  //Add new object Sections
+  echo "<BR/><B>Adding new object sections</B><BR/>";
+
+  //Add new Objects
+  echo "<BR/><B>Adding new objects</B><BR/>";
+
+  //Update already existing Objects
+  echo "<BR/><B>Upgrading objects</B><BR/>";
+
+  //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+  // (will also place in the appropriate group and CREATE a new group if needed)
+  echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+  //Update the ACLs
+  echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+  //DONE with upgrading to this version
+  $acl_version = $upgrade_acl;
+}
+*/
 
 //All done
 $response = set_acl_version($acl_version);

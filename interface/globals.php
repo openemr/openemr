@@ -1,7 +1,7 @@
 <?php
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/../common/compatibility/checker.php");
+require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {
@@ -14,6 +14,8 @@ if ($response !== true) {
 if (!isset($ignoreAuth)) $ignoreAuth = false;
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
+// Same for onsite
+if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
 // Unless specified explicitly, do not reverse magic quotes
 if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
@@ -95,6 +97,11 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 // Now that restore_session() is implemented in javaScript, session IDs are
 // effectively saved in the top level browser window and there is no longer
 // any need to change the session name for different OpenEMR instances.
+// On 4/8/17, added cookie_path to improve security when using different
+// OpenEMR instances on same server to prevent session conflicts; also
+// modified interface/login/login.php and library/restoreSession.php to be
+// consistent with this.
+ini_set('session.cookie_path', $web_root ? $web_root : '/');
 session_name("OpenEMR");
 
 session_start();
@@ -133,6 +140,9 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
 
 // Set the site-specific directory path.
 $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id'];
+
+// Set a site-specific uri root path.
+$GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
 
 require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 
@@ -183,6 +193,22 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+
+//  Check necessary writeable paths exist for mPDF tool
+if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
+    }
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+    }
+} else {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+}
+// Safe bet support directories exist, define them.
+define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
+define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
 
 // Includes composer autoload
 // Note this also brings in following library files:
@@ -286,6 +312,16 @@ if (!empty($glrow)) {
       if ($gl_value) $GLOBALS['inhouse_pharmacy'] = true;
       if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
+    }
+    else if ($gl_name == 'gbl_time_zone') {
+      // The default PHP time zone is set here if it was specified, and is used
+      // as source data for the MySQL time zone here and in some other places
+      // where MySQL connections are opened.
+      if ($gl_value) {
+        date_default_timezone_set($gl_value);
+      }
+      // Synchronize MySQL time zone with PHP time zone.
+      sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
     }
     else {
       $GLOBALS[$gl_name] = $gl_value;
@@ -391,11 +427,11 @@ $bottom_bg_line = $top_bg_line;
 $title_bg_line = ' bgcolor="#bbbbbb" ';
 $nav_bg_line = ' bgcolor="#94d6e7" ';
 $login_filler_line = ' bgcolor="#f7f0d5" ';
-$logocode = "<img class='img-responsive center-block' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+$logocode = "<img class='img-responsive center-block' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif'>";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
-$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
-$tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
+$tinylogocode1 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
@@ -466,6 +502,9 @@ $GLOBALS['include_de_identification']=0;
 
 if ( ($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1) ) {
   $ignoreAuth = true;
+}
+elseif ( ($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1) ) {
+	$ignoreAuth = true;
 }
 if (!$ignoreAuth) {
   include_once("$srcdir/auth.inc");

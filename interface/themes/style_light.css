@@ -156,7 +156,7 @@ a:hover {
 }
 
 /*=============================================================
- * Here we have taken variables from globals.php and turned them into CSS classes 
+ * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 .body_top {
@@ -356,7 +356,7 @@ a:hover {
   padding-right: 5px;
   vertical-align: top;
 }
-#DEM .label {
+#DEM .label_custom {
   font-weight: bold;
   font-size: 0.8em;
   vertical-align: top;
@@ -379,7 +379,7 @@ a:hover {
   vertical-align: top;
   height: 2em;
 }
-#HIS .label {
+#HIS .label_custom {
   font-weight: bold;
   font-size: 9pt;
   vertical-align: top;
@@ -684,6 +684,7 @@ tr.odd, td.even {
 }
 .css_button_small:hover {
   background: #1050b6;
+  text-decoration: none;
 }
 
 .css_button, input[type="button"],input[type="submit"], button {
@@ -707,6 +708,7 @@ tr.odd, td.even {
 }
 .css_button:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover {
   background: #1050b6;
+  text-decoration: none;
 }
 .css_btn {
   background: #2672ec;
@@ -825,7 +827,7 @@ div.tab table td {
   padding-bottom: 0px;
 }
 
-div.tab table td.label {
+div.tab table td.label_custom {
   min-width: 80px;
 }
 
@@ -886,7 +888,7 @@ div.notab-right {
   font-size: 0.8em;
 }
 
-#report_parameters table table td.label {
+#report_parameters table table td.label_custom {
   text-align: right;
 }
 
@@ -1489,4 +1491,8 @@ table.dataTable#therapy_groups_list tbody td{
 #file_type_whitelist .top-list{
   margin: 20px 20px 2px 20px;
 
+}
+
+.sidebar {
+  background-color: #f8f8f8;
 }

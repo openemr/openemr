@@ -36,17 +36,13 @@ require_once("../globals.php");
     <?php html_header_show();?>
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/ui-darkness/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+    <?php $include_standard_style_js = array("jquery-ui","jquery-ui-darkness"); ?>
+    <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+
     <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']  ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
 
     <script type="text/javascript">
         var registrationTranslations = <?php echo json_encode(array(
@@ -59,7 +55,7 @@ require_once("../globals.php");
             'registeredEmail' => xla('Registered email'),
             'registeredId' => xla('Registered id'),
             'genericError' => xla('Error. Try again later'),
-            'closeTooltip' => xla('Close')
+            'closeTooltip' => ''
         ));
         ?>;
 
@@ -100,7 +96,7 @@ require_once("../globals.php");
                 // This forces the server to create a new session ID.
                 var olddate = new Date();
                 olddate.setFullYear(olddate.getFullYear() - 1);
-                document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
+                document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=<?php echo($web_root ? $web_root : '/');?>; expires=' + olddate.toGMTString();
             <?php } ?>
             return false; //Currently the submit action is handled by the encrypt_form().
         }

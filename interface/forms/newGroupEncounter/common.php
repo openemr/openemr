@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -62,12 +63,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <!-- validation library -->
 <?php
@@ -75,11 +78,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
-<!-- pop up calendar -->
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
 <script language="JavaScript">
 
@@ -101,7 +99,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
  <?php
  //Gets validation rules from Page Validation list.
- //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call. 
+ //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
  $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
  if (empty($collectthis)) {
    $collectthis = "undefined";
@@ -119,6 +117,14 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
        $('#new-encounter-form').submit();
      }
    }
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 
    enable_big_modals();
  });
@@ -318,32 +324,24 @@ if ($fres) {
     <tr>
      <td class='bold' nowrap><?php echo xlt('Date of Service'); ?>:</td>
      <td class='text' nowrap>
-      <input type='text' size='10' name='form_date' id='form_date' <?php echo $disabled ?>
+      <input type='text' size='10' class='datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
-       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+       title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
      </td>
     </tr>
 
     <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
-      <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
-       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>'
-       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-        id='img_form_onset_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-        title='<?php echo xla('Click here to choose a date'); ?>'>
+      <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>'
+       title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>' />
      </td>
     </tr>
 	<tr>
      <td class='text' colspan='2' style='padding-top:1em'>
 	 </td>
-    </tr> 
+    </tr>
    </table>
 
   </td>
@@ -363,13 +361,10 @@ if ($fres) {
 </body>
 
 <script language="javascript">
-/* required for popup calendar */
-Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
-Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_form_onset_date"});
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -377,7 +372,7 @@ if (!$viewmode) { ?>
             return;
         }
         // otherwise just continue normally
-    }    
+    }
 <?php
 
   // Search for an encounter from today

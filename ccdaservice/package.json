@@ -1,0 +1,25 @@
+{
+  "name": "ccdaservice",
+  "version": "0.1.0",
+  "description": "ccdaservice",
+  "main": "serveccda.njs",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjpadgett/openemr/tree/ccdaservice"
+  },
+  "keywords": [
+    "node.js",
+    "eclipse",
+    "nodeclipse"
+  ],
+  "author": "sjpadgett@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "blue-button-generate": "^1.5.7",
+    "net": "^1.0.2",
+    "xmljson": "^0.2.0"
+  },
+  "devDependencies": {}
+}

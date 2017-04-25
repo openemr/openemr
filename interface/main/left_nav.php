@@ -8,7 +8,7 @@ use ESign\Api;
  * of the License, or (at your option) any later version.
  */
 
- // This provides the left navigation frame. 
+ // This provides the left navigation frame.
  // Following are notes as to what else was changed for this feature:
  //
  // * interface/main/main_screen.php: the top-level frameset.
@@ -92,7 +92,7 @@ use ESign\Api;
  require_once($GLOBALS['fileroot']."/library/lists.inc");
  require_once $GLOBALS['srcdir'].'/ESign/Api.php';
  require_once $GLOBALS['srcdir'].'/user.inc';
- 
+
  // Fetch user preferences saved from prior session
  $uspfx = substr(__FILE__, strlen($GLOBALS['fileroot']."/")) . '.';
  $cb_top_chk = prevSetting($uspfx, 'cb_top', 'frame0_chk', 'checked');
@@ -245,7 +245,7 @@ if($GLOBALS['enable_group_therapy']){
  function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="") {
   global $disallowed;
   if (empty($disallowed[$name])) {
-	 
+
    $id = $name . $level;
    echo "<li><a href='' id='$id' title='$mouseovertext' onclick=\"";
    if ($mono) {
@@ -419,34 +419,34 @@ function genFindBlock() {
 <script language='JavaScript'>
  // User settings
  var usrval = jQuery.parseJSON('<?php echo $usrval ?>');
- 
+
  // tajemo work by CB 2012/01/31 12:32:57 PM dated reminders counter
- function getReminderCount(){ 
+ function getReminderCount(){
    top.restoreSession();
    // Send the skip_timeout_reset parameter to not count this as a manual entry in the
    //  timing out mechanism in OpenEMR.
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-     { skip_timeout_reset: "1" }, 
+     { skip_timeout_reset: "1" },
      function(data) {
        $("#reminderCountSpan").html(data);
-    // run updater every 60 seconds 
-     var repeater = setTimeout("getReminderCount()", 60000); 
+    // run updater every 60 seconds
+     var repeater = setTimeout("getReminderCount()", 60000);
    });
    //piggy-back on this repeater to run other background-services
    //this is a silent task manager that returns no output
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
       { skip_timeout_reset: "1", ajax: "1" });
- }   
- 
+ }
+
  $(document).ready(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
    for (var i = 0, len = usrval.length; i < len; i++) {
        if (usrval[i] != "checked") toggleFrame(i+1);
    }
- }) 
+ })
  // end of tajemo work dated reminders counter
- 
+
  // Master values for current pid and encounter.
  var active_pid = 0;
  var active_encounter = 0;
@@ -517,7 +517,7 @@ function genFindBlock() {
   if (frame == 'RTop') topName = fname; else botName = fname;
   return false;
  }
- 
+
  function loadFrame3(fname, frame, url) {
   var f = document.forms[0];
   top.restoreSession();
@@ -650,7 +650,7 @@ function clearactive() {
 		top.frames['RBot'].location='messages/messages.php?form_active=1';
 	  }
 	});
-    
+
 	$(parent.Title.document.getElementById('clear_active')).hide();
 	$(parent.Title.document.getElementById('clear_active_group')).hide();
 }
@@ -730,8 +730,8 @@ function clearactive() {
    loadFrame('ens1','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
   }
  }
- 
-  
+
+
  // Call this to announce that the patient has changed.  You must call this
  // if you change the session PID, so that the navigation frame will show the
  // correct patient and so that the other frame will be reloaded if it contains
@@ -863,10 +863,10 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});	    
+	});
 	return encounter_locked;
 	<?php } else { ?>
-	// If encounter locking isn't enabled, just tell the left_nav that the encounter 
+	// If encounter locking isn't enabled, just tell the left_nav that the encounter
     // isn't locked.
 	return false;
 	<?php } ?>
@@ -1235,7 +1235,7 @@ if (!empty($reg)) {
       <?php if (acl_check('acct','bill','','write'))
         genMiscLink('RBot','pay','1',xl('Payment'),'patient_file/front_payment.php'); ?>
       <?php if (acl_check('acct','bill','','write'))
-        genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?> 
+        genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
       <?php if (!$GLOBALS['simplified_demographics'] && (acl_check('acct','bill','','write') || acl_check('acct','eob','','write')))
         genTreeLink('RTop','bil',xl('Billing')); ?>
       <?php if ($GLOBALS['enable_batch_payment'] && (acl_check('acct','bill','','write') || acl_check('acct','eob','','write')))
@@ -1253,7 +1253,7 @@ if (!empty($reg)) {
     <ul>
 	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
 	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
-      	<?php 
+      	<?php
 		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
 		if (sqlNumRows($module_query)) {
 		  while ($modulerow = sqlFetchArray($module_query)) {
@@ -1269,7 +1269,7 @@ if (!empty($reg)) {
 					$added		= "index";
 		  			$modulePath = $GLOBALS['zendModDir'];
 		  		}
-		  			
+
 		 		$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
                                 $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
 			?>
@@ -1359,7 +1359,6 @@ if (!empty($reg)) {
             if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('eRx Logs'),'logview/erx_logview.php');
           }
           ?>
-          <?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Native Data Loads'),'../interface/super/load_codes.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('External Data Loads'),'../interface/code_systems/dataloads_ajax.php'); ?>
@@ -1374,9 +1373,9 @@ if (!empty($reg)) {
 
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
-				<?php 
+				<?php
 				$module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
 				if (sqlNumRows($module_query)) {
 					$jid = 0;
@@ -1396,7 +1395,7 @@ if (!empty($reg)) {
 
                     $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
 						$mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
-						
+
 						if($jid==0 || ($modid!=$modulerow['mod_id'])){
 							if($modid!='')
 							echo "</ul>";
@@ -1458,7 +1457,7 @@ if (!empty($reg)) {
           <?php if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt'))
             genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
           <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt'))
-            genMiscLink('RTop','rep','0',xl('Patient Flow Board'),'reports/patient_flow_board_report.php'); ?>          
+            genMiscLink('RTop','rep','0',xl('Patient Flow Board'),'reports/patient_flow_board_report.php'); ?>
           <?php if (acl_check('encounters', 'coding_a'))
             genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
           <?php if (!$GLOBALS['disable_calendar'] && acl_check('acct', 'rep_a'))
@@ -1575,7 +1574,7 @@ if (!empty($reg)) {
 
   <li><a class="collapsed" id="misimg" ><span><?php xl('Miscellaneous','e') ?></span></a>
     <ul>
-      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?> 
+      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?>
       <?php if (acl_check('encounters','auth'))
         genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php if (acl_check('patients','docs'))
@@ -1632,7 +1631,7 @@ function save_setting (cb_frames) {
     for (var i = 0, len = cb_frames.length; i < len; i++) {
 	    try {
 	        var fref = '<?php echo $uspfx ?>frame' + i + '_chk';
-	        var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", 
+	        var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
                     { lab: fref, val: cb_frames[i] })
 	        .done(function(data) {
 	            // alert( "Data Loaded: " + data );
@@ -1643,7 +1642,7 @@ function save_setting (cb_frames) {
 	        .always(function() {
 	            // alert( "finished" );
 	        });
-	
+
 	    } catch (err) {
 	        alert (err.message);
 	    }
