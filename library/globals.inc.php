@@ -65,6 +65,7 @@
 //   Tamil                          // xl('Tamil')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
+//   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
 // OS-dependent stuff.
