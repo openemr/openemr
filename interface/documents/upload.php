@@ -2,7 +2,7 @@
 /**
 * Drag and Drop file uploader.
 *
-* Copyright (C) 2017 Sherwin Gaddis sherwingaddis@gmail.com
+* Copyright (C) 2017 Sherwin Gaddis <sherwingaddis@gmail.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -16,7 +16,8 @@
 * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
-* @author    Sherwin Gaddis sherwingaddis@gmail.com
+* @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+* @link      http://www.open-emr.org
 */
 
 $patient_id = filter_input(INPUT_GET, 'patient_id');
@@ -28,7 +29,7 @@ $fake_register_globals=false;
 
 require_once("../globals.php");
 require_once(dirname(__FILE__) . "/../../library/documents.php");
- 
+
 if (!empty($_FILES)) {
 
     $name     = $_FILES['file']['name'];
@@ -37,9 +38,7 @@ if (!empty($_FILES)) {
     $size     = $_FILES['file']['size'];
     $owner    = $GLOBALS['userauthorized'];
 
-
-addNewDocument($name,$type,$tmp_name,$error,$size,$owner,$patient_id_or_simple_directory=$patient_id,$category_id,
-	                      $higher_level_path='',$path_depth='1');
+    addNewDocument($name,$type,$tmp_name,$error,$size,$owner,$patient_id,$category_id);
 
 }
 

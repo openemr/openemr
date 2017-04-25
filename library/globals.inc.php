@@ -1252,7 +1252,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Option to save method of document storage.')
         ),
-                
+
         'couchdb_host' => array(
             xl('CouchDB HostName'),
             'text',
@@ -2550,7 +2550,7 @@ $GLOBALS_METADATA = array(
 			'0',
 			xl('Enable C-CDA Alternate Service')
 	),
- 
+
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
