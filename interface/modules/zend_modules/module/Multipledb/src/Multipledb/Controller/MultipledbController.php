@@ -163,11 +163,11 @@ class MultipledbController extends BaseController{
 
     public function checkAcl($mode = null){
         if($mode == 'view' OR $mode == 'write'){
-            if(!acl_check('admin', 'Multipledb',false,$mode)){
+            if(!acl_check('admin', 'multipledb',false,$mode)){
                 $this->redirect()->toRoute("multipledb",array("action"=>"error"));
             }
         }else{
-            if(!acl_check('admin', 'Multipledb')){
+            if(!acl_check('admin', 'multipledb')){
                 $this->redirect()->toRoute("multipledb",array("action"=>"error"));
             }
         }

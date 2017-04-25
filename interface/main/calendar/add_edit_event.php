@@ -106,7 +106,7 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
 if((!$g_edit && !$g_view) ) {
-    $_GET['group'] = 'false';
+    $_GET['group'] = false;
     $have_group_global_enabled = false;
 
 }

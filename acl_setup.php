@@ -183,7 +183,7 @@
 
 
  $gacl->add_object('groups', 'View/Add/Update groups','gadd', 10, 0, 'ACO');
- // xl('View/Add/Update groups groups')
+ // xl('View/Add/Update groups')
  $gacl->add_object('groups', 'View/Create/Update groups appointment in calendar','gcalendar', 10, 0, 'ACO');
 // xl('View/Create/Update groups appointment in calendar')
  $gacl->add_object('groups', 'Group encounter log','glog', 10, 0, 'ACO');
