@@ -23,7 +23,7 @@
  // Upgrade Howto
  // When upgrading to a new version of OpenEMR, run the acl_upgrade.php
  // script to update the phpGACL access controls.  This is required to
- // ensure the database includes all the required Access Control 
+ // ensure the database includes all the required Access Control
  // Objects(ACO).
  //
 

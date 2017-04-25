@@ -72,9 +72,9 @@
 *       ADD  sign  Sign Lab Results (Physicians)
 *     ACL/Group  breakglass  write  "Emergency Login"  (added all aco's to it)
 *   4.1.0
-*     Section "nationnotes" (Nation Notes)
+*     Section "nationnotes" (Nation Notes):
 *       ADD  nn_configure  Nation Notes Configure  (Administrators, Emergency Login)
-*     Section "patientportal" (Patient Portal)
+*     Section "patientportal" (Patient Portal):
 *       ADD  portal    Patient Portal     (Administrators, Emergency Login)
 *   4.1.1
 *     ACL/Group  doc   wsome  "Physicians"   (filler aco)
@@ -86,7 +86,7 @@
 *     ACL/Group  front view   "Front Office" (filler aco)
 *     ACL/Group  back  view   "Accounting"   (filler aco)
 *   4.1.3
-*     Section "menus" (Menus)
+*     Section "menus" (Menus):
 *       ADD modle Module (Administrators, Emergency Login)
 *   5.0.1
 *     Section "patients" (Patients):
@@ -96,6 +96,14 @@
 *       ADD  rx          Prescriptions             (Physicians)
 *       ADD  amendment   Amendments                (Physicians)
 *       ADD  lab         Lab Results               (Physicians)
+*     Section "admin" (Administration):
+*       ADD  multipledb  Multipledb                (Administrators)
+*     Section "groups" (Groups):
+*       ADD  gadd        View/Add/Update groups    (Administrators)
+*       ADD  gcalendar   View/Create/Update groups appointment in calendar (Administrators)
+*       ADD  glog        Group encounter log       (Administrators)
+*       ADD  gdlog       Group detailed log of appointment in patient record (Administrators)
+*       ADD  gm          Send message from the permanent group therapist to the personal therapist (Administrators)
 * </pre>
 *
 * Copyright (C) 2012 Brady Miller <brady.g.miller@gmail.com>
