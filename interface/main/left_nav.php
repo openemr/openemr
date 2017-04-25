@@ -160,23 +160,33 @@ use ESign\Api;
   'eob' => array(xl('Posting')   , 0, 'billing/sl_eob_search.php'),
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
+ $disallowed = array();
+
+
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
- if($GLOBALS['enable_group_therapy']){
-  $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
-  $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
-  $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
-  $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
-  $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
- }
+if($GLOBALS['enable_group_therapy']){
+    $disallowed['gng'] = !acl_check("groups","gadd");
+    $disallowed['gdg'] = !acl_check("groups","gadd");
+    $disallowed['gcv'] = !acl_check("groups","gcalendar");
+    $disallowed['gce'] = !acl_check("groups","glog");
+    $disallowed['gvh'] = !acl_check("groups","glog");
+
+    $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
+    $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
+    $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+    $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
+    $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
+}
+
 
  $esignApi = new Api();
  // This section decides which navigation items will not appear.
 
- $disallowed = array();
+
  $disallowed['edi'] = !($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob'));
  $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
   acl_check('admin', 'database') || acl_check('admin', 'forms') ||

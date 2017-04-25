@@ -25,6 +25,12 @@
  */
 ?>
 
+
+<?php $edit = acl_check("groups","gcalendar",false, 'write');?>
+<?php $view = acl_check("groups","gcalendar",false, 'view');?>
+
+
+<?php if($view || $edit) :?>
 <?php
 //If coming from participants controller groupId contains the id.
 //If from group controller it's contained in groupData array.
@@ -35,7 +41,9 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
         <h5><?php echo xlt('Group appointments')?></h5>
     </div>
     <div class="col-md-5">
+        <?php if($edit) :?>
         <button id="addEvent" class="float-right"><?php echo xlt('Adding')?></button>
+        <?php endif;?>
     </div>
 </div>
 <div id="component-border" class="appt-widget">
@@ -57,7 +65,9 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
                 $date_for_url = attr(preg_replace("/-/", "", $event['pc_eventDate']));
                 ?>
                 <div class="event_details">
-                    <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
+                        <?php if ($edit):?>
+                            <a onclick="goToEvent('<?php echo "{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=" . attr($groupId) . "&date=" . $date_for_url . "&eid=" . attr($event['pc_eid'])?>')">
+                        <?php endif;?>
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
                         </br>
                         <span>
@@ -89,3 +99,4 @@ if($groupData['group_id']) $groupId = $groupData['group_id'];
         dlgopen(url, '_blank', 775, 500);
     }
 </script>
+<?php endif;?>
