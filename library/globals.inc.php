@@ -1252,6 +1252,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Option to save method of document storage.')
         ),
+                
         'couchdb_host' => array(
             xl('CouchDB HostName'),
             'text',
