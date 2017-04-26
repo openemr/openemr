@@ -28,9 +28,9 @@ $ignoreAuth = true;
 require_once ( "../../../interface/globals.php" );
 require_once 'sigconvert.php';
 $errors = array ();
-$signer = filter_input( INPUT_POST, 'signer', FILTER_SANITIZE_STRING );
-$type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_STRING );
-$pid = filter_input( INPUT_POST, 'pid', FILTER_SANITIZE_STRING );
+$signer = filter_input( INPUT_POST, 'signer', FILTER_DEFAULT );
+$type = filter_input( INPUT_POST, 'type', FILTER_DEFAULT );
+$pid = filter_input( INPUT_POST, 'pid', FILTER_DEFAULT );
 $output = filter_input( INPUT_POST, 'output', FILTER_UNSAFE_RAW );
 $user = filter_input( INPUT_POST, 'user', FILTER_UNSAFE_RAW );
 

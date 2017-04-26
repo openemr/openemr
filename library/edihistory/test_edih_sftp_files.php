@@ -7,11 +7,11 @@
  *		-- "submit" runs script which gets url, password, etc and the sftp
  * 			transfer for selected x12 partner
  * 		-- put downloaded files in a designated directory e.g. history/sftp/
- * 		
+ *
  *  2 (alt) create php script to use most of edih_uploads.php function edih_upload_files()
  * 		-- but skip the $_FILES array rewrite and testing, just test, match type and store
  * 		-- maybe call it edih_sftp_upload()
- * 
+ *
  *  3.  add if stanza to edih_main.php in section:
  *  		if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
  * 		-- calls edih_io.php function edih_disp_sftp_upload()
@@ -35,7 +35,7 @@ function edih_upload_sftp() {
 	// if ($_FILES) ) {
 		//csv_edihist_log('Error: upload files indicated, but none received.');
 		//return false;
-	//} elseif  
+	//} elseif
 	if (is_dir($sftp_dir) && is_readable($sftp_dir)) {
 		$sftp_dir = realpath($sftp_dir);
 		$fn_ar = scandir($sftp_dir);
@@ -156,14 +156,14 @@ function edih_disp_sftp_upload() {
 	// imaginary form and POST values
 	$str_html = '';
 	if (isset($_POST['post_sftp'])) {
-	$la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_SANITIZE_STRING)  : ;
-	$x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_SANITIZE_STRING) :;
-	// 
+	$la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_DEFAULT)  : ;
+	$x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_DEFAULT) :;
+	//
 	if (($la == 'get_sftp') && $x12ptnr) {
 		// yet to be written -- gets x12 partner info and does sftp download
 		$is_sftp = edih_sftp_connect($x12ptnr);
 		//
-		$f_array = ($is_sftp) ? edih_upload_sftp() : false; 
+		$f_array = ($is_sftp) ? edih_upload_sftp() : false;
 		if ( is_array($f_array) && count($f_array) ) {
 			$str_html .= edih_sort_upload($f_array);
 		} else {
@@ -182,7 +182,7 @@ function edih_disp_sftp_upload() {
 
 /**
  * Unattended SFTP host operations using phpseclib.
- * 
+ *
  * Copyright (C) 2014 MD Support <mdsupport@users.sourceforge.net>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -198,16 +198,16 @@ function edih_disp_sftp_upload() {
  *
  * @package   OpenEMR
  * @author    MD Support <mdsupport@users.sourceforge.net>
- * 
+ *
  * Following parameters may be provided :
  * 1. actn - get or put
  * 2. Interface with Procedure providers : ppid
  * 3. Single host definition : host, port, user, pass, fdir, pdir
  * 4. ldir - local directory
- * 5. sub - 'ppid'/'host'/'fdir'/'pdir' to be used as subdir of ldir  
+ * 5. sub - 'ppid'/'host'/'fdir'/'pdir' to be used as subdir of ldir
  **/
 
- 
+
 if (php_sapi_name() == 'cli') {
 	parse_str(implode('&', array_slice($argv, 1)), $_GET);
 	$_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
@@ -312,8 +312,8 @@ if (!$exitcd) foreach ($sftp_hosts as $sftp_host) {
 		if (isset($dir_list)) foreach ($dir_list as $dir_file) {
 			// Skip directories
 			// mdsupport - now $dir_list should have only valid file names
-			// if (($dir_file == '.') || ($dir_file == '..')) {} 
-			// else {	
+			// if (($dir_file == '.') || ($dir_file == '..')) {}
+			// else {
 				if ($actn == 'get') {
 					$sftp_ok = $cn->get(($dir_from.'/'.$dir_file), ($dir_to.'/'.$dir_file));
 					if ($sftp_ok) $sftp_del = $cn->delete(($dir_from.'/'.$dir_file));
