@@ -208,7 +208,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-  parent.left_nav.clearPatient();
+  <?php if ($GLOBALS['new_tabs_layout']) { ?>
+   top.clearPatient();
+  <?php } else { ?>
+   parent.left_nav.clearPatient();
+  <?php } ?>
  }
 
  function newEvt() {
