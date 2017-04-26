@@ -21,6 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
+
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 //
@@ -40,6 +41,14 @@ require_once("../../../custom/code_types.inc.php");
 if($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
+
+$is_group = ($attendant_type == 'gid') ? true : false;
+
+if($is_group && !acl_check("groups","glog",false, array('view','write'))){
+    echo xlt("access not allowed");
+    exit();
+}
+
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
@@ -677,8 +686,13 @@ while ($result4 = sqlFetchArray($res4)) {
                       $codekey = 'CO-PAY';
                       $codekeydisp = xl('CO-PAY');
                     }
+                    if ($iter2['modifier']) {
+                      $codekey .= ':' . $iter2['modifier'];
+                      $codekeydisp .= ':' . $iter2['modifier'];
+                    }
+
                     $codekeydisp = htmlspecialchars($codekeydisp, ENT_NOQUOTES);
-                    if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
+
                     if ($binfo[0]) $binfo[0] .= '<br>';
                     if ($issue && !$billing_view) {
                       // Single issue clinical view: show code description after the code.

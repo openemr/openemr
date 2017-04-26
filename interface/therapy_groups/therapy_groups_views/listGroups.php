@@ -24,7 +24,13 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<?php $edit = acl_check("groups","gadd",false, 'write');?>
+<?php $view = acl_check("groups","gadd",false, 'view');?>
+
+
 <?php require 'header.php'; ?>
+<?php if($view || $edit) :?>
+
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
@@ -40,13 +46,17 @@
     <?php endif ?>
 
     <!---------- FILTERS SECTION ------------->
+    <?php if($edit):?>
     <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
+    <?php endif;?>
+
     </br></br></br>
     <div id="filters">
         <div class="row">
             <div class=" form-group col-md-2">
-                <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
-                <input type="text" class="form-control" id="group_name_filter" placeholder="" >
+
+                    <label class="" for="group_name_filter"><?php echo xlt('Group Name');?>:</label>
+                    <input type="text" class="form-control" id="group_name_filter" placeholder="" >
             </div>
             <div class=" form-group col-md-2">
                 <label class="" for="group_id_filter"><?php echo xlt('Group Id');?>:</label>
@@ -142,7 +152,7 @@
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if($group['group_status'] == 10): ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><button>X</button></a></td>
+                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><?php if($edit):?><button>X</button><?php endif;?></a></td>
                         <?php endif; ?>
 
                     </td>
@@ -412,3 +422,15 @@
 </script>
 
 <?php require  'footer.php'; ?>
+<?php else :?>
+
+    <div class="container">
+
+        <div class="row alert alert-info">
+            <h1 class="col-md-12"><i class="col-md-3 glyphicon glyphicon-alert"></i><span class="col-md-6"><?php echo xlt("access not allowed");?></span></h1>
+        </div>
+    </div>
+
+
+
+<?php endif;?>

@@ -54,32 +54,32 @@
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
         <?php } ?>
 
-		<link href="../assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
 		<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
-		<link href="../sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
-		<link href="../sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+		<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
-		<script type="text/javascript" src="scripts/libs/LAB.min.js"></script>
+		<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 		<script type="text/javascript">
 			$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 			$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
-				.script("../sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-				.script("../sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
 				.script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
-				.script("scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-				.script("scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-				.script("scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+				.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 
 		</script>
 	</head>
 
 <script type="text/javascript">
-	$LAB.script("scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-		.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+	$LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+		.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
 		$(document).ready(function(){
 			page.init();
 			pageAudit.init();
@@ -350,7 +350,7 @@ body {
 							style="border: 1px solid #000000; left: 0px;"></canvas>
 						<img id="loading"
 							style="display: none; position: absolute; TOP: 150px; LEFT: 315px; WIDTH: 100px; HEIGHT: 100px"
-							src="sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
+							src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
 					</div>
 					<input type="hidden" name="type" id="type" value="patient-signature">
 					<button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature.');?></button>
@@ -359,7 +359,7 @@ body {
 		</div>
 	</div>
 </div>
-<img id="waitend"	style="display: none; position: absolute; top: 100px; left: 250px; width: 100px; height: 100px" src="sign/assets/loading.gif" />
+<img id="waitend"	style="display: none; position: absolute; top: 100px; left: 250px; width: 100px; height: 100px" src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" />
 <!-- Modal -->
 	<!-- modal edit dialog -->
 <div class="modal fade" id="onsiteDocumentDetailDialog">

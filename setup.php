@@ -23,7 +23,7 @@
 **/
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/checker.php");
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {

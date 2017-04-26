@@ -48,13 +48,13 @@ $menu_json='[
       ],"requirement":0}
     ],"requirement":0},
   {"label":"Groups","menu_id":"groupimg","children":[
-    {"label":"Groups","menu_id":"gfn0","target":"gfn","url":"/interface/therapy_groups/index.php?method=listGroups","children":[],"requirement":0},
-    {"label":"New","menu_id":"gng0","target":"gng","url":"/interface/therapy_groups/index.php?method=addGroup","children":[],"requirement":0},
-    {"label":"Group Details","menu_id":"gdg4","target":"gdg","url":"/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session","children":[],"requirement":4},
+    {"label":"Groups","menu_id":"gfn0","target":"gfn","url":"/interface/therapy_groups/index.php?method=listGroups","children":[],"requirement":0,"acl_req":[["groups","gadd","view"],["groups","gadd","write"]]},
+    {"label":"New","menu_id":"gng0","target":"gng","url":"/interface/therapy_groups/index.php?method=addGroup","children":[],"requirement":0,"acl_req":[["groups","gadd","view"],["groups","gadd","write"]]},
+    {"label":"Group Details","menu_id":"gdg4","target":"gdg","url":"/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session","children":[],"requirement":4,"acl_req":[["groups","gadd","view"],["groups","gadd","write"]]},
     {"label":"Visits","icon":"fa-caret-right","children":[
-      {"label":"Create Visit","menu_id":"gcv4","target":"enc","url":"/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==","children":[],"requirement":4},
-      {"label":"Current","menu_id":"enc5","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":5},
-      {"label":"Visit History","menu_id":"gvh4","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":4}
+      {"label":"Create Visit","menu_id":"gcv4","target":"enc","url":"/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==","children":[],"requirement":4,"acl_req":[["groups","gcalendar","view"],["groups","gcalendar","write"]]},
+      {"label":"Current","menu_id":"enc5","target":"enc","url":"/interface/patient_file/encounter/encounter_top.php","children":[],"requirement":5,"acl_req":[["groups","glog","view"],["groups","glog","write"]]},
+      {"label":"Visit History","menu_id":"gvh4","target":"enc","url":"/interface/patient_file/history/encounters.php","children":[],"requirement":4,"acl_req":[["groups","glog","view"],["groups","glog","write"]]}
       ],"requirement":0}
     ],"requirement":0,"global_req":"enable_group_therapy"},
   {"label":"Fees","menu_id":"feeimg","children":[
@@ -114,7 +114,6 @@ $menu_json='[
       {"label":"Calendar","menu_id":"adm0","target":"adm","url":"/interface/main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig","children":[],"requirement":0,"acl_req":["admin","calendar"],"global_req":"!disable_calendar"},
       {"label":"Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/logview.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"eRx Logs","menu_id":"adm0","target":"adm","url":"/interface/logview/erx_logview.php","children":[],"requirement":0,"acl_req":["admin","super"],"global_req":["erx_enable","newcrop_user_role"]},
-      {"label":"Database","menu_id":"dba0","target":"dba","url":"/phpmyadmin/index.php","children":[],"requirement":0,"acl_req":["admin","database"],"global_req":"!disable_phpmyadmin_link"},
       {"label":"Certificates","menu_id":"adm0","target":"adm","url":"/interface/usergroup/ssl_certificates_admin.php","children":[],"requirement":0,"acl_req":["admin","users"]},
       {"label":"Native Data Loads","menu_id":"adm0","target":"adm","url":"/interface/super/load_codes.php","children":[],"requirement":0,"acl_req":["admin","super"]},
       {"label":"External Data Loads","menu_id":"adm0","target":"adm","url":"/interface/code_systems/dataloads_ajax.php","children":[],"requirement":0,"acl_req":["admin","super"]},

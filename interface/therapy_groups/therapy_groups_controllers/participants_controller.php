@@ -51,7 +51,7 @@ class ParticipantsController extends BaseController{
 
                 $filters = array(
                     'group_patient_status' => FILTER_VALIDATE_INT,
-                    'group_patient_start' => FILTER_SANITIZE_STRING,
+                    'group_patient_start' => FILTER_DEFAULT,
                     'group_patient_end' => FILTER_SANITIZE_SPECIAL_CHARS,
                     'group_patient_comment' => FILTER_SANITIZE_SPECIAL_CHARS,
                 );
@@ -99,7 +99,7 @@ class ParticipantsController extends BaseController{
             $filters = array(
                 'group_id' => FILTER_VALIDATE_INT,
                 'pid' => FILTER_VALIDATE_INT,
-                'group_patient_start' => FILTER_SANITIZE_STRING,
+                'group_patient_start' => FILTER_DEFAULT,
                 'group_patient_comment' => FILTER_SANITIZE_SPECIAL_CHARS,
             );
 

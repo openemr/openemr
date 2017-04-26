@@ -59,7 +59,9 @@
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/Documentation/*</exclude-pattern>
   <exclude-pattern>*/tests/*</exclude-pattern>
-  <exclude-pattern>*/phpmyadmin/*</exclude-pattern>
   <exclude-pattern>*/gacl/*</exclude-pattern>
   <exclude-pattern>*/images/*</exclude-pattern>
+  <exclude-pattern>*/public/assets/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/bower_components/*</exclude-pattern>
 </ruleset>

@@ -79,11 +79,10 @@ $fake_register_globals=false;
 <title>
 <?php echo htmlspecialchars(xl('Clinical Reports'),ENT_NOQUOTES); ?>
 </title>
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+
 <script language="JavaScript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -142,8 +141,6 @@ function sel_procedure(e) {
 }
 </script>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {
@@ -253,7 +250,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 -->
 <div id="report_parameters_daterange"> <?php echo htmlspecialchars(date("d F Y", strtotime($sql_date_from)),ENT_NOQUOTES) .
       " &nbsp; to &nbsp; ". htmlspecialchars(date("d F Y", strtotime($sql_date_to)),ENT_NOQUOTES); ?> </div>
-<form name='theform' id='theform' method='post' action='clinical_reports.php'>
+<form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
 	<div id="report_parameters">
 		<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 		<table>
@@ -261,57 +258,66 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 			<td width='740px'><div style='float:left'>
 		 		<table class='text'>
 					<tr>
-						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
+						<td class='control-label' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
 						<td width="250"> <?php dropdown_facility($facility,'facility',false); ?> </td>
-						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' class='datetimepicker' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+						<td class='control-label' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
+						<td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
 					</tr>
 					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
-						<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' class='datetimepicker' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
+						<td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
+						<td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
 					</tr>
 					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
-						<td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>
-							<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' /> <?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>
-							<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_diagnosis' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES); ?>' onclick='sel_diagnosis(this)' title='<?php echo htmlspecialchars(xl('Click to select or change diagnoses'),ENT_QUOTES); ?>' readonly /></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
+						<td><table>
+						<tr>
+						<td class='control-label'><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?></td>
+						<td>
+							<input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' />
+						</td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?></td>
+						<td>
+							<input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' />
+						</td>
+						</tr>
+						</table></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
+						<td><input type='text' name='form_diagnosis form-control' class= 'form-control' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES); ?>' onclick='sel_diagnosis(this)' title='<?php echo htmlspecialchars(xl('Click to select or change diagnoses'),ENT_QUOTES); ?>' readonly /></td>
                                                	<td>&nbsp;</td>
 <!-- Visolve -->
 					</tr>
 					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
 						<td><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_drug_name,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional drug name, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
+						<td><input type='text' name='form_drug_name' class='form-control' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_drug_name,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional drug name, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
 					</tr>
 					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
 						<td><?php echo generate_select_list('race', 'race', $sql_race, 'Select Race', 'Unassigned', '', ''); ?></td>
-             			<td class='label_custom'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
+             			<td class='control-label'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
                         <td><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_immunization' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_immunization,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional immunization name or code, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
+						<td><input type='text' name='form_immunization' class='form-control' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_immunization,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Optional immunization name or code, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 					</tr>
 					<tr>
-						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
-						<td width='100'><input type='text' name='form_lab_results' size='13' maxlength='250' value='<?php echo htmlspecialchars($form_lab_results,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Result, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
+						<td class='control-label' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
+						<td width='100'><input type='text' name='form_lab_results' class='form-control' size='13' maxlength='250' value='<?php echo htmlspecialchars($form_lab_results,ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('Result, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
-						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
-						<td><select name="type" id="type" onChange="checkType();">
+						<td class='control-label' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
+						<td><select name="type" class='form-control' id="type" onChange="checkType();">
 							<option> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
 							<option value="Procedure" <?php if($type == 'Procedure') { echo "selected"; } ?>><?php echo htmlspecialchars(xl('Procedure'),ENT_NOQUOTES); ?></option>
 							<option value="Medical History" <?php if($type == 'Medical History') { echo "selected"; } ?>><?php echo htmlspecialchars(xl('Medical History'),ENT_NOQUOTES); ?></option>
 							<option value="Service Codes" <?php if($type == 'Service Codes') { echo "selected"; } ?>><?php echo htmlspecialchars(xl('Service Codes'),ENT_NOQUOTES); ?></option>
 						   </select>
 						</td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
+						<td class='control-label'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
                         <td>
-							<select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
+							<select name="communication" class='form-control' id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
 								<option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
 								<?php foreach($comarr as $comkey => $comvalue){ ?>
 								<option value="<?php echo attr($comkey); ?>" <?php if($communication == $comkey){ echo "selected";}?>><?php echo text($comvalue); ?></option>
@@ -325,36 +331,67 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 					<td width='100'>&nbsp;</td>
 					<td width='100'>&nbsp;</td>
 					<td width='195'>&nbsp;</td>
-					<td class='label_custom' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
-                                        <td> <input type='text' name='form_service_codes' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_service_codes,ENT_QUOTES); ?>' onclick='sel_procedure(this)' title='<?php echo htmlspecialchars(xl('Click to select or change service codes'),ENT_QUOTES); ?>' readonly />&nbsp;</td>
+					<td class='control-label' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
+                                        <td> <input type='text' name='form_service_codes' class='form-control' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_service_codes,ENT_QUOTES); ?>' onclick='sel_procedure(this)' title='<?php echo htmlspecialchars(xl('Click to select or change service codes'),ENT_QUOTES); ?>' readonly />&nbsp;</td>
                                         </tr>
 				</table>
 				<table class='text'>
 					<tr>
 						<!-- Sort by Start -->
-                                                 <td class='label_custom' width='63'><?php echo htmlspecialchars(xl('Sort By'),ENT_NOQUOTES); ?>:</td>
+                                                 <td class='control-label' width='63'><?php echo htmlspecialchars(xl('Sort By'),ENT_NOQUOTES); ?>:</td>
                                                  <td>
-                                                   <input type='checkbox' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) echo ' checked'; ?>>
+                                                   <table>
+                                                   <tr>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                    <?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?>&nbsp;
-
-                                                   <input type='checkbox' name='form_pt_age'<?php if ($_POST['form_pt_age'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='form_pt_age'<?php if ($_POST['form_pt_age'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                    <?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES); ?>&nbsp;
-
-                                                   <input type='checkbox' name='form_diagnosis_allergy'<?php if ($_POST['form_diagnosis_allergy'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='form_diagnosis_allergy'<?php if ($_POST['form_diagnosis_allergy'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                    <?php echo htmlspecialchars(xl('Allergies'),ENT_NOQUOTES); ?>&nbsp;
-
-                                                   <input type='checkbox' name='form_diagnosis_medprb'<?php if ($_POST['form_diagnosis_medprb'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='form_diagnosis_medprb'<?php if ($_POST['form_diagnosis_medprb'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                    <?php echo htmlspecialchars(xl('Medical Problems'),ENT_NOQUOTES); ?>&nbsp;
-
-                                                   <input type='checkbox' name='form_drug'<?php if ($_POST['form_drug'] == true) echo ' checked'; ?>>
-						  <?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>&nbsp;
-
-                                                   <input type='checkbox' name='ndc_no'<?php if ($_POST['ndc_no'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='form_drug'<?php if ($_POST['form_drug'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
+                                                   <?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>&nbsp;
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='ndc_no'<?php if ($_POST['ndc_no'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                    <?php echo htmlspecialchars(xl('NDC Number'),ENT_NOQUOTES); ?>&nbsp;
-                                                   <input type='checkbox' name='lab_results'<?php if ($_POST['lab_results'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td>
+                                                   <input type='checkbox' class='form-control' name='lab_results'<?php if ($_POST['lab_results'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                   <?php echo htmlspecialchars(xl('Lab Results'),ENT_NOQUOTES); ?>&nbsp;
-                                                  <input type='checkbox' name='communication_check'<?php if ($_POST['communication_check'] == true) echo ' checked'; ?>>
+                                                  </td>
+                                                   <td>
+                                                  <input type='checkbox' class='form-control' name='communication_check'<?php if ($_POST['communication_check'] == true) echo ' checked'; ?>>
+                                                   </td>
+                                                   <td class='control-label'>
                                                   <?php echo xlt('Communication'); ?>
+                                                   </td>
+                                                   </tr>
+                                                   </table>
                                                </td>
                                         </tr>
 				<!-- Sort by ends -->

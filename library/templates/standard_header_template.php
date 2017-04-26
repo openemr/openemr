@@ -8,7 +8,10 @@
  *    require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); (php command)
  *
  * The $include_standard_style_js supports:
+ *                                         jquery-ui (brings in just the js script)
+ *                                         jquery-ui-darkness (brings in the darkness style)
  *                                         datetimepicker
+ *                                         report_helper.js
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
@@ -34,6 +37,9 @@
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("jquery-ui-darkness",$include_standard_style_js)) { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/ui-darkness/jquery-ui.min.css">
+<?php } ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 <?php if (!empty($include_standard_style_js) && in_array("datetimepicker",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
@@ -41,7 +47,16 @@
 
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+<?php if (!empty($include_standard_style_js) && in_array("jquery-ui",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+<?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("datetimepicker",$include_standard_style_js)) { ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("report_helper.js",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php } ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <?php $include_standard_style_js = array(); //clear this to prevent issues if this is called again in an embedded script ?>

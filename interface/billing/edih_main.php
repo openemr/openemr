@@ -1,24 +1,24 @@
 <?php
 /*
  * edi_history_main.php
- * 
+ *
  * Copyright 2012 Kevin McCormick Longview, Texas
- * 
- * 
+ *
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have 
- * received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 
+ * the Free Software Foundation; version 3 or later.  You should have
+ * received a copy of the GNU General Public License along with this program;
+ * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  <http://opensource.org/licenses/gpl-license.php>
- * 
- * 
+ *
+ *
  * @author Kevin McCormick
  * @link: http://www.open-emr.org
  * @package OpenEMR
@@ -32,7 +32,7 @@ $fake_register_globals=false;
 require_once(dirname(__FILE__) . "/../globals.php");
 
 /**
- * this define is used to prevent direct access to the included scripts 
+ * this define is used to prevent direct access to the included scripts
  * which have the corresponding definition commented for now
  */
 define('SITE_IN', 1);
@@ -47,20 +47,20 @@ define('SITE_IN', 1);
 
 // Try to prevent search for too short encounter value
 if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) define("ENCOUNTER_MIN_DIGIT_LENGTH", 1);
-// these delimiters are hardcoded into OpenEMR batch files   
+// these delimiters are hardcoded into OpenEMR batch files
 if (!defined("SEG_ELEM_DELIM")) define( "SEG_ELEM_DELIM" , "*");
 if (!defined("SEG_TERM_DELIM")) define( "SEG_TERM_DELIM" , "~");
 //clearinghouse practice
 if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
 //
 if (!defined("DS")) define("DS", DIRECTORY_SEPARATOR);
-// 
+//
 // path will be "$srcdir/edihistory/filename.php"
-require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php"); 
+require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php");
 require_once("$srcdir/edihistory/edih_io.php");         //dirname(__FILE__) . "/edihist/ibr_io.php");
 require_once("$srcdir/edihistory/edih_x12file_class.php");
-require_once("$srcdir/edihistory/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php"); 
-require_once("$srcdir/edihistory/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php"); 
+require_once("$srcdir/edihistory/edih_uploads.php");         //dirname(__FILE__) . "/edihist/ibr_uploads.php");
+require_once("$srcdir/edihistory/edih_csv_parse.php");          //dirname(__FILE__) . "/edihist/ibr_997_read.php");
 require_once("$srcdir/edihistory/edih_csv_data.php");          //dirname(__FILE__) . "/edihist/ibr_277_read.php");
 require_once("$srcdir/edihistory/edih_997_error.php");
 require_once("$srcdir/edihistory/edih_segments.php");
@@ -70,7 +70,7 @@ require_once("$srcdir/edihistory/edih_277_html.php");
 require_once("$srcdir/edihistory/edih_278_html.php");
 require_once("$srcdir/edihistory/edih_835_html.php");			//dirname(__FILE__) . "/edihist/ibr_era_read.php");
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
-require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php"); 
+require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php");
 require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 //
 // php may output line endings with included files
@@ -115,47 +115,47 @@ if (count($_POST)) {
 }
 //
 /* ******* remove functions to separate file ******* */
-/*  
+/*
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 	//
-	// === log user access on POST requests ===========          
+	// === log user access on POST requests ===========
 	csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 	// =====================================
 	if ( isset($_POST['NewFiles']) && isset($_FILES['fileUplMulti']) ) {
 		// process new files button clicked
 		$html_str = edih_disp_file_upload();
-		
+
 	} elseif ( isset($_POST['viewx12Files']) && isset($_FILES['fileUplx12']) ) {
 		// process new files button clicked
 		$html_str = edih_disp_x12file();
-		
+
 	} elseif (isset($_POST['notes_hidden']) ) {
 		// user notes
 		$html_str = edih_user_notes();
-				
+
 	} elseif (isset($_POST['ArchiveRequest']) ) {
-		// request to archive edi files  
-		$req = filter_input(INPUT_POST, 'ArchiveRequest', FILTER_SANITIZE_STRING);
+		// request to archive edi files
+		$req = filter_input(INPUT_POST, 'ArchiveRequest', FILTER_DEFAULT);
 		if ($req == 'requested') {
 			$html_str = edih_disp_archive();
 		} else {
 			$html_str .= "<p>Input Error: for edi files archive function</p>".PHP_EOL;
 		}
 	} elseif (isset($_POST['ArchiveRestore']) ) {
-		// request to restore an archive of edi files  
-		$req = filter_input(INPUT_POST, 'ArchiveRestore', FILTER_SANITIZE_STRING);
+		// request to restore an archive of edi files
+		$req = filter_input(INPUT_POST, 'ArchiveRestore', FILTER_DEFAULT);
 		if ($req == 'restore') {
 			$html_str = edih_disp_archive_restore();
 		} else {
 			$html_str .= "<p>Input Error: for edi files archive restore function</p>".PHP_EOL;
 		}
-						
+
 	} else {
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// ===========	
+		// ===========
 		$html_str .= "<p>Error: unrecognized value in request</p>".PHP_EOL;
 		// debug
 		$bg_str = "Unknown POST value: ".PHP_EOL;
@@ -170,10 +170,10 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 	if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {
 		// initial ajax request
 		$html_str = edih_php_inivals();
-		
+
 	}  elseif ( isset($_GET['csvtbllist']) ) {
 		// list of available csv tables
-		$tbl = filter_input(INPUT_GET, 'csvtbllist', FILTER_SANITIZE_STRING);
+		$tbl = filter_input(INPUT_GET, 'csvtbllist', FILTER_DEFAULT);
 		//
 		if ($tbl == 'yes') {
 			$html_str = csv_table_select_list();
@@ -182,10 +182,10 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			csv_edihist_log("GET error: missing parameter for csv table list");
 			return $html_str;
 		}
-		
+
 	} elseif ( isset($_GET['archlist']) ) {
 		// list of csv archive files
-		$tbl = filter_input(INPUT_GET, 'archlist', FILTER_SANITIZE_STRING);
+		$tbl = filter_input(INPUT_GET, 'archlist', FILTER_DEFAULT);
 		if ($tbl == 'yes') {
 			$html_str = csv_archive_select_list();
 		} else {
@@ -193,46 +193,46 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			csv_edihist_log("GET error: missing parameter for csv archive list");
 			return $html_str;
 		}
-		
+
 	} elseif ( isset($_GET['loglist']) ) {
-		// initial setup -- populate log file select { loglist: 'yes' }, 
-		$la = filter_input(INPUT_GET, 'loglist', FILTER_SANITIZE_STRING);
+		// initial setup -- populate log file select { loglist: 'yes' },
+		$la = filter_input(INPUT_GET, 'loglist', FILTER_DEFAULT);
 		$html_str = edih_disp_logfiles();
 
 	} elseif ( isset( $_GET['archivelog']) ) {
 		// Notes tab  [archive log files if older than 7 days]
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =====================================		
+		// =====================================
 		$html_str = edih_disp_logfiles();
-		
+
 	} elseif ( isset( $_GET['logshowfile']) ) {
 		// New Files tab  [ Process New ]
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =====================================
 		$html_str = edih_disp_log();
 
 	} elseif ( isset( $_GET['ProcessFiles']) ) {
 		// New Files tab  [ Process New ]
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =====================================
 		$html_str = edih_disp_file_process();
-		
+
 	} elseif ( isset( $_GET['gtbl']) ) {
 		// get from a csv_table
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// ======================================		
-		$gtb = filter_input(INPUT_GET, 'gtbl', FILTER_SANITIZE_STRING);
+		// ======================================
+		$gtb = filter_input(INPUT_GET, 'gtbl', FILTER_DEFAULT);
 		//
 		if ($gtb == 'file') {
 			$html_str = edih_disp_x12file();
 		} elseif ($gtb == 'claim') {
 			$html_str = edih_disp_x12trans();
 		} elseif ($gtb == 'hist') {
-			$chkd = (isset( $_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_SANITIZE_STRING) : '';
+			$chkd = (isset( $_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_DEFAULT) : '';
 			if ($chkd == 'yes') {
 				$html_str = edih_disp_denied_claims();
 			} else {
@@ -242,77 +242,77 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 			$html_str = '<p>Input error: missing parameter</p>';
 			csv_edihist_log("GET error: missing parameter, no 'gtbl' value");
 		}
-		
+
 	} elseif ( isset($_GET['csvShowTable']) ) {
 		// view a csv table
-		// ========= log user access for user commands ===========          
-		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================			
-		$html_str = edih_disp_csvtable();
-		
-	} elseif ( isset($_GET['hist_enctr']) ) {
-		// history for encounter
-		// ========= log user access for user commands ===========          
-		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================		
-		$html_str = edih_disp_clmhist();
-				
-	}  elseif ( isset($_GET['ckprocessed']) ) {
-		// whether 835 payment file has been applied to pt balance
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =======================================
-		$la = filter_input(INPUT_GET, 'ckprocessed', FILTER_SANITIZE_STRING);
+		$html_str = edih_disp_csvtable();
+
+	} elseif ( isset($_GET['hist_enctr']) ) {
+		// history for encounter
+		// ========= log user access for user commands ===========
+		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
+		// =======================================
+		$html_str = edih_disp_clmhist();
+
+	}  elseif ( isset($_GET['ckprocessed']) ) {
+		// whether 835 payment file has been applied to pt balance
+		// ========= log user access for user commands ===========
+		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
+		// =======================================
+		$la = filter_input(INPUT_GET, 'ckprocessed', FILTER_DEFAULT);
 		if ($la == 'yes') {
 			// ajax request on page load
 			$html_str = edih_disp_era_processed();
 			$html_str = "alert('$html_str')";
 		}
-		
+
 	} elseif ( isset( $_GET['chkdenied']) ) {
 		// files csv table
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
 		// =====================================
-		$chkd = filter_input(INPUT_GET, 'chkdenied', FILTER_SANITIZE_STRING);
+		$chkd = filter_input(INPUT_GET, 'chkdenied', FILTER_DEFAULT);
 		if ($chkd == 'yes') {
 			$html_str = edih_disp_denied_claims();
 		} else {
 			$html_str = '<p>Input error: invalid parameter</p>';
 			csv_edihist_log("GET error: missing parameter, invalid 'chkdenied' value");
 		}
-				
+
 	} elseif ( isset($_GET['showlog']) ) {
 		// show the edi_history log
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================		
-		$lgnm = (isset($_GET['log_select'])) ? filter_input(INPUT_GET, 'log_select', FILTER_SANITIZE_STRING) : '';
-		$la = (isset($_GET['logshowfile'])) ? filter_input(INPUT_GET, 'logshowfile', FILTER_SANITIZE_STRING) : '';
+		// =======================================
+		$lgnm = (isset($_GET['log_select'])) ? filter_input(INPUT_GET, 'log_select', FILTER_DEFAULT) : '';
+		$la = (isset($_GET['logshowfile'])) ? filter_input(INPUT_GET, 'logshowfile', FILTER_DEFAULT) : '';
 		if ( $la == 'getlog' && $lgnm ) {
 			$html_str = csv_log_html($lgnm);
 		} else {
 			$html_str = "Show Log: input parameter error<br />" ;
 		}
-		
+
 	} elseif ( isset($_GET['getnotes']) ) {
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================		
-		$la = filter_input(INPUT_GET, 'getnotes', FILTER_SANITIZE_STRING);
+		// =======================================
+		$la = filter_input(INPUT_GET, 'getnotes', FILTER_DEFAULT);
 		$html_str = ($la) ? edih_user_notes() : "input parameter error<br />";
-		
+
 	} elseif ( isset($_GET['archivereport']) ) {
-		// ========= log user access for user commands ===========          
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================		
+		// =======================================
 		// data: { period: prd, archivereport: 'yes'),
 		$html_str = edih_disp_archive_report();
-	
+
 	} else {
-		// ========= log user access for user commands ===========  	       
+		// ========= log user access for user commands ===========
 		csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
-		// =======================================	
+		// =======================================
 		$html_str = "Error: unknown parameter in request<br />" .PHP_EOL;
 		$bg_str = "Error GET unknown value ";
 		foreach($_GET as $ky => $val) {
@@ -321,7 +321,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 		csv_edihist_log($bg_str);
 		//$html_str .= var_dump($_GET) . PHP_EOL;
 	}
-	
+
 } else {
 	die("EDI History: invalid input method <br />");
 }
@@ -329,7 +329,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 //
 $isclear = csv_clear_tmpdir();
 if (!$isclear) {
-	//echo "file contents remain in $edih_tmp_dir <br />".PHP_EOL; 
+	//echo "file contents remain in $edih_tmp_dir <br />".PHP_EOL;
 	csv_edihist_log("file contents remain in $edih_tmp_dir");
 }
 //

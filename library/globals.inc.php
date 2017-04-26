@@ -65,6 +65,7 @@
 //   Tamil                          // xl('Tamil')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
+//   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
 // OS-dependent stuff.
@@ -677,13 +678,6 @@ $GLOBALS_METADATA = array(
       xl('Removes the Chart Tracker feature')
     ),
 
-    'disable_phpmyadmin_link' => array(
-     xl('Disable phpMyAdmin'),
-     'bool',                            // data type
-     '0',                               // default = false
-     xl('Removes support for phpMyAdmin')
-    ),
-
     'disable_immunizations' => array(
       xl('Disable Immunizations'),
       'bool',                           // data type
@@ -1258,6 +1252,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default
             xl('Option to save method of document storage.')
         ),
+
         'couchdb_host' => array(
             xl('CouchDB HostName'),
             'text',
@@ -2555,7 +2550,7 @@ $GLOBALS_METADATA = array(
 			'0',
 			xl('Enable C-CDA Alternate Service')
 	),
- 
+
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
