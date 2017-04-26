@@ -1346,7 +1346,9 @@ class edih_x12_file {
 		if ($trace) {
 			foreach($env_ar['ST'] as $st) {
 				if ($st['trace'] == $trace) {
-					$ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
+				// have to add one to the count to capture the SE segment so html_str has data
+				// when called from edih_835_payment_html function in edih_835_html.php 4-25-17 SMW
+					$ret_ar = array_slice($seg_ar, $st['start'], $st['count']+1, $prskeys);
 					break;
 				}
 			}
