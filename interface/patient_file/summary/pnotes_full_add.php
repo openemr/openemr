@@ -245,6 +245,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
   echo "</option>\n";
  }
 ?>
+   <option value=''><?php echo htmlspecialchars( xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
    </select>
   </td>
  </tr>
