@@ -5193,7 +5193,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_language` varchar(30) default NULL,
   `pc_apptstatus` varchar(15) NOT NULL default '-',
   `pc_prefcatid` int(11) NOT NULL default '0',
-  `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
+  `pc_facility` int(11) NOT NULL default '0' COMMENT 'facility id for this event',
   `pc_sendalertsms` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',

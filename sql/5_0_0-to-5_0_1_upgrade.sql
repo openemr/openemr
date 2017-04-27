@@ -435,3 +435,7 @@ ALTER TABLE `background_services` CHANGE `running` `running` TINYINT(1) NOT NULL
 #IfNotColumnType onsite_mail owner varchar(128)
 ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #Endif
+
+#IfNotColumnType openemr_postcalendar_events pc_facility int(11)
+ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int(11) NOT NULL DEFAULT '0' COMMENT 'facility id for this event';
+#Endif

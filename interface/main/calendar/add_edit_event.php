@@ -105,7 +105,7 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
-if((!$g_edit && !$g_view) ) {
+if ( (!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy']) ) {
     $_GET['group'] = false;
     $have_group_global_enabled = false;
 
@@ -129,8 +129,8 @@ else {
 ?>
 <?php $disabled = (!$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
 <?php if($disabled) echo '<script>$( document ).ready(function(){
-    $("input").prop("disabled", true); 
-    $("select").prop("disabled", true); 
+    $("input").prop("disabled", true);
+    $("select").prop("disabled", true);
 }) </script>';?>
 
  <?php
@@ -1855,7 +1855,7 @@ if ($repeatexdate != "") {
  </tr>
 
 </table></td></tr>
-    
+
 <tr class='text'><td colspan='10' class="buttonbar">
 <p>
 <input    type='button' name='form_save' id='form_save' value='<?php echo xla('Save');?>' />

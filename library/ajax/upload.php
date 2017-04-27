@@ -27,8 +27,8 @@ $category_id = filter_input(INPUT_GET, 'parent_id');
 $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
-require_once("../globals.php");
-require_once(dirname(__FILE__) . "/../../library/documents.php");
+require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(dirname(__FILE__) . "/../documents.php");
 
 if (!empty($_FILES)) {
 
