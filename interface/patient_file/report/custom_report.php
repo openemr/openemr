@@ -45,6 +45,12 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
+    /* Because of the nature of this report, it is difficult to catch all the various errors possible
+     * so, turning on E_ERROR seems logical to catch memory and php errors that can't be reported due to output buffering.
+     * Try/catch will handle errors after buffer content is retrieved.
+     */
+    ini_set('display_errors', 1); // turn on diswplaying of errors.
+    error_reporting(E_ERROR); // Just fatal php errors are what concern us.
 /*   composer bootstrap loads classes for mPDF */
     $pdf = new mPDF(
         $GLOBALS['pdf_language'], // codepage or language/codepage or language - this can help auto determine many other options such as RTL
@@ -207,16 +213,20 @@ if ($printable) {
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
   echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
-
-  // Use logo if it exists as 'practice_logo.gif' in the site dir
-  // old code used the global custom dir which is no longer a valid
-  $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-  echo "<div><table><tr><td>";
-   if (file_exists($practice_logo)) {
-       $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/practice_logo.gif"; // property img src needs a uri path
-       echo "<img src='$logo_path' align='left'><br />";
-       echo "</td><td>";
-     }
+        
+        // Use logo if it exists as 'practice_logo.gif' in the site dir
+        // old code used the global custom dir which is no longer a valid
+    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+    $plogo = glob("$OE_SITE_DIR/images/practice_logo.{jpg,png,gif}", GLOB_BRACE);// let's give the user a liitle say in image format.
+    if (! empty($plogo)) {
+        $practice_logo = $plogo[0];
+    }
+    echo "<div><table width='795'><tbody><tr><td>";
+    if (file_exists($practice_logo)) {
+        $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/". basename($practice_logo);
+        echo "<img style='max-width:250px;height:auto;' src='$logo_path' align='left'>"; // keep size within reason
+        echo "</td><td>";
+    }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -225,7 +235,7 @@ if ($printable) {
 
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
 <span class='text'><?php xl('Generated on','e'); ?>: <?php echo oeFormatShortDate(); ?></span>
-<?php echo "</td></tr></table></div>";?>
+<?php echo "</td></tr></tbody></table></div>";?>
 
 <?php
 }
@@ -816,9 +826,12 @@ if ($PDF_OUTPUT) {
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $pdf->writeHTML($content, false);
     if ($PDF_OUTPUT == 1) {
-        $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
-    }
-  else {
+        try {
+            $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+        } catch (Exception $exception) {
+            die($exception);
+        }
+    } else {
     // This is the case of writing the PDF as a message to the CMS portal.
     $ptdata = getPatientData($pid, 'cmsportal_login');
     $contents = $pdf->Output('', true);
