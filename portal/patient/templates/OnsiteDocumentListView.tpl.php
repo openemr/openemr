@@ -240,15 +240,15 @@ body {
 					<li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"	onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
 				</ul>
 			</aside>
-			<div class="col-sm-8  col-xs-8 nopadding">
+			<div class="col-md-8  col-sm-8 col-xs-8 nopadding">
 				<span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
 				<div class="panel panel-primary" id="docpanel">
 					<header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
 					<div id="loader" style="display:none;"></div>
 					<form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
 						<div id="loader" style="display:none;"></div>
-						<div id="templatediv" class="panel-body" style="margin:0 auto; background:white">
-							<p id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></p>
+						<div id="templatediv" class="container panel-body" style="margin:0 auto; background:white">
+							<div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
 						</div>
 					 	<input type="hidden" name="content" id="content" value="">
 					 	<input type="hidden" name="docid" id="docid" value="">
@@ -284,11 +284,11 @@ body {
 	<div class="container">
 		<div class="row">
 		<div class="nav navbar-fixed-top" id="topnav">
-			<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>
+			<!--<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>-->
 			<ul class="nav nav-pills"  style='margin-top:5px'>
-
-				<li class="bg-danger"><a href="#"	 onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
-					<?php require_once(dirname( __FILE__ ) . '/../../lib/template_menu.php');?>
+                <li class="page-header" style='margin-left:10px;'><h4><a href="javascript:location.reload(true);"><?php echo xla('Attention: Pending Documents') . '>'?></a></h4></li>
+    			<?php require_once(dirname( __FILE__ ) . '/../../lib/template_menu.php');?>
+                <li class="bg-danger"><a href="#"	 onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
 			</ul>
 			<div id="collectionAlert"></div>
 		</div>
@@ -309,7 +309,7 @@ body {
 			<tr  style='background:white' id="<%= _.escape(item.get('id')) %>">
 				<td><%= _.escape(item.get('id') || '') %></td>
 				<td><button class='btn btn-primary btn-sm'><%= _.escape(item.get('docType').slice(0, -4).replace(/_/g, ' ') || '') %></button></td>
-				<td><button class='btn btn-primary btn-sm'><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></button></td>
+				<td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
 				<td><%if (item.get('reviewDate')) { %><%= item.get('reviewDate') %><% } else { %>NULL<% } %></td>
 				<td><%= _.escape(item.get('denialReason') || 'Pending') %></td>
 				<td><%if (item.get('patientSignedStatus')=='1') { %><%= 'Yes' %><% } else { %>No<% } %></td>
