@@ -59,7 +59,6 @@ class ViewHelper
      *     'listItemClass' => 'Space separated string of extra classes to add to <li> element. Optional',
      *     'subItems' => array('Recursion of $elements array structure. Optional'));
      *
-     * @todo This does not actually work, the links are not yet hooked up. RD 2017-04-19
      * @todo Handling the subItems list could be better - needs to be truly recursive. RD 2017-04-23
      *
      * @param $elements array
