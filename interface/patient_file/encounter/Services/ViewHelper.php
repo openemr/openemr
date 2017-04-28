@@ -68,7 +68,7 @@ class ViewHelper
     static function createEncounterMenu($elements)
     {
         // Standard menu item with no dropdown
-        $menuListItem = '<li><a href="{href}" {atts}>{linkText}</a></li>';
+        $menuListItem = '<li><a href="{href}" {class} {atts} >{linkText}</a></li>';
 
         $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
@@ -94,6 +94,12 @@ class ViewHelper
                         }
                     }
                     $submenuTmpStr = str_replace("{atts}", $attsString, $submenuTmpStr);
+
+                    $classTmp = "";
+                    if (array_key_exists('class', $subItem)) {
+                        $classTmp = ' class="{$subItem[class]}" ';
+                    }
+                    $submenuTmpStr = str_replace("{class}", $classTmp, $submenuTmpStr);
 
                     array_push($submenu, $submenuTmpStr);
                 }
@@ -124,6 +130,13 @@ class ViewHelper
                     }
                 }
                 $elementContainer = str_replace("{atts}", $attsString, $menuListItem);
+
+                $classTmp = "";
+                if (array_key_exists('class', $group)) {
+                    $classTmp = " class='{$group['class']}' ";
+                }
+                $elementContainer = str_replace("{class}", $classTmp, $elementContainer);
+
                 $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
 
                 $menu = $menu . str_replace("{linkText}", $group['name'], $elementContainer);

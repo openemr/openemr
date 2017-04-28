@@ -59,7 +59,6 @@ function toggleFrame1(fnum) {
 </script>
 </head>
 <body class="bgcolor2" style="padding-top:45px;">
-<dl>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
@@ -112,6 +111,14 @@ $menu = ViewHelper::createEncounterMenu($menuItems);
             <ul class="nav navbar-nav">
                 <?php echo $menu;?>
             </ul>
+
+            <?php if (acl_check('admin', 'super')): ?>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="toggledivs(this.id, this.id)" onclick="return deleteme()"><i class="fa fa-times"></i>&nbsp;<?php echo xl("Delete Encounter");?></a>
+                </li>
+            </ul>
+            <?php endif; ?>
         </div>
     </div>
 </nav>

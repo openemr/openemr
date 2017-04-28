@@ -418,18 +418,9 @@ $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 
-// Move this above the include for new_form.php
 if ($attendant_type == 'pid' && is_numeric($pid)) {
-
-}
-
-if ($attendant_type == 'pid' && is_numeric($pid)) {
-
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Encounter") . '</span>';
-
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -441,11 +432,8 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     }
     // for therapy group
 } else {
-
-    echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
-    echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -466,11 +454,9 @@ if ( $esign->isButtonViewable() ) {
     echo $esign->buttonHtml();
 }
 ?>
-<?php if (acl_check('admin', 'super')) { ?>
-    <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
-<?php } ?>
-&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
+
+<a href="#" class="btn btn-default btn-sm" onClick='expandcollapse("expand");'><?php xl('Expand All','e'); ?></a>
+<a href="#" class="btn btn-default btn-sm" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
 </div>
 </div>
 
