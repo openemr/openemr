@@ -157,6 +157,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-sidebar/dist/css/sidebar.css" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
@@ -481,75 +482,31 @@ $(window).load(function() {
 </div><!-- /.navbar-collapse -->
 </div>
 </nav>
-    <div class="container-fluid" style="margin-top: 0">
-    <div class="row">
-    <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-leftsidebar-md-show">
-            <ul class="nav navbar-stacked">
-               <?php
-        if($GLOBALS['erx_enable']): ?>
-        <li class="erx">
-            <a  href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
-                <?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?>
-            </a>
-        </li>
-        <li>
-            <a class=" iframe1"
-               href="../../soap_functions/soap_accountStatusDetails.php"
-               onclick="top.restoreSession()">
-                <?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?>
-            </a>
-        </li>
-        <li id='accountstatus'></li>
-        <?php endif; // eRX Enabled
-        //Patient Portal
-        $portalUserSetting = true; //flag to see if patient has authorized access to portal
-        if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
-            ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
-            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-            if ($portalStatus['allow_patient_portal']=='YES'):
-                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
-                <li>
-                    <a class=' iframe small_modal'
-                       href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
-                       onclick='top.restoreSession()'>
-                        <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
-                        <span><?php echo $display; ?></span>
-                    </a>
-                </li>
+<div class="container-fluid" style="margin-top:60px">
+<div class="row">
+    <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-md-show">
+        <ul class="nav navbar-stacked">
             <?php
-            else:
-                $portalUserSetting = false;
-            endif; // allow patient portal
-        endif; // Onsite Patient Portal
-        if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
-            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
-            if ($portalStatus['allow_patient_portal']=='YES'):
-                $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
-                ?>
-                <li>
-                    <a class=' iframe small_modal'
-                       href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
-                       onclick='top.restoreSession()'>
-                        <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
-                            <?php echo $text; ?>
-                        </a>
-                </li>
-            <?php
-            else:
-                $portalUserSetting = false;
-            endif; // allow_patient_portal
-        endif; // portal_offsite_enable
-        if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
-            <li>
-                <?php echo htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
+            if($GLOBALS['erx_enable']): ?>
+            <li class="erx">
+                <a href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                    <?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?>
+                </a>
             </li>
-        <?php endif;
-        //Patient Portal
-?>
-        <li>
-          <a href="../history/history.php" onclick='top.restoreSession()'>
-          <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-          </li>
+            <li>
+                <a class="iframe1" href="../../soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()">
+                    <?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?>
+                </a>
+            </li>
+            <li id='accountstatus'></li>
+            <?php endif; // eRX Enabled
+
+            ?>
+            <li>
+                <a href="../history/history.php" onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?>
+                </a>
+            </li>
             <li>
           <?php //note that we have temporarily removed report screen from the modal view ?>
           <a href="../report/patient_report.php" onclick='top.restoreSession()'>
@@ -619,7 +576,52 @@ $(window).load(function() {
                    onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?>
                 </a>
             </li>
-            <?php endif; ?>
+            <?php endif;
+            //Patient Portal
+            $portalUserSetting = true; //flag to see if patient has authorized access to portal
+            if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
+            ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
+            $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
+            if ($portalStatus['allow_patient_portal'] == 'YES'):
+            $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
+            <li>
+                <a class='iframe small_modal'
+                   href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>'
+                   onclick='top.restoreSession()'>
+                    <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
+                    <span><?php echo $display; ?></span>
+                </a>
+            </li>
+            <?php
+            else:
+            $portalUserSetting = false;
+            endif; // allow patient portal
+            endif; // Onsite Patient Portal
+            if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
+                $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+                if ($portalStatus['allow_patient_portal']=='YES'):
+                    $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
+                    ?>
+                    <li>
+                        <a class='iframe small_modal'
+                           href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+                           onclick='top.restoreSession()'>
+                            <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
+                            <?php echo $text; ?>
+                        </a>
+                    </li>
+                    <?php
+                else:
+                    $portalUserSetting = false;
+                endif; // allow_patient_portal
+            endif; // portal_offsite_enable
+            if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
+                <li>
+                    <p class="navbar-text"><?php echo htmlspecialchars(xl('Patient Portal Not Authorized'), ENT_NOQUOTES);?></p>
+                </li>
+            <?php endif;
+            //Patient Portal
+            ?>
         </ul>
     </div>
     <div class="col-md-9 col-md-offset-2">
@@ -642,7 +644,8 @@ $(window).load(function() {
 
             <div class="row">
                 <div class="col-md-6">
-                    <h1 class="title lead"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></h1>
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fa fa-lg fa-exclamation"></i>&nbsp;
                     <?php
                     // If patient is deceased, then show this (along with the number of days patient has been deceased for)
                     $days_deceased = is_patient_deceased($pid);
@@ -658,6 +661,8 @@ $(window).load(function() {
                             echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
                         } ?>
                     <?php endif; ?>
+                        </strong>
+                    </div>
                 </div>
                 <div class="col-md-6">&nbsp;</div>
             </div>

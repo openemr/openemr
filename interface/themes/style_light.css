@@ -72,6 +72,11 @@ a:hover {
   color: #fff !important;
 }
 
+.alert-danger {
+  background: #DD0000;
+  color: #ffffff;
+}
+
 .small {
   text-decoration: none;
   color: #000000;
