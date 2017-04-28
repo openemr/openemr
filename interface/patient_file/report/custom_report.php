@@ -49,7 +49,7 @@ if ($PDF_OUTPUT) {
      * so, turning on E_ERROR seems logical to catch memory and php errors that can't be reported due to output buffering.
      * Try/catch will handle errors after buffer content is retrieved.
      */
-    ini_set('display_errors', 1); // turn on diswplaying of errors.
+    ini_set('display_errors', 1); // turn on displaying of errors.
     error_reporting(E_ERROR); // Just fatal php errors are what concern us.
 /*   composer bootstrap loads classes for mPDF */
     $pdf = new mPDF(
@@ -217,7 +217,7 @@ if ($printable) {
         // Use logo if it exists as 'practice_logo.gif' in the site dir
         // old code used the global custom dir which is no longer a valid
     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-    $plogo = glob("$OE_SITE_DIR/images/practice_logo.{jpg,png,gif}", GLOB_BRACE);// let's give the user a liitle say in image format.
+    $plogo = glob("$OE_SITE_DIR/images/practice_logo.{jpg,png,gif}", GLOB_BRACE);// let's give the user a little say in image format.
     if (! empty($plogo)) {
         $practice_logo = $plogo[0];
     }
@@ -822,9 +822,18 @@ if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
 if ($PDF_OUTPUT) {
     $content = getContent();
     $ptd = getPatientData($pid, "fname,lname");
-    $fn =  strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
+    $fn = strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
-    $pdf->writeHTML($content, false);
+    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    if (! $isit_utf8) {
+        if (function_exists('iconv')) { // if we can lets save the report
+            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        } else { // no sense going on.
+            $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
+            die($die_str);
+        }
+    }
+    $pdf->writeHTML($content, false); // convert html
     if ($PDF_OUTPUT == 1) {
         try {
             $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
@@ -832,25 +841,27 @@ if ($PDF_OUTPUT) {
             die($exception);
         }
     } else {
-    // This is the case of writing the PDF as a message to the CMS portal.
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $contents = $pdf->Output('', true);
-    echo "<html><head>\n";
-    echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
-    echo "</head><body class='body_top'>\n";
-    $result = cms_portal_call(array(
-      'action'   => 'putmessage',
-      'user'     => $ptdata['cmsportal_login'],
-      'title'    => xl('Your Clinical Report'),
-      'message'  => xl('Please see the attached PDF.'),
-      'filename' => 'report.pdf',
-      'mimetype' => 'application/pdf',
-      'contents' => base64_encode($contents),
-    ));
-    if ($result['errmsg']) die(text($result['errmsg']));
-    echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
-    echo "</body></html>\n";
-  }
+        // This is the case of writing the PDF as a message to the CMS portal.
+        $ptdata = getPatientData($pid, 'cmsportal_login');
+        $contents = $pdf->Output('', true);
+        echo "<html><head>\n";
+        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        echo "</head><body class='body_top'>\n";
+        $result = cms_portal_call(array(
+            'action' => 'putmessage',
+            'user' => $ptdata['cmsportal_login'],
+            'title' => xl('Your Clinical Report'),
+            'message' => xl('Please see the attached PDF.'),
+            'filename' => 'report.pdf',
+            'mimetype' => 'application/pdf',
+            'contents' => base64_encode($contents)
+        ));
+        if ($result['errmsg']){
+            die(text($result['errmsg']));
+        }
+        echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+        echo "</body></html>\n";
+    }
 }
 else {
 ?>

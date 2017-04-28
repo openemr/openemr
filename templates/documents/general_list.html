@@ -3,17 +3,21 @@
 {php}html_header_show();{/php}
 {php}$this->assign('GLOBALS', $GLOBALS);{/php}
 {php}
-$place_hld = isset($_GET['patient_name'])?$_GET['patient_name']:xl("Patient search or select.");
-$cur_pid = isset($_GET['patient_id'])?$_GET['patient_id']:'';
-if ( isset($_SESSION['isNew']) && !isset($_GET['patient_name']) && isset($_GET['list']) && (int)$cur_pid != 0) {
-    unset($_SESSION['isNew']);
+$is_new = isset($_GET['patient_name']) ? 1 : false;
+$place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
+$cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
+
+if ($cur_pid == '00' || $is_new) {
+    $_SESSION['isNew'] = $cur_pid;
+    if($cur_pid == '00'){
+        $cur_pid = '0';
+        $is_new = 1;
+     }        
 }
-elseif ($cur_pid == '00') {
-    $_SESSION['isNew'] = true;
-    $cur_pid = '0';
-}
+$this->assign('is_new', $is_new);
 $this->assign('place_hld', $place_hld);
 $this->assign('cur_pid', $cur_pid);
+$this->assign('demo_pid', $GLOBALS['pid']);
 {/php}
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
@@ -72,11 +76,12 @@ overflow: auto;
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript">
-var curpid="{$cur_pid}"
-var newVersion="{php}echo isset($_SESSION['isNew'])?1:false;{/php}"
+var curpid = "{$cur_pid}";
+var newVersion="{$is_new}";
+var demoPid = "{$demo_pid}";
 {literal}
-if(curpid > 0 && ! newVersion){
-	$(".ui-widget").hide();
+if(curpid == demoPid){
+    $(".ui-widget").hide();
 }
 else{
     $("#pid").text(curpid);

@@ -146,7 +146,7 @@ var tdelete = function(docname) {
 				   			            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
 				   			        ],
 				   			        label: 'Tags / Directives',
-				   			    	tooltip: 'Insert Tag or Directive at current cursor location.'
+				   			    	tooltip: 'Insert at current cursor location.'
 				   			    },
 				   			 options:{'label': 'Tags/Directives',
 					   			    'tooltip': 'Insert Tag or Directive'}
