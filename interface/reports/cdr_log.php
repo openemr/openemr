@@ -39,15 +39,10 @@ require_once "$srcdir/clinical_rules.php";
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
 <title><?php echo xlt('Alerts Log'); ?></title>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <script LANGUAGE="JavaScript">
 
@@ -112,23 +107,23 @@ $(document).ready(function() {
 	<table class='text'>
 
                    <tr>
-                      <td class='label_custom'>
+                      <td class='control-label'>
                          <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
-                            class='datepicker'
+                            class='datepicker form-control'
                             title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                       </td>
                    </tr>
 
                 <tr>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                               <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
-                                class='datepicker'
+                                class='datepicker form-control'
                                 title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
