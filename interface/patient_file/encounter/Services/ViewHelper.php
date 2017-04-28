@@ -255,11 +255,11 @@ class ViewHelper
                     $tmpRow['href'] = $href;
                     $return[$lastItem]['subItems'][] = $tmpRow;
                 } else {
-                    $tmpRow['href'] = "#";
+                    $tmpRow['href'] = $href;
                     $return[] = $tmpRow;
                 }
             }
-            $name = xlt("Modules");
+            $name = xlt("Other");
             return array('name' => $name, 'href' => '#', 'subItems' => $return);
         } else {
             return false;
