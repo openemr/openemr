@@ -1,10 +1,12 @@
 <?php
 /**
- * ViewHelperTest
+ * Helper functions tests for an encounter view files
  *
+ * @package OpenEMR
+ * @subpackage Encounter
+ * @license http://opensource.org/licenses/gpl-license.php General Public License 3
  * @author Robert Down <robertdown@live.com>
  * @copyright Copyright (C) 2017 Robert Down
- * @license https://www.gnu.org/licenses/gpl-3.0.en.html GNU Public License
  */
 
 namespace OpenEMR\Encounter\Tests;
