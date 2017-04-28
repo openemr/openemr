@@ -9,7 +9,7 @@
  * @copyright Copyright (C) 2017 Robert Down
  */
 
-require_once "../../globals.php");
+require_once "../../globals.php";
 require_once "{$GLOBALS['srcdir']}/ESign/Api.php";
 
 use OpenEMR\Encounter\Services\ViewHelper;
@@ -29,6 +29,7 @@ $(document).ready(function(){
 
     $("ul.nav").on('click', 'a.menu-item-action', function(e) {
         e.preventDefault();
+        alert('here');
         if (parent.Forms) {
             parent.location.href = $(this).attr('href');
         } else {
