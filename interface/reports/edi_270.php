@@ -166,8 +166,8 @@
 
 		<title><?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
 
-		<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+		<?php $include_standard_style_js = array("datetimepicker"); ?>
+		<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 		<style type="text/css">
 
@@ -195,11 +195,6 @@
 			}
 
 		</style>
-
-		<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 		<script type="text/javascript">
 
@@ -311,34 +306,34 @@
 							<div style='float:left'>
 								<table class='text'>
 									<tr>
-										<td class='label_custom'>
+										<td class='control-label'>
 										   <?php xl('From','e'); ?>:
 										</td>
 										<td>
-										   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
+										   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
 										</td>
-										<td class='label_custom'>
+										<td class='control-label'>
 										   <?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
-										   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars( $to_date, ENT_QUOTES) ?>'
+										   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars( $to_date, ENT_QUOTES) ?>'
 											title='yyyy-mm-dd'>
 										</td>
 										<td>&nbsp;</td>
 									</tr>
 
 									<tr>
-										<td class='label_custom'>
+										<td class='control-label'>
 											<?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
 											<?php dropdown_facility($form_facility,'form_facility',false);	?>
 										</td>
-										<td class='label_custom'>
+										<td class='control-label'>
 										   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 										</td>
 										<td>
-											<select name='form_users' onchange='form.submit();'>
+											<select name='form_users' class='form-control' onchange='form.submit();'>
 												<option value=''>-- <?php echo htmlspecialchars( xl('All'), ENT_NOQUOTES); ?> --</option>
 												<?php foreach($providers as $user): ?>
 													<option value='<?php echo htmlspecialchars( $user['id'], ENT_QUOTES); ?>'
@@ -352,11 +347,11 @@
 									</tr>
 
 									<tr>
-										<td class='label_custom'>
+										<td class='control-label'>
 											<?php echo htmlspecialchars( xl('X12 Partner'), ENT_NOQUOTES); ?>:
 										</td>
 										<td colspan='5'>
-											<select name='form_x12' id='form_x12' onchange='return toggleMessage("emptyVald","form_x12");' >
+											<select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
 														<option value=''>--<?php echo htmlspecialchars( xl('select'), ENT_NOQUOTES); ?>--</option>
 														<?php
 															if(isset($clearinghouses) && !empty($clearinghouses))
