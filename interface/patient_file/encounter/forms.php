@@ -396,10 +396,6 @@ function divtoggle(spanid, divid) {
 </head>
 <?php
 $hide=1;
-$dateres = getEncounterDateByEncounter($encounter);
-$encounter_date = date("Y-m-d",strtotime($dateres["date"]));
-$patientNameArray = getPatientData($pid, "fname,lname");
-$patientName = $patientNameArray['fname'] . " " . $patientNameArray['lname'];
 require_once("new_form.php");
 ?>
 

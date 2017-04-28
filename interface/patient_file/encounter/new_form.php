@@ -11,7 +11,7 @@
 
 require_once "../../globals.php";
 require_once "{$GLOBALS['srcdir']}/ESign/Api.php";
-
+require_once "{$GLOBALS['srcdir']}/forms.inc";
 use OpenEMR\Encounter\Services\ViewHelper;
 
 $esignApi = new Esign\Api();
@@ -59,7 +59,7 @@ function toggleFrame1(fnum) {
  }
 </script>
 </head>
-<body class="bgcolor2" style="padding-top:45px;">
+<body style="padding-top:45px;">
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
@@ -101,6 +101,11 @@ if ($moduleItems) {
 }
 
 $menu = ViewHelper::createEncounterMenu($menuItems);
+
+$dateres = getEncounterDateByEncounter($encounter);
+$encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+$patientNameArray = getPatientData($pid, "fname,lname");
+$patientName = implode(" ", $patientNameArray);
 ?>
 
 <nav class="nav navbar-default navbar-fixed-top">
