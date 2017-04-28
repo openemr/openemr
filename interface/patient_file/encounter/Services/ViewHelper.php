@@ -32,9 +32,9 @@ class ViewHelper
         $sql = str_replace("{column}", $column, $sql);
         $params[1] = $state;
         if ($limit != "unlimited") {
-            $params[2] = $limit;
-            $params[3] = $offset;
-            $sql .= " LIMIT ?, ?";
+            $limit = escape_limit($limit);
+            $offset = escape_limit($offset);
+            $sql .= " LIMIT {$limit}, {$offset}";
         }
         $result = sqlStatement($sql, $params);
         if ($result) {
