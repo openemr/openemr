@@ -1,11 +1,16 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * View an encounter
+ *
+ * @package OpenEMR
+ * @subpackage Encounter
+ * @license http://opensource.org/licenses/gpl-license.php General Public License 3
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (C) 2017 Robert Down
+ */
 
-require_once("../../globals.php");
-require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once "../../globals.php");
+require_once "{$GLOBALS['srcdir']}/ESign/Api.php";
 
 use OpenEMR\Encounter\Services\ViewHelper;
 
@@ -18,12 +23,7 @@ $assets_dir = $GLOBALS['assets_static_relative'];
 <head>
 <?php } ?>
 <?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $assets_dir;?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $assets_dir;?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
-
-<script type="text/javascript" src="<?php echo $assets_dir;?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $assets_dir;?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 <script language="JavaScript">
 $(document).ready(function(){
 
