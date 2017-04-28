@@ -1,7 +1,19 @@
 <?php
 /**
- * File level docblock stuff
+ * Helper functions for an encounter view files
  *
+ * LICENSE: This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @subpackage Encounter
+ * @license GNU GPL3
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (C) 2017 Robert Down
  */
 
 namespace OpenEMR\Encounter\Services;
@@ -42,6 +54,7 @@ class ViewHelper
      * $elements = array(
      *     'name' => 'Text displayed to user in link. Required',
      *     'href' => 'Location of menu item. Required',
+     *     'atts' => ['Array of valid HTML5 attributes to attach to the anchor tag'],
      *     'linkClass' => 'Space separated string of extra classes to add to <a> element. Optional',
      *     'listItemClass' => 'Space separated string of extra classes to add to <li> element. Optional',
      *     'subItems' => array('Recursion of $elements array structure. Optional'));
@@ -55,7 +68,7 @@ class ViewHelper
     static function createEncounterMenu($elements)
     {
         // Standard menu item with no dropdown
-        $menuListItem = '<li><a href="{href}">{linkText}</a></li>';
+        $menuListItem = '<li><a href="{href}" {atts}>{linkText}</a></li>';
 
         $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
@@ -73,15 +86,47 @@ class ViewHelper
                 foreach ($group['subItems'] as $subItem) {
                     $submenuTmpStr = str_replace("{linkText}", $subItem['name'], $menuListItem);
                     $submenuTmpStr = str_replace("{href}", $subItem['href'], $submenuTmpStr);
+
+                    $attsString = "";
+                    if (array_key_exists('atts', $subItem)) {
+                        foreach ($subItem['atts'] as $prop => $val) {
+                            $attsString .= " {$prop}=\"{$val}\"";
+                        }
+                    }
+                    $submenuTmpStr = str_replace("{atts}", $attsString, $submenuTmpStr);
+
                     array_push($submenu, $submenuTmpStr);
                 }
+
                 $submenuStr = implode("\n", $submenu);
                 $submenuContainer = str_replace("{submenuListItems}", $submenuStr, $submenuList);
                 $elementContainer = str_replace("{submenuList}", $submenuContainer, $menuListItemWithDropdown);
                 $elementContainer = str_replace("{linkText}", $group['name'], $elementContainer);
+
+                if (array_key_exists('href', $group)) {
+                    $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
+                }
+
+                $attsString = "";
+                if (array_key_exists('atts', $group)) {
+                    foreach ($group['atts'] as $prop => $val) {
+                        $attsString .= " {$prop}=\"{$val}\"";
+                    }
+                }
+                $elementContainer = str_replace("{atts}", $attsString, $elementContainer);
+
                 $menu = $menu . "\n" . $elementContainer;
             } else {
-                $menu = $menu . str_replace("{linkText}", $group['name'], $menuListItem);
+                $attsString = "";
+                if (array_key_exists('atts', $group)) {
+                    foreach ($group['atts'] as $prop => $val) {
+                        $attsString .= " {$prop}=\"{$val}\"";
+                    }
+                }
+                $elementContainer = str_replace("{atts}", $attsString, $menuListItem);
+                $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
+
+                $menu = $menu . str_replace("{linkText}", $group['name'], $elementContainer);
             }
         }
         return $menu;
@@ -102,6 +147,7 @@ class ViewHelper
         if (sqlNumRows($result)) {
             while ($row = sqlFetchArray($result)) {
                 $optionId = $row['option_id'];
+                $encodedOptionId = urlencode($optionId);
                 $title = $row['title'];
                 $jobj = json_decode($row['notes'], true);
                 if (!empty($jobj['aco'])) {
@@ -110,15 +156,15 @@ class ViewHelper
                         continue;
                     }
                 }
-                $row = array(
-                    'href' => '{rootdir}/patient_file/encounter/load_form.php?formname=' . urlencode($optionId),
+                $row = [
+                    'href' => "/interface/patient_file/encounter/load_form.php?formname={$encodedOptionId}",
                     'name' => xl_form_title($title),
-                    'class' => 'lbf-menu-item'
-                );
+                    'class' => 'menu-item-action'
+                ];
                 $return[] = $row;
             }
             $name = xlt('Layout Based');
-            return array('name' => $name, 'subItems' => $return);
+            return array('name' => $name, 'href' => '#', 'subItems' => $return);
         } else {
             return false;
         }
@@ -141,13 +187,19 @@ class ViewHelper
             $nickname = (trim($item['nickname']) == '') ? $item['name'] : $item['nickname'];
 
             if ($category == $prevCategory) {
-                $tmp = array(
-                    'href' => '#',
-                    'name' => $nickname,
-                );
+                $formName = urlencode($item['directory']);
+                $rootDir = "/interface";
+                $tmp = [
+                    'href' => "{$rootDir}/patient_file/encounter/load_form.php?formname={$formName}",
+                    'name' => xl_form_title($nickname),
+                    'class' => 'menu-item-action'
+                ];
                 $return[count($return) - 1]['subItems'][] = $tmp;
             } else {
-                $return[] = array('name' => $category);
+                $return[] = [
+                    'name' => $category,
+                    'href' => '#'
+                ];
             }
 
             $prevCategory = $category;
@@ -195,4 +247,5 @@ class ViewHelper
             }
         }
     }
+
 }

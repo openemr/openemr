@@ -25,6 +25,19 @@ $assets_dir = $GLOBALS['assets_static_relative'];
 <script type="text/javascript" src="<?php echo $assets_dir;?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $assets_dir;?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
 <script language="JavaScript">
+$(document).ready(function(){
+
+    $("ul.nav").on('click', 'a.menu-item-action', function(e) {
+        e.preventDefault();
+        if (parent.Forms) {
+            parent.location.href = $(this).attr('href');
+        } else {
+            location.href = $(this).attr('href');
+        }
+    });
+
+});
+
 
 function openNewForm(sel) {
   top.restoreSession();
@@ -32,13 +45,9 @@ function openNewForm(sel) {
   if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
   {
     parent.location.href = sel;
-  }
-  else if (!parent.Forms)
-  {
+  } else if (!parent.Forms) {
     location.href = sel;
-  }
-  else
-  {
+  } else {
     parent.Forms.location.href = sel;
   }
 }
@@ -48,92 +57,6 @@ function toggleFrame1(fnum) {
   top.window.parent.left_nav.toggleFrame(fnum);
  }
 </script>
-<script type="text/javascript" language="javascript">
-// @todo This whole thing can probably be deleted as it seems to only relate to the old menu. RD 2017-04-21
-var timeout	= 500;
-var closetimer	= 0;
-var ddmenuitem	= 0;
-var oldddmenuitem = 0;
-var flag = 0;
-
-// open hidden layer
-function mopen(id)
-{
-	// cancel close timer
-	//mcancelclosetime();
-
-	flag=10;
-
-	// close old layer
-	//if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
-	//if(ddmenuitem) ddmenuitem.style.display = 'none';
-
-	// get new layer and show it
-        oldddmenuitem = ddmenuitem;
-	ddmenuitem = document.getElementById(id);
-        if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
-            if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
-            if(oldddmenuitem) oldddmenuitem.style.display = 'none';
-            ddmenuitem.style.visibility = 'visible';
-            ddmenuitem.style.display = 'block';
-        }else{
-            ddmenuitem.style.visibility = 'hidden';
-            ddmenuitem.style.display = 'none';
-        }
-}
-// close showed layer
-function mclose()
-{
-	if(flag==10)
-	 {
-	  flag=11;
-	  return;
-	 }
-	if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
-	if(ddmenuitem) ddmenuitem.style.display = 'none';
-}
-
-// close layer when click-out
-document.onclick = mclose;
-//=================================================
-function findPosX(id)
-  {
-    obj=document.getElementById(id);
-	var curleft = 0;
-    if(obj.offsetParent)
-        while(1)
-        {
-          curleft += obj.offsetLeft;
-          if(!obj.offsetParent)
-            break;
-          obj = obj.offsetParent;
-        }
-    else if(obj.x)
-        curleft += obj.x;
-   PropertyWidth=document.getElementById(id).offsetWidth;
-   if(PropertyWidth>curleft)
-    {
-	 document.getElementById(id).style.left=0;
-	}
-  }
-
-  function findPosY(obj)
-  {
-    var curtop = 0;
-    if(obj.offsetParent)
-        while(1)
-        {
-          curtop += obj.offsetTop;
-          if(!obj.offsetParent)
-            break;
-          obj = obj.offsetParent;
-        }
-    else if(obj.y)
-        curtop += obj.y;
-    return curtop;
-  }
-</script>
-
 </head>
 <body class="bgcolor2" style="padding-top:45px;">
 <dl>
@@ -150,7 +73,9 @@ $encounterSummary = array(
     'href' => '#',
 );
 if (isset($hide)) {
-    $encounterSummary['href'] = 'enc2';
+    $encounterSummary['href'] = '#';
+    $clickStr = "return top.window.parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/encounter/encounter_top.php')";
+    $encounterSummary['atts']['onclick'] = $clickStr;
 } else {
     if ($GLOBALS['new_tabs_layout']) {
         $encounterSummaryLoadFrame = 'loadFrame';
@@ -159,6 +84,8 @@ if (isset($hide)) {
         $encounterSummaryLoadFrame = 'loadFrame2';
         $framePosition = 'RBot';
     }
+    $clickStr = "return top.window.parent.left_nav.{$encounterSummaryLoadFrame}('enc2', '{$framePosition}', 'patient_file/encounter/encounter_top.php')";
+    $encounterSummary['atts']['onclick'] = $clickStr;
 }
 array_unshift($menuItems, $encounterSummary);
 
@@ -204,66 +131,8 @@ if ($esignApi->lockEncounters() && isset($GLOBALS['encounter']) && !empty($GLOBA
 
 $old_category = "";
 $new_category = "";
-
-if (!empty($reg)) {
-  $StringEcho= '<ul id="sddm">';
-  if(isset($hide)){
-    $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-  } else {
-        if ($GLOBALS['new_tabs_layout']) {
-            $encounterSummaryLoadFrame = 'loadFrame';
-            $framePosition = 'enc';
-        } else {
-            $encounterSummaryLoadFrame = 'loadFrame2';
-            $framePosition = 'RBot';
-        }
-  }
-  if ($encounterLocked === false) {
-      foreach ($reg as $entry) {
-        if ($old_category != $new_category) {
-          $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-          $old_category = $new_category;
-          $DivId++;
-        }
-        $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" . $rootdir .'/patient_file/encounter/load_form.php?formname=' .urlencode($entry['directory']) .
-        "')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
-      }
-  }
-  $StringEcho.= '</table></div></li>';
-}
-
-if($StringEcho){
-  $StringEcho2= '<div style="clear:both"></div>';
-}else{
-  $StringEcho2="";
-}
 ?>
 
-<!-- DISPLAYING HOOKS STARTS HERE -->
-<?php
-//  $DivId = 'mod_installer';
-//  if (sqlNumRows($module_query)) {
-//    $jid = 0;
-//    $modid = '';
-//    while ($modulerow = sqlFetchArray($module_query)) {
-//      $DivId = 'mod_'.$modulerow['mod_id'];
-//      if($jid==0 || ($modid!=$modulerow['mod_id'])){
-//        if($modid!='')
-//        $StringEcho.= '</table></div></li>';
-//      $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-//      }
-//      $jid++;
-//      $modid = $modulerow['mod_id'];
-//      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('$relative_link')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
-//   }
-//  }
-	?>
-<table cellspacing="0" cellpadding="0" align="center">
-  <tr>
-    <td valign="top"><?php echo $StringEcho; ?></td>
-  </tr>
-</table>
-</dl>
 <?php if (empty($hide)) { ?>
 </body>
 </html>
