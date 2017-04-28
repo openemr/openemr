@@ -232,31 +232,37 @@ class ViewHelper
         $result = sqlStatement($sql);
         $return = array();
         $modId = "";
-        while ($row = sqlFetchArray($result)) {
-            $lastItem = count($return) - 1;
-            $tmpRow['name'] = $row['mod_ui_name'];
+        if (sqlNumRows($result) > 0) {
+            while ($row = sqlFetchArray($result)) {
+                $lastItem = count($return) - 1;
+                $tmpRow['name'] = $row['mod_ui_name'];
 
-            $path = $GLOBALS['customModDir'];
-            $added = "";
-            if ($row['type'] != 0) {
-                $path = $GLOBALS['zendModDir'];
-                $added = "index";
-            }
-
-            $href = "../../modules/{$path}/{$row['path']}";
-            $nickname = $row['menu_name'] ? $row['menu_name'] : 'Noname';
-
-            if ($modId == $row['mod_id']) {
-                // Subitem
-                if (!array_key_exists('subItems', $return[$lastItem])) {
-                    $return[$lastItem]['subItems'] = array();
+                $path = $GLOBALS['customModDir'];
+                $added = "";
+                if ($row['type'] != 0) {
+                    $path = $GLOBALS['zendModDir'];
+                    $added = "index";
                 }
-                $tmpRow['href'] = $href;
-                $return[$lastItem]['subItems'][] = $tmpRow;
-            } else {
-                $tmpRow['href'] = "#";
-                $return[] = $tmpRow;
+
+                $href = "../../modules/{$path}/{$row['path']}";
+                $nickname = $row['menu_name'] ? $row['menu_name'] : 'Noname';
+
+                if ($modId == $row['mod_id']) {
+                    // Subitem
+                    if (!array_key_exists('subItems', $return[$lastItem])) {
+                        $return[$lastItem]['subItems'] = array();
+                    }
+                    $tmpRow['href'] = $href;
+                    $return[$lastItem]['subItems'][] = $tmpRow;
+                } else {
+                    $tmpRow['href'] = "#";
+                    $return[] = $tmpRow;
+                }
             }
+            $name = xlt("Modules");
+            return array('name' => $name, 'href' => '#', 'subItems' => $return);
+        } else {
+            return false;
         }
     }
 

@@ -95,6 +95,11 @@ if ($lbfItems) {
     $menuItems[] = $lbfItems;
 }
 
+$moduleItems = ViewHelper::getModuleMenuItems();
+if ($moduleItems) {
+    $menuItems[] = $moduleItems;
+}
+
 $menu = ViewHelper::createEncounterMenu($menuItems);
 ?>
 
