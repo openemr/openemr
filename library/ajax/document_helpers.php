@@ -29,7 +29,7 @@ function get_patients_list($term)
 {
     $term = "%" . $term . "%";
     $clear = "- " . xl("Reset to no patient") . " -";
-    $response = sqlStatement("SELECT Concat(patient_data.fname, ' ',patient_data.lname) as label, patient_data.pid as value FROM patient_data HAVING label LIKE '$term' ORDER BY patient_data.lname ASC");
+    $response = sqlStatement("SELECT Concat(patient_data.fname, ' ',patient_data.lname) as label, patient_data.pid as value FROM patient_data HAVING label LIKE ? ORDER BY patient_data.lname ASC", array($term));
     $resultpd[] = array(
         'label' => $clear,
         'value' => '00'
