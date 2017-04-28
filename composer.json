@@ -30,7 +30,7 @@
     "require-dev": {
 
         "phing/phing": "2.14.0",
-        "phpunit/phpunit": "^5.7"
+        "phpunit/phpunit": "5.7"
 
     },
     "autoload": {
