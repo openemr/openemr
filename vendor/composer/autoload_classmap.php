@@ -3422,6 +3422,7 @@ return array(
     'common\\database\\Connector' => $baseDir . '/common/database/Connector.php',
     'common\\http\\HttpResponseHelper' => $baseDir . '/common/http/HttpResponseHelper.php',
     'common\\logging\\Logger' => $baseDir . '/common/logging/Logger.php',
+    'common\\utils\\QueryUtils' => $baseDir . '/common/utils/QueryUtils.php',
     'common\\utils\\StringUtils' => $baseDir . '/common/utils/StringUtils.php',
     'cssmgr' => $vendorDir . '/mpdf/mpdf/classes/cssmgr.php',
     'directw' => $vendorDir . '/mpdf/mpdf/classes/directw.php',

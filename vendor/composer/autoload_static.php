@@ -3639,6 +3639,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
         'common\\http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
         'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
+        'common\\utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
         'common\\utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'cssmgr' => __DIR__ . '/..' . '/mpdf/mpdf/classes/cssmgr.php',
         'directw' => __DIR__ . '/..' . '/mpdf/mpdf/classes/directw.php',

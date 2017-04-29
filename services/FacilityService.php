@@ -65,7 +65,7 @@ class FacilityService
         );
 
         if (!empty($options) && !empty($options["orderField"])) {
-            $args["order"] = "ORDER BY FAC." . $options["orderField"] . " ASC";
+            $args["order"] = "ORDER BY FAC." . escape_sql_column_name($options["orderField"], array("facility")) . " ASC";
         }
 
         $args["where"] = "WHERE FAC.service_location = 1";
@@ -142,29 +142,29 @@ class FacilityService
     public function update($data)
     {
         $sql  = " UPDATE facility SET";
-        $sql .= "     name='" . $data["name"] . "',";
-        $sql .= "     phone='" . $data["phone"] . "',";
-        $sql .= "     fax='" . $data["fax"] . "',";
-        $sql .= "     street='" . $data["street"] . "',";
-        $sql .= "     city='" . $data["city"] . "',";
-        $sql .= "     state='" . $data["state"] . "',";
-        $sql .= "     postal_code='" . $data["postal_code"] . "',";
-        $sql .= "     country_code='" . $data["country_code"] . "',";
-        $sql .= "     federal_ein='" . $data["federal_ein"] . "',";
-        $sql .= "     website='" . $data["website"] . "',";
-        $sql .= "     email='" . $data["email"] . "',";
-        $sql .= "     color='" . $data["color"] . "',";
-        $sql .= "     service_location='" . $data["service_location"] . "',";
-        $sql .= "     billing_location='" . $data["billing_location"] . "',";
-        $sql .= "     accepts_assignment='" . $data["accepts_assignment"] . "',";
-        $sql .= "     pos_code='" . $data["pos_code"] . "',";
-        $sql .= "     domain_identifier='" . $data["domain_identifier"] . "',";
-        $sql .= "     attn='" . $data["attn"] . "',";
-        $sql .= "     tax_id_type='" . $data["tax_id_type"] . "',";
-        $sql .= "     primary_business_entity='" . $data["primary_business_entity"] . "',";
-        $sql .= "     facility_npi='" . $data["facility_npi"] . "',";
-        $sql .= "     facility_code='" . $data["facility_code"] . "'";
-        $sql .= " WHERE id='" . $data["fid"] . "'";
+        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
+        $sql .= "     phone='" . add_escape_custom($data["phone"]) . "',";
+        $sql .= "     fax='" . add_escape_custom($data["fax"]) . "',";
+        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
+        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
+        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
+        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
+        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
+        $sql .= "     federal_ein='" . add_escape_custom($data["federal_ein"]) . "',";
+        $sql .= "     website='" . add_escape_custom($data["website"]) . "',";
+        $sql .= "     email='" . add_escape_custom($data["email"]) . "',";
+        $sql .= "     color='" . add_escape_custom($data["color"]) . "',";
+        $sql .= "     service_location='" . add_escape_custom($data["service_location"]) . "',";
+        $sql .= "     billing_location='" . add_escape_custom($data["billing_location"]) . "',";
+        $sql .= "     accepts_assignment='" . add_escape_custom($data["accepts_assignment"]) . "',";
+        $sql .= "     pos_code='" . add_escape_custom($data["pos_code"]) . "',";
+        $sql .= "     domain_identifier='" . add_escape_custom($data["domain_identifier"]) . "',";
+        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
+        $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
+        $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
+        $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
+        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "'";
+        $sql .= " WHERE id='" . add_escape_custom($data["fid"]) . "'";
 
         return sqlStatement($sql);
     }
@@ -172,28 +172,28 @@ class FacilityService
     public function insert($data)
     {
         $sql  = " INSERT INTO facility SET";
-        $sql .= "     name='" . $data["name"] . "',";
-        $sql .= "     phone='" . $data["phone"] . "',";
-        $sql .= "     fax='" . $data["fax"] . "',";
-        $sql .= "     street='" . $data["street"] . "',";
-        $sql .= "     city='" . $data["city"] . "',";
-        $sql .= "     state='" . $data["state"] . "',";
-        $sql .= "     postal_code='" . $data["postal_code"] . "',";
-        $sql .= "     country_code='" . $data["country_code"] . "',";
-        $sql .= "     federal_ein='" . $data["federal_ein"] . "',";
-        $sql .= "     website='" . $data["website"] . "',";
-        $sql .= "     email='" . $data["email"] . "',";
-        $sql .= "     color='" . $data["color"] . "',";
-        $sql .= "     service_location='" . $data["service_location"] . "',";
-        $sql .= "     billing_location='" . $data["billing_location"] . "',";
-        $sql .= "     accepts_assignment='" . $data["accepts_assignment"] . "',";
-        $sql .= "     pos_code='" . $data["pos_code"] . "',";
-        $sql .= "     domain_identifier='" . $data["domain_identifier"] . "',";
-        $sql .= "     attn='" . $data["attn"] . "',";
-        $sql .= "     tax_id_type='" . $data["tax_id_type"] . "',";
-        $sql .= "     primary_business_entity='" . $data["primary_business_entity"] . "',";
-        $sql .= "     facility_npi='" . $data["facility_npi"] . "',";
-        $sql .= "     facility_code='" . $data["facility_code"] . "'";
+        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
+        $sql .= "     phone='" . add_escape_custom($data["phone"]) . "',";
+        $sql .= "     fax='" . add_escape_custom($data["fax"]) . "',";
+        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
+        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
+        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
+        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
+        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
+        $sql .= "     federal_ein='" . add_escape_custom($data["federal_ein"]) . "',";
+        $sql .= "     website='" . add_escape_custom($data["website"]) . "',";
+        $sql .= "     email='" . add_escape_custom($data["email"]) . "',";
+        $sql .= "     color='" . add_escape_custom($data["color"]) . "',";
+        $sql .= "     service_location='" . add_escape_custom($data["service_location"]) . "',";
+        $sql .= "     billing_location='" . add_escape_custom($data["billing_location"]) . "',";
+        $sql .= "     accepts_assignment='" . add_escape_custom($data["accepts_assignment"]) . "',";
+        $sql .= "     pos_code='" . add_escape_custom($data["pos_code"]) . "',";
+        $sql .= "     domain_identifier='" . add_escape_custom($data["domain_identifier"]) . "',";
+        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
+        $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
+        $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
+        $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
+        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "'";
 
         return sqlInsert($sql);
     }
@@ -206,12 +206,6 @@ class FacilityService
      */
     private function get($map)
     {
-        $where = isset($map["where"]) ? $map["where"] : null;
-        $data  = isset($map["data"])  ? $map["data"]  : null;
-        $join  = isset($map["join"])  ? $map["join"]  : null;
-        $order = isset($map["order"]) ? $map["order"] : null;
-        $limit = isset($map["limit"]) ? $map["limit"] : null;
-
         $sql  = " SELECT FAC.id,";
         $sql .= "        FAC.name,";
         $sql .= "        FAC.phone,";
@@ -239,38 +233,7 @@ class FacilityService
         $sql .= "        FAC.extra_validation";
         $sql .= " FROM facility FAC";
 
-        $sql .= !empty($join)  ? " " . $join        : "";
-        $sql .= !empty($where) ? " " . $where       : "";
-        $sql .= !empty($order) ? " " . $order       : "";
-        $sql .= !empty($limit) ? " LIMIT " . $limit : "";
-
-        if (!empty($data)) {
-            if (empty($limit)) {
-                $multipleResults = sqlStatement($sql, $data);
-                $results = array();
-
-                while ($row = sqlFetchArray($multipleResults)) {
-                    array_push($results, $row);
-                }
-
-                return $results;
-            }
-
-            return sqlQuery($sql, $data);
-        }
-
-        if (empty($limit)) {
-            $multipleResults = sqlStatement($sql);
-            $results = array();
-
-            while ($row = sqlFetchArray($multipleResults)) {
-                array_push($results, $row);
-            }
-
-            return $results;
-        }
-
-        return sqlQuery($sql);
+        return \common\utils\QueryUtils::selectHelper($sql, $map);
     }
 
     private function getPrimaryBusinessEntityLegacy()
