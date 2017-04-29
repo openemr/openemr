@@ -177,7 +177,13 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<<<<<<< Updated upstream
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-6-4/index.js"></script>
+=======
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-sidebar/dist/js/sidebar.js"></script>
+>>>>>>> Stashed changes
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
@@ -380,13 +386,13 @@ $(document).ready(function(){
     'autoscale' : true
   });
 
-  $(".iframe1").fancybox( {
-  'left':10,
-	'overlayOpacity' : 0.0,
-	'showCloseButton' : true,
-	'frameHeight' : 300,
-	'frameWidth' : 350
-  });
+//  $(".iframe1").fancybox( {
+//  'left':10,
+//	'overlayOpacity' : 0.0,
+//	'showCloseButton' : true,
+//	'frameHeight' : 300,
+//	'frameWidth' : 350
+//  });
 // special size for patient portal
   $(".small_modal").fancybox( {
 	'overlayOpacity' : 0.0,
@@ -395,6 +401,16 @@ $(document).ready(function(){
 	'frameWidth' : 380,
             'centerOnScroll' : false
   });
+
+$(document).ready(function(){
+
+    $('.dynamic-modal').on('click', function(e){
+        e.preventDefault();
+        $('.modal').modal('show');
+        $('.modal .modal-header .modal-title').text($(this).text());
+        $(".modal .modal-body").load($(this).attr('href'));
+    });
+});
 
   <?php if ($active_reminders || $all_allergy_alerts) { ?>
     // show the active reminder modal
@@ -474,10 +490,13 @@ $(window).load(function() {
 }
 </style>
 
+<title><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?></title>
+
 </head>
 
 <body class="body_top patient-demographics">
 
+<<<<<<< Updated upstream
 <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
 <?php
@@ -528,6 +547,118 @@ if ($thisauth): ?>
         //Patient Portal
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
         if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
+=======
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="sidebar" data-target=".sidebar">
+                <span class="sr-only">Toggle navigation</span>
+                <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid" style="margin-top:60px">
+<div class="row">
+    <div class="col-xs-12 col-sm-5 col-md-2 sidebar sidebar-left sidebar-md-show">
+        <ul class="nav navbar-stacked">
+            <?php
+            if($GLOBALS['erx_enable']): ?>
+            <li class="erx">
+                <a href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                    <?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?>
+                </a>
+            </li>
+            <li>
+                <a class="dynamic-modal" href="../../soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()">
+                    <?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?>
+                </a>
+            </li>
+            <li id='accountstatus'></li>
+            <?php endif; // eRX Enabled ?>
+            <li>
+                <a href="../history/history.php" onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?>
+                </a>
+            </li>
+            <li>
+                <?php //note that we have temporarily removed report screen from the modal view ?>
+                <a href="../report/patient_report.php" onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?></a>
+            </li>
+            <li>
+                <?php //note that we have temporarily removed document screen from the modal view ?>
+                <a href="../../../controller.php?document&list&patient_id=<?php echo $pid; ?>"
+                   onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('Documents'), ENT_NOQUOTES); ?></a>
+            </li>
+            <li>
+                <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('Transactions'), ENT_NOQUOTES); ?></a>
+            </li>
+            <li>
+                <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
+                    <?php echo htmlspecialchars(xl('Issues'), ENT_NOQUOTES); ?></a>
+            </li>
+            <li>
+                <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid); ?>"
+                   onclick='top.restoreSession()'>
+                    <?php echo xlt('Ledger'); ?></a>
+            </li>
+            <li>
+                <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
+                    <?php echo xlt('External Data'); ?></a>
+            </li>
+            <!-- DISPLAYING HOOKS STARTS HERE -->
+            <?php
+            $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
+					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
+            $DivId = 'mod_installer';
+            if (sqlNumRows($module_query)) {
+                $jid 	= 0;
+                $modid 	= '';
+                while ($modulerow = sqlFetchArray($module_query)) {
+                    $DivId 		= 'mod_'.$modulerow['mod_id'];
+                    $new_category 	= $modulerow['mod_ui_name'];
+                    $modulePath 	= "";
+                    $added      	= "";
+                    if($modulerow['type'] == 0) {
+                        $modulePath 	= $GLOBALS['customModDir'];
+                        $added		= "";
+                    }
+                    else{
+                        $added		= "index";
+                        $modulePath 	= $GLOBALS['zendModDir'];
+                    }
+                    if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
+
+                    $relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
+                    $nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+                    $jid++;
+                    $modid = $modulerow['mod_id'];
+                    ?>
+                    <li>
+                    <a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
+                        <?php echo xlt($nickname); ?></a>
+                    </li>
+                    <?php
+                }
+            }
+            ?>
+            <!-- DISPLAYING HOOKS ENDS HERE -->
+            <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
+            <li><a href='../deleter.php?patient="<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+                   onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?>
+                </a>
+            </li>
+            <?php endif;
+            //Patient Portal
+            $portalUserSetting = true; //flag to see if patient has authorized access to portal
+            if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
+>>>>>>> Stashed changes
             ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
             $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
             if ($portalStatus['allow_patient_portal']=='YES'):
@@ -1066,7 +1197,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $widgetLabel = "amendments";
     $widgetButtonLabel = xlt("Edit");
 	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
-	$widgetButtonClass = "iframe rx_modal";
+	$widgetButtonClass = "dynamic-modal";
     $linkMethod = "html";
     $bodyClass = "summary_item small";
     $widgetAuth = acl_check('patients', 'amendment', '', 'write');
@@ -1663,6 +1794,20 @@ var skipArray = [
 ];
 checkSkipConditions();
 </script>
+
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <i class="fa fa-spin fa-circle-o-notch fa-5x"></i>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
 
 </body>
 </html>

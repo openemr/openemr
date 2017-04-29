@@ -1,0 +1,57 @@
+{#
+Display a list of amendments
+
+@package OpenEMR
+@subpackage Amendment
+@author Robert Down <robertdown@live.com>
+@author Hema Bandaru <hemab@drcloudemr.com>
+@copyright Copyright (c) 2017 Robert Down
+@license http://opensource.org/licenses/gpl-license.php General Public License 3
+#}
+<link rel="stylesheet" href="{{ assets_dir }}/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<link rel="stylesheet" href="{{ assets_dir }}/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-6">
+            <a href="#" class="btn btn-default btn-small"><i class="fa fa-print"></i>&nbsp;{{print}}</a>
+        </div>
+        <div class="col-xs-6 text-right">
+            <a href="#" class="btn btn-link btn-small">Check All</a>
+            <a href="#" class="btn btn-link btn-small">Uncheck All</a>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-xs-12">
+            <table class="table table-responsive table-condensed">
+                <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>{{date}}</th>
+                    <th>{{description}}</th>
+                    <th>{{by}}</th>
+                    <th>{{status}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if list|length > 0 %}
+                {% for row in list %}
+                <tr id="amendment-{{row.id}}">
+                    <td><input type="checkbox" id="check_list[]" name="check_list[]" value="{{row.id}}"> </td>
+                    <td><a href="add_edit_amendments.php?id={{row.id}}">{{ row.date }}</a></td>
+                    <td>{{ row.description }}</td>
+                    <td>{{ row.by }}</td>
+                    <td>{{ row.status }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No amendment requests available</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

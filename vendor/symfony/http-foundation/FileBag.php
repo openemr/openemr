@@ -69,7 +69,7 @@ class FileBag extends ParameterBag
      *
      * @param array|UploadedFile $file A (multi-dimensional) array of uploaded file information
      *
-     * @return UploadedFile|UploadedFile[] A (multi-dimensional) array of UploadedFile instances
+     * @return array A (multi-dimensional) array of UploadedFile instances
      */
     protected function convertFileInformation($file)
     {
