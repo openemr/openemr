@@ -91,6 +91,7 @@ body
 {
     flex: 1 0 auto;
     border: 0px solid black;
+    width: 100%
 }
 
 .tabControls
@@ -213,9 +214,9 @@ div.closeDlgIframe:before {
 {
     background-color: #f4f4f4;
 }
-.patientInfo a {
+/*.patientInfo a {
     color: #333 !important;
-}
+}*/
 
 .patientCurrentEncounter {
     display: inline;
