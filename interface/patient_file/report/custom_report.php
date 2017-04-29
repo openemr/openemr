@@ -45,12 +45,6 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-    /* Because of the nature of this report, it is difficult to catch all the various errors possible
-     * so, turning on E_ERROR seems logical to catch memory and php errors that can't be reported due to output buffering.
-     * Try/catch will handle errors after buffer content is retrieved.
-     */
-    ini_set('display_errors', 1); // turn on displaying of errors.
-    error_reporting(E_ERROR); // Just fatal php errors are what concern us.
 /*   composer bootstrap loads classes for mPDF */
     $pdf = new mPDF(
         $GLOBALS['pdf_language'], // codepage or language/codepage or language - this can help auto determine many other options such as RTL
