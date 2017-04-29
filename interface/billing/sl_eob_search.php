@@ -170,8 +170,11 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
   //Function reads a HTML file and converts to pdf.
 
    $aPatFName = preg_replace("/[^A-Za-z]/", '', $aPatFirstName); //modified for statement title name
-   if($flagCFN) $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
-   else global $STMT_TEMP_FILE_PDF;
+	if ($flagCFN) {
+		$STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+	} else {
+		global $STMT_TEMP_FILE_PDF;
+	}
 
   global $srcdir;
 
@@ -256,8 +259,12 @@ $today = date("Y-m-d");
   //
 if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
+  $sqlBindArray = array();
   $where = "";
-  foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+  foreach ($_POST['form_cb'] as $key => $value) {
+  $where .= " OR f.id = ?";		
+    array_push($sqlBindArray, $key);		
+  }
   $where = substr($where, 4);
   // need to only use summary invoice for multi visits
   $inv_pid = array();
@@ -273,7 +280,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     "FROM form_encounter AS f, patient_data AS p " .
     "WHERE ( $where ) AND " .
     "p.pid = f.pid " .
-    "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
+    "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter, $sqlBindArray");
 
   $stmt = array();
   $stmt_count = 0;
