@@ -156,7 +156,7 @@ function sel_diagnosis() {
 
 <table>
  <tr>
-  <td width='660px'>
+  <td width='800px'>
 	<div style='float:left'>
 
 	<table class='text'>
@@ -178,7 +178,7 @@ function sel_diagnosis() {
 					$query = "select id, lname, fname from users where " .
 						"authorized = 1 order by lname, fname";
 					$res = sqlStatement($query);
-					echo "   &nbsp;<select name='form_doctor'>\n";
+					echo "   <select name='form_doctor'>\n";
 					echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
 					while ($row = sqlFetchArray($res)) {
 						$provid = $row['id'];

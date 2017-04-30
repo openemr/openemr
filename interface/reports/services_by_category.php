@@ -96,7 +96,7 @@ table.mymaintable td, table.mymaintable th {
 
 <table>
  <tr>
-  <td width='280px'>
+  <td width='400px'>
 	<div style='float:left'>
 
 	<table class='text'>
