@@ -277,7 +277,7 @@ form {
     font-size: 0.8em;
     background-color: #ddddff;
     font-weight: bold;
-    padding: 3px;
+    padding:3px;
 }
 #searchResultsHeader { 
     width: 100%;
@@ -340,7 +340,7 @@ form {
 
 <?php if (!empty($slots)) : ?>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
  <tr>
   <th class="srDate"><?php echo xlt('Day'); ?></th>
