@@ -398,7 +398,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
+            <input id="submit_btn" class="css_btn" type="submit" style="margin:3px 3px 3px 0px" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
@@ -498,7 +498,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<table border="0">
 
 		 <tr>
-		  <td valign=top width="430">
+		  <td valign=top width="500">
 		   <table border="0">
 
 			 <tr>
@@ -507,7 +507,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			  </td>
 			  <td class='required'>:</td>
 			  <td>
-                           <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+                           <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" style="margin:5px 3px 3px 0px" onclick="ins_search(<?php echo $i?>)">
 				<span><?php echo xl('Search/Add') ?></span>
         			</a>
 				<select name="i<?php echo $i?>provider">
@@ -546,7 +546,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			   value='<?php echo $result3['date'] ?>'
 			   onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
 			   title='yyyy-mm-dd' />
-                          <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'>
+                          <img src='../../pic/show_calendar.gif' align='absmiddle' width='24' height='22' id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'>
 			 </td>
 			</tr>
 
@@ -638,7 +638,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			<tr>
 				<td><span class=bold><?php xl('D.O.B.','e'); ?> </span></td>
 				<td class=required>:</td>
-				<td><input type='entry' size='11' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo $result3['subscriber_DOB'] ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd' /><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'></td>
+				<td><input type='entry' size='11' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo $result3['subscriber_DOB'] ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd' /><img src='../../pic/show_calendar.gif' align='absmiddle' width='24' height='22' id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'></td>
 
 				<td><span class=bold><?php xl('Sex','e'); ?>: </span></td>
 				<td><?php
