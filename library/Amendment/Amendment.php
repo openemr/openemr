@@ -90,6 +90,7 @@ class Amendment
         $viewArgs = [
             'assets_dir' => $GLOBALS['assets_static_relative'],
             'print' => xl('Print Amendments'),
+            'add' => xl('Add'),
             'date' => xl('Date'),
             'title' => xl('List'),
             'description' => xlt('Request Description'),
