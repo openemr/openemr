@@ -6,17 +6,15 @@
 $is_new = isset($_GET['patient_name']) ? 1 : false;
 $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
 $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
-
-if ($cur_pid == '00' || $is_new) {
-    $_SESSION['isNew'] = $cur_pid;
-    if($cur_pid == '00'){
-        $cur_pid = '0';
-        $is_new = 1;
-     }        
+$used_msg = xl('Current patient unavailable here. Use Patient Documents');
+if ($cur_pid == '00' ) {
+    $cur_pid = '0';
+    $is_new = 1;
 }
 $this->assign('is_new', $is_new);
 $this->assign('place_hld', $place_hld);
 $this->assign('cur_pid', $cur_pid);
+$this->assign('used_msg', $used_msg);
 $this->assign('demo_pid', $GLOBALS['pid']);
 {/php}
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
@@ -28,7 +26,11 @@ $this->assign('demo_pid', $GLOBALS['pid']);
     position: absolute;
     top: 0;
     left: 0;
+    min-width:200px;
     cursor: default;
+}
+.ui-menu-item{
+     min-width:200px;
 }
 .fixed-height{
 min-width:200px;
@@ -79,8 +81,9 @@ overflow: auto;
 var curpid = "{$cur_pid}";
 var newVersion="{$is_new}";
 var demoPid = "{$demo_pid}";
+var inUseMsg = "{$used_msg}";
 {literal}
-if(curpid == demoPid){
+if(curpid == demoPid && !newVersion){
     $(".ui-widget").hide();
 }
 else{
@@ -91,10 +94,13 @@ $(function() {
     	source: "{/literal}{$WEBROOT}{literal}/library/ajax/document_helpers.php",
     	focus: function(event, sel) {
             event.preventDefault();
-            $(this).val(sel.item.label);
         },
         select: function(event, sel) {
             event.preventDefault();
+            if (sel.item.value == '00'){
+            	alert(inUseMsg);
+            	return false;
+            }
             $(this).val(sel.item.label);
             location.href = "{/literal}{$WEBROOT}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
             $("#pid").text(sel.item.value);
