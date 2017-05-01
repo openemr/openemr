@@ -17,7 +17,7 @@
         "require": {
             "php": ">=5.2"
         },
-        "time": "2015-06-21 13:10:14",
+        "time": "2015-06-21T13:10:14+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -77,7 +77,7 @@
         "suggest": {
             "league/oauth2-google": "Needed for Google XOAUTH2 authentication"
         },
-        "time": "2016-06-06 09:09:37",
+        "time": "2016-06-06T09:09:37+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -135,7 +135,7 @@
         "require-dev": {
             "squizlabs/php_codesniffer": "2.*"
         },
-        "time": "2016-06-01 21:36:09",
+        "time": "2016-06-01T21:36:09+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -204,7 +204,7 @@
             "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
             "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
         },
-        "time": "2016-05-13 01:15:21",
+        "time": "2016-05-13T01:15:21+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -290,7 +290,7 @@
             "phpunit/phpunit": "^3.7 || ^4.0",
             "squizlabs/php_codesniffer": "^1.5"
         },
-        "time": "2016-02-04 21:02:08",
+        "time": "2016-02-04T21:02:08+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -333,7 +333,7 @@
         "require": {
             "php": ">=5.3.2"
         },
-        "time": "2014-09-09 13:34:57",
+        "time": "2014-09-09T13:34:57+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -392,7 +392,7 @@
         "require-dev": {
             "phpunit/phpunit": "4.*"
         },
-        "time": "2015-11-06 14:35:42",
+        "time": "2015-11-06T14:35:42+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -529,7 +529,7 @@
             "zendframework/zendpdf": "ZendPdf for creating PDF representations of barcodes",
             "zendframework/zendservice-recaptcha": "ZendService\\ReCaptcha for rendering ReCaptchas in Zend\\Captcha and/or Zend\\Form"
         },
-        "time": "2015-11-23 17:34:23",
+        "time": "2015-11-23T17:34:23+00:00",
         "bin": [
             "bin/classmap_generator.php",
             "bin/pluginmap_generator.php",
@@ -574,7 +574,7 @@
             "reference": "b419766515b3426c6da74b0e29e93d71c4f17099",
             "shasum": ""
         },
-        "time": "2015-05-06 18:49:49",
+        "time": "2015-05-06T18:49:49+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -610,7 +610,7 @@
             "reference": "b8af0cacdc3cbf1e41a586fcb78f506f4121a088",
             "shasum": ""
         },
-        "time": "2015-05-06 20:02:39",
+        "time": "2015-05-06T20:02:39+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -657,7 +657,7 @@
         "require-dev": {
             "phpunit/phpunit": "3.7.*"
         },
-        "time": "2016-05-11 00:36:29",
+        "time": "2016-05-11T00:36:29+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -720,7 +720,7 @@
         "require-dev": {
             "phpunit/phpunit": "~3.7"
         },
-        "time": "2015-04-02 19:55:44",
+        "time": "2015-04-02T19:55:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -788,7 +788,7 @@
             "doctrine/common": "@stable",
             "php": ">=5.3.2"
         },
-        "time": "2015-07-06 16:08:10",
+        "time": "2015-07-06T16:08:10+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -845,7 +845,7 @@
             "doctrine/cache": "1.*",
             "phpunit/phpunit": "^5.6.1"
         },
-        "time": "2016-12-30 15:59:45",
+        "time": "2016-12-30T15:59:45+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -910,7 +910,7 @@
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-10-10 12:19:37",
+        "time": "2016-10-10T12:19:37+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -962,7 +962,7 @@
         "suggest": {
             "ext-mbstring": "For best performance"
         },
-        "time": "2016-11-14 01:06:16",
+        "time": "2016-11-14T01:06:16+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1028,7 +1028,7 @@
             "predis/predis": "~1.0",
             "satooshi/php-coveralls": "~0.6"
         },
-        "time": "2016-10-29 11:16:17",
+        "time": "2016-10-29T11:16:17+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1099,7 +1099,7 @@
             "phpunit/phpunit": "~4.0",
             "squizlabs/php_codesniffer": "~2.0"
         },
-        "time": "2015-06-14 21:17:01",
+        "time": "2015-06-14T21:17:01+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1162,7 +1162,7 @@
         "suggest": {
             "symfony/yaml": "If you want to use YAML Metadata Mapping Driver"
         },
-        "time": "2016-09-10 18:51:13",
+        "time": "2016-09-10T18:51:13+00:00",
         "bin": [
             "bin/doctrine",
             "bin/doctrine.php"
@@ -1234,7 +1234,7 @@
             "symfony/class-loader": "~2.8|~3.0",
             "symfony/http-kernel": "~2.8|~3.0"
         },
-        "time": "2017-01-02 20:32:22",
+        "time": "2017-01-02T20:32:22+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1299,7 +1299,7 @@
             "symfony/filesystem": "",
             "symfony/process": ""
         },
-        "time": "2017-01-08 20:47:33",
+        "time": "2017-01-08T20:47:33+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1354,7 +1354,7 @@
             "doctrine/coding-standard": "~0.1@dev",
             "phpunit/phpunit": "^5.7"
         },
-        "time": "2017-01-03 10:49:41",
+        "time": "2017-01-03T10:49:41+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1427,7 +1427,7 @@
         "suggest": {
             "symfony/console": "For helpful console commands such as SQL execution and import of files."
         },
-        "time": "2017-01-23 23:17:10",
+        "time": "2017-01-23T23:17:10+00:00",
         "bin": [
             "bin/doctrine-dbal"
         ],
@@ -1498,7 +1498,7 @@
         "suggest": {
             "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
         },
-        "time": "2016-11-07 23:38:38",
+        "time": "2016-11-07T23:38:38+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1542,7 +1542,7 @@
         "require": {
             "php": ">=5.6.4"
         },
-        "time": "2017-01-18 20:23:54",
+        "time": "2017-01-18T20:23:54+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1598,7 +1598,7 @@
             "symfony/process": "Required to use the composer class (~3.2).",
             "symfony/var-dumper": "Required to use the dd function (~3.2)."
         },
-        "time": "2017-01-24 13:12:44",
+        "time": "2017-01-24T13:12:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1651,7 +1651,7 @@
             "mockery/mockery": "~0.9",
             "phpunit/phpunit": "~4.8|~5.6"
         },
-        "time": "2017-01-30 21:45:45",
+        "time": "2017-01-30T21:45:45+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1699,7 +1699,7 @@
         "require": {
             "php": ">=5.3.2"
         },
-        "time": "2016-12-21 17:19:42",
+        "time": "2016-12-21T17:19:42+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1757,7 +1757,7 @@
             "setasign/fpdi-fpdf": "Use this package to automatically evaluate dependencies to FPDF.",
             "setasign/fpdi-tcpdf": "Use this package to automatically evaluate dependencies to TCPDF."
         },
-        "time": "2015-11-30 10:53:14",
+        "time": "2015-11-30T10:53:14+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1814,7 +1814,7 @@
         "suggest": {
             "ext-zlib": "Needed for compression of embedded resources, such as fonts"
         },
-        "time": "2016-12-12 10:42:18",
+        "time": "2016-12-12T10:42:18+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1892,7 +1892,7 @@
             "sebastian/phpcpd": "Copy/Paste Detector (CPD) for PHP code",
             "tedivm/jshrink": "Javascript Minifier built in PHP"
         },
-        "time": "2016-03-10 21:39:23",
+        "time": "2016-03-10T21:39:23+00:00",
         "bin": [
             "bin/phing"
         ],

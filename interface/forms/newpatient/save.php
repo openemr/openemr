@@ -29,6 +29,8 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 
+$facilityService = new \services\FacilityService();
+
 $date             = (isset($_POST['form_date']))            ? $_POST['form_date'] : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? $_POST['form_onset_date'] : '';
 $sensitivity      = (isset($_POST['form_sensitivity']))     ? $_POST['form_sensitivity'] : '';
@@ -42,7 +44,7 @@ $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'
 //save therapy group if exist in external_id column
 $external_id         = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
-$facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
+$facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
 $normalurl = "patient_file/encounter/encounter_top.php";

@@ -42,6 +42,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'c' => 
         array (
+            'common\\utils\\' => 13,
             'common\\logging\\' => 15,
             'common\\http\\' => 12,
             'common\\database\\' => 16,
@@ -95,6 +96,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'entities\\' => 
         array (
             0 => __DIR__ . '/../..' . '/entities',
+        ),
+        'common\\utils\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/common/utils',
         ),
         'common\\logging\\' => 
         array (
@@ -3634,6 +3639,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'common\\database\\Connector' => __DIR__ . '/../..' . '/common/database/Connector.php',
         'common\\http\\HttpResponseHelper' => __DIR__ . '/../..' . '/common/http/HttpResponseHelper.php',
         'common\\logging\\Logger' => __DIR__ . '/../..' . '/common/logging/Logger.php',
+        'common\\utils\\QueryUtils' => __DIR__ . '/../..' . '/common/utils/QueryUtils.php',
+        'common\\utils\\StringUtils' => __DIR__ . '/../..' . '/common/utils/StringUtils.php',
         'cssmgr' => __DIR__ . '/..' . '/mpdf/mpdf/classes/cssmgr.php',
         'directw' => __DIR__ . '/..' . '/mpdf/mpdf/classes/directw.php',
         'eFPDF' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
@@ -3679,6 +3686,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'repositories\\ProductRegistrationRepository' => __DIR__ . '/../..' . '/repositories/ProductRegistrationRepository.php',
         'repositories\\UserRepository' => __DIR__ . '/../..' . '/repositories/UserRepository.php',
         'repositories\\VersionRepository' => __DIR__ . '/../..' . '/repositories/VersionRepository.php',
+        'services\\FacilityService' => __DIR__ . '/../..' . '/services/FacilityService.php',
         'services\\ONoteService' => __DIR__ . '/../..' . '/services/ONoteService.php',
         'services\\ProductRegistrationService' => __DIR__ . '/../..' . '/services/ProductRegistrationService.php',
         'services\\UserService' => __DIR__ . '/../..' . '/services/UserService.php',

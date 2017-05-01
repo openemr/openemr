@@ -4,6 +4,8 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+$facilityService = new \services\FacilityService();
+
 $alertmsg = '';
 ?>
 <html>
@@ -234,12 +236,12 @@ function displayAlert()
           <td>&nbsp;</td>
           <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
-	<?php
-	 $disabled='';
-	 $resPBE=sqlStatement("select * from facility where primary_business_entity='1' and id!='".$my_fid."'");
-	 if(sqlNumRows($resPBE)>0)
-	 $disabled='disabled';
-	 ?>
+   <?php
+   $disabled='';
+   $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
+   if(sizeof($resPBE)>0)
+   $disabled='disabled';
+   ?>
 	 <tr>
           <td><span class='text'><?php xl('Primary Business Entity','e'); ?>: </span></td>
           <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>

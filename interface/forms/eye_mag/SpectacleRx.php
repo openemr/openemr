@@ -37,6 +37,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
+$facilityService = new \services\FacilityService();
 
 $form_name = "Eye Form";
 $form_folder = "eye_mag";
@@ -50,8 +51,7 @@ $providerNAME = getProviderName($providerID);
 $query = "SELECT * FROM users where id = ?";
 $prov_data =  sqlQuery($query,array($providerID));
 
-$query = "SELECT * FROM facility WHERE primary_business_entity='1'";
-$practice_data = sqlQuery($query);
+$practice_data = $facilityService->getPrimaryBusinessEntity();
 
 if (!$_REQUEST['pid']) $_REQUEST['pid'] = $_REQUEST['id'];
 $query = "SELECT * FROM patient_data where pid=?";

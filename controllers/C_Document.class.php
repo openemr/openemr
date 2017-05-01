@@ -14,9 +14,11 @@ class C_Document extends Controller {
 	var $tree;
 	var $_config;
         var $manual_set_owner=false; // allows manual setting of a document owner/service
+	var $facilityService;
 
 	function __construct($template_mod = "general") {
 		parent::__construct();
+		$this->facilityService = new \services\FacilityService();
 		$this->documents = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -1215,7 +1217,7 @@ function tag_action_process($patient_id="", $document_id) {
 			$facility = $facilityRow['facility'];
 			$facility_id = $facilityRow['facility_id'];
 			// Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
-			$billingFacility = sqlQuery("SELECT id FROM facility WHERE primary_business_entity = 1");
+			$billingFacility = $this->facilityService->getPrimaryBusinessEntity();
 			$billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
 
 			$conn = $GLOBALS['adodb']['db'];

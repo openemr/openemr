@@ -29,6 +29,8 @@ require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
 
+$facilityService = new \services\FacilityService();
+
 /**
  *  This function returns HTML old record selector widget when needed (4 input values)
  *
@@ -3700,18 +3702,18 @@ function report_header($pid,$direction='shell') {
     global $form_name;
     global $encounter;
     global $visit_date;
+    global $facilityService;
     /*******************************************************************
     $titleres = getPatientData($pid, "fname,lname,providerID");
     $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
     *******************************************************************/
     //$titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
+    $facility = null;
     if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+        $facility = $facilityService->getById($_SESSION['pc_facility']);
     } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
+        $facility = $facilityService->getPrimaryBillingLocation();
     }
     $DOB = oeFormatShortDate($titleres['DOB']);
     /******************************************************************/

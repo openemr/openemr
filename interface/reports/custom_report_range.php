@@ -28,6 +28,8 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
+$facilityService = new \services\FacilityService();
+
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {
     // set some default dates
@@ -265,12 +267,7 @@ if ($form_patient == '' ) $form_pid = '';
 
 <?php
 if( !(empty($_POST['start']) || empty($_POST['end']))) {
-    $sql = "select * from facility where billing_location = 1";
-    $db = $GLOBALS['adodb']['db'];
-    $results = $db->Execute($sql);
-    $facility = array();
-    if (!$results->EOF) {
-        $facility = $results->fields;
+    $facility = $facilityService->getPrimaryBillingLocation();
 ?>
 <p>
 <h2><?php text($facility['name'])?></h2>
@@ -279,7 +276,6 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
 <?php
-    }
 		$sqlBindArray = array();
 		$res_query = 	"select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .

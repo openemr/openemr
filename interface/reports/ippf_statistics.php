@@ -17,6 +17,8 @@ include_once("../../library/acl.inc");
 //
 if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
+$facilityService = new \services\FacilityService();
+
 $report_type = empty($_GET['t']) ? 'i' : $_GET['t'];
 
 $from_date     = fixDate($_POST['form_from_date']);
@@ -1133,11 +1135,10 @@ function uses_description($form_by) {
 <?php
  // Build a drop-down list of facilities.
  //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
+ $fres = $facilityService->getAll();
  echo "      <select name='form_facility'>\n";
  echo "       <option value=''>-- All Facilities --\n";
- while ($frow = sqlFetchArray($fres)) {
+ foreach($fres as $frow) {
   $facid = $frow['id'];
   echo "       <option value='$facid'";
   if ($facid == $_POST['form_facility']) echo " selected";
@@ -1332,7 +1333,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     /*****************************************************************
     if ($form_by === '104' || $form_by === '105') {
       $query = "SELECT " .
-        "d.name, d.related_code, ds.pid, ds.quantity, " . 
+        "d.name, d.related_code, ds.pid, ds.quantity, " .
         "pd.regdate, pd.referral_source, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
         "pd.contrastart$pd_fields " .
