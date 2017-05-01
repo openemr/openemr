@@ -32,11 +32,11 @@ select{
     var x = document.forms["prescribe"]["dosage"].value;
   var y = document.forms["prescribe"]["quantity"].value;
     if (x == null || x == "") {
-        alert("<?php print xls('Name must be filled out')?>");
+        alert("<?php print xls('Dosage must be filled out')?>");
         return false;
     }
   if (y == null || y == "") {
-        alert("<?php print xls('Name must be filled out')?>");
+        alert("<?php print xls('Quantity must be filled out')?>");
         return false;
     }
 }
