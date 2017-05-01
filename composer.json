@@ -31,8 +31,7 @@
     },
     "require-dev": {
 
-        "phing/phing": "2.14.0",
-        "phpunit/phpunit": "5.7.19"
+        "phing/phing": "2.14.0"
 
     },
     "autoload": {
