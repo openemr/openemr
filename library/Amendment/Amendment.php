@@ -101,13 +101,6 @@ class Amendment
 
         $viewArgs = [
             'assets_dir' => $GLOBALS['assets_static_relative'],
-            'print' => 'Print Amendments',
-            'add' => 'Add',
-            'date' => 'Date',
-            'title' => 'List',
-            'description' => 'Request Description',
-            'by' => 'Requested By',
-            'status' => 'Request Status',
             'list' => $list,
         ];
 
