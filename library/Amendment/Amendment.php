@@ -87,10 +87,8 @@ class Amendment
                         $tmpList['by'] = generate_display_field($displayArray, $value);
                         break;
                     case 'amendment_status':
-                        $tmpList['status'] = generate_display_field(
-                            ['data_type' => 1,
-                                'list_id' => 'amendment_status'],
-                            $value);
+                        $displayArray = ['data_type' => 1, 'list_id' => 'amendment_status'];
+                        $tmpList['status'] = generate_display_field($displayArray, $value);
                         break;
                     default:
                         $tmpList[$item] = $value;
