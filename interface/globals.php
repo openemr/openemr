@@ -559,6 +559,9 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
+$twigLoader = new Twig_Loader_Filesystem();
+$twig = new Twig_Environment($twigLoader, array());
+
 //////////////////////////////////////////////////////////////////
 
 /* Pages with "myadmin" in the URL don't need register_globals. */

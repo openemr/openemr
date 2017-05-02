@@ -1,7 +1,3 @@
-* 1.33.2 (2017-04-20)
-
- * fixed edge case in the method cache for Twig attributes
-
 * 1.33.1 (2017-04-18)
 
  * fixed the empty() test

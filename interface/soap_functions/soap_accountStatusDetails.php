@@ -1,8 +1,6 @@
 <?php
-
 /**
- * interface/soap_functions/soap_accountStatusDetails.php Display current
- * patients NewCrop account status.
+ * Display current patients NewCrop account status.
  *
  * Copyright (C) 2011 ZMG LLC <sam@zhservices.com>
  *
@@ -21,6 +19,7 @@
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>
  * @author     Sam Likins <sam.likins@wsi-services.com>
+ * @author Robert Down <robertdown@live.com>
  * @link       http://www.open-emr.org
  */
 
@@ -54,29 +53,27 @@ $accountStatus = $eRxSOAP->getAccountStatus()
 	->GetAccountStatusResult->accountStatusDetail;
 
 ?>
-<head>
-	<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-</head>
-<body class='body_top'>
-	<table class='text' align=center width='90%' height='80%' style='padding-top:6%'>
-		<tr>
-			<th colspan=2><?php echo xlt('eRx Account Status'); ?></th>
-		</tr>
-		<tr>
-			<td><?php echo xlt('Pending Rx Count'); ?></td>
-			<td><?php echo $accountStatus->PendingRxCount;?></td>
-		</tr>
-		<tr>
-			<td><?php echo xlt('Alert Count'); ?></td>
-			<td><?php echo $accountStatus->AlertCount;?></td>
-		</tr>
-		<tr>
-			<td><?php echo xlt('Fax Count'); ?></td>
-			<td><?php echo $accountStatus->FaxCount;?></td>
-		</tr>
-		<tr>
-			<td><?php echo xlt('Pharm Com Count'); ?></td>
-			<td><?php echo $accountStatus->PharmComCount;?></td>
-		</tr>
-	</table>
-</body>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title"><?php echo xl("eRx Account Status");?></h4>
+</div>
+<div class="modal-body">
+    <table class='table table-responsive'>
+        <tr>
+            <td><?php echo xlt('Pending Rx Count'); ?></td>
+            <td><?php echo $accountStatus->PendingRxCount;?></td>
+        </tr>
+        <tr>
+            <td><?php echo xlt('Alert Count'); ?></td>
+            <td><?php echo $accountStatus->AlertCount;?></td>
+        </tr>
+        <tr>
+            <td><?php echo xlt('Fax Count'); ?></td>
+            <td><?php echo $accountStatus->FaxCount;?></td>
+        </tr>
+        <tr>
+            <td><?php echo xlt('Pharm Com Count'); ?></td>
+            <td><?php echo $accountStatus->PharmComCount;?></td>
+        </tr>
+    </table>
+</div>

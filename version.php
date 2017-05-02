@@ -35,7 +35,7 @@ $v_offsite_portal='1.47';
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-$v_js_includes = 24;
+$v_js_includes = rand(24,9999999);
 
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

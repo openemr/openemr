@@ -40,6 +40,8 @@ $fake_register_globals=false;
  ////////////
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
+use OpenEMR\Amendment\Amendment;
+
   if (isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
@@ -171,15 +173,18 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-6-4/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js.donotinclude"></script>
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
@@ -300,7 +305,7 @@ $(document).ready(function(){
     // load divs
     $("#stats_div").load("stats.php", { 'embeddedScreen' : true }, function() {
 	// (note need to place javascript code here also to get the dynamic link to work)
-        $(".rx_modal").fancybox( {
+/*        $(".rx_modal").fancybox( {
                 'overlayOpacity' : 0.0,
                 'showCloseButton' : true,
                 'frameHeight' : 500,
@@ -309,7 +314,7 @@ $(document).ready(function(){
         	'callbackOnClose' : function()  {
                 refreshme();
         	}
-        });
+        });*/
     });
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
@@ -318,7 +323,7 @@ $(document).ready(function(){
       top.restoreSession();
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").fancybox( {
+/*          $(".medium_modal").fancybox( {
                   'overlayOpacity' : 0.0,
                   'showCloseButton' : true,
                   'frameHeight' : 500,
@@ -327,7 +332,7 @@ $(document).ready(function(){
                   'callbackOnClose' : function()  {
                   refreshme();
                   }
-          });
+          });*/
       });
     <?php } // end crw?>
 
@@ -359,12 +364,12 @@ $(document).ready(function(){
 ?>
 
     // fancy box
-    enable_modals();
+//    enable_modals();
 
     tabbify();
 
 // modal for dialog boxes
-  $(".large_modal").fancybox( {
+/*  $(".large_modal").fancybox( {
     'overlayOpacity' : 0.0,
     'showCloseButton' : true,
     'frameHeight' : 600,
@@ -378,33 +383,51 @@ $(document).ready(function(){
     'showCloseButton' : true,
     'centerOnScroll' : false,
     'autoscale' : true
-  });
+  });*/
 
-  $(".iframe1").fancybox( {
-  'left':10,
-	'overlayOpacity' : 0.0,
-	'showCloseButton' : true,
-	'frameHeight' : 300,
-	'frameWidth' : 350
-  });
+//  $(".iframe1").fancybox( {
+//  'left':10,
+//	'overlayOpacity' : 0.0,
+//	'showCloseButton' : true,
+//	'frameHeight' : 300,
+//	'frameWidth' : 350
+//  });
 // special size for patient portal
-  $(".small_modal").fancybox( {
+/*  $(".small_modal").fancybox( {
 	'overlayOpacity' : 0.0,
 	'showCloseButton' : true,
 	'frameHeight' : 200,
 	'frameWidth' : 380,
             'centerOnScroll' : false
-  });
+  });*/
+
+$(document).ready(function(){
+
+    $('.dynamic-modal').on('click', function(e){
+        e.preventDefault();
+        //$("#loading").modal('show');
+        var text = $(this).text();
+        $(this).html('<i class="fa fa-spin fa-circle-o-notch"></i>');
+        var btn = $(this);
+        var url = $(this).attr('href');
+        $.get(url, function (data){
+            $(".modal-holder #amendments .modal-dialog").html(data);
+            //$("#loading").modal('hide');
+            $("#amendments").modal('show');
+            $(btn).html(text);
+        });
+    });
+});
 
   <?php if ($active_reminders || $all_allergy_alerts) { ?>
     // show the active reminder modal
-    $("#reminder_popup_link").fancybox({
+/*    $("#reminder_popup_link").fancybox({
       'overlayOpacity' : 0.0,
       'showCloseButton' : true,
       'frameHeight' : 500,
       'frameWidth' : 500,
       'centerOnScroll' : false
-    }).trigger('click');
+    }).trigger('click');*/
   <?php } ?>
 
 });
@@ -473,6 +496,8 @@ $(window).load(function() {
   width:100%;
 }
 </style>
+
+<title><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?></title>
 
 </head>
 
@@ -1065,29 +1090,17 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
        	$widgetTitle = xlt('Amendments');
     $widgetLabel = "amendments";
     $widgetButtonLabel = xlt("Edit");
-	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
-	$widgetButtonClass = "iframe rx_modal";
-    $linkMethod = "html";
-    $bodyClass = "summary_item small";
+	$widgetButtonLink = "#";
+	$widgetButtonClass = "hidden";
+    $linkMethod = "javascript";
+    $bodyClass = "notab";
     $widgetAuth = acl_check('patients', 'amendment', '', 'write');
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-       	$sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
-  $result = sqlStatement($sql, array($pid) );
 
-  if (sqlNumRows($result) == 0) {
-    echo " <table><tr>\n";
-    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
-    echo " </tr></table>\n";
-  }
-
-  while ($row=sqlFetchArray($result)){
-    echo "&nbsp;&nbsp;";
-    echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
-	echo "&nbsp; " . text($row['amendment_desc']);
-
-    echo "</a><br>\n";
-  } ?>
+    $amendment = new Amendment();
+    $amendment->getList($pid);
+?>
   </td>
     </tr>
 <?php } // end amendments authorized ?>
@@ -1663,6 +1676,26 @@ var skipArray = [
 ];
 checkSkipConditions();
 </script>
+
+<div class="modal-holder">
+    <div class="modal" tabindex="-1" role="dialog" id="loading">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <i class="fa fa-spin fa-circle-o-notch fa-5x"></i>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="amendments">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
 
 </body>
 </html>

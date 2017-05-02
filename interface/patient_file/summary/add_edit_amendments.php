@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2014 Ensoftek
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2017 Robert Down <robertdown@live.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,8 +18,10 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
+ * @subpackage Amendment
  * @author  Hema Bandaru <hemab@drcloudemr.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author Robert Down <robertdown@live.com>
  * @link    http://www.open-emr.org
  */
 
@@ -32,6 +35,10 @@ $fake_register_globals=false;
 
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
+
+use OpenEMR\Amendment\Amendment;
+
+$amend = new Amendment();
 
 if ( isset($_POST['mode'] )) {
 	$currentUser = $_SESSION['authUserID'];
@@ -101,6 +108,8 @@ if ( isset($_POST['mode'] )) {
 
 $amendment_id = ( $amendment_id ) ? $amendment_id : $_REQUEST['id'];
 if ( $amendment_id ) {
+    var_dump($amendment_id);
+    die();
 	$query = "SELECT * FROM amendments WHERE amendment_id = ? ";
 	$resultSet = sqlQuery($query,array($amendment_id));
 	$amendment_date = $resultSet['amendment_date'];
