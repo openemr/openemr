@@ -311,7 +311,7 @@ if (! function_exists('array_wrap')) {
      */
     function array_wrap($value)
     {
-        return ! is_array($value) ? [$value] : $value;
+        return Arr::wrap($value);
     }
 }
 
@@ -506,11 +506,11 @@ if (! function_exists('dd')) {
      * @param  mixed
      * @return void
      */
-    function dd()
+    function dd(...$args)
     {
-        array_map(function ($x) {
+        foreach ($args as $x) {
             (new Dumper)->dump($x);
-        }, func_get_args());
+        }
 
         die(1);
     }
@@ -557,6 +557,19 @@ if (! function_exists('head')) {
     function head($array)
     {
         return reset($array);
+    }
+}
+
+if (! function_exists('kebab_case')) {
+    /**
+     * Convert a string to kebab case.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    function kebab_case($value)
+    {
+        return Str::kebab($value);
     }
 }
 

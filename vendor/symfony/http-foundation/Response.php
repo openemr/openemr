@@ -179,7 +179,7 @@ class Response
         503 => 'Service Unavailable',
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported',
-        506 => 'Variant Also Negotiates (Experimental)',                      // RFC2295
+        506 => 'Variant Also Negotiates',                                     // RFC2295
         507 => 'Insufficient Storage',                                        // RFC4918
         508 => 'Loop Detected',                                               // RFC5842
         510 => 'Not Extended',                                                // RFC2774
@@ -226,6 +226,11 @@ class Response
         $this->setStatusCode($status);
         $this->setProtocolVersion('1.0');
 
+        /* RFC2616 - 14.18 says all Responses need to have a Date */
+        if (!$this->headers->has('Date')) {
+            $this->setDate(\DateTime::createFromFormat('U', time()));
+        }
+
         // Deprecations
         $class = get_class($this);
         if ($this instanceof \PHPUnit_Framework_MockObject_MockObject || $this instanceof \Prophecy\Doubler\DoubleInterface) {
@@ -241,11 +246,6 @@ class Response
             if (__CLASS__ !== $r->getDeclaringClass()->getName()) {
                 @trigger_error(sprintf('Extending %s::%s() in %s is deprecated since version 3.2 and won\'t be supported anymore in 4.0 as it will be final.', __CLASS__, $method, $class), E_USER_DEPRECATED);
             }
-        }
-
-        /* RFC2616 - 14.18 says all Responses need to have a Date */
-        if (!$this->headers->has('Date')) {
-            $this->setDate(new \DateTime(null, new \DateTimeZone('UTC')));
         }
     }
 

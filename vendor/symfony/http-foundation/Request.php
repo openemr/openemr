@@ -824,7 +824,7 @@ class Request
      * ("Client-Ip" for instance), configure it via "setTrustedHeaderName()" with
      * the "client-ip" key.
      *
-     * @return string The client IP address
+     * @return string|null The client IP address
      *
      * @see getClientIps()
      * @see http://en.wikipedia.org/wiki/X-Forwarded-For
@@ -930,7 +930,7 @@ class Request
      * If your reverse proxy uses a different header name than "X-Forwarded-Port",
      * configure it via "setTrustedHeaderName()" with the "client-port" key.
      *
-     * @return string
+     * @return int|string can be a string if fetched from the server bag
      */
     public function getPort()
     {
