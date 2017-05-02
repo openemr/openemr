@@ -15,7 +15,7 @@ $this->assign('is_new', $is_new);
 $this->assign('place_hld', $place_hld);
 $this->assign('cur_pid', $cur_pid);
 $this->assign('used_msg', $used_msg);
-$this->assign('demo_pid', $GLOBALS['pid']);
+$this->assign('demo_pid', $_SESSION['pid']);
 {/php}
 <link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
@@ -97,7 +97,7 @@ $(function() {
         },
         select: function(event, sel) {
             event.preventDefault();
-            if (sel.item.value == '00'){
+            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"}{literal}')){
             	alert(inUseMsg);
             	return false;
             }
