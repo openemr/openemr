@@ -1496,3 +1496,14 @@ table.dataTable#therapy_groups_list tbody td{
 .sidebar {
   background-color: #f8f8f8;
 }
+
+.close {
+  float: right !important;
+  font-size: 21px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+  color: #000 !important;
+  text-shadow: 0 1px 0 #fff !important;
+  filter: alpha(opacity=20) !important;
+  opacity: .2 !important;
+}
