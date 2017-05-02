@@ -15,6 +15,8 @@ require_once("$srcdir/patient.inc");
 
 if (!acl_check('admin', 'super')) die("Not authorized!");
 
+$facilityService = new \services\FacilityService();
+
 //////////////////////////////////////////////////////////////////////
 //                            XML Stuff                             //
 //////////////////////////////////////////////////////////////////////
@@ -389,8 +391,7 @@ if (!empty($form_submit)) {
   // $last_facility = -1;
 
   // Dump info for the main facility.
-  $facrow = sqlQuery("SELECT * FROM facility ORDER BY " .
-    "billing_location DESC, id ASC LIMIT 1");
+  $facrow = $facilityService->getPrimaryBillingLocation();
   OpenTag('IMS_eMRUpload_Point');
   Add('ServiceDeliveryPointName' , $facrow['name']);
   // Add('EmrServiceDeliveryPointId', $facrow['id']);

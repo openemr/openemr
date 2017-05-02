@@ -81,7 +81,7 @@ else{//new form
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
-                <span class="input_label"><?php echo xlt("Patient Name");?></span>
+                <span class="input_label"><?php echo xlt("Participant's name");?></span>
                 <input name="new_id" class="button-css new_patient_id" type="hidden" value="">
                 <input name="new_patient" class="button-css new_patient" type="text" value=""  readonly>
                 <div class="error_wrap">

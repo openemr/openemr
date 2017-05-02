@@ -45,15 +45,10 @@ $provider  = trim($_POST['form_provider']);
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
 <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <script LANGUAGE="JavaScript">
 
@@ -203,33 +198,33 @@ $provider  = trim($_POST['form_provider']);
 	<table class='text'>
 
                  <tr>
-                      <td class='label_custom'>
+                      <td class='control-label'>
                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
-                            class='datepicker'
+                            class='datepicker form-control'
                             title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                  </tr>
 
                 <tr>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                            <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo htmlspecialchars( $end_date, ENT_QUOTES); ?>'
-                                class='datepicker'
+                                class='datepicker form-control'
                                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
 
                 <tr>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                             <?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                            <select name='form_rule'>
+                            <select name='form_rule' class='form-control'>
                             <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") echo "selected"; ?>>
                             <?php echo htmlspecialchars( xl('Send Summaries with Referrals'), ENT_NOQUOTES); ?></option>
                             <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") echo "selected"; ?>>
@@ -241,7 +236,7 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
 			<td>
@@ -255,7 +250,7 @@ $provider  = trim($_POST['form_provider']);
 
 				 $ures = sqlStatement($query);
 
-				 echo "   <select name='form_provider'>\n";
+				 echo "   <select name='form_provider' class='form-control'>\n";
 				 echo "    <option value=''>-- " . htmlspecialchars( xl('All'), ENT_NOQUOTES) . " --\n";
 
 				 while ($urow = sqlFetchArray($ures)) {

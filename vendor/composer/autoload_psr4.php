@@ -10,6 +10,7 @@ return array(
     'repositories\\' => array($baseDir . '/repositories'),
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'entities\\' => array($baseDir . '/entities'),
+    'common\\utils\\' => array($baseDir . '/common/utils'),
     'common\\logging\\' => array($baseDir . '/common/logging'),
     'common\\http\\' => array($baseDir . '/common/http'),
     'common\\database\\' => array($baseDir . '/common/database'),

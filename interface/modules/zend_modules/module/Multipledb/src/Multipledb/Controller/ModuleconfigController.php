@@ -57,10 +57,14 @@ class ModuleconfigController
         //new acl rule for disallow using in the General setting screen
         //EXAMPLES!!
         $acl = array(
+            array(
+                'section_id' => "multipledb",
+                'section_name' => "Multipledb",
+                'parent_section' => ""
+            )
+        );
+        return $acl;
 
-            );
-            return $acl;
-
-      }
+    }
 
 }

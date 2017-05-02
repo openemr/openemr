@@ -61,6 +61,7 @@
   //   language    Language Interface Tool
   //   drugs       Pharmacy Dispensary
   //   acl         ACL Administration
+  //   multipledb  Multipledb
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
@@ -117,8 +118,16 @@
   //
   // Section "patientportal" (Patient Portal):
   //   portal     Patient Portal
+  //
   // Section "menus" (Menus):
   //   modle      Module
+  //
+  // Section "groups" (Groups):
+  //   gadd       View/Add/Update groups
+  //   gcalendar  View/Create/Update groups appointment in calendar
+  //   glog       Group encounter log
+  //   gdlog      Group detailed log of appointment in patient record
+  //   gm         Send message from the permanent group therapist to the personal therapist
 
   if (isset ($phpgacl_location)) {
     $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
@@ -806,10 +815,10 @@
 
     // Complete the group queries sql binding array
     array_push($groups_sql_param, $section_identifier);
-      
+
         $count_group_allowed    = 0;
         $count_user_allowed     = 0;
-      
+
         $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
         $count_user_allowed     = $res_user_allowed['count'];
 

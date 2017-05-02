@@ -32,6 +32,8 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
+$facilityService = new \services\FacilityService();
+
 $enc_units = $total_units = 0;
 $enc_chg = $total_chg = 0;
 $enc_pmt = $total_pmt = 0;
@@ -506,7 +508,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
       }
     } else {
       if(!$form_facility) $form_facility = '3';
-      $facility = sqlQuery("SELECT * FROM facility WHERE id=?", array($form_facility));
+      $facility = $facilityService->getById($form_facility);
       $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
       $pat_dob = $patient['DOB'];
       $pat_name = $patient['fname']. ' ' . $patient['lname'];

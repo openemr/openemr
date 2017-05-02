@@ -11,6 +11,7 @@
     },
     "require": {
 
+        "mpdf/mpdf": "6.1.3",
         "adldap2/adldap2": "7.0.4",
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.9",
@@ -52,6 +53,7 @@
             "common\\database\\": "common/database",
             "common\\logging\\": "common/logging",
             "common\\http\\": "common/http",
+            "common\\utils\\": "common/utils",
             "entities\\": "entities",
             "services\\": "services",
             "repositories\\": "repositories"

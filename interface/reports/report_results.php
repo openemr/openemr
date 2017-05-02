@@ -41,15 +41,10 @@ require_once "$srcdir/report_database.inc";
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
 <title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <script LANGUAGE="JavaScript">
 
@@ -114,23 +109,23 @@ require_once "$srcdir/report_database.inc";
 	<table class='text'>
 
                    <tr>
-                      <td class='label_custom'>
+                      <td class='control-label'>
                          <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_begin_date'], ENT_QUOTES); ?>'
-                            class='datepicker'
+                            class='datepicker form-control'
                             title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                    </tr>
 
                 <tr>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                               <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_end_date'], ENT_QUOTES); ?>'
-                                class='datepicker'
+                                class='datepicker form-control'
                                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>

@@ -8,6 +8,7 @@
  * of the License, or (at your option) any later version.
  */
 
+$facilityService = new \services\FacilityService();
 
 // These are for sports team use:
 $PLAYER_FITNESSES = array(
@@ -173,25 +174,21 @@ function getProviders() {
 // may find additional uses.
 //
 function getFacility($facid=0) {
+  global $facilityService;
 
-  //create a sql binding array
-  $sqlBindArray = array();
+  $facility = null;
 
   if ($facid > 0) {
-    $query = "SELECT * FROM facility WHERE id = ?";
-    array_push($sqlBindArray,$facid);
+    $facility = $facilityService->getById($facid);
   }
   else if ($facid == 0) {
-    $query = "SELECT * FROM facility ORDER BY " .
-      "billing_location DESC, service_location, id LIMIT 1";
+    $facility = $facilityService->getPrimaryBillingLocation();
   }
   else {
-    $query = "SELECT facility.* FROM users, facility WHERE " .
-      "users.id = ? AND " .
-      "facility.id = users.facility_id";
-    array_push($sqlBindArray,$_SESSION['authUserID']);
+    $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
   }
-  return sqlQuery($query,$sqlBindArray);
+
+  return $facility;
 }
 
 // Generate a report title including report name and facility name, address
@@ -236,17 +233,15 @@ returns all facilities or just the id for the first one
 @return array | int for 'first' case
 */
 function getFacilities($first = '') {
-    $r = sqlStatement("SELECT * FROM facility ORDER BY id");
-    $ret = array();
-    while ( $row = sqlFetchArray($r) ) {
-       $ret[] = $row;
-}
+    global $facilityService;
 
-        if ( $first == 'first') {
-            return $ret[0]['id'];
-        } else {
-            return $ret;
-        }
+    $fres = $facilityService->getAll();
+
+    if ($first == 'first') {
+        return $fres[0]['id'];
+    } else {
+        return $fres;
+    }
 }
 
 /**
@@ -259,17 +254,15 @@ returns all service_location facilities or just the id for the first one
 @return array | int for 'first' case
 */
 function getServiceFacilities($first = '') {
-    $r = sqlStatement("SELECT * FROM facility WHERE service_location != 0 ORDER BY id");
-    $ret = array();
-    while ( $row = sqlFetchArray($r) ) {
-       $ret[] = $row;
-}
+    global $facilityService;
 
-        if ( $first == 'first') {
-            return $ret[0]['id'];
-        } else {
-            return $ret;
-        }
+    $fres = $facilityService->getAllServiceLocations();
+
+    if ($first == 'first') {
+        return $fres[0]['id'];
+    } else {
+        return $fres;
+    }
 }
 
 //(CHEMED) facility filter

@@ -14,6 +14,8 @@
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
 
+ $facilityService = new \services\FacilityService();
+
  function send_email($subject, $body) {
   $recipient = $GLOBALS['practice_return_email_path'];
   if (empty($recipient)) return;
@@ -120,8 +122,7 @@
  // Generate the bottle label for the sale identified by $sale_id.
 
  // Get details for what we guess is the primary facility.
- $frow = sqlQuery("SELECT * FROM facility " .
-  "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+ $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 
  // Get everything else.
  $row = sqlQuery("SELECT " .

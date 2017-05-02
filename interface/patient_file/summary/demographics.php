@@ -205,7 +205,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-  parent.left_nav.clearPatient();
+  <?php if ($GLOBALS['new_tabs_layout']) { ?>
+   top.clearPatient();
+  <?php } else { ?>
+   parent.left_nav.clearPatient();
+  <?php } ?>
  }
 
  function newEvt() {
@@ -500,7 +504,7 @@ if ($thisauth): ?>
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
         <td style='padding-left:1em;' class="delete">
             <a class='css_button iframe'
-               href='../deleter.php?patient="<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+               href='../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
                 <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
             </a>

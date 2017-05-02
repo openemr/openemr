@@ -15,6 +15,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 
+$facilityService = new \services\FacilityService();
+
 function genColumn($ix) {
     global $html;
     global $SBCODES;
@@ -311,12 +313,11 @@ $today = date('Y-m-d');
 $alertmsg = ''; // anything here pops up in an alert box
 
 // Get details for the primary facility.
-$frow = sqlQuery("SELECT * FROM facility WHERE primary_business_entity = 1");
+$frow = $facilityService->getPrimaryBusinessEntity();
 
 // If primary is not set try to old method of guessing...for backward compatibility
 if (empty($frow)) {
-    $frow = sqlQuery("SELECT * FROM facility " .
-            "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+    $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 }
 
 // Still missing...

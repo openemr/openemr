@@ -27,6 +27,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
+$facilityService = new \services\FacilityService();
+
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
   "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31");
@@ -232,12 +234,10 @@ if ($viewmode) {
   $drow = sqlFetchArray($dres);
   $def_facility = $drow['facility_id'];
 }
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
-if ($fres) {
-  $fresult = array();
-  for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
-    $fresult[$iter] = $frow;
-  foreach($fresult as $iter) {
+
+$facilities = $facilityService->getAllServiceLocations();
+if ($facilities) {
+  foreach($facilities as $iter) {
 ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
 <?php
@@ -364,7 +364,7 @@ if ($fres) {
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm('<?php echo xls("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);

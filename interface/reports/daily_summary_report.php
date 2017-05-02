@@ -34,6 +34,7 @@ require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+$facilityService = new \services\FacilityService();
 
 $selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
 $selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter
@@ -171,8 +172,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
 
         // fetch all facility from the table
-        $facilityReacords = sqlStatement("SELECT `id`,`name` from facility");
-        while ($facilityList = sqlFetchArray($facilityReacords)) {
+        $facilityRecords = $facilityService->getAll();
+        foreach ($facilityRecords as $facilityList) {
             if (1 === $facilitySet && $facilityList['id'] == $selectedFacility) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }

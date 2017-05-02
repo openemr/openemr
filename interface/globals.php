@@ -141,6 +141,9 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
 // Set the site-specific directory path.
 $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id'];
 
+// Set a site-specific uri root path.
+$GLOBALS['OE_SITE_WEBROOT'] = $web_root . "/sites/" . $_SESSION['site_id'];
+
 require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
@@ -190,6 +193,22 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+
+//  Check necessary writeable paths exist for mPDF tool
+if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
+    }
+    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+    }
+} else {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+}
+// Safe bet support directories exist, define them.
+define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
+define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
 
 // Includes composer autoload
 // Note this also brings in following library files:
@@ -408,11 +427,11 @@ $bottom_bg_line = $top_bg_line;
 $title_bg_line = ' bgcolor="#bbbbbb" ';
 $nav_bg_line = ' bgcolor="#94d6e7" ';
 $login_filler_line = ' bgcolor="#f7f0d5" ';
-$logocode = "<img class='img-responsive center-block' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
+$logocode = "<img class='img-responsive center-block' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif'>";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
-$tinylogocode1 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_1.png'>";
-$tinylogocode2 = "<img class='tinylogopng' src='$web_root/sites/" . $_SESSION['site_id'] . "/images/logo_2.png'>";
+$tinylogocode1 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
+$tinylogocode2 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';

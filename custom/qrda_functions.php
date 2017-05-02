@@ -21,6 +21,8 @@
  * @link    http://www.open-emr.org
  */
 
+  $facilityService = new \services\FacilityService();
+
 	// Functions for QRDA Category I (or) III 2014 XML format.
 
 	//function for Stratification data getting for NQF# 0024 Rule
@@ -31,7 +33,7 @@
 			$stratumOneQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 1 AND 10) ";
 			$stratumOneRes = sqlStatement($stratumOneQry);
 			$stratumOneRows = sqlNumRows($stratumOneRes);
-			
+
 			//Age Between 12 and 17
 			$stratumTwoQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 11 AND 16) ";
 			$stratumTwoRes = sqlStatement($stratumTwoQry);
@@ -44,7 +46,7 @@
 		}
 		return $startumArr;
 	}
-	
+
 	//function for getting Payer(Insurance Type) Information for Export QRDA
 	function getQRDAPayerInfo($patArr){
 		$payerCheckArr = array();
@@ -69,10 +71,10 @@
 				}
 			}
 		}
-		
+
 		return $payerCheckArr;
 	}
-	
+
 	//function for getting Race, Ethnicity and Gender Information for Export QRDA
 	function getQRDAPatientNeedInfo($patArr){
 		//Defining Array elements
@@ -93,7 +95,7 @@
 		$ethincityArr = array();
 		$ethincityArr['Not Hispanic or Latino'] = 0;
 		$ethincityArr['Hispanic or Latino'] = 0;
-		
+
 		$mainArr = array();
 		if(count($patArr) > 0){
 			$patRes = sqlStatement("SELECT pid, sex, race, ethnicity FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).")");
@@ -106,7 +108,7 @@
 				}else{
 					$genderArr['Unknown']++;
 				}
-				
+
 				//Race Section
 				if($patRow['race'] == "amer_ind_or_alaska_native"){
 					$raceArr['American Indian or Alaska Native']++;
@@ -129,7 +131,7 @@
 				}else{
 					$raceArr['Other']++;
 				}
-				
+
 				if($patRow['ethnicity'] == "hisp_or_latin"){
 					$ethincityArr['Hispanic or Latino']++;
 				}else if($patRow['ethnicity'] == "not_hisp_or_latin"){
@@ -140,10 +142,10 @@
 		$mainArr['gender'] = $genderArr;
 		$mainArr['race'] = $raceArr;
 		$mainArr['ethnicity'] = $ethincityArr;
-		
+
 		return $mainArr;
 	}
-	
+
 	function payerPatient($patient_id){
 		$payer = 'Other';
 		$insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
@@ -163,7 +165,7 @@
 		}
 		return $payer;
 	}
-	
+
 	function allEncPat($patient_id, $from_date, $to_date){
 		$encArr = array();
 		$patQry = "SELECT fe.encounter, fe.date,fe.pc_catid,opc.pc_catname FROM form_encounter fe inner join openemr_postcalendar_categories opc on opc.pc_catid = fe.pc_catid WHERE fe.pid = ? AND (DATE(fe.date) BETWEEN ? AND ?)";
@@ -171,10 +173,10 @@
 		while( $patRow = sqlFetchArray($patRes ) ){
 			$encArr[] = $patRow;
 		}
-		
+
 		return $encArr;
 	}
-	
+
 	function allListsPat($type, $patient_id, $from_date, $to_date){
 		$diagArr = array();
 		$diagQry = "SELECT * FROM lists WHERE TYPE = ? AND pid = ? AND (DATE(date) BETWEEN ? AND ?)";
@@ -182,10 +184,10 @@
 		while( $diagRow = sqlFetchArray($diagRes) ){
 			$diagArr[] = $diagRow;
 		}
-		
+
 		return $diagArr;
 	}
-	
+
 	function allOrderMedsPat($patient_id,$from_date,$to_date){
 		$medArr = array();
 		$medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 0 AND (DATE(date_added) BETWEEN ? AND ?)";
@@ -193,10 +195,10 @@
 		while( $medRow = sqlFetchArray($medRes) ){
 			$medArr[] = $medRow;
 		}
-		
+
 		return $medArr;
 	}
-	
+
 	function allActiveMedsPat($patient_id,$from_date,$to_date){
 		$medArr = array();
 		$medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 1 AND (DATE(date_added) BETWEEN ? AND ?)";
@@ -204,10 +206,10 @@
 		while( $medRow = sqlFetchArray($medRes) ){
 			$medArr[] = $medRow;
 		}
-	
+
 		return $medArr;
 	}
-	
+
 	function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date){
 		$procArr = array();
 		$procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe ".
@@ -220,10 +222,10 @@
 		while( $procRow = sqlFetchArray($procRes ) ){
 			$procArr[] = $procRow;
 		}
-		
+
 		return $procArr;
 	}
-	
+
 	function allVitalsPat($patient_id, $from_date, $to_date){
 		$vitArr = array();
 		$vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe ".
@@ -235,10 +237,10 @@
 		while( $vitRow = sqlFetchArray($vitRes ) ){
 			$vitArr[] = $vitRow;
 		}
-		
+
 		return $vitArr;
 	}
-	
+
 	function allImmuPat($patient_id, $from_date, $to_date){
 		$immArr = array();
 		$immQry =   "SELECT * FROM immunizations ".
@@ -248,14 +250,14 @@
 		while( $immRow = sqlFetchArray($immRes ) ){
 			$immArr[] = $immRow;
 		}
-		
+
 		return $immArr;
 	}
 	function getPatData($patient_id){
 		$patientRow = sqlQuery("SELECT * FROM patient_data WHERE pid= ?", array($patient_id));
 		return $patientRow;
 	}
-	
+
 	function getUsrDataCheck($provider_id){
 		$userRow = array();
 		if($provider_id != ""){
@@ -263,15 +265,15 @@
 		}
 		return $userRow;
 	}
-	
+
 	function getFacilDataChk($facility_id){
-		$facilResRow = sqlQuery("SELECT name, street,city,state,postal_code, country_code, phone from facility WHERE id = ?", array($facility_id));
-		return $facilResRow;
+		global $facilityService;
+		return $facilityService->getById($facility_id);
 	}
-	
+
 	function patientQRDAHistory($patient_id){
 		$patientHistRow = sqlQuery("SELECT tobacco, date FROM history_data WHERE pid= ? ORDER BY id DESC LIMIT 1", array($patient_id));
 		return $patientHistRow;
 	}
-	
+
 ?>
