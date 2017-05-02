@@ -58,7 +58,8 @@
             "common\\utils\\": "common/utils",
             "entities\\": "entities",
             "services\\": "services",
-            "repositories\\": "repositories"
+            "repositories\\": "repositories",
+            "OpenEMR\\Amendment\\": "library/Amendment"
         }
     },
     "config": {
