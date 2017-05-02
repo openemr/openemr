@@ -220,6 +220,24 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+use OpenEMR\Twig;
+
+// @TODO This needs to be broken out to it's own function, but for time's sake
+// @TODO putting it here until we land on a good place. RD 2017-05-02
+
+$twigLoader = new Twig_Loader_Filesystem();
+$twigEnv = new Twig_Environment($twigLoader, ['debug' => true]);
+$twigEnv->addExtension(new Twig_Extension_Debug());
+
+/** Twig_Loader */
+$GLOBALS['twigLoader'] = $twigLoader;
+/** Twig_Environment */
+$GLOBALS['twig'] = $twigEnv;
+$GLOBALS['twig']->addFilter(new Twig_SimpleFilter('translate', function ($string) {
+    return xl($string);
+}));
+//Twig\Extension::addFilters();
+
 // This will open the openemr mysql connection.
 require_once (dirname(__FILE__) . "/../library/sql.inc");
 

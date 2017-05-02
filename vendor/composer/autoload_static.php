@@ -70,6 +70,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Twig\\' => 13,
             'OpenEMR\\Amendment\\' => 18,
         ),
         'I' => 
@@ -158,6 +159,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Twig\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/Twig',
         ),
         'OpenEMR\\Amendment\\' => 
         array (
@@ -1348,6 +1353,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Amendment\\Amendment' => __DIR__ . '/../..' . '/library/Amendment/Amendment.php',
         'OpenEMR\\Amendment\\Exception\\AmendmentNotFound' => __DIR__ . '/../..' . '/library/Amendment/Exception/AmendmentNotFound.php',
         'OpenEMR\\Amendment\\Service\\Amendment' => __DIR__ . '/../..' . '/library/Amendment/Service/Amendment.php',
+        'OpenEMR\\Twig\\Extension' => __DIR__ . '/../..' . '/library/Twig/Extensions.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPMailer' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmailer.php',

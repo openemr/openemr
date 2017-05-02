@@ -59,7 +59,8 @@
             "entities\\": "entities",
             "services\\": "services",
             "repositories\\": "repositories",
-            "OpenEMR\\Amendment\\": "library/Amendment"
+            "OpenEMR\\Amendment\\": "library/Amendment",
+            "OpenEMR\\Twig\\": "library/Twig"
         }
     },
     "config": {

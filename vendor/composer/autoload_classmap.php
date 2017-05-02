@@ -1098,6 +1098,7 @@ return array(
     'OpenEMR\\Amendment\\Amendment' => $baseDir . '/library/Amendment/Amendment.php',
     'OpenEMR\\Amendment\\Exception\\AmendmentNotFound' => $baseDir . '/library/Amendment/Exception/AmendmentNotFound.php',
     'OpenEMR\\Amendment\\Service\\Amendment' => $baseDir . '/library/Amendment/Service/Amendment.php',
+    'OpenEMR\\Twig\\Extension' => $baseDir . '/library/Twig/Extensions.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
     'PDF_Label' => $baseDir . '/library/classes/PDF_Label.php',
     'PHPMailer' => $vendorDir . '/phpmailer/phpmailer/class.phpmailer.php',

@@ -9,6 +9,19 @@
  * appropriate for business-level logic). Another example is the usage of twig
  * and the HttpFoundation Request object.
  *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  * @package OpenEMR
  * @subpackage Amendment
  * @author Robert Down <robertdown@live.com>
@@ -35,10 +48,9 @@ class Amendment
 
     public function __construct()
     {
-        $viewFolder = dirname(__FILE__) . "/View";
-        $loader = new Twig_Loader_Filesystem($viewFolder);
-        $this->twig = new Twig_Environment($loader, ['debug' => true]);
-        $this->twig->addExtension(new Twig_Extension_Debug());
+        $viewFolder = dirname(__FILE__) . "/Resources/views";
+        /** Twig_Loader_Filesystem */
+        $GLOBALS['twigLoader']->addPath($viewFolder);
         $this->service = new Service();
     }
 
@@ -89,16 +101,16 @@ class Amendment
 
         $viewArgs = [
             'assets_dir' => $GLOBALS['assets_static_relative'],
-            'print' => xl('Print Amendments'),
-            'add' => xl('Add'),
-            'date' => xl('Date'),
-            'title' => xl('List'),
-            'description' => xlt('Request Description'),
-            'by' => xlt('Requested By'),
-            'status' => xlt('Request Status'),
+            'print' => 'Print Amendments',
+            'add' => 'Add',
+            'date' => 'Date',
+            'title' => 'List',
+            'description' => 'Request Description',
+            'by' => 'Requested By',
+            'status' => 'Request Status',
             'list' => $list,
         ];
 
-        echo $this->twig->render('list.html', $viewArgs);
+        echo $GLOBALS['twig']->render('list.html', $viewArgs);
     }
 }

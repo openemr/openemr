@@ -1,0 +1,78 @@
+{#
+Display a list of amendments
+
+@package OpenEMR
+@subpackage Amendment
+@author Robert Down
+@copyright Copyright (C) 2017 Robert Down
+@license http://opensource.org/licenses/gpl-license.php General Public License 3
+#}
+
+{% extends "base.html" %}
+
+{% block body %}
+<div class="row">
+    <div class="col-xs-6">
+        <a href="#" class="btn btn-default btn-small" data-toggle="modal" data-target="#add-amendment-form"><i class="fa fa-plus"></i>&nbsp;{{'Add'|translate}}</a>
+        <a href="#" class="btn btn-default btn-small"><i class="fa fa-print"></i>&nbsp;{{'Print'|translate}}</a>
+    </div>
+    <div class="col-xs-6 text-right">
+        <a href="#" class="btn btn-link btn-small">{{'Check All'|translate}}</a>
+        <a href="#" class="btn btn-link btn-small">{{'Uncheck All'|translate}}</a>
+    </div>
+</div>
+<div class="row" style="margin-top: 15px;">
+    <div class="col-xs-12">
+        <table class="table table-responsive table-condensed">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>{{'Date'|translate}}</th>
+                <th>{{'Description'|translate}}</th>
+                <th>{{'Requested By'|translate}}</th>
+                <th>{{'Status'|translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if list|length > 0 %}
+            {% for row in list %}
+            <tr id="amendment-{{row.id}}">
+                <td><input type="checkbox" id="check_list[]" name="check_list[]" value="{{row.id}}"> </td>
+                <td><a href="add_edit_amendments.php?id={{row.id}}">{{ row.date }}</a></td>
+                <td>{{ row.description }}</td>
+                <td>{{ row.by }}</td>
+                <td>{{ row.status }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">{{ 'No amendment requests available'|translate }}</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="modal-add-amendment" tabindex="-1" role="dialog" aria-labelledby="add-amendment-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="add-amendment-label">{{'Add Amendment'|translate}}</h4>
+            </div>
+            <div class="modal-body">
+                . . .
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{'Close'|translate}}</button>
+                <button type="button" class="btn btn-primary">{{'Save changes'|translate}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    //$("#form-add-amendment")
+});
+</script>
+{% endblock %}
