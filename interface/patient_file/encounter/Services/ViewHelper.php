@@ -1,6 +1,7 @@
 <?php
 /**
- * Helper functions for an encounter view files
+ * OpenEMR (http://open-emr.org)
+ *
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,20 +15,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @subpackage Encounter
- * @author Robert Down <robertdown@live.com>
- * @copyright Copyright (C) 2017 Robert Down
  */
 
 namespace OpenEMR\Encounter\Services;
 
+/**
+ * Helper functions for an encounter view files.
+ *
+ * @package OpenEMR\Encounter\Services
+ * @subpackage Encounter
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Robert Down
+ */
 class ViewHelper
 {
 
     /**
-     * Get standard encounter menu items from DB
+     * Get standard encounter menu items from DB.
      *
      * @param string $state Limit SQL based on this value in the LIKE clause
      * @param string $limit Limit results to this number of results
@@ -60,9 +64,9 @@ class ViewHelper
     }
 
     /**
-     * Create a bootstrap-based navbar list based on array
+     * Create a bootstrap-based navbar list based on array.
      *
-     * <code>
+     * ```php
      * $elements = array(
      *     'name' => 'Text displayed to user in link. Required',
      *     'href' => 'Location of menu item. Required',
@@ -70,7 +74,7 @@ class ViewHelper
      *     'linkClass' => 'Space separated string of extra classes to add to <a> element. Optional',
      *     'listItemClass' => 'Space separated string of extra classes to add to <li> element. Optional',
      *     'subItems' => ['Recursion of $elements array structure. Optional'];
-     * </code>
+     * ```
      *
      * @todo Handling the subItems list could be better - needs to be truly recursive. RD 2017-04-23
      * @todo Eventually would be good to break out the templating to a twig template. RD 2017-05-02
