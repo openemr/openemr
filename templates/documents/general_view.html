@@ -116,7 +116,7 @@ function ImgProcedure() {literal}{{/literal}
             {/if}
         </td>
     </tr>
-    <tr>
+    <tr id="expandContent">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -295,7 +295,7 @@ function ImgProcedure() {literal}{{/literal}
 	</tr>
 	<tr>
 		<td>
-            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b></div>
+            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b>({xl t='Expand'})<input type="checkbox" id="show" data-toggle="toggle"></div>
             {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
@@ -313,4 +313,8 @@ function ImgProcedure() {literal}{{/literal}
 </table>
 <script language='JavaScript'>
  Calendar.setup({literal}{{/literal}inputField:"docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"{literal}}{/literal});
+ $('[data-toggle="toggle"]').change(function(){literal}{
+	 $("#expandContent").toggle();
+ }
+ {/literal});
 </script>
