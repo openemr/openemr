@@ -26,8 +26,14 @@ namespace OpenEMR\Encounter\Services;
 class ViewHelper
 {
 
-    private $oldCategory = '';
-
+    /**
+     * Get standard encounter menu items from DB
+     *
+     * @param string $state Limit SQL based on this value in the LIKE clause
+     * @param string $limit Limit results to this number of results
+     * @param string $offset Offset the results by this number
+     * @return array|bool
+     */
     static function getRegistry($state = "1", $limit = "unlimited", $offset = "0")
     {
         global $attendant_type;
@@ -54,22 +60,25 @@ class ViewHelper
     }
 
     /**
-     * Create a bootstrap-based navbar based on array
+     * Create a bootstrap-based navbar list based on array
      *
+     * <code>
      * $elements = array(
      *     'name' => 'Text displayed to user in link. Required',
      *     'href' => 'Location of menu item. Required',
      *     'atts' => ['Array of valid HTML5 attributes to attach to the anchor tag'],
      *     'linkClass' => 'Space separated string of extra classes to add to <a> element. Optional',
      *     'listItemClass' => 'Space separated string of extra classes to add to <li> element. Optional',
-     *     'subItems' => array('Recursion of $elements array structure. Optional'));
+     *     'subItems' => ['Recursion of $elements array structure. Optional'];
+     * </code>
      *
      * @todo Handling the subItems list could be better - needs to be truly recursive. RD 2017-04-23
+     * @todo Eventually would be good to break out the templating to a twig template. RD 2017-05-02
      *
-     * @param $elements array
+     * @param array $elements
      * @return string
      */
-    static function createEncounterMenu($elements)
+    static function createEncounterMenu(array $elements)
     {
         // Standard menu item with no dropdown
         $menuListItem = '<li><a href="{href}" {class} {atts} >{linkText}</a></li>';
@@ -152,7 +161,8 @@ class ViewHelper
     /**
      * Create an array of elements based on layout based forms
      *
-     * Similar to parseRegistry, create an array that can be processed by createEncounterMenu() to show a link to LBFs
+     * Similar to parseRegistry, create an array that can be processed by
+     * createEncounterMenu() to show a link to LBFs
      *
      * @return array|bool
      */
@@ -174,7 +184,7 @@ class ViewHelper
                     }
                 }
                 $row = [
-                    'href' => "/interface/patient_file/encounter/load_form.php?formname={$encodedOptionId}",
+                    'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$encodedOptionId}",
                     'name' => xl_form_title($title),
                     'class' => 'menu-item-action'
                 ];
@@ -187,7 +197,14 @@ class ViewHelper
         }
     }
 
-    static function parseRegistry($registry, $oldCategory = '')
+    /**
+     * Turn getRegistry() into a createEncounterMenu() compatible array
+     *
+     * @param array $registry
+     * @param string $oldCategory
+     * @return array
+     */
+    static function parseRegistry(array $registry, $oldCategory = '')
     {
         global $old_category;
         $prevCategory = '';
@@ -207,7 +224,7 @@ class ViewHelper
                 $formName = urlencode($item['directory']);
                 $rootDir = "/interface";
                 $tmp = [
-                    'href' => "{$rootDir}/patient_file/encounter/load_form.php?formname={$formName}",
+                    'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$formName}",
                     'name' => xl_form_title($nickname),
                     'class' => 'menu-item-action'
                 ];
@@ -225,6 +242,14 @@ class ViewHelper
         return $return;
     }
 
+    /**
+     * Create an array of module menu items
+     *
+     * Similar to parseRegistry, create an array that can be processed by
+     * createEncounterMenu() to show a link to modules
+     *
+     * @return array|bool
+     */
     static function getModuleMenuItems()
     {
         $sql = "SELECT msh.*, ms.menu_name, ms.path, m.mod_ui_name, m.type
@@ -249,7 +274,7 @@ class ViewHelper
                     $added = "index";
                 }
 
-                $href = "../../modules/{$path}/{$row['path']}";
+                $href = "{$GLOBALS['rootdir']}/modules/{$path}/{$row['path']}";
                 $nickname = $row['menu_name'] ? $row['menu_name'] : 'Noname';
 
                 if ($modId == $row['mod_id']) {
