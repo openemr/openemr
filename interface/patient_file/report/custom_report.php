@@ -130,8 +130,8 @@ function postToGet($arin) {
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo  $webserver_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
+<link rel="stylesheet" href="<?php echo  $web_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
 <head>
@@ -827,11 +827,15 @@ if ($PDF_OUTPUT) {
             die($die_str);
         }
     }
-    $pdf->writeHTML($content, false); // convert html
+    try {
+        $pdf->writeHTML($content, false); // convert html
+    } catch (MpdfException $exception) {
+        die($exception);
+    }
     if ($PDF_OUTPUT == 1) {
         try {
             $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
-        } catch (Exception $exception) {
+        } catch (MpdfException $exception) {
             die($exception);
         }
     } else {
