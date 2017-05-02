@@ -31,7 +31,8 @@
     },
     "require-dev": {
 
-        "phing/phing": "2.14.0"
+        "phing/phing": "2.14.0",
+        "phpunit/phpunit": "5.7"
 
     },
     "autoload": {
@@ -58,7 +59,8 @@
             "common\\utils\\": "common/utils",
             "entities\\": "entities",
             "services\\": "services",
-            "repositories\\": "repositories"
+            "repositories\\": "repositories",
+            "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services"
         }
     },
     "config": {
