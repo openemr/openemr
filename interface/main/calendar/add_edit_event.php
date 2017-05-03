@@ -1375,7 +1375,7 @@ $classpati='';
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
-<table border='0' width='100%' bgcolor='#DDDDDD'>
+<table border='0' class= "tabs_body" style= "padding:5px" width='100%' bgcolor='#DDDDDD'>
     <tr>
         <td width='1%' nowrap>
             <b><?php echo xlt('Category'); ?>:</b>
