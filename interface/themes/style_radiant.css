@@ -9966,3 +9966,11 @@ table.dataTable#therapy_groups_list tbody td{
 .sidebar {
     background-color: #f8f8f8;
 }
+
+.btn-default {
+    color: #444444 !important;
+}
+
+.btn-link {
+    color: #444444 !important;
+}
