@@ -721,9 +721,9 @@ while ($row = sqlFetchArray($res)) {
     echo ($i <= 1) ? " <tr>\n" : "";
     echo "  <td width='50%' align='center' nowrap>\n";
     echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
-    echo "    <option value=''> " . xlt(substr($fs_category, 1)) . "</option>\n";
+    echo "    <option value=''> " . xlt(substr($fs_category, 2)) . "</option>\n";
   }
-  echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, 1)) . "</option>\n";
+  echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, 2)) . "</option>\n";
 }
 endFSCategory();
 
