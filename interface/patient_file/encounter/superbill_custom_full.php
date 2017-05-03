@@ -368,332 +368,380 @@ foreach ($code_types as $key => $value) {
 
 </script>
 
+<style>
+.code_fieldset{
+	border: 1px solid #0000FF;
+	
+}
+
+.code_edit{
+	background-color:#E0E0E0;
+}
+
+.code_legend{
+	font-weight:700;
+	background-color:#E0E0E0;
+	padding:0px 5px 0px 5px;
+} 
+
+#code_edit_table span{
+	background-color:yellow;
+	font-weight:700;
+}
+
+#code_edit_table tr td {
+	padding: 0px 0px 5px 0px;
+}
+
+#code_edit_table .code_edit td {
+	font-weight: 700;
+	padding: 2px 0px 2px 0px;
+}
+
+#code_edit_table .code_edit td:first-child {
+	padding: 0px 0px 0px 10px;
+}
+</style>
+
 </head>
 <body class="body_top" >
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
 
-<input type='hidden' name='mode' value=''>
+	<input type='hidden' name='mode' value=''>
+		<fieldset class="code_fieldset">
+			<legend class="code_legend"><?php echo xlt('Modify Existing/Add New Code'); ?></legend>
+				<center>
+				<table border='0' cellpadding='0' cellspacing='0' id="code_edit_table">
+					<tr>
+						<td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br></td>
+					</tr>
+					<tr>
+						<td colspan="3"><?php echo xlt('To');?> <span><?php echo xlt('modify existing code');?></span> <?php echo xlt('search using the search box below and click Modify/Edit/Delete');?> > <?php echo xlt('make changes');?> > <?php echo xlt('click Update');?></td>
+					</tr>
+					<tr>
+						<td colspan="3" style="padding-bottom:10px"><?php echo xlt('To');?> <span><?php echo xlt('add new code');?></span> <?php echo xlt('first search to see if it exists');?>, <?php echo xlt('if it does not then add new code');?> > <?php echo xlt('click Add as New');?></td>
+					</tr>
 
-<br>
+					<tr class="code_edit">
+						<td><?php echo xlt('Type'); ?>:</td>
+						<td width="5"></td>
+						<td>
 
-<center>
-<table border='0' cellpadding='0' cellspacing='0'>
+							<?php if ($mode != "modify") { ?>
+							 <select name="code_type">
+							<?php } ?>
 
- <tr>
-  <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br><br></td>
- </tr>
+							<?php $external_sets = array(); ?>
+							<?php foreach ($code_types as $key => $value) { ?>
+								 <?php if ( !($value['external']) ) { ?>
+								   <?php if ($mode != "modify") { ?>
+									 <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
+								   <?php } ?>
+								 <?php } ?>
+								 <?php if ($value['external']) {
+								   array_push($external_sets,$key);
+								 } ?>
+							<?php } // end foreach ?>
 
- <tr>
-  <td><?php echo xlt('Type'); ?>:</td>
-  <td width="5">
-  </td>
-  <td>
+							<?php if ($mode != "modify") { ?>
+								</select>
+							<?php } ?>
 
-   <?php if ($mode != "modify") { ?>
-     <select name="code_type">
-   <?php } ?>
+							<?php if ($mode == "modify") { ?>
+								<input type='text' size='4' name='code_type' readonly='readonly' style='display:none' value='<?php echo attr($code_type) ?>' />
+								<?php echo attr($code_type_name_external) ?>
+							<?php } ?>
 
-   <?php $external_sets = array(); ?>
-   <?php foreach ($code_types as $key => $value) { ?>
-     <?php if ( !($value['external']) ) { ?>
-       <?php if ($mode != "modify") { ?>
-         <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
-       <?php } ?>
-     <?php } ?>
-     <?php if ($value['external']) {
-       array_push($external_sets,$key);
-     } ?>
-   <?php } // end foreach ?>
+							   &nbsp;&nbsp;
+							   <?php echo xlt('Code'); ?>:
 
-   <?php if ($mode != "modify") { ?>
-   </select>
-   <?php } ?>
+							   <?php if ($mode == "modify") { ?>
+								 <input type='text' size='6' name='code' readonly='readonly' value='<?php echo attr($code) ?>' />
+							   <?php } else { ?>
+								 <input type='text' size='6' name='code' value='<?php echo attr($code) ?>'
+								  onkeyup='maskkeyup(this,getCTMask())'
+								  onblur='maskblur(this,getCTMask())'
+								 />
+							   <?php } ?>
 
-   <?php if ($mode == "modify") { ?>
-      <input type='text' size='4' name='code_type' readonly='readonly' style='display:none' value='<?php echo attr($code_type) ?>' />
-      <?php echo attr($code_type_name_external) ?>
-   <?php } ?>
+							<?php if (modifiers_are_used()) { ?>
+							   &nbsp;&nbsp;<?php echo xlt('Modifier'); ?>:
+							   <?php if ($mode == "modify") { ?>
+								 <input type='text' size='6' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>'>
+							   <?php } else { ?>
+								 <input type='text' size='6' name='modifier' value='<?php echo attr($modifier) ?>'>
+							   <?php } ?>
+							<?php } else { ?>
+							   <input type='hidden' name='modifier' value=''>
+							<?php } ?>
 
-   &nbsp;&nbsp;
-   <?php echo xlt('Code'); ?>:
+							   &nbsp;&nbsp;
+							   <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == NULL) ) echo ' checked'; ?> />
+							   <?php echo xlt('Active'); ?>
+						</td>
+					</tr>
 
-   <?php if ($mode == "modify") { ?>
-     <input type='text' size='6' name='code' readonly='readonly' value='<?php echo attr($code) ?>' />
-   <?php } else { ?>
-     <input type='text' size='6' name='code' value='<?php echo attr($code) ?>'
-      onkeyup='maskkeyup(this,getCTMask())'
-      onblur='maskblur(this,getCTMask())'
-     />
-   <?php } ?>
+					<tr class="code_edit">
+						<td><?php echo xlt('Description'); ?>:</td>
+						<td></td>
+						<td>
 
-<?php if (modifiers_are_used()) { ?>
-   &nbsp;&nbsp;<?php echo xlt('Modifier'); ?>:
-   <?php if ($mode == "modify") { ?>
-     <input type='text' size='6' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>'>
-   <?php } else { ?>
-     <input type='text' size='6' name='modifier' value='<?php echo attr($modifier) ?>'>
-   <?php } ?>
-<?php } else { ?>
-   <input type='hidden' name='modifier' value=''>
-<?php } ?>
+							<?php if ($mode == "modify") { ?>
+								<input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
+							<?php } else { ?>
+								<input type='text' size='50' name="code_text" value='<?php echo attr($code_text) ?>'>
+							<?php } ?>
+						</td>
+					 </tr>
 
-   &nbsp;&nbsp;
-   <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == NULL) ) echo ' checked'; ?> />
-   <?php echo xlt('Active'); ?>
-  </td>
- </tr>
+					<tr class="code_edit">
+						<td><?php echo xlt('Category'); ?>:</td>
+						<td></td>
+						<td>
+							<?php
+							generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
+							?>
+							   &nbsp;&nbsp;
+							   <input type='checkbox' title='<?php echo xlt("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) echo ' checked'; ?> />
+							   <?php echo xlt('Diagnosis Reporting'); ?>
+							   &nbsp;&nbsp;&nbsp;&nbsp;
+							   <input type='checkbox' title='<?php echo xlt("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) echo ' checked'; ?> />
+							<?php echo xlt('Service Reporting'); ?>
+					    </td>
+					</tr>
 
- <tr>
-  <td><?php echo xlt('Description'); ?>:</td>
-  <td></td>
-  <td>
+					<tr<?php if (empty($GLOBALS['ippf_specific'])) {echo " style='display:none'";} else {echo " class='code_edit'";} ?>>
+						<td><?php echo xlt('CYP Factor'); ?>:</td>
+						<td></td>
+						<td>
+						   <input type='text' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor) ?>'>
+						</td>
+					</tr>
 
-   <?php if ($mode == "modify") { ?>
-     <input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
-   <?php } else { ?>
-     <input type='text' size='50' name="code_text" value='<?php echo attr($code_text) ?>'>
-   <?php } ?>
+					<tr<?php  if (!related_codes_are_used()) {echo " style='display:none'";} else{echo " class='code_edit'";} ?>>
+						<td><?php echo xlt('Relate To'); ?>:</td>
+						<td></td>
+						<td>
+							<input type='text' size='50' name='related_desc'
+								value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
+								title='<?php echo xla('Click to select related code'); ?>' readonly />
+							<input type='hidden' name='related_code' value='<?php echo attr($related_code) ?>' />
+						</td>
+					</tr>
 
-  </td>
- </tr>
+					<tr class="code_edit">
+						<td><?php echo xlt('Fees'); ?>:</td>
+						<td></td>
+						<td>
+							<?php
+							$pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
+							  "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+							  "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
+							  "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id) );
+							for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
+							  if ($i) echo "&nbsp;&nbsp;";
+							  echo text(xl_list_label($prow['title'])) . " ";
+							  echo "<input type='text' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
+								"value='" . attr($prow['pr_price']) . "' >\n";
+							}
+							?>
+						</td>
+					</tr>
 
- <tr>
-  <td><?php echo xlt('Category'); ?>:</td>
-  <td></td>
-  <td>
-<?php
-generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
-?>
-   &nbsp;&nbsp;
-   <input type='checkbox' title='<?php echo xlt("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) echo ' checked'; ?> />
-   <?php echo xlt('Diagnosis Reporting'); ?>
-   &nbsp;&nbsp;&nbsp;&nbsp;
-   <input type='checkbox' title='<?php echo xlt("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) echo ' checked'; ?> />
-   <?php echo xlt('Service Reporting'); ?>
-  </td>
- </tr>
+					<?php
+					$taxline = '';
+					$pres = sqlStatement("SELECT option_id, title FROM list_options " .
+					  "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
+					while ($prow = sqlFetchArray($pres)) {
+					  if ($taxline) $taxline .= "&nbsp;&nbsp;";
+					  $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
+					  if (strpos(":$taxrates", $prow['option_id']) !== false) $taxline .= " checked";
+					  $taxline .= " />\n";
+					  $taxline .=  text(xl_list_label($prow['title'])) . "\n";
+					}
+					if ($taxline) {
+					?>
+					<tr class="code_edit">
+						<td><?php echo xlt('Taxes'); ?>:</td>
+						<td></td>
+						<td>
+						   <?php echo $taxline ?>
+						</td>
+					</tr>
+					<?php } ?>
 
- <tr<?php if (empty($GLOBALS['ippf_specific'])) echo " style='display:none'"; ?>>
-  <td><?php echo xlt('CYP Factor'); ?>:</td>
-  <td></td>
-  <td>
-   <input type='text' size='10' maxlength='20' name="cyp_factor" value='<?php echo attr($cyp_factor) ?>'>
-  </td>
- </tr>
+					<tr>
+						<td colspan="3" align="center">
+							<input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
+							<input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
+							<input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
+							<?php if ($mode == "modify") { ?>
+								<a href='javascript:submitModifyComplete();' class='css_button link'>[<?php echo xlt('Update'); ?>]</a>
+							<?php } else { ?>
+								<a href='javascript:submitUpdate();' class='css_button link'><?php echo xlt('Update'); ?></a>
+							&nbsp;&nbsp;
+								<a href='javascript:submitAdd();' class='css_button link'><?php echo xlt('Add as New'); ?></a>
+							<?php } ?>
+						</td>
+					</tr>
 
- <tr<?php if (!related_codes_are_used()) echo " style='display:none'"; ?>>
-  <td><?php echo xlt('Relate To'); ?>:</td>
-  <td></td>
-  <td>
-   <input type='text' size='50' name='related_desc'
-    value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
-    title='<?php echo xla('Click to select related code'); ?>' readonly />
-   <input type='hidden' name='related_code' value='<?php echo attr($related_code) ?>' />
-  </td>
- </tr>
+				</table>
+		</fieldset>
+		<br>
+		<fieldset class="code_fieldset">
+			<legend class="code_legend"><?php echo xlt('Search for Existing Code')?></legend>
+				<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+				 <tr>
 
- <tr>
-  <td><?php echo xlt('Fees'); ?>:</td>
-  <td></td>
-  <td>
-<?php
-$pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
-  "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-  "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-  "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id) );
-for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
-  if ($i) echo "&nbsp;&nbsp;";
-  echo text(xl_list_label($prow['title'])) . " ";
-  echo "<input type='text' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
-    "value='" . attr($prow['pr_price']) . "' >\n";
-}
-?>
-  </td>
- </tr>
+				  <td class='text'>
+				   <select name='filter[]' multiple='multiple'>
+				<?php
+				foreach ($code_types as $key => $value) {
+				  echo "<option value='" . attr($value['id']) . "'";
+				  if (isset($filter) && in_array($value['id'],$filter)) echo " selected";
+				  echo ">" . xlt($value['label']) . "</option>\n";
+				}
+				?>
+				   </select>
+				   &nbsp;&nbsp;&nbsp;&nbsp;
 
-<?php
-$taxline = '';
-$pres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-while ($prow = sqlFetchArray($pres)) {
-  if ($taxline) $taxline .= "&nbsp;&nbsp;";
-  $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-  if (strpos(":$taxrates", $prow['option_id']) !== false) $taxline .= " checked";
-  $taxline .= " />\n";
-  $taxline .=  text(xl_list_label($prow['title'])) . "\n";
-}
-if ($taxline) {
-?>
- <tr>
-  <td><?php echo xlt('Taxes'); ?>:</td>
-  <td></td>
-  <td>
-   <?php echo $taxline ?>
-  </td>
- </tr>
-<?php } ?>
+				   <input type="text" name="search" size="35" value="<?php echo attr($search) ?>">&nbsp;
+				   <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>&nbsp;&nbsp;
+				   <input type='checkbox' title='<?php echo xlt("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) echo ' checked'; ?> />
+				   <?php echo xlt('Diagnosis Reporting Only'); ?>
+				   &nbsp;&nbsp;&nbsp;&nbsp;
+				   <input type='checkbox' title='<?php echo xlt("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) echo ' checked'; ?> />
+				   <?php echo xlt('Service Reporting Only'); ?>
+				   <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
+				  </td>
 
- <tr>
-  <td colspan="3" align="center">
-   <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
-   <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
-   <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
-   <?php if ($mode == "modify") { ?>
-     <a href='javascript:submitModifyComplete();' class='link'>[<?php echo xlt('Update'); ?>]</a>
-   <?php } else { ?>
-     <a href='javascript:submitUpdate();' class='link'>[<?php echo xlt('Update'); ?>]</a>
-     &nbsp;&nbsp;
-     <a href='javascript:submitAdd();' class='link'>[<?php echo xlt('Add as New'); ?>]</a>
-   <?php } ?>
-  </td>
- </tr>
+				  <td class='text' align='right'>
+				<?php if ($fstart) { ?>
+				   <a href="javascript:submitList(-<?php echo attr($pagesize) ?>)">
+					&lt;&lt;
+				   </a>
+				   &nbsp;&nbsp;
+				<?php } ?>
+				   <?php echo ($fstart + 1) . " - $fend of $count" ?>
+				   &nbsp;&nbsp;
+				   <a href="javascript:submitList(<?php echo attr($pagesize) ?>)">
+					&gt;&gt;
+				   </a>
+				  </td>
 
-</table>
-<br>
-<table border='0' cellpadding='5' cellspacing='0' width='96%'>
- <tr>
+				 </tr>
+				</table>
+		</fieldset>
+		<br>
+		<fieldset class="code_fieldset">
+			<legend class="code_legend"><?php echo xlt('Code Search Results')?></legend>
+				<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+					<tr class="head">
+						  <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Description'); ?></span></td>
+						  <td><span class='bold'><?php echo xlt('Short Description'); ?></span></td>
+						<?php if (related_codes_are_used()) { ?>
+						  <td><span class='bold'><?php echo xlt('Related'); ?></span></td>
+						<?php } ?>
+						<?php
+						$pres = sqlStatement("SELECT title FROM list_options " .
+						  "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
+						while ($prow = sqlFetchArray($pres)) {
+						  echo "  <td class='bold' align='right' nowrap>" . text(xl_list_label($prow['title'])) . "</td>\n";
+						}
+						?>
+						  <td></td>
+						  <td></td>
+					</tr>
+					<?php
 
-  <td class='text'>
-   <select name='filter[]' multiple='multiple'>
-<?php
-foreach ($code_types as $key => $value) {
-  echo "<option value='" . attr($value['id']) . "'";
-  if (isset($filter) && in_array($value['id'],$filter)) echo " selected";
-  echo ">" . xlt($value['label']) . "</option>\n";
-}
-?>
-   </select>
-   &nbsp;&nbsp;&nbsp;&nbsp;
+					if (isset($_REQUEST['filter'])) {
+					  $res = main_code_set_search($filter_key,$search,NULL,NULL,false,NULL,false,$fstart,($fend - $fstart),$filter_elements);
+					}
 
-   <input type="text" name="search" size="5" value="<?php echo attr($search) ?>">&nbsp;
-   <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>&nbsp;&nbsp;
-   <input type='checkbox' title='<?php echo xlt("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) echo ' checked'; ?> />
-   <?php echo xlt('Diagnosis Reporting Only'); ?>
-   &nbsp;&nbsp;&nbsp;&nbsp;
-   <input type='checkbox' title='<?php echo xlt("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) echo ' checked'; ?> />
-   <?php echo xlt('Service Reporting Only'); ?>
-   <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
-  </td>
+					for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
 
-  <td class='text' align='right'>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo attr($pagesize) ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-   <?php echo ($fstart + 1) . " - $fend of $count" ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo attr($pagesize) ?>)">
-    &gt;&gt;
-   </a>
-  </td>
+					if (!empty($all)) {
+					  $count = 0;
+					  foreach($all as $iter) {
+						$count++;
 
- </tr>
-</table>
+						$has_fees = false;
+						foreach ($code_types as $key => $value) {
+						  if ($value['id'] == $iter['code_type']) {
+							$has_fees = $value['fee'];
+							break;
+						  }
+						}
 
-</form>
+						echo " <tr>\n";
+						echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
+						echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
+						if ($iter["code_external"] > 0) {
+						  // If there is no entry in codes sql table, then default to active
+						  //  (this is reason for including NULL below)
+						  echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==NULL) ? xlt('Yes') : xlt('No')) . "</td>\n";
+						}
+						else {
+						  echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
+						}
+						echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
+						echo "  <td class='text'>" . ($iter["financial_reporting"] ? xlt('Yes') : xlt('No')) . "</td>\n";
+						echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
+						echo "  <td class='text'>" . text($iter['code_text']) . "</td>\n";
+						echo "  <td class='text'>" . text($iter['code_text_short']) . "</td>\n";
 
-<table border='0' cellpadding='5' cellspacing='0' width='96%'>
- <tr>
-  <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Description'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Short Description'); ?></span></td>
-<?php if (related_codes_are_used()) { ?>
-  <td><span class='bold'><?php echo xlt('Related'); ?></span></td>
-<?php } ?>
-<?php
-$pres = sqlStatement("SELECT title FROM list_options " .
-  "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
-while ($prow = sqlFetchArray($pres)) {
-  echo "  <td class='bold' align='right' nowrap>" . text(xl_list_label($prow['title'])) . "</td>\n";
-}
-?>
-  <td></td>
-  <td></td>
- </tr>
-<?php
+						if (related_codes_are_used()) {
+						  // Show related codes.
+						  echo "  <td class='text'>";
+						  $arel = explode(';', $iter['related_code']);
+						  foreach ($arel as $tmp) {
+							list($reltype, $relcode) = explode(':', $tmp);
+							$code_description = lookup_code_descriptions($reltype.":".$relcode);
+							echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
+						  }
+						  echo "</td>\n";
+						}
 
-if (isset($_REQUEST['filter'])) {
-  $res = main_code_set_search($filter_key,$search,NULL,NULL,false,NULL,false,$fstart,($fend - $fstart),$filter_elements);
-}
+						$pres = sqlStatement("SELECT p.pr_price " .
+						  "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+						  "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
+						  "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
+						while ($prow = sqlFetchArray($pres)) {
+						  echo "<td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
+						}
 
-for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
+						if ($iter["code_external"] > 0) {
+						  echo "  <td align='right'><a class='css_button link' href='javascript:submitModify(\"" . attr($iter['code_type_name']) . "\",\"" . attr($iter['code']) . "\",\"" . attr($iter['id']) . "\")'>" . xlt('Modify') . "</a></td>\n";
+						}
+						else {
+						  echo "  <td align='right'><a class='css_button link' href='javascript:submitDelete(" . attr($iter['id']) . ")'>" . xlt('Delete') . "</a></td>\n";
+						  echo "  <td align='right'><a class='css_button link' href='javascript:submitEdit("   . attr($iter['id']) . ")'>" . xlt('Edit') . "</a></td>\n";
+						}
 
-if (!empty($all)) {
-  $count = 0;
-  foreach($all as $iter) {
-    $count++;
+						echo " </tr>\n";
 
-    $has_fees = false;
-    foreach ($code_types as $key => $value) {
-      if ($value['id'] == $iter['code_type']) {
-        $has_fees = $value['fee'];
-        break;
-      }
-    }
+					  }
+					}
+					elseif (empty($all) && isset($_POST['go'])){
+						
+						echo "<tr><td>" .xl('No results found!'). " ". xl('Modify your search and try again.') ."</td></tr>";
+						$alertmsg = xl('No results found!') ." ". xl('Modify your search and try again.');
+					}
 
-    echo " <tr>\n";
-    echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
-    echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
-    if ($iter["code_external"] > 0) {
-      // If there is no entry in codes sql table, then default to active
-      //  (this is reason for including NULL below)
-      echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==NULL) ? xlt('Yes') : xlt('No')) . "</td>\n";
-    }
-    else {
-      echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
-    }
-    echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
-    echo "  <td class='text'>" . ($iter["financial_reporting"] ? xlt('Yes') : xlt('No')) . "</td>\n";
-    echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
-    echo "  <td class='text'>" . text($iter['code_text']) . "</td>\n";
-    echo "  <td class='text'>" . text($iter['code_text_short']) . "</td>\n";
+					?>
 
-    if (related_codes_are_used()) {
-      // Show related codes.
-      echo "  <td class='text'>";
-      $arel = explode(';', $iter['related_code']);
-      foreach ($arel as $tmp) {
-        list($reltype, $relcode) = explode(':', $tmp);
-        $code_description = lookup_code_descriptions($reltype.":".$relcode);
-        echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
-      }
-      echo "</td>\n";
-    }
-
-    $pres = sqlStatement("SELECT p.pr_price " .
-      "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-      "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-      "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
-    while ($prow = sqlFetchArray($pres)) {
-      echo "<td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
-    }
-
-    if ($iter["code_external"] > 0) {
-      echo "  <td align='right'><a class='link' href='javascript:submitModify(\"" . attr($iter['code_type_name']) . "\",\"" . attr($iter['code']) . "\",\"" . attr($iter['id']) . "\")'>[" . xlt('Modify') . "]</a></td>\n";
-    }
-    else {
-      echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . attr($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
-      echo "  <td align='right'><a class='link' href='javascript:submitEdit("   . attr($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
-    }
-
-    echo " </tr>\n";
-
-  }
-}
-
-?>
-
-</table>
-
-</center>
+				</table>
+		</fieldset>
+		</center>
+	</form>
+				
 
 <script language="JavaScript">
 <?php
