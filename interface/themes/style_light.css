@@ -40,7 +40,7 @@ a:hover {
     z-index:100;
      }
 
-    .container{
+    .menuBar .container{
     margin-top:95px;
 }
 
@@ -725,6 +725,15 @@ tr.odd, td.even {
 }
 .css_btn:hover{
   color: orangered;
+}
+
+.btn-default {
+  background: rgba(0,0,0,0.05) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+
+.btn-link {
+  color: #444 !important;
 }
 
 input[type="button"][style="background-color:#ffff55"] {

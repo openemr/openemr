@@ -539,7 +539,14 @@ table.dataTable#therapy_groups_list tbody td{
 #file_type_whitelist #add-manually-input{
 	width: 190px;
 }
-#file_type_whitelist .top-list{
+#file_type_whitelist .top-list {
 	margin: 20px 20px 2px 20px;
+}
 
+.btn-default {
+	color: #444444 !important;
+}
+
+.btn-link {
+	color: #444444 !important;
 }
