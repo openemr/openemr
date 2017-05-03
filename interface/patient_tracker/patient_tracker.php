@@ -249,7 +249,7 @@ function openNewTopWindow(newpid,newencounterid) {
                         ?>
                     </select>
                 </td>
-                <td style="border-left: 1px solid;">
+                <td class="divider" style="border-left: 1px solid;">
                     <div style='margin-left: 15px'>
                         <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <span> <?php echo xlt('Submit'); ?> </span> </a>
