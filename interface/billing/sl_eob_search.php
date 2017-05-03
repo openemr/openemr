@@ -547,7 +547,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
 
    <table border='0' cellpadding='5' cellspacing='0'>
 
-     <tr bgcolor='#ddddff'>
+     <tr class = "tabs_body_light" bgcolor='#ddddff'>
       <td>
        <?php xl('Name:','e'); ?>
      </td>
@@ -609,7 +609,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
            </td>
        </tr>
  <!-- Support for X12 835 upload -->
- <tr bgcolor='#ddddff'>
+ <tr class = "tabs_body_light" bgcolor='#ddddff'>
   <td colspan='12'>
    <?php xl('Or upload ERA file:','e'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />

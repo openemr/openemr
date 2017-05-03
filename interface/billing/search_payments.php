@@ -402,8 +402,8 @@ document.onclick=HideTheAjaxDivs;
   </tr>
   <tr>
     <td colspan="3" align="left" >
-    <table width="974" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="954" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+    <table width="974" border="0" cellspacing="0" cellpadding="10" class = "tabs_body" bgcolor="#DEDEDE"><tr><td>
+	<table width="954" border="0" style="border:1px solid" class="divider" cellspacing="0" cellpadding="0">
 	  <tr height="5">
 		<td width="954" colspan="6" align="left" ></td>
 	  </tr>
@@ -468,7 +468,7 @@ document.onclick=HideTheAjaxDivs;
           </tr>
           <tr>
             <td align="right"></td>
-			<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+			<td align="left" type="text" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
 			<td align="left" colspan="5" >
 
 			<table width="335" border="0" cellspacing="0" cellpadding="0">
