@@ -1098,7 +1098,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 
-    $amendment = new Amendment();
+    $amendment = new Amendment($GLOBALS['twigLoader'], $GLOBALS['twig']);
     $amendment->getList($pid);
 ?>
   </td>

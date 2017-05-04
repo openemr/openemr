@@ -4,16 +4,16 @@ Display a list of amendments
 @package OpenEMR
 @subpackage Amendment
 @author Robert Down
-@copyright Copyright (C) 2017 Robert Down
+@copyright Copyright 2017 Robert Down
 @license http://opensource.org/licenses/gpl-license.php General Public License 3
 #}
 
-{% extends "base.html" %}
+{% extends "base.html.twig" %}
 
 {% block body %}
 <div class="row">
     <div class="col-xs-6">
-        <a href="#" class="btn btn-default btn-small" data-toggle="modal" data-target="#add-amendment-form"><i class="fa fa-plus"></i>&nbsp;{{'Add'|translate}}</a>
+        <a href="#" class="btn btn-default btn-small" data-toggle="modal" data-target="#modal-add-amendment"><i class="fa fa-plus"></i>&nbsp;{{'Add'|translate}}</a>
         <a href="#" class="btn btn-default btn-small"><i class="fa fa-print"></i>&nbsp;{{'Print'|translate}}</a>
     </div>
     <div class="col-xs-6 text-right">
@@ -53,7 +53,7 @@ Display a list of amendments
         </table>
     </div>
 </div>
-<div class="modal fade" id="modal-add-amendment" tabindex="-1" role="dialog" aria-labelledby="add-amendment-label">
+<div class="modal" id="modal-add-amendment" tabindex="-1" role="dialog" aria-labelledby="add-amendment-label">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -61,11 +61,35 @@ Display a list of amendments
                 <h4 class="modal-title" id="add-amendment-label">{{'Add Amendment'|translate}}</h4>
             </div>
             <div class="modal-body">
-                . . .
+                <form action="add_edit_amendments.php"
+                      name="add_edit_amendment#add_edit_amendment"
+                      method="post">
+                    <div class="form-group">
+                        <label for="amendment_date" class="control-label">{{ 'Requested Date'|translate }}</label>
+                        <input type="text" size="10" name="amendment_date"
+                               id="amendment_date" class="form-control datepicker">
+                    </div>
+                    <div class="form-group">
+                        <label for="amendment_from" class="control-label">{{ 'Requested By'|translate }}</label>
+                        Select box goes here
+                    </div>
+                    <div class="form-group">
+                        <label for="amenendment_status" class="control-label">{{ 'Request Status'|translate }}</label>
+                        Select box goes here
+                    </div>
+                    <div class="form-group">
+                        <label for="desc" class="control-label">{{ 'Request Description'|translate }}</label>
+                        <textarea name="description" id="desc" rows="7" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="desc" class="control-label">{{ 'Comments'|translate }}</label>
+                        <textarea name="notel" id="note" rows="4" class="form-control">{{ 'New amendment request'|translate }}</textarea>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer text-right">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{'Close'|translate}}</button>
-                <button type="button" class="btn btn-primary">{{'Save changes'|translate}}</button>
+                <button type="button" class="btn btn-primary"><i class="fa fa-checkmark"></i>&nbsp;{{'Save'|translate}}</button>
             </div>
         </div>
     </div>

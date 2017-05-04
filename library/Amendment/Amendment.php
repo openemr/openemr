@@ -1,6 +1,19 @@
 <?php
 /**
- * Intermediary bridge to Amendment data
+ * OpenEMR (http://open-emr.org)
+ *
+ *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License, version 3
+ */
+
+namespace OpenEMR\Amendment;
+
+use Twig_Environment;
+use Twig_Loader_Filesystem;
+use OpenEMR\Amendment\Service\Amendment as Service;
+
+/**
+ * Intermediary bridge to Amendment data.
  *
  * This class acts as a pseudo-controller for amendment data. Although the
  * Amendment Service could be accessed directly, it is better to interact with
@@ -9,48 +22,30 @@
  * appropriate for business-level logic). Another example is the usage of twig
  * and the HttpFoundation Request object.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @package OpenEMR
  * @subpackage Amendment
  * @author Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2017 Robert Down
- * @license https://opensource.org/licenses/GPL-3.0 GNU General Public License 3
  */
-
-namespace OpenEMR\Amendment;
-
-
-use Twig_Environment;
-use Twig_Loader_Filesystem;
-use Twig_Extension_Debug;
-use OpenEMR\Amendment\Service\Amendment as Service;
-
-
 class Amendment
 {
 
+    /** @var  Twig_Environment */
     protected $twig;
 
     /** @var Service  */
     protected $service;
 
-    public function __construct()
+    /**
+     * Amendment constructor.
+     * @param Twig_Loader_Filesystem $loader
+     * @param Twig_Environment $twig
+     */
+    public function __construct(Twig_Loader_Filesystem $loader, Twig_Environment $twig)
     {
         $viewFolder = dirname(__FILE__) . "/Resources/views";
-        /** Twig_Loader_Filesystem */
-        $GLOBALS['twigLoader']->addPath($viewFolder);
+        $loader->addPath($viewFolder);
+        $this->twig = $twig;
         $this->service = new Service();
     }
 
@@ -59,50 +54,61 @@ class Amendment
         var_dump($this->service->get($id));
     }
 
+    /**
+     * Render an twig template of the list of amendments for this patient.
+     *
+     * Create easier twig variables here
+     * @param $pid integer
+     */
     public function getList($pid)
     {
         $rawList = $this->service->all($pid);
         $list = [];
 
-        if (count($list) == 0) {
-            // Display a different template here
-        }
-
         // Preprocess elements and push to better key-named array
         foreach ($rawList as $amendmentItem) {
-            $tmpList = [];
-            foreach ($amendmentItem as $item => $value) {
-                switch ($item) {
-                    case 'amendment_id':
-                        $tmpList['id'] = attr($value);
-                        break;
-                    case 'amendment_date':
-                        $tmpList['date'] = oeFormatShortDate($value);
-                        break;
-                    case 'amendment_desc':
-                        $tmpList['description'] = text($value);
-                        break;
-                    case 'amendment_by':
-                        $displayArray = ['data_type' => 1, 'list_id' => 'amendment_from'];
-                        $tmpList['by'] = generate_display_field($displayArray, $value);
-                        break;
-                    case 'amendment_status':
-                        $displayArray = ['data_type' => 1, 'list_id' => 'amendment_status'];
-                        $tmpList['status'] = generate_display_field($displayArray, $value);
-                        break;
-                    default:
-                        $tmpList[$item] = $value;
-                        break;
-                }
-            }
-            $list[] = $tmpList;
+            $list[] = $this->parseAmendment($amendmentItem);
         }
 
         $viewArgs = [
-            'assets_dir' => $GLOBALS['assets_static_relative'],
             'list' => $list,
         ];
 
-        echo $GLOBALS['twig']->render('list.html', $viewArgs);
+        echo $this->twig->render('list.html.twig', $viewArgs);
+    }
+
+    /**
+     * Parse amendment data for easier twig variables.
+     * @param array $amendment
+     * @return array Parsed amendment
+     */
+    private function parseAmendment(array $amendment)
+    {
+        $parsed = [];
+        foreach ($amendment as $item => $value) {
+            switch ($item) {
+                case 'amendment_id':
+                    $parsed['id'] = attr($value);
+                    break;
+                case 'amendment_date':
+                    $parsed['date'] = oeFormatShortDate($value);
+                    break;
+                case 'amendment_desc':
+                    $parsed['description'] = text($value);
+                    break;
+                case 'amendment_by':
+                    $displayArray = ['data_type' => 1, 'list_id' => 'amendment_from'];
+                    $parsed['by'] = generate_display_field($displayArray, $value);
+                    break;
+                case 'amendment_status':
+                    $displayArray = ['data_type' => 1, 'list_id' => 'amendment_status'];
+                    $parsed['status'] = generate_display_field($displayArray, $value);
+                    break;
+                default:
+                    $parsed[$item] = $value;
+                    break;
+            }
+        }
+        return $parsed;
     }
 }
