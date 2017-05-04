@@ -1789,7 +1789,7 @@ else{
   <td nowrap>&nbsp;
 
   </td>
-  <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
+  <td nowrap id='tdrepeat2'><?php echo xlt('until date'); ?>
   </td>
   <td nowrap>
    <input   type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
