@@ -71,7 +71,6 @@
     "summernote-0-8-2": "summernote#0.8.2",
     "underscore-1-8-3": "underscore#1.8.3",
     "undone.js-0-0-1": "https://github.com/yckart/undone.js.git#0.0.1",
-    "validate.js-0-10-0": "validate.js#0.10.0",
-    "bootstrap-sidebar": "bootstrap-sidebar#0.2.2"
+    "validate.js-0-10-0": "validate.js#0.10.0"
   }
 }
