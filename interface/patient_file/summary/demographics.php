@@ -41,6 +41,12 @@ $fake_register_globals=false;
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
 use OpenEMR\Amendment\Amendment;
+use Symfony\Component\HttpFoundation\Request;
+
+$request = Request::createFromGlobals();
+
+if ($request->)
+
 
   if (isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");

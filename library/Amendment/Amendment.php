@@ -8,6 +8,8 @@
 
 namespace OpenEMR\Amendment;
 
+require_once dirname(__FILE__) . "../../interface/globals.php";
+
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use OpenEMR\Amendment\Service\Amendment as Service;
@@ -30,7 +32,7 @@ use OpenEMR\Amendment\Service\Amendment as Service;
 class Amendment
 {
 
-    /** @var  Twig_Environment */
+    /** @var Twig_Environment */
     protected $twig;
 
     /** @var Service  */
