@@ -396,10 +396,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		<td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo text(oeFormatShortDate($appointment['pc_eventDate'])) ?>
 		</td>
 
-		<td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
+		<td class="detail" style= 'font-weight:600'><?php echo oeFormatTime($appointment['pc_startTime']) ?>
 		</td>
 
-		<td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
+		<td class="detail" style= 'font-weight:600'>&nbsp;<?php echo $appointment['fname'] . " " . $appointment['lname'] ?>
 		</td>
 
 		<td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>

@@ -210,7 +210,7 @@ $res = sqlStatement($query);
 <div id="report_parameters">
 <table>
  <tr>
-  <td width='550px'>
+  <td width='950px'>
 	<div style='float:left'>
 
 	<table class='text'>

@@ -971,6 +971,7 @@ function uses_description($form_by) {
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $report_title; ?></title>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }

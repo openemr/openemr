@@ -353,6 +353,7 @@ if (! $_POST['form_csvexport']) {
 </body>
 
 <!-- stuff for the popup calendar -->
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>

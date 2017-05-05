@@ -108,8 +108,8 @@ require_once("../globals.php");
 
 </head>
 <body class="login">
-    <div class="container">
-        <form method="POST" id="login_form"
+    <div class="container" style = "max-width:500px;margin-top:5%">
+        <form method="POST" id="loginForm"
             action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
             target="_top" name="login_form" onsubmit="return imsubmitted();">
             <div class="row">

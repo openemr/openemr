@@ -279,6 +279,9 @@ if ($form_patient == '' ) $form_pid = '';
         <table style='border-left: 1px solid; width: 100%; height: 100%'>
             <tr>
                 <td>
+				&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?>
+				<br>
+				<br>
                 <div style='margin-left: 15px'>
                                 <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                 <span> <?php echo xlt('Submit'); ?> </span> </a> 
@@ -289,7 +292,7 @@ if ($form_patient == '' ) $form_pid = '';
                 </div>
                     </td>
             </tr>
-                        <tr>&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?></tr>
+                       
         </table>
         </td>
     </tr>

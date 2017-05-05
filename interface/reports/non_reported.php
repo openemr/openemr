@@ -301,7 +301,7 @@ onsubmit='return top.restoreSession()'>
 <input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>
 <table>
  <tr>
-  <td width='410px'>
+  <td width='800px'>
     <div style='float:left'>
       <table class='text'>
         <tr>

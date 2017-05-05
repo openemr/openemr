@@ -398,7 +398,7 @@ $GLOBALS['logoBarHeight'] = 110;
 // The height in pixels of the Navigation bar:
 $GLOBALS['navBarHeight'] = 22;
 // The height in pixels of the Title bar:
-$GLOBALS['titleBarHeight'] = 40;
+$GLOBALS['titleBarHeight'] = 50;
 
 // The assistant word, MORE printed next to titles that can be clicked:
 //   Note this label gets translated here via the xl function
@@ -452,8 +452,7 @@ if (!$ignoreAuth) {
 
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
-$GLOBALS['layout_search_color'] = '#ffff55';
-
+$GLOBALS['layout_search_color'] = '#ff9919'; //RP_MODIFIED 7/8/2016
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
