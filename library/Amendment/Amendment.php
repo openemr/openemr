@@ -57,7 +57,7 @@ class Amendment
     /**
      * Render an twig template of the list of amendments for this patient.
      *
-     * Create easier twig variables here
+     * Create easier twig variables here.
      * @param $pid integer
      */
     public function getList($pid)
@@ -70,11 +70,29 @@ class Amendment
             $list[] = $this->parseAmendment($amendmentItem);
         }
 
+        $requested_by_select = generate_select_list("form_amendment_by",
+            "amendment_from",
+            "",
+            "Amendment Request By",
+            "", "form-control", "", "", "");
+
+        $status = generate_select_list(
+            "form_amendment_status",
+            "amendment_status",
+            "",
+            'Amendment Status',
+            ' ','','','','');
+
+
         $viewArgs = [
             'list' => $list,
+            'add' => [
+                'requested_by_selectbox' => $requested_by_select,
+                'status_selectbox' => $status,
+            ]
         ];
 
-        echo $this->twig->render('list.html.twig', $viewArgs);
+        echo $this->twig->render('amendment.html.twig', $viewArgs);
     }
 
     /**

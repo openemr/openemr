@@ -63,19 +63,21 @@ Display a list of amendments
             <div class="modal-body">
                 <form action="add_edit_amendments.php"
                       name="add_edit_amendment#add_edit_amendment"
-                      method="post">
-                    <div class="form-group">
-                        <label for="amendment_date" class="control-label">{{ 'Requested Date'|translate }}</label>
-                        <input type="text" size="10" name="amendment_date"
-                               id="amendment_date" class="form-control datepicker">
-                    </div>
-                    <div class="form-group">
-                        <label for="amendment_from" class="control-label">{{ 'Requested By'|translate }}</label>
-                        Select box goes here
-                    </div>
-                    <div class="form-group">
-                        <label for="amenendment_status" class="control-label">{{ 'Request Status'|translate }}</label>
-                        Select box goes here
+                      method="post" class="">
+                    <div class="form-inline form-group">
+                        <div class="form-group">
+                            <label for="amendment_date" class="control-label">{{ 'Request Date'|translate }}</label>
+                            <input type="text" size="10" name="amendment_date"
+                                   id="amendment_date" class="datepicker form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="amendment_from" class="control-label">{{ 'By'|translate }}</label>
+                            {{ add.requested_by_selectbox|raw }}
+                        </div>
+                        <div class="form-group">
+                            <label for="amenendment_status" class="control-label">{{ 'Status'|translate }}</label>
+                            {{ add.status_selectbox|raw }}
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="desc" class="control-label">{{ 'Request Description'|translate }}</label>
@@ -87,9 +89,12 @@ Display a list of amendments
                     </div>
                 </form>
             </div>
-            <div class="modal-footer text-right">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{'Close'|translate}}</button>
-                <button type="button" class="btn btn-primary"><i class="fa fa-checkmark"></i>&nbsp;{{'Save'|translate}}</button>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary"><i class="fa fa-check"></i>&nbsp;{{'Save'|translate}}</button>
+                    <a href="#" role="button" class="btn btn-link" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{'Close'|translate}}</a>
+                </div>
+                <div class="clearfix">&nbsp;</div>
             </div>
         </div>
     </div>
