@@ -90,7 +90,8 @@ class ViewHelper
         $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
         // Standard menu item dropdown support
-        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-chevron-right"></i>&nbsp;{linkText}</a>{submenuList}</li>';
+        $iconChevronDirection = $_SESSION['language_direction'] == 'rtl' ? 'fa-chevron-left' : 'fa-chevron-right';
+        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw ' . $iconChevronDirection .'"></i>&nbsp;{linkText}</a>{submenuList}</li>';
 
         // Dropdown menu
         $submenuList = '<ul class="nav navbar-stacked hidden submenu">{submenuListItems}</ul>';
@@ -156,7 +157,7 @@ class ViewHelper
 
                 $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
 
-                $menu = $menu . str_replace("{linkText}", $group['name'], $elementContainer);
+                $menu = $menu . str_replace("{linkText}", xlt($group['name']), $elementContainer);
             }
         }
         return $menu;

@@ -404,7 +404,7 @@ require_once("new_form.php");
 $(document).ready(function(){
     $('li.dropdown').on('click', 'a.dropdown-toggle', function(){
         var icon = $(this).children("i");
-        var defaultIcon = 'fa-chevron-right';
+        var defaultIcon =  "<?php echo $_SESSION['language_direction'] == 'rtl' ? 'fa-chevron-left' : 'fa-chevron-right'; ?>";
         var toggledIcon = 'fa-chevron-down';
         if ($(icon).hasClass(defaultIcon)) {
             $(icon).removeClass(defaultIcon);
@@ -423,7 +423,7 @@ $(document).ready(function(){
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-sidebar-0-2-2/dist/js/sidebar.js"></script>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-12 col-sm-2 sidebar sidebar-left sidebar-md-show">
+        <div class="col-xs-12 col-sm-2 sidebar sidebar-md-show <?php echo $_SESSION['language_direction'] == 'rtl' ? 'sidebar-right' : 'sidebar-left'; ?>">
             <ul class="nav navbar-stacked mainmenu">
                 <?php echo $menu; ?>
             </ul>
