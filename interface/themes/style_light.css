@@ -1527,11 +1527,9 @@ table.dataTable#therapy_groups_list tbody td{
 }
 
 .btn-delete::before {
-    font-family: "FontAwesome";
     content: '\f014\00a0\00a0';
 }
 
 .btn-duplicate::before {
-    font-family: "FontAwesome";
     content: '\f0c5\00a0\00a0';
 }
