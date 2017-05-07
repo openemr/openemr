@@ -980,9 +980,10 @@ if ($_POST['form_action'] == "save") {
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $eid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Event');?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
+<?php
+$include_standard_style_js = ['datetimepicker'];
+require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+?>
 <style>
 td { font-size:0.8em; }
 </style>
@@ -1854,21 +1855,16 @@ if ($repeatexdate != "") {
 </table></td></tr>
 
 <tr class='text'><td colspan='10' class="buttonbar">
-<p>
-<input    type='button' name='form_save' id='form_save' value='<?php echo xla('Save');?>' />
-&nbsp;
-
+<div class="btn-group" role="group">
+<button type="button" name='form_save' class="btn btn-default btn-save" id='form_save'><?php echo xla('Save');?></button>
 <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-  <input     type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
+<button type='button' id='find_available' class="btn btn-default btn-search"><?php echo xla('Find Available');?></button>
 <?php } ?>
-
-&nbsp;
-<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
-&nbsp;
-<input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
-&nbsp;
-<input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
-</p></td></tr></table>
+<button type='button' class="btn btn-default btn-delete" name='form_delete' id='form_delete'<?php if (!$eid) echo " disabled" ?>><?php echo xla('Delete');?></button>
+<button type='button' class="btn btn-default btn-cancel" id='cancel'><?php echo xla('Cancel');?></button>
+<button type='button' class="btn btn-default btn-duplicate"name='form_duplicate' id='form_duplicate'><?php echo xla('Create Duplicate');?></button>
+</div>
+</td></tr></table>
 <?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
   text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
 </center>
