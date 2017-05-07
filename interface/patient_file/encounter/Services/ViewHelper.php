@@ -85,15 +85,15 @@ class ViewHelper
     static function createEncounterMenu(array $elements)
     {
         // Standard menu item with no dropdown
-        $menuListItem = '<li><a href="{href}" {class} {atts} >{linkText}</a></li>';
+        $menuListItem = '<li><a href="{href}" {class} {atts} ><i class="fa fa-fw"></i>&nbsp;{linkText}</a></li>';
 
-        $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
+        $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
         // Standard menu item dropdown support
-        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{linkText}&nbsp;<i class="fa fa-chevron-down"></i></a>{submenuList}</li>';
+        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-chevron-right"></i>&nbsp;{linkText}</a>{submenuList}</li>';
 
         // Dropdown menu
-        $submenuList = '<ul class="dropdown-menu">{submenuListItems}</ul>';
+        $submenuList = '<ul class="nav navbar-stacked hidden submenu">{submenuListItems}</ul>';
 
         $menu = "";
         foreach ($elements as $group) {

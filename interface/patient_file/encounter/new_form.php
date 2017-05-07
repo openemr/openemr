@@ -124,18 +124,26 @@ $patientName = implode(" ", $patientNameArray);
                 <span class="sr-only"><?php echo xlt("Toggle Navigation");?></span>
                 <i class="fa fa-bars"></i>
             </button>
+            <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar">
+                <span class="sr-only">{php} echo xlt('Toggle navigation'){/php}</span>
+                <i class="fa fa-bars fa-inverted"></i>
+            </button>
             <a class="navbar-brand" href="#"><?php echo oeFormatShortDate($encounter_date);?> <?php echo xlt("Encounter");?> <?php echo xlt("for");?> <?php echo $patientName;?></a>
         </div>
 
         <div class="collapse navbar-collapse" id="menu-encounter">
             <ul class="nav navbar-nav">
-                <?php echo $menu;?>
+                <li>
+                    <a href="#" class="" onClick='expandcollapse("expand");'><?php xl('Expand All', 'e'); ?></a>
+                </li>
+                <li>
+                    <a href="#" class="" onClick='expandcollapse("collapse");'><?php xl('Collapse All', 'e'); ?></a>
+                </li>
             </ul>
-
             <?php if (acl_check('admin', 'super')): ?>
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="toggledivs(this.id, this.id)" onclick="return deleteme()"><i class="fa fa-times"></i>&nbsp;<?php echo xl("Delete Encounter");?></a>
+                    <a href="toggledivs(this.id, this.id)" onclick="return deleteme()"><i class="fa fa-trash"></i>&nbsp;<?php echo xl("Delete Encounter");?></a>
                 </li>
             </ul>
             <?php endif; ?>
