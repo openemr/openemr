@@ -423,11 +423,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
+            <button id="submit_btn" class="css_button btn-save" type="submit" disabled="disabled"><?php xl('Save','e'); ?></button>
         </td>
 		<td>
-			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
-			<span><?php xl('Cancel','e'); ?></span>
+			<a class="css_button btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+			<?php xl('Cancel','e'); ?>
 			</a>
 		</td>
 	</tr>

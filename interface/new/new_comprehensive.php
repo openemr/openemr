@@ -80,6 +80,9 @@ $fres = getLayoutRes();
 <head>
 <?php html_header_show(); ?>
 
+<?php
+require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
@@ -739,11 +742,9 @@ if (! $GLOBALS['simplified_demographics']) {
 <?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
 <br />
 <?php if ($WITH_SEARCH) { ?>
-<input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
- style='background-color:<?php echo $searchcolor; ?>' />
-&nbsp;&nbsp;
+<button type="button" id="search" class="btn btn-search btn-default"><?php xl('Search', 'e');?></button>
 <?php } ?>
-<input type="button" name='create' id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
+<button type="button" name='create' id="create" class="btn btn-default btn-add"><?php xl('Create New Patient','e'); ?></button>
 
 </center>
 
