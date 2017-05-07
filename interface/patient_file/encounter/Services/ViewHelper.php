@@ -157,7 +157,7 @@ class ViewHelper
 
                 $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
 
-                $menu = $menu . str_replace("{linkText}", $group['name'], $elementContainer);
+                $menu = $menu . str_replace("{linkText}", xlt($group['name']), $elementContainer);
             }
         }
         return $menu;
