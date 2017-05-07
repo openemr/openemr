@@ -25,9 +25,9 @@ if (empty($_REQUEST['include_uncat']))
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <style type="text/css">
 
@@ -62,12 +62,8 @@ table.mymaintable td, table.mymaintable th {
  padding: 1pt 4pt 1pt 4pt;
 }
 </style>
-<title><?php xl('Services by Category','e'); ?></title>
 
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<title><?php xl('Services by Category','e'); ?></title>
 
 <script language="JavaScript">
 
@@ -99,7 +95,7 @@ table.mymaintable td, table.mymaintable th {
 	<table class='text'>
 		<tr>
 			<td>
-			   <select name='filter'>
+			   <select name='filter' class='form-control'>
 				<option value='0'><?php xl('All','e'); ?></option>
 			<?php
 			foreach ($code_types as $key => $value) {
@@ -111,8 +107,10 @@ table.mymaintable td, table.mymaintable th {
 			   </select>
 			</td>
 			<td>
-			   <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-			   <?php xl('Include Uncategorized','e'); ?>
+        <div class="checkbox">
+			    <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
+			    <?php xl('Include Uncategorized','e'); ?></label>
+        </div>
 			</td>
 		</tr>
 	</table>

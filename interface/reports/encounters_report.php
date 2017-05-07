@@ -133,8 +133,8 @@ $res = sqlStatement($query);
 <?php html_header_show();?>
 <title><?php echo xlt('Encounters Report'); ?></title>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
 
 <style type="text/css">
 
@@ -162,12 +162,6 @@ $res = sqlStatement($query);
 }
 
 </style>
-
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -211,7 +205,7 @@ $res = sqlStatement($query);
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form method='post' name='theform' id='theform' action='encounters_report.php'>
+<form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 <table>
@@ -221,13 +215,13 @@ $res = sqlStatement($query);
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility($form_facility, 'form_facility', true); ?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('Provider'); ?>:
 			</td>
 			<td>
@@ -241,7 +235,7 @@ $res = sqlStatement($query);
 
 				 $ures = sqlStatement($query);
 
-				 echo "   <select name='form_provider'>\n";
+				 echo "   <select name='form_provider' class='form-control'>\n";
 				 echo "    <option value=''>-- " . xlt('All') . " --\n";
 
 				 while ($urow = sqlFetchArray($ures)) {
@@ -255,44 +249,52 @@ $res = sqlStatement($query);
 
 				?>
 			</td>
-			<td>
-       <label><input type='checkbox' name='form_new_patients' title='First-time visits only'<?php  if ($form_new_patients) echo ' checked'; ?>>
-        <?php  echo xlt('New'); ?></label>
-			</td>
-           	<td>
-			   <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) echo ' checked'; ?>>
-			   <?php  echo xlt('Forms Esigned'); ?></label>
-			</td>
-           	<td>
-			   <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) echo ' checked'; ?>>
-			   <?php  echo xlt('Encounter Esigned'); ?></label>
-			</td>
 		</tr>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td>
-			   <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
-			   <?php echo xlt('Details'); ?></label>
-			</td>
-           	<td>
-			   <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) echo ' checked'; ?>>
-			   <?php echo xlt('Not Esigned'); ?></label>
-			</td>
 		</tr>
-	</table>
+    <tr>
+      <td></td>
+      <td>
+        <div class="checkbox">
+          <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
+            <?php echo xlt('Details'); ?></label>
+        </div>
+        <div class="checkbox">
+          <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php  if ($form_new_patients) echo ' checked'; ?>>
+            <?php  echo xlt('New'); ?></label>
+        </div>
+      </td>
+      <td></td>
+      <td>
+        <div class="checkbox">
+          <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) echo ' checked'; ?>>
+            <?php  echo xlt('Forms Esigned'); ?></label>
+        </div>
+        <div class="checkbox">
+          <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) echo ' checked'; ?>>
+            <?php  echo xlt('Encounter Esigned'); ?></label>
+        </div>
+        <div class="checkbox">
+          <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) echo ' checked'; ?>>
+            <?php echo xlt('Not Esigned'); ?></label>
+        </div>
+      </td>
+    </tr>
+  </table>
 
 	</div>
 

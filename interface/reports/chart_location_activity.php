@@ -21,7 +21,8 @@ $form_patient_id = trim($_POST['form_patient_id']);
 <?php html_header_show(); ?>
 <title><?php echo xlt('Chart Location Activity'); ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -48,8 +49,6 @@ $form_patient_id = trim($_POST['form_patient_id']);
 }
 
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 
 <script language="JavaScript">
  $(document).ready(function() {
@@ -96,7 +95,7 @@ if (!empty($ptrow)) {
 <div id="report_parameters_daterange">
 </div>
 
-<form name='theform' id='theform' method='post' action='chart_location_activity.php'>
+<form name='theform' id='theform' method='post' action='chart_location_activity.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -108,11 +107,11 @@ if (!empty($ptrow)) {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('Patient ID'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
+			   <input type='text' name='form_patient_id' class='form-control' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
 				title='<?php echo xla('Patient ID'); ?>' />
 			</td>
 		</tr>
