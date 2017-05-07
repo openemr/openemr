@@ -210,8 +210,7 @@ class ViewHelper
      */
     static function parseRegistry(array $registry, $oldCategory = '')
     {
-        global $old_category;
-        $prevCategory = '';
+        $prevCategory = 'null';
         $return = array();
         foreach ($registry as $item) {
             $tmp = explode('|', $item['aco_spec']);
@@ -224,23 +223,30 @@ class ViewHelper
             $category = (trim($item['category']) == '') ? xlt("Miscellaneous") : xlt(trim($item['category']));
             $nickname = (trim($item['nickname']) == '') ? $item['name'] : $item['nickname'];
 
+            $formName = urlencode($item['directory']);
+            $rootDir = "/interface";
+            $tmp = [
+                'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$formName}",
+                'name' => xl_form_title($nickname),
+                'class' => 'menu-item-action',
+            ];
+
+            $previousElement = (count($return) == 0) ? 0 : count($return) - 1;
+
             if ($category == $prevCategory) {
-                $formName = urlencode($item['directory']);
-                $rootDir = "/interface";
-                $tmp = [
-                    'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$formName}",
-                    'name' => xl_form_title($nickname),
-                    'class' => 'menu-item-action'
-                ];
-                $return[count($return) - 1]['subItems'][] = $tmp;
+                $return[$previousElement]['subItems'][] = $tmp;
             } else {
                 $return[] = [
                     'name' => $category,
-                    'href' => '#'
+                    'href' => '#',
+                    'subItems' => [
+                        $tmp
+                    ],
                 ];
             }
 
             $prevCategory = $category;
+
         }
 
         return $return;
