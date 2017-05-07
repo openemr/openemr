@@ -78,11 +78,11 @@ function doedclick_edit(ppid) {
        <div class="col-xs-12">
            <form method='post' action='procedure_provider_list.php'>
                <div class="page-header">
-                   <h1><?php echo xl('Procedure Providers');?></h1>
+                   <h1><?php echo xlt('Procedure Providers');?></h1>
                </div>
                <div class="btn-group">
-                   <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xl('Refresh');?></button>
-                   <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xl('Add New');?></button>
+                   <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
+                   <button type="button" class="btn btn-default btn-add" onclick="doedclick_add()"><?php echo xlt('Add New');?></button>
                </div>
 
                <table class="table table-striped table-hover">
