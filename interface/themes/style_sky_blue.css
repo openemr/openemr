@@ -173,6 +173,18 @@ a:hover {
 
 .sidebar {
     background: #94d6e7;
+    font-size: 95%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar .submenu {
+    padding-left:15px;
+    font-size:90%;
+}
+
+.sidebar ul.mainmenu {
+    padding-bottom: 55px;
 }
 
 /*=============================================================
