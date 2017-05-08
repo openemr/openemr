@@ -32,6 +32,23 @@
     ]
   },
   {
+        "label": "Recall Board",
+        "menu_id": "pfb0",
+        "target": "rcb",
+        "url": "/interface/main/messages/messages.php?go=Recalls",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "appt"
+        ],
+    "global_req_strict": [
+      "!disable_rcb"
+    ]
+
+   },
+
+  {
     "label": "Messages",
     "menu_id": "msg0",
     "target": "msg",

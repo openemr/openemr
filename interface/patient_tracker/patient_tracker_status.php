@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+ 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
@@ -72,7 +72,7 @@ if ($_POST['statustype'] !='') {
     }
 
     echo "<body>\n<script language='JavaScript'>\n";
-    echo " window.opener.document.pattrk.submit();\n";
+    echo " window.opener.document.flb.submit();\n";
     echo " window.close();\n";
     echo "</script></body></html>\n";
     exit();
@@ -109,3 +109,4 @@ $row = sqlQuery("select fname, lname " .
     </div>
 </body>
 </html>
+

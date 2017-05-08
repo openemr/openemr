@@ -878,9 +878,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       </td>
                     </tr>
                   </table>
-                </td>
                     <?php
-                    }
+                    } ?>
+            </td>
+            <?php
             } ?>
       </tr>
     </table>

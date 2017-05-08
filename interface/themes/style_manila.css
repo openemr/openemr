@@ -94,7 +94,7 @@ fieldset {
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
-    font-family: 'FontAwesome';
+    font-family: 'source_sans_pro','FontAwesome';
     content: "\f0c4";
     font-size: 12px;  /* set the base font size for all DOM children */
 }
@@ -265,9 +265,13 @@ a:hover {
 .titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
 
 
+.navbar-custom {
+    padding:0px;
+}
+
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
-font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
+font-family: 'source_sans_pro','FontAwesome', Arial, Helvetica, sans-serif;
 padding-left: 4px;
 padding-right: 4px;
 }
@@ -287,7 +291,7 @@ font-weight:bold;
 font-size:0.8em;
 }
 #addressbook_list .inputtext {
-font-family: 'FontAwesome',monospace;
+font-family: 'source_sans_pro','FontAwesome',monospace;
 font-size:0.8em;
 font-weight:normal;
 border-style:solid;
@@ -296,7 +300,7 @@ border-color: #000000;
 background-color:transparent;
 }
 #addressbook_list .button {
-font-family: 'FontAwesome',sans-serif;
+font-family: 'source_sans_pro','FontAwesome',sans-serif;
 font-size:0.8em;
 font-weight:bold;
 }
@@ -304,11 +308,11 @@ font-weight:bold;
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
 font-size:0.8em;
-font-family: 'FontAwesome',helvetica;
+font-family: 'source_sans_pro','FontAwesome',helvetica;
 }
 #reports_list a {
 font-size:0.8em;
-font-family: 'FontAwesome',helvetica;
+font-family: 'source_sans_pro','FontAwesome',helvetica;
 }
 
 /* styles taken out of templates/documents/general_list.html */
@@ -321,11 +325,11 @@ font-family: 'FontAwesome',helvetica;
 }
 #documents_list td {
 font-size:8pt;
-font-family: 'FontAwesome',helvetica;
+font-family: 'source_sans_pro','FontAwesome',helvetica;
 }
 #documents_list a {
 font-size:8pt;
-font-family: 'FontAwesome',helvetica;
+font-family: 'source_sans_pro','FontAwesome',helvetica;
 }
 #documents_list .treeMenuDefault {
 font-style: italic;
@@ -443,8 +447,17 @@ font-weight: bold;
 }
 #patient_stats table {
     width: 100%;
-    border-collapse: collapse;
+    background-color: #fff;
+    padding: 1em;
+    border: 1pt solid black;
+    -moz-box-shadow: 2px 2px 2px #c0c0c0;
+    -webkit-box-shadow: 2px 2px 2px #c0c0c0;
+    box-shadow: 2px 2px 2px #c0c0c0;
+    border-radius: 5px;
 }
+#patient_stats table:first {
+    border:none;
+    }
 #patient_stats td {
     padding: 3px;
 }
@@ -744,10 +757,17 @@ input[type="button"][style="background-color:#ffff55"] {
 }
 
 input[type="text"] {
-  background: #ffffff;
-  border: 1px solid #444444;
-  padding: 3px;
-  margin: 3px;
+    background: #fff;
+    border: 1px solid #444;
+    padding: 3px;
+    margin: 3px;
+    text-align: left;
+    display: inline-block;
+    border: 1px solid #CCC !important;
+    box-shadow: 0px 1px 3px #DDD inset;
+    border-radius: 4px;
+    box-sizing: border-box;
+    max-width: 90%;
 }
 
 #logout_link span {
@@ -813,7 +833,7 @@ div.tabContainer {
 float: left;
 width: 100%;
 border-radius: 0px 8px 8px 8px;
-box-shadow: 2px 2px 2px #c0c0c0;
+box-shadow: 0px 0px 10px #f0f0f0;
 border: 1pt solid #c0c0c0;
 position:relative;
 z-index: 1;
@@ -824,6 +844,11 @@ padding: 10px;
 }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; box-shadow:0pt;}
+
+.demographics-box div.tabContainer {
+    width:90%;
+    margin: -0.1px 2em 2em;
+}
 div.tab {   min-height: 180px;
     background: #ffffff none repeat scroll 0 0;
     margin-bottom: 10px;
@@ -963,37 +988,35 @@ div.summary_item div {
 /**
 * List-table formatting
 **/
-.showborder {
-Xwidth:650px;
-}
+
 .showborder td {
-border-bottom:1px dashed #000000;
-text-align:left;
-font-size:9pt;
+    border-bottom:1px dashed #000000;
+    text-align:left;
+    font-size:9pt;
 }
 .showborder_head  th {
-border-bottom:1px solid #000000;
-text-align:left;
-font-size:9pt;
+    border-bottom:1px solid #000000;
+    text-align:left;
+    font-size:9pt;
 }
 .shownoborder td {
-text-align:left;
-font-size:9pt;
+    text-align:left;
+    font-size:9pt;
 }
 .showborder_long {
-width:100%;
+    width:100%;
 }
 .showborder_long tr td{
-border-bottom:1px dashed #000000;
-text-align:left;
-font-size:9pt;
+    border-bottom:1px dashed #000000;
+    text-align:left;
+    font-size:9pt;
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup{
-    font-family: 'FontAwesome', helvetica;
+    font-family: 'source_sans_pro','FontAwesome', helvetica;
     font-size: 8pt;
     border: 2px outset rgb(102, 102, 102);
     background-color: #eae6ff;
@@ -1026,7 +1049,7 @@ font-size:9pt;
 
 /* Style for red font */
 .redtext {
-    font-family: 'FontAwesome', sans-serif;
+    font-family: 'source_sans_pro','FontAwesome', sans-serif;
     text-decoration: none;
     color: #FF0000;
     font-size: 10pt;
@@ -1110,7 +1133,9 @@ body dl {
     -moz-box-shadow: 0 0 10px #000;
     -webkit-box-shadow: 0 0 10px #000;
     box-shadow: 0 0 10px #000;
+    min-height: 0.5px;
 }
+
 
 #sddm li
 {   margin: 0;
@@ -1308,12 +1333,17 @@ height: 300px !important;
 #flow_board_parameters{
     margin: 25px auto;
     background-color: #ececec;
+    padding: 8px;
+	text-decoration: none;
+	border-radius: 8px;
+	border: 1pt solid black;
+	box-shadow: 2px 2px 2px rgb(192, 192, 192);
 }
 #flow_board_parameters td{
     padding: 10px;
 }
 #flow_board_parameters table {
-    border: solid 1px;
+    border: none;
     width: 100%;
     border-collapse: collapse;
 }
@@ -1339,6 +1369,7 @@ height: 300px !important;
     border-radius: 8px;
     border:1pt solid black;
     box-shadow: 2px 2px 2px #c0c0c0;
+    margin: 0px auto;
 }
 #refreshme {
     font-size:0.7em;
@@ -1543,4 +1574,8 @@ table.dataTable#therapy_groups_list tbody td{
 
 .btn-link {
     color: #444444 !important;
+}
+
+.calendar {
+    z-index:2;
 }

@@ -53,12 +53,14 @@ var digit_2="2"; //Eye Code
 var digit_4="1"; //Established
 var digit_5="4"; //Level 4
 var visit_code;
-var Code_new_est;
 var config_byday;
 var $root = $('html, body');
 var scroll;
 var visit_modifier=[];
-var visit_justify=[];
+var visit_justifier=[];
+if (typeof Code_new_est === 'undefined') {
+  var Code_new_est = 'New';
+}
 
 /*
  * Functions to add a quick pick selection to the correct fields on the form.
@@ -1059,7 +1061,7 @@ function menu_select(zone,che) {
  * Currently not used.
  */
 function show_Section(section) {
-        //hide everything, show the section.  For fullscreen perhaps Tablet view per section
+    //hide everything, show the section.  For fullscreen perhaps Tablet view per section
     show_right();
     $("div[name='_sections']").style.display= "none"; //
     $('#'+section+'_sections').style.display= "block";
@@ -1270,6 +1272,7 @@ function build_IMPPLAN(items,nodisplay) {
       $('#IMPPLAN_zone').html("");
     }
       $('#Coding_DX_Codes').html("");
+      $('#visit_justification').html("");
     
     if ((items == null) || ((typeof items == "undefined")|| (items.length =='0'))) {
         items = [];
@@ -1280,6 +1283,7 @@ function build_IMPPLAN(items,nodisplay) {
         $('#IMPPLAN_text').addClass('nodisplay');
         $('#IMPPLAN_zone').removeClass('nodisplay');
         count_dx=0;
+        visit_justifier =[];
         $.each(items, function( index, value ) {
             if (!value.codetext) value.codetext="";
             if (!value.code) value.code="";
@@ -1292,15 +1296,24 @@ function build_IMPPLAN(items,nodisplay) {
                 // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
                 // PMSFH_link is only present when the Builder was used to make the entry.
                 if ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) {
-                   //The Title should have the description.
+                  //The Title should have the description.
                   var CodeArr =  value.code.split(",");
                   var TitleArr = value.codedesc.split("\r");
                     for (i=0;i < CodeArr.length;i++) {
                       if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
                         $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
+                        
+                        justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+                        $('#visit_justification').append(justify_btn);
+                        visit_justifier.push(value.codetype+'|'+value.code);
                       } else {
                         //just look it up via ajax or tell them to code it manually on the feesheet ;).
                         $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
+
+                        var justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
+
+                        $('#visit_justification').append(justify_btn);
+                        visit_justifier.push(value.codetype+'|'+value.code);
                       }
                     }
                 } else  {
@@ -1311,6 +1324,12 @@ function build_IMPPLAN(items,nodisplay) {
                       if (obj.Clinical[location]!=null ) {
                         for (i=0; i< obj.Clinical[location].length; i++) {
                           $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
+
+                          justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+vobj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
+
+                        $('#visit_justification').append(justify_btn);
+                           visit_justifier.push(vbj.Clinical[location][i].code+'|'+obj.Clinical[location][i].codedes);
+
                         }
                       } else {
                         //item has a PMSFH_link but it is not from a Clinical field
@@ -1321,6 +1340,19 @@ function build_IMPPLAN(items,nodisplay) {
                 }
               } else { //all is good, one code only
                 $('#Coding_DX_Codes').append(count_dx +'. '+value.code+': '+value.codedesc+'<br />');
+
+                justify_btn = ' <span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span> ';
+                $('#visit_justification').append(justify_btn);
+                //we assume the visit code will use this as a justification in billing so activate that link now.
+                visit_justifier.push(value.codetype+'|'+value.code);
+                //if there are TESTS performed they must be linked to a code too.  Often this means we will need a 25 modifier to the visit code
+                //and the visit code will need a second/different Dx code to be paid.
+                //Let's start with the addition of this code to each of the TESTS.
+                //Since the Dx codes are loaded on start-up and after the initial run as the Imp/Plan is being built,
+                //we need to build these each time the IMP/PLAN changes...
+                //And here we are so...
+                //$('.TESTS_justify').each
+
               }
             }
 
@@ -1345,8 +1377,19 @@ function build_IMPPLAN(items,nodisplay) {
                                                  store_IMPPLAN(obj.IMPPLAN_items,'1');
                                                  });
                $('#PLAN_'+index).css("background-color","#F0F8FF");
-          });
-            //end each
+        });
+        //end each
+        //now attach visit_justifier(s) to each TEST
+        $.each($(".TESTS_justify"), function( index, value) {
+          //alert('now - '+value+' - '+index);
+          $( this ).html('');
+          var herenow = $("#TEST_"+index+"_justify");
+          for (var i = 0, length = visit_justifier.length; i < length; i++) {
+            item2 = visit_justifier[i];
+            justify_btn = '&nbsp;<span class="modifier" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';  
+            herenow.append(justify_btn);
+          } 
+        });
 
             // The IMPRESSION DXs are "contenteditable" spans.
             // If the user changes the words in an IMPRESSION Diagnosis area, store it.
@@ -1472,6 +1515,7 @@ function CODING_to_feesheet(CODING_items) {
                         code_400(); //the user does not have write privileges!
                         return;
                        } else {
+                        //$("#goto_fee_sheet").prop('disabled', false);
                         $("#goto_fee_sheet").removeClass('nodisplay');
                        }
                        });
@@ -1545,7 +1589,7 @@ function dragto_IMPPLAN(event, ui) {
 /* END Functions related to IMPPLAN Builder */
 
 function Suggest_visit_code() {
-        //assume Eyes and established patient
+    //assume Eyes and established patient
     (Code_group != 'Eyes')  ? (digit_2 = '9') : digit_2 = '2'; //920XX or 990XX
     (Code_new_est == 'New')  ? (digit_4 = '0') : digit_4 = '1'; //9X01X or 9X00X
     if (detail_reached_exam =='1' && (detail_reached_HPI =='1')) {
@@ -1601,13 +1645,19 @@ function build_CODING_list() {
       }
     });
         //1.  Visit Codes.  These can have a modifier (22,25,57 hard coded so far)
+        var visit_justify = visit_justifier.join(":");
+        if (typeof visit_modifier != "object") {
+          visit_modifiers = [];
+        } else {
+          visit_modifiers = visit_modifier.join(":");//
+        }
     CODING_items.push({
                       code:     visit_code,
                       codedesc: visit_desc,
                       codetext: '',
                       codetype: 'CPT4',
                       title:    'Visit Code',
-                      modifier: visit_modifier,
+                      modifier: visit_modifiers,
                       justify:  visit_justify
                       });
         //neurosensory
@@ -1618,27 +1668,33 @@ function build_CODING_list() {
                           codetext: 'Sensorimotor exam (CPT4:92060)',
                           codetype: 'CPT4',
                           title:    'Neuro/Sensorimotor Code',
-                          justify:  visit_justify
                           });
     }
         //2. Tests/procedures performed to bill
     $('.TESTS').each(function(i, obj) {
-                     //test
-                     if  ($(this).is(':checked')) {
-                     var codetype = obj.value.match(/(.*):(.*)/)[1];
-                     var code = obj.value.match(/(.*):(.*)/)[2];
-                     var modifier = $('#'+obj.id+'_modifier').val();
-                     //alert(modifier);
-                     CODING_items.push({
-                                       'code'     : code,
-                                       'codedesc' : obj.title,
-                                       'codetext' : obj.codetext,
-                                       'codetype' : codetype,
-                                       'title'    : obj.title,
-                                       'modifier' : modifier
+                    if  ($(this).is(':checked')) {
+                      var codetype = obj.value.match(/(.*):(.*)/)[1];
+                      var code = obj.value.match(/(.*):(.*)/)[2];
+                      var modifier = $('#'+obj.id+'_modifier').val();
+                      var justify = '';
+                      $('[name="TEST_'+i+'_justifiers"]').each(function(j,obj2) {
+                          if ($('#TEST_'+i+'_just_'+j).hasClass('status_on') ) {
+                            var h = $(this).data();
+                            justify = h.justcode;
+                          }
+                      });
+                      var d = $(this).data();
+                      CODING_items.push({
+                                       'code'       : code,
+                                       'codedesc'   : d.title,
+                                       'codetext'   : d.codetext,
+                                       'codetype'   : codetype,
+                                       'title'      : d.title,
+                                       'modifier'   : modifier,
+                                       'justify'    : justify
                                        });
-                     }
-                     });
+                    }
+                  });
     
     CODING_to_feesheet(CODING_items);
 }
@@ -1763,6 +1819,7 @@ function goto_url(url) {
     top.restoreSession();
     location.href = R;
 }
+//is this used anywhere?  Looks like it should be deleted...
 function openImage() {
     dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
 }
@@ -1836,20 +1893,24 @@ function update_DOCS() {
     $.ajax({
            type         : 'POST',
            url          :  url,
-           data     : {
-           action       : 'docs',
-           pid          : $('#pid').val(),
-           pcp          : $('#form_PCP').val(),
-           rDOC         : $('#form_rDOC').val(),
-           form_id      : $('#form_id').val(),
-           encounter    : $('#encounter').val(),
-           uniqueID     : $('#uniqueID').val()
+           data         : {
+             action       : 'docs',
+             pid          : $('#pid').val(),
+             pcp          : $('#form_PCP').val(),
+             rDOC         : $('#form_rDOC').val(),
+             form_id      : $('#form_id').val(),
+             encounter    : $('#encounter').val(),
+             uniqueID     : $('#uniqueID').val()
            }
            }).done(function(result) {
                    if (result == "Code 400") {
                    code_400(); //the user does not have write privileges!
                    return;
                    }
+                   //TODO:  We should also update the Communication Engine for sending note 
+                   // to reflect these people...
+                   // Currently we have to reload the page to get the new names we selected 
+                   // to show up in the Communications Engine
                    });
 }
 
@@ -1858,7 +1919,7 @@ function update_DOCS() {
  *
  */
 function reverse_cylinder(target) {
-        //target can be revW1-5,AR,MR,CR,CTL,
+    //target can be revW1-5,AR,MR,CR,CTL,
     var prefix;
     var suffix;
     if (target.match(/^(AR|MR|CR|CTL)$/)) {
@@ -1930,7 +1991,6 @@ function reverse_cylinder(target) {
     }
 }
 function scrollTo(target) {
-  //if (scroll !== '1') return;
   var offset;
   var scrollSpeed = 500;
   var wheight = $(window).height();
@@ -1939,9 +1999,73 @@ function scrollTo(target) {
     $('html, body').animate({scrollTop:offset}, scrollSpeed);
   }
 }
+function tabYourIt(tabNAME,url) {
+    parent.left_nav.loadFrame('1',tabNAME,url);
+}
 
+function update_appt_status(new_status) {
+  var url = "../../forms/eye_mag/save.php?mode=update";
+  top.restoreSession();
+  $.ajax({
+           type         : 'POST',
+           url          :  url,
+           data         : {
+           action       : 'new_appt_status',
+           pid          : $('#pid').val(),
+           form_id      : $('#form_id').val(),
+           encounter    : $('#encounter').val(),
+           uniqueID     : $('#uniqueID').val(),
+           pc_eid       : $("#pc_eid").val(),
+           visit_date   : $("#visit_date").val(),
+           new_status   : new_status
+           }
+           }).done(function(result) {
+                   if (result == "Code 400") {
+                   code_400(); //the user does not have write privileges!
+                   return;
+                   }
+                   //TODO:  We should also update the Communication Engine for sending note 
+                   // to reflect these people...
+                   // Currently we have to reload the page to get the new names we selected 
+                   // to show up in the Communications Engine
+                   });
+}
+function color_IOP(IOP){
+    if (!$.isNumeric(IOP.value)) return;
+    if (IOP.value  > '21')  {
+        $(IOP).css("background-color","rgb(255, 153, 153)");
+    }
+}
 $(document).ready(function() {
                   check_lock();
+
+var allPanels = $('.building_blocks > dd').hide();
+                  var allPanels2 = $('.building_blocks2 > dd').hide();
+                  refresh_page();
+                  // AUTO- CODING FEATURES
+                  check_CPT_92060();
+                  check_exam_detail();
+                  hide_DRAW();
+                  hide_right();
+                  
+                  Suggest_visit_code();
+                  show_QP_section('IMPPLAN','1');
+
+                  
+                  //on checking TESTS, show modifiers and justifier fields
+                  $(".TESTS").click(function() {
+                    var test_id = this.id;
+                    if  ($(this).is(':checked')) {
+                      $("#"+test_id+"_justmods").removeClass('nodisplay');
+                      $(this).parent().removeClass('lights_off').addClass('lights_on');
+                    } else {
+                      $("#"+test_id+"_justmods").addClass('nodisplay');
+                      $(this).parent().removeClass('lights_on').addClass('lights_off');
+                    }
+
+                  });
+                  
+
                   $('[title]').qtip({
                                     position: {
                                     my: 'top Right',  // Position my top left...
@@ -2001,16 +2125,16 @@ $(document).ready(function() {
                                            $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
                                            refresh_GFS();
                                            });
-                  $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET').change(function() {
+                  $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').change(function() {
                                                              //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
                   if ($("#PREFS_KB").val() =='1') {
-                  $(".kb").removeClass('nodisplay');
-                  $(".kb_off").addClass('nodisplay');
+                    $(".kb").removeClass('nodisplay');
+                    $(".kb_off").addClass('nodisplay');
                   } else {
-                  $(".kb").addClass('nodisplay');
-                  $(".kb_off").removeClass('nodisplay');
+                    $(".kb").addClass('nodisplay');
+                    $(".kb_off").removeClass('nodisplay');
                   }
 
                   $("[name$='_kb']").click(function() {
@@ -2148,12 +2272,11 @@ $(document).ready(function() {
                                                           });
                   $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                   $("input,textarea,text").css("background-color","#FFF8DC");
+                  $("[id*=ODIOP],[id*=OSIOP]").each(function() { color_IOP(this); });
                   $("#IOPTIME").css("background-color","#FFFFFF");
                   $("#refraction_width").css("width","8.5in");
                   $(".Draw_class").addClass('nodisplay');
                   $(".PRIORS_class").addClass('nodisplay');
-                  hide_DRAW();
-                  hide_right();
                   $(window).resize(function() {
                                    if (window.innerWidth >'900') {
                                    $("#refraction_width").css("width","900px");
@@ -2308,8 +2431,7 @@ $(document).ready(function() {
                   $(".neurosens,.neurosens2").blur(function() {
                                                    check_CPT_92060();
                                                    });
-                  // END AUTO-CODING FEATURES
-
+                  
                   //  functions to improve flow of refraction input
                   $("input[name$='PRISM'],input[class^='prism']").blur(function() {
                                                                        //make it all caps
@@ -3716,17 +3838,14 @@ $(document).ready(function() {
                                            });
 
 
-                  var allPanels = $('.building_blocks > dd').hide();
-                  var allPanels2 = $('.building_blocks2 > dd').hide();
-
-                  $('.building_blocks > dt > span').click(function() {
+                  $('.building_blocks > dt ').click(function() {
                                                           allPanels.slideUp();
-                                                          $(this).parent().next().slideDown();
+                                                          $(this).next().slideDown();
                                                           return false;
                                                           });
-                  $('.building_blocks2 > dt > span').click(function() {
+                  $('.building_blocks2 > dt ').click(function() {
                                                            allPanels2.slideUp();
-                                                           $(this).parent().next().slideDown();
+                                                           $(this).next().slideDown();
                                                            return false;
                                                            });
                   $('#IMP_start_acc').slideDown();
@@ -3739,8 +3858,8 @@ $(document).ready(function() {
 
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
-                                                           if ($(this).id != 'IMP') {
-                                                              //alert('form is '+$(this).id);
+                                                           if (this.name.match(/IOP/)) { color_IOP(this); }
+                                                           if (($(this).id != 'IMP')&&(this.name != 'visit_status')) {
                                                               submit_form();
                                                             } else {
                                                              // alert('Form was IMP');
@@ -3815,46 +3934,65 @@ $(document).ready(function() {
                                           });
                   $( ".widget a" ).button();
 
-                  $('#goto_fee_sheet2').click(function(event) {
-                    goto_url('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');
-
-                                            });
+                  $('#goto_fee_sheet').click(function(event) {
+                      tabYourIt('fee_sheet','patient_file/encounter/load_form.php?formname=fee_sheet');
+                    });
                   $( "button" ).button().click(function( event ) {
                          event.preventDefault();
                          });
-                  refresh_page();
-                  // AUTO- CODING FEATURES
-                  check_CPT_92060();
-                  check_exam_detail();
-                  if ($("#PRIOR_ALL").value == "undefined") {
-                  var Code_new_est="New";
-                  } else {
-                  var Code_new_est="Est";
-                  }
-                  Suggest_visit_code();
                   $('#visit_codes').change(function() {
                                            var data_all = $(this).val();
                                            var data = data_all.match(/^(.*)\|(.*)\|/);
                                            visit_code = data[2];
                                            visit_type = data[1];
                                            });
-                  show_QP_section('IMPPLAN','1');
-                  $('.modifier').on('click', function () {
+                  $('[name="visit_modifier"]').on('click', function () {
                     var item = this.id.match(/visit_mod_(.*)/)[1];
                     if ($(this).hasClass('status_on')) {
                         $(this).css("background-color","navy");
                         $(this).removeClass('status_on');
-                        delete visit_modifier[''+item];
-                      } else {
-                        $(this).css("background-color","red");
-                        $(this).addClass('status_on');
-                        visit_modifier.push(item);
-                      }
+                        visit_modifier = visit_modifier.filter(function(e) { return e !== item });
+                    } else {
+                      $(this).css("background-color","red");
+                      $(this).addClass('status_on');
+                      visit_modifier.push(item);
+                    }
                   });
+
+                  $(document).on('change','[name="visit_status"]', function (event) {
+                    var item = $( "input[type=radio][name=visit_status]:checked" ).val();
+                    update_appt_status(item);
+                  });
+                  
+
+                   $(document).on("click", "[name='visit_justifier']", function () {
+                                                   var d = $(this).data();
+                                                   var item = d.justcode;
+                                                   if ($(this).hasClass('status_on')) {
+                                                       $(this).css("background-color","navy");
+                                                       $(this).removeClass('status_on');
+                                                       visit_justifier = visit_justifier.filter(function(e) { return e !== item });
+                                                   } else {
+                                                        $(this).css("background-color","red");
+                                                        $(this).addClass('status_on');
+                                                        visit_justifier.push(item);
+                                                   }
+                                               });
+                  $(document).on("click", "span[name$='_justifiers']", function () {
+                    if ($(this).hasClass('status_on')) {
+                        $(this).css("background-color","navy");
+                        $(this).removeClass('status_on');
+                    } else {
+                      $(this).css("background-color","red");
+                      $(this).addClass('status_on');
+                    }
+
+                  });
+                  
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {
-?>  $("[class='tabHide']").css("display","inline-block"); <?php
+                        ?>  $("[class='tabHide']").css("display","inline-block"); <?php
 } ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");

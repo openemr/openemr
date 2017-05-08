@@ -679,3 +679,128 @@ ALTER TABLE openemr_postcalendar_categories ADD UNIQUE (`pc_constant_id`);
 ALTER TABLE facility ADD facility_taxonomy VARCHAR(15) DEFAULT NULL;
 #EndIf
 
+#IfNotTable medex_icons
+CREATE TABLE `medex_icons` (
+  `i_UID` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_type` varchar(50) NOT NULL,
+  `msg_status` varchar(10) NOT NULL,
+  `i_description` varchar(255) NOT NULL,
+  `i_html` text,
+  `i_blob` longtext,
+  PRIMARY KEY (`i_UID`)
+) ENGINE=InnoDB;
+
+INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `i_html`, `i_blob`) VALUES
+(1, 'SMS', 'ALLOWED', '', '<i title="SMS is possible." class="fa fa-commenting-o fa-fw"></i>', ''),
+(2, 'SMS', 'NotAllowed', '', '<span class="fa-stack" title="SMS not possible"><i class="fa fa-commenting-o fa-stack-1x fa-fw"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(3, 'SMS', 'SCHEDULED', '', '<span class="btn scheduled" title="SMS scheduled"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(4, 'SMS', 'SENT', '', '<span class="btn" title="SMS Sent - in process" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(5, 'SMS', 'READ', '', '<span class="btn" title="SMS Delivered - waiting for response" aria-label="SMS Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-commenting-o fa-inverse fa-flip-horizontal fa-fw" aria-hidden="true"></i></span>', ''),
+(6, 'SMS', 'FAILED', '', '<span class="btn" title="SMS Failed to be delivered" style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-commenting-o fa-fw"></i></span>', ''),
+(7, 'SMS', 'CONFIRMED', '', '<span class="btn" title="Confirmed by SMS" style="padding:5px;background-color:green;"><i class="fa fa-commenting-o fa-inverse fa-fw"></i></span>', ''),
+(8, 'SMS', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(9, 'SMS', 'EXTRA', '', '<span class="btn" title="EXTRA" style="padding:5px;background-color:#000;color:#fff;"><i class="fa fa-terminal fa-fw"></i></span>', ''),
+(10, 'SMS', 'STOP', '', '<span class="btn btn-danger" title="OptOut of SMS Messaging. Demographics updated." aria-label=\'Optout SMS\'><i class="fa fa-commenting" aria-hidden="true"> STOP</i></span>', ''),
+(11, 'AVM', 'ALLOWED', '', '<span title="Automated Voice Messages are possible" class="fa fa-phone fa-fw"></span>', ''),
+(12, 'AVM', 'NotAllowed', '', '<span class="fa-stack" title="Automated Voice Messages are not allowed"><i class="fa fa-phone fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(13, 'AVM', 'SCHEDULED', '', '<span class="btn scheduled" title="AVM scheduled"><i class="fa fa-phone fa-fw"></i></span>', ''),
+(14, 'AVM', 'SENT', '', '<span class="btn" title="AVM in process, no response" style="padding:5px;background-color:yellow;color:black;"><i class="fa fa-volume-control-phone fa-fw"></i></span>', ''),
+(15, 'AVM', 'FAILURE', '', '<span class="btn" title="AVM: Failed.  Check patient\'s phone numbers." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-phone fa-fw"></i></span>', ''),
+(16, 'AVM', 'CONFIRMED', '', '<span class="btn" title="Confirmed by AVM" style="padding:5px;background-color:green;"><i class="fa fa-phone fa-inverse fa-fw"></i></span>', ''),
+(17, 'AVM', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(18, 'AVM', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse"></i></span>', ''),
+(19, 'AVM', 'STOP', '', '<span class="btn btn-danger" title="OptOut of Voice Messaging. Demographics updated." aria-label="Optout AVM"><i class="fa fa-phone" aria-hidden="true"> STOP</i></span>', ''),
+(20, 'EMAIL', 'ALLOWED', '', '<span title="EMAIL is possible" class="fa fa-envelope-o fa-fw"></span>', ''),
+(21, 'EMAIL', 'NotAllowed', '', '<span class="fa-stack" title="EMAIL is not possible"><i class="fa fa-envelope-o fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(22, 'EMAIL', 'SCHEDULED', '', '<span class="btn scheduled" title="EMAIL scheduled"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(23, 'EMAIL', 'SENT', '', '<span class="btn" style="padding:5px;background-color:yellow;color:black;" title="EMAIL Message sent, not opened"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(24, 'EMAIL', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="E-Mail was read/opened by patient" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-inverse fa-fw" aria-hidden="true"></i></a>', ''),
+(25, 'EMAIL', 'FAILED', '', '<span class="btn" title="EMAIL: Failed.  Check patient''s email address." style="padding:5px;background-color:#ffc4c4;color:#000;"><i class="fa fa-envelope-o fa-fw"></i></span>', ''),
+(26, 'EMAIL', 'CONFIRMED', '', '<a class="btn btn-success" style="padding:5px;background-color: green;" title="Confirmed by E-Mail" aria-label="Confirmed via email"><i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i></a>', ''),
+(27, 'EMAIL', 'CALL', '', '<span class="btn btn-success" style="padding:5px;background-color: red;" title="Patient requests Office Call">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(28, 'EMAIL', 'Other', '', '<span class="fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i class="fa fa-terminal fa-fw fa-stack-1x fa-inverse fa-fw"></i></span>', ''),
+(29, 'EMAIL', 'STOP', '', '<span class="btn btn-danger" title="OptOut of EMAIL Messaging. Demographics updated." aria-label="Optout EMAIL"><i class="fa fa-envelope-o" aria-hidden="true"> STOP</i></span>', ''),
+(30, 'POSTCARD', 'SENT', '', '<span class="btn" title="Postcard Sent - in process" style="padding:5px;background-color:yellow;color:black"><i class="fa fa-image fa-fw"></i></span>', ''),
+(31, 'POSTCARD', 'READ', '', '<a class="btn" style="padding:5px;background-color:#146abd;" title="e-Postcard was delivered" aria-label="Postcard Delivered"><i class="fa fa-image fa-fw" aria-hidden="true"></i></a>', ''),
+(32, 'POSTCARD', 'FAILED', '', '<span class="fa-stack fa-lg" title="Delivery Failure - check Address for this patient"><i class="fa fa-image fa-fw fa-stack-1x"></i><i class="fa fa-ban fa-stack-2x text-danger"></i></span>', ''),
+(33, 'POSTCARD', 'SCHEDULED', '', '<span class="btn scheduled" title="Postcard Campaign Event is scheduled."><i class="fa fa-image fa-fw"></i></span>', ''),
+(36, 'AVM', 'READ', '', '<span class="btn" title="AVM completed - waiting for manual response" aria-label="AVM Delivered" style="padding:5px;background-color:#146abd;"><i class="fa fa-inverse fa-phone fa-fw" aria-hidden="true"></i></span>', ''),
+(37, 'SMS', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(38, 'AVM', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', ''),
+(39, 'EMAIL', 'CALLED', '', '<span class="btn btn-success" style="padding:5px;background-color:#146abd;" title="Patient requests Office Call: COMPLETED">\r\n<i class="fa fa-flag fa-fw"></i></span>\r\n', '');
+#Endif
+
+
+#IfNotTable medex_outgoing
+CREATE TABLE `medex_outgoing` (
+  `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_pid` int(11) NOT NULL,
+  `msg_pc_eid` varchar(11) NOT NULL,
+  `campaign_uid` int(11) NOT NULL DEFAULT '0',
+  `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `msg_type` varchar(50) NOT NULL,
+  `msg_reply` varchar(50) DEFAULT NULL,
+  `msg_extra_text` text,
+  `medex_uid` varchar(11),
+  PRIMARY KEY (`msg_uid`),
+  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`,`medex_uid`)
+) ENGINE=InnoDB;
+#Endif
+
+#IfNotTable medex_prefs
+CREATE TABLE `medex_prefs` (
+  `MedEx_id` int(11) DEFAULT '0',
+  `ME_username` varchar(100) DEFAULT NULL,
+  `ME_api_key` text,
+  `ME_facilities` varchar(50) DEFAULT NULL,
+  `ME_providers` varchar(100) DEFAULT NULL,
+  `ME_hipaa_default_override` varchar(3) DEFAULT NULL,
+  `PHONE_country_code` int(4) NOT NULL DEFAULT '1',
+  `MSGS_default_yes` varchar(3) DEFAULT NULL,
+  `POSTCARDS_local` varchar(3) DEFAULT NULL,
+  `POSTCARDS_remote` varchar(3) DEFAULT NULL,
+  `LABELS_local` varchar(3) DEFAULT NULL,
+  `LABELS_choice` varchar(50) DEFAULT NULL,
+  `combine_time` tinyint(4) DEFAULT NULL,
+  `postcard_top` varchar(255) DEFAULT NULL,
+  `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `ME_username` (`ME_username`)
+) ENGINE=InnoDB;
+#Endif
+
+#IfNotTable medex_recalls
+CREATE TABLE `medex_recalls` (
+  `r_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `r_PRACTID` int(11) NOT NULL,
+  `r_pid` int(11) NOT NULL COMMENT 'PatientID from pat_data',
+  `r_eventDate` date NOT NULL COMMENT 'Date of Appt or Recall',
+  `r_facility` int(11) NOT NULL,
+  `r_provider` int(11) NOT NULL,
+  `r_reason` varchar(255) DEFAULT NULL,
+  `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`r_ID`),
+  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
+) ENGINE=InnoDB;
+#Endif
+
+#IfNotRow background_services name MedEx
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
+#Endif
+
+#IfNotRow2D list_options list_id apptstat option_id AVM
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('apptstat', 'AVM', 'AVM Confirmed', 110, 0, 0, '', 'F0FFE8|0', '', 0, 0, 1, '');
+
+#IfNotRow2D list_options list_id apptstat option_id CALL
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('apptstat', 'CALL', 'Callback requested', 130, 0, 0, '', 'FFDBE2|5', '', 0, 0, 1, '');
+
+#IfNotRow2D list_options list_id apptstat option_id SMS
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('apptstat', 'SMS', 'SMS Confirmed', 90, 0, 0, '', 'F0FFE8|0', '', 0, 0, 1, '');
+
+#IfNotRow2D list_options list_id apptstat option_id EMAIL
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
+('apptstat', 'EMAIL', 'EMAIL Confirmed', 20, 0, 0, '', 'FFEBE3|0', '', 0, 0, 1, '');
+#Endif
