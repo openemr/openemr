@@ -5,7 +5,7 @@
  * This allows entry and editing of current status for the patient from within patient tracker and updates the status on the calendar.
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2015-2017 Terry Hill <terry@lillysystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,19 +16,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @link http://www.open-emr.org
  *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
  *
  */
-
-
-
-
+ 
+  
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
@@ -54,13 +51,13 @@ require_once("$srcdir/patient_tracker.inc.php");
                             "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                             "AND patient_tracker.lastseq = patient_tracker_element.seq " .
                             "WHERE patient_tracker.id =?",array($_GET['tracker_id']));
-
+ 
     $tkpid = $trow['pid'];
     $appttime = $trow['appttime'];
     $apptdate = $trow['apptdate'];
     $pceid = $trow['eid'];
     $theroom = '';
-
+     
     if ($_POST['statustype'] !='') {
         $status = $_POST['statustype'];
         if (strlen($_POST['roomnum']) != 0) {
@@ -107,7 +104,7 @@ require_once("$srcdir/patient_tracker.inc.php");
     <table>
     <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
 
-    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br>
+    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br> 
 <?php
     # Generate drop down list for status.
     echo generate_select_list('statustype', 'apptstat',$trow['laststatus'], xl('Status Type'));
