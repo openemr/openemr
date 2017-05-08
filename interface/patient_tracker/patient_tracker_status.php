@@ -5,7 +5,7 @@
  * This allows entry and editing of current status for the patient from within patient tracker and updates the status on the calendar.
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2015-2017 Terry Hill <teryhill@librehealth.io>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,10 +25,7 @@
  * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
  *
  */
-
-
-
-
+ 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
@@ -87,7 +84,7 @@ require_once("$srcdir/patient_tracker.inc.php");
         }
 
          echo "<html>\n<body>\n<script language='JavaScript'>\n";
-         echo " window.opener.document.pattrk.submit();\n";
+         echo " window.opener.document.flb.submit();\n";
          echo " window.close();\n";
          echo "</script></body></html>\n";
          exit();
@@ -105,17 +102,19 @@ require_once("$srcdir/patient_tracker.inc.php");
     <table>
     <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
 
-    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br>
+    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br> 
 <?php
     # Generate drop down list for status.
     echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type'));
 ?>
-    <br><br>
+
+    <br><br>   
     <span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
 <?php
     # Generate drop down list for room number.
     echo generate_select_list('roomnum', 'patient_flow_board_rooms', $trow['lastroom'], xl('Exam Room Number'));
 ?>
+           
 <br><br>
     <tr>
      <td>
@@ -125,7 +124,6 @@ require_once("$srcdir/patient_tracker.inc.php");
      </td>
     </tr>
     </table>
-    </td>
     </form>
     </center>
   </body>
