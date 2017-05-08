@@ -5,7 +5,7 @@
  * This allows entry and editing of current status for the patient from within patient tracker and updates the status on the calendar.
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
  *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
+ * Copyright (C) 2015-2017 Terry Hill <terry@lillysystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,17 +16,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @link http://www.open-emr.org
  *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
  *
  */
-
-
 
 
 require_once("../globals.php");
