@@ -363,11 +363,11 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
   <th class='right'><?php echo htmlspecialchars( xl('Paid'), ENT_NOQUOTES); ?></th>
   <th class='right'><?php echo htmlspecialchars( xl('Adj'), ENT_NOQUOTES); ?></th>
   <th class='right'><?php echo htmlspecialchars( xl('Bal'), ENT_NOQUOTES); ?></th>
-<?php } else { ?>
+<?php } elseif($attendant_type == 'pid') { ?>
   <th colspan='5'><?php echo htmlspecialchars( (($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
-<?php if (!$GLOBALS['ippf_specific']) { ?>
+<?php if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) { ?>
   <th>&nbsp;<?php echo htmlspecialchars( (($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
@@ -752,7 +752,7 @@ while ($result4 = sqlFetchArray($res4)) {
         }
 
         // show insurance
-        if (!$GLOBALS['ippf_specific']) {
+        if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) {
             $insured = oeFormatShortDate($raw_encounter_date);
             if ($auth_demo) {
                 $responsible = -1;
