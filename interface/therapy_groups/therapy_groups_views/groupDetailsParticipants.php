@@ -80,7 +80,7 @@
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_start']): date('Y-m-d');?>">
+                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_start']): date('Y-m-d');?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -90,7 +90,7 @@
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
-                                                <input type="text" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
+                                                <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -192,6 +192,7 @@
                 { "width": "35%", "targets": 5 }
             ],
             "pageLength":6,
+            "order": [[ 0, "asc" ],[ 2, "desc" ]],
             "searching": false,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
@@ -251,6 +252,9 @@
         $('#cancelAddParticipant').on('click', function(e){
             e.preventDefault();
             $('#add-participant-form').removeClass('showAddForm');
+            $('#participant_name').val('');
+            $('#group_patient_comment').val('');
+            $('#group_patient_start').val('<?php echo date('Y-m-d');?>');
         });
 
         $('#participant_name').on('click', function(){

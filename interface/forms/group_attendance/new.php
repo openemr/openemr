@@ -51,7 +51,7 @@ if($form_id){//If editing a form or the form already exists (inwhich case will a
     }
 }
 else{//new form
-    $participants = getParticipants($therapy_group);
+    $participants = getParticipants($therapy_group, true);
 }
 
 ?>
