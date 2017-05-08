@@ -67,7 +67,7 @@ if (isset($_POST['drR'])) {
            font-size:0.6em;
          }
          .dr_container a{
-           font-size:0.6em;
+           font-size:0.8em;
          }
          .dr_container{
            padding:5px 5px 8px 5px;
@@ -160,10 +160,10 @@ if (isset($_POST['drR'])) {
         <?php
           // initialize html string
           $pdHTML = '<div class="dr_container"><table><tr><td valign="top">
-                        <p><a class="hideDR css_button_small" href="#"><span>'.xlt('Hide Reminders').'</span></a><br /></p>
+                        <p><a class="hideDR css_button_small btn" href="#"><span>'.xlt('Hide Reminders').'</span></a><br /></p>
                         <div class="drHide">'.
-                        '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button_small" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
-                        .'<p><a onclick="openAddScreen(0)" class="css_button_small" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
+                        '<p><a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="css_button btn" href="#"><span>'.xlt('View Log').'</span></a><br /></p>'
+                        .'<p><a onclick="openAddScreen(0)" class="css_button btn" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
                         </td><td class="drHide drTD">';
 
           $pdHTML .= getRemindersHTML($reminders, $today);

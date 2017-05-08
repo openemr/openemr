@@ -28,9 +28,6 @@
  */
 
 
-
-
-
 require_once("../globals.php");
 
 //Get the data to place on labels
