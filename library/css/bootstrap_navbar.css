@@ -1,0 +1,100 @@
+/**
+ * bootstrap_navbar.css
+ *
+ * @package MedEx
+ * @author MedEx <support@MedExBank.com>
+ * @link http://www.MedExBank.com
+ * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
+
+.little_image { width:20px; }
+.navbar { height: 22px; z-index:1100;}
+.navbar-fixed-top {
+    background-color: #C9DBF2;
+padding: 0px;
+border-bottom: 0.1pt solid #7b777760;
+-moz-box-shadow: 0 0 10px #000;
+-webkit-box-shadow: 0 0 10px #000;
+box-shadow: 0 0 10px #7b777760;
+z-index: 1000;
+}
+
+.navbar-custom {
+    padding:0px;
+    color:black;
+}
+
+.navbar-nav > li > a {
+    color:black; /* just changes the base font color */
+    padding-top:6px;
+    padding-left:10px;
+    padding-right: 20px;
+    padding-bottom: 5px;
+}
+.navbar-nav > li .open > a {
+    color: #fff !important;
+    background-color: #1C5ECF !important;
+}
+.nav .navbar-right:last-child > li{
+    margin-right:20px;
+    margin-left:20px;
+}
+.nav > li > a:focus, .nav > li:focus {
+    text-decoration: none;
+    background-color: #1C5ECF; /* this is the "hover" blue */
+    color:#fff; /*#33aa33; <--- this is kelly green */
+}
+.nav > .active > a, .navbar-nav > .open > a {
+    color: white  !important;
+    background-color:#1C5ECF  !important; /* Mac Menu title bar background color */
+}
+
+.dropdown-menu {
+    background-color:#dee9f7; /* Mac Menu dropdown bar background color */
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #fff; /*#262626;*/
+    text-decoration: none;
+    background-color: #1C5ECF; /*#3E76C2;*/
+    text-shadow: none;
+}
+.navbar-brand {
+    color:black;
+    height:24px;
+    padding:10 5 0 10;
+    margin: 10px 0px 2px 0px;
+}
+
+li.open > a:first {
+    color:#fff  !important;
+}
+.navbar-nav > li > .dropdown .open {
+    margin-top: 1px;
+    background-color:red;
+}
+.dropdown-menu .divider {
+    height: 1px;
+    margin: 9px 0px;
+    Xoverflow: hidden;
+    background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
+}
+.navbar-toggle {
+    /* this is the responsive view shown when the screen is very narrow
+    background-color:yellow;
+    height:24px;
+    */
+}
+a:hover, a:focus {
+    text-decoration:none;
+}
+
+.Xnavbar-nav > li > a:hover {
+	color: #ffffff;
+}
+.dropdown {
+	margin-bottom: 0px;
+	padding: 1px;
+    list-style:none;
+}

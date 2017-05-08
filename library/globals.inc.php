@@ -120,6 +120,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'event_color',
     'pat_trkr_timer',
     'ptkr_visit_reason',
+    'ptkr_date_range',
+    'ptkr_end_date',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
@@ -194,9 +196,9 @@ $GLOBALS_METADATA = array(
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
-        'font-family' => [
+        'font-family' => array(
             xl('Default font (need to logout/login after change this setting)'),
-            [
+            array(
                 '__default__' => 'Use Theme Font',
                 'Arial, Helvetica, sans-serif' => "Arial",
                 '"Arial Black", Gadget, sans-serif' => "Arial Black",
@@ -206,24 +208,24 @@ $GLOBALS_METADATA = array(
                 '"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
                 'Verdana, Geneva, sans-serif' => "Verdana",
                 'lato' => "Lato",
-            ],
+            ),
             '__default__',
             xl('Select the default font'),
-        ],
+        ),
 
-        'font-size' => [
+        'font-size' => array(
             xl('Default font size (need to logout/login after change this setting)'),
-            [
+            array(
                 '__default__' => 'Use Theme Font Size',
                 '10px' => '10px',
                 '12px' => '12px',
                 '14px' => '14px',
                 '16px' => '16px',
                 '18px' => '18px',
-            ],
+            ),
             '__default__',
             xl("Select the default font size"),
-        ],
+        ),
 
         'menu_styling_vertical' => array(
             xl('Vertical Menu Style'),
@@ -717,12 +719,12 @@ $GLOBALS_METADATA = array(
             xl('Option to support inventory and sales of products')
         ),
 
-        'default_visit_category' => [
+        'default_visit_category' => array(
             xl('Default Visit Category'),
             'default_visit_category',
             '_blank',
             xl('Define a default visit category'),
-        ],
+        ),
 
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
@@ -1601,42 +1603,80 @@ $GLOBALS_METADATA = array(
             '1',                              // default
             xl('Automatically create a new encounter when an appointment check in status is selected.')
         ),
+
         'allow_early_check_in' => array(
             xl('Allow Early Check In'),
             'bool',                           // data type
             '1',                              // default
             xl("Allow Check In before the appointment's time.")
         ),
+
+        'submit_changes_for_all_appts_at_once' => array(
+            xl('Submit Changes For All Appts At Once'),
+            'bool',                           // data type
+            '1',                              // default
+            xl('Enables to submit changes for all appointments of a recurrence at once.')
+        ),
+
         'disable_pat_trkr' => array(
-            xl('Disable Patient Flow Board'),
+            xl('Flow Board: Disable '),
             'bool',                           // data type
             '0',                              // default
-            xl('Do not display the patient flow board.')
+            xl('Completely remove the ability to display the Patient Flow Board.')
         ),
 
         'ptkr_visit_reason' => array(
-            xl('Show Visit Reason in Patient Flow Board'),
+            xl('Flow Board: Show Visit Reason'),
             'bool',                           // data type
             '0',                              // default = false
             xl('When Checked, Visit Reason Will Show in Patient Flow Board.')
         ),
 
         'ptkr_show_pid' => array(
-            xl('Show Patient ID in Patient Flow Board'),
+            xl('Flow Board: Show Patient ID'),
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient ID Will Show in Patient Flow Board.')
         ),
 
         'ptkr_show_encounter' => array(
-            xl('Show Patient Encounter Number in Patient Flow Board'),
+            xl('Flow Board: Show Encounter Number'),
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
         ),
 
+        'ptkr_show_staff' => array(
+            xl('Flow Board: Show Staff Action'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('When Checked, Last Staff to Update Board Will Show in Patient Flow Board.')
+        ),
+
+        'ptkr_date_range' => array(
+            xl('Flow Board: Allow Date Range'),
+            'bool',                          // data type
+            '1',                             // default = true
+            xl('This Allows a Date Range to be Selected in Patient Flow Board.')
+        ),
+
+        'ptkr_end_date' => array(
+            xl('Flow Board: Ending Date'),
+            array(
+                'Y1' => xl('One Year Ahead'),
+                'Y2' => xl('Two Years Ahead'),
+                'M6' => xl('Six Months Ahead'),
+                'M3' => xl('Three Months Ahead'),
+                'M1' => xl('One Month Ahead'),
+                'D1' => xl('One Day Ahead'),
+                'D0' => xl('Same Day'),
+            ),
+            'D0',                     // default = One Day Ahead
+            xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
+        ),
+
         'pat_trkr_timer' => array(
-            xl('Patient Flow Board Timer Interval'),
+            xl('Flow Board: Timer Refresh Interval'),
             array(
                 '0' => xl('No automatic refresh'),
                 '0:10' => '10',
@@ -1651,39 +1691,41 @@ $GLOBALS_METADATA = array(
         ),
 
         'checkout_roll_off' => array(
-            xl('Number of Minutes to display completed checkouts'),
+            xl('Flow Board: display completed checkouts (minutes)'),
             'num',
             '0',                       // default
-            xl('Number of Minutes to display completed checkouts. Zero is continuous display')
+            xl('Flow Board will only display completed checkouts for this many minutes. Zero is continuous display.')
         ),
 
         'drug_screen' => array(
-            xl('Enable Random Drug Testing'),
+            xl('Flow Board: Enable Random Drug Testing'),
             'bool',                           // data type
             '0',                              // default
             xl('Allow Patient Flow Board to Select Patients for Drug Testing.')
         ),
 
         'drug_testing_percentage' => array(
-            xl('Percentage of Patients to Drug Test'),
+            xl('Flow Board: Percentage of Patients to Drug Test'),
             'num',
             '33',                       // default
             xl('Percentage of Patients to select for Random Drug Testing.')
         ),
 
         'maximum_drug_test_yearly' => array(
-            xl('Maximum number of times a Patient can be tested in a year'),
+            xl('Flow Board: Max tests per Patient per year'),
             'num',
             '0',                       // default
             xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
         ),
 
-        'submit_changes_for_all_appts_at_once' => array(
-            xl('Submit Changes For All Appts At Once'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enables to submit changes for all appointments of a recurrence at once.')
+        'disable_rcb' => array(
+          xl('Recall Board: Disable '),
+          'bool',                           // data type
+          '0',                              // default
+          xl('Do not display the Recall Board.')
         ),
+
+
 
 
     ),
@@ -2580,6 +2622,12 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server. Url should end with /')
+
+        'medex_enable' => array(
+          xl('Enable MedEx Communication Service'),
+          'bool',                           // data type
+          '0',
+          xl('Enable MedEx Communication Service')
         ),
 
         'erx_enable' => array(

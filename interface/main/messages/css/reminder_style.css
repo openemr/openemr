@@ -1,0 +1,529 @@
+/**
+ * Message center javascript.
+ *
+ * @package MedEx
+ * @link    http://www.MedExBank.com
+ * @author  MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ */
+
+h1 {
+    margin: 0 10px;
+    padding: 10px 10px;
+    text-align: center;
+    font-weight: normal;
+    font-size: 150%;
+    line-height: 1.5em;
+    color: #693;
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs > li {
+    border: 0.5px solid #c0c0c0;
+    margin-bottom: 0;
+}
+
+.nav-tabs > li .active {
+    border-bottom: none;
+}
+
+.nav-tabs > li > a {
+    margin-right: 0;
+    border: none;
+}
+
+.nav-tabs > li.active > a {
+    border: none;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+    border: unset;
+}
+
+.main_container {
+    text-align: center;
+    margin: 25px auto;
+}
+
+.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 12px;
+    opacity: 1.0;
+    z-index: 990;
+}
+
+.flow tr:nth-child(even) {
+    background-color: #f1f8ee;
+    overflow: hidden;
+}
+
+.flow tr:nth-child(odd) {
+    background-color: #d0e1c9b3;
+    overflow: hidden;
+}
+
+.flow tr:last-child {
+    background-color: #C9DBF2;
+    text-align: center;
+    color: #000;
+    text-shadow: 0 1px 0 #f3f3f3;
+    overflow: hidden;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 -4px 6px #6D798333;
+    text-transform: uppercase;
+}
+
+.flow th {
+    text-align: center;
+    color: #000;
+    overflow: hidden;
+    padding: 5px;
+    text-transform: uppercase;
+}
+
+.flow tr:first-child {
+    background-color: #DAE8EF;
+    text-shadow: 0 1px 0 #f3f3f3;
+    border-radius: 0 0 2px 2px;
+    box-shadow: 0 4px 6px grey;
+}
+
+.flow td {
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.flow tr:hover {
+    background-color: #FFFBEB;
+    overflow: hidden;
+}
+
+.flow tr:last-child:hover, .flow tr:first-child:hover {
+    background-color: #DAE8EF;
+}
+
+.flow {
+    border-collapse: unset;
+    text-align: center;
+    box-shadow: 2px 1px 2px #7b777760;
+    margin: 15px;
+    overflow: hidden;
+    border: 2px ridge #839E99;
+    border-radius: 8px;
+    width: 98%;
+}
+
+.newRecall {
+    height: 300px;
+    width: 400px;
+    background-color: white;
+    display: inline-table;
+    box-shadow: 2px 1px 2px #c0c0c0;
+    margin: 15px auto;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 0.5px ridge #c0c0c0;
+    padding: 10px;
+}
+
+.divTable {
+    display: table;
+    float: left;
+    background: white;
+    border: 0.5px solid #c0c0c0;
+    box-shadow: 2px 3px 9px #c0c0c0;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px auto;
+}
+
+.divTable2 {
+    background: white;
+    border: 0.5px solid #c0c0c0;
+    box-shadow: 2px 3px 9px #c0c0c0;
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+    display: inline-block;
+    margin: 15px auto;
+    vertical-align: top;
+}
+
+.divTable3 {
+    display: table;
+    float: left;
+    background: white;
+    border: 1px solid #000;
+    box-shadow: 2px 3px 9px #000;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px;
+    width: 70%;
+}
+
+.divTable4 {
+    display: table;
+    padding: 10px;
+    margin: 5px;
+    width: 90%;
+}
+
+.divTableRow {
+    display: table-row;
+    border-radius: 8px;
+    background-color: white;
+    text-align: left;
+}
+
+.divTableCell, .divTableHead {
+    border: 0.5px solid #c0c0c0;
+    display: table-cell;
+    vertical-align: middle;
+    min-height: 29px;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.divTableHeading {
+    background-color: #EEE;
+    font-weight: 600;
+    text-align: right;
+    padding: 5px;
+    width: 80px;
+}
+
+.float_left {
+    float: left;
+}
+
+.float_right {
+    float: right;
+}
+
+.float_center {
+    float: unset;
+}
+
+.Wide {
+    width: 100%;
+}
+
+.name {
+    text-align: left;
+    padding-left: 1em;
+}
+
+.divTableFoot {
+    background-color: #EEE;
+    display: table-footer-group;
+    font-weight: bold;
+}
+
+.divTableBody {
+    display: table-row-group;
+}
+
+.reddish {
+    background: rgba(246, 224, 224, 0.5);
+    border-radius: 4px 4px 0 0;
+    margin: 0 5px;
+}
+
+.yellowish {
+    background-color: rgba(245, 248, 152, 0.5);
+    border-radius: 4px 4px 0 0;
+    margin: 0 5px;
+}
+
+.greenish {
+    background-color: rgba(211, 242, 211, 0.5);
+    border-radius: 4px 4px 0 0;
+    margin: 0 5px;
+}
+
+.whitish {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 4px 4px 0 0;
+    margin: 0 5px;
+}
+
+.bluish {
+    background-color: rgba(134, 212, 233, 0.5);
+    border-radius: 4px 4px 0 0;
+    margin: 0 5px;
+}
+
+.yellow {
+    background-color: #f6f6f6;
+}
+
+.nodisplay {
+    display: none !important;
+}
+
+.right {
+    text-align: right;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.s_pwd {
+    font-size: 0.8em;
+    padding-left: 150px;
+    text-align: center;
+    font-style: italic;
+}
+
+.top {
+    vertical-align: top;
+}
+
+.top_right_corner {
+    position: relative;
+    right: 0;
+    top: 0;
+    float: right;
+}
+
+input[type="radio"] {
+    padding-left: 15px;
+}
+
+.news {
+    width: unset;
+}
+
+.indent20 {
+    padding-left: 20px;
+}
+
+.btn1 {
+    position: relative;
+    z-index: 1;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    font-size: 1.2em;
+}
+
+.scheduled {
+    background-color: white;
+    color: black;
+}
+
+.no_bot_border {
+    border-bottom: 1pt dotted rgba(255, 255, 255, 0);;
+    box-shadow: 3px -2px 4px #C0C0C0;
+    top: 1px;
+    text-decoration: underline;
+}
+
+.search {
+    position: absolute;
+    background-color: #C9DBF2;
+    border-radius: 3px;
+    border: 1pt solid black;
+    padding: 5px;
+    top: 10px;
+    right: 20px;
+}
+
+
+.title {
+    font-weight: bold;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    line-height: 1.5em;
+    color: #455832;
+    border-bottom: 2px solid #455832;
+    margin: 0 auto;
+    width: 70%;
+}
+
+.spaced_icon {
+    margin: 0 5px;
+}
+
+.red {
+    color: red;
+}
+
+#save_prefs {
+    display: inline-block;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#daform {
+    display: inline-block;
+}
+
+.msg_resp {
+    width: 65px;
+}
+
+.msg_manual {
+    width: 100px;
+}
+
+.msg_notes {
+    width: 125px;
+}
+
+#SMS_NOTIFICATION_HOUR {
+    width: 30px;
+}
+
+#phone_notification_hour, #postcard_notification_day, #EMAIL_NOTIFICATION_HOUR, #phone_recall_days {
+    width: 30px;
+}
+
+#reminder_wrap {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    background-color: #fff
+}
+
+.showReminders {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin: 20px auto 0;
+}
+
+.middle-third {
+    width: 33%;
+    position: relative;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#div_response {
+    min-height: 25px;
+    text-align: center;
+    color: red;
+}
+
+#addRecall {
+    width: 100%;
+}
+
+#new_recall {
+    width: 70%;
+    margin: 10px auto;
+}
+
+td.right {
+    width: 30%;
+}
+
+.borderShadow {
+    box-shadow: 5px 5px 9px #7b777760;
+    border: 1.00pt solid #000000;
+    background: #ffffff;
+    padding: 6px;
+    border-radius: 6px;
+    width: 80%;
+}
+
+.center-div {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    max-height: 85vH;
+    border-radius: 3px;
+    overflow-wrap: normal;
+    box-shadow: 5px 5px 9px #888888;
+    border: 1.00pt solid #000000;
+    background: #ffffff;
+    padding: 10px;
+}
+
+.prefs_default {
+    margin: 0 0 1em 0;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.help {
+    border-radius: 10px;
+    background-color: #DEEDF7;
+    cursor: pointer;
+    height: 10px;
+    max-width: 10px;
+    font-size: x-small;
+    vertical-align: super;
+    color: white;
+    display: inline-block;
+    text-align: center;
+    margin: 2px;
+}
+
+.help span {
+    display: none;
+    width: 0;
+}
+
+.messages {
+    padding: 20px;
+    font-size: 1.0em;
+    margin: 2px auto;
+}
+
+.messages table td {
+    padding: 15px 5px 15px 0;
+}
+
+.flow_time {
+    width: 30px !important;
+    text-align: center !important;
+}
+
+.color_me {
+    background-color: cornsilk;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.w_100 {
+    max-width: 100px;
+}
+
+.w_30 {
+    width: 30px !important;
+}
+
+.signup_help {
+    color: red;
+    padding: 0 15px;
+}
+
+.div_title {
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin: 30px 30px;
+}
+
+#SMS_patients {
+    display: block;
+    position: relative
+}
+
+.ui-autocomplete {
+    position: relative;
+}
