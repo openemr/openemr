@@ -17,7 +17,7 @@ else {
 		$encounter = $_GET['encounter'];
 	 }
          if($_GET["formname"] != "newpatient" ){
-            //include_once("$incdir/patient_file/encounter/new_form.php");
+	        require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
          }
 
   // ensure the path variable has no illegal characters

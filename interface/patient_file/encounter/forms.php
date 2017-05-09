@@ -370,9 +370,6 @@ if ($is_group && !acl_check("groups", "glog", false, array('view', 'write'))) {
             top.window.parent.left_nav.clearEncounter();
         }
 
-    </script>
-
-    <script language="javascript">
         function expandcollapse(atr) {
             if (atr == "expand") {
                 for (i = 1; i < 15; i++) {

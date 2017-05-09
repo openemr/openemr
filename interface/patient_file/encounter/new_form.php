@@ -118,14 +118,6 @@ $patientName = implode(" ", $patientNameArray);
         </div>
 
         <div class="collapse navbar-collapse" id="menu-encounter">
-            <ul class="nav navbar-nav">
-                <li>
-                    <a href="#" class="" onClick='expandcollapse("expand");'><?php xl('Expand All', 'e'); ?></a>
-                </li>
-                <li>
-                    <a href="#" class="" onClick='expandcollapse("collapse");'><?php xl('Collapse All', 'e'); ?></a>
-                </li>
-            </ul>
             <?php if (acl_check('admin', 'super')): ?>
             <ul class="nav navbar-nav navbar-right">
                 <li>

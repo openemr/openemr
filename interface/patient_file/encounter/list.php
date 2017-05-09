@@ -27,7 +27,51 @@ if ($is_group && !acl_check("groups", "glog", false, array('view', 'write'))) {
 $esignApi = new ESignApi();
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres);
+
+require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
 ?>
+<script type="text/javascript">
+    function expandcollapse(atr) {
+        if (atr == "expand") {
+            for (i = 1; i < 15; i++) {
+                var mydivid = "divid_" + i;
+                var myspanid = "spanid_" + i;
+                var ele = document.getElementById(mydivid);
+                var text = document.getElementById(myspanid);
+                if (typeof(ele) != 'undefined' && ele != null)
+                    ele.style.display = "block";
+                if (typeof(text) != 'undefined' && text != null)
+                    text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
+            }
+        }
+        else {
+            for (i = 1; i < 15; i++) {
+                var mydivid = "divid_" + i;
+                var myspanid = "spanid_" + i;
+                var ele = document.getElementById(mydivid);
+                var text = document.getElementById(myspanid);
+                if (typeof(ele) != 'undefined' && ele != null)
+                    ele.style.display = "none";
+                if (typeof(text) != 'undefined' && text != null)
+                    text.innerHTML = "<?php xl('Expand', 'e'); ?>";
+            }
+        }
+
+    }
+
+    function divtoggle(spanid, divid) {
+        var ele = document.getElementById(divid);
+        var text = document.getElementById(spanid);
+        if (ele.style.display == "block") {
+            ele.style.display = "none";
+            text.innerHTML = "<?php xl('Expand', 'e'); ?>";
+        }
+        else {
+            ele.style.display = "block";
+            text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
+        }
+    }
+</script>
 
 <div class='encounter-summary-container'>
     <div class='encounter-summary-column'>
