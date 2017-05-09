@@ -84,13 +84,14 @@ class ViewHelper
      */
     static function createEncounterMenu(array $elements)
     {
+        $iconDirection = ($_SESSION['language_direction'] == 'rtl') ? 'left' : 'right';
         // Standard menu item with no dropdown
         $menuListItem = '<li><a href="{href}" {class} {atts} ><i class="fa fa-fw"></i>&nbsp;{linkText}</a></li>';
 
         $submenuListItem = '<li><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">{linkText}</a>';
 
         // Standard menu item dropdown support
-        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-chevron-right"></i>&nbsp;{linkText}</a>{submenuList}</li>';
+        $menuListItemWithDropdown = '<li class="dropdown"><a href="{href}" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-chevron-{iconDirection}"></i>&nbsp;{linkText}</a>{submenuList}</li>';
 
         // Dropdown menu
         $submenuList = '<ul class="nav navbar-stacked hidden submenu">{submenuListItems}</ul>';
@@ -125,6 +126,7 @@ class ViewHelper
                 $submenuContainer = str_replace("{submenuListItems}", $submenuStr, $submenuList);
                 $elementContainer = str_replace("{submenuList}", $submenuContainer, $menuListItemWithDropdown);
                 $elementContainer = str_replace("{linkText}", $group['name'], $elementContainer);
+                $elementContainer = str_replace("{iconDirection}", $iconDirection, $elementContainer);
 
                 if (array_key_exists('href', $group)) {
                     $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
@@ -156,7 +158,7 @@ class ViewHelper
 
                 $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
 
-                $menu = $menu . str_replace("{linkText}", $group['name'], $elementContainer);
+                $menu = $menu . str_replace("{linkText}", xlt($group['name']), $elementContainer);
             }
         }
         return $menu;

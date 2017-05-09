@@ -27,6 +27,8 @@ if ($is_group && !acl_check("groups", "glog", false, array('view', 'write'))) {
     exit();
 }
 
+$textDir = ($_SESSION['language_direction'] == 'rtl') ? 'left' : 'right';
+$sidebar = ($textDir == 'right') ? 'left' : 'right';
 ?>
 <html>
 
@@ -140,6 +142,7 @@ if ($is_group && !acl_check("groups", "glog", false, array('view', 'write'))) {
     ?>
 
     <script type="text/javascript">
+        var textDirection = "<?php echo $textDirection;?>";
         $.noConflict();
         jQuery(document).ready(function ($) {
             var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
@@ -337,7 +340,7 @@ if ($is_group && !acl_check("groups", "glog", false, array('view', 'write'))) {
 
             $('li.dropdown').on('click', 'a.dropdown-toggle', function(){
                 var icon = $(this).children("i");
-                var defaultIcon = 'fa-chevron-right';
+                var defaultIcon = (textDirection == 'right') ? 'fa-chevron-right' : 'fa-chevron-left';
                 var toggledIcon = 'fa-chevron-down';
                 if ($(icon).hasClass(defaultIcon)) {
                     $(icon).removeClass(defaultIcon);
@@ -429,7 +432,7 @@ require_once("new_form.php");
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-sidebar-0-2-2/dist/js/sidebar.js"></script>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xs-12 col-sm-2 sidebar sidebar-left sidebar-md-show">
+        <div class="col-xs-12 col-sm-2 sidebar sidebar-<?php echo $sidebar;?> sidebar-md-show">
             <ul class="nav navbar-stacked mainmenu">
                 <?php echo $menu; ?>
             </ul>
