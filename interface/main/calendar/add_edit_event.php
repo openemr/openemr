@@ -1960,7 +1960,7 @@ function validateform(event,valu){
 
     //Prevent from user to change status to Arrive before the time
     if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
-        alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time."); ?>');
+        alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
         $('#form_save').attr('disabled', false);
         return false;
     }
