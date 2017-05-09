@@ -8,11 +8,12 @@
 
 namespace OpenEMR\Amendment;
 
-require_once dirname(__FILE__) . "../../interface/globals.php";
+require_once dirname(__FILE__) . "/../../interface/globals.php";
 
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use OpenEMR\Amendment\Service\Amendment as Service;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Intermediary bridge to Amendment data.
@@ -38,6 +39,8 @@ class Amendment
     /** @var Service  */
     protected $service;
 
+    protected $table = 'amendments';
+
     /**
      * Amendment constructor.
      * @param Twig_Loader_Filesystem $loader
@@ -49,6 +52,23 @@ class Amendment
         $loader->addPath($viewFolder);
         $this->twig = $twig;
         $this->service = new Service();
+    }
+
+    public function save(Request $request)
+    {
+        global $pid;
+        $user = $_SESSION['authUserID'];
+        $time = date('Y-m-d H:i');
+        $parameters = [
+            "amendment_date" => DateToYYYYMMDD($request->get('date', "")),
+            "amendment_by" => $request->get('by', ""),
+            "amendment_status" => $request->get('status', ""),
+            "pid" => $pid,
+            "amendment_desc" => $request->get('desc', ""),
+            "created_by" => $user,
+            "created_time" => $time,
+        ];
+        $this->putRecord('INSERT', $parameters);
     }
 
     public function getItem($id)
@@ -72,14 +92,14 @@ class Amendment
             $list[] = $this->parseAmendment($amendmentItem);
         }
 
-        $requested_by_select = generate_select_list("form_amendment_by",
+        $requested_by_select = generate_select_list("by",
             "amendment_from",
             "",
             "Amendment Request By",
             "", "form-control", "", "", "");
 
         $status = generate_select_list(
-            "form_amendment_status",
+            "status",
             "amendment_status",
             "",
             'Amendment Status',
@@ -130,5 +150,40 @@ class Amendment
             }
         }
         return $parsed;
+    }
+
+    private function getTable()
+    {
+        return $this->table;
+    }
+
+    private function putRecord($type, $params)
+    {
+        $allowedTypes = ['INSERT', 'UPDATE'];
+        $type = strtoupper($type);
+        if (!in_array($type, $allowedTypes)) {
+            return false;
+        }
+        $type = ($type == "INSERT") ? "INSERT INTO" : $type;
+
+        $setStr = "";
+        $bindings = [];
+        foreach ($params as $col => $val) {
+            if ($type == "UPDATE" && $col == "amendment_id") {
+                continue;
+            }
+            $setStr .= "{$col} = ?, ";
+            $bindings[] = $val;
+        }
+        $setStr = substr($setStr, 0, (strlen($setStr) - 2));
+
+        $sql = "{$type} {$this->getTable()} SET {$setStr}";
+
+        if ($type == "UPDATE") {
+            $bindings[] = $params['amendment_id'];
+            $sql .= "WHERE amendment_id = ?";
+        }
+
+        return sqlInsert($sql, $bindings);
     }
 }

@@ -229,6 +229,8 @@ $twigLoader = new Twig_Loader_Filesystem();
 $twigEnv = new Twig_Environment($twigLoader, ['debug' => true]);
 $twigEnv->addExtension(new Twig_Extension_Debug());
 $twigEnv->addGlobal('assets_dir', $GLOBALS['assets_static_relative']);
+$twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
+$twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
 }));

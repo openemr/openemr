@@ -111,7 +111,7 @@ class Amendment
     }
 
     /**
-     * Return all amendments from a patient
+     * Return all amendments from a patient.
      *
      * @param $pid int Patient ID
      * @return array

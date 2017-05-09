@@ -45,7 +45,40 @@ use Symfony\Component\HttpFoundation\Request;
 
 $request = Request::createFromGlobals();
 
-if ($request->)
+if ($request->getMethod() == Request::METHOD_POST && $request->get('route')) {
+    $allowedClasses = [
+        "Amendment" => [
+            "FQCN" => "OpenEMR\\Amendment\\Amendment",
+            "args" => [$GLOBALS['twigLoader'], $GLOBALS['twig']],
+        ],
+    ];
+    $route = explode('-', $request->get('route'));
+    $class = ucfirst($route[0]);
+    $method = $route[1];
+    if (array_key_exists($class, $allowedClasses)) {
+        $tmpClass = new ReflectionClass($allowedClasses[$class]["FQCN"]);
+        if (array_key_exists("args", $allowedClasses[$class])) {
+            $instance = $tmpClass->newInstanceArgs($allowedClasses[$class]['args']);
+        } else {
+            $instance = $tmpClass->newInstance();
+        }
+        if (method_exists($instance, $method)) {
+            call_user_func([$instance, $method], $request);
+        } else {
+        }
+    }
+}
+
+function showKeys($array)
+{
+    $keys = array_keys($array);
+    foreach ($array as $key => $value) {
+        if (is_array($key)) {
+            $keys = array_merge($keys, showKeys($key));
+        }
+    }
+    return $keys;
+}
 
 
   if (isset($_GET['set_pid'])) {
@@ -1105,6 +1138,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 
     $amendment = new Amendment($GLOBALS['twigLoader'], $GLOBALS['twig']);
+    var_dump($pid);
     $amendment->getList($pid);
 ?>
   </td>

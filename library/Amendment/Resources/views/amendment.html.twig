@@ -11,8 +11,10 @@ Display a list of amendments
 {% block body %}
 <div class="row">
     <div class="col-xs-6">
-        <a href="#" class="btn btn-default btn-small" data-toggle="modal" data-target="#modal-add-amendment"><i class="fa fa-plus"></i>&nbsp;{{'Add'|translate}}</a>
-        <a href="#" class="btn btn-default btn-small"><i class="fa fa-print"></i>&nbsp;{{'Print'|translate}}</a>
+        <div class="btn-group">
+            <a href="#" class="btn btn-default btn-small" data-toggle="modal" data-target="#modal-add-amendment"><i class="fa fa-plus"></i>&nbsp;{{'Add'|translate}}</a>
+            <a href="#" class="btn btn-default btn-small"><i class="fa fa-print"></i>&nbsp;{{'Print'|translate}}</a>
+        </div>
     </div>
     <div class="col-xs-6 text-right">
         <a href="#" class="btn btn-link btn-small">{{'Check All'|translate}}</a>
@@ -54,46 +56,47 @@ Display a list of amendments
 <div class="modal" id="modal-add-amendment" tabindex="-1" role="dialog" aria-labelledby="add-amendment-label">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <form action="{{ rootdir }}/patient_file/summary/demographics.php"
+                  name="add_edit_amendment"
+                  method="post" class="">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="add-amendment-label">{{'Add Amendment'|translate}}</h4>
             </div>
             <div class="modal-body">
-                <form action="add_edit_amendments.php"
-                      name="add_edit_amendment#add_edit_amendment"
-                      method="post" class="">
                     <div class="form-inline form-group">
                         <div class="form-group">
-                            <label for="amendment_date" class="control-label">{{ 'Request Date'|translate }}</label>
-                            <input type="text" size="10" name="amendment_date"
+                            <label for="date" class="control-label">{{ 'Request Date'|translate }}</label>
+                            <input type="text" size="10" name="date"
                                    id="amendment_date" class="datepicker form-control">
                         </div>
                         <div class="form-group">
-                            <label for="amendment_from" class="control-label">{{ 'By'|translate }}</label>
+                            <label for="by" class="control-label">{{ 'By'|translate }}</label>
                             {{ add.requested_by_selectbox|raw }}
                         </div>
                         <div class="form-group">
-                            <label for="amenendment_status" class="control-label">{{ 'Status'|translate }}</label>
+                            <label for="status" class="control-label">{{ 'Status'|translate }}</label>
                             {{ add.status_selectbox|raw }}
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="desc" class="control-label">{{ 'Request Description'|translate }}</label>
-                        <textarea name="description" id="desc" rows="7" class="form-control"></textarea>
+                        <textarea name="desc" id="desc" rows="7" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="desc" class="control-label">{{ 'Comments'|translate }}</label>
-                        <textarea name="notel" id="note" rows="4" class="form-control">{{ 'New amendment request'|translate }}</textarea>
+                        <label for="note" class="control-label">{{ 'Comments'|translate }}</label>
+                        <textarea name="note" id="note" rows="4" class="form-control">{{ 'New amendment request'|translate }}</textarea>
                     </div>
-                </form>
             </div>
             <div class="modal-footer">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-primary"><i class="fa fa-check"></i>&nbsp;{{'Save'|translate}}</button>
+                    <input type="hidden" name="route" value="Amendment-save">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i>&nbsp;{{'Save'|translate}}</button>
                     <a href="#" role="button" class="btn btn-link" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{'Close'|translate}}</a>
                 </div>
                 <div class="clearfix">&nbsp;</div>
             </div>
+            </form>
         </div>
     </div>
 </div>
