@@ -33,21 +33,7 @@ if (empty($hide)) { // if not included by forms.php ?>
 <head>
 <?php } ?>
 <?php html_header_show();?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 <script language="JavaScript">
-$(document).ready(function(){
-
-    $("ul.nav").on('click', 'a.menu-item-action', function(e) {
-        e.preventDefault();
-        if (parent.Forms) {
-            parent.location.href = $(this).attr('href');
-        } else {
-            location.href = $(this).attr('href');
-        }
-    });
-
-});
-
 
 function openNewForm(sel) {
   top.restoreSession();
