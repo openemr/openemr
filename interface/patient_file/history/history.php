@@ -12,9 +12,9 @@
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+    <?php
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript">
@@ -22,10 +22,6 @@ $(document).ready(function(){
     tabbify();
 });
 </script>
-
-<style type="text/css">
-</style>
-
 </head>
 <body class="body_top">
 
@@ -52,21 +48,18 @@ $(document).ready(function(){
 ?>
 
 <?php if (acl_check('patients','med','',array('write','addonly') )) { ?>
-<div>
-    <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
-</div>
-<div id='namecontainer_history' class='namecontainer_history' style='float:left;margin-right:10px'>
-<?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) ?></a></span>
+<div class="page-header">
+    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
 </div>
 <div>
-    <a href="history_full.php"
-     class="css_button"
-     onclick="top.restoreSession()">
-    <span><?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?></span>
+<div class="btn-group">
+    <a href="../summary/demographics.php" class="btn btn-default" onclick="top.restoreSession()">
+        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
     </a>
-    <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
-        <span><?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?></span>
+    <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
+        <?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?>
     </a>
+</div>
 </div>
 <br/>
 <?php } ?>
