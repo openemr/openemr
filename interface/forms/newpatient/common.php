@@ -62,6 +62,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <?php html_header_show();?>
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -161,7 +162,7 @@ function cancelClicked() {
 
 <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
 
-<div style='float:left'>
+<div style='float:left;margin-right: 35px;'>
 <?php if ($viewmode) { ?>
 <input type=hidden name='mode' value='update'>
 <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
@@ -173,16 +174,13 @@ function cancelClicked() {
 </div>
 
 <div>
-    <div style = 'float:left; margin-left:8px;margin-top:-3px'>
-      <a href="javascript:saveClicked(undefined);" class="css_button link_submit"><span><?php echo xlt('Save'); ?></span></a>
+    <div class="btn-group">
+      <a href="javascript:saveClicked(undefined);" class="btn btn-default btn-save link_submit"><?php echo xlt('Save'); ?></a>
       <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
-    </div>
-    <div style = 'float:left; margin-top:-3px'>
       <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
-        class="css_button link_submit" onClick="top.restoreSession()"><span><?php echo xlt('Cancel'); ?></span></a>
+        class="btn btn-link btn-cancel link_submit" onClick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
   <?php } else { // not $viewmode ?>
-      <a href="" class="css_button link_submit" onClick="return cancelClicked()">
-      <span><?php echo xlt('Cancel'); ?></span></a>
+      <a href="" class="btn btn-link btn-cancel link_submit" onClick="return cancelClicked()"><?php echo xlt('Cancel'); ?></a>
   <?php } // end not $viewmode ?>
     </div>
  </div>
@@ -374,8 +372,8 @@ if ($facilities) {
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
       <?php if (acl_check('patients','med','','write')) { ?>
-       <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
-        onclick="top.restoreSession()"><span><?php echo xlt('Add'); ?></span></a>
+       <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-default btn-add btn-sm link_submit iframe"
+        onclick="top.restoreSession()"><?php echo xlt('Add');?></a>
       <?php } ?>
     </div>
 <?php } ?>
