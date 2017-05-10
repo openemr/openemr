@@ -1958,12 +1958,15 @@ function validateform(event,valu){
         return false;
     }
 
+    <?php if (!$GLOBALS['allow_Early_check_in']) { ?>
     //Prevent from user to change status to Arrive before the time
+    //Dependent in globals setting - allow_Early_check_in
     if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
         alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
         $('#form_save').attr('disabled', false);
         return false;
     }
+    <?php } ?>
 
     //add rule if choose repeating event
     if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){

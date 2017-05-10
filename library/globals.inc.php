@@ -1509,7 +1509,12 @@ $GLOBALS_METADATA = array(
       '1',                              // default
       xl('Automatically create a new encounter when an appointment check in status is selected.')
     ),
-
+    'allow_Early_check_in' => array(
+      xl('Allow Early Check In'),
+      'bool',                           // data type
+      '1',                              // default
+      xl("Allow Check In before the appointment's time..")
+    ),
     'disable_pat_trkr' => array(
       xl('Disable Patient Flow Board'),
       'bool',                           // data type
