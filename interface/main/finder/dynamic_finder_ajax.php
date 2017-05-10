@@ -102,8 +102,15 @@ foreach ($aColumns as $colname) {
     $sellist .= "lname, fname, mname";
   }
   else {
+    if($colname == "pubpid")
+    {
+      $sellist .= 'CAST(pubpid AS UNSIGNED) AS pubpid';
+    }
+  else {
     $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
   }
+}
+
 }
 
 // Get total number of rows in the table.
