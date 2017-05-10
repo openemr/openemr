@@ -593,10 +593,10 @@ $(document).ready(function() {
                 </div>
             </div>
             <div class="btn-group pull-right" role="group">
-                <button type="button" class="btn btn-default" onclick="addProcLine()"><i class="fa fa-plus"></i>&nbsp;<?php echo xla('Add Procedure'); ?></button>
-                <button type="submit" class="btn btn-default" name='bn_save' value="save" onclick='transmitting = false;'><i class="fa fa-check"></i>&nbsp;<?php echo xla('Save'); ?></button>
-                <button type="submit" class="btn btn-default" name='bn_xmit' value="transmit" onclick='transmitting = true;' ><i class="fa fa-arrow-right"></i>&nbsp;<?php echo xla('Save and Transmit'); ?></button>
-                <button type="button" class="btn btn-link" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><i class="fa fa-times"></i>&nbsp;<?php echo xla('Cancel'); ?></button>
+                <button type="button" class="btn btn-default btn-add" onclick="addProcLine()"><?php echo xla('Add Procedure'); ?></button>
+                <button type="submit" class="btn btn-default btn-save" name='bn_save' value="save" onclick='transmitting = false;'><?php echo xla('Save'); ?></button>
+                <button type="submit" class="btn btn-default btn-transmit" name='bn_xmit' value="transmit" onclick='transmitting = true;' ><?php echo xla('Save and Transmit'); ?></button>
+                <button type="button" class="btn btn-default btn-cancel" onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xla('Cancel'); ?></button>
             </div>
             <div class="clearfix"></div>
         </form>

@@ -1,3 +1,5 @@
+@import "core.css";
+
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
