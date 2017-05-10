@@ -242,7 +242,7 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
         <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
     </div>
     <div class="btn-group">
-        <a href="history.php" class="btn btn-link" onclick="top.restoreSession()">
+        <a href="history.php" class="btn btn-default" onclick="top.restoreSession()">
             <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?>
         </a>
         <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e');?></button>
