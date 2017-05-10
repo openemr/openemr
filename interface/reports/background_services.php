@@ -36,11 +36,9 @@ require_once("../globals.php");
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <title><?php echo xlt('Background Services'); ?></title>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 
 <style type="text/css">
 

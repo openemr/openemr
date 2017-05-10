@@ -44,7 +44,7 @@ require_once "$srcdir/report_database.inc";
 <title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script LANGUAGE="JavaScript">
 

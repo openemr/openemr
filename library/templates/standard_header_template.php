@@ -5,7 +5,7 @@
  *
  * Example code in script:
  *    $include_standard_style_js = array("datetimepicker"); (php command and optional)
- *    require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); (php command)
+ *    require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; (php command)
  *
  * The $include_standard_style_js supports:
  *                                         jquery-ui (brings in just the js script)

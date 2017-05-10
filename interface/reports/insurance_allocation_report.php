@@ -55,9 +55,8 @@ else {
 <?php html_header_show();?>
 <title><?php xl('Patient Insurance Distribution','e'); ?></title>
 
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -76,9 +75,6 @@ else {
  });
 
 </script>
-
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
 
@@ -132,18 +128,18 @@ else {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
 		</tr>

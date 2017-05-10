@@ -16,7 +16,7 @@ require_once("$srcdir/patient.inc");
 <?php html_header_show(); ?>
 <title><?php xl('Charts Checked Out','e'); ?></title>
 
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 

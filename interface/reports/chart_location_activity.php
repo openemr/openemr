@@ -21,7 +21,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
 <?php html_header_show(); ?>
 <title><?php echo xlt('Chart Location Activity'); ?></title>
 
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 
