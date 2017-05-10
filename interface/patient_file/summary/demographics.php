@@ -748,7 +748,7 @@ $widgetTitle = xl("Demographics");
 $widgetLabel = "demographics";
 $widgetButtonLabel = xl("Edit");
 $widgetButtonLink = "demographics_full.php";
-$widgetButtonClass = "";
+$widgetButtonClass = "btn-edit";
 $linkMethod = "html";
 $bodyClass = "";
 $widgetAuth = acl_check('patients', 'demo', '', 'write');
@@ -790,7 +790,7 @@ if ( $insurance_count > 0 ) {
   $widgetLabel = "insurance";
   $widgetButtonLabel = xl("Edit");
   $widgetButtonLink = "demographics_full.php";
-  $widgetButtonClass = "";
+  $widgetButtonClass = "btn-edit";
   $linkMethod = "html";
   $bodyClass = "";
   $widgetAuth = acl_check('patients', 'demo', '', 'write');
@@ -983,7 +983,7 @@ $widgetTitle = xl("Notes");
 $widgetLabel = "pnotes";
 $widgetButtonLabel = xl("Edit");
 $widgetButtonLink = "pnotes_full.php?form_active=1";
-$widgetButtonClass = "";
+$widgetButtonClass = "btn-edit";
 $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = acl_check('patients', 'notes', '', 'write');
@@ -1006,7 +1006,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $widgetLabel = "patient_reminders";
                 $widgetButtonLabel = xl("Edit");
                 $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=".$pid;
-                $widgetButtonClass = "";
+                $widgetButtonClass = "btn-edit";
                 $linkMethod = "html";
                 $bodyClass = "notab";
                 $widgetAuth = acl_check('patients', 'reminder', '', 'write');
@@ -1028,7 +1028,7 @@ $widgetTitle = xl("Disclosures");
 $widgetLabel = "disclosures";
 $widgetButtonLabel = xl("Edit");
 $widgetButtonLink = "disclosure_full.php";
-$widgetButtonClass = "";
+$widgetButtonClass = "btn-edit";
 $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = acl_check('patients', 'disclosure', '', 'write');
@@ -1086,7 +1086,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetLabel = "labdata";
   $widgetButtonLabel = xl("Trend");
   $widgetButtonLink = "../summary/labdata.php";#"../encounter/trend_form.php?formname=labdata";
-  $widgetButtonClass = "";
+  $widgetButtonClass = "btn-edit";
   $linkMethod = "html";
   $bodyClass = "notab";
   // check to see if any labdata exist
@@ -1122,7 +1122,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetLabel = "vitals";
   $widgetButtonLabel = xl("Trend");
   $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
-  $widgetButtonClass = "";
+  $widgetButtonClass = "btn-edit";
   $linkMethod = "html";
   $bodyClass = "notab";
   // check to see if any vitals exist
@@ -1303,7 +1303,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetLabel = "clinical_reminders";
         $widgetButtonLabel = xl("Edit");
         $widgetButtonLink = "../reminder/clinical_reminders.php?patient_id=".$pid;;
-        $widgetButtonClass = "";
+        $widgetButtonClass = "btn-edit";
         $linkMethod = "html";
         $bodyClass = "summary_item small";
         $widgetAuth = acl_check('patients', 'alert', '', 'write');
@@ -1401,7 +1401,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetLabel = "appointments";
         $widgetButtonLabel = xl("Add");
         $widgetButtonLink = "return newEvt();";
-        $widgetButtonClass = "";
+        $widgetButtonClass = "btn-add";
         $linkMethod = "javascript";
         $bodyClass = "summary_item small";
         $widgetAuth = $resNotNull // $resNotNull reflects state of query in fetchAppointments
@@ -1484,7 +1484,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          $widgetLabel = "recurrent_appointments";
          $widgetButtonLabel = xl("Add");
          $widgetButtonLink = "return newEvt();";
-         $widgetButtonClass = "";
+         $widgetButtonClass = "btn-add";
          $linkMethod = "javascript";
          $bodyClass = "summary_item small";
          $widgetAuth = false;
