@@ -42,21 +42,11 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<style>
-.control_label {
- font-family: Arial, Helvetica, sans-serif;
- font-size: 10pt;
-}
-</style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <?php
+    $include_standard_style_js = ['datetimepicker',];
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
+<title><?php xl("History & Lifestyle", 'e');?></title>
 <script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -248,18 +238,14 @@ $constraints = LBF_Validation::generate_validate_constraints("HIS");
 <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
     <input type='hidden' name='mode' value='save'>
 
-    <div>
-        <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
+    <div class="page-header">
+        <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
     </div>
-    <div id='namecontainer_fhistory' class='namecontainer_fhistory' style='float:left;margin-right:10px'>
-  <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
-    </div>
-    <div>
-        <input class="css_btn"  type="submit" value="<?php xl('Save','e'); ?>">
-
-        <a href="history.php" class="css_button" onclick="top.restoreSession()">
-            <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
+    <div class="btn-group">
+        <a href="history.php" class="btn btn-link" onclick="top.restoreSession()">
+            <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?>
         </a>
+        <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e');?></button>
     </div>
 
     <br/>
