@@ -163,14 +163,14 @@ body
 
 div.closeDlgIframe {
 
-	position: absolute;
-	top: -12px;
-	right: -15px;
-	height: 30px;
-	width: 30px;
-	background: url('iframe_close.png') top left no-repeat;
-	cursor: pointer;
-	z-index: 10010;
+    position: absolute;
+    top: -12px;
+    right: -15px;
+    height: 30px;
+    width: 30px;
+    background: url('iframe_close.png') top left no-repeat;
+    cursor: pointer;
+    z-index: 10010;
 }
 
 .dialogIframe > iframe{
