@@ -21,13 +21,11 @@
  * @link    http://www.open-emr.org
  */
 ?>
-
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;" class="fa-stack"><a data-bind="click: viewPtFinder" href="#">
-                <i class="fa fa-list fa-stack-1x" aria-hidden="true"></i>
-                <strong><i style="margin: 10px 0 0 10px;" class="fa fa-search fa-stack-x" aria-hidden="true"></i></strong>
+            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
+                <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
                 <?php echo xlt("Patient"); ?>:
@@ -41,8 +39,8 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="css_button_small" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
-                        <i style="font-size:150%;" class="fa fa-times"></i>
+                    <a class="btn btn-xs btn-link" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
+                        <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
             </div>
@@ -55,8 +53,8 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <a class="css_button_small" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
-                <i style="font-size:150%;" class="fa fa-plus"></i>
+            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
+                <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
