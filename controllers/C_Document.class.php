@@ -115,6 +115,14 @@ class C_Document extends Controller {
         $sentUploadStatus = array();
         if( count($_FILES['file']['name']) > 0){
             $upl_inc = 0;
+            if($GLOBALS['secure_upload']){
+
+                $white_list = array();
+                $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
+                while ($lrow = sqlFetchArray($lres)) {
+                    $white_list[] = $lrow['option_id'];
+                }
+            }
 
             foreach($_FILES['file']['name'] as $key => $value){
                 $fname = $value;
@@ -124,12 +132,12 @@ class C_Document extends Controller {
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
-                    $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
+                    $error = "Error number: " . $_FILES['file']['error'][$key] . " occured while uploading file named: " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
-                        $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
+                        $error .= "The system does not permit uploading files of with size 0.\n";
                     }
-                }elseif($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])){
-                       $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
+                }elseif($GLOBALS['secure_upload'] && !$this->isWhiteFile($_FILES['file']['tmp_name'][$key], $white_list)){
+                       $error = "The system does not permit uploading files with MIME content type - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 }else{
                     $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
@@ -1350,6 +1358,23 @@ function _check_relocation($url, $new_pid = null, $new_name = null) {
 }
 
 
+/**
+ * This function detects a MIME type for a file and check if it in the white list of the allowed mime types.
+ * @param string $file - file location.
+ * @param array $whiteList - array of mime types that allowed to upload.
+ */
+function isWhiteFile($file, $whiteList){
+
+    $mimetype  = mime_content_type($file);
+	if(in_array($mimetype, $whiteList)){
+		return true;
+	} else {
+		$splitMimeType = explode('/', $mimetype);
+		$categoryType = $splitMimeType[0];
+		if(in_array($categoryType. '/*',  $whiteList))return true;
+	}
+	return false;
+}
 
 }
 ?>
