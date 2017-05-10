@@ -1513,7 +1513,7 @@ $GLOBALS_METADATA = array(
       xl('Allow Early Check In'),
       'bool',                           // data type
       '1',                              // default
-      xl("Allow Check In before the appointment's time..")
+      xl("Allow Check In before the appointment's time.")
     ),
     'disable_pat_trkr' => array(
       xl('Disable Patient Flow Board'),

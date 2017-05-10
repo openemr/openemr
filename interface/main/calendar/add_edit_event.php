@@ -1959,13 +1959,13 @@ function validateform(event,valu){
     }
 
     <?php if (!$GLOBALS['allow_early_check_in']) { ?>
-    //Prevent from user to change status to Arrive before the time
-    //Dependent in globals setting - allow_early_check_in
-    if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
-        alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
-        $('#form_save').attr('disabled', false);
-        return false;
-    }
+        //Prevent from user to change status to Arrive before the time
+        //Dependent in globals setting - allow_early_check_in
+        if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
+            alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
+            $('#form_save').attr('disabled', false);
+            return false;
+        }
     <?php } ?>
 
     //add rule if choose repeating event
