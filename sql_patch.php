@@ -13,7 +13,7 @@
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
-$response = Checker::checkPhpVersion();
+$response = OpenEMR\Checker::checkPhpVersion();
 if ($response !== true) {
   die($response);
 }
@@ -70,7 +70,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
     foreach ($grparr as $fldid => $fldarr) {
       list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-      if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) { 
+      if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
         $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
         if (empty($row['count'])) {
           sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
