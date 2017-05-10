@@ -7,15 +7,11 @@ include_once("$srcdir/transactions.inc");
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+    <?php
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
 <script type="text/javascript">
     function toggle( target, div ) {
@@ -42,23 +38,17 @@ include_once("$srcdir/transactions.inc");
 </head>
 
 <body class="body_top">
-    <table>
-    <tr>
-        <td>
-            <span class="title"><?php echo htmlspecialchars( xl('Patient Transactions'), ENT_NOQUOTES); ?></span>&nbsp;</td>
-        <td>
-            <!-- Define CSS Buttons -->
-            <a href="add_transaction.php" class="css_button" onclick="top.restoreSession()">
-            <span><?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></span></a>
-        </td>
-        <td>
-            <a href="print_referral.php" onclick="top.restoreSession()" class="css_button" >
-            <span><?php echo htmlspecialchars( xl('View Blank Referral Form'), ENT_NOQUOTES); ?></span></a>
-        </td>
-    </tr>
-    </table>
+    <div class="page-header">
+        <h1><?php echo xl('Patient Transactions');?></h1>
+    </div>
+    <div class="btn-group">
+        <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
+            <?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></a>
+        <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-default" >
+            <?php echo htmlspecialchars( xl('View Blank Referral Form'), ENT_NOQUOTES); ?></a>
+    </div>
 
-    <div style='margin-left:10px' class='text'>
+    <div class='text'>
     <?php if ($result = getTransByPid($pid)) { ?>
         <div id='transactions_div'></div>
     <?php } else { ?>

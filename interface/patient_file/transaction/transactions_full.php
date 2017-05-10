@@ -9,8 +9,9 @@ require_once("$srcdir/options.inc.php");
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
 <script language="javascript">
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
@@ -20,69 +21,67 @@ function imdeleted() {
 </script>
 </head>
 <body class="body_top">
-
-<br>
-<table class="showborder" cellspacing="0px" cellpadding="2px">
-
+<table class="table table-striped">
 <?php
-
-if ($result = getTransByPid($pid)) {
-
-	// Print Heading .. to have better Understanding of the Listed Transactions -- starts here Dec 07,09
-	 print "<tr class='showborder_head'><th style='width=10px;'>&nbsp;</th><th style='width=10px;'>&nbsp;</th><th style='width=10px;'>&nbsp;</th>";
-	 print "<th style='width:140px;'>".htmlspecialchars( xl('Type'), ENT_NOQUOTES)."</th>" .
-               "<th  style='width:150px;'>".htmlspecialchars( xl('Date'), ENT_NOQUOTES)."</th>" .
-               "<th style='width:60px;'>".htmlspecialchars( xl('User'), ENT_NOQUOTES)."</th>" .
-               "<th  style='width:180px;'>".htmlspecialchars( xl('Details'), ENT_NOQUOTES)."</th></tr>\n";
-		// Print Heading .. to have better Understanding of the Listed Transactions   -- ends here
-
-	foreach ($result as $iter) {
-    if (!isset($iter['body'])) $iter['body'] = '';
-		if (getdate() == strtotime($iter{"date"})) {
-			$date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
-		} else {
-			$date_string = date( "D F dS" ,strtotime($iter{"date"}));
-		}
-		echo "<tr height='25'><td>";
-		if ($iter{"title"} == "LBTref") {
-			//show the print button for referral forms only
-                        echo "<a href='print_referral.php?transid=".
-				htmlspecialchars( $iter{"id"}, ENT_NOQUOTES).
-                        	"' onclick='top.restoreSession()' class='css_button_small'><span>".
-                        	htmlspecialchars( xl('View'), ENT_NOQUOTES)."</span></a>";
-		}
-		else {
-			echo "&nbsp;";
-		}
-		echo "</td><td>";
-		print "<a href='add_transaction.php?transid=".htmlspecialchars( $iter{"id"}, ENT_NOQUOTES).
-			"&title=".htmlspecialchars( $iter{"title"}, ENT_QUOTES).
-			"&inmode=edit' onclick='top.restoreSession()' class='css_button_small'><span>".
-			htmlspecialchars( xl('Edit'), ENT_NOQUOTES)."</span></a>";
-		echo "</td><td>";
-		if (acl_check('admin', 'super')) {
-			echo "<a href='../deleter.php?transaction=".
-				htmlspecialchars( $iter{"id"}, ENT_QUOTES).
-				"' onclick='top.restoreSession()' class='css_button_small'><span>".
-				htmlspecialchars( xl('Delete'), ENT_NOQUOTES)."</span></a>";
-		}
-		else {
-			echo "&nbsp;";
-		}
-		echo "</td>";
-		echo "<td><b>&nbsp;" .
-			generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $iter{"title"}) .
-			"</b></td><td>" . htmlspecialchars( $date_string, ENT_NOQUOTES) . "</td><td>(" .
-			htmlspecialchars( $iter{"user"}, ENT_NOQUOTES). ")&nbsp;</td><td>" .
-			htmlspecialchars( ($iter{"body"}), ENT_NOQUOTES) . "&nbsp;</td></tr>\n";
-		$notes_count++;
-
-	}
-
-}
+if ($result = getTransByPid($pid)): ?>
+<thead>
+<tr>
+    <th>&nbsp;</th>
+    <th><?php echo xl('Type'); ?></th>
+    <th><?php echo xl('Date'); ?></th>
+    <th><?php echo xl('User'); ?></th>
+    <th><?php echo xl('Details'); ?></th>
+</tr>
+</thead>
+<tbody>
+<?php
+foreach ($result as $item):
+    if (!isset($item['body'])) {
+        $item['body'] = '';
+    }
+    if (getdate() == strtotime($item['date'])) {
+        $date = "Today, " . date('D F ds', strtotime($item['date']));
+    } else {
+        $date = date('D F ds', strtotime($item['date']));
+    }
+    $id = htmlspecialchars($item['id']);
+    $edit = xl('Edit');
+    $view = xl('View');
+    $delete = xl('Delete');
+    $title = xl($item['title']);
 ?>
-
+<tr>
+    <td>
+        <div class="btn-group pull-left">
+            <?php if ($item['title'] == 'LBTref'): ?>
+            <a href='print_referral.php?transid=<?php echo $id?>' onclick='top.restoreSession();'
+               class='btn btn-view btn-default'>
+                <?php echo $view;?>
+            </a>
+            <?php endif; ?>
+            <a href='add_transaction.php?transid=<?php echo $id?>&title=<?php echo $title?>&inmode=edit'
+               onclick='top.restoreSession()'
+               class='btn btn-default btn-edit'>
+                <?php echo $edit?>
+            </a>
+            <?php if (acl_check('admin', 'super')): ?>
+            <a href='../deleter.php?transaction=<?php echo $id?>'
+               onclick='top.restoreSession()'
+               class='btn btn-default btn-delete'>
+                <?php echo $delete?>
+            </a>
+            <?php endif; ?>
+        </div>
+    </td>
+    <td><?php echo generate_display_field(['data_type' => 1, 'list_id' => 'transactions'], $item['title']);?></td>
+    <td><?php echo htmlspecialchars($date, ENT_NOQUOTES);?></td>
+    <td><?php echo htmlspecialchars($item['user'], ENT_NOQUOTES);?></td>
+    <td><?php echo htmlspecialchars($item['body'], ENT_NOQUOTES);?></td>
+</tr>
+<?php
+endforeach;
+endif;?>
+</tbody>
 </table>
-
 </body>
 </html>

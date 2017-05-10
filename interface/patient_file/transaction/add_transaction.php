@@ -140,18 +140,12 @@ $trow = $transid ? getTransById($transid) : array();
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
+    <?php
+    $include_standard_js_style = ['datetimepicker'];
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
 
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['srcdir'] ?>/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
@@ -167,9 +161,6 @@ $(document).ready(function() {
     checkSkipConditions();
   }
 });
-</script>
-
-<script language="JavaScript">
 
 var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
 
@@ -311,21 +302,25 @@ div.tab {
 <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo htmlspecialchars( $transid, ENT_QUOTES); ?>' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='add'>
 
-	<table>
-	    <tr>
-            <td>
-                <b><?php echo htmlspecialchars( xl('Add/Edit Patient Transaction'), ENT_NOQUOTES); ?></b>&nbsp;</td><td>
-                 <a href="javascript:;" class="css_button" onclick="submitme();">
-                    <span><?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES); ?></span>
-                 </a>
-             </td>
-             <td>
-                <a href="transactions.php" class="css_button" onclick="top.restoreSession()">
-                    <span><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES); ?></span>
-                </a>
-            </td>
-        </tr>
-	</table>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h1><?php echo xl('Add/Edit Patient Transaction');?></h1>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="btn-group">
+                    <a href="#" class="btn btn-default btn-save" onclick="submitme();">
+                        <?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES); ?>
+                    </a>
+                    <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                        <?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES); ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<table class="text">
 	    <tr><td>
