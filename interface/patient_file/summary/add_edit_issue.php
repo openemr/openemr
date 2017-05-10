@@ -809,7 +809,14 @@ $(document).ready(function() {
   <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
   <td>
    <?php
-    echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
+    $ps = new cls_select_list_gen();
+    $ps->set_args(array(
+    		'tag_name' => 'form_outcome',
+    		'list_id' => 'outcome',
+    		'currvalue' => $irow['outcome'],
+    		'onchange' => 'outcomeClicked(this);',
+    ));
+    echo $ps->getSelectHTML();
    ?>
   </td>
  </tr>

@@ -77,6 +77,38 @@ function optionalAge($frow, $date, &$asof) {
   return $prefix . oeFormatAge($date, $asof, $format);
 }
 
+// mdsupport - helper class for self documenting calls to generate_select_list function
+class cls_select_list_gen {
+	// Could be made generic using ReflectionParams
+	private $args = array(
+		'tag_name' => NULL,
+		'list_id' => NULL,
+		'currvalue' => NULL,
+		'title' => NULL,
+		'empty_name' => ' ',
+		'class' => '',
+		'onchange' => '',
+		'tag_id' => '',
+		'custom_attributes' => null,
+		'multiple' => false,
+		'backup_list' => '',
+	);
+	public function set_args($args) {
+		if (is_array($args)) {
+			foreach ($args as $arg_name => $arg_value) {
+				if (array_key_exists($arg_name, $this->args)) {
+					$this->args[$arg_name] = $arg_value;
+				}
+			}
+		}
+	}
+	public function getSelectHTML() {
+		// php 5.7 can use splat but until then use old fashioned approach
+		$fun = new ReflectionFunction('generate_select_list');
+		return $fun->invokeArgs($this->args);
+	}
+}
+
 // Function to generate a drop-list.
 //
 function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '',
