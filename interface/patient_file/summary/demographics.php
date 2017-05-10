@@ -164,6 +164,9 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.css"
+          type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
@@ -491,33 +494,28 @@ if ($thisauth): ?>
 <table class="table_header">
     <tr>
         <td>
-            <span class='title'>
-                <?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?>
-            </span>
+            <div class='page-header'>
+                <h4><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></h4>
+            </div>
         </td>
+        <td>
+            <div class="btn-group btn-sm pull-right">
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
-        <td style='padding-left:1em;' class="delete">
-            <a class='css_button iframe'
+            <a class='btn btn-default btn-delete iframe'
                href='../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
-                <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
+                <?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?>
             </a>
-        </td>
         <?php endif; // Allow PT delete
         if($GLOBALS['erx_enable']): ?>
-        <td style="padding-left:1em;" class="erx">
-            <a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?></span>
+            <a class="btn btn-default btn-add" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                <?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?>
             </a>
-        </td>
-        <td style="padding-left:1em;">
-            <a class="css_button iframe1"
+            <a class="btn btn-default btn-add iframe1"
                href="../../soap_functions/soap_accountStatusDetails.php"
                onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?></span>
+                <?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?>
             </a>
-        </td>
-        <td id='accountstatus'></td>
         <?php endif; // eRX Enabled
         //Patient Portal
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
@@ -526,14 +524,12 @@ if ($thisauth): ?>
             $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
             if ($portalStatus['allow_patient_portal']=='YES'):
                 $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
-                <td style='padding-left:1em;'>
-                    <a class='css_button iframe small_modal'
+                    <a class='btn btn-default btn-add iframe small_modal'
                        href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                        onclick='top.restoreSession()'>
                         <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
-                        <span><?php echo $display; ?></span>
+                        <?php echo $display; ?>
                     </a>
-                </td>
             <?php
             else:
                 $portalUserSetting = false;
@@ -544,16 +540,12 @@ if ($thisauth): ?>
             if ($portalStatus['allow_patient_portal']=='YES'):
                 $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
                 ?>
-                <td style='padding-left:1em;'>
-                    <a class='css_button iframe small_modal'
+                    <a class='btn btn-default btn-add iframe small_modal'
                        href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
                        onclick='top.restoreSession()'>
-                        <span>
                             <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
                             <?php echo $text; ?>
-                        </span>
                     </a>
-                </td>
             <?php
             else:
                 $portalUserSetting = false;
@@ -565,7 +557,7 @@ if ($thisauth): ?>
             </td>
         <?php endif;
         //Patient Portal
-
+        echo "</div></td>";
         // If patient is deceased, then show this (along with the number of days patient has been deceased for)
         $days_deceased = is_patient_deceased($pid);
         if ($days_deceased != null): ?>
