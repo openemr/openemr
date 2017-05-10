@@ -44,6 +44,7 @@ foreach ($result as $item):
     } else {
         $date = date('D F ds', strtotime($item['date']));
     }
+    $date = oeFormatShortDate($item['refer_date']);
     $id = htmlspecialchars($item['id']);
     $edit = xl('Edit');
     $view = xl('View');
