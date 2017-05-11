@@ -1,5 +1,5 @@
 <table border="0" align="center" cellspacing="0" cellpadding="0" width="100%" height="22">
-<tr bgcolor="#00ffff">
+<tr class = "head" bgcolor="#00ffff">
 <?php if (acl_check('admin', 'batchcom')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"

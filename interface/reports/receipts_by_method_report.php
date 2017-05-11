@@ -287,7 +287,7 @@ function sel_procedure() {
 
 <table>
  <tr>
-  <td width='630px'>
+  <td width='800px'>
 	<div style='float:left'>
 
 	<table class='text'>
@@ -317,7 +317,7 @@ function sel_procedure() {
 			   <input type='text' name='form_proc_codefull' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
 				title='<?php xl('Click to select optional procedure code','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
-                                <br>
+                                
 			   &nbsp;<input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
 			</td>
 		</tr>

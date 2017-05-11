@@ -262,6 +262,7 @@ function process_result_code($row) {
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
@@ -292,9 +293,8 @@ function process_result_code($row) {
 
 <table border='0' cellspacing='5' cellpadding='1'>
 
- <tr>
-  <td valign='top' class='dehead' nowrap>
-   <?php xl('Rows','e'); ?>:
+  <td valign='top'  nowrap>
+   <span class='dehead'  style="padding: 0px 5px "><?php xl('Rows','e'); ?>:</span>
   </td>
   <td valign='top' class='detail'>
    <select name='form_by' title='Left column of report'>
@@ -307,8 +307,8 @@ function process_result_code($row) {
 ?>
    </select>
   </td>
-  <td valign='top' class='dehead' nowrap>
-   <?php xl('Filters','e'); ?>:
+  <td valign='top' nowrap>
+   <span class='dehead'  style="padding: 0px 5px "><?php xl('Filters','e'); ?>:</span>
   </td>
   <td rowspan='2' colspan='2' class='detail'
    style='border-style:solid;border-width:1px;border-color:#cccccc'>
@@ -351,8 +351,8 @@ function process_result_code($row) {
   </td>
  </tr>
  <tr>
-  <td valign='top' class='dehead' nowrap>
-   <?php xl('Columns','e'); ?>:
+  <td valign='top' nowrap>
+   <span class='dehead'  style="padding: 0px 5px "><?php xl('Columns','e'); ?>:</span>
   </td>
   <td valign='top' class='detail'>
    <select name='form_show[]' size='4' multiple
@@ -370,8 +370,8 @@ function process_result_code($row) {
   </td>
  </tr>
  <tr>
-  <td valign='top' class='dehead' nowrap>
-   <?php xl('To','e'); ?>:
+  <td valign='top'  nowrap>
+   <span class='dehead'  style="padding: 0px 5px "><?php xl('To','e'); ?>:</span>
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
 <?php

@@ -423,7 +423,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 			&nbsp;&nbsp;
 		</td>
         <td>
-            <input id="submit_btn" class="css_btn" type="submit" disabled="disabled" value="<?php xl('Save','e'); ?>">
+            <input id="submit_btn" class="css_btn" type="submit" style="margin:3px 3px 3px 0px" disabled="disabled" value="<?php xl('Save','e'); ?>">
         </td>
 		<td>
 			<a class="css_button" href="demographics.php" onclick="top.restoreSession()">
@@ -523,7 +523,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<table border="0">
 
 		 <tr>
-		  <td valign=top width="430">
+		  <td valign=top width="500">
 		   <table border="0">
 
 			 <tr>
@@ -532,7 +532,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			  </td>
 			  <td class='required'>:</td>
 			  <td>
-                           <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+                           <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" style="margin:5px 3px 3px 0px" onclick="ins_search(<?php echo $i?>)">
 				<span><?php echo xl('Search/Add') ?></span>
         			</a>
 				<select name="i<?php echo $i?>provider">

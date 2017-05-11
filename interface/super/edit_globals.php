@@ -384,9 +384,9 @@ input     { font-size:10pt; }
 
 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen. ?>
 <span style='float: right;'>
-    <input name='srch_desc' size='20'
-        value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' />
-    <input type='submit' name='form_search' value='<?php echo xla('Search'); ?>' />
+    <input name='srch_desc' size='20' type='text'
+        value='<?php echo (!empty($_POST['srch_desc']) ? htmlspecialchars($_POST['srch_desc']) : '') ?>' /> 
+    <input type='submit' name='form_search' style='margin-top:-3px; padding:2px 3px 1px 3px' value='<?php echo xla('Search'); ?>' />
 </span>
 
 <ul class="tabNav">

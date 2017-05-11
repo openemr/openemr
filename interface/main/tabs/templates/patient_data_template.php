@@ -91,7 +91,7 @@
                                             <span data-bind="text:date"></span>
                                             <span data-bind="text:category"></span>
                                         </td>
-                                        <td class="review" data-bind="click: reviewEncounterEvent">
+                                        <td class="css_button" data-bind="click: reviewEncounterEvent">
                                             <?php echo xlt("Review"); ?>
                                         </td>
                                     </tr>
