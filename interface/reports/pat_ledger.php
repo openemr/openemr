@@ -280,10 +280,8 @@ if ($_REQUEST['form_csvexport']) {
 <html>
 <head>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script type="text/javascript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
@@ -308,9 +306,6 @@ function sel_patient() {
     dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
 }
 </script>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <?php html_header_show();?>
 <style type="text/css">
@@ -393,18 +388,18 @@ function sel_patient() {
 	<table class='text'>
 		<tr>
         <?php if($type_form == '0') { ?>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility($form_facility, 'form_facility', true); ?>
 			</td>
-      <td><?php echo xlt('Provider'); ?>:</td>
+      <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
       <td><?php
         $query = "SELECT id, lname, fname FROM users WHERE ".
                 "authorized=1 AND active!=0 ORDER BY lname, fname";
         $ures = sqlStatement($query);
-        echo "   <select name='form_provider'>\n";
+        echo "   <select name='form_provider' class='form-control'>\n";
         echo "    <option value=''>-- " . xlt('All') . " --\n";
         while ($urow = sqlFetchArray($ures)) {
           $provid = $urow['id'];
@@ -416,20 +411,22 @@ function sel_patient() {
       ?></td>
 		</tr><tr>
 <?php } ?>
-      <td colspan="2">
+      <td class='control-label'>
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
-      <td class='label_custom'>
+      <td>
+        <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
+      </td>
+      <td class='control-label' class='control-label'>
         <?php echo xlt('To'); ?>:
       </td>
       <td>
-        <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>
+        <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>' title='yyyy-mm-dd'>
       </td>
       <?php if($type_form == '0') { ?>
-      <td><span class='label_custom'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
+      <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
       <td>
-        <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+        <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
         <?php }else{ ?>
         <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
         <?php } ?>

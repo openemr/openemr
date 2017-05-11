@@ -134,7 +134,7 @@ $res = sqlStatement($query);
 <title><?php echo xlt('Encounters Report'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 

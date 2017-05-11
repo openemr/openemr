@@ -64,8 +64,9 @@ $grand_total_amt_balance  = 0;
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <?php html_header_show();?>
 
@@ -93,12 +94,6 @@ $grand_total_amt_balance  = 0;
     }
 }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <title><?php echo xlt('Financial Summary by Service Code') ?></title>
 
@@ -134,20 +129,20 @@ $grand_total_amt_balance  = 0;
 	<div style='float:left'>
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility($form_facility, 'form_facility', true); ?>
 			</td>
-                        <td><?php echo xlt('Provider'); ?>:</td>
+                        <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
                         // Build a drop-down list of providers.
                                 //
                                 $query = "SELECT id, lname, fname FROM users WHERE ".
                                   "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
                                 $ures = sqlStatement($query);
-                                echo "   <select name='form_provider'>\n";
+                                echo "   <select name='form_provider' class='form-control'>\n";
                                 echo "    <option value=''>-- " . xlt('All') . " --\n";
                                 while ($urow = sqlFetchArray($ures)) {
                                         $provid = $urow['id'];
@@ -159,21 +154,25 @@ $grand_total_amt_balance  = 0;
                                 ?>
 				</td>
 		</tr><tr>
-                 <td colspan="2">
+                 <td class='control-label'>
                           <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
-                           <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+                          </td>
+                          <td>
+                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
                                 title='yyyy-mm-dd'>
                         </td>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                            <?php echo xlt('To'); ?>:
                         </td>
                         <td>
-                           <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
                                 title='yyyy-mm-dd'>
                         </td>
                         <td>
-                           <input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) echo ' checked'; ?>>
-                           <?php echo xlt('Important Codes'); ?>
+                          <div class="checkbox">
+                           <label><input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) echo ' checked'; ?>>
+                           <?php echo xlt('Important Codes'); ?></label>
+                          </div>
                         </td>
 		</tr>
 	</table>

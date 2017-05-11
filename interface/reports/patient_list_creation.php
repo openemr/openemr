@@ -76,7 +76,7 @@
 		</title>
 
         <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-        <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+        <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 		<script language="JavaScript">
 		var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';

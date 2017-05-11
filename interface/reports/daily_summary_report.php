@@ -50,7 +50,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         <?php html_header_show(); ?>
 
         <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-        <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+        <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
         <script type="text/javascript">
 

@@ -42,7 +42,7 @@ require_once "$srcdir/clinical_rules.php";
 <title><?php echo xlt('Alerts Log'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script LANGUAGE="JavaScript">
 

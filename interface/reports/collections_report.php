@@ -267,8 +267,9 @@ else {
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <title><?php echo xlt('Collections Report')?></title>
 <style type="text/css">
@@ -296,10 +297,6 @@ else {
 }
 
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -349,7 +346,7 @@ function checkAll(checked) {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<table>
 					<tr>
 						<td><?php echo xlt('Displayed Columns') ?>:</td>
@@ -410,22 +407,22 @@ function checkAll(checked) {
 				<table>
 
 					<tr>
-						<td class='label_custom'>
+						<td class='control-label'>
 						   <?php echo xlt('Service Date'); ?>:
 						</td>
 						<td>
-						   <input type='text' class='datepicker' name='form_date' id="form_date" size='10' value='<?php echo attr($form_date) ?>'
+						   <input type='text' class='datepicker form-control' name='form_date' id="form_date" size='10' value='<?php echo attr($form_date) ?>'
 							title='yyyy-mm-dd'>
 						</td>
-						<td class='label_custom'>
+						<td class='control-label'>
 						   <?php echo xlt('To'); ?>:
 						</td>
 						<td>
-						   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+						   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
 							title='yyyy-mm-dd'>
 						</td>
 						<td>
-						   <select name='form_category'>
+						   <select name='form_category' class='form-control'>
 						<?php
 						 foreach (array('Open' => xl('Open'),'Due Pt' => xl('Due Pt'),'Due Ins' => xl('Due Ins'),'Ins Summary' => xl('Ins Summary'),'Credits' => xl('Credits'),'All' => xl('All')) as $key => $value) {
 						  echo "    <option value='" . attr($key) . "'";
@@ -440,20 +437,20 @@ function checkAll(checked) {
 
 
 					<tr>
-						<td class='label_custom'>
+						<td class='control-label'>
                         <?php echo xlt('Facility'); ?>:
                         </td>
                         <td>
                         <?php dropdown_facility($form_facility, 'form_facility', false); ?>
                         </td>
 
-                        <td class='label_custom'>
+                        <td class='control-label'>
                         <?php echo xlt('Payor'); ?>:
 						</td>
 						<td>
 						<?php  # added dropdown for payors (TLH)
                                $insurancei = getInsuranceProviders();
-                               echo "   <select name='form_payer_id'>\n";
+                               echo "   <select name='form_payer_id' class='form-control'>\n";
                                echo "    <option value='0'>-- " . xlt('All') . " --</option>\n";
                                foreach ($insurancei as $iid => $iname) {
                                  echo "<option value='" . attr($iid) . "'";
@@ -467,11 +464,11 @@ function checkAll(checked) {
 					</tr>
 
 					<tr>
-						<td class='label_custom'>
+						<td class='control-label'>
 						   <?php echo xlt('Age By') ?>:
 						</td>
 						<td>
-						   <select name='form_ageby'>
+						   <select name='form_ageby' class='form-control'>
 						<?php
 						 foreach (array( 'Service Date'=>xl('Service Date'), 'Last Activity Date'=>xl('Last Activity Date')) as $key => $value) {
 						  echo "    <option value='" . attr($key) . "'";
@@ -482,7 +479,7 @@ function checkAll(checked) {
 						   </select>
 						</td>
 
-                        <td class='label_custom'>
+                        <td class='control-label'>
 						   <?php echo xlt('Provider') ?>:
 						</td>
 						<td>
@@ -494,7 +491,7 @@ function checkAll(checked) {
 
                                $ures = sqlStatement($query);
 
-                               echo "   <select name='form_provider'>\n";
+                               echo "   <select name='form_provider' class='form-control'>\n";
                                echo "    <option value=''>-- " . xlt('All') . " --\n";
 
                                while ($urow = sqlFetchArray($ures)) {
@@ -510,21 +507,23 @@ function checkAll(checked) {
 						</td>
 					</tr>
 					</tr>
-						<td class='label_custom'>
+						<td class='control-label'>
 						   <?php echo xlt('Aging Columns') ?>:
 						</td>
 						<td>
-						   <input type='text' name='form_age_cols' size='2' value='<?php echo attr($form_age_cols); ?>' />
+						   <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo attr($form_age_cols); ?>' />
 						</td>
-						<td class='label_custom'>
+						<td class='control-label'>
 						   <?php echo xlt('Days/Col') ?>:
 						</td>
 						<td>
-						   <input type='text' name='form_age_inc' size='3' value='<?php echo attr($form_age_inc); ?>' />
+						   <input type='text' name='form_age_inc' class='form-control' size='3' value='<?php echo attr($form_age_inc); ?>' />
 						</td>
 						<td>
+              <div class="checkbox">
 						   <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) echo ' checked'; ?>>
 						   <?php echo xlt('Patients with debt') ?></label>
+              </div>
 						</td>
 					</tr>
 

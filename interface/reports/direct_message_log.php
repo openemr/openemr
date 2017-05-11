@@ -40,11 +40,9 @@ if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST[
 else $logtop = 0;
 ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 
 <style type="text/css">
 

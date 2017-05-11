@@ -256,7 +256,7 @@ if ($_POST['form_get_hl7']==='true') {
 <title><?php xl('Syndromic Surveillance - Non Reported Issues','e'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 

@@ -88,12 +88,10 @@ else { // not export
 <head>
 <?php html_header_show();?>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
 <title><?php xl('Pending Orders','e') ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 
@@ -126,12 +124,24 @@ else { // not export
  <tr>
   <td>
    <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
-   &nbsp;<?xl('From:','e')?>
-   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+  </td>
+  <td class='control-label'>
+   &nbsp;<?php echo xlt('From')?>:
+  </td>
+  <td>
+   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     title='yyyy-mm-dd'>
-   &nbsp;To:
-   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+  </td>
+  <td class='control-label'>
+   &nbsp;<?php echo xlt('To')?>:
+  </td>
+  <td>
+   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     title='yyyy-mm-dd'>
+  </td>
+ </tr>
+ <tr>
+  <td>
    &nbsp;
    <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
    &nbsp;
