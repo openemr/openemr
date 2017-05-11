@@ -24,7 +24,7 @@ $patient_id = filter_input(INPUT_GET, 'patient_id');
 $category_id = filter_input(INPUT_GET, 'parent_id');
 
 
-$sanitize_all_escapes=true;
+
 $fake_register_globals=false;
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");

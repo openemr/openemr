@@ -19,8 +19,6 @@
  * @link    http://www.open-emr.org
  */
  
- //SANITIZE ALL ESCAPES
- $sanitize_all_escapes=$_POST['true'];
 
  //STOP FAKE REGISTER GLOBALS
  $fake_register_globals=$_POST['false'];

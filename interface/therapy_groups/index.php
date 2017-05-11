@@ -26,7 +26,7 @@
 
 //security model flags:
 $fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 require_once dirname(__FILE__) . '/../globals.php';
 require_once dirname(__FILE__) . '/therapy_groups_controllers/therapy_groups_controller.php';

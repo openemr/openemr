@@ -26,7 +26,7 @@
  */
 
 $fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 $form_name = "eye_mag";
 $form_folder="eye_mag";

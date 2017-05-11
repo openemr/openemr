@@ -23,7 +23,7 @@
  */
 
 $fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 include_once(dirname(__file__)."/../../globals.php");
 require_once("$srcdir/group.inc");

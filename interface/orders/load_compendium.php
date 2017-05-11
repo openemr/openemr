@@ -24,7 +24,7 @@
 
 set_time_limit(0);
 
-$sanitize_all_escapes  = true;
+
 $fake_register_globals = false;
 
 require_once("../globals.php");

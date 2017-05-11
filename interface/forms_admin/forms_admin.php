@@ -4,7 +4,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-$sanitize_all_escapes = true;
+
 $fake_register_globals = false;
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
