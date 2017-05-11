@@ -27,7 +27,6 @@
 		session_destroy();
 		GlobalConfig::$PORTAL = false;
 		$ignoreAuth = false;
-		$sanitize_all_escapes = true;
 		$fake_register_globals = false;
 		require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
 		if ( ! isset($_SESSION['authUserID']) ){

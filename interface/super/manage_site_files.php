@@ -9,8 +9,7 @@
 // This module provides for editing site-specific text files and
 // for uploading site-specific image files.
 
-// Disable magic quotes and fake register globals.
-$sanitize_all_escapes = true;
+// Disable fake register globals.
 $fake_register_globals = false;
 
 require_once('../globals.php');

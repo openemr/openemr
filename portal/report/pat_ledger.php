@@ -24,7 +24,7 @@
 require_once("./../verify_session.php");
 $ignoreAuth = true;
 global $ignoreAuth;
-$sanitize_all_escapes=true;
+
 $fake_register_globals=false;
 require_once('../../interface/globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');

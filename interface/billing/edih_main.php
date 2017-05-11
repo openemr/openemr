@@ -27,7 +27,7 @@
 
 /* these lines for OpenEMR
  */
-$sanitize_all_escapes=true;
+
 $fake_register_globals=false;
 require_once(dirname(__FILE__) . "/../globals.php");
 

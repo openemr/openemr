@@ -11,10 +11,6 @@
 // Flexible script for graphing entities in OpenEMR
 //
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 //

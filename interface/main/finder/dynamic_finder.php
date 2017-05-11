@@ -7,9 +7,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// Sanitize escapes and stop fake register globals.
+// Stop fake register globals.
 //
-$sanitize_all_escapes = true;
 $fake_register_globals = false;
 
 require_once("../../globals.php");
