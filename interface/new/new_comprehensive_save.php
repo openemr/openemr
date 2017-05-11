@@ -28,11 +28,9 @@ require_once("$srcdir/options.inc.php");
 // other interfaces can still read the data during this lock, however
 // sqlStatement("lock tables patient_data read");
 
-$result = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-
+$result = sqlQuery("SELECT id AS pid FROM patient_data ORDER BY id DESC LIMIT 1");
 $newpid = 1;
-
-if ($result['pid'] > 1) $newpid = $result['pid'];
+if ($result['pid'] > 0) $newpid = $result['pid'] + 1; //Changed by Sherwin 5-10-2017
 
 setpid($newpid);
 
