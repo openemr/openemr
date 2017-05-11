@@ -1789,7 +1789,7 @@ else{
   <td nowrap>&nbsp;
 
   </td>
-  <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
+  <td nowrap id='tdrepeat2'><?php echo xlt('until date'); ?>
   </td>
   <td nowrap>
    <input   type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
@@ -1957,6 +1957,16 @@ function validateform(event,valu){
         $('#form_save').attr('disabled', false);
         return false;
     }
+
+    <?php if (!$GLOBALS['allow_early_check_in']) { ?>
+        //Prevent from user to change status to Arrive before the time
+        //Dependent in globals setting - allow_early_check_in
+        if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
+            alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
+            $('#form_save').attr('disabled', false);
+            return false;
+        }
+    <?php } ?>
 
     //add rule if choose repeating event
     if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){

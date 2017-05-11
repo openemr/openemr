@@ -16,8 +16,6 @@ if (!isset($ignoreAuth)) $ignoreAuth = false;
 if (!isset($ignoreAuth_offsite_portal)) $ignoreAuth_offsite_portal = false;
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal_two)) $ignoreAuth_onsite_portal_two = false;
-// Unless specified explicitly, do not reverse magic quotes
-if (!isset($sanitize_all_escapes)) $sanitize_all_escapes = false;
 // Unless specified explicitly, "fake" register_globals.
 if (!isset($fake_register_globals)) $fake_register_globals = true;
 
@@ -30,33 +28,6 @@ if (!defined('IS_WINDOWS'))
 //
 ini_set('session.gc_maxlifetime', '14400');
 
-// This is for sanitization of all escapes.
-//  (ie. reversing magic quotes if it's set)
-if ($sanitize_all_escapes) {
-  if (get_magic_quotes_gpc()) {
-    function undoMagicQuotes($array, $topLevel=true) {
-      $newArray = array();
-      foreach($array as $key => $value) {
-        if (!$topLevel) {
-          $key = stripslashes($key);
-        }
-        if (is_array($value)) {
-          $newArray[$key] = undoMagicQuotes($value, false);
-        }
-        else {
-          $newArray[$key] = stripslashes($value);
-        }
-      }
-      return $newArray;
-    }
-    $_GET = undoMagicQuotes($_GET);
-    $_POST = undoMagicQuotes($_POST);
-    $_COOKIE = undoMagicQuotes($_COOKIE);
-    $_REQUEST = undoMagicQuotes($_REQUEST);
-  }
-}
-
-//
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.

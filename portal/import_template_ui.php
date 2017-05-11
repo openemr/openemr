@@ -33,9 +33,9 @@ if( $getdir > 0){
 		}
 	}
 }
-else
+else {
 	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/';
-
+}
 function getAuthUsers(){
 	$response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
 	$resultpd = array ();
@@ -70,7 +70,6 @@ function getTemplateList($dir){
 	$d->close();
 	return $retval;
 }
-
 ?>
 <html>
 <head>
@@ -87,7 +86,7 @@ function getTemplateList($dir){
 <link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" />
+<link  href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" rel="stylesheet" type="text/css" />
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.js"></script>
 <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/plugin/nugget/summernote-ext-nugget.js"></script>
 </head>
@@ -105,7 +104,7 @@ var tsave = function() {
 	};
 var tdelete = function(docname) {
 	var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
-	if(delok === true) getDocument(docname, 'delete', '')
+	if(delok === true) {getDocument(docname, 'delete', '')}
 	return false;
 	};
  function getDocument(docname, mode, content){
@@ -142,12 +141,12 @@ var tdelete = function(docname) {
 				   			 	],
 				   			    nugget: {
 				   			        list: [
-					   			        '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
+					   			        '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
 				   			            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
 				   			            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
 				   			        ],
 				   			        label: 'Tags / Directives',
-				   			    	tooltip: 'Insert Tag or Directive at current cursor location.'
+				   			    	tooltip: 'Insert at current cursor location.'
 				   			    },
 				   			 options:{'label': 'Tags/Directives',
 					   			    'tooltip': 'Insert Tag or Directive'}
@@ -173,7 +172,7 @@ var tdelete = function(docname) {
 }
 </style>
 <body class="skin-blue">
-<div  class='container' style='display:block;'>
+<div  class='container' style='display: block;'>
 <hr>
 <h3><?php echo xlt('Patient Document Template Upload'); ?></h3>
 <h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br><?php echo xlt('Automatically applies correct extension on successful upload'); ?>.<br>
@@ -183,7 +182,7 @@ var tdelete = function(docname) {
 <br>
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Home'); ?></button>
 <input type='hidden' name="up_dir" value='<?php global $getdir; echo $getdir;?>' />
-<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span style="font-size:14px;" class="label label-default" id='ptstatus'></span></button>
+<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span style="font-size: 14px;" class="label label-default" id='ptstatus'></span></button>
 </form>
 <div class='row'>
 <h3><?php echo xlt('Active Templates'); ?></h3>
@@ -196,32 +195,33 @@ var tdelete = function(docname) {
 <?PHP
 $ppt = getAuthUsers();
 global $getdir;
-foreach ($ppt as $pt){
-	if($getdir != $pt['pid'])
-		echo "<option value=".attr($pt['pid']).">".text($pt['ptname'])."</option>";
-	else
-		echo "<option value='".attr($pt['pid'])."' selected='selected'>".text($pt['ptname'])."</option>";
+foreach ($ppt as $pt) {
+    if ($getdir != $pt['pid']) {
+        echo "<option value=" . attr($pt['pid']) . ">" . text($pt['ptname']) . "</option>";
+    } else {
+        echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . "</option>";
+    }
 }
 echo "</select></div>";
-echo '<button type="submit" class="btn btn-default">'.xlt('Refresh').'</button>';
+echo '<button type="submit" class="btn btn-default">' . xlt('Refresh') . '</button>';
 echo '</form></div>';
 $dirlist = getTemplateList($tdir);
-  echo "<table  class='table table-striped table-bordered'>";
-  echo "<thead>";
-  echo "<tr><th>" . xlt("Template") . " - <i>" . xlt("Click to edit") . "</i></th><th>" . xlt("Size") . "</th><th>" . xlt("Last Modified") . "</th></tr>";
-  echo "</thead>";
-  echo "<tbody>";
-  foreach($dirlist as $file) {
-  	$t = "'".$file['pathname']."'";
-  	echo "<tr>";
-    echo '<td><button id="tedit'.attr($t).'" class="btn btn-sm btn-primary" onclick="tedit('.attr($t).')" type="button">'. text($file['name']).'</button>
- 		<button id="tdelete'.attr($t).'" class="btn btn-xs btn-danger" onclick="tdelete('.attr($t).')" type="button">'.  xlt("Delete") .'</button></td>';
+echo "<table  class='table table-striped table-bordered'>";
+echo "<thead>";
+echo "<tr><th>" . xlt("Template") . " - <i>" . xlt("Click to edit") . "</i></th><th>" . xlt("Size") . "</th><th>" . xlt("Last Modified") . "</th></tr>";
+echo "</thead>";
+echo "<tbody>";
+foreach ($dirlist as $file) {
+    $t = "'" . $file['pathname'] . "'";
+    echo "<tr>";
+    echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr($t) . ')" type="button">' . text($file['name']) . '</button>
+ 		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
     echo "<td>{$file['size']}</td>";
-    echo "<td>",date('r', $file['lastmod']),"</td>";
+    echo "<td>", date('r', $file['lastmod']), "</td>";
     echo "</tr>";
-  }
-  echo "</tbody>";
-  echo "</table>";
+}
+echo "</tbody>";
+echo "</table>";
 ?>
 <script>
 $(document).ready(function(){

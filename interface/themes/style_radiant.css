@@ -26,6 +26,7 @@ html {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
+@import "core.css";
 
 body {
   margin: 0;
@@ -9965,4 +9966,24 @@ table.dataTable#therapy_groups_list tbody td{
 
 .sidebar {
     background-color: #f8f8f8;
+    font-size: 95%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar .submenu {
+    padding-left:15px;
+    font-size:90%;
+}
+
+.sidebar ul.mainmenu {
+    padding-bottom: 55px;
+}
+
+.btn-default {
+    color: #444444 !important;
+}
+
+.btn-link {
+    color: #444444 !important;
 }

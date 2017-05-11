@@ -24,12 +24,15 @@
         "dompdf/dompdf": "0.7.0",
         "doctrine/common": "2.5.0",
         "doctrine/couchdb": "1.0-beta2",
-        "doctrine/orm": "2.5.5"
+        "doctrine/orm": "2.5.5",
+        "twig/twig": "1.33.*",
+        "symfony/http-foundation": "2.8.20"
 
     },
     "require-dev": {
 
-        "phing/phing": "2.14.0"
+        "phing/phing": "2.14.0",
+        "phpunit/phpunit": "5.7"
 
     },
     "autoload": {
@@ -56,7 +59,8 @@
             "common\\utils\\": "common/utils",
             "entities\\": "entities",
             "services\\": "services",
-            "repositories\\": "repositories"
+            "repositories\\": "repositories",
+            "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services"
         }
     },
     "config": {

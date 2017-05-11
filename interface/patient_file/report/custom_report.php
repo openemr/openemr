@@ -133,8 +133,8 @@ function postToGet($arin) {
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo  $webserver_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
+<link rel="stylesheet" href="<?php echo  $web_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
 <head>
@@ -205,16 +205,20 @@ if ($printable) {
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
   echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
-
-  // Use logo if it exists as 'practice_logo.gif' in the site dir
-  // old code used the global custom dir which is no longer a valid
-  $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-  echo "<div><table><tr><td>";
-   if (file_exists($practice_logo)) {
-       $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/practice_logo.gif"; // property img src needs a uri path
-       echo "<img src='$logo_path' align='left'><br />";
-       echo "</td><td>";
-     }
+        
+        // Use logo if it exists as 'practice_logo.gif' in the site dir
+        // old code used the global custom dir which is no longer a valid
+    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+    $plogo = glob("$OE_SITE_DIR/images/practice_logo.{jpg,png,gif}", GLOB_BRACE);// let's give the user a little say in image format.
+    if (! empty($plogo)) {
+        $practice_logo = $plogo[0];
+    }
+    echo "<div><table width='795'><tbody><tr><td>";
+    if (file_exists($practice_logo)) {
+        $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/". basename($practice_logo);
+        echo "<img style='max-width:250px;height:auto;' src='$logo_path' align='left'>"; // keep size within reason
+        echo "</td><td>";
+    }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -223,7 +227,7 @@ if ($printable) {
 
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
 <span class='text'><?php xl('Generated on','e'); ?>: <?php echo oeFormatShortDate(); ?></span>
-<?php echo "</td></tr></table></div>";?>
+<?php echo "</td></tr></tbody></table></div>";?>
 
 <?php
 }
@@ -810,32 +814,50 @@ if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
 if ($PDF_OUTPUT) {
     $content = getContent();
     $ptd = getPatientData($pid, "fname,lname");
-    $fn =  strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
+    $fn = strtolower($ptd['fname'] . '_' . $ptd['lname'] . '_' . $pid . '_' . xl('report') . '.pdf');
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
-    $pdf->writeHTML($content, false);
-    if ($PDF_OUTPUT == 1) {
-        $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    if (! $isit_utf8) {
+        if (function_exists('iconv')) { // if we can lets save the report
+            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        } else { // no sense going on.
+            $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
+            die($die_str);
+        }
     }
-  else {
-    // This is the case of writing the PDF as a message to the CMS portal.
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $contents = $pdf->Output('', true);
-    echo "<html><head>\n";
-    echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
-    echo "</head><body class='body_top'>\n";
-    $result = cms_portal_call(array(
-      'action'   => 'putmessage',
-      'user'     => $ptdata['cmsportal_login'],
-      'title'    => xl('Your Clinical Report'),
-      'message'  => xl('Please see the attached PDF.'),
-      'filename' => 'report.pdf',
-      'mimetype' => 'application/pdf',
-      'contents' => base64_encode($contents),
-    ));
-    if ($result['errmsg']) die(text($result['errmsg']));
-    echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
-    echo "</body></html>\n";
-  }
+    try {
+        $pdf->writeHTML($content, false); // convert html
+    } catch (MpdfException $exception) {
+        die($exception);
+    }
+    if ($PDF_OUTPUT == 1) {
+        try {
+            $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+        } catch (MpdfException $exception) {
+            die($exception);
+        }
+    } else {
+        // This is the case of writing the PDF as a message to the CMS portal.
+        $ptdata = getPatientData($pid, 'cmsportal_login');
+        $contents = $pdf->Output('', true);
+        echo "<html><head>\n";
+        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        echo "</head><body class='body_top'>\n";
+        $result = cms_portal_call(array(
+            'action' => 'putmessage',
+            'user' => $ptdata['cmsportal_login'],
+            'title' => xl('Your Clinical Report'),
+            'message' => xl('Please see the attached PDF.'),
+            'filename' => 'report.pdf',
+            'mimetype' => 'application/pdf',
+            'contents' => base64_encode($contents)
+        ));
+        if ($result['errmsg']){
+            die(text($result['errmsg']));
+        }
+        echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+        echo "</body></html>\n";
+    }
 }
 else {
 ?>
