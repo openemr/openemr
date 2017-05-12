@@ -133,17 +133,15 @@ require_once "$srcdir/report_database.inc";
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo htmlspecialchars( xl('Search'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
-                                        <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-                                        <span>
-                                                <?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
-                                        </span>
-                                        </a>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+            <a href='#' id='search_button' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+              <?php echo xlt('Search'); ?>
+            </a>
+            <a href='#' id='refresh_button' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+              <?php echo xlt('Refresh'); ?>
+            </a>
+          </div>
 				</div>
 			</td>
 		</tr>

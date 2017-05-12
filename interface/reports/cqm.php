@@ -559,56 +559,46 @@ else {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td scope="row">
-
-				<div style='margin-left:15px'>
-
-                                    <?php if (empty($report_id)) { ?>
-					<a id='submit_button' href='#' class='css_button' onclick='runReport();'>
-					<span>
-						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
-                                        <span id='status_span'></span>
-                                        <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
-					<?php if ($type_report == "cqm") { ?>
-						<a id='xmla_button' href='#' class='css_button' onclick='return GenXml("false")'>
-							<span>
-								<?php echo htmlspecialchars( xl('Generate PQRI report (Method A) - 2011'), ENT_NOQUOTES); ?>
-							</span>
-						</a>
-                                        	<a id='xmlb_button' href='#' class='css_button' onclick='return GenXml("true")'>
-                                                	<span>
-                                                        	<?php echo htmlspecialchars( xl('Generate PQRI report (Method E) - 2011'), ENT_NOQUOTES); ?>
-                                                	</span>
-                                        	</a>
-					<?php } ?>
-                                    <?php } ?>
-
-                                    <?php if (!empty($report_id)) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
-						</span>
-					</a>
-                                            <?php if ($type_report == "cqm_2014") { ?>
-                                                        <a href="#" id="genQRDA" class='css_button' onclick='return downloadQRDA()'>
-                                                                <span>
-                                                                        <?php echo htmlspecialchars( xl('Generate QRDA I – 2014'), ENT_NOQUOTES); ?>
-                                                                </span>
-                                                        </a>
-                                                        <a href="#" id="xmlc_button" class='css_button' onclick='return GenXml("QRDA")'>
-                                                                <span>
-                                                                        <?php echo htmlspecialchars( xl('Generate QRDA III - 2014'), ENT_NOQUOTES); ?>
-                                                                </span>
-                                                        </a>
-                                            <?php } ?>
-
-                                            <?php if ($back_link == "list") { ?>
-                                               <a href='report_results.php' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt("Return To Report Results"); ?></span></a>
-                                            <?php } else { ?>
-                                               <a href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit();'><span><?php echo xlt("Start Another Report"); ?></span></a>
-                                            <?php } ?>
-                                    <?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+          <?php if (empty($report_id)) { ?>
+            <a href='#' id='submit_button' class='btn btn-default btn-save' onclick='runReport();'>
+						  <?php echo xlt('Submit'); ?>
+            </a>
+            <span id='status_span'></span>
+            <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+            <?php if ($type_report == "cqm") { ?>
+						  <a href='#' id='xmla_button' class='btn btn-default btn-transmit' onclick='return GenXml("false")'>
+								<?php echo xlt('Generate PQRI report (Method A) - 2011'); ?>
+						  </a>
+              <a href='#' id='xmlb_button' class='btn btn-default btn-transmit' onclick='return GenXml("true")'>
+                <?php echo xlt('Generate PQRI report (Method E) - 2011'); ?>
+              </a>
+            <?php } ?>
+          <?php } ?>
+          <?php if (!empty($report_id)) { ?>
+            <a href='#' class='btn btn-default btn-print' id='printbutton'>
+							<?php echo xlt('Print'); ?>
+            </a>
+            <?php if ($type_report == "cqm_2014") { ?>
+              <a href='#' id="genQRDA" class='btn btn-default btn-transmit' onclick='return downloadQRDA()'>
+                <?php echo xlt('Generate QRDA I – 2014'); ?>
+              </a>
+              <a href='#' id="xmlc_button" class='btn btn-default btn-transmit' onclick='return GenXml("QRDA")'>
+                <?php echo xlt('Generate QRDA III - 2014'); ?>
+              </a>
+            <?php } ?>
+            <?php if ($back_link == "list") { ?>
+              <a href='report_results.php' class='btn btn-default btn-transmit' onclick='top.restoreSession()'>
+                <?php echo xlt("Return To Report Results"); ?>
+              </a>
+            <?php } else { ?>
+              <a href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'>
+                <?php echo xlt("Start Another Report"); ?>
+              </a>
+            <?php } ?>
+          <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

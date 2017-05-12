@@ -377,33 +377,29 @@ onsubmit='return top.restoreSession()'>
     <table style='border-left:1px solid; width:100%; height:100%' >
       <tr>
         <td>
-          <div style='margin-left:15px'>
-            <a href='#' class='css_button'
-            onclick='
-            $("#form_refresh").attr("value","true");
-            $("#form_get_hl7").attr("value","false");
-            $("#theform").submit();
-            '>
-            <span>
-              <?php xl('Refresh','e'); ?>
-            </spain>
-            </a>
-            <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='css_button' id='printbutton'>
-                <span>
+          <div class="text-center">
+            <div class="btn-group" role="group">
+              <a href='#' class='btn btn-default btn-refresh'
+                onclick='
+                  $("#form_refresh").attr("value","true");
+                  $("#form_get_hl7").attr("value","false");
+                  $("#theform").submit();
+                '>
+                <?php echo xlt('Refresh'); ?>
+              </a>
+              <?php if ($_POST['form_refresh']) { ?>
+                <a href='#' class='btn btn-default btn-print' id='printbutton'>
                   <?php echo xlt('Print'); ?>
-                </span>
-              </a>
-              <a href='#' class='css_button' onclick=
-              "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
-                     $('#form_get_hl7').attr('value','true');
-                     $('#theform').submit();
-              }">
-                <span>
-                  <?php xl('Get HL7','e'); ?>
-                </span>
-              </a>
-            <?php } ?>
+                </a>
+                <a href='#' class='btn btn-default btn-transmit' onclick=
+                  "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
+                    $('#form_get_hl7').attr('value','true');
+                    $('#theform').submit();
+                  }">
+                  <?php echo xlt('Get HL7'); ?>
+                </a>
+              <?php } ?>
+            </div>
           </div>
         </td>
       </tr>
