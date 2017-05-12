@@ -439,3 +439,78 @@ ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #IfNotColumnType openemr_postcalendar_events pc_facility int(11)
 ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int(11) NOT NULL DEFAULT '0' COMMENT 'facility id for this event';
 #Endif
+
+/* 2015 ONC item a5 (Demographics) changes */
+#IfNotRow2D list_options list_id sex option_id UNK
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('sex', 'UNK', 'Unknown', 3, 0);
+#EndIf
+
+#IfMissingColumn patient_data sexual_orientation
+SET @group_name = (SELECT group_name FROM layout_options WHERE form_id='DEM' AND group_name LIKE '%1Who' LIMIT 1);
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = @group_name AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM', 'sexual_orientation', @group_name, 'Sexual Orientation', @seq+1, 1, 1, 10, 50, 'sexual_orientation', 1, 1, '', '', 'Sexual Orientation', 0) ;
+ALTER TABLE `patient_data` ADD `sexual_orientation` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn patient_data gender_identity
+SET @group_name = (SELECT group_name FROM layout_options WHERE form_id='DEM' AND group_name LIKE '%1Who' LIMIT 1);
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = @group_name AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM', 'gender_identity', @group_name, 'Gender Identity', @seq+1, 1, 1, 10, 50, 'gender_identity', 1, 1, '', '', 'Gender Identity', 0) ;
+ALTER TABLE `patient_data` ADD `gender_identity` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id gender_identity 
+INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'gender_identity', 'Gender Identity');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Male
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Male', 'Male', 1, 0,'SNOMED CT:446151000124109');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Female
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Female', 'Female', 2, 0,'SNOMED CT:446141000124107');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Transgender_Male
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Transgender_Male', 'Transgender Male', 3, 0,'SNOMED CT:407377005');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Transgender_Female
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Transgender_Female', 'Transgender Female', 4, 0,'SNOMED CT:407376001');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Genderqueer
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Genderqueer', 'Genderqueer', 5, 0,'SNOMED CT:446131000124102');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Other
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Other', 'Other', 6, 0,'');
+#EndIf
+
+#IfNotRow2D list_options list_id gender_identity option_id Patient_declined
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('gender_identity', 'Patient_declined', 'Patient Declined', 7, 0,'');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id sexual_orientation 
+INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'sexual_orientation', 'Sexual Orientation');
+#EndIf
+
+#IfNotRow2D list_options list_id sexual_orientation option_id homosexual
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('sexual_orientation', 'homosexual', 'Homosexual', 1, 0,'SNOMED-CT:38628009');
+#EndIf
+
+#IfNotRow2D list_options list_id sexual_orientation option_id heterosexual
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('sexual_orientation', 'heterosexual', 'Heterosexual', 2, 0,'SNOMED-CT:20430005');
+#EndIf
+
+#IfNotRow2D list_options list_id sexual_orientation option_id Bisexual
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('sexual_orientation', 'Bisexual', 'Bisexual', 3, 0,'SNOMED-CT:42035005');
+#EndIf
+
+#IfNotRow2D list_options list_id sexual_orientation option_id Other
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('sexual_orientation', 'Other', 'Other', 4, 0,'');
+#EndIf
+
+#IfNotRow2D list_options list_id sexual_orientation option_id Patient_declined
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default,codes) VALUES ('sexual_orientation', 'Patient_declined', 'Patient Declined', 4, 0,'');
+#EndIf
