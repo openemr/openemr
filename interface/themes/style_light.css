@@ -82,12 +82,6 @@ a:hover {
   font-weight: bold;
 }
 
-.alert {
-  font-size: 70%;
-  color: #FF0000;
-  text-decoration: none;
-}
-
 .small {
   text-decoration: none;
   color: #000000;
@@ -1520,3 +1514,8 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
+.alert-danger {
+  font-size: 100% !important;
+  background-color: #FF0000 !important;
+  color: #fff !important;
+}
