@@ -32,7 +32,7 @@
     ]
   },
   {
-    "label": "Messages ",
+    "label": "Messages",
     "menu_id": "msg0",
     "target": "msg",
     "url": "/interface/main/messages/messages.php?form_active=1",
