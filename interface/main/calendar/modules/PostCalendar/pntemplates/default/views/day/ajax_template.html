@@ -159,7 +159,7 @@ if ( $_SESSION['pc_facility'] ) {
     <div class="row">
         <div class="col-xs-4">
             <ul class="nav navbar-nav">
-                <li><a href='#' title='[-php-]echo xl("New Appointment")[-/php-]' onclick='newEvt(1, 9, 00, $Date, 0, 0)'><i class="fa fa-plus"></i>&nbsp;&nbsp;[-php-]echo xl("New Appointment")[-/php-]</a></li>
+                <li><a href='#' title='[-php-]echo xl("New Appointment")[-/php-]' onclick='newEvt(1, 9, 00, {$Date}, 0, 0)'><i class="fa fa-plus"></i>&nbsp;&nbsp;[-php-]echo xl("New Appointment")[-/php-]</a></li>
                 <li><a href='#' title='[-php-]echo xl("Search Appointment")[-/php-]'
                        onclick='top.restoreSession();location="index.php?module=PostCalendar&func=search"'>
                         <i class="fa fa-search"></i>&nbsp;&nbsp;[-php-]echo xl("Search")[-/php-]</a>

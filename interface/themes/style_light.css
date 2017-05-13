@@ -1522,4 +1522,6 @@ table.dataTable#therapy_groups_list tbody td{
 .navbar-default {
   background: none !important;
   border-top:none !important;
+  border-left: none !important;
+  border-right: none !important;
 }
