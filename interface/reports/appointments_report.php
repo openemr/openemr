@@ -314,17 +314,24 @@ function fetch_reminders($pid, $appt_date) {
 		<table style='border-left: 1px solid; width: 100%; height: 100%'>
 			<tr>
 				<td>
-				<div style='margin-left: 15px'>
-                                <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-				<span> <?php echo xlt('Submit'); ?> </span> </a>
-                                <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-        <a href='#' class='css_button' id='printbutton'>
-                                    <span> <?php echo xlt('Print'); ?> </span> </a>
-                                <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'>
-                                    <span> <?php echo xlt('Superbills'); ?> </span> </a>
-                               <a href='#' class='css_button' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'>
-                                    <span> <?php echo xlt('Address Labels'); ?> </span> </a>
-                                <?php } ?></div>
+				    <div class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                <?php echo xlt('Submit'); ?>
+                            </a>
+                            <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                    <?php echo xlt('Print'); ?>
+                                </a>
+                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'>
+                                    <?php echo xlt('Superbills'); ?>
+                                </a>
+                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'>
+                                    <?php echo xlt('Address Labels'); ?>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    </div>
 				</td>
 			</tr>
                         <tr>&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?></tr>
