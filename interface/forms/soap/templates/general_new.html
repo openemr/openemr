@@ -5,8 +5,9 @@
 {php}require "{$GLOBALS['srcdir']}/templates/standard_header_template.php";{/php}
 
 </head>
-<body>
-<h2>{xl t='SOAP'|escape:'html'}</h2>
+<body class="body_top">
+<div class="container">
+<p class="lead">{xl t='SOAP'|escape:'html'}</p>
 <form name="soap" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php"
  onsubmit="return top.restoreSession()">
     <div class="form-group">
@@ -43,5 +44,6 @@
     <input type="hidden" name="pid" value="{$data->get_pid()|escape:'html'}">
     <input type="hidden" name="process" value="true">
 </form>
+</div>
 </body>
 </html>
