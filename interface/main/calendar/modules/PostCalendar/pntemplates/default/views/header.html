@@ -1,6 +1,8 @@
 <html>
 <head>
+[-php-]require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";[-/php-]
 <!-- Get the style sheet for the theme defined in globals.php -->
+<link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['css_header'][-/php-]" type="text/css">
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/font-awesome-4-6-3/css/font-awesome.min.css">
 
@@ -31,6 +33,4 @@ function create_event_time_anchor($displayString)
 [-/if-]
 
 </head>
-[-php-]
-    echo "<body style='background-color:".$GLOBALS['style']['BGCOLOR2']."'>";
-[-/php-]
+<body>

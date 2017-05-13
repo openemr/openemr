@@ -26,44 +26,54 @@ button[href*="deleter"]:before {
     display: inline-block;
 }
 
-.btn::before {
+.btn::before,
+.icon::before{
     font-family: "FontAwesome";
     display: inline;
 }
 
-.btn-save::before {
+.btn-save::before,
+.icon-save::before{
     content: "\f00c\00a0\00a0";
 }
 
-.btn-cancel::before {
+.btn-cancel::before,
+.icon-cancel::before{
     content: "\f00d\00a0\00a0";
 }
 
-.btn-add::before {
+.btn-add::before,
+.icon-add::before{
     content: '\f067\00a0\00a0';
 }
 
-.btn-search::before {
+.btn-search::before,
+.icon-search::before{
     content: '\f002\00a0\00a0';
 }
 
-.btn-delete::before {
+.btn-delete::before,
+.icon-delete::before{
     content: '\f014\00a0\00a0';
 }
 
-.btn-duplicate::before {
+.btn-duplicate::before,
+.icon-duplicate::before{
     content: '\f0c5\00a0\00a0';
 }
 
-.btn-refresh::before {
+.btn-refresh::before,
+.icon-refresh::before{
     content: '\f021\00a0\00a0';
 }
 
-.btn-edit::before {
+.btn-edit::before,
+.icon-edit::before{
     content: '\f040\00a0\00a0';
 }
 
-.btn-transmit::before {
+.btn-transmit::before,
+.icon-transmit::before{
     content: '\f061\00a0\00a0';
 }
 

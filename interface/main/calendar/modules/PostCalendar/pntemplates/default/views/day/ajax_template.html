@@ -151,50 +151,65 @@ if ( $_SESSION['pc_facility'] ) {
 //==================================
 
 [-/php-]
-<div id="topToolbarRight" class="bgcolor2">  <!-- this wraps some of the top toolbar items -->
-<div id="functions">
-<!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
+[-php-]require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";[-/php-]
+
 <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="jumpdate" id="jumpdate" value="">
-<input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
-[-php-]
-echo "   <a href='#' title='" . xl("New Appointment") . "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' class='css_button'>
-            <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xl("Search Appointment") . "'
-            onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button'>
-            <i class='fa fa-search' aria-hidden='true'></i></a>\n";
-[-/php-]
-</div>
+<nav class="navbar navbar-default">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-4">
+            <ul class="nav navbar-nav">
+                <li><a href='#' title='[-php-]echo xl("New Appointment")[-/php-]' onclick='newEvt(1, 9, 00, $Date, 0, 0)'><i class="fa fa-plus"></i>&nbsp;&nbsp;[-php-]echo xl("New Appointment")[-/php-]</a></li>
+                <li><a href='#' title='[-php-]echo xl("Search Appointment")[-/php-]'
+                       onclick='top.restoreSession();location="index.php?module=PostCalendar&func=search"'>
+                        <i class="fa fa-search"></i>&nbsp;&nbsp;[-php-]echo xl("Search")[-/php-]</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-4">
+            <ul class="nav navbar-nav">
+                [-php-]
+                $atmp = array_keys($A_EVENTS);
+                $date = dateformat(strtotime($atmp[0]),true);
+                [-/php-]
+                [-if $date neq date('Ymd')-]
+                <li><a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'>[-php-] echo xl("Today")[-/php-]</a></li>
+                [-/if-]
+                <li>
+                    <a id='prevday' href='{$PREV_DAY_URL}' onclick='top.restoreSession()' title='[-php-]echo xl("Previous Day")[-/php-]'>
+                        <i class='fa fa-arrow-left' aria-hidden='true'></i>&nbsp;
+                    </a>
+                </li>
+                <li><p class="navbar-text">[-php-]echo dateformat(strtotime($atmp[0]),true)[-/php-]</p></li>
+                <li>
+                    <a id='nextday' href='{$NEXT_DAY_URL}' onclick='top.restoreSession()' title='[-php-]xl("Next Day")[-/php-]'>
+                        <i class='fa fa-arrow-right' aria-hidden='true'></i>&nbsp;
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-4">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href='#' id='printview' title='[-php-]echo xl("View Printable Version")[-/php-]' class=''>
+                    <i class='fa fa-print' aria-hidden='true'></i>&nbsp;&nbsp;[-php-]echo xl("Print")[-/php-]</a></li>
+                <li><a href='#' title='[-php-]echo xl("Refresh")[-/php-]' onclick='refreshme()' class=''>
+                    <i class='fa fa-refresh'
+                       aria-hidden='true'></i>&nbsp;&nbsp;[-php-]echo
+                    xl("Refresh")[-/php-]</a></li>
+                <li><a href='#' id='dayview' title='[-php-]echo xl("Day View")[-/php-]' class=''>[-php-]echo xl('Day')[-/php-]</a></li>
+                <li><a href='#' id='weekview' title='[-php-]echo xl("Week View")[-/php-]' class=''>[-php-]echo
+                    xl('Week')[-/php-]</a></li>
+                <li><a href='#' id='monthview' title='[-php-]echo xl("Month View")[-/php-]' class=''>[-php-]echo
+                    xl('Month')[-/php-]</a></li>
+            </ul>
+        </div>
+    <input type="hidden" name="jumpdate" id="jumpdate" value="">
+    <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 
 
-<div id="dateNAV"">
-[-php-]
-if ($Date <> date('Ymd')) {
-[-/php-]
-<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
-[-php-]
-}
-echo "   <a id='prevday' href='$PREV_DAY_URL' onclick='top.restoreSession()' title='" . xl("Previous Day") . "'>
-            <i class='fa fa-arrow-left' aria-hidden='true'></i></a>\n";
-$atmp = array_keys($A_EVENTS);
-echo dateformat (strtotime($atmp[0]),true);
-echo "   <a id='nextday' href='$NEXT_DAY_URL' onclick='top.restoreSession()' title='" . xl("Next Day") . "'>
-            <i class='fa fa-arrow-right' aria-hidden='true'></i></a>\n";
-[-/php-]
+    </div>
 </div>
-
-<div id="viewPicker">
-[-php-]
-echo "   <a href='#' id='printview' title='" . xl("View Printable Version") . "' class='css_button'>
-            <i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xl("Refresh") . "' onclick='javascript:refreshme()' class='css_button'>
-            <i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES)."</span></a>\n";
-echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
-echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
-[-/php-]
-</div>
-</div> <!-- end topToolbarRight -->
+</nav>
 <div id="bottom">
 <div id="bottomLeft">
 <div id="datePicker">

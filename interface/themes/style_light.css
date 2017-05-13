@@ -1519,16 +1519,7 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
-.alert-danger {
-  font-size: 100% !important;
-  background-color: #FF0000 !important;
-  color: #fff !important;
-}
-
-.btn-delete::before {
-    content: '\f014\00a0\00a0';
-}
-
-.btn-duplicate::before {
-    content: '\f0c5\00a0\00a0';
+.navbar-default {
+  background: none !important;
+  border-top:none !important;
 }

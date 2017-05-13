@@ -38,6 +38,7 @@ INPUT.nav 		{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
                 <tr>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "day"-]class="snav"[-else-]class="nav"[-/if-]>
                         <a class="nav" href="[-pc_url action="day"-]" onclick="top.restoreSession()">[-php-] xl('Day','e'); [-/php-]</a>
+                    HELLOOOOOOO
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "week"-]class="snav"[-else-]class="nav"[-/if-]>
                         <a class="nav" href="[-pc_url action="week"-]" onclick="top.restoreSession()">[-php-] xl('week','e'); [-/php-]</a>
