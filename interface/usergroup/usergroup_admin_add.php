@@ -12,7 +12,7 @@ $alertmsg = '';
 <html>
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -144,11 +144,10 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php xl('Add User','e'); ?></span>&nbsp;</td>
 <td>
-<a class="css_button" name='form_save' id='form_save' href='#' onclick="return submitform()">
-	<span><?php xl('Save','e');?></span></a>
-<a class="css_button large_button" id='cancel' href='#'>
-	<span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
-</a>
+    <div class="btn-group">
+        <a class="btn btn-default btn-add" name='form_save' id='form_save' href='#' onclick="return submitform()"><?php xl('Save','e');?></a>
+        <a class="btn btn-link btn-cancel" id='cancel' href='#'><?php xl('Cancel','e');?></a>
+    </div>
 </td></tr></table>
 <br><br>
 
