@@ -43,7 +43,7 @@
  */
 
 $fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 require_once("../../globals.php");
 require_once(dirname(__FILE__) ."/../../../library/acl.inc");

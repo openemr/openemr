@@ -24,9 +24,6 @@
  * This makes our life easier when dealing with paths. Everything is relative
  * to the application root now.
  */
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 //

@@ -23,9 +23,6 @@ $ignoreAuth=1;
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
 chdir($current_dir);
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 

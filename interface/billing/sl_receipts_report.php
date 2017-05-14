@@ -23,7 +23,7 @@
  * @link    http://open-emr.org
  */
 
-$sanitize_all_escapes=true;
+
 $fake_register_globals=false;
 
 require_once('../globals.php');
@@ -78,8 +78,8 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 /* specifically include & exclude from printing */
@@ -105,11 +105,6 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
     }
 }
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -174,13 +169,13 @@ function sel_diagnosis() {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility($form_facility, 'form_facility'); ?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('Provider'); ?>:
 			</td>
 			<td>
@@ -191,7 +186,7 @@ function sel_diagnosis() {
 					$query = "select id, lname, fname from users where " .
 						"authorized = 1 order by lname, fname";
 					$res = sqlStatement($query);
-					echo "   &nbsp;<select name='form_doctor'>\n";
+					echo "   &nbsp;<select name='form_doctor' class='form-control'>\n";
 					echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
 					while ($row = sqlFetchArray($res)) {
 						$provid = $row['id'];
@@ -206,51 +201,55 @@ function sel_diagnosis() {
 			?>
 			</td>
 			<td>
-			   <select name='form_use_edate'>
+			   <select name='form_use_edate' class='form-control'>
 				<option value='0'><?php echo xlt('Payment Date'); ?></option>
 				<option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php echo xlt('Invoice Date'); ?></option>
 			   </select>
 			</td>
 		</tr>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php  echo attr($form_from_date); ?>'
 				title='<?php echo xla('Date of appointments mm/dd/yyyy'); ?>' >
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr($form_to_date); ?>'
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo attr($form_to_date); ?>'
 				title='<?php echo xla('Optional end date mm/dd/yyyy'); ?>' >
 			</td>
 			<td>&nbsp;</td>
 		</tr>
 		<tr>
-			<td>
+			<td class='control-label'>
 				<?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xlt('Procedure/Service') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
+			   <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
 				title='<?php echo xla('Optional procedure/service code'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
 
-			<td>
+			<td class='control-label'>
 			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xlt('Diagnosis') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
+			   <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
 				title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
 
 			<td>
-			   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php echo xlt('Details')?>
-			   <input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) echo " checked"; ?>><?php echo xlt('Procedures')?>
+        <div class='checkbox'>
+			    <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php echo xlt('Details')?></label>
+        </div>
+        <div class='checkbox'>
+			    <label><input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) echo " checked"; ?>><?php echo xlt('Procedures')?></label>
+        </div>
 			</td>
 		</tr>
 
@@ -265,20 +264,17 @@ function sel_diagnosis() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+						  <?php echo xlt('Submit'); ?>
+					  </a>
+					  <?php if ($_POST['form_refresh']) { ?>
+					    <a href='#' class='btn btn-default btn-print' id='printbutton'>
+							  <?php echo xlt('Print'); ?>
+					    </a>
+					  <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

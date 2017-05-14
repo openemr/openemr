@@ -26,10 +26,6 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 
@@ -81,7 +77,7 @@ $fake_register_globals=false;
 </title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 
@@ -403,15 +399,20 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 				</div></td>
 				<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
 					<tr>
-						<td><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
-									<?php echo htmlspecialchars(xl('Submit'),ENT_NOQUOTES); ?>
-									</span> </a>
+						<td>
+							<div class="text-center">
+								<div class="btn-group" role="group">
+									<a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
+										<?php echo xlt('Submit'); ?>
+									</a>
 									<?php if ($_POST['form_refresh']) { ?>
-									<a href='#' class='css_button' id='printbutton'> <span>
-									<?php echo xlt('Print'); ?>
-									</span> </a>
+										<a href='#' class='btn btn-default btn-print' id='printbutton'>
+											<?php echo xlt('Print'); ?>
+										</a>
 									<?php } ?>
-							</div></td>
+								</div>
+							</div>
+						</td>
 					</tr>
 				</table></td>
 			</tr>

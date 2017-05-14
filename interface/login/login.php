@@ -26,7 +26,7 @@
  */
 
 $fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 $ignoreAuth=true;
 require_once("../globals.php");
@@ -38,7 +38,7 @@ require_once("../globals.php");
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <?php $include_standard_style_js = array("jquery-ui","jquery-ui-darkness"); ?>
-    <?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+    <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
     <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 

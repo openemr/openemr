@@ -25,7 +25,6 @@
  */
 
  $fake_register_globals=false;
- $sanitize_all_escapes=true;
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
@@ -43,7 +42,7 @@
 <title><?php echo xlt('Referrals'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 
@@ -159,20 +158,17 @@
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					 <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
 						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
+					 </a>
+					 <?php if ($_POST['form_refresh']) { ?>
+					   <a href='#' class='btn btn-default btn-print' id='printbutton'>
+					     <?php echo xlt('Print'); ?>
+					   </a>
+					 <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

@@ -59,10 +59,12 @@ function set_checkbox() {literal}{{/literal}
 	if (f.encounter_check.checked) {literal}{{/literal}
 		f.encounter_id.disabled = true;
 		f.visit_category_id.disabled = false;
+		$('.hide_clear').attr('href','javascript:void(0);');
 	{literal}}{/literal} else {literal}{{/literal}
 		f.encounter_id.disabled = false;
 		f.visit_category_id.disabled = true;
 		f.visit_category_id.value = 0;
+		$('.hide_clear').attr('href','{$clear_encounter_tag}');
 	{literal}}{/literal}
 {literal}}{/literal}
 
@@ -220,6 +222,7 @@ function ImgProcedure() {literal}{{/literal}
 
 				 <div>
 					<select id="encounter_id"  name="encounter_id"  >{$ENC_LIST}</select>&nbsp;
+					<a href="{$clear_encounter_tag}" class="hide_clear">(<span>{xl t='clear'})</span></a>&nbsp;&nbsp;
 					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>{xl t='Create Encounter'}</b></label>&nbsp;&nbsp;
 					   {xl t='Visit Category'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp; 
 

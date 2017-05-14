@@ -195,8 +195,8 @@ $form_proc_code = $tmp_code_array[1];
 
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 /* specifically include & exclude from printing */
@@ -230,11 +230,6 @@ table.mymaintable td {
  padding: 1pt 4pt 1pt 4pt;
 }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -292,12 +287,12 @@ function sel_procedure() {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('Report by','e'); ?>
 			</td>
 			<td>
 				<?php
-				echo "   <select name='form_report_by'>\n";
+				echo "   <select name='form_report_by' class='form-control'>\n";
 				foreach (array(1 => 'Payer', 2 => 'Payment Method', 3 => 'Check Number') as $key => $value) {
 				  echo "    <option value='$key'";
 				  if ($key == $form_report_by) echo ' selected';
@@ -310,34 +305,36 @@ function sel_procedure() {
 			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
 			</td>
 
-			<td>
+			<td class='control-label'>
 			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Procedure/Service') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_proc_codefull' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
+			   <input type='text' name='form_proc_codefull' class='form-control' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
 				title='<?php xl('Click to select optional procedure code','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
                                 <br>
-			   &nbsp;<input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
+          <div class="checkbox">
+			      <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?php echo xl('Details')?></label>
+          </div>
 			</td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
 			<td>
-			   <select name='form_use_edate'>
+			   <select name='form_use_edate' class='form-control'>
 				<option value='0'><?php xl('Payment Date','e'); ?></option>
 				<option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
 			   </select>
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
 				title='yyyy-mm-dd'>
 			</td>
 		</tr>
@@ -350,20 +347,17 @@ function sel_procedure() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+						  <?php echo xlt('Submit'); ?>
+					  </a>
+					  <?php if ($_POST['form_refresh']) { ?>
+					    <a href='#' class='btn btn-default btn-print' id='printbutton'>
+							  <?php echo xlt('Print'); ?>
+					    </a>
+					  <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

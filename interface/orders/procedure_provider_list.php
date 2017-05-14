@@ -19,7 +19,7 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-$sanitize_all_escapes = true;
+
 $fake_register_globals = false;
 
 require_once("../globals.php");
@@ -38,7 +38,7 @@ $res = sqlStatement($query);
 
 <head>
 <?php
-require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+require "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
 ?>
 <title><?php echo xlt('Procedure Providers'); ?></title>
 

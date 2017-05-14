@@ -329,6 +329,13 @@ class C_Document extends Controller {
 		}
 		$this->assign("ENC_LIST", $encOptions);
 
+        //clear encounter tag
+        if ($d->get_encounter_id() != 0) {
+            $this->assign('clear_encounter_tag',$this->_link('clear_encounter_tag')."document_id=" . $d->get_id());
+        } else {
+            $this->assign('clear_encounter_tag','javascript:void(0)');
+        }
+
 		//Populate the dropdown with category list
 		$visit_category_list = "<option value='0'>-- " . xlt('Select One') . " --</option>";
 		$cres = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
@@ -1349,7 +1356,14 @@ function _check_relocation($url, $new_pid = null, $new_name = null) {
 	return $url;
 }
 
-
+//clear encounter tag function
+function clear_encounter_tag_action($patient_id="",$document_id)
+{
+    if (is_numeric($document_id)) {
+        sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?",array($patient_id,$document_id));
+    }
+    return $this->view_action($patient_id, $document_id);
+}
 
 }
 ?>

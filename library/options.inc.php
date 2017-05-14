@@ -2726,9 +2726,6 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 // field corresponding to the provided layout_options table row.
 //
 function get_layout_form_value($frow, $prefix='form_') {
-  // Bring in $sanitize_all_escapes variable, which will decide
-  //  the variable escaping method.
-  global $sanitize_all_escapes;
 
   $maxlength = empty($frow['max_length']) ? 0 : intval($frow['max_length']);
   $data_type = $frow['data_type'];
@@ -2812,16 +2809,7 @@ function get_layout_form_value($frow, $prefix='form_') {
     die(htmlspecialchars( xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
     ":<br />&nbsp;<br />".htmlspecialchars( $value, ENT_NOQUOTES));
 
-  // Make sure the return value is quote-safe.
-  if ($sanitize_all_escapes) {
-    //escapes already removed and using binding/placemarks in sql calls
-    // so only need to trim value
-    return trim($value);
-  }
-  else {
-    //need to explicitly prepare value
-    return formTrim($value);
-  }
+  return trim($value);
 }
 
 // Generate JavaScript validation logic for the required fields.

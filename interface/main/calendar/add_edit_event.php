@@ -43,7 +43,6 @@
 
 
  $fake_register_globals=false;
- $sanitize_all_escapes=true;
 
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
@@ -2047,24 +2046,43 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
- var f = document.forms[0];
- <?php if (!($GLOBALS['select_multi_providers'])) { // multi providers appt is not supported by check slot avail window, so skip ?>
-  if (f.form_action.value != 'delete') {
-    // Check slot availability.
-    var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-    if (f.form_ampm.value == '2' && mins < 720) mins += 720;
-    find_available('&cktime=' + mins);
-  }
-  else {
+    var f = document.forms[0];
+    <?php if (!($GLOBALS['select_multi_providers'])) { // multi providers appt is not supported by check slot avail window, so skip ?>
+    if (f.form_action.value != 'delete') {
+        // Check slot availability.
+        var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
+        if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+        find_available('&cktime=' + mins);
+    }
+    else {
+        top.restoreSession();
+        f.submit();
+    }
+    <?php } else { ?>
+    <?php
+    /*Support Multi-Provider Events in features*/
+    $sdate=$date;
+    $edate=new DateTime($date);
+    $edate->modify('tomorrow');
+    $edate=$edate->format('Y-m-d');
+    $is_holiday=false;
+    $holidays_controller = new Holidays_Controller();
+    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
+    if(in_array($sdate,$holidays)){
+        $is_holiday=true;
+    }?>
+    if (f.form_action.value != 'delete') {
+        <?php if($is_holiday){?>
+        if (!confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
+            top.restoreSession();
+        }
+        <?php }?>
+    }
     top.restoreSession();
     f.submit();
-  }
- <?php } else { ?>
-  top.restoreSession();
-  f.submit();
- <?php } ?>
+    <?php } ?>
 
-  return true;
+    return true;
 }
 
 </script>

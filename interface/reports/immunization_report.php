@@ -256,7 +256,7 @@ if ($_POST['form_get_hl7']==='true') {
 <title><?php xl('Immunization Registry','e'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -372,33 +372,29 @@ onsubmit='return top.restoreSession()'>
     <table style='border-left:1px solid; width:100%; height:100%' >
       <tr>
         <td>
-          <div style='margin-left:15px'>
-            <a href='#' class='css_button'
-            onclick='
-            $("#form_refresh").attr("value","true");
-            $("#form_get_hl7").attr("value","false");
-            $("#theform").submit();
-            '>
-            <span>
-              <?php xl('Refresh','e'); ?>
-            </spain>
-            </a>
-            <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='css_button' id='printbutton'>
-                <span>
-                  <?php xl('Print','e'); ?>
-                </span>
+          <div class="text-center">
+            <div class="btn-group" role="group">
+              <a href='#' class='btn btn-default btn-save'
+                onclick='
+                $("#form_refresh").attr("value","true");
+                $("#form_get_hl7").attr("value","false");
+                $("#theform").submit();
+                '>
+              <?php echo xlt('Refresh'); ?>
               </a>
-              <a href='#' class='css_button' onclick=
-              "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
-                     $('#form_get_hl7').attr('value','true');
-                     $('#theform').submit();
-              }">
-                <span>
-                  <?php xl('Get HL7','e'); ?>
-                </span>
-              </a>
-            <?php } ?>
+              <?php if ($_POST['form_refresh']) { ?>
+                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                  <?php echo xlt('Print'); ?>
+                </a>
+                <a href='#' class='btn btn-default btn-transmit' onclick=
+                  "if(confirm('<?php echo xls('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>')) {
+                    $('#form_get_hl7').attr('value','true');
+                    $('#theform').submit();
+                    }">
+                  <?php echo xlt('Get HL7'); ?>
+                </a>
+              <?php } ?>
+            </div>
           </div>
         </td>
       </tr>

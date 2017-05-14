@@ -19,10 +19,6 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 //
@@ -48,7 +44,7 @@ $provider  = trim($_POST['form_provider']);
 <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script LANGUAGE="JavaScript">
 
@@ -274,19 +270,17 @@ $provider  = trim($_POST['form_provider']);
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
-					<span>
-						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
-                                        <?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
-						</span>
-					</a>
-					<?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
+						  <?php echo xlt('Submit'); ?>
+            </a>
+            <?php if ($_POST['form_refresh']) { ?>
+              <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                <?php echo xlt('Print'); ?>
+              </a>
+            <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>
