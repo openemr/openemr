@@ -9,6 +9,7 @@ require_once("$srcdir/options.inc.php");
 
 <html>
 <head>
+<?php html_header_show(); ?>
     <?php
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
@@ -27,10 +28,10 @@ if ($result = getTransByPid($pid)): ?>
 <thead>
 <tr>
     <th>&nbsp;</th>
-    <th><?php echo xl('Type'); ?></th>
-    <th><?php echo xl('Date'); ?></th>
-    <th><?php echo xl('User'); ?></th>
-    <th><?php echo xl('Details'); ?></th>
+    <th><?php echo xlt('Type'); ?></th>
+    <th><?php echo xlt('Date'); ?></th>
+    <th><?php echo xlt('User'); ?></th>
+    <th><?php echo xlt('Details'); ?></th>
 </tr>
 </thead>
 <tbody>
@@ -57,19 +58,19 @@ foreach ($result as $item):
             <?php if ($item['title'] == 'LBTref'): ?>
             <a href='print_referral.php?transid=<?php echo $id?>' onclick='top.restoreSession();'
                class='btn btn-view btn-default'>
-                <?php echo $view;?>
+                <?php echo text($view);?>
             </a>
             <?php endif; ?>
-            <a href='add_transaction.php?transid=<?php echo $id?>&title=<?php echo $title?>&inmode=edit'
+            <a href='add_transaction.php?transid=<?php echo $id?>&title=<?php echo attr($title)?>&inmode=edit'
                onclick='top.restoreSession()'
                class='btn btn-default btn-edit'>
-                <?php echo $edit?>
+                <?php echo text($edit); ?>
             </a>
             <?php if (acl_check('admin', 'super')): ?>
             <a href='../deleter.php?transaction=<?php echo $id?>'
                onclick='top.restoreSession()'
                class='btn btn-default btn-delete'>
-                <?php echo $delete?>
+                <?php echo text($delete); ?>
             </a>
             <?php endif; ?>
         </div>

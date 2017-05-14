@@ -164,9 +164,8 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.css"
-          type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<?php OpenEMR\Intl\RightToLeft::handle(); ?>
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/textformat.js"></script>

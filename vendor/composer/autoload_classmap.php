@@ -1104,6 +1104,7 @@ return array(
     'ORDataObject' => $baseDir . '/library/classes/ORDataObject.class.php',
     'OTLdump' => $vendorDir . '/mpdf/mpdf/classes/otl_dump.php',
     'OpenEMR\\Encounter\\Services\\ViewHelper' => $baseDir . '/interface/patient_file/encounter/Services/ViewHelper.php',
+    'OpenEMR\\Intl\\RightToLeft' => $baseDir . '/library/intl/src/RightToLeft.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
     'PDF_Label' => $baseDir . '/library/classes/PDF_Label.php',
     'PHPMailer' => $vendorDir . '/phpmailer/phpmailer/class.phpmailer.php',

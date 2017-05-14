@@ -78,25 +78,14 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 
-<?php
-require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-?>
+<link rel="stylesheet" href="<?php echo "{$GLOBALS['assets_static_relative']}/bootstrap-3-3-4/dist/css/bootstrap.css";?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<?php OpenEMR\Intl\RightToLeft::handle(); ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <style>
-body, td, input, select, textarea {
- font-family: Arial, Helvetica, sans-serif;
- font-size: 10pt;
-}
-
-body {
- padding: 5pt 5pt 5pt 5pt;
-}
-
 div.section {
  border: solid;
  border-width: 1px;

@@ -61,7 +61,8 @@
             "entities\\": "entities",
             "services\\": "services",
             "repositories\\": "repositories",
-            "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services"
+            "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services",
+            "OpenEMR\\Intl\\": "library/intl/src"
         }
     },
     "config": {

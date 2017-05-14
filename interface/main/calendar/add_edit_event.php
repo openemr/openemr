@@ -92,7 +92,7 @@ require_once($GLOBALS['srcdir'].'/group.inc');
 
 
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
- <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
+
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -989,9 +989,6 @@ td { font-size:0.8em; }
 </style>
 
 <script type="text/javascript" src="../../../library/topdialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -1858,11 +1855,11 @@ if ($repeatexdate != "") {
 <div class="btn-group" role="group">
 <button type="button" name='form_save' class="btn btn-default btn-save" id='form_save'><?php echo xla('Save');?></button>
 <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-<button type='button' id='find_available' class="btn btn-default btn-search"><?php echo xla('Find Available');?></button>
+<button type='button' id='find_available' class="btn btn-default btn-search"><?php echo xlt('Find Available');?></button>
 <?php } ?>
-<button type='button' class="btn btn-default btn-delete" name='form_delete' id='form_delete'<?php if (!$eid) echo " disabled" ?>><?php echo xla('Delete');?></button>
-<button type='button' class="btn btn-default btn-cancel" id='cancel'><?php echo xla('Cancel');?></button>
-<button type='button' class="btn btn-default btn-duplicate"name='form_duplicate' id='form_duplicate'><?php echo xla('Create Duplicate');?></button>
+<button type='button' class="btn btn-default btn-delete" name='form_delete' id='form_delete'<?php if (!$eid) echo " disabled" ?>><?php echo xlt('Delete');?></button>
+<button type='button' class="btn btn-default btn-cancel" id='cancel'><?php echo xlt('Cancel');?></button>
+<button type='button' class="btn btn-default btn-duplicate"name='form_duplicate' id='form_duplicate'><?php echo xlt('Create Duplicate');?></button>
 </div>
 </td></tr></table>
 <?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
@@ -1874,11 +1871,11 @@ if ($repeatexdate != "") {
 <?php echo xlt('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?') ?>
 <br>
 <?php if($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
-    <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+    <input type="button" name="all_events" id="all_events" value="  <?php echo xlt('All'); ?>  ">
 <?php } ?>
-<input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
-<input type="button" name="future_events" id="future_events" value="<?php echo xla('Future'); ?>">
-<input type="button" name="current_event" id="current_event" value="<?php echo xla('Current'); ?>">
+<input type="button" name="recurr_cancel" id="recurr_cancel" value="<?php echo xlt('Cancel'); ?>">
+<input type="button" name="future_events" id="future_events" value="<?php echo xlt('Future'); ?>">
+<input type="button" name="current_event" id="current_event" value="<?php echo xlt('Current'); ?>">
 </div>
 
 </body>

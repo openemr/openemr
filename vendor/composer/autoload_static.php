@@ -70,6 +70,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Intl\\' => 13,
             'OpenEMR\\Encounter\\Services\\' => 27,
         ),
         'I' => 
@@ -159,6 +160,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Intl\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/intl/src',
         ),
         'OpenEMR\\Encounter\\Services\\' => 
         array (
@@ -1359,6 +1364,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'ORDataObject' => __DIR__ . '/../..' . '/library/classes/ORDataObject.class.php',
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
+        'OpenEMR\\Intl\\RightToLeft' => __DIR__ . '/../..' . '/library/intl/src/RightToLeft.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPMailer' => __DIR__ . '/..' . '/phpmailer/phpmailer/class.phpmailer.php',

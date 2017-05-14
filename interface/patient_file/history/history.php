@@ -49,12 +49,12 @@ $(document).ready(function(){
 
 <?php if (acl_check('patients','med','',array('write','addonly') )) { ?>
 <div class="page-header">
-    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
+    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xlt("History & Lifestyle");?></small></h1>
 </div>
 <div>
 <div class="btn-group">
-    <a href="../summary/demographics.php" class="btn btn-default" onclick="top.restoreSession()">
-        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
+    <a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
+        <?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
     </a>
     <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
         <?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?>

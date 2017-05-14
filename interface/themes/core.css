@@ -77,6 +77,10 @@ button[href*="deleter"]:before {
     content: '\f061\00a0\00a0';
 }
 
+.btn-back::before,
+.icon-back::before {
+    content: '\f053\00a0\00a0';
+}
 .btn-print::before {
     content: '\f02f\00a0\00a0';
 }
