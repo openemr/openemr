@@ -25,15 +25,14 @@ $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 require_once('../globals.php');
 require_once('transmitDataClass.php');
 require_once("adminClass.php");
+require_once("$srcdir/options.inc.php");
 
-$isActive = new transmitData();
+
 $tables   = new adminProperties();
-
-$active = $isActive->active();
 $exist  = $tables->dataBaseTableExist();
 
 //var_dump($exist);
-
+$finished = filter_input(INPUT_GET, 'status');
 ?>
 <html>
 <head>
@@ -47,7 +46,7 @@ $exist  = $tables->dataBaseTableExist();
 <body class="body_top">
 <?php 
 
-if($active['gl_value'] != 1){ print xlt("You must activate Weno first!"); exit; } else {print xlt("Weno Service is Enabled")."<br>";} 
+if($GLOBALS['weno_rx_enable'] != 1){ print xlt("You must activate Weno first!"); exit; } else {print xlt("Weno Service is Enabled")."<br>";} 
 
 
 
@@ -71,24 +70,22 @@ if(!$drugData['ndc']){
 
 
 }
-//future use... untested but shorten by using the suggestion to generate the list of states. 
-//if(!$tables->pharmacies()){
+
 ?>
-<!--
+
 <h3>Select State to Import</h3>
-<form method="post" action="pharmacyInsert.php">
-echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']),$result3{subscriber_employer_state});
+<form method="post" action="import_pharmacies.php" >
+<?php
+echo generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list'], 'field_id'=>'state'));
+
+?><br><br>
 <input type="submit" value="Import Pharmacies"><br>
 <p>Be patient, this can take a while.<br> There are 69852 records to sort through</p>
 </form>
--->
+<br><br>
 
-<?php /*} else {
-     print "Pharmacies have been installed";
-	}
-}
-*/
-?>
+<?php  if(!empty($finish)){echo $finish . "with import";} ?>
+
 
 
 </body>

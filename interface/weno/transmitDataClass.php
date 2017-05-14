@@ -73,11 +73,6 @@ class transmitData {
 		return $res;		
 	}
 
-	public function active(){
-		$sql = "SELECT gl_value FROM `globals` WHERE `gl_name` LIKE 'weno_rx_enable'";
-		$res = sqlQuery($sql);
-		return $res;
-	}
 
 	public function patientPharmacyInfo($pid){
 		$sql = "SELECT a.pharmacy_id, b.name FROM patient_data AS a, pharmacies AS b WHERE a.pid = ? AND a.pharmacy_id = b.id";
