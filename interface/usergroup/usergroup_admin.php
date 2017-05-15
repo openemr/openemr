@@ -360,8 +360,11 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <html>
 <head>
 <title><?php xl('User / Group', 'e');?></title>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<?php if ($GLOBALS['language_direction'] == 'rtl'): ?>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
+<?php endif; ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
@@ -392,9 +395,6 @@ $(document).ready(function(){
 	});
 });
 
-</script>
-<script language="JavaScript">
-
 function authorized_clicked() {
  var f = document.forms[0];
  f.calendar.disabled = !f.authorized.checked;
@@ -420,7 +420,7 @@ function authorized_clicked() {
                 <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User','e'); ?></a>
                 <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information','e'); ?></a>
             </div>
-            <form name='userlist' method='post' style="display: inline;" class="form-inline" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
+            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>>

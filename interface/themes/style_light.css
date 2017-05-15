@@ -82,6 +82,12 @@ a:hover {
   font-weight: bold;
 }
 
+.alert {
+  font-size: 100% !important;
+  background-color: #FF0000 !important;
+  color: #fff !important;
+}
+
 .small {
   text-decoration: none;
   color: #000000;
