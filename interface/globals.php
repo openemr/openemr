@@ -24,10 +24,6 @@ if (!isset($ignoreAuth_offsite_portal)) {
 if (!isset($ignoreAuth_onsite_portal_two)) {
     $ignoreAuth_onsite_portal_two = false;
 }
-// Unless specified explicitly, "fake" register_globals.
-if (!isset($fake_register_globals)) {
-    $fake_register_globals = true;
-}
 
 // Is this windows or non-windows? Create a boolean definition.
 if (!defined('IS_WINDOWS')) {
@@ -569,18 +565,3 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");
-
-//////////////////////////////////////////////////////////////////
-
-/* Pages with "myadmin" in the URL don't need register_globals. */
-$fake_register_globals =
-    $fake_register_globals && (strpos($_SERVER['REQUEST_URI'], "myadmin") === false);
-
-
-// Emulates register_globals = On.  Moved to the bottom of globals.php to prevent
-// overrides of any variables used during global setup.
-// EXTR_SKIP flag set to prevent overriding any variables defined earlier
-if ($fake_register_globals) {
-    extract($_GET, EXTR_SKIP);
-    extract($_POST, EXTR_SKIP);
-}

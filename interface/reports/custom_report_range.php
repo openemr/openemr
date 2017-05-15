@@ -19,7 +19,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 
 require_once(dirname(__file__)."/../globals.php");

@@ -25,9 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 include_once('../../interface/globals.php');
 $sql="select distinct tu_user_id from template_users";

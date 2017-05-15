@@ -22,7 +22,7 @@
 
 // Some initial api-inputs
 
-$fake_register_globals = false;
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");

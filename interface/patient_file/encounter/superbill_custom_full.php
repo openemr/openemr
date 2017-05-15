@@ -4,7 +4,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-$fake_register_globals=false;
+
 
 
 require_once("../../globals.php");

@@ -23,7 +23,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 
 // Tell auth.inc that this is the daemon script; this is so that

@@ -22,7 +22,7 @@
  */
 
 
-$fake_register_globals=false;
+
 
 $ignoreAuth = true;
 require_once ( "../../../interface/globals.php" );

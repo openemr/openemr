@@ -25,9 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../../interface/globals.php");
 $list_id = $_REQUEST['list_id'];

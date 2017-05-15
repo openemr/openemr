@@ -9,9 +9,6 @@
 // This module provides for editing site-specific text files and
 // for uploading site-specific image files.
 
-// Disable fake register globals.
-$fake_register_globals = false;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 /* for formData() */

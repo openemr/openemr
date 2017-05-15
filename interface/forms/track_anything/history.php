@@ -23,7 +23,7 @@
 // initial stuff
 //---------------
 
-$fake_register_globals = false;
+
 require_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 

@@ -25,14 +25,12 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SESSION['whereto'] = 'profilepanel';
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    $fake_register_globals = false;
     require_once (dirname(__FILE__) . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
     session_destroy();
     $ignoreAuth = false;
-    $fake_register_globals = false;
     require_once (dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";

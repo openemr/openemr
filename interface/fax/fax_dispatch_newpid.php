@@ -11,7 +11,7 @@
 // specific data when a patient is selected.  Currently this data
 // is just the caller's selection list of recent encounters.
 
-$fake_register_globals=false;
+
 
 
 require_once("../globals.php");

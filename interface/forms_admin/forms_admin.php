@@ -5,7 +5,7 @@
 // of the License, or (at your option) any later version.
 
 
-$fake_register_globals = false;
+
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
