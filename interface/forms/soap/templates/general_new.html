@@ -1,5 +1,8 @@
 <html>
 <head>
+
+<title>{xl t='SOAP'|escape:'html'}</title>
+
 {php}html_header_show();{/php}
 
 {php}require "{$GLOBALS['srcdir']}/templates/standard_header_template.php";{/php}
@@ -9,7 +12,13 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <p class="lead">{xl t='SOAP'|escape:'html'}</p>
+                <div class="page-header">
+                    <h1>{xl t='SOAP'|escape:'html'}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
                 <form name="soap" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
                     <div class="form-group">
                         <label class="control-label col-sm-2">{xl t='Subjective'|escape:'html'}:</label>
