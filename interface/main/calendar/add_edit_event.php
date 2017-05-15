@@ -1853,7 +1853,7 @@ if ($repeatexdate != "") {
 
 <tr class='text'><td colspan='10' class="buttonbar">
 <div class="btn-group" role="group">
-<button type="button" name='form_save' class="btn btn-default btn-save" id='form_save'><?php echo xla('Save');?></button>
+<button type="button" name='form_save' class="btn btn-default btn-save" id='form_save'><?php echo xlt('Save');?></button>
 <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
 <button type='button' id='find_available' class="btn btn-default btn-search"><?php echo xlt('Find Available');?></button>
 <?php } ?>
