@@ -198,12 +198,12 @@ require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
 $twigOptions = [
     'debug' => false,
-]
+];
 
 $twigLoader = new Twig_Loader_Filesystem();
 $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
 
-if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true)) {
+if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
     $twigEnv->addExtension(new Twig_Extension_Debug());
 }
 $twigEnv->addGlobal('assets_dir', $GLOBALS['assets_static_relative']);
