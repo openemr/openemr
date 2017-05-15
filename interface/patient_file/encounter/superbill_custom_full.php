@@ -47,7 +47,7 @@ $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
 
-if (isset($mode)) {
+if (isset($mode)&&$thisauthwrite) {
     $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
     $code       = $_POST['code'];
     $code_type  = $_POST['code_type'];
