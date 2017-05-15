@@ -433,10 +433,10 @@ function authorized_clicked() {
     <div class="row">
         <div class="col-xs-12">
             <?php
-            if ($set_active_msg == 0) {
+            if ($set_active_msg == 1) {
                 echo "<div class='alert alert-danger'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br>";
             }
-            if ($show_message == 0) {
+            if ($show_message == 1) {
                 echo "<div class='alert alert-danger'>".xl('The following Emergency Login User is activated:')." "."<b>".$_GET['fname']."</b>"."</div><br>";
                 echo "<div class='alert alert-danger'>".xl('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
             }
