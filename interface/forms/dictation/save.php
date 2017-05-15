@@ -1,7 +1,7 @@
 <?php
 //------------Forms generated from formsWiz
 
-$fake_register_globals=false;
+
 
 
 include_once("../../globals.php");

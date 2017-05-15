@@ -29,9 +29,6 @@
     //don't require standard openemr authorization in globals.php
     $ignoreAuth = 1;
 
-    //STOP FAKE REGISTER GLOBALS
-    $fake_register_globals=false;
-
     //For redirect if the site on session does not match
     $landingpage = "index.php?site=".$_GET['site'];
 

@@ -23,9 +23,7 @@
  */
 
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 //Include required scripts/libraries
 require_once("../globals.php");

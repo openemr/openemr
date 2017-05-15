@@ -16,9 +16,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');

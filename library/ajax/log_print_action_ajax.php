@@ -20,7 +20,7 @@
 
 // AJAX handler for logging a printing action.
 
-$fake_register_globals = false;
+
 
 
 require_once("../../interface/globals.php");

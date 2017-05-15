@@ -20,10 +20,6 @@
  * @link    http://www.open-emr.org
  */
 
-// Disable magic quotes and fake register globals.
-
-$fake_register_globals = false;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 

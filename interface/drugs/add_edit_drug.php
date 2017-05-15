@@ -7,7 +7,7 @@
  // of the License, or (at your option) any later version.
 
 
-$fake_register_globals = false;
+
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");

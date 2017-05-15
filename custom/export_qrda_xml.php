@@ -22,9 +22,7 @@
  */
 
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 require_once("../interface/globals.php");
 require_once("../ccr/uuid.php");
 require_once("../library/patient.inc");

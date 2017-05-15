@@ -20,8 +20,6 @@
 */
 
 
-$fake_register_globals =false;
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");

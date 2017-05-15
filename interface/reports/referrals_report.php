@@ -24,8 +24,6 @@
  * @link    http://www.open-emr.org
  */
 
- $fake_register_globals=false;
-
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once "$srcdir/options.inc.php";

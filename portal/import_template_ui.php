@@ -22,7 +22,7 @@
  */
 //$ignoreAuth = true;
 
-$fake_register_globals=false;
+
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if( $getdir > 0){

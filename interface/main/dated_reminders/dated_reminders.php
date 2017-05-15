@@ -21,8 +21,6 @@
  */
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
-// not neeeded as messages page handles this
-//       $fake_register_globals=false;
 require_once('../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 

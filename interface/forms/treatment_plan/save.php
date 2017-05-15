@@ -20,9 +20,6 @@
  */
  
 
- //STOP FAKE REGISTER GLOBALS
- $fake_register_globals=$_POST['false'];
-
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");

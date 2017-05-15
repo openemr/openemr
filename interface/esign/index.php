@@ -23,8 +23,7 @@
  **/
 
 use ESign\Router;
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
+
 require_once "../globals.php";
 require_once $GLOBALS['srcdir']."/ESign/Router.php";
 $router = new Router();
