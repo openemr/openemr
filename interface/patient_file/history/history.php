@@ -12,6 +12,7 @@
 ?>
 <html>
 <head>
+<?php html_header_show(); ?>
     <?php
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>

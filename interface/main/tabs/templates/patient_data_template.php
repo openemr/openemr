@@ -39,7 +39,7 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="btn btn-xs btn-link" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
+                    <a class="btn btn-xs btn-link" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
@@ -53,7 +53,7 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
+            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
@@ -109,7 +109,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a class="btn btn-default btn-sm" href="#" data-bind="click: viewMessages" title="<?php echo xlt("View Messages");?>">
+                <a class="btn btn-default btn-sm" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>

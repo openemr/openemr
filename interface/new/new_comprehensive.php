@@ -78,7 +78,7 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-
+<?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo "{$GLOBALS['assets_static_relative']}/bootstrap-3-3-4/dist/css/bootstrap.css";?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <?php OpenEMR\Intl\RightToLeft::handle(); ?>

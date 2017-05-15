@@ -42,6 +42,7 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 ?>
 <html>
 <head>
+<?php html_header_show(); ?>
     <?php
     $include_standard_style_js = ['datetimepicker',];
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
