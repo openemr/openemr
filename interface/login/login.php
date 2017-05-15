@@ -282,11 +282,11 @@ require_once("../globals.php");
                             </div>
                         </div>
                     <?php endif; // End language menu block ?>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-block btn-large" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;<?php echo xlt('Login');?></button>
+                    <div class="form-group pull-right">
+                        <button type="submit" class="btn btn-default" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
-                <div class="col-sm-12 text-right">
+                <div class="col-sm-12 text-center">
                     <p class="small">
                         <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                     </p>
