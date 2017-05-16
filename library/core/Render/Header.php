@@ -11,8 +11,16 @@ use Symfony\Component\Yaml\Exception\ParseException;
 /**
  * Class Header.
  *
+ * Helper class to generate some `<script>` and `<link>` elements based on a
+ * configuration file. This file would be a good place to include other helpers
+ * for creating a `<head>` element, but for now it sufficently handles the
+ * `includeAsset()`
+ *
  * @package OpenEMR
  * @subpackage Core
+ * @author Robert Down <robertdown@live.com
+ * @copyright Copyright (c) 2017 Robert Down
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class Header
 {
@@ -20,11 +28,28 @@ class Header
     /**
      * Include an asset from a config file.
      *
-     * Read in a YAML file into an array, check if the $assets keys are in the
-     * config file, and from the config file generate the HTML for a `<script>`
-     * or `<link>` tag. See <root_dir>/config/config.yaml
+     * Static function to read in a YAML file into an array, check if the
+     * $assets keys are in the config file, and from the config file generate
+     * the HTML for a `<script>` or `<link>` tag.
+     *
+     * See root_dir/config/config.yaml
+     *
+     * Example:
+     * ```php
+     * // From a view file, inside of <head>
+     * use OpenEMR\Core\Header;
+     * Header::includeAsset([
+     *     'datetimepicker',
+     *     'jquery-ui',
+     * ];
+     * ```
+     *
+     * The above example will render 2 `<script>` tags and 1 `<link>` tag which
+     * bring in the datetimepicker and jquery-ui versions defined in config.yaml
      *
      * @param array|string $assets Assets to include
+     * @throws ParseException If unable to parse the config file
+     * @return void
      */
     static public function includeAsset($assets)
     {
@@ -38,7 +63,7 @@ class Header
             $config = Yaml::parse(file_get_contents($file));
             $map = $config['assets'];
         } catch (ParseException $e) {
-            die('Error here');
+            error_log($e->getMessage());
         }
 
         $script = "<script type=\"text/javascript\" src=\"%src%\"></script>\n";
