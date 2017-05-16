@@ -61,7 +61,7 @@ final class DocParser
     /**
      * Current target context.
      *
-     * @var string
+     * @var integer
      */
     private $target;
 
@@ -105,7 +105,7 @@ final class DocParser
     /**
      * An array of default namespaces if operating in simple mode.
      *
-     * @var array
+     * @var string[]
      */
     private $namespaces = array();
 
@@ -286,7 +286,7 @@ final class DocParser
     /**
      * Sets the default namespaces.
      *
-     * @param array $namespace
+     * @param string $namespace
      *
      * @return void
      *
@@ -691,8 +691,10 @@ final class DocParser
         $originalName = $name;
 
         if ('\\' !== $name[0]) {
-            $alias = (false === $pos = strpos($name, '\\'))? $name : substr($name, 0, $pos);
+            $pos = strpos($name, '\\');
+            $alias = (false === $pos)? $name : substr($name, 0, $pos);
             $found = false;
+            $loweredAlias = strtolower($alias);
 
             if ($this->namespaces) {
                 foreach ($this->namespaces as $namespace) {
@@ -702,7 +704,7 @@ final class DocParser
                         break;
                     }
                 }
-            } elseif (isset($this->imports[$loweredAlias = strtolower($alias)])) {
+            } elseif (isset($this->imports[$loweredAlias])) {
                 $found = true;
                 $name  = (false !== $pos)
                     ? $this->imports[$loweredAlias] . substr($name, $pos)
@@ -725,6 +727,8 @@ final class DocParser
                 throw AnnotationException::semanticalError(sprintf('The annotation "@%s" in %s was never imported. Did you maybe forget to add a "use" statement for this annotation?', $name, $this->context));
             }
         }
+
+        $name = ltrim($name,'\\');
 
         if ( ! $this->classExists($name)) {
             throw AnnotationException::semanticalError(sprintf('The annotation "@%s" in %s does not exist, or could not be auto-loaded.', $name, $this->context));
@@ -919,8 +923,10 @@ final class DocParser
         if ( ! defined($identifier) && false !== strpos($identifier, '::') && '\\' !== $identifier[0]) {
             list($className, $const) = explode('::', $identifier);
 
-            $alias = (false === $pos = strpos($className, '\\')) ? $className : substr($className, 0, $pos);
+            $pos = strpos($className, '\\');
+            $alias = (false === $pos) ? $className : substr($className, 0, $pos);
             $found = false;
+            $loweredAlias = strtolower($alias);
 
             switch (true) {
                 case !empty ($this->namespaces):
@@ -933,7 +939,7 @@ final class DocParser
                     }
                     break;
 
-                case isset($this->imports[$loweredAlias = strtolower($alias)]):
+                case isset($this->imports[$loweredAlias]):
                     $found     = true;
                     $className = (false !== $pos)
                         ? $this->imports[$loweredAlias] . substr($className, $pos)
@@ -1067,7 +1073,7 @@ final class DocParser
      * FieldAssignment ::= FieldName "=" PlainValue
      * FieldName ::= identifier
      *
-     * @return array
+     * @return \stdClass
      */
     private function FieldAssignment()
     {

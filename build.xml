@@ -51,6 +51,7 @@
         <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
         <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>

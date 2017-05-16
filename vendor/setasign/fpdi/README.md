@@ -17,7 +17,7 @@ This package comes without any dependency configuration in the composer.json fil
 A basic installation via Composer could be done this way:
 
 ```bash
-$ composer require setasign/fpdi:1.6.1
+$ composer require setasign/fpdi:1.6.2
 ```
 
 or you can include the following in your composer.json file:
@@ -25,7 +25,7 @@ or you can include the following in your composer.json file:
 ```json
 {
     "require": {
-        "setasign/fpdi": "1.6.1"
+        "setasign/fpdi": "1.6.2"
     }
 }
 ```
@@ -37,7 +37,7 @@ To load dependencies automatically we prepared kind of metadata packages. To use
 ```json
 {
     "require": {
-        "setasign/fpdi-fpdf": "1.6.1"
+        "setasign/fpdi-fpdf": "1.6.2"
     }
 }
 ```
@@ -47,7 +47,7 @@ For TCPDF use [this](https://github.com/Setasign/FPDI-TCPDF):
 ```json
 {
     "require": {
-        "setasign/fpdi-tcpdf": "1.6.1"
+        "setasign/fpdi-tcpdf": "1.6.2"
     }
 }
 ```
@@ -62,7 +62,7 @@ To use FPDI with FPDF include following in your composer.json file:
 {
     "require": {
         "setasign/fpdf": "1.8",
-        "setasign/fpdi": "1.6.1"
+        "setasign/fpdi": "1.6.2"
     }
 }
 ```
@@ -72,8 +72,8 @@ If you are using TCPDF, your have to update your composer.json respectively to:
 ```json
 {
     "require": {
-        "tecnickcom/tcpdf": "6.2.12",
-        "setasign/fpdi": "1.6.1"
+        "tecnickcom/tcpdf": "6.2.13",
+        "setasign/fpdi": "1.6.2"
     }
 }
 ```

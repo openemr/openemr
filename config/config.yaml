@@ -1,0 +1,28 @@
+---
+# Use %KEY-NAME% in this file and it will be replaced with the value of
+# $GLOBALS['KEY-NAME'] if it exists. If the key name does not exist, this script
+# won't work (Need to build in proper error handling @TODO RD 2017-05-16
+#
+# Example usage:
+#assets: Top-level key name
+#    asset-short-name: Short name
+#        basePath: %assets_static_relative%/full/path/to/deepest/common/file
+#        script: null filename or null
+#        link: jquery-ui.min.css filename or null
+assets:
+    jquery-ui-darkness:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
+        script: null
+        link: jquery-ui.min.css
+    datetimepicker:
+        basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
+        script: jquery.datetimepicker.full.min.js
+        link: jquery.datetimepicker.min.css
+    jquery-ui:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/
+        script: jquery-ui.min.js
+        link: null
+    report_helper:
+        basePath: %webroot%/
+        script: library/js/report_helper.js
+        link: null

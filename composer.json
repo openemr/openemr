@@ -27,7 +27,8 @@
         "doctrine/orm": "2.5.5",
         "twig/twig": "1.33.*",
         "symfony/http-foundation": "2.8.20",
-        "vlucas/phpdotenv": "2.4"
+        "vlucas/phpdotenv": "2.4",
+        "symfony/yaml": "2.8.20"
 
     },
     "require-dev": {
