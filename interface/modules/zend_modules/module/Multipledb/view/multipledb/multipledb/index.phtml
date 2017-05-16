@@ -26,8 +26,8 @@
     endif;
     ?>
 </script>
-<a href="multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
-<a href="multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
+<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
+<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
 <table class="responstable">
     <?php
     $html = null;
@@ -43,7 +43,7 @@
         $port = $this->escapeHtml($value['port']);
         $html .= <<<html
     <tr>
-        <td><a href="multipledb/edit?id={$id}">{$editLang}</a> | <a href="multipledb/remove?id={$id}"  onclick="save($(this),'{$namespace}')">{$removeLang}</a></td>
+        <td><a href="{$this->basePath()}/multipledb/edit?id={$id}">{$editLang}</a> | <a href="{$this->basePath()}/multipledb/remove?id={$id}"  onclick="save($(this),'{$namespace}')">{$removeLang}</a></td>
         <td>{$namespace}</td> 
         <td>{$username}</td>
         <td>{$dbname}</td>
