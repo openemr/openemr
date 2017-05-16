@@ -17,7 +17,7 @@ $thisauthwrite = acl_check('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
     echo "<html>\n<body>\n";
-    echo "<p>".xl('You are not authorized for this.','','','</p>')."\n";
+    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -47,7 +47,7 @@ $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
 
-if (isset($mode)&&$thisauthwrite) {
+if (isset($mode) && $thisauthwrite) {
     $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
     $code       = $_POST['code'];
     $code_type  = $_POST['code_type'];
