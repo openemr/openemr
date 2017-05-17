@@ -25,9 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc");

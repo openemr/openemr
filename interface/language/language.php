@@ -1,8 +1,6 @@
 <?php
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");

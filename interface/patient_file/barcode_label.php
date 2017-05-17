@@ -27,7 +27,7 @@
  *
  */
 
-$fake_register_globals=false;
+
 
 
 

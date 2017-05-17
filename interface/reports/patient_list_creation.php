@@ -21,9 +21,6 @@
  * @link    http://www.open-emr.org
  */
 
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-
 	require_once("../globals.php");
 	require_once("$srcdir/patient.inc");
 	require_once("$srcdir/options.inc.php");
@@ -224,7 +221,7 @@
 				<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 				<table>
 					  <tr>
-					<td width='900px'>
+					<td width='640px'>
                                             <div class="cancel-float" style='float:left'>
 						<table class='text'>
 							<tr>
@@ -290,18 +287,20 @@
 						</div></td>
 						<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
 							<tr>
-								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
-											<?php echo xlt('Submit'); ?>
-											</span> </a>
+								<td>
+									<div class="text-center">
+										<div class="btn-group" role="group">
+											<a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
+												<?php echo xlt('Submit'); ?>
+											</a>
+											<?php if(isset($_POST['form_refresh'])){?>
+												<a href='#' class='btn btn-default btn-print' onclick="printForm()">
+													<?php echo xlt('Print'); ?>
+												</a>
+											<?php }?>
+										</div>
 									</div>
 								</td>
-								<?php if(isset($_POST['form_refresh'])){?>
-								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick="printForm()"> <span>
-											<?php echo xlt('Print'); ?>
-											</span> </a>
-									</div>
-								</td>
-								<?php }?>
 								<td>
 									<div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div>
 								</td>

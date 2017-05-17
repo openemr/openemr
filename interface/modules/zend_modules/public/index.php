@@ -24,9 +24,7 @@
  * This makes our life easier when dealing with paths. Everything is relative
  * to the application root now.
  */
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', $_SERVER['REQUEST_URI']);

@@ -6,9 +6,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// Do not allow fake register globals.
-$fake_register_globals = false;
-
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 

@@ -23,10 +23,6 @@
 
 	// This program exports(Download) to QRDA Category III XML.
 
-
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-
 	require_once("../interface/globals.php");
 
 	$qrda_fname = $_GET['qrda_fname'];

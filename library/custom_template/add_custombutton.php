@@ -25,9 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../../interface/globals.php");
 if((isset($_POST['form_save']) && $_POST['form_save']=='Save') || (isset($_POST['form_delete']) && $_POST['form_delete']=='Delete')){

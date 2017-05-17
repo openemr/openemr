@@ -52,8 +52,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
+
 
 //ajax param should be set by calling ajax scripts
 $isAjaxCall = isset($_POST['ajax']);

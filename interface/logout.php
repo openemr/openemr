@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 
 // Set the GET auth parameter to logout.

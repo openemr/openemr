@@ -32,7 +32,7 @@
  * @link    http://www.open-emr.org
  */
 ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['css_header'];?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
@@ -54,9 +54,9 @@
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("report_helper.js",$include_standard_style_js)) { ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/report_helper.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 <?php } ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 
 <?php $include_standard_style_js = array(); //clear this to prevent issues if this is called again in an embedded script ?>

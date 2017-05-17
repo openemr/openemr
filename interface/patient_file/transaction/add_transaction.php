@@ -23,9 +23,7 @@
 */
 
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");

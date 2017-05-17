@@ -25,7 +25,7 @@
  *
  */
 
-$fake_register_globals=false;
+
 
 
 $form_name = "eye_mag";

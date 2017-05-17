@@ -9,9 +9,7 @@
 //
 // Flexible script for graphing entities in OpenEMR
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-chart.php");

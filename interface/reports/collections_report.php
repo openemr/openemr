@@ -27,7 +27,7 @@
  * @link http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 
 require_once("../globals.php");
@@ -540,20 +540,17 @@ function checkAll(checked) {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+						  <?php echo xlt('Submit'); ?>
+					  </a>
+					  <?php if ($_POST['form_refresh']) { ?>
+					    <a href='#' class='btn btn-default btn-print' onclick='window.print()'>
+							  <?php echo xlt('Print'); ?>
+					    </a>
+					  <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>
@@ -1205,23 +1202,24 @@ if (!$_POST['form_csvexport']) {
 ?>
 
 <div style='float;margin-top:5px'>
+  <div class="btn-group pull-left" role="group">
+    <a href='javascript:;' class='btn btn-default btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
+    <a href='javascript:;' class='btn btn-default btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
+    <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+	    <?php echo xlt('Export Selected as CSV'); ?>
+    </a>
+    <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_export").attr("value","true"); $("#theform").submit();'>
+	    <?php echo xlt('Export Selected to Collections'); ?>
+    </a>
+  </div>
 
-<a href='javascript:;' class='css_button'  onclick='checkAll(true)'><span><?php echo xlt('Select All'); ?></span></a>
-<a href='javascript:;' class='css_button'  onclick='checkAll(false)'><span><?php echo xlt('Clear All'); ?></span></a>
-<a href='javascript:;' class='css_button' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
-	<span><?php echo xlt('Export Selected as CSV'); ?></span>
-</a>
-<a href='javascript:;' class='css_button' onclick='$("#form_export").attr("value","true"); $("#theform").submit();'>
-	<span><?php echo xlt('Export Selected to Collections'); ?></span>
-</a>
-</div>
+  <div style='float:left'>
+    <label><input type='checkbox' name='form_individual' value='1' /> <?php echo xlt('Export Individual Invoices') ?>&nbsp;&nbsp;</label>
+  </div>
 
-<div style='float:left'>
-<label><input type='checkbox' name='form_individual' value='1' /> <?php echo xlt('Export Individual Invoices') ?>&nbsp;&nbsp;</label>
-</div>
-
-<div style='float:left'>
-<label><input type='checkbox' name='form_without' value='1' /> <?php echo xlt('Without Update') ?></label>
+  <div style='float:left'>
+  <label><input type='checkbox' name='form_without' value='1' /> <?php echo xlt('Without Update') ?></label>
+  </div>
 </div>
 
 <?php

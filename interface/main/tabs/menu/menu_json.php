@@ -15,17 +15,18 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author Robert Down <robertdown@live.com>
  * @link    http://www.open-emr.org
  */
 
-require_once("menu_data.php");
+
 require_once("menu_updates.php");
 require_once("menu_db.php");
 
 $menu_parsed=load_menu("default");
 if(count($menu_parsed)==0)
 {
-    $menu_parsed=json_decode($menu_json);
+    $menu_parsed = json_decode(file_get_contents(dirname(__FILE__) . "/menu_data.json"));
     if (!$menu_parsed) die("\nJSON ERROR: " . json_last_error()); // debugging
 }
 

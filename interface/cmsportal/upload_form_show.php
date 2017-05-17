@@ -20,7 +20,7 @@
  */
 
 
-$fake_register_globals = false;
+
 
 require_once("../globals.php");
 require_once("portal.inc.php");

@@ -1,7 +1,7 @@
 <?php
 /* Copyright (C) 2012 Julia Longtin */
 
-$fake_register_globals=false;
+
 
 
 include_once("../globals.php");

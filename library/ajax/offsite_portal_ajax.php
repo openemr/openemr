@@ -24,9 +24,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once("$srcdir/acl.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");

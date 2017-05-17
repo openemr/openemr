@@ -25,9 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../../interface/globals.php");
 $res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on cl_creator=u.id WHERE cl_list_type=3 AND cl_deleted=0");

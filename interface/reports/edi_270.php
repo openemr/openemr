@@ -27,10 +27,6 @@
  */
 
 
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-	//
-
 	require_once("../globals.php");
 	require_once("$srcdir/forms.inc");
 	require_once("$srcdir/billing.inc");
@@ -372,20 +368,16 @@
 							<table style='border-left:1px solid; width:100%; height:100%' >
 								<tr>
 									<td>
-										<div style='margin-left:15px'>
-											<a href='#' class='css_button' onclick='validate_policy(); $("#theform").submit();'>
-											<span>
-												<?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
-											</span>
-											</a>
-
-											<a href='#' class='css_button' onclick='return validate_batch();'>
-												<span>
-													<?php echo htmlspecialchars( xl('Create batch'), ENT_NOQUOTES); ?>
+										<div class="text-center">
+											<div class="btn-group" role="group">
+												<a href='#' class='btn btn-default btn-refresh' onclick='validate_policy(); $("#theform").submit();'>
+													<?php echo xlt('Refresh'); ?>
+												</a>
+												<a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch();'>
+													<?php echo xlt('Create batch'); ?>
 													<input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
-												</span>
-											</a>
-
+												</a>
+											</div>
 										</div>
 									</td>
 								</tr>

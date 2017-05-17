@@ -25,7 +25,7 @@
  */
 
 
-$fake_register_globals=false;
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -442,20 +442,22 @@ function sel_patient() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick="checkSubmit();" >
-					<span><?php echo xlt('Submit'); ?></span></a>
-
-			<?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-					<div id="controls">
-                    <a href='#' class='css_button' id='printbutton'>
-                         <span><?php echo xlt('Print Ledger'); ?></span></a>
-                    <?php if($type_form == '1') { ?>
-                    <a href="../patient_file/summary/demographics.php" class="css_button" onclick="top.restoreSession()">
-                         <span><?php echo xlt('Back To Patient');?></span></a>
-                    <?php } ?>
-					</div>
-					<?php } ?>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					  <a href='#' class='btn btn-default btn-save' onclick="checkSubmit();" >
+					    <?php echo xlt('Submit'); ?>
+            </a>
+			      <?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
+              <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                <?php echo xlt('Print Ledger'); ?>
+              </a>
+              <?php if ($type_form == '1') { ?>
+                <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
+                  <?php echo xlt('Back To Patient');?>
+                </a>
+              <?php } ?>
+					  <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

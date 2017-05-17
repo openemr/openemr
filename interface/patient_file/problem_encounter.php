@@ -25,8 +25,6 @@
  * @link    http://www.open-emr.org
  */
 
- $fake_register_globals=false;
-
  include_once("../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");

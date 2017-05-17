@@ -20,9 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../globals.php");
 ?>
@@ -71,23 +69,17 @@ require_once("../globals.php");
 <form method='post' name='theform' id='theform' action='background_services.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
-<table>
- <tr>
-  <td width='470px'>
-	<div style='float:left'>
-
-	<table class='text'>
-             <div style='margin-left:15px'>
-               <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-               <span>
-               <?php echo xlt('Refresh'); ?>
-               </span>
-               </a>
-             </div>
-        </table>
-  </td>
- </tr>
-</table>
+    <table>
+        <tr>
+            <td width='470px'>
+	              <div class="btn-group pull-left" role="group">
+                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                        <?php echo xlt('Refresh'); ?>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>  <!-- end of search parameters -->
 
 <br>

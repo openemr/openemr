@@ -26,9 +26,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 if (!extension_loaded('soap')) {
    die("PLEASE ENABLE SOAP EXTENSION");
 }

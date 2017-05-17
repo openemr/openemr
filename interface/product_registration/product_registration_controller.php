@@ -18,7 +18,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 $ignoreAuth=true;
 require_once("../globals.php");

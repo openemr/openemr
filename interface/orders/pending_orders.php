@@ -142,12 +142,11 @@ else { // not export
  </tr>
  <tr>
   <td>
-   &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
-   &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
-   &nbsp;
-   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
+   <div class="btn-group" role="group">
+    <button type='submit' class='btn btn-default btn-refresh' name='form_refresh'><?php echo xlt('Refresh'); ?></button>
+    <button type='submit' class='btn btn-default btn-transmit' name='form_csvexport'><?php echo xlt('Export to CSV'); ?></button>
+    <button type='button' class='btn btn-default btn-print' id='printbutton'><?php echo xlt('Print'); ?></button>
+   </div>
   </td>
  </tr>
 

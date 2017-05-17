@@ -23,9 +23,6 @@
 // This module downloads a specified document template to the browser after
 // substituting relevant patient data into its variables.
 
-// Disable fake register globals.
-$fake_register_globals = false;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');

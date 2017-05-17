@@ -20,9 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -131,12 +129,12 @@ $(document).ready(function() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo xlt('Search'); ?>
-					</span>
-					</a>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+            <a id='search_button' href='#' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+						  <?php echo xlt('Search'); ?>
+            </a>
+          </div>
 				</div>
 			</td>
 		</tr>
