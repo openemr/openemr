@@ -162,14 +162,7 @@ if (!empty($ptrow)) {
 <?php
 $row = array();
 if (!empty($ptrow)) {
-  $query = "SELECT ct.ct_when, ct.ct_userid, ct.ct_location, " .
-    "u.username, u.fname, u.mname, u.lname " .
-    "FROM chart_tracker AS ct " .
-    "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-    "WHERE ct.ct_pid = ? " .
-    "ORDER BY ct.ct_when DESC";
-  $res = sqlStatement($query,array($curr_pid));
-
+  $res = \services\PatientService::getChartTrackerInformationActivity($curr_pid);
   while ($row = sqlFetchArray($res)) {
 ?>
  <tr>
