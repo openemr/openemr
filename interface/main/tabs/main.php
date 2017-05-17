@@ -111,7 +111,19 @@ var webroot_url="<?php echo $web_root; ?>";
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
 <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+
+
+
+<!-- Added New Jquery-ui.js for making Drap and Drop -->
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/Jquery-ui.js"></script>
+
+<link href="../../../public/assets/Jquery-UI.css" rel="stylesheet" type="text/css"/>
+<!-- Newly file added -->
+
+
+
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -188,7 +200,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
     </div>
     <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
     </div>
-    <div class="body_title" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
+    <div class="body_title" id="tabsContainer" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
 
     <div class="mainFrames">
         <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"> </div>
@@ -204,6 +216,27 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
            $('#attendantData').slideToggle();
             $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
         });
+        
+        //Javascript for the tab drag and drop
+        $('.sorting').sortable({
+        items: '.sortable',
+        stop: function( event, ui ) {
+			var tempTabList = ko.observableArray();
+			var sortableLength = $('.sorting > .sortable').length;
+			for(var i=0;i<sortableLength;i++){
+				var title = $($('.sorting > .sortable')[i]).find('span.tabTitle').text();
+				for(var j=0; j < app_view_model.application_data.tabs.tabsList().length; j++){
+					var tabTitle = app_view_model.application_data.tabs.tabsList()[j].title();
+					if(title == tabTitle){
+						tempTabList.push(app_view_model.application_data.tabs.tabsList()[j]);
+						break;
+					}
+				}
+			}
+			app_view_model.application_data.tabs.tabsList = tempTabList;
+
+        }
+    });
     });
 </script>
 </body>

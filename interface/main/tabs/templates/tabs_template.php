@@ -18,14 +18,21 @@
  * @link    http://www.open-emr.org
  */
 ?>
+<div id="dialog-confirm" title="Close this tab?" style="display: none">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left;"></span>
+        Are You Really Want To Close This Tab?
+    </p>
+</div>
+
 
 <script type="text/html" id="tabs-controls">
-    <div class="tabControls" data-bind="with: tabs">
-        <div class="tabNotchosen" style="width:2%">
+    <div class="tabControls sorting" data-bind="with: tabs">
+        <span class="tabNotchosen" style="width:2%">
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
-        </div>
+        </span>
         <!-- ko  foreach: tabsList -->
-            <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
+            <div class="tabSpan bgcolor2 sortable" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
                 <!--ko if:!locked() -->
@@ -39,8 +46,9 @@
                     <span class="fa fa-fw fa-times" data-bind="click: tabClose"></span>
                 <!-- /ko -->
             </div>
+       
+       
         <!-- /ko -->
-        <div class="tabNotchosen" style="width:100%;"></div>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">
