@@ -17,6 +17,7 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author Victor Kofia <victor.kofia@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -35,6 +36,20 @@ class UserService {
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository('\entities\User');
+    }
+
+    /**
+     * @return Fully hydrated user object
+     */
+    public function getUser($userId) {
+        return $this->repository->getUser($userId);
+    }
+
+    /**
+     * @return active users (fully hydrated)
+     */
+    public function getActiveUsers() {
+        return $this->repository->getActiveUsers();
     }
 
     /**
