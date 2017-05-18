@@ -40,7 +40,7 @@
                 <!-- /ko -->
             </div>
         <!-- /ko -->
-        <div class="tabNotchosen" style="width:100%;"></div>
+        <div class="tabsNoHover" style="width:100%;"></div>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">
