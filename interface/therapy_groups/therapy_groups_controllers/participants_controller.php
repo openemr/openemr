@@ -45,8 +45,8 @@ class ParticipantsController extends BaseController{
 
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
-                $patient['group_patient_start'] = $_POST['group_patient_start'][$k];
-                $patient['group_patient_end'] = $_POST['group_patient_end'][$k];
+                $patient['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start'][$k]);
+                $patient['group_patient_end'] = DateToYYYYMMDD($_POST['group_patient_end'][$k]);
                 $patient['group_patient_comment'] = $_POST['group_patient_comment'][$k];
 
                 $filters = array(
@@ -88,6 +88,8 @@ class ParticipantsController extends BaseController{
     public function add($groupId){
 
         if(isset($_POST['save_new'])){
+
+            $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
 
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);
             if($alreadyRegistered){
