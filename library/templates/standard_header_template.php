@@ -14,9 +14,11 @@
  *
  *
  * The $include_standard_style_js supports:
+ *                                         tabs-theme
  *                                         jquery-ui (brings in just the js script)
  *                                         jquery-ui-darkness (brings in the darkness style)
  *                                         jquery-ui-sunny (brings in the sunny style)
+ *                                         knockout
  *                                         datetimepicker
  *                                         report_helper.js
  *                                         include_opener.js
@@ -50,6 +52,9 @@
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
 <?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("tabs-theme",$include_standard_style_js)) { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $GLOBALS['v_js_includes']; ?>"/>
+<?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("jquery-ui-darkness",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/ui-darkness/jquery-ui.min.css">
 <?php } ?>
@@ -63,6 +68,9 @@
 
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+<?php if (!empty($include_standard_style_js) && in_array("knockout",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("jquery-ui",$include_standard_style_js)) { ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <?php } ?>
