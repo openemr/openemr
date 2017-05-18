@@ -154,7 +154,7 @@
                                                     </td>
                                                     <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
                                                     <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_comment[]" class="full-width" class=""  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
+                                                    <td><input type="text" name="group_patient_comment[]" class="full-width"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                                     <?php if($readonly == ''): ?>
                                                         <td class="delete_btn">
                                                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) .'&deleteParticipant=1&pid=' . attr($participant['pid']); ?>"><span>X</span></a>
