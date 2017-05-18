@@ -105,15 +105,17 @@ function isEncounterLocked( encounterId ) {
 var webroot_url="<?php echo $web_root; ?>";
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
+<?php OpenEMR\Intl\RightToLeft::handle(); ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
+<script type="text/javsacript" src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/js/dropdown.js"></script>
 <script type="text/javascript" src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script type="text/javascript" src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -160,7 +162,6 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-
     <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
@@ -199,6 +200,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
     ko.applyBindings(app_view_model);
 
     $(document).ready(function() {
+        $('.dropdown-toggle').dropdown();
         goRepeaterServices();
         $('#patient_caret').click(function() {
            $('#attendantData').slideToggle();

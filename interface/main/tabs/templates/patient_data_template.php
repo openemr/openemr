@@ -21,13 +21,11 @@
  * @link    http://www.open-emr.org
  */
 ?>
-
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;" class="fa-stack"><a data-bind="click: viewPtFinder" href="#">
-                <i class="fa fa-list fa-stack-1x" aria-hidden="true"></i>
-                <strong><i style="margin: 10px 0 0 10px;" class="fa fa-search fa-stack-x" aria-hidden="true"></i></strong>
+            <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
+                <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
                 <?php echo xlt("Patient"); ?>:
@@ -41,8 +39,8 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="css_button_small" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xlt("Clear") ?>">
-                        <i style="font-size:150%;" class="fa fa-times"></i>
+                    <a class="btn btn-xs btn-link" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                        <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
             </div>
@@ -55,8 +53,8 @@
         <span class="patientDataColumn">
         <!-- ko if: patient -->
         <!-- ko with: patient -->
-            <a class="css_button_small" data-bind="click: clickNewEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
-                <i style="font-size:150%;" class="fa fa-plus"></i>
+            <a class="btn btn-xs btn-link" data-bind="click: clickNewEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+                <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
@@ -71,33 +69,35 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
+            <div class="dropdown dropdown-toggle">
+                <button class="btn btn-default btn-sm dropdown-toggle"
+                        type="button" id="pastEncounters"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="true">
+                    <?php echo xlt("View Past Encounters"); ?>&nbsp;
+                    (<span data-bind="text:encounterArray().length"></span>)
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu"
+                    aria-labelledby="pastEncounters">
+                    <!-- ko foreach:encounterArray -->
+                    <li>
+                        <a href="#" data-bind="click:chooseEncounterEvent" style="display: inline;">
+                            <span data-bind="text:date"></span>
+                            <span data-bind="text:category"></span>
+                        </a>
+                        <a href="#" class="btn btn-xs btn-link"
+                           data-bind="click:reviewEncounterEvent" style="display: inline;">
+                            <i class="fa fa-folder-o"></i>&nbsp;<?php echo xlt("Review");?>
+                        </a>
+                    </li>
+                    <!-- /ko -->
+                </ul>
+            </div>
                 <div class="patientInfo">
                     <span class="patientDataColumn patientEncountersColumn">
                         <span class="patientEncounterList" >
-                            <div data-bind="click: clickEncounterList">
-                            <!-- ko if: encounterArray().length == 1 -->
-                                <?php echo xlt("View Past Encounter");?>
-                            <!-- /ko -->
-                            <!-- ko if: encounterArray().length > 1 -->
-                                <?php echo xlt("View Past Encounters");?>
-                            <!-- /ko -->
-                                (<span data-bind="text:encounterArray().length"></span>)
-                            </div>
-                            <table class="encounters">
-                                <tbody>
-                                <!-- ko  foreach:encounterArray -->
-                                    <tr >
-                                        <td data-bind="click: chooseEncounterEvent">
-                                            <span data-bind="text:date"></span>
-                                            <span data-bind="text:category"></span>
-                                        </td>
-                                        <td class="review" data-bind="click: reviewEncounterEvent">
-                                            <?php echo xlt("Review"); ?>
-                                        </td>
-                                    </tr>
-                                <!-- /ko -->
-                                </tbody>
-                            </table>
                         </span>
                     </span>
                 </div>
@@ -109,7 +109,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a style="font-size:150%;" class="css_button_small" href="#" data-bind="click: viewMessages" title="<?php echo xlt("View Messages");?>">
+                <a class="btn btn-default btn-sm" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
