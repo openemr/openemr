@@ -89,7 +89,7 @@ $zip->close();
  
  //if(!empty($find['ndc'])){
 	 sqlStatement("INSERT INTO `erx_drug_paid` SET `drug_label_name` = ?, `NDC` = ?, `price_per_unit` = ? ", array($drugName,$ndc,$price));
-	 echo "Inserted ". $drugName ."<br> "; 	
+	 echo text("Inserted "). $drugName ."<br> "; 	
 	 //sqlStatement("UPDATE erx_drug_paid SET price_per_unit = ? WHERE ndc = ?", array($price, $ndc));
 	 //echo "Updated!<br>";
 // }else{

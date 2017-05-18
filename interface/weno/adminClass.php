@@ -122,7 +122,7 @@ class adminProperties {
           	);
 
           sqlStatement(
-              "CREATE TABLE IF NOT EXISTS `erx_erx_narcotics` (
+              "CREATE TABLE IF NOT EXISTS `erx_narcotics` (
                             `id` int(11) NOT NULL AUTO_INCREMENT,
                             `drug` varchar(255) NOT NULL,
                             `dea_number` varchar(5) NOT NULL,

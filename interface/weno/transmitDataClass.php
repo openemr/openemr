@@ -33,7 +33,7 @@ class transmitData {
 	public function checkList($send){
 		$list = sqlFetchArray($send);
 		if(empty($list['id'])){
-			return xl("No Rx Selected ");
+			return xl("No Rx Selected");
 		}
 		
 	}

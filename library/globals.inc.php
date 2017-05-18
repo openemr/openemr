@@ -2504,86 +2504,30 @@ $GLOBALS_METADATA = array(
       xl('Enable Weno eRx Service'),
       'bool',
       '0',
-      xl('Enable Weno eRx Service.') + ' ' +
+      xl('Enable Weno eRx Service.'),
       xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.') 
     ),
-	
+  
     'weno_account_id' => array(
       xl('Weno eRx Account Id'),
       'text',
       '',
       xl('Account Id issued for Weno eRx service.')
-    ),	
+    ),  
     'weno_account_pass' => array(
       xl('Weno eRx Account Pass'),
       'text',
       '',
-      xl('Account password issued for Weno eRx service.')
+      xl('Account Id issued for Weno eRx service.')
     ),
 
     'weno_provider_id' => array(
       xl('Weno eRx Clinic ID'),
       'text',
       '',
-      xl('Provider ID issued for Your provider access to eRx services.')
-    ),	
-	'weno_state_code' => array(
-	  xl('Select State'),
-      array(
-             'AK' => 'AK',
-             'AL' => 'AL',
-             'AZ' => 'AZ',
-             'AR' => 'AR',
-             'CA' => 'CA',
-             'CO' => 'CO',
-             'CT' => 'CT',
-             'DE' => 'DE',
-             'FL' => 'FL',
-             'GA' => 'GA',
-             'HI' => 'HI',
-             'ID' => 'ID',
-             'IL' => 'IL',
-             'IN' => 'IN',
-             'IA' => 'IA',
-             'KS' => 'KS',
-             'KY' => 'KY',
-             'LA' => 'LA',
-             'ME' => 'ME',
-             'MD' => 'MD',
-             'MA' => 'MA',
-             'MI' => 'MI',
-             'MN' => 'MN',
-             'MS' => 'MS',
-             'MO' => 'MO',
-             'MT' => 'MT',
-             'NE' => 'NE',
-             'NV' => 'NV',
-             'NH' => 'NH',
-             'NJ' => 'NJ',
-             'NM' => 'NM',
-             'NY' => 'NY',
-             'NC' => 'NC',
-             'ND' => 'ND',
-             'OH' => 'OH',
-             'OK' => 'OK',
-             'OR' => 'OR',
-             'PA' => 'PA',
-             'RI' => 'RI',
-             'SC' => 'SC',
-             'SD' => 'SD',
-             'TN' => 'TN',
-             'TX' => 'TX',
-             'UT' => 'UT',
-             'VT' => 'VT',
-             'VA' => 'VA',
-             'WA' => 'WA',
-             'WV' => 'WV',
-             'WI' => 'WI',
-             'WY' => 'WY',
-      ),
-      'text',                              // default = tree menu
-      xl('Choose your State')
-    ),	  
+      xl('Account Id issued for Your clinics eRx service.')
+    ),  
+	  
     'phimail_enable' => array(
       xl('Enable phiMail Direct Messaging Service'),
       'bool',                           // data type
