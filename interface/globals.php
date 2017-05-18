@@ -222,7 +222,7 @@ $twigOptions = [
     'debug' => false,
 ];
 
-$twigLoader = new Twig_Loader_Filesystem();
+$twigLoader = new Twig_Loader_Filesystem(["{$webserver_root}/templates"]);
 $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
 
 if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
@@ -233,6 +233,9 @@ $twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
 $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
+}));
+$twigEnv->addFunction(new Twig_SimpleFunction('aco_options', function ($aco_spec) {
+    return gen_aco_html_options($aco_spec);
 }));
 
 /** Twig_Loader */

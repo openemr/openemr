@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        {# Specific override to allow larger width on this container#}
+        .container {
+            width: 1500px;
+        }
+        .bottom-pad {
+            padding-bottom: 25px;
+        }
+    </style>
+    <title>{{ "Forms Administration"|translate }}</title>
+</head>
+<body>
+<div class="container">
+    <form action="./forms_admin.php" method="post">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="page-header">
+                <h1>{{ "Forms Administration"|translate }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row bottom-pad">
+        <div class="col-xs-12">
+            <button type="submit" name="update" class="btn btn-default btn-save">{{ "Update"|translate }}</button>
+        </div>
+    </div>
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-xs-12">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#registered"
+                       aria-controls="home" role="tab"
+                       data-toggle="tab">
+                        {{ "Registered"|translate }}
+                        &nbsp;<span class="badge">{{ registered|length }}</span>
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#unregistered"
+                       aria-controls="profile" role="tab"
+                       data-toggle="tab">
+                        {{ "Unregistered"|translate }}
+                        &nbsp;<span class="badge">{% if unregistered|length > 0 %}{{ unregistered|length }}{% endif %}</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="registered">
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th colspan="2">&nbsp;</th>
+                            <th>{{ "Priority"|translate }}</th>
+                            <th>{{ "Category"|translate }}</th>
+                            <th>{{ "Nickname"|translate }}</th>
+                            <th>{{ "Access Control"|translate }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in registered %}
+                            <tr>
+                                <td class="text-muted"><small>{{ row.id }}</small></td>
+                                <td><strong>{{ row.name }}</strong></td>
+                                <td class="{{ row.statusColor }}">
+                                    <i class="{{ row.statusIcon }}"></i>&nbsp;
+                                    {% if row.status == "Registered" %}
+                                        {{ row.status }}
+                                    {% else %}
+                                        <a class="text-primary" href="./forms_admin.php?id={{ row.id }}&method={{ row.statusMethod }}">{{ row.status }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ row.packageStatus }}</td>
+                                <td class="{{ row.dbStatusClass }}">
+                                    {% if row.dbStatus == "DB Installed" %}
+                                        {{ row.dbStatus }}
+                                    {% else %}
+                                        <i class="fa fa-fw fa-database"></i>&nbsp;<a class="text-danger" href="./forms_admin.php?id={{ row.id }}&method=install_db">{{ row.dbStatus }}</a>
+                                    {% endif %}
+                                </td>
+                                <td><input type='text' size="4" class="form-control input-sm" name='priority_{{ row.id }}' value='{{ row.priority }}'></td>
+                                <td><input type='text' size="10" class="form-control input-sm" name='category_{{ row.id }}' value='{{ row.category }}'></td>
+                                <td><input type='text' size="10" class="form-control input-sm" name='nickname_{{ row.id }}' value='{{ row.nickname }}'></td>
+                                <td>
+                                    <select name='aco_spec_{{ row.id }}'>
+                                        <option value=''></option>
+                                        {{ aco_options(row.aco)|raw }}
+                                    </select>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="unregistered">
+
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                        <tr>
+                            <th>{{ "Name"|translate }}</th>
+                            <th>&nbsp;</th>
+                            <th>{{ "File compressed"|translate }}?</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if unregistered|length == 0 %}
+                            <td colspan="3" class="text-center">{{ "No unregistered forms available"|translate }}</td>
+                        {% else %}
+                            {% for row in unregistered %}
+                            <tr>
+                                <td>{{ row.name }}</td>
+                                <td>
+                                    {% if row.extracted %}
+                                        <a href="./forms_admin.php?name=name&method=register">
+                                            <i class="fa fa-fw fa-plus"></i>&nbsp;{{ "Register"|translate }}
+                                        </a>
+                                    {% else %}
+                                        {{ "n/a"|translate }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.extracted %}
+                                        {{ "Extracted"|translate }}
+                                    {% else %}
+                                        {{ "Compressed"|translate }}
+                                    {% endif %}
+                                </td>
+                                <td></td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+</body>
+</html>

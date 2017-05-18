@@ -1489,7 +1489,18 @@ table.dataTable#therapy_groups_list tbody td{
     padding-bottom: 55px;
 }
 
+
 .alert-danger {
   background-color: #FF0000 !important;
   color: #fff !important;
+
+.navbar-default {
+  background: none !important;
+  border-top:none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.active .badge {
+    background-color: #1976d2;
 }

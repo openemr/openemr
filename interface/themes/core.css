@@ -78,4 +78,12 @@ button[href*="deleter"]:before {
 
 .btn-update::before {
     content: '\f021\00a0\00a0';
+
+/* Display a triangle with ! in it for all danger warnings */
+.alert-danger::before {
+    font-family: "FontAwesome";
+    content: '\f071\00a0\00a0';
+    font-size: 1.3em;
+    line-height: 0.75em;
+    vertical-align: -15%;
 }
