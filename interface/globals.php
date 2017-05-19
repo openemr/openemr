@@ -4,6 +4,7 @@
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 use OpenEMR\Checker;
+use Dotenv\Dotenv;
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {
@@ -199,6 +200,9 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
+
+$dotenv = new Dotenv($webserver_root);
+$dotenv->load();
 
 // @TODO This needs to be broken out to it's own function, but for time's sake
 // @TODO putting it here until we land on a good place. RD 2017-05-02
