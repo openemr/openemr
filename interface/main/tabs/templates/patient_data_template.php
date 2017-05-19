@@ -98,7 +98,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a class="btn btn-default btn-sm" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
+                <a class="btn btn-default" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
