@@ -1,24 +1,16 @@
 <?php
 /**
- * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * Patient data template.
  *
  * @package OpenEMR
  * @author  Robert Down <robertdown@live.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  */
 ?>
 <script type="text/html" id="patient-data-template">
@@ -69,7 +61,8 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
-            <div class="dropdown dropdown-toggle">
+            <br>
+            <div class="btn-group">
                 <button class="btn btn-default btn-sm dropdown-toggle"
                         type="button" id="pastEncounters"
                         data-toggle="dropdown"
@@ -79,28 +72,24 @@
                     (<span data-bind="text:encounterArray().length"></span>)
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu"
-                    aria-labelledby="pastEncounters">
+                <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
                     <li>
-                        <a href="#" data-bind="click:chooseEncounterEvent" style="display: inline;">
+                        <div>
+                            <a href="#" class="btn btn-xs btn-link pull-left"
+                               data-bind="click:reviewEncounterEvent" style="display: inline-block;">
+                            <i class="fa fa-folder-o"></i>&nbsp;<?php echo xlt("Review");?>
+                        </a>
+                        <a href="#" class="pull-right" data-bind="click:chooseEncounterEvent" style="display: inline-block;">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
                         </a>
-                        <a href="#" class="btn btn-xs btn-link"
-                           data-bind="click:reviewEncounterEvent" style="display: inline;">
-                            <i class="fa fa-folder-o"></i>&nbsp;<?php echo xlt("Review");?>
-                        </a>
+                        <div class="clearfix"></div>
+                        </div>
                     </li>
                     <!-- /ko -->
                 </ul>
             </div>
-                <div class="patientInfo">
-                    <span class="patientDataColumn patientEncountersColumn">
-                        <span class="patientEncounterList" >
-                        </span>
-                    </span>
-                </div>
             <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->
