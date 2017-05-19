@@ -1,4 +1,18 @@
 <?php
+/**
+ * Software version identification.
+ *
+ * @link http://open-emr.org/wiki
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author Robert Down <robertdown@live.com>
+ */
+
+require_once __DIR__ . "/vendor/autoload.php";
+use Dotenv\Dotenv;
+
+$dotenv = new Dotenv(__DIR__);
+$dotenv->load();
+
 // Software version identification.
 // This is used for display purposes, and also the major/minor/patch
 // numbers are stored in the database and used to determine which sql
@@ -35,8 +49,11 @@ $v_offsite_portal='1.47';
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-$v_js_includes = 29;
-
+if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
+    $v_js_includes = random_int(10000,99999);
+} else {
+    // Change this number when bumping
+    $v_js_includes = 29;
+}
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;
-?>
