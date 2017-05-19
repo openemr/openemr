@@ -29,7 +29,7 @@
     </div>
     {% if error %}
         <div class="alert alert-danger">
-            {{ error }}
+            {{ error|translate }}
         </div>
     {% endif %}
     <div class="row">
@@ -50,6 +50,9 @@
                        aria-controls="profile" role="tab"
                        data-toggle="tab">
                         {{ "Unregistered"|translate }}
+                        {# Wrap the badge in an if statement so bootstrap will
+                           hide element if the count is empty
+                         #}
                         &nbsp;<span class="badge">{% if unregistered|length > 0 %}{{ unregistered|length }}{% endif %}</span>
                     </a>
                 </li>
@@ -78,22 +81,22 @@
                                 <td class="{{ row.statusColor }}">
                                     <i class="{{ row.statusIcon }}"></i>&nbsp;
                                     {% if row.status == "Registered" %}
-                                        {{ row.status }}
+                                        {{ row.status|translate }}
                                     {% else %}
-                                        <a class="text-primary" href="./forms_admin.php?id={{ row.id }}&method={{ row.statusMethod }}">{{ row.status }}</a>
+                                        <a class="text-primary" href="./forms_admin.php?id={{ row.id|escape('url') }}&method={{ row.statusMethod|escape('url') }}">{{ row.status|translate }}</a>
                                     {% endif %}
                                 </td>
                                 <td>{{ row.packageStatus }}</td>
                                 <td class="{{ row.dbStatusClass }}">
                                     {% if row.dbStatus == "DB Installed" %}
-                                        {{ row.dbStatus }}
+                                        {{ row.dbStatus|translate }}
                                     {% else %}
-                                        <i class="fa fa-fw fa-database"></i>&nbsp;<a class="text-danger" href="./forms_admin.php?id={{ row.id }}&method=install_db">{{ row.dbStatus }}</a>
+                                        <i class="fa fa-fw fa-database"></i>&nbsp;<a class="text-danger" href="./forms_admin.php?id={{ row.id|escape('url') }}&method=install_db">{{ row.dbStatus|translate }}</a>
                                     {% endif %}
                                 </td>
-                                <td><input type='text' size="4" class="form-control input-sm" name='priority_{{ row.id }}' value='{{ row.priority }}'></td>
-                                <td><input type='text' size="10" class="form-control input-sm" name='category_{{ row.id }}' value='{{ row.category }}'></td>
-                                <td><input type='text' size="10" class="form-control input-sm" name='nickname_{{ row.id }}' value='{{ row.nickname }}'></td>
+                                <td><input type='text' size="4" class="form-control input-sm" name='priority_{{ row.id }}' value='{{ row.priority|escape('html_attr') }}'></td>
+                                <td><input type='text' size="10" class="form-control input-sm" name='category_{{ row.id }}' value='{{ row.category|escape('html_attr') }}'></td>
+                                <td><input type='text' size="10" class="form-control input-sm" name='nickname_{{ row.id }}' value='{{ row.nickname|escape('html_attr') }}'></td>
                                 <td>
                                     <select name='aco_spec_{{ row.id }}'>
                                         <option value=''></option>
