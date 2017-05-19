@@ -52,7 +52,7 @@ $FIELD_TAG = array(
     'PT_SSN'           => xl('PT_SSN'),
     'PT_EMAIL'         => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
-    
+
 );
 
 $patdata = sqlQuery("SELECT " .
@@ -65,7 +65,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
 if ($_POST['formaction']=="generate") {
-    
+
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -135,7 +135,7 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}'          , $patdata['ss'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}'        , $patdata['email'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
-    
+
     if ($form_format == "pdf") {
       $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
       $pdf->ezSetMargins($GLOBALS['rx_top_margin']
@@ -167,7 +167,7 @@ if ($_POST['formaction']=="generate") {
 	 font-size: 12pt;
 	 background: white;
 	 color: black;
-	}	
+	}
 	.paddingdiv {
 	 width: 524pt;
 	 padding: 0pt;
@@ -175,13 +175,13 @@ if ($_POST['formaction']=="generate") {
 	}
 	.navigate {
 	 margin-top: 2.5em;
-	}	
+	}
 	@media print {
 	 .navigate {
 	  display: none;
-	 }	
-	}	
-	</style>	
+	 }
+	}
+	</style>
 	<title><?php xl('Letter','e'); ?></title>
 	</head>
         <body>
@@ -306,18 +306,8 @@ while ($srow = sqlFetchArray($sres)) {
 <?php html_header_show();?>
 <title><?php xl('Letter Generator','e'); ?></title>
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
+<?php $include_standard_style_js = array("datetimepicker","topdialog.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
 <?php echo $ulist; ?>
@@ -343,21 +333,21 @@ function insertAtCaret(areaId,text) {
     var txtarea = document.getElementById(areaId);
     var scrollPos = txtarea.scrollTop;
     var strPos = 0;
-    var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ? 
+    var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ?
             "ff" : (document.selection ? "ie" : false ) );
-    if (br == "ie") { 
+    if (br == "ie") {
         txtarea.focus();
         var range = document.selection.createRange();
         range.moveStart ('character', -txtarea.value.length);
         strPos = range.text.length;
     }
     else if (br == "ff") strPos = txtarea.selectionStart;
-                                                                            
-    var front = (txtarea.value).substring(0,strPos);  
-    var back = (txtarea.value).substring(strPos,txtarea.value.length); 
+
+    var front = (txtarea.value).substring(0,strPos);
+    var back = (txtarea.value).substring(strPos,txtarea.value.length);
     txtarea.value=front+text+back;
     strPos = strPos + text.length;
-    if (br == "ie") { 
+    if (br == "ie") {
         txtarea.focus();
         var range = document.selection.createRange();
         range.moveStart ('character', -txtarea.value.length);
@@ -400,13 +390,13 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <!-- <form method='post' action='letter.php' onsubmit='return top.restoreSession()'> -->
-<form method='post' action='letter.php' id="theform" name="theform">
+<form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
 
 <center>
 <p>
-<table border='0' cellspacing='8' width='98%'>
+<table width='98%'>
 
  <tr>
   <td colspan='4' align='center'>
@@ -419,50 +409,46 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
 
-  <td>
+  <td class='control-label'>
    <?php xl('From','e'); ?>:
   </td>
 
   <td>
-   <select name='form_from'>
+   <select name='form_from' class='form-control'>
 <?php echo $optfrom; ?>
    </select>
   </td>
 
-  <td>
+  <td class='control-label'>
    <?php xl('Date','e'); ?>:
   </td>
 
   <td>
-   <input type='text' size='10' name='form_date' id='form_date'
+   <input type='text' size='10' name='form_date' id='form_date' class='datepicker form-control'
     value='<?php echo date('Y-m-d'); ?>'
-    title='<?php xl('yyyy-mm-dd date of this letter','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd date of this letter','e'); ?>' />
   </td>
 
  </tr>
 
  <tr>
 
-  <td>
+  <td class='control-label'>
    <?php xl('Specialty','e'); ?>:
   </td>
 
   <td>
-   <select name='form_specialty' onchange='newspecialty()'>
+   <select name='form_specialty' onchange='newspecialty()' class='form-control'>
 <?php echo $optspec; ?>
    </select>
   </td>
 
-  <td>
+  <td class='control-label'>
    <?php xl('Template','e'); ?>:
   </td>
 
   <td>
-   <select name="form_template" id="form_template">
+   <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php xl('none','e'); ?>)</option>
 <?php
 $tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
@@ -496,22 +482,22 @@ closedir($dh);
 
  <tr>
 
-  <td>
+  <td class='control-label'>
    <?php xl('To','e'); ?>:
   </td>
 
   <td>
-   <select name='form_to'>
+   <select name='form_to' class='form-control'>
 <?php echo $optto; ?>
    </select>
   </td>
 
-  <td>
+  <td class='control-label'>
    <?php xl('Print Format','e'); ?>:
   </td>
 
   <td>
-   <select name='form_format'>
+   <select name='form_format' class='form-control'>
     <option value='html'><?php xl('HTML','e'); ?></option>
     <option value='pdf'><?php xl('PDF','e'); ?></option>
    </select>
@@ -522,8 +508,8 @@ closedir($dh);
  <tr>
   <td colspan='4'>
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
-    <?php echo xlt('Insert special field'); ?>:
-    <select id="letter_field">
+    <span class='control-label'><?php echo xlt('Insert special field'); ?>:</span>
+    <select id="letter_field" class='form-control'>
     <option value="">- <?php xl('Choose','e'); ?> -</option>
     <option value="<?php echo '{'.$FIELD_TAG['DATE'].'}'; ?>"><?php xl('Today\'s Date','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['FROM_TITLE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Title','e'); ?></option>
@@ -564,32 +550,35 @@ closedir($dh);
     <option value="<?php echo '{'.$FIELD_TAG['PT_DOB'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Date of birth','e'); ?></option>
     </select>
     </div>
-   <textarea name='form_body' id="form_body" rows='20' cols='30' style='width:100%'
+   <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
     title=<?php xl('Enter body of letter here','e','\'','\''); ?> /><?php echo $bodytext; ?></textarea>
   </td>
  </tr>
 
 </table>
 
-<input type='button' class="addtemplate" value=<?php xl('Save as New','e','\'','\''); ?>>
-<input type='button' name='savetemplate' id="savetemplate" value=<?php xl('Save Changes','e','\'','\''); ?>>
-<input type='button' name='form_generate' id="form_generate" value=<?php xl('Generate Letter','e','\'','\''); ?>>
+<div class="btn-group" role="group">
+    <button type='button' class='addtemplate btn btn-default btn-save'><?php echo xlt('Save as New'); ?></button>
+    <button type='button' class='btn btn-default btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
+    <button type='button' class='btn btn-default btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
+</div>
 
 </center>
 
 <!-- template DIV that appears when user chooses to add a new letter template -->
-<div id="newtemplatedetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-<?php xl('Template Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename">
-<br>
-<input type="button" class="savenewtemplate" value=<?php xl('Save new template','e','\'','\''); ?>>
-<input type="button" class="cancelnewtemplate" value=<?php xl('Cancel','e','\'','\''); ?>>
+<div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
+    <span class='control-label'><?php xl('Template Name','e'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
+    <br>
+    <div class="btn-group" role="group">
+        <button type="button" class="savenewtemplate btn btn-default btn-save"><?php echo xlt('Save new template'); ?></button>
+        <button type="button" class="cancelnewtemplate btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>
+    </div>
 </div>
 
 </form>
 </body>
 
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
 
 // jQuery stuff to make the page a little easier to use
 
@@ -598,14 +587,22 @@ $(document).ready(function(){
     $("#form_template").change(function() { $("#formaction").val("loadtemplate"); $("#theform").submit(); });
 
     $("#savetemplate").click(function() { SaveTemplate(this); });
-    
+
     $("#letter_field").change(function() { insertAtCursor(document.getElementById("form_body"), $(this).val()); $(this).attr("selectedIndex", "0"); });
-    
+
     $(".addtemplate").click(function() { AddTemplate(this); });
     $(".savenewtemplate").click(function() { SaveNewTemplate(this); });
     $(".deletetemplate").click(function() { DeleteTemplate(this); });
     $(".cancelnewtemplate").click(function() { CancelNewTemplate(this); });
-    
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+
     // display the 'new group' DIV
     var AddTemplate = function(btnObj) {
         // show the field details DIV
@@ -613,9 +610,10 @@ $(document).ready(function(){
         $('#newtemplatedetail').css('display', 'block');
         $(btnObj).parent().append($("#newtemplatedetail"));
         $('#newtemplatedetail > #newtemplatename').focus();
+        $(window).scrollTop($(document).height());
     };
-    
-    // save the new template 
+
+    // save the new template
     var SaveNewTemplate = function(btnObj) {
         // the template name can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
@@ -630,7 +628,7 @@ $(document).ready(function(){
         $("#formaction").val("newtemplate");
         $("#theform").submit();
     }
-    
+
     // actually delete a template file
 /*
     var DeleteTemplate = function(btnObj) {
@@ -653,8 +651,8 @@ $(document).ready(function(){
         // reset the new group values to a default
         $('#newtemplatedetail > #newtemplatename').val("");
     };
-    
-    
+
+
     // save the template, overwriting the older version
     var SaveTemplate = function(btnObj) {
         if (! confirm("<?php xl('You are about to permanently replace the existing template. Are you sure you wish to continue?','e'); ?>")) {
