@@ -167,10 +167,18 @@ function emailLogin($patient_id,$message){
         return false;
     }
 
+    if ($_SESSION['pc_facility']) {
+       $sql = "select * from facility where id=?";
+       $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+    } else {
+       $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+       $facility = sqlQuery($sql);
+    }
+
     $mail = new MyMailer();
     $pt_name=$patientData['fname'].' '.$patientData['lname'];
     $pt_email=$patientData['email'];
-    $email_subject=xl('Peak Cardiology Patient Statement Bill');
+    $email_subject=xl($facility['name'].' Patient Statement Bill');
     $email_sender=$GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
@@ -314,7 +322,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 $today = date("Y-m-d");
   // Print or download statements if requested.
   //
- if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || $_POST['form_pdf']) && $_POST['form_cb']) {
+ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
 
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
