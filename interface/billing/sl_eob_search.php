@@ -178,7 +178,7 @@ function emailLogin($patient_id,$message){
     $mail = new MyMailer();
     $pt_name=$patientData['fname'].' '.$patientData['lname'];
     $pt_email=$patientData['email'];
-    $email_subject=xl($facility['name'].' Patient Statement Bill');
+    $email_subject=($facility['name'] . ' ' . xl('Patient Statement Bill'));
     $email_sender=$GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
@@ -949,9 +949,9 @@ while ($row = sqlFetchArray($t_res)) {
    <?php
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']) );
     if ( $patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
-        echo "YES";
+        echo xlt("YES");
     } else {
-        echo "NO";
+        echo xlt("NO");
     }
    ?>
   </td>
