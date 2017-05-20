@@ -172,14 +172,12 @@ function delete_document($document) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php html_header_show(); ?>
+    <?php
+    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+    ?>
 <title><?php echo xlt('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-
-<style>
-td { font-size:10pt; }
-</style>
 
 <script language="javascript">
 function submit_form()
@@ -378,7 +376,7 @@ function popup_close() {
 
 <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 
-<p class="text">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
+<p class="lead">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
 
 <?php
  if ($patient) {
@@ -399,16 +397,11 @@ function popup_close() {
   echo xlt('transaction') . " " . text($transaction);
  }
 ?> <?php echo xlt('and all subordinate data? This action will be logged'); ?>!</p>
-
-<center>
-
-<p class="text">&nbsp;<br>
-<a href="#" onclick="submit_form()" class="css_button"><span><?php echo xlt('Yes, Delete and Log'); ?></span></a>
+<div class="btn-group">
+    <a href="#" onclick="submit_form()" class="btn btn-lg btn-save btn-default"><?php echo xlt('Yes, Delete and Log'); ?></a>
+    <a href='#' class="btn btn-lg btn-default btn-cancel" onclick=popup_close();><span><?php echo xlt('No, Cancel');?></span></a>
+</div>
 <input type='hidden' name='form_submit' value='<?php echo xla('Yes, Delete and Log'); ?>'/>
-<a href='#' class="css_button" onclick=popup_close();><span><?php echo xlt('No, Cancel');?></span></a>
-</p>
-
-</center>
 </form>
 </body>
 </html>

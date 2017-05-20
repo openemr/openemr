@@ -12,6 +12,7 @@
  *                                         jquery-ui-darkness (brings in the darkness style)
  *                                         datetimepicker
  *                                         report_helper.js
+ *                                         include_opener.js
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
