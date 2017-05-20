@@ -201,10 +201,16 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
-// This is a neat mechanism that allows setting of development environment settings.
-// (note this is meant for development and not production environments)
-// Can copy over .env.example to .env to use it.
-if (file_exists($webserver_root."/.env")) {
+/**
+ * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
+ *
+ * This allows to define a "development" environment which can then load up
+ * different variables and reporting/debugging functionality. Should be used in
+ * development only, not for production
+ *
+ * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
+ */
+if (file_exists("{$webserver_root}/.env")) {
     $dotenv = new Dotenv($webserver_root);
     $dotenv->load();
 }
