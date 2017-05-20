@@ -201,8 +201,13 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
-$dotenv = new Dotenv($webserver_root);
-$dotenv->load();
+// This is a neat mechanism that allows setting of development environment settings.
+// (note this is meant for development and not production environments)
+// Can copy over .env.example to .env to use it.
+if (file_exists($webserver_root."/.env")) {
+    $dotenv = new Dotenv($webserver_root);
+    $dotenv->load();
+}
 
 // @TODO This needs to be broken out to it's own function, but for time's sake
 // @TODO putting it here until we land on a good place. RD 2017-05-02
