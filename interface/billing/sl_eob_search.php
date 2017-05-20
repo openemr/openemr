@@ -148,6 +148,55 @@ function bucks($amount) {
   if ($amount) echo oeFormatMoney($amount);
 }
 
+function validEmail($email){
+    if(preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $email)) {
+    return true;
+    }
+    return false;
+}
+
+function emailLogin($patient_id,$message){
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
+    if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
+        return false;
+    }
+    if (!(validEmail($patientData['email']))) {
+        return false;
+    }
+    if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
+        return false;
+    }
+
+    if ($_SESSION['pc_facility']) {
+       $sql = "select * from facility where id=?";
+       $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+    } else {
+       $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+       $facility = sqlQuery($sql);
+    }
+
+    $mail = new MyMailer();
+    $pt_name=$patientData['fname'].' '.$patientData['lname'];
+    $pt_email=$patientData['email'];
+    $email_subject=($facility['name'] . ' ' . xl('Patient Statement Bill'));
+    $email_sender=$GLOBALS['patient_reminder_sender_email'];
+    $mail->AddReplyTo($email_sender, $email_sender);
+    $mail->SetFrom($email_sender, $email_sender);
+    $mail->AddAddress($pt_email, $pt_name);
+    $mail->Subject = $email_subject;
+    $mail->MsgHTML("<html><body><div class='wrapper'>".$message."</div></body></html>");
+    $mail->IsHTML(true);
+    $mail->AltBody = $message;
+
+    if ($mail->Send()) {
+        return true;
+    } else {
+        $email_status = $mail->ErrorInfo;
+        error_log("EMAIL ERROR: ".$email_status,0);
+        return false;
+    }
+}
+
 // Upload a file to the client's browser
 //
 function upload_file_to_client($file_to_send) {
@@ -166,6 +215,22 @@ function upload_file_to_client($file_to_send) {
   // sleep one second to ensure there's no follow-on.
   sleep(1);
 }
+
+function upload_file_to_client_email($ppid, $file_to_send) {
+  $message = "";
+  global $STMT_TEMP_FILE_PDF;
+  $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
+  while(!feof($file))
+   {
+    $OneLine=fgets($file);//one line is read
+
+         $message = $message.$OneLine.'<br>';
+
+        $countline++;
+   }
+   emailLogin($ppid, $message);
+}
+
 function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false) { //modified for statement title name
   //Function reads a HTML file and converts to pdf.
 
@@ -257,7 +322,8 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 $today = date("Y-m-d");
   // Print or download statements if requested.
   //
-if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
+ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
+
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
   $sqlBindArray = array();
@@ -434,6 +500,8 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
       upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_POST['form_pdf']) {
       upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
+    } elseif ($_POST['form_email']) {
+                upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_POST['form_portalnotify']) {
     	if($alertmsg == "")
     		$alertmsg = xl('Sending Invoice to Patient Portal Completed');
@@ -780,6 +848,10 @@ if ($eracount && $num_invoices != $eracount) {
  <td class="dehead" align="left">
    <?php xl('Sel','e'); ?>
  </td>
+  <td class="dehead" align="center">
+   <?php xl('Email','e'); ?>
+  </td>
+
  <?php } ?>
 </tr>
 
@@ -873,6 +945,17 @@ while ($row = sqlFetchArray($t_res)) {
      	}?>
    </td>
    <?php } ?>
+  <td class="detail" align="left">
+   <?php
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']) );
+    if ( $patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
+        echo xlt("YES");
+    } else {
+        echo xlt("NO");
+    }
+   ?>
+  </td>
+
  </tr>
  <?php
     } // end while
@@ -893,6 +976,7 @@ while ($row = sqlFetchArray($t_res)) {
     <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
   <?php } ?>
   <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements','e'); ?>' /> &nbsp;
+  <input type='submit' name='form_email' value='<?php xl('Email Selected Statements','e'); ?>' /> &nbsp;
 <?php if ($is_portal ){?>
   <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal','e'); ?>' /> &nbsp;
   <?php } }?>
