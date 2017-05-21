@@ -65,3 +65,13 @@ button[href*="deleter"]:before {
 .btn-print::before {
     content: '\f02f\00a0\00a0';
 }
+
+.btn-money::before,
+.icon-money::before {
+    content: '\f155\00a0\00a0';
+}
+
+.btn-labs::before,
+.icon-labs::before {
+    content: '\f0c3\00a0\00a0';
+}

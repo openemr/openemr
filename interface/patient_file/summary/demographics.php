@@ -683,7 +683,7 @@ if ($GLOBALS['patient_id_category_name']) {
                                 $widgetLabel = "billing";
                                 $widgetButtonLabel = xl("Edit");
                                 $widgetButtonLink = "return newEvt();";
-                                $widgetButtonClass = "";
+                                $widgetButtonClass = "icon-money";
                                 $linkMethod = "javascript";
                                 $bodyClass = "notab";
                                 $widgetAuth = false;
@@ -1060,7 +1060,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $widgetLabel = "amendments";
     $widgetButtonLabel = xlt("Edit");
 	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
-	$widgetButtonClass = "iframe rx_modal";
+	$widgetButtonClass = "iframe rx_modal btn-edit";
     $linkMethod = "html";
     $bodyClass = "summary_item small";
     $widgetAuth = acl_check('patients', 'amendment', '', 'write');
@@ -1096,7 +1096,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink = "../summary/labdata.php";#"../encounter/trend_form.php?formname=labdata";
   $widgetButtonClass = "";
   $linkMethod = "html";
-  $bodyClass = "notab";
+  $bodyClass = "notab icon-flask";
   // check to see if any labdata exist
   $spruch = "SELECT procedure_report.date_collected AS date " .
 			"FROM procedure_report " .
@@ -1253,7 +1253,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	$widgetLabel = "directives";
 	$widgetButtonLabel = xl("Edit");
 	$widgetButtonLink = "return advdirconfigure();";
-	$widgetButtonClass = "";
+	$widgetButtonClass = "icon-edit";
 	$linkMethod = "javascript";
 	$bodyClass = "summary_item small";
 	$widgetAuth = true;
@@ -1492,7 +1492,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
          $widgetLabel = "recurrent_appointments";
          $widgetButtonLabel = xl("Add");
          $widgetButtonLink = "return newEvt();";
-         $widgetButtonClass = "";
+         $widgetButtonClass = "icon-add";
          $linkMethod = "javascript";
          $bodyClass = "summary_item small";
          $widgetAuth = false;

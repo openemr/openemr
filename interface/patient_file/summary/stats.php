@@ -9,7 +9,8 @@ include_once("$srcdir/options.inc.php");
 ?>
 
 <div id="patient_stats_summary">
-
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
 <script type='text/javascript'>
     function load_location( location ) {
         top.restoreSession();
@@ -58,7 +59,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $widgetButtonLabel = '';
         $widgetButtonLink = '';
         $widgetAuth = false;
-        $widgetButtonClass = '';
+        $widgetButtonClass = 'btn-edit';
         $bodyClass = "summary_item small";
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink,
@@ -119,15 +120,17 @@ foreach ($ISSUE_TYPES as $key => $arr) {
       // Issues expand collapse widget
       $widgetTitle = $arr[0];
       $widgetLabel = $key;
+      $widgetButtonClass = "";
       if(($key == "allergy" || $key == "medication") && $GLOBALS['erx_enable']) {
         $widgetButtonLabel = xl("Add");
         $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/eRx.php?page=medentry\")";
+        $widgetButtonClass = "btn-add";
       }
       else {
         $widgetButtonLabel = xl("Edit");
         $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=" . $key . "\")";
+          $widgetButtonClass = "btn-edit";
       }
-      $widgetButtonClass = "";
       $linkMethod = "javascript";
       $bodyClass = "summary_item small";
       $widgetAuth = acl_check_issue($key, '', array('write', 'addonly'));
@@ -240,7 +243,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     $widgetLabel = "immunizations";
     $widgetButtonLabel = xl("Edit");
     $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
-    $widgetButtonClass = "";
+    $widgetButtonClass = "btn-edit";
     $linkMethod = "javascript";
     $bodyClass = "summary_item small";
     $widgetAuth = true;
@@ -367,14 +370,14 @@ while($row_currentMed=sqlFetchArray($res))
 	$widgetTitle = xl('Prescription History');
 	$widgetButtonLabel = xl("Add/Edit eRx");
 	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
-	$widgetButtonClass = "";
+	$widgetButtonClass = "btn-add";
     }
     else
     {
 	$widgetTitle = xl('Prescription');
 	$widgetButtonLabel = xl("Edit");
 	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/rx_frameset.php";
-	$widgetButtonClass = "iframe rx_modal";
+	$widgetButtonClass = "iframe rx_modal btn-edit";
     }
     $bodyClass = "summary_item small";
     $widgetAuth = true;
@@ -409,7 +412,7 @@ if($erx_upload_complete == 1){
     $widgetLabel = "old_medication";
     $widgetButtonLabel = xl("Edit");
     $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")";
-    $widgetButtonClass = "";
+    $widgetButtonClass = "btn-edit";
     $linkMethod = "javascript";
     $bodyClass = "summary_item small";
     $widgetAuth = true;
