@@ -172,6 +172,37 @@ $GLOBALS_METADATA = array(
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
+        'font-family' => [
+            xl('Default font'),
+            [
+                '__default__' => 'Use Theme Font',
+                'Arial, Helvetica, sans-serif' => "Arial",
+                '"Arial Black", Gadget, sans-serif' => "Arial Black",
+                'Impact, Charcoal, sans-serif' => "Impact",
+                '"Lucida Sans Unicode", "Lucida Grande", sans-serif' => "Lucida Sans",
+                'Tahoma, Geneva, sans-serif' => "Tahoma",
+                '"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
+                'Verdana, Geneva, sans-serif' => "Verdana",
+                'Lato' => "Lato",
+            ],
+            'Use theme font',
+            xl('Select the default font'),
+        ],
+
+        'font-size' => [
+            xl('Default font size'),
+            [
+                '__default__' => 'Use Theme Font Size',
+                '10' => '10pt',
+                '12' => '12pt',
+                '14' => '14pt',
+                '16' => '16pt',
+                '18' => '18pt',
+            ],
+            'Use THeme Font Size',
+            xl("Select the default font size"),
+        ],
+
         'menu_styling_vertical' => array(
             xl('Vertical Menu Style'),
             array(
