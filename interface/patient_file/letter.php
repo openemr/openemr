@@ -59,7 +59,7 @@ $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.phone_home, p.phone_cell, p.ss, p.email, p.postal_code " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = '$pid' LIMIT 1");
+  "WHERE p.pid = ? LIMIT 1", array($pid));
 
 $alertmsg = ''; // anything here pops up in an alert box
 
@@ -74,8 +74,8 @@ if ($_POST['formaction']=="generate") {
     $form_format   = $_POST['form_format'];
     $form_body     = $_POST['form_body'];
 
-    $frow = sqlQuery("SELECT * FROM users WHERE id = '$form_from'");
-    $trow = sqlQuery("SELECT * FROM users WHERE id = '$form_to'");
+    $frow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_from));
+    $trow = sqlQuery("SELECT * FROM users WHERE id = ?", array($form_to));
 
     $datestr = date('j F Y', strtotime($form_date));
     $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
@@ -182,13 +182,13 @@ if ($_POST['formaction']=="generate") {
 	 }
 	}
 	</style>
-	<title><?php xl('Letter','e'); ?></title>
+	<title><?php echo xlt('Letter'); ?></title>
 	</head>
         <body>
 	<div class='paddingdiv'>
 	<?php echo $cpstring; ?>
         <div class="navigate">
-	<a href="<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>">(<?php xl('Back','e'); ?>)</a>
+	<a href="<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved'; ?>">(<?php echo xlt('Back'); ?>)</a>
 	</div>
 	<script language='JavaScript'>
 	window.print();
@@ -229,7 +229,7 @@ else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
     if (! fwrite($fh, $temp_bodytext)) {
-        echo xl('Error while writing to file','','',' ') . $template_dir."/".$_POST['newtemplatename'];
+        echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['newtemplatename'];
         die;
     }
     fclose($fh);
@@ -253,7 +253,7 @@ else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != ""
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
     if (! fwrite($fh, $temp_bodytext)) {
-        echo xl('Error while writing to file','','',' ') . $template_dir."/".$_POST['form_template'];
+        echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['form_template'];
         die;
     }
     fclose($fh);
@@ -280,13 +280,13 @@ $ulist = "var ulist = new Array();\n";
 while ($urow = sqlFetchArray($ures)) {
   $uname = $urow['lname'];
   if ($urow['fname']) $uname .= ", " . $urow['fname'];
-  $tmp1 = " <option value='" . $urow['id'] . "'";
-  $tmp2 = ">$uname</option>\n";
+  $tmp1 = " <option value='" . attr($urow['id']) . "'";
+  $tmp2 = ">" . text($uname) . "</option>\n";
   $optto .= $tmp1 . $tmp2;
   if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
   $optfrom .= $tmp1 . $tmp2;
-  $ulist .= "ulist[$i] = '" . addslashes($uname) . "|" .
-    $urow['id'] . "|" . addslashes($urow['specialty']) . "';\n";
+  $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
+    attr($urow['id']) . "|" . attr($urow['specialty']) . "';\n";
   ++$i;
 }
 
@@ -294,17 +294,17 @@ while ($urow = sqlFetchArray($ures)) {
 $sres = sqlStatement("SELECT DISTINCT specialty FROM users " .
   "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
   "ORDER BY specialty");
-$optspec = "<option value='All'>" . xl('All') . "</option>\n";
+$optspec = "<option value='All'>" . xlt('All') . "</option>\n";
 while ($srow = sqlFetchArray($sres)) {
-  $optspec .= " <option value='" . $srow['specialty'] . "'>" .
-    $srow['specialty'] . "</option>\n";
+  $optspec .= " <option value='" . attr($srow['specialty']) . "'>" .
+    text($srow['specialty']) . "</option>\n";
 }
 ?>
 
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Letter Generator','e'); ?></title>
+<title><?php echo xlt('Letter Generator'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","topdialog.js"); ?>
 <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
@@ -392,7 +392,7 @@ function insertAtCursor(myField, myValue) {
 <!-- <form method='post' action='letter.php' onsubmit='return top.restoreSession()'> -->
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
 <input type="hidden" name="formaction" id="formaction" value="">
-<input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
+<input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
 <center>
 <p>
@@ -401,8 +401,8 @@ function insertAtCursor(myField, myValue) {
  <tr>
   <td colspan='4' align='center'>
    &nbsp;<br>
-   <b><?php xl('Generate Letter regarding ','e','',' '); echo $patdata['fname'] . " " .
-    $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></b>
+   <b><?php echo xlt('Generate Letter regarding ') . text($patdata['fname']) . " " .
+    text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></b>
     <br>&nbsp;
   </td>
  </tr>
@@ -410,7 +410,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php xl('From','e'); ?>:
+   <?php echo xlt('From'); ?>:
   </td>
 
   <td>
@@ -420,13 +420,13 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php xl('Date','e'); ?>:
+   <?php echo xlt('Date'); ?>:
   </td>
 
   <td>
    <input type='text' size='10' name='form_date' id='form_date' class='datepicker form-control'
     value='<?php echo date('Y-m-d'); ?>'
-    title='<?php xl('yyyy-mm-dd date of this letter','e'); ?>' />
+    title='<?php echo xlt('yyyy-mm-dd date of this letter'); ?>' />
   </td>
 
  </tr>
@@ -434,7 +434,7 @@ function insertAtCursor(myField, myValue) {
  <tr>
 
   <td class='control-label'>
-   <?php xl('Specialty','e'); ?>:
+   <?php echo xlt('Specialty'); ?>:
   </td>
 
   <td>
@@ -444,30 +444,30 @@ function insertAtCursor(myField, myValue) {
   </td>
 
   <td class='control-label'>
-   <?php xl('Template','e'); ?>:
+   <?php echo xlt('Template'); ?>:
   </td>
 
   <td>
    <select name="form_template" id="form_template" class='form-control'>
-   <option value="">(<?php xl('none','e'); ?>)</option>
+   <option value="">(<?php echo xlt('none'); ?>)</option>
 <?php
 $tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
 $dh = opendir($tpldir);
-if (! $dh) die(xl('Cannot read','','',' ') . $tpldir);
+if (! $dh) die(xlt('Cannot read') . ' ' . $tpldir);
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
   if (preg_match("/^\./"   , $tfname)) { continue; }
   if (preg_match("/\.php$/", $tfname)) { continue; }
   if (preg_match("/\.jpg$/", $tfname)) { continue; }
   if (preg_match("/\.png$/", $tfname)) { continue; }
-  echo "<option value=".$tfname;
+  echo "<option value='" . attr($tfname) . "'";
   if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
   echo ">";
   if ($tfname == 'autosaved') {
-    echo xl($tfname);
+    echo xlt($tfname);
   }
   else {
-    echo $tfname;
+    echo text($tfname);
   }
   echo "</option>";
 }
@@ -483,7 +483,7 @@ closedir($dh);
  <tr>
 
   <td class='control-label'>
-   <?php xl('To','e'); ?>:
+   <?php echo xlt('To'); ?>:
   </td>
 
   <td>
@@ -493,13 +493,13 @@ closedir($dh);
   </td>
 
   <td class='control-label'>
-   <?php xl('Print Format','e'); ?>:
+   <?php echo xlt('Print Format'); ?>:
   </td>
 
   <td>
    <select name='form_format' class='form-control'>
-    <option value='html'><?php xl('HTML','e'); ?></option>
-    <option value='pdf'><?php xl('PDF','e'); ?></option>
+    <option value='html'><?php echo xlt('HTML'); ?></option>
+    <option value='pdf'><?php echo xlt('PDF'); ?></option>
    </select>
   </td>
 
@@ -510,48 +510,48 @@ closedir($dh);
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
     <span class='control-label'><?php echo xlt('Insert special field'); ?>:</span>
     <select id="letter_field" class='form-control'>
-    <option value="">- <?php xl('Choose','e'); ?> -</option>
-    <option value="<?php echo '{'.$FIELD_TAG['DATE'].'}'; ?>"><?php xl('Today\'s Date','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_TITLE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Title','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_FNAME'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('First name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_MNAME'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Middle name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_LNAME'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Last name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_STREET'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Street','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_CITY'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('City','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_STATE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('State','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_POSTAL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Postal Code','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_VALEDICTORY'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Valedictory','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONECELL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Cell Phone','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Phone','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['FROM_EMAIL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('email','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_TITLE'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Title','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_FNAME'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('First name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_MNAME'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Middle name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_LNAME'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Last name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_STREET'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Street','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_CITY'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('City','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_STATE'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('State','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_POSTAL'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Postal Code','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_VALEDICTORY'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Valedictory','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_ORGANIZATION'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Organization','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_FAX'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Fax number','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_PHONE'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Phone number','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['TO_PHONECELL'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Cell phone number','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_FNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('First name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_MNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Middle name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_LNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Last name','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_STREET'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Street','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_CITY'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('City','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_STATE'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('State','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_POSTAL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Postal Code','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_HOME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Home','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_CELL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Cell','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_SSN'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('SSN','e'); ?></option>
-    <option value="<?php echo '{'.$FIELD_TAG['PT_DOB'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Date of birth','e'); ?></option>
+    <option value="">- <?php echo xlt('Choose'); ?> -</option>
+    <option value="<?php echo '{'.$FIELD_TAG['DATE'].'}'; ?>"><?php echo xlt('Today\'s Date'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_TITLE'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Title'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_FNAME'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_MNAME'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_LNAME'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_STREET'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_CITY'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_STATE'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_POSTAL'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_VALEDICTORY'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Valedictory'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONECELL'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Cell Phone'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONE'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('Phone'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_EMAIL'].'}'; ?>"><?php echo xlt('FROM'); ?> - <?php echo xlt('email'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_TITLE'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Title'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_FNAME'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_MNAME'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_LNAME'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_STREET'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_CITY'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_STATE'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_POSTAL'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_VALEDICTORY'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Valedictory'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_ORGANIZATION'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Organization'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_FAX'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Fax number'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_PHONE'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Phone number'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['TO_PHONECELL'].'}'; ?>"><?php echo xlt('TO'); ?> - <?php echo xlt('Cell phone number'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_FNAME'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('First name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_MNAME'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Middle name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_LNAME'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Last name'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_STREET'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Street'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_CITY'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('City'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_STATE'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('State'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_POSTAL'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Postal Code'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_HOME'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Home'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_CELL'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Phone Cell'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_SSN'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('SSN'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_DOB'].'}'; ?>"><?php echo xlt('PATIENT'); ?> - <?php echo xlt('Date of birth'); ?></option>
     </select>
     </div>
    <textarea name='form_body' id="form_body" class='form-control' rows='20' cols='30' style='width:100%'
-    title=<?php xl('Enter body of letter here','e','\'','\''); ?> /><?php echo $bodytext; ?></textarea>
+    title='<?php echo xla('Enter body of letter here'); ?>' /><?php echo text($bodytext); ?></textarea>
   </td>
  </tr>
 
@@ -567,7 +567,7 @@ closedir($dh);
 
 <!-- template DIV that appears when user chooses to add a new letter template -->
 <div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
-    <span class='control-label'><?php xl('Template Name','e'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
+    <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
     <br>
     <div class="btn-group" role="group">
         <button type="button" class="savenewtemplate btn btn-default btn-save"><?php echo xlt('Save new template'); ?></button>
@@ -655,7 +655,7 @@ $(document).ready(function(){
 
     // save the template, overwriting the older version
     var SaveTemplate = function(btnObj) {
-        if (! confirm("<?php xl('You are about to permanently replace the existing template. Are you sure you wish to continue?','e'); ?>")) {
+        if (! confirm("<?php echo xls('You are about to permanently replace the existing template. Are you sure you wish to continue?'); ?>")) {
             return false;
         }
         $("#formaction").val("savetemplate");
