@@ -8,6 +8,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
+@import "themeBuilder.php";
+
 @font-face {
     font-family: "FontAwesome";
     src: url("../../public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
