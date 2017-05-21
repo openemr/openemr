@@ -3058,11 +3058,8 @@ $GLOBALS_METADATA = array(
             xl('Print Patient Address Label'),
             'bool',                           // data type
             '1',                              // default = false
-            xl('SELECT TO print patient address labels FROM popups IN LEFT nav screen.')
+            xl('Select to print patient address labels from popups in left nav screen.')
         ),
 
     ),
-
-
 );
-?>
