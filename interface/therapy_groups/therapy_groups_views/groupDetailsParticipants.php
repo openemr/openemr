@@ -192,6 +192,7 @@
                 { "width": "35%", "targets": 5 }
             ],
             "pageLength":6,
+            //order by status doesn't work with js therefore sorting done by php.
             "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
