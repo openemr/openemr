@@ -18,6 +18,14 @@
  * @link    http://open-emr.org
  */
 
+ //SANITIZE ALL ESCAPES
+ $sanitize_all_escapes=true;
+ //
+
+ //STOP FAKE REGISTER GLOBALS
+ $fake_register_globals=false;
+ //
+
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
@@ -145,13 +153,13 @@ $res = sqlStatement($query,$sqlBindArray);
   if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
    // Allow edit, since have access or (no item type and not a local user)
    $trTitle = xl('Edit'). ' ' . $displayName;
-   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
+   echo " <tr class='address_names detail $bgclass' style='cursor:pointer' " .
         "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
   }
   else {
    // Do not allow edit, since no access and (item is a type or is a local user)
    $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-   echo " <tr class='detail $bgclass' title='".attr($trTitle)."'>\n";
+   echo " <tr class='address_names detail $bgclass' title='".attr($trTitle)."'>\n";
   }
   echo "  <td>" . text($row['organization']) . "</td>\n";
   echo "  <td>" . text($displayName) . "</td>\n";

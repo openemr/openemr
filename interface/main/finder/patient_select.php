@@ -18,7 +18,13 @@
  * @link    http://www.open-emr.org
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -319,7 +325,7 @@ if ($fend > $count) $fend = $count;
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES);?></th>

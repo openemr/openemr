@@ -13,7 +13,13 @@
  *
  */
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 
 include_once('../../globals.php');
 include_once("$srcdir/patient.inc");
@@ -194,7 +200,7 @@ echo '
 
 <?php if (isset($result)): ?>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
  <tr>
   <th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></th>
