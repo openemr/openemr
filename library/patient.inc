@@ -952,7 +952,7 @@ function fixDate($date, $default="0000-00-00") {
 
 function pdValueOrNull($key, $value) {
   if (($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-    substr($key, 0, 8) == 'userdate') &&
+    substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') &&
     (empty($value) || $value == '0000-00-00'))
   {
     return "NULL";
