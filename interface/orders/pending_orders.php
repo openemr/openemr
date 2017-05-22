@@ -87,11 +87,12 @@ else { // not export
 <html>
 <head>
 <?php html_header_show();?>
-
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <title><?php xl('Pending Orders','e') ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -124,29 +125,18 @@ else { // not export
  <tr>
   <td>
    <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
-  </td>
-  <td class='control-label'>
-   &nbsp;<?php echo xlt('From')?>:
-  </td>
-  <td>
-   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+   &nbsp;<?xl('From:','e')?>
+   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     title='yyyy-mm-dd'>
-  </td>
-  <td class='control-label'>
-   &nbsp;<?php echo xlt('To')?>:
-  </td>
-  <td>
-   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+   &nbsp;To:
+   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     title='yyyy-mm-dd'>
-  </td>
- </tr>
- <tr>
-  <td>
-   <div class="btn-group" role="group">
-    <button type='submit' class='btn btn-default btn-refresh' name='form_refresh'><?php echo xlt('Refresh'); ?></button>
-    <button type='submit' class='btn btn-default btn-transmit' name='form_csvexport'><?php echo xlt('Export to CSV'); ?></button>
-    <button type='button' class='btn btn-default btn-print' id='printbutton'><?php echo xlt('Print'); ?></button>
-   </div>
+   &nbsp;
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   &nbsp;
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+   &nbsp;
+   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
  </tr>
 
