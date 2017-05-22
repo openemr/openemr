@@ -192,7 +192,8 @@
                 { "width": "35%", "targets": 5 }
             ],
             "pageLength":6,
-            "order": [[ 0, "asc" ],[ 2, "desc" ]],
+            //order by status doesn't work with js therefore sorting done by php.
+            "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
