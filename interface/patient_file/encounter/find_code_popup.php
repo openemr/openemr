@@ -7,8 +7,8 @@
  * of the License, or (at your option) any later version.
  */
 
-
-
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
@@ -113,7 +113,7 @@ $string_target_element = "?";
   </td>
  </tr>
 
- <tr bgcolor='#ddddff'>
+ <tr class = "head" bgcolor='#ddddff'>
   <td>
    <b>
 

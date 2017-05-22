@@ -7,7 +7,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
 
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -193,7 +199,7 @@ if ($fend > $count) $fend = $count;
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srID"   ><?php echo htmlspecialchars( xl('Hits'), ENT_NOQUOTES);?></th>

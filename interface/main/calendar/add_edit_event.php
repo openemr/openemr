@@ -42,6 +42,9 @@
  */
 
 
+ $fake_register_globals=false;
+ $sanitize_all_escapes=true;
+
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/forms.inc');
@@ -1372,7 +1375,7 @@ $classpati='';
 		</ul>
 </th></tr>
 <tr><td colspan='10'>
-<table border='0' width='100%' bgcolor='#DDDDDD'>
+<table border='0' class= "tabs_body" style= "padding:5px" width='100%' bgcolor='#DDDDDD'>
     <tr>
         <td width='1%' nowrap>
             <b><?php echo xlt('Category'); ?>:</b>
@@ -1786,7 +1789,7 @@ else{
   <td nowrap>&nbsp;
 
   </td>
-  <td nowrap id='tdrepeat2'><?php echo xlt('until date'); ?>
+  <td nowrap id='tdrepeat2'><?php echo xlt('until'); ?>
   </td>
   <td nowrap>
    <input   type='text' size='10' class='datepicker' name='form_enddate' id='form_enddate' value='<?php echo attr($recurrence_end_date) ?>' title='<?php echo xla('yyyy-mm-dd last date of this event');?>' />
@@ -1955,16 +1958,6 @@ function validateform(event,valu){
         return false;
     }
 
-    <?php if (!$GLOBALS['allow_early_check_in']) { ?>
-        //Prevent from user to change status to Arrive before the time
-        //Dependent in globals setting - allow_early_check_in
-        if($('#form_apptstatus').val() == '@' && new Date($('#form_date').val()).getTime() > new Date().getTime()){
-            alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") .'.'; ?>');
-            $('#form_save').attr('disabled', false);
-            return false;
-        }
-    <?php } ?>
-
     //add rule if choose repeating event
     if ($('#form_repeat').is(':checked') || $('#days_every_week').is(':checked')){
         collectvalidation.form_enddate = {
@@ -2044,43 +2037,24 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
-    var f = document.forms[0];
-    <?php if (!($GLOBALS['select_multi_providers'])) { // multi providers appt is not supported by check slot avail window, so skip ?>
-    if (f.form_action.value != 'delete') {
-        // Check slot availability.
-        var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        if (f.form_ampm.value == '2' && mins < 720) mins += 720;
-        find_available('&cktime=' + mins);
-    }
-    else {
-        top.restoreSession();
-        f.submit();
-    }
-    <?php } else { ?>
-    <?php
-    /*Support Multi-Provider Events in features*/
-    $sdate=$date;
-    $edate=new DateTime($date);
-    $edate->modify('tomorrow');
-    $edate=$edate->format('Y-m-d');
-    $is_holiday=false;
-    $holidays_controller = new Holidays_Controller();
-    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
-    if(in_array($sdate,$holidays)){
-        $is_holiday=true;
-    }?>
-    if (f.form_action.value != 'delete') {
-        <?php if($is_holiday){?>
-        if (!confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
-            top.restoreSession();
-        }
-        <?php }?>
-    }
+ var f = document.forms[0];
+ <?php if (!($GLOBALS['select_multi_providers'])) { // multi providers appt is not supported by check slot avail window, so skip ?>
+  if (f.form_action.value != 'delete') {
+    // Check slot availability.
+    var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
+    if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+    find_available('&cktime=' + mins);
+  }
+  else {
     top.restoreSession();
     f.submit();
-    <?php } ?>
+  }
+ <?php } else { ?>
+  top.restoreSession();
+  f.submit();
+ <?php } ?>
 
-    return true;
+  return true;
 }
 
 </script>
