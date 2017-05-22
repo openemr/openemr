@@ -52,6 +52,9 @@ class ChartTrackerService {
      * @return the pid.
      */
     public function trackPatientLocation($patientLocation) {
+        $patientLocation->setPid(add_escape_custom($patientLocation->getPid()));
+        $patientLocation->setUserId(add_escape_custom($patientLocation->getUserId()));
+        $patientLocation->setLocation(add_escape_custom($patientLocation->getLocation()));
         $this->logger->debug('Attempting to track patient location');
         $this->repository->save($patientLocation);
     }
