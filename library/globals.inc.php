@@ -185,7 +185,7 @@ $GLOBALS_METADATA = array(
                 'Verdana, Geneva, sans-serif' => "Verdana",
                 'Lato' => "Lato",
             ],
-            'Use theme font',
+            '__default__',
             xl('Select the default font'),
         ],
 
@@ -199,7 +199,7 @@ $GLOBALS_METADATA = array(
                 '16' => '16pt',
                 '18' => '18pt',
             ],
-            'Use THeme Font Size',
+            '__default__',
             xl("Select the default font size"),
         ],
 
