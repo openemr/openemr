@@ -889,7 +889,8 @@ function generate_form_field($frow, $currvalue) {
       ($disabled ? array('disabled' => 'disabled') : null), false, $backup_list);
     // show the add button if user has access to correct list
     $inputValue = htmlspecialchars( xl('Add'), ENT_QUOTES);
-    $outputAddButton = "<button type='button' id='addtolistid_{$list_id_esc}' fieldid='form_{$field_id_esc}' class='addtolist btn btn-sm btn-link btn-add' $disabled>{$inputValue}</button>";
+    $outputAddButton = "<input type='button' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+      $field_id_esc . "' class='addtolist' value='$inputValue' $disabled />";
     if (aco_exist('lists', $list_id)) {
      // a specific aco exist for this list, so ensure access
      if (acl_check('lists', $list_id)) echo $outputAddButton;

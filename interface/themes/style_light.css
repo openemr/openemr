@@ -693,6 +693,7 @@ tr.odd, td.even {
   background: #2672ec;
   color: #ffffff !important;
   display: block;
+  float: left;
   font-weight: 300;
   margin-right: 3px;
   padding-right: 10px;
