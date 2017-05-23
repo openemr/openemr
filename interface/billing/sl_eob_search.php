@@ -404,40 +404,45 @@ $today = date("Y-m-d");
     //    notice  = 1 for first notice, 2 for second, etc.
     //    detail  = array of details, see invoice_summary.inc.php
     //
-    if ($stmt['cid'] != $row['pid']) {
-      if (!empty($stmt)) ++$stmt_count;
-      $stmt['cid'] = $row['pid'];
-      $stmt['pid'] = $row['pid'];
-      $stmt['dun_count'] = $row['stmt_count'];
-      $stmt['bill_note'] = $row['pat_billing_note'];
-      $stmt['enc_bill_note'] = $row['enc_billing_note'];
-      $stmt['bill_level'] = $row['last_level_billed'];
-      $stmt['level_closed'] = $row['last_level_closed'];
-      $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
-      $stmt['encounter'] = $row['encounter'];
-  		#If you use the field in demographics layout called
-  		#guardiansname this will allow you to send statements to the parent
-  		#of a child or a guardian etc
-      if(strlen($row['guardiansname']) == 0) {
+
+   if ($stmt['cid'] != $row['pid']) {
+        if ($_POST['form_pdf']) {
+                fwrite($fhprint, make_statement($stmt));
+        }
+        if ($_POST['form_email']) {
+                fwrite($fhprint, create_html_statement($stmt));
+                upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
+                fclose($fhprint);
+                sleep(1);
+                $fhprint = fopen($STMT_TEMP_FILE, 'w');
+                $stmt = array();
+        }
+
+      //if ($stmt['cid'] != $row['pid']) {
+        //if (!empty($stmt)) ++$stmt_count;
+        //fwrite($fhprint, create_pdf_statement($stmt));
+        $stmt['cid'] = $row['pid'];
+        $stmt['pid'] = $row['pid'];
+                $stmt['dun_count'] = $row['stmt_count'];
+                $stmt['bill_note'] = $row['billing_note'];
+                $stmt['bill_level'] = $row['last_level_billed'];
+                $stmt['level_closed'] = $row['last_level_closed'];
+        $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
-      }
-      else
-      {
-       $stmt['to'] = array($row['guardiansname']);
-     }
-     if ($row['street']) $stmt['to'][] = $row['street'];
-       $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
-       $stmt['lines'] = array();
-       $stmt['amount'] = '0.00';
-       $stmt['ins_paid'] = 0;
-       $stmt['today'] = $today;
-       $stmt['duedate'] = $duedate;
-     } else {
-        // Report the oldest due date.
-      if ($duedate < $stmt['duedate']) {
+        if ($row['street']) $stmt['to'][] = $row['street'];
+        $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
+        $stmt['lines'] = array();
+        $stmt['amount'] = '0.00';
+                $stmt['ins_paid'] = 0;
+        $stmt['today'] = $today;
         $stmt['duedate'] = $duedate;
+      } else {
+        // Report the oldest due date.
+        if ($duedate < $stmt['duedate']) {
+          $stmt['duedate'] = $duedate;
+        }
       }
-    }
+
 
       // Recompute age at each invoice.
     $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
@@ -487,10 +492,27 @@ $today = date("Y-m-d");
     	}
     	else continue;
     }
-    else
-    	fwrite($fhprint, make_statement($stmt));
 
   } // end while
+
+  if ($_POST['form_email']) {
+        $fhprint = fopen($STMT_TEMP_FILE, 'w');
+        fwrite($fhprint, create_html_statement($stmt));
+        upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
+        fclose($fhprint);
+        sleep(1);
+        $stmt = array();
+      }
+
+
+
+    if ($_POST['form_pdf']) {
+       if (!empty($stmt)) ++$stmt_count;
+       fwrite($fhprint, make_statement($stmt));
+       fclose($fhprint);
+       sleep(1);
+    }
+
 
     if (!empty($stmt)) ++$stmt_count;
     fclose($fhprint);
