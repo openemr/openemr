@@ -140,13 +140,21 @@ $trow = $transid ? getTransById($transid) : array();
 ?>
 <html>
 <head>
-    <?php
-    html_header_show();
-    $include_standard_style_js = ['datetimepicker'];
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['srcdir'] ?>/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+<?php } ?>
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
