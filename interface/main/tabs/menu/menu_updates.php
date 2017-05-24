@@ -55,7 +55,7 @@ function update_modules_menu(&$menu_list)
             if (sqlNumRows($module_hooks) == 0) {
                 // module without hooks in module section
                 $acl_section = strtolower($modulerow['mod_directory']);
-                if (acl_check('admin','super') || zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1")continue;
+                if (zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1")continue;
                 $newEntry=new stdClass();
                 $newEntry->label=xlt($mod_nick_name);
                 $newEntry->url=$relative_link;
@@ -72,7 +72,7 @@ function update_modules_menu(&$menu_list)
                 $jid = 0;
                 $modid = '';
                 while ($hookrow = sqlFetchArray($module_hooks)) {
-                    if (acl_check('admin','super') || zh_acl_check($_SESSION['authUserID'],$hookrow['obj_name']) ?  "" : "1")continue;
+                    if (zh_acl_check($_SESSION['authUserID'],$hookrow['obj_name']) ?  "" : "1")continue;
 
                     $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
                     $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
