@@ -673,6 +673,7 @@ class InstModuleTable
       'reports'       => "Reports",
       'encounter'     => "Encounter",
       'demographics'  => "Demographics",
+      'modules'  => "Modules",
     );
   }
   
