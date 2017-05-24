@@ -142,7 +142,7 @@ $trow = $transid ? getTransById($transid) : array();
 <head>
     <?php
     html_header_show();
-    $include_standard_js_style = ['datetimepicker'];
+    $include_standard_style_js = ['datetimepicker'];
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
 
