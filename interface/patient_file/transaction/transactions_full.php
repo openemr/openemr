@@ -27,10 +27,10 @@ if ($result = getTransByPid($pid)): ?>
 <thead>
 <tr>
     <th>&nbsp;</th>
-    <th><?php echo xl('Type'); ?></th>
-    <th><?php echo xl('Date'); ?></th>
-    <th><?php echo xl('User'); ?></th>
-    <th><?php echo xl('Details'); ?></th>
+    <th><?php echo xlt('Type'); ?></th>
+    <th><?php echo xlt('Date'); ?></th>
+    <th><?php echo xlt('User'); ?></th>
+    <th><?php echo xlt('Details'); ?></th>
 </tr>
 </thead>
 <tbody>
@@ -45,7 +45,7 @@ foreach ($result as $item):
         $date = date('D F ds', strtotime($item['date']));
     }
     $date = oeFormatShortDate($item['refer_date']);
-    $id = htmlspecialchars($item['id']);
+    $id = $item['id'];
     $edit = xl('Edit');
     $view = xl('View');
     $delete = xl('Delete');
@@ -55,29 +55,29 @@ foreach ($result as $item):
     <td>
         <div class="btn-group pull-left">
             <?php if ($item['title'] == 'LBTref'): ?>
-            <a href='print_referral.php?transid=<?php echo $id?>' onclick='top.restoreSession();'
+            <a href='print_referral.php?transid=<?php echo attr($id); ?>' onclick='top.restoreSession();'
                class='btn btn-view btn-default'>
-                <?php echo $view;?>
+                <?php echo text($view); ?>
             </a>
             <?php endif; ?>
-            <a href='add_transaction.php?transid=<?php echo $id?>&title=<?php echo $title?>&inmode=edit'
+            <a href='add_transaction.php?transid=<?php echo attr($id); ?>&title=<?php echo attr($title); ?>&inmode=edit'
                onclick='top.restoreSession()'
                class='btn btn-default btn-edit'>
-                <?php echo $edit?>
+                <?php echo text($edit); ?>
             </a>
             <?php if (acl_check('admin', 'super')): ?>
-            <a href='../deleter.php?transaction=<?php echo $id?>'
+            <a href='../deleter.php?transaction=<?php echo attr($id); ?>'
                onclick='top.restoreSession()'
                class='btn btn-default btn-delete'>
-                <?php echo $delete?>
+                <?php echo text($delete); ?>
             </a>
             <?php endif; ?>
         </div>
     </td>
     <td><?php echo generate_display_field(['data_type' => 1, 'list_id' => 'transactions'], $item['title']);?></td>
-    <td><?php echo htmlspecialchars($date, ENT_NOQUOTES);?></td>
-    <td><?php echo htmlspecialchars($item['user'], ENT_NOQUOTES);?></td>
-    <td><?php echo htmlspecialchars($item['body'], ENT_NOQUOTES);?></td>
+    <td><?php echo text($date);?></td>
+    <td><?php echo text($item['user']);?></td>
+    <td><?php echo text($item['body']);?></td>
 </tr>
 <?php
 endforeach;

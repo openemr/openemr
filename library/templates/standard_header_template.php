@@ -14,6 +14,7 @@
  *                                         report_helper.js
  *                                         include_opener.js
  *                                         topdialog.js
+ *                                         common.js
  *
  *
  * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
@@ -63,6 +64,9 @@
 <?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("topdialog.js",$include_standard_style_js)) { ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("common.js",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 <?php } ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>

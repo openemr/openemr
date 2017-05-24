@@ -8,10 +8,9 @@ include_once("$srcdir/transactions.inc");
 <html>
 <head>
     <?php
+    $include_standard_style_js = array("common.js");
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
-
-<script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript">
     function toggle( target, div ) {
@@ -39,20 +38,20 @@ include_once("$srcdir/transactions.inc");
 
 <body class="body_top">
     <div class="page-header">
-        <h1><?php echo xl('Patient Transactions');?></h1>
+        <h1><?php echo xlt('Patient Transactions');?></h1>
     </div>
     <div class="btn-group">
         <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
-            <?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></a>
-        <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default" >
-            <?php echo htmlspecialchars( xl('View Blank Referral Form'), ENT_NOQUOTES); ?></a>
+            <?php echo xlt('Add'); ?></a>
+        <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default" onclick="top.restoreSession()">
+            <?php echo xlt('View Blank Referral Form'); ?></a>
     </div>
 
     <div class='text'>
     <?php if ($result = getTransByPid($pid)) { ?>
         <div id='transactions_div'></div>
     <?php } else { ?>
-        <span class="text"><?php echo htmlspecialchars( xl('There are no transactions on file for this patient.'), ENT_NOQUOTES); ?></span>
+        <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
     <?php } ?>
     </div>
 </body>
