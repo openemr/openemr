@@ -234,6 +234,9 @@ $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
 }));
+$twigEnv->addFunction(new Twig_SimpleFunction('acl', function($section, $value, $user = '', $return_value = '') {
+    return acl_check($section, $value, $user, $return_value);
+}));
 
 /** Twig_Loader */
 $GLOBALS['twigLoader'] = $twigLoader;

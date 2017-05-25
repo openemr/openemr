@@ -1,115 +1,33 @@
 <?php
+/**
+ * Patient transactions.
+ *
+ */
 
 
+include_once "../../globals.php";
+include_once "$srcdir/transactions.inc";
+require_once "$srcdir/options.inc.php";
 
-include_once("../../globals.php");
-include_once("$srcdir/transactions.inc");
-require_once("$srcdir/options.inc.php");
-?>
-<html>
-<head>
-    <title><?php echo xlt('Patient Transactions');?></title>
-    <?php
-    $include_standard_style_js = array("common.js");
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
 
-<script type="text/javascript">
-    // Called by the deleteme.php window on a successful delete.
-    function imdeleted() {
-        top.restoreSession();
-        location.href = 'transaction/transactions.php';
+$include_standard_style_js = ['common.js'];
+
+ob_start();
+require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+$header = ob_get_contents();
+
+$result = getTransByPid($pid);
+foreach ($result as $item) {
+    if (!array_key_exists('body', $item)) {
+        $item['body'] = '';
     }
-    // Process click on Delete button.
-    function deleteme(transactionId) {
-        top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + transactionId, '_blank', 500, 450);
-        return false;
-    }
-</script>
-</head>
 
-<body class="body_top">
-    <div class="page-header">
-        <h1><?php echo xlt('Patient Transactions');?></h1>
-    </div>
-    <div class="btn-group">
-        <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
-            <?php echo xlt('Add'); ?></a>
-        <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default" onclick="top.restoreSession()">
-            <?php echo xlt('View Blank Referral Form'); ?></a>
-    </div>
-    <div class="btn-group pull-right">
-        <a href="../summary/demographics.php" onclick="top.restoreSession()" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
-            <?php echo xlt('Back to Patient'); ?></a>
-    </div>
+    $item['refer_date'] = oeFormatShortDate($item['refer_date']);
+    $item['title_field'] = generate_display_field(['data_type' => 1, 'list_id' => 'transactions'], $item['title']);
+}
 
-    <div class='text'>
-        <?php if ($result = getTransByPid($pid)) { ?>
+$viewArgs['transactions'] = $result;
+$viewArgs['header'] = $header;
 
-            <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>&nbsp;</th>
-                    <th><?php echo xlt('Type'); ?></th>
-                    <th><?php echo xlt('Date'); ?></th>
-                    <th><?php echo xlt('User'); ?></th>
-                    <th><?php echo xlt('Details'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                foreach ($result as $item) {
-                    if (!isset($item['body'])) {
-                        $item['body'] = '';
-                    }
-                    if (getdate() == strtotime($item['date'])) {
-                        $date = "Today, " . date('D F ds', strtotime($item['date']));
-                    } else {
-                        $date = date('D F ds', strtotime($item['date']));
-                    }
-                    $date = oeFormatShortDate($item['refer_date']);
-                    $id = $item['id'];
-                    $edit = xl('Edit');
-                    $view = xl('View');
-                    $delete = xl('Delete');
-                    $title = xl($item['title']);
-                    ?>
-                    <tr>
-                        <td>
-                            <div class="btn-group pull-left">
-                                <?php if ($item['title'] == 'LBTref') { ?>
-                                    <a href='print_referral.php?transid=<?php echo attr($id); ?>' onclick='top.restoreSession();'
-                                        class='btn btn-view btn-default'>
-                                        <?php echo text($view); ?>
-                                    </a>
-                                <?php } ?>
-                                <a href='add_transaction.php?transid=<?php echo attr($id); ?>&title=<?php echo attr($title); ?>&inmode=edit'
-                                    onclick='top.restoreSession()'
-                                    class='btn btn-default btn-edit'>
-                                    <?php echo text($edit); ?>
-                                </a>
-                                <?php if (acl_check('admin', 'super')) { ?>
-                                    <a href='#'
-                                        onclick='deleteme(<?php echo attr($id); ?>)'
-                                        class='btn btn-default btn-delete'>
-                                        <?php echo text($delete); ?>
-                                    </a>
-                                <?php } ?>
-                            </div>
-                        </td>
-                        <td><?php echo generate_display_field(['data_type' => 1, 'list_id' => 'transactions'], $item['title']); ?></td>
-                        <td><?php echo text($date); ?></td>
-                        <td><?php echo text($item['user']); ?></td>
-                        <td><?php echo text($item['body']); ?></td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-            </table>
-
-        <?php } else { ?>
-            <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-        <?php } ?>
-    </div>
-</body>
-</html>
+$GLOBALS['twigLoader']->addPath($GLOBALS['template_dir']);
+echo $GLOBALS['twig']->render('/patient_file/transactions/list.html.twig', $viewArgs);

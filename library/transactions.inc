@@ -10,10 +10,17 @@ function getTransById ($id, $cols = "*")
   return $row;
 }
 
-function getTransByPid ($pid, $cols = "*")
+/**
+ * Return list of transactions for a given PID.
+ *
+ * @param mixed $pid PID
+ * @return array
+ */
+function getTransByPid($pid)
 {
-  $res = sqlStatement("select $cols from transactions where pid = ? " .
-    "order by date DESC", array($pid) );
+  $sql = "SELECT * FROM transactions WHERE PID = ? ORDER BY date DESC";
+  $res = sqlStatement($sql, array($pid));
+  $all = [];
   for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
       array($row['id']));

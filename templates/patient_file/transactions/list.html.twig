@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Patient Transactions'|translate }}</title>
+    {{ header|raw }}
+
+    <script type="text/javascript">
+        // Called by the deleteme.php window on a successful delete.
+        function imdeleted() {
+            top.restoreSession();
+            location.href = 'transaction/transactions.php';
+        }
+        // Process click on Delete button.
+        function deleteme(transactionId) {
+            top.restoreSession();
+            dlgopen('../deleter.php?transaction=' + transactionId, '_blank', 500, 450);
+            return false;
+        }
+    </script>
+</head>
+
+<body class="body_top">
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="page-header">
+                <h1>{{ 'Patient Transactions'|translate }}</h1>
+            </div>
+            <div class="btn-group">
+                <a href="../summary/demographics.php" onclick="top.restoreSession()" class="btn btn-default btn-back">
+                    {{ 'Back to Patient'|translate }}</a>
+                <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
+                    {{ 'Add'|translate }}</a>
+                <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default">
+                    {{ 'View Blank Referral Form'|translate }}</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class='col-xs-12'>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th colspan="2">{{ 'Type'|translate }}</th>
+                    <th>{{ 'Date'|translate }}</th>
+                    <th>{{ 'User'|translate }}</th>
+                    <th>{{ 'Details'|translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if transactions|length > 0 %}
+                    {% for row in transactions %}
+                    <tr>
+                        <td>
+                            <div class="btn-group pull-left">
+                                <a href='add_transaction.php?transid={{ row.id|e('html_attr') }}&title={{ row.title|e('html_attr') }}>&inmode=edit'
+                                   onclick='top.restoreSession()'
+                                   class='btn btn-default btn-edit'>
+                                    {{ "Edit"|translate }}
+                                </a>
+                                {% if acl('admin', 'super') %}
+                                    <a href='#'
+                                       onclick='deleteme({{ row.id|e('html_attr') }})'
+                                       class='btn btn-default btn-delete'>
+                                        {{ "Delete"|translate }}
+                                    </a>
+                                {% endif %}
+                                {% if row.title == 'LBTref' %}
+                                    <a href='print_referral.php?transid={{ row.id|e('html_attr') }}' onclick='top.restoreSession();'
+                                       class='btn btn-view btn-default'>
+                                        {{ "View"|translate }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ row.title_field }}</td>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.user }}</td>
+                        <td>{{ row.body }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <span class="lead">{{ 'There are no transactions on file for this patient.'|translate }}</span>
+                        </td>
+                    </tr>
+                {% endif %}
+                    </tbody>
+                </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
