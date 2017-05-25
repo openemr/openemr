@@ -34,16 +34,13 @@ require_once("$srcdir/options.inc.php");
         <h1><?php echo xlt('Patient Transactions');?></h1>
     </div>
     <div class="btn-group">
+        <a href="../summary/demographics.php" onclick="top.restoreSession()" class="btn btn-default btn-back" onclick="top.restoreSession()">
+            <?php echo xlt('Back to Patient'); ?></a>
         <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
             <?php echo xlt('Add'); ?></a>
         <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default" onclick="top.restoreSession()">
             <?php echo xlt('View Blank Referral Form'); ?></a>
     </div>
-    <div class="btn-group pull-right">
-        <a href="../summary/demographics.php" onclick="top.restoreSession()" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
-            <?php echo xlt('Back to Patient'); ?></a>
-    </div>
-
     <div class='text'>
         <?php if ($result = getTransByPid($pid)) { ?>
 
