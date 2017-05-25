@@ -8,6 +8,7 @@ require_once("$srcdir/options.inc.php");
 ?>
 <html>
 <head>
+    <title><?php echo xlt('Patient Transactions');?></title>
     <?php
     $include_standard_style_js = array("common.js");
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
@@ -18,6 +19,12 @@ require_once("$srcdir/options.inc.php");
     function imdeleted() {
         top.restoreSession();
         location.href = 'transaction/transactions.php';
+    }
+    // Process click on Delete button.
+    function deleteme(transactionId) {
+        top.restoreSession();
+        dlgopen('../deleter.php?transaction=' + transactionId, '_blank', 500, 450);
+        return false;
     }
 </script>
 </head>
@@ -31,6 +38,10 @@ require_once("$srcdir/options.inc.php");
             <?php echo xlt('Add'); ?></a>
         <a href="print_referral.php" onclick="top.restoreSession()" class="btn btn-print btn-default" onclick="top.restoreSession()">
             <?php echo xlt('View Blank Referral Form'); ?></a>
+    </div>
+    <div class="btn-group pull-right">
+        <a href="../summary/demographics.php" onclick="top.restoreSession()" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
+            <?php echo xlt('Back to Patient'); ?></a>
     </div>
 
     <div class='text'>
@@ -79,8 +90,8 @@ require_once("$srcdir/options.inc.php");
                                     <?php echo text($edit); ?>
                                 </a>
                                 <?php if (acl_check('admin', 'super')) { ?>
-                                    <a href='../deleter.php?transaction=<?php echo attr($id); ?>'
-                                        onclick='top.restoreSession()'
+                                    <a href='#'
+                                        onclick='deleteme(<?php echo attr($id); ?>)'
                                         class='btn btn-default btn-delete'>
                                         <?php echo text($delete); ?>
                                     </a>
