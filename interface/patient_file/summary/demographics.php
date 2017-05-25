@@ -611,7 +611,7 @@ if ($GLOBALS['patient_id_category_name']) {
           <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
           <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
           |
-          <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
+          <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
           <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
           |
           <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
