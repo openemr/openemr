@@ -10,6 +10,7 @@
  * The $include_standard_style_js supports:
  *                                         jquery-ui (brings in just the js script)
  *                                         jquery-ui-darkness (brings in the darkness style)
+ *                                         jquery-ui-sunny (brings in the sunny style)
  *                                         datetimepicker
  *                                         report_helper.js
  *                                         include_opener.js
@@ -42,6 +43,9 @@
 <?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("jquery-ui-darkness",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/ui-darkness/jquery-ui.min.css">
+<?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("jquery-ui-sunny",$include_standard_style_js)) { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/sunny/jquery-ui.min.css">
 <?php } ?>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
 <?php if (!empty($include_standard_style_js) && in_array("datetimepicker",$include_standard_style_js)) { ?>
