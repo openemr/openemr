@@ -1103,6 +1103,8 @@ return array(
     'OFX' => $baseDir . '/library/classes/OFX.class.php',
     'ORDataObject' => $baseDir . '/library/classes/ORDataObject.class.php',
     'OTLdump' => $vendorDir . '/mpdf/mpdf/classes/otl_dump.php',
+    'OpenEMR\\Core\\BaseRenderer' => $baseDir . '/library/core/src/render/BaseRenderer.php',
+    'OpenEMR\\Core\\Header' => $baseDir . '/library/core/src/render/Header.php',
     'OpenEMR\\Encounter\\Services\\ViewHelper' => $baseDir . '/interface/patient_file/encounter/Services/ViewHelper.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
     'PDF_Label' => $baseDir . '/library/classes/PDF_Label.php',

@@ -4,12 +4,34 @@
 # won't work (Need to build in proper error handling @TODO RD 2017-05-16
 #
 # Example usage:
-#assets: Top-level key name
-#    asset-short-name: Short name
-#        basePath: %assets_static_relative%/full/path/to/deepest/common/file
-#        script: null filename or null
-#        link: jquery-ui.min.css filename or null
+# assets: Top-level key name
+#     asset-short-name: Short name
+#         basePath: %assets_static_relative%/full/path/to/deepest/common/file
+#         script: null filename or null
+#         link: jquery-ui.min.css filename or null
+#         autoload: true (defaults to false)
 assets:
+    jquery:
+        basePath: %assets_static_relative%/jquery-3-1-1/
+        script: index.js
+        autoload: true
+    bootstrap:
+        basePath: %assets_static_relative%/bootstrap-3-3-4/dist/
+        script: js/bootstrap.min.js
+        link: css/bootstrap.min.css
+        autoload: true
+    fontawesome:
+        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
+        link: font-awesome.min.css
+        autoload: true
+    textformat:
+        basePath: %webroot%/library/
+        script: textformat.js
+        autoload: true
+    dialog:
+        basePath: %webroot%/library/
+        script: dialog.js
+        autoload: true
     jquery-ui-darkness:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
         link: jquery-ui.min.css
@@ -23,20 +45,3 @@ assets:
     report_helper:
         basePath: %webroot%/library/js/
         script: report_helper.js
-assets_autoload:
-    jquery:
-        basePath: %assets_static_relative%/jquery-3-1-1/
-        script: index.js
-    bootstrap:
-        basePath: %assets_static_relative%/bootstrap-3-3-4/dist
-        script: js/bootstrap.min.js
-        link: css/bootstrap.min.css
-    fontawesome:
-        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
-        link: font-awesome.min.css
-    textformat:
-        basePath: %webroot%/library
-        script: textformat.js
-    dialog:
-        basePath: %webroot%/library
-        script: dialog.js

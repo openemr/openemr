@@ -72,6 +72,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'O' => 
         array (
             'OpenEMR\\Encounter\\Services\\' => 27,
+            'OpenEMR\\Core\\' => 13,
         ),
         'I' => 
         array (
@@ -168,6 +169,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Encounter\\Services\\' => 
         array (
             0 => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services',
+        ),
+        'OpenEMR\\Core\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/core/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -1363,6 +1368,8 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OFX' => __DIR__ . '/../..' . '/library/classes/OFX.class.php',
         'ORDataObject' => __DIR__ . '/../..' . '/library/classes/ORDataObject.class.php',
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
+        'OpenEMR\\Core\\BaseRenderer' => __DIR__ . '/../..' . '/library/core/src/render/BaseRenderer.php',
+        'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/render/Header.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
