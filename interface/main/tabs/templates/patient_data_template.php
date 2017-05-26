@@ -62,7 +62,7 @@
             </div>
             <!-- ko if: encounterArray().length > 0 -->
             <br>
-            <div class="btn-group">
+            <div class="btn-group dropdown">
                 <button class="btn btn-default btn-sm dropdown-toggle"
                         type="button" id="pastEncounters"
                         data-toggle="dropdown"
@@ -74,18 +74,17 @@
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
-                    <li>
-                        <div>
-                            <a href="#" class="btn btn-xs btn-link pull-left"
-                               data-bind="click:reviewEncounterEvent" style="display: inline-block;">
-                            <i class="fa fa-folder-o"></i>&nbsp;<?php echo xlt("Review");?>
-                        </a>
-                        <a href="#" class="pull-right" data-bind="click:chooseEncounterEvent" style="display: inline-block;">
+                    <li style="display: inline-flex;">
+                        <a href="#" class="btn btn-sm btn-link"
+                            data-bind="click:chooseEncounterEvent">
+                            <i class="fa fa-folder-o"></i>&nbsp;
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
                         </a>
-                        <div class="clearfix"></div>
-                        </div>
+                        <a href="#" class="btn btn-xs btn-link"
+                            data-bind="click:reviewEncounterEvent">
+                            <i class="fa fa-list-ul"></i>&nbsp;<?php echo xlt("Review");?>
+                        </a>
                     </li>
                     <!-- /ko -->
                 </ul>
