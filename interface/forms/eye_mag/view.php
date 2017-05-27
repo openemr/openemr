@@ -842,7 +842,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   </div>
                   <br />
                   <input type="checkbox" name="alert" id="alert" <?php if ($alert) echo "checked='checked'"; ?> value="1">
-                  <label for="alert" class="input-helper input-helper--checkbox"><?php echo xlt('Alert'); ?></label><br />
+                  <label for="alert" class="input-helper input-helper--checkbox"><?php echo xlt('Alert{{Mental Status}}'); ?></label><br />
                   <input type="checkbox" name="oriented" id="oriented" <?php if ($oriented) echo "checked='checked'"; ?> value="1">
                   <label for="oriented" class="input-helper input-helper--checkbox"><?php echo xlt('Oriented TPP{{oriented to person and place}}'); ?></label><br />
                   <input type="checkbox" name="confused" id="confused" <?php if ($confused) echo "checked='checked'"; ?> value="1">
