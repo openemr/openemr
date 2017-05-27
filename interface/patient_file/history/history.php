@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * View history of a patient.
+ *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
  require_once("../../globals.php");
@@ -12,6 +16,7 @@
 ?>
 <html>
 <head>
+    <title><?php echo xl("History"); ?></title>
     <?php
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
@@ -25,64 +30,63 @@ $(document).ready(function(){
 </head>
 <body class="body_top">
 
-<?php
- if (acl_check('patients','med')) {
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-   echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
-   echo "</body>\n</html>\n";
-   exit();
-  }
- }
- else {
-  echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
- }
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <?php
+            if (acl_check('patients','med')) {
+                $tmp = getPatientData($pid, "squad");
+                if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+                    echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
+                    echo "</body>\n</html>\n";
+                    exit();
+                }
+            }
+            else {
+                echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
+                echo "</body>\n</html>\n";
+                exit();
+            }
 
- $result = getHistoryData($pid);
- if (!is_array($result)) {
-  newHistoryData($pid);
-  $result = getHistoryData($pid);
- }
-?>
+            $result = getHistoryData($pid);
+            if (!is_array($result)) {
+                newHistoryData($pid);
+                $result = getHistoryData($pid);
+            }
+            ?>
 
-<?php if (acl_check('patients','med','',array('write','addonly') )) { ?>
-<div class="page-header">
-    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
-</div>
-<div>
-<div class="btn-group">
-    <a href="../summary/demographics.php" class="btn btn-default" onclick="top.restoreSession()">
-        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
-    </a>
-    <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
-        <?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?>
-    </a>
-</div>
-</div>
-<br/>
-<?php } ?>
-
-<div style='float:none; margin-top: 10px; margin-right:20px'>
-    <table>
-    <tr>
-        <td>
+            <?php if (acl_check('patients','med','',array('write','addonly') )) { ?>
+                <div class="page-header">
+                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
+                            <?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?>
+                        </a>
+                        <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
+                            <?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?>
+                        </a>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+        <div class="col-xs-12" style="margin-top: 20px;">
             <!-- Demographics -->
             <div id="HIS">
                 <ul class="tabNav">
-                   <?php display_layout_tabs('HIS', $result, $result2); ?>
+                    <?php display_layout_tabs('HIS', $result, $result2); ?>
                 </ul>
                 <div class="tabContainer">
-                   <?php display_layout_tabs_data('HIS', $result, $result2); ?>
+                    <?php display_layout_tabs_data('HIS', $result, $result2); ?>
                 </div>
             </div>
-        </td>
-    </tr>
-    </table>
+        </div>
+    </div>
 </div>
 
-<script language='JavaScript'>
+
+<script type="text/javascript">
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo $condition_str; ?>
