@@ -172,7 +172,6 @@ function delete_document($document) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
     <?php
     $include_standard_style_js = array("include_opener.js");
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";

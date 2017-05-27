@@ -76,7 +76,6 @@ if ($form_patient == '' ) $form_pid = '';
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Patient Flow Board Report'); ?></title>
 

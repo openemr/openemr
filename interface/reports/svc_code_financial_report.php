@@ -68,8 +68,6 @@ $grand_total_amt_balance  = 0;
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
 <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
-<?php html_header_show();?>
-
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {

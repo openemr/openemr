@@ -33,7 +33,6 @@ require_once "$srcdir/report_database.inc";
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 

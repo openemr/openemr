@@ -31,7 +31,6 @@ require_once "$srcdir/clinical_rules.php";
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Alerts Log'); ?></title>
 

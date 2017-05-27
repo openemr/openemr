@@ -130,7 +130,7 @@ $res = sqlStatement($query);
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('Encounters Report'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>

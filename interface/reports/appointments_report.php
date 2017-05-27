@@ -112,7 +112,6 @@ function fetch_reminders($pid, $appt_date) {
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Appointments Report'); ?></title>
 

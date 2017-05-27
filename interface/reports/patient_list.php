@@ -54,7 +54,7 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Patient List','e'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>

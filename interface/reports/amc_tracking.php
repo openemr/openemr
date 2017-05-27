@@ -37,7 +37,6 @@ $provider  = trim($_POST['form_provider']);
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC) Tracking'), ENT_NOQUOTES); ?></title>
 

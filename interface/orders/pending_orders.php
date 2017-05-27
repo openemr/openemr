@@ -86,7 +86,6 @@ else { // not export
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <title><?php xl('Pending Orders','e') ?></title>
 

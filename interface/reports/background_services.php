@@ -28,7 +28,6 @@ require_once("../globals.php");
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 

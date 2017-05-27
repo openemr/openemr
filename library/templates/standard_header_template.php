@@ -36,6 +36,9 @@
  * @link    http://www.open-emr.org
  */
 ?>
+
+<?php html_header_show(); // this is a function that is used as a hook by some for customization ?>
+
 <link rel="stylesheet" href="<?php echo $GLOBALS['css_header'];?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
