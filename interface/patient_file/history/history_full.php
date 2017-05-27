@@ -217,54 +217,59 @@ div.tab {
 </head>
 <body class="body_top">
 
-<?php
-$result = getHistoryData($pid);
-if (!is_array($result)) {
-  newHistoryData($pid);
-  $result = getHistoryData($pid);
-}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <?php
+            $result = getHistoryData($pid);
+            if (!is_array($result)) {
+              newHistoryData($pid);
+              $result = getHistoryData($pid);
+            }
 
-$fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'HIS' AND uor > 0 " .
-  "ORDER BY group_name, seq");
-?>
+            $fres = sqlStatement("SELECT * FROM layout_options " .
+              "WHERE form_id = 'HIS' AND uor > 0 " .
+              "ORDER BY group_name, seq");
+            ?>
 
-<?php
-/*Get the constraint from the DB-> LBF forms accordinf the form_id*/
-$constraints = LBF_Validation::generate_validate_constraints("HIS");
-?>
-<script> var constraints = <?php echo $constraints;?>; </script>
+            <?php
+            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+            $constraints = LBF_Validation::generate_validate_constraints("HIS");
+            ?>
+            <script> var constraints = <?php echo $constraints;?>; </script>
 
-<form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
-    <input type='hidden' name='mode' value='save'>
+            <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
+                <input type='hidden' name='mode' value='save'>
 
-    <div class="page-header">
-        <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
-    </div>
-    <div class="btn-group">
-        <a href="history.php" class="btn btn-link" onclick="top.restoreSession()">
-            <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?>
-        </a>
-        <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e');?></button>
-    </div>
+                <div class="page-header">
+                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
+                </div>
+                <div class="btn-group">
+                    <a href="history.php" class="btn btn-link" onclick="top.restoreSession()">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?>
+                    </a>
+                    <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e');?></button>
+                </div>
 
-    <br/>
+                <br/>
 
-    <!-- history tabs -->
-    <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
-        <ul class="tabNav" >
-           <?php display_layout_tabs('HIS', $result, $result2); ?>
-        </ul>
+                <!-- history tabs -->
+                <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
+                    <ul class="tabNav" >
+                       <?php display_layout_tabs('HIS', $result, $result2); ?>
+                    </ul>
 
-        <div class="tabContainer">
-            <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
+                    <div class="tabContainer">
+                        <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
+                    </div>
+                </div>
+            </form>
+
+            <!-- include support for the list-add selectbox feature -->
+            <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
         </div>
     </div>
-</form>
-
-<!-- include support for the list-add selectbox feature -->
-<?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
-
+</div>
 </body>
 
 <script language="JavaScript">
