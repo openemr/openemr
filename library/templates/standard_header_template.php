@@ -3,9 +3,15 @@
  *
  * This is to standardize the header to ease ui standardization for developers.
  *
- * Example code in script:
+ * Example code in pure php script:
  *    $include_standard_style_js = array("datetimepicker"); (php command and optional)
  *    require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; (php command)
+ *
+ * Examples of code in smarty script (uses plugin wrapper at library/smarty/plugins/function.headerTemplate.php):
+ *    {headerTemplate}  (this will bring in all the standard stuff)
+ *    {headerTemplate assets='datetimepicker'}  (standard stuff plus 1 optional assets)
+ *    {headerTemplate assets='datetimepicker|report_helper.js'}  (standard stuff plus multiple optional assets. ie. via | delimiter)
+ *
  *
  * The $include_standard_style_js supports:
  *                                         jquery-ui (brings in just the js script)
