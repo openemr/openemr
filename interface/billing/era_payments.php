@@ -82,6 +82,10 @@ function era_callback(&$out) {
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
+
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
@@ -188,8 +192,8 @@ document.onclick=HideTheAjaxDivs;
   </tr>
   <tr>
     <td colspan="3" align="left" >
-    <table width="455" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="435" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+    <table width="455" border="0" cellspacing="0" cellpadding="10" class = "tabs_body" bgcolor="#DEDEDE"><tr><td>
+	<table width="435" border="0" style="border:1px solid" class="divider" cellspacing="0" cellpadding="0">
 	  <tr height="5">
 	    <td width="5"  align="left" ></td>
 		<td width="85"  align="left" ></td>
@@ -235,8 +239,8 @@ document.onclick=HideTheAjaxDivs;
 		<table width="335" border="0" cellspacing="0" cellpadding="0">
 			  <tr>
 				<td width="280">
-				<input type="hidden" id="hidden_ajax_close_value" value="<?php echo formData('type_code') ?>" /><input name='type_code'  id='type_code' class="text "
-				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo formData('type_code') ?>"  autocomplete="off"   /><br>
+				<input type="hidden" id="hidden_ajax_close_value" value="<?php echo formData('type_code') ?>" /><input name='type_code'  id='type_code' type="text" class="text "
+				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo formData('type_code') ?>"  autocomplete="off"   /><br> 
 				<!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
 					<div id='ajax_div_insurance_section'>
 					<div id='ajax_div_insurance_error'>

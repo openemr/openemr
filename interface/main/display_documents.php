@@ -23,7 +23,10 @@
  * @link    http://www.open-emr.org
  */
 
-
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
@@ -211,7 +214,7 @@ $display_collapse_msg = "display:inline;";
 	?>
 
 	<table border="1" cellpadding=3 cellspacing=0>
-	<tr class='text bold'>
+	<tr class='head text bold'>
 		<th align="left" width="10%"><?php echo xlt('Date'); ?></th>
 		<th align="left" class="linkcell" width="20%" ><?php echo xlt('Name'); ?></th>
 		<th align="left" width="20%"><?php echo xlt('Patient'); ?></th>

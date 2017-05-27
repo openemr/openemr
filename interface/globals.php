@@ -4,7 +4,6 @@
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 use OpenEMR\Checker;
-use Dotenv\Dotenv;
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {
@@ -200,20 +199,6 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
-
-/**
- * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
- *
- * This allows to define a "development" environment which can then load up
- * different variables and reporting/debugging functionality. Should be used in
- * development only, not for production
- *
- * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
- */
-if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = new Dotenv($webserver_root);
-    $dotenv->load();
-}
 
 // @TODO This needs to be broken out to it's own function, but for time's sake
 // @TODO putting it here until we land on a good place. RD 2017-05-02
@@ -467,7 +452,7 @@ $GLOBALS['logoBarHeight'] = 110;
 // The height in pixels of the Navigation bar:
 $GLOBALS['navBarHeight'] = 22;
 // The height in pixels of the Title bar:
-$GLOBALS['titleBarHeight'] = 40;
+$GLOBALS['titleBarHeight'] = 50;
 
 // The assistant word, MORE printed next to titles that can be clicked:
 //   Note this label gets translated here via the xl function
@@ -535,8 +520,7 @@ if (!$ignoreAuth) {
 
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
-$GLOBALS['layout_search_color'] = '#ffff55';
-
+$GLOBALS['layout_search_color'] = '#ff9919'; //RP_MODIFIED 7/8/2016
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
