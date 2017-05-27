@@ -34,7 +34,7 @@ require_once("$srcdir/patient.inc");
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Front Office Receipts','e'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>

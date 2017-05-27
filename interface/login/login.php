@@ -33,7 +33,6 @@ require_once("../globals.php");
 ?>
 <html>
 <head>
-    <?php html_header_show();?>
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 

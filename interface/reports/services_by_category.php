@@ -24,7 +24,6 @@ if (empty($_REQUEST['include_uncat']))
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 
 <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
 <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>

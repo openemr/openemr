@@ -83,7 +83,6 @@ else {
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <?php if ($type_report == "standard") { ?>
   <title><?php echo xlt('Standard Measures'); ?></title>

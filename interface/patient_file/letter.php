@@ -303,7 +303,6 @@ while ($srow = sqlFetchArray($sres)) {
 
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt('Letter Generator'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker","topdialog.js"); ?>

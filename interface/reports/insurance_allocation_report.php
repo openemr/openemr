@@ -52,7 +52,7 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Patient Insurance Distribution','e'); ?></title>
 
 <?php $include_standard_style_js = array("datetimepicker"); ?>
