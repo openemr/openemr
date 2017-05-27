@@ -173,7 +173,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'font-family' => [
-            xl('Default font'),
+            xl('Default font (need to logout/login after change this setting)'),
             [
                 '__default__' => 'Use Theme Font',
                 'Arial, Helvetica, sans-serif' => "Arial",
@@ -183,14 +183,14 @@ $GLOBALS_METADATA = array(
                 'Tahoma, Geneva, sans-serif' => "Tahoma",
                 '"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
                 'Verdana, Geneva, sans-serif' => "Verdana",
-                //'Lato' => "Lato",
+                'lato' => "Lato",
             ],
             '__default__',
             xl('Select the default font'),
         ],
 
         'font-size' => [
-            xl('Default font size'),
+            xl('Default font size (need to logout/login after change this setting)'),
             [
                 '__default__' => 'Use Theme Font Size',
                 '10pt' => '10pt',
