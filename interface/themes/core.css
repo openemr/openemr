@@ -16,8 +16,9 @@
 }
 
 .form-control {
-    width: auto;
-    display: inline;
+    width: auto !important;
+    display: inline !important;
+    height: auto !important;
 }
 
 .css_button[href*="deleter"]:before,
