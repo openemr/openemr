@@ -16,8 +16,9 @@
 }
 
 .form-control {
-    width: auto;
-    display: inline;
+    width: auto !important;
+    display: inline !important;
+    height: auto !important;
 }
 
 .css_button[href*="deleter"]:before,
@@ -74,5 +75,5 @@ button[href*="deleter"]:before {
 }
 
 .btn-back::before {
-    content: '\f060\00a0\00a0';
+    content: '\f053\00a0\00a0';
 }

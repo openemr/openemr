@@ -731,6 +731,9 @@ ul.tabNav a {
   padding: 8px 17px;
   text-decoration: none;
 }
+ul.tabNav a:focus {
+  outline: none;
+}
 
 div.tabContainer {
   clear: both;
