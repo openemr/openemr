@@ -15,12 +15,6 @@
     src: url("../../public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
 }
 
-.form-control {
-    width: auto !important;
-    display: inline !important;
-    height: auto !important;
-}
-
 .css_button[href*="deleter"]:before,
 input[type="button"][href*="deleter"]:before,
 button[href*="deleter"]:before {

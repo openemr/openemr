@@ -207,6 +207,11 @@ $(document).ready(function(){
 </script>
 
 <style type="text/css">
+.form-control {
+    width: auto;
+    display: inline;
+    height: auto;
+}
 div.tab {
 	height: auto;
 	width: auto;
