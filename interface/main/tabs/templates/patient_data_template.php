@@ -31,7 +31,7 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: patient -->
-                    <a class="btn btn-xs btn-link" href="#" class="clear" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
+                    <a class="btn btn-xs btn-link clear" href="#" data-bind="click:clearPatient" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
