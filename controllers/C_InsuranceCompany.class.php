@@ -14,6 +14,7 @@ class C_InsuranceCompany extends Controller {
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&");
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+		$this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims'] );
 		$this->InsuranceCompany = new InsuranceCompany();
 	}
 
