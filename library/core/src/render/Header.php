@@ -26,6 +26,11 @@ use Symfony\Component\Yaml\Exception\ParseException;
 class Header
 {
 
+    static public function setupHeader($assets)
+    {
+        echo self::includeAsset($assets);
+    }
+
     /**
      * Include an asset from a config file.
      *
@@ -70,20 +75,27 @@ class Header
 
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $script = (isset($opts['script'])) ? $opts['script'] : false;
-            $link = (isset($opts['link'])) ? $opts['link'] : false;
-
+            $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
             if ($autoload === true || in_array($k, $assets)) {
-                $basePath = self::replaceBasePathVariables($opts['basePath']);
+                $tmp = self::buildAsset($opts);
 
-                if ($script) {
-                    $path = self::createFullPath($basePath, $script);
-                    $scripts[] = self::createElement($path, 'script');
+                foreach ($tmp['scripts'] as $s) {
+                    $scripts[] = $s;
                 }
 
-                if ($link) {
-                    $path = self::createFullPath($basePath, $link);
-                    $links[] = self::createElement($path, 'link');
+                foreach ($tmp['links'] as $l) {
+                    $links[] = $l;
+                }
+
+                if ($rtl) {
+                    $tmpRtl = self::buildAsset($rtl);
+                    foreach ($tmpRtl['scripts'] as $s) {
+                        $scripts[] = $s;
+                    }
+
+                    foreach ($tmpRtl['links'] as $l) {
+                        $links[] = $l;
+                    }
                 }
             }
         }
@@ -91,6 +103,28 @@ class Header
         $linksStr = implode("", $links);
         $scriptsStr = implode("", $scripts);
         return "\n{$linksStr}\n{$scriptsStr}\n";
+    }
+
+    static private function buildAsset($opts)
+    {
+        $script = (isset($opts['script'])) ? $opts['script'] : false;
+        $link = (isset($opts['link'])) ? $opts['link'] : false;
+        $basePath = self::replaceBasePathVariables($opts['basePath']);
+
+        $scripts = [];
+        $links = [];
+
+        if ($script) {
+            $path = self::createFullPath($basePath, $script);
+            $scripts[] = self::createElement($path, 'script');
+        }
+
+        if ($link) {
+            $path = self::createFullPath($basePath, $link);
+            $links[] = self::createElement($path, 'link');
+        }
+
+        return ['scripts' => $scripts, 'links' => $links];
     }
 
     static private function loadTheme()

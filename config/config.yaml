@@ -20,6 +20,9 @@ assets:
         script: js/bootstrap.min.js
         link: css/bootstrap.min.css
         autoload: true
+        rtl:
+            basePath: %assets_static_relative%/bootstrap-rtl-3-3-4/dist
+            link: css/bootstrap-rtl.css
     fontawesome:
         basePath: %assets_static_relative%/font-awesome-4-6-3/css/
         link: font-awesome.min.css
