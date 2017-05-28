@@ -34,7 +34,7 @@ class Header
      * @var array|string $assets Asset(s) to include
      * @return void
      */
-    static public function setupHeader($assets)
+    static public function setupHeader($assets = [])
     {
         echo self::includeAsset($assets);
     }
@@ -65,7 +65,7 @@ class Header
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    static public function includeAsset($assets)
+    static public function includeAsset($assets = [])
     {
 
         if (is_string($assets)) {
