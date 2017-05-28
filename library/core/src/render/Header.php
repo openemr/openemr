@@ -50,7 +50,7 @@ class Header
      *
      * @param array|string $assets Asset(s) to include
      * @throws ParseException If unable to parse the config file
-     * @return void
+     * @return string
      */
     static public function includeAsset($assets)
     {
@@ -59,50 +59,36 @@ class Header
             $assets = [$assets];
         }
 
-        try {
-            $file = "{$GLOBALS['webroot']}/config/config.yaml";
-            $config = Yaml::parse(file_get_contents($file));
-            $map = $config['assets'];
-        } catch (ParseException $e) {
-            error_log($e->getMessage());
-            // @TODO need to handle this better. RD 2017-05-24
-        }
+        // @TODO Hard coded the path to the config file, not good RD 2017-05-27
+        $map = self::readConfigFile("{$GLOBALS['webroot']}/config/config.yaml");
 
         $scripts = [];
         $links = [];
+        $toParse = [];
 
-        // First grab the autoloaded files
-        foreach ($map as $asset) {
-            if (array_key_exists('autoload', $asset) && $asset['autoload'] === true) {
-                $basePath = self::replaceBasePathVariables($asset['basePath']);
-                if (array_key_exists('script', $asset)) {
-                    $path = self::createFullPath($basePath, $asset['script']);
+        foreach ($map as $k => $opts) {
+            $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
+            $script = (isset($opts['script'])) ? $opts['script'] : false;
+            $link = (isset($opts['link'])) ? $opts['link'] : false;
+
+            if ($autoload === true || in_array($k, $assets)) {
+                $basePath = self::replaceBasePathVariables($opts['basePath']);
+
+                if ($script) {
+                    $path = self::createFullPath($basePath, $script);
                     $scripts[] = self::createElement($path, 'script');
-                } elseif (array_key_exists('link', $asset)) {
-                    $path = self::createFullPath($basePath, $asset['link']);
-                    $links[] = self::createElement($path, 'css');
+                }
+
+                if ($link) {
+                    $path = self::createFullPath($basePath, $link);
+                    $links[] = self::createElement($path, 'link');
                 }
             }
         }
 
-        foreach ($assets as $asset) {
-            if (array_key_exists($asset, $map)) {
-                $row = $map["{$asset}"];
-                $basePath = self::replaceBasePathVariables($row['basePath']);
-
-                if (array_key_exists('script', $row)) {
-                    $path = self::createFullPath($basePath, $row['script']);
-                    $scripts[] = self::createElement($path, 'script');
-                } elseif (array_key_exists('link', $row)) {
-                    $path = self::createFullPath($basePath, $row['link']);
-                    $links[] = self::createElement($path, 'css');
-                }
-            }
-        }
-
-        echo implode("", $links);
-        echo implode("", $scripts);
-
+        $linksStr = implode("", $links);
+        $scriptsStr = implode("", $scripts);
+        return "\n{$linksStr}\n{$scriptsStr}\n";
     }
 
     static private function replaceBasePathVariables($basePath)
@@ -140,6 +126,17 @@ class Header
     static private function createFullPath($base, $path)
     {
         return $base . $path;
+    }
+
+    static private function readConfigFile($file)
+    {
+        try {
+            $config = Yaml::parse(file_get_contents($file));
+            return $config['assets'];
+        } catch (ParseException $e) {
+            error_log($e->getMessage());
+            // @TODO need to handle this better. RD 2017-05-24
+        }
     }
 
 }

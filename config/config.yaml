@@ -25,11 +25,11 @@ assets:
         link: font-awesome.min.css
         autoload: true
     textformat:
-        basePath: %webroot%/library/
+        basePath: %srcdir%
         script: textformat.js
         autoload: true
     dialog:
-        basePath: %webroot%/library/
+        basePath: %srcdir%
         script: dialog.js
         autoload: true
     jquery-ui-darkness:
@@ -43,5 +43,5 @@ assets:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/
         script: jquery-ui.min.js
     report_helper:
-        basePath: %webroot%/library/js/
+        basePath: %srcdir%/js/
         script: report_helper.js
