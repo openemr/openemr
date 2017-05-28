@@ -12,7 +12,7 @@
 #         autoload: true (defaults to false)
 assets:
     jquery:
-        basePath: %assets_static_relative%/jquery-3-1-1/
+        basePath: %assets_static_relative%/jquery-min-3-1-1/
         script: index.js
         autoload: true
     bootstrap:
@@ -28,11 +28,11 @@ assets:
         link: font-awesome.min.css
         autoload: true
     textformat:
-        basePath: %srcdir%
+        basePath: %webroot%/library/
         script: textformat.js
         autoload: true
     dialog:
-        basePath: %srcdir%
+        basePath: %webroot%/library/
         script: dialog.js
         autoload: true
     jquery-ui-darkness:
@@ -46,5 +46,5 @@ assets:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/
         script: jquery-ui.min.js
     report_helper:
-        basePath: %srcdir%/js/
+        basePath: %webroot%/library/js/
         script: report_helper.js
