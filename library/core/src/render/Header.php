@@ -26,6 +26,14 @@ use Symfony\Component\Yaml\Exception\ParseException;
 class Header
 {
 
+    /**
+     * Setup various header requirements.
+     *
+     * Helper to do more than one thing to a header, currently only includes assets
+     *
+     * @var array|string $assets Asset(s) to include
+     * @return void
+     */
     static public function setupHeader($assets)
     {
         echo self::includeAsset($assets);
@@ -105,7 +113,13 @@ class Header
         return "\n{$linksStr}\n{$scriptsStr}\n";
     }
 
-    static private function buildAsset($opts)
+    /**
+     * Build an html element from config options.
+     *
+     * @var array $opts Options
+     * @return array Array with `scripts` and `links` keys which contain arrays of elements
+     */
+    static private function buildAsset($opts = array())
     {
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
@@ -132,6 +146,13 @@ class Header
         return self::createElement($GLOBALS['css_header'], 'link');
     }
 
+    /**
+     * String replacement in the basePath key, allowing use of $GLOBAL in config
+     *
+     *
+     * @param string $basePath Base path containing placeholders (%key-name%)
+     * @return string The new base path with properly replaced keys
+     */
     static private function replaceBasePathVariables($basePath)
     {
         $re = '/%(.*)%/';
@@ -166,11 +187,24 @@ class Header
 
     }
 
+    /**
+     * Create a full path from given parts.
+     *
+     * @param string $base Base path
+     * @param string $path specific path / filename
+     * @return string The full path
+     */
     static private function createFullPath($base, $path)
     {
         return $base . $path;
     }
 
+    /**
+     * Read a config file and turn it into an array.
+     *
+     * @param string $file Full path to filename
+     * @return array Array of assets
+     */
     static private function readConfigFile($file)
     {
         try {
