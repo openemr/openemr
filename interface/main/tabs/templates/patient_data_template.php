@@ -75,15 +75,12 @@
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
                     <li style="display: inline-flex;">
-                        <a href="#" class="btn btn-sm btn-link"
-                            data-bind="click:chooseEncounterEvent">
-                            <i class="fa fa-folder-o"></i>&nbsp;
+                        <a href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
                         </a>
-                        <a href="#" class="btn btn-xs btn-link"
-                            data-bind="click:reviewEncounterEvent">
-                            <i class="fa fa-list-ul"></i>&nbsp;<?php echo xlt("Review");?>
+                        <a href="#" data-bind="click:reviewEncounterEvent">
+                            <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review");?>
                         </a>
                     </li>
                     <!-- /ko -->
