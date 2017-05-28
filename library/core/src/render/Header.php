@@ -125,7 +125,8 @@ class Header
 
     static private function createFullPath($base, $path)
     {
-        return $base . $path;
+        $v = $GLOBALS['v_js_includes'];
+        return $base . $path . "?v={$v}";
     }
 
     static private function readConfigFile($file)
