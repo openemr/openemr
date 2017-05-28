@@ -34,7 +34,7 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: therapy_group -->
-                    <a class="btn btn-xs btn-link clear" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
+                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
