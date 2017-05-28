@@ -15,6 +15,7 @@
  *
  * The $include_standard_style_js supports:
  *                                         tabs-theme
+ *                                         bootstrap-sidebar
  *                                         jquery-ui (brings in just the js script)
  *                                         jquery-ui-darkness (brings in the darkness style)
  *                                         jquery-ui-sunny (brings in the sunny style)
@@ -55,6 +56,9 @@
 <?php if (!empty($include_standard_style_js) && in_array("tabs-theme",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $GLOBALS['v_js_includes']; ?>"/>
 <?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("bootstrap-sidebar",$include_standard_style_js)) { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-sidebar-0-2-2/dist/css/sidebar.css">
+<?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("jquery-ui-darkness",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/ui-darkness/jquery-ui.min.css">
 <?php } ?>
@@ -68,6 +72,9 @@
 
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+<?php if (!empty($include_standard_style_js) && in_array("bootstrap-sidebar",$include_standard_style_js)) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-sidebar-0-2-2/dist/js/sidebar.js"></script>
+<?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("knockout",$include_standard_style_js)) { ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <?php } ?>
